@@ -1,0 +1,16 @@
+% Order of the probe sites in the recording file
+channels = 1:120;
+
+% Site location in micrometers (x and y)
+geometry = zeros(128, 2);
+geometry(1:2:end,1) = 0;
+geometry(2:2:end,1) = 30;
+geometry(1:2:end,2) = 20*(0:63);
+geometry(2:2:end,2) = geometry(1:2:end,2);
+
+% Reference sites are being excluded
+ref_sites = [1 18 33 50 65 82 97 114];
+geometry(ref_sites,:) = []; 
+
+% Recording contact pad size in micrometers. Height x width
+pad = [12 12];

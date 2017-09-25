@@ -1,0 +1,12 @@
+% Order of the probe sites in the recording file
+channels = 1:6;
+
+% Site location in micrometers (x and y)
+geometry = [0 10 20 20 10 0; 0 0 10 10 20 20]';
+
+% Reference sites are being excluded
+pad = [12 12];
+
+% Default prm
+maxSite = 2.5;
+um_per_pix = 20;

@@ -1,0 +1,15 @@
+% Order of the probe sites in the recording file
+channels = [16:-1:1]; %[(16:-1:1), (27:-1:17), (48:-1:33), (59:-1:49)];
+
+% Site location, x (first column)
+nSites = numel(channels);
+site_x = zeros(nSites, 1);
+site_y = zeros(nSites, 1);
+
+site_x(1:2:16) = 0;
+site_x(2:2:16) = 22;
+site_y(1:16) = (0:15) * 12.5;
+geometry = [site_x(:), site_y(:)];
+
+% Recording contact pad size in micrometers. Height x width
+pad = [15 11];

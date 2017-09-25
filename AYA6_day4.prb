@@ -1,0 +1,20 @@
+% Order of the probe sites in the recording file
+channels = 1:256;
+
+% Site location in micrometers (x and y)
+geometry = zeros(256, 2);
+nCh_shank = 32;
+vi32 = 1:nCh_shank;
+geometry(:,2) = repmat((0:nCh_shank-1)'*50, [8,1]);
+toVec = @(x)x(:);
+geometry(:,1) = toVec(bsxfun(@times, [0:200:1400], ones(nCh_shank,1)));
+
+% Reference sites are being excluded
+ref_sites = [];
+channels(ref_sites) = []; 
+geometry(ref_sites,:) = []; 
+
+% Recording contact pad size in micrometers. Height x width
+pad = [15 11];
+shank = 1:8; shank = repmat(shank, [32,1]); shank=shank(:);
+

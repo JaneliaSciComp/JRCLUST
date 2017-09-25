@@ -1,0 +1,27 @@
+% Order of the probe sites in the recording file
+channels = [25 26 27 28 29 30 4 31 5 32 6 1 7 2 8 3]; 
+
+% Site coordinate (x,y) in micrometers
+geometry = [...
+    0,  0;
+    22, 12.5;
+    0,  25;
+    22, 37.5;
+    0,  50;
+    22, 62.5;
+    0,  75;
+    22, 87.5;
+    0,  100;
+    22, 112.5;
+    0,  125;
+    22, 137.5;
+    0,  150;
+    22, 162.5;
+    0, 	175;
+    22, 187.5];
+
+% Recording contact pad size in micrometers. Height x width
+pad = [15 11];
+
+% Single shank contains site 1-16
+shank = ones(1,16); 

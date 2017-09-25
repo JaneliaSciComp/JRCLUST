@@ -1,0 +1,14 @@
+channels = 1 + [103	106	102	109	101	104	100	107	99	115	98	105	97	117	96	116	95	119	94	118	93	121	92	120	91	123	90	122	89	125	88	124	87	127	86	126	70	71	72	73	66	67	68	69	84	74	65	64	82	76	85	75	80	78	83	77	108	114	81	79	110	112	111	113	47	49	46	48	45	51	44	50	43	53	42	52	41	55	40	54	1	2	38	56	61	62	63	0	57	58	59	60	36	4	39	3	34	6	37	5	32	8	35	7	30	10	33	9	28	12	31	11	26	14	29	13	24	21	27	15	22	19	25	18	20	16	23];
+geometry = zeros(numel(channels), 2); %x,y
+vi1 = 1:4:numel(channels);
+geometry(vi1, 1) = 22.5*0;
+geometry(vi1+1, 1) = 22.5*1;
+geometry(vi1+2, 1) = 22.5*2;
+geometry(vi1+3, 1) = 22.5*3;
+geometry(vi1, 2) = (0:numel(vi1)-1) * 22.5;
+geometry(vi1+1, 2) = geometry(vi1, 2);
+geometry(vi1+2, 2) = geometry(vi1, 2);
+geometry(vi1+3, 2) = geometry(vi1, 2);
+geometry(end,:)=[]; %128 site probe
+
+pad = [20 20]; %in micrometers, height x width. circle.

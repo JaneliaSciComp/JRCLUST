@@ -1,0 +1,14 @@
+% catalin30.prb. two column
+
+channels = 1:30;
+
+nChans = numel(channels);
+geometry = zeros(nChans, 2);
+geometry(1:2:end,1) = 0;
+geometry(2:2:end,1) = 22;
+
+vi1 = 1:2:nChans;
+geometry(vi1,2) = 22*(vi1-1);
+geometry(vi1+1,2) = 22*(vi1-1);
+
+pad = [12 12]; %in micrometers, height x width

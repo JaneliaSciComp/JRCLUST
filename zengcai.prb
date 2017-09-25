@@ -1,0 +1,21 @@
+% Order of the probe sites in the recording file
+channels = [[7,  9, 11, 14, 16, 64, 15, 62, 13, 60, 12, 59, 10, 61,  8, 63], [6,  2, 53, 54, 51, 50, 52, 57, 30, 55,  3, 58,  5, 56, 1, 43], [27, 31,29, 4, 41, 49, 42, 45, 39, 47, 40, 46, 28, 48, 32, 44], [26, 24, 22, 19, 17, 33, 18, 35, 20, 37, 21, 38, 23, 36, 25, 34]];
+
+% Site location in micrometers (x and y)
+vi16 = 1:16;
+geometry(vi16(1:2:end), 1) = 0;
+geometry(vi16(2:2:end), 1) = 21.65;
+geometry(vi16+16, 1) = geometry(vi16, 1) + 250;
+geometry(vi16+32, 1) = geometry(vi16, 1) + 500;
+geometry(vi16+48, 1) = geometry(vi16, 1) + 750;
+
+% Map y coordinates
+geometry(vi16, 2) = (vi16-1) * 25/2;
+geometry(vi16+16, 2) = (vi16-1) * 25/2;
+geometry(vi16+32, 2) = (vi16-1) * 25/2;
+geometry(vi16+48, 2) = (vi16-1) * 25/2;
+
+% Recording contact pad size in micrometers. Height x width
+pad = [15 11];
+
+shank = ones(size(channels)); shank(17:32)=2; shank(33:48)=3; shank(49:64)=4;

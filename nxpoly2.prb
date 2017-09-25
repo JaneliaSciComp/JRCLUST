@@ -1,0 +1,14 @@
+% Order of the probe sites in the recording file
+channels = 1:32; %1 most superficial
+
+% Site location in micrometers (x and y)
+geometry = zeros(32, 2);
+geometry(1:2:end,1) = 0;
+geometry(2:2:end,1) = 50;
+geometry(1:2:end,2) = (15.5:-1:.5)*50;
+geometry(2:2:end,2) = (15:-1:0)*50;
+
+% Recording contact pad size in micrometers. Height x width
+pad = [15 15]; %circle
+
+cviShank = {1:32};

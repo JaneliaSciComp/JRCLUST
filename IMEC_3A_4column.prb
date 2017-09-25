@@ -1,0 +1,25 @@
+% IMEC_3A_4column
+
+%channels = 1:60;
+channels = [1:4:60; 3:4:60; 2:4:60; 4:4:60]; channels = channels(:);
+
+nChans = numel(channels);
+geometry = zeros(nChans, 2);
+
+% x pos
+geometry(1:4:end,1) = 1;
+geometry(2:4:end,1) = 33;
+geometry(3:4:end,1) = 17;
+geometry(4:4:end,1) = 49;
+
+% y pos
+vi1 = 1:floor(nChans/4);
+geometry(1:4:end,2) = 40*(vi1-1) + 750;
+geometry(2:4:end,2) = geometry(1:4:end,2);
+geometry(3:4:end,2) = 40*(vi1-1) + 750+20;
+geometry(4:4:end,2) = geometry(3:4:end,2);
+
+pad = [12 12]; %in micrometers, height x width
+
+% Shank group per site
+%shank = ones(4,15); shank([2,4],:) = 2; shank=shank(:);

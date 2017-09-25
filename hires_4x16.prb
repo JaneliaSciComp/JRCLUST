@@ -1,0 +1,19 @@
+% Four shank Hires 16x4 probe, 64 channels chronic
+
+channels = 1+[ [54 57 55 56 52 59 53 58 51 61 50 60 49 63 48 62], [9 6 8 7 11 4 10 5 12 2 13 3 14 0 15 1], [25 22 24 23 27 20 26 21 29 19 28 18 31 17 30 16], [38 41 39 40 36 43 37 42 34 44 35 45 32 46 33 47]];
+
+vi16 = 1:16;
+geometry(vi16, 1) = [0, 7, -9, 7+2.75, -9-2.75, 7+2.75*2, -9-2.75*2, 7+2.75*3, -9-2.75*3, 7+2.75*4, -9-2.75*4, 7+2.75*5, -9-2.75*5, 7+2.75*6, -9-2.75*6, 7+2.75*7];
+geometry(vi16, 2) = [0:21:315];
+geometry(vi16+16,1) = geometry(vi16,1) + 250;
+geometry(vi16+16,2) = geometry(vi16,2);
+geometry(vi16+16*2,1) = geometry(vi16,1) + 250*2;
+geometry(vi16+16*2,2) = geometry(vi16,2);
+geometry(vi16+16*3,1) = geometry(vi16,1) + 250*3;
+geometry(vi16+16*3,2) = geometry(vi16,2);
+
+
+pad = [16 10]; %in micrometers, height x width
+shank = [ones(1,16), 2*ones(1,16), 3*ones(1,16), 4*ones(1,16)];
+nSites_ref = 2;
+maxSite = 3;

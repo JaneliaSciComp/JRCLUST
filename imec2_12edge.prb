@@ -1,0 +1,33 @@
+channels = 1 + [ ...
+    40  103 39	104	41	102	38	105	42	101	37	106	43	100	36	107 ...
+    44	99	35	108	45	98	34	109	46	97	33	110	47	96	32	111 ...
+    48	127	63	112	49	126	62	113	50	125	61	114	51	124	60	115	...
+    52	116	59	123	53	117	58	122	54	118	57	121	55	119	56	120	...
+    8	71	7	72	9	70	6	73	10	74	5	69	11	75	4	68 ...	
+    12	76	3	67	13	77	2	66	14	78	1	65	15	79	0	64 ...	
+    16	80	31	95	17	81	30	94	18	82	29	93	19	83	28	92 ...	
+    20	84	27	91	21	85	26	90	22	86	25	89	23	87	24	88];
+
+geometry = zeros(128, 2);
+geometry(1:2:end,1) = 0;
+geometry(2:2:end,1) = 30;
+geometry(1:2:end,2) = 20*(0:63) + 1800*0;
+geometry(2:2:end,2) = 20*(0:63) + 1800*1;
+
+pad = [12 12]; %in micrometers, height x width
+
+% exclude ref. sites
+ref_sites = [1 18 33 50 65 82 97 114];
+channels(ref_sites) = []; 
+geometry(ref_sites,:) = []; 
+
+% Group the channel display order
+viA = find(geometry(:,2) < 1800);
+viB = find(geometry(:,2) >= 1800);
+geometry0 = geometry;
+channels0 = channels;
+geometry(1:60,:) = geometry0(viA,:);
+geometry(61:end,:) = geometry0(viB,:);
+channels(1:60) = channels0(viA);
+channels(61:end) = channels0(viB);
+

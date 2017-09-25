@@ -1,0 +1,78 @@
+% Default parameters for jrclust (default.prm)
+% James Jun, 2017 Feb 7
+
+
+% Recording file format
+vcFile = '';			% raw file path (D:\Chronic2\ANM305341\20150828-1915-A2.bin)
+csFile_merge = {'sample.bin', 'sample.bin'};          % list of files to merge if running batch
+probe_file = 'sample.prb';			% probe file 
+nChans = 130;			% # channels stored
+vcDataType = 'int16';			% raw data format
+sRateHz = 25000;			% sampling rate
+uV_per_bit = 0.305176;			% uV per bit resolution
+vcFile_prm = 'sample_sample_merge.prm';			
+viChan_bin = [];            % channel translation order for bin file
+viChan_aux = [];            % aux and sync channels
+vcDate_file = '28-Aug-2015 20:17:35';			% date string. e.g. '19-May-2016 13:02:18'
+nBytes_file = 1950000000;			% file byte size
+duration_file = 300;			% recording duration in seconds
+cviShank = {};              % Shank channel group
+fTranspose_bin = 1;         % file ordered by channels first and time second (whisper format)
+template_file = '';         % use template file to copy settings
+fInverse_file = 0;          % flip polarity of set to one
+
+% Execution parameters
+version = '2017-0721';			% JRCLUST version
+fVerbose = 0;			
+fParfor = 1;			% Use Multiple cores
+fGpu = 1;			% Use GPU
+iGpu = 1;			% Use specific GPU
+MAX_BYTES_LOAD = [];			% default load size is 1 GB
+MAX_LOAD_SEC = [];			% Load 60s in the memory at a time
+MAX_LOG = 10;			% Number of histories to store
+
+% Display parameters (Affects display only, *:changeable in the UI)
+tlim = [0, 0.2];			% Time range to display 
+nTime_traces = 1;			% Number of time segments to display. Set to 1 to show one continuous time segment
+nSkip_show = 1;			% Show 1 in n samples when plotting traces
+fSpike_show = 1;			% show spikes in the trace view (*)
+maxAmp = 250;			% Amplitude range in uV (initial setting, changeable in UI) (*)
+nShow = 200;			% Maximum number of traces to show [D?# spikes to show]
+corrLim = [0.9, 1];			% Correlation color plot range
+nSpk_show = 30;			% show spike waveforms for manual clustering
+nShow_proj = 500;			% Max. number of spikes to show in the projection view
+vcFet_show = 'vpp';			% Feature to show in time plot {'vpp', 'cov', 'pca'} (*)
+mrColor_proj = [0.75, 0.75, 0.75; 0, 0, 0; 1, 0, 0];			% background, selected, comparison color
+vcFilter_show = '';			% Filter to apply in the "traces" view. Choices: {'', 'bandpass', 'sgdiff'}. '' uses vcFilter setting.
+% Pre-processing (run "jrc spikesort" after change)
+tlim_load = [];			% Time range to load in sec (uses all time range if set to empty)
+vcFilter = 'sgdiff';			% {'bandpass', 'sgdiff'} @TODO: sgdiff: Savitzky-Golay first order differentiation filter
+nDiff_filt = 2;			% Differentiation filter for vcFilter='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
+freqLim = [300, 3000];			% Frequency cut-off limit for vcFilter='bandpass', ignored otherwise. 
+filtOrder = 3;			% Bandpass filter order
+fEllip = 1;			% Use Elliptic filter. set to 0 for Butterworth filter. Only valid for vcFilter='bandpass'.
+fft_thresh = 0;			% Automatically remove frequency outliers (unit:MAD, 20 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
+freqLimNotch = {};			% Notch filter frequency range to exclude manually. {[start1, end1], [start2, end2]}. Can be used in conjunction with fft_thresh.
+vcCommonRef = 'mean';			% common reference mode {'none', 'mean'} %deprecated: 'nmean', 'median', 'none', 'holtzman', 'trimmean', 'tmean'}
+viSiteZero = [];			% Site# to ignore manually
+nPad_filt = 100;			% Number of samples to overlap between multiple loading (filter edge safe).
+gain_boost = 1;			% multiply the raw recording by this gain to boost uV per bit
+
+% Spike detection and grouping (run "jrc spikesort" after change)
+qqFactor = 5;			% Spike detection thresold (Threshold = qqFactor*S, S = med(x-med(x))/.6745). (RQ Quiroga'04).
+qqSample = 4;			% Median subsample factor (1 every n)
+spkThresh_uV = [];			% Manual threshold (applies to all channels)
+spkThresh_max_uV = [];			% maximum absolute amp. allowed
+spkLim_ms = [-0.25, 0.75];			% Spike waveform time range
+maxSite = 6.5;			% Max number of sites (nSpikes_spk = 1+2*maxSite-nSite_ref), nSpikes_spk*nFet_spk<=30
+spkRefrac_ms = 0.5;			% Detection refractory period
+refrac_factor = 2;			% Refractory period for the same channel  (spkRefrac_ms x refrac_factor)
+vcSpatialFilter = 'none';			% Spatial filter for detection {'mean', 'imec2', 'subtract', 'csd'}
+fSaveEvt = 1;			% Flag to save event file
+fDetectBipolar = 0;			% bipolar amplitude detection (0 means negative)
+fSaveRawSpk = 0;			% Save spike detected per site (saves minimum peak)
+blank_thresh = [];			% reject spikes exceeding the channel mean after filtering (MAD unit), ignored if [] or 0
+blank_period_ms = 5;			% (miliseconds) Duration of blanking when the common mean exceeds a threhold (blank_thresh)
+nneigh_min_detect = 1;			% Min. number of neighbors near the spike below threshold. choose between [0,1,2]
+maxDist_site_um = 50;			% Radius of spike event merging. Keep spikes that has most negative peaks within x um radius.
+

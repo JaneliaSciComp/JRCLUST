@@ -1,0 +1,9 @@
+nSites = 64;
+
+channels = 0 + [nSites:-1:1];
+
+geometry = zeros(nSites, 2);
+geometry(:,1) = 0;
+geometry(:,2) = 20*(0:nSites-1);
+
+pad = [12 12]; %in micrometers, height x width

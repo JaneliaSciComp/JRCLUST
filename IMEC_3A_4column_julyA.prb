@@ -1,0 +1,22 @@
+% IMEC_3A_4column
+
+channels = 1:60;
+
+nChans = numel(channels);
+geometry = zeros(nChans, 2);
+
+% x pos
+geometry(1:4:end,1) = -23;
+geometry(2:4:end,1) = 9;
+geometry(3:4:end,1) = -7;
+geometry(4:4:end,1) = 25;
+geometry(:,1) = geometry(:,1); %choose same depth preferentially
+
+% y pos
+vi1 = 1:floor(nChans/4);
+geometry(1:4:end,2) = 40*(vi1-1) + 750;
+geometry(2:4:end,2) = geometry(1:4:end,2);
+geometry(3:4:end,2) = 40*(vi1-1) + 750 + 20;
+geometry(4:4:end,2) = geometry(3:4:end,2);
+
+pad = [12 12]; %in micrometers, height x width

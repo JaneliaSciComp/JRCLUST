@@ -1,0 +1,13 @@
+% Four shank SI probe from APIG
+% Acute Neuronexus four shank zigzag six shank. 
+
+channels = 1+[30 58 24 50 6 56 0 48 2 54];
+geometry = zeros(numel(channels), 2);
+geometry(:,2)=[9 8 7 6 5 4 3 2 1 0] * 20;
+geometry(:,1)=[-8 8 -7 7 -6 6 -5 5 -4 0] * 2; %assume linear vertical array
+pad = [16 12]; %in micrometers, height x width
+
+% rearrange in bottom-top order
+[~, viSiteSrt] = sort(geometry(:,2));
+channels = channels(viSiteSrt);
+geometry = geometry(viSiteSrt,:);

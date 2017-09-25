@@ -1,0 +1,24 @@
+% Order of the probe sites in the recording file
+channels = 32 + (1:128);
+
+% Site location in micrometers (x and y)
+geometry = zeros(128, 2);
+geometry(1:2:end,1) = 0;
+geometry(2:2:end,1) = 28;
+geometry(1:2:end,2) = 20*(0:63);
+geometry(2:2:end,2) = geometry(1:2:end,2);
+
+% Reference sites are being excluded
+% ref_sites = [1 18 33 50 65 82 97 114];
+% channels(ref_sites) = []; 
+% geometry(ref_sites,:) = []; 
+
+% Recording contact pad size in micrometers. Height x width
+pad = [12 12];
+
+% Default prm
+maxSite = 4.5;
+um_per_pix = 20;
+
+% Shanks
+% shank = ones(size(channels)); shank(geometry(:,1)>0)=2;

@@ -1,0 +1,11 @@
+nSites = 64;
+
+channels = 1 + [48 49 50 51 53 52 55 54 57 56 59 58 61 60 63 62 15 14 13 12 10 11 8 9 6 7 4 5 2 3 0 1 30 31 28 29 26 27 24 25 22 23 20 21 19 18 17 16 33 32 35 34 37 36 39 38 41 40 43 42 44 45 46 47];
+channels = fliplr(channels);
+
+
+geometry = zeros(nSites, 2);
+geometry(:,1) = 0;
+geometry(:,2) = 20*(0:nSites-1);
+
+pad = [12 12]; %in micrometers, height x width

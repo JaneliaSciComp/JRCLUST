@@ -1,0 +1,11 @@
+channels = 1:64;
+
+geometry = zeros(64, 2);
+geometry(:,2) = 25*(0:63);
+geometry(:,1) = 0;
+
+pad = [12 12]; %in micrometers, height x width
+shank = ones(1,64);
+
+maxSite = 3;
+nSites_ref = 2;

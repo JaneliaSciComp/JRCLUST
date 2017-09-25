@@ -1,0 +1,27 @@
+% Order of the probe sites in the recording file
+channels = 1:384;
+
+% Site location in micrometers (x and y)
+geometry = zeros(384, 2);
+viHalf = 0:(384/2-1);
+geometry(1:2:end,2) = viHalf * 20;
+geometry(2:2:end,2) = geometry(1:2:end,2);
+geometry(1:4:end,1) = 0;
+geometry(2:4:end,1) = 32;
+geometry(3:4:end,1) = 16;
+geometry(4:4:end,1) = 48;
+
+% Reference sites are being excluded
+%ref_sites = [37 76 113 152 189 228 265 304 341 380];
+%geometry(ref_sites,:) = []; 
+%channels(ref_sites) = []; 
+
+% Recording contact pad size in micrometers. Height x width
+pad = [12 12];
+
+% Default prm
+maxSite = 4.5;
+um_per_pix = 20;
+nChans = 384;
+sRateHz = 30000;
+uV_per_bit = 2.3438;			% uV per bit resolution @ 500x gain

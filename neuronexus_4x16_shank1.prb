@@ -1,0 +1,16 @@
+% Four shank NN 4x16 probe, 64 channels
+
+dx = 23;
+dy = 23;
+
+channels = 1+[ 21 20 22 32 23 19 26 34 27 17 31 36 29 16 18 25 ]; % Wheel room mapping
+%channels = 1+[ 5 4 6 16 7 3 10 18 11 1 15 20 13 0 2 9 ]; % Behavior room mapping
+
+vi16 = 1:16;
+geometry = zeros(16,2);
+geometry(1:2:end,1) = 0;
+geometry(2:2:end,1) = dx;
+geometry(:,2) = 345-(0:15)*dy;
+
+pad = [10 10]; %in micrometers, height x width
+cviShank = {vi16};

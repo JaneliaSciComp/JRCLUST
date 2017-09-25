@@ -1,0 +1,10 @@
+% catalin15.prb. single column
+
+channels = 1:15;
+
+nChans = numel(channels);
+geometry = zeros(nChans, 2);
+vi1 = 1:nChans;
+geometry(:,2) = 22*(vi1-1);
+
+pad = [12 12]; %in micrometers, height x width

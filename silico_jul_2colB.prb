@@ -1,0 +1,13 @@
+% Order of the probe sites in the recording file, 32 gap
+channels = zeros(1,60);
+%channels(1:2:end) = 1:4:120; channels(2:2:end) = 3:4:120;  %Type A
+channels(1:2:end) = 2:4:120; channels(2:2:end) = 4:4:120;  %Type B
+
+% Site location in micrometers (x and y)
+geometry = zeros(60, 2); viHalf = 0:29;
+geometry(1:2:end,2) = viHalf * 20; geometry(2:2:end,2) = viHalf * 20;
+%geometry(1:2:end,1) = 0;    geometry(2:2:end,1) = 32; %Type A
+geometry(1:2:end,1) = 16;    geometry(2:2:end,1) = 48; %Type B
+
+% Recording contact pad size in micrometers. Height x width
+pad = [12 12];

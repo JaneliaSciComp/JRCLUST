@@ -1,0 +1,27 @@
+% Order of the probe sites in the recording file
+channels = [nan 24 26 29 32 35 37 nan, ...
+            21 22 25 30 31 36 39 40, ...
+            19 20 23 28 33 38 41 42, ...
+            16 17 18 27 34 43 44 45, ...
+            15 14 13 4  57 48 47 46, ...
+            12 11 8  3  58 53 50 49, ...
+            10 9  6  1  60 55 52 51, ...
+            nan 7 5 2 59 56 54 nan];
+
+% Default prm
+um_per_pix = 200;
+
+% Site location in micrometers (x and y)
+geometry = zeros(64, 2);
+x_ = repmat((0:7)', [1,8]) * um_per_pix;
+y_ = repmat((0:7), [8,1]) * um_per_pix;
+geometry = [x_(:), y_(:)];
+
+% Reference sites are being excluded
+ref_sites = [1, 8, 57, 64];
+channels(ref_sites) = []; 
+geometry(ref_sites,:) = []; 
+
+% Recording contact pad size in micrometers. Height x width
+pad = [30 30];
+

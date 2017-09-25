@@ -1,0 +1,18 @@
+% Z Gao 32 channel probe
+% ASSY-37W-DBC 1.1 & 1.2-A  (Wire Bonded Variation)
+
+channels = 1 + [28 19 27 20 17 26 30 21 18 25 29 22 24 23 16 31 12 3 11 4 1 10 14 5 2 9 13 6 8 7 0 15];
+
+% Site location in micrometers (x and y)
+vi16 = 1:16;
+geometry(vi16, 1) = -1*[0, 7, -9, 7+2.75, -9-2.75, 7+2.75*2, -9-2.75*2, 7+2.75*3, -9-2.75*3, 7+2.75*4, -9-2.75*4, 7+2.75*5, -9-2.75*5, 7+2.75*6, -9-2.75*6, 7+2.75*7];
+geometry(vi16, 2) = [0:21:315];
+geometry(vi16+16,1) = geometry(vi16,1) + 250;
+geometry(vi16+16,2) = geometry(vi16,2);
+
+% Recording contact pad size in micrometers. Height x width
+pad = [16 10];
+
+shank = [repmat(1,[1,16]), repmat(2,[1,16])];
+maxSite = 3;
+nSites_ref = 2;

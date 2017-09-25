@@ -1,0 +1,15 @@
+channels = 1+[42 39 63 24 44 19 26 38 37 21 43 36 41 40 20 28 47 32 27 18 46 22 31 16 34 35 17 33 45 29 25 30, 60 2 61 50 62 1 14 6 15 0 9 49 13 4 23 48 3 11 55 54 59 52 10 58 8 53 5 51 7 56 57 12];
+geometry = zeros(64, 2);
+
+% first shank
+vi32 = 1:32;
+vi32_a = 1:4:32;
+geometry(vi32,1) = toVec(repmat(25*(0:3), [1,8]));
+geometry(vi32,2) = toVec(repmat(25*(0:7), [4,1]));
+
+% sescond shank
+geometry(vi32+32,1) = geometry(vi32,1) + 250;
+geometry(vi32+32,2) = geometry(vi32,2);
+
+pad = [12 12]; %in micrometers, height x width
+shank = [ones(1, 32), 2*ones(1,32)];

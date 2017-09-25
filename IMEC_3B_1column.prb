@@ -1,0 +1,15 @@
+% IMEC_3B_1column.prb
+
+channels = 1:2:60;
+
+geometry = zeros(numel(channels), 2);
+
+% x pos
+geometry(:,1) = 1;
+%geometry(:,1) = 17;
+
+% y pos
+vi1 = 1:numel(channels);
+geometry(:,2) = 20*(vi1-1) + 750;
+
+pad = [12 12]; %in micrometers, height x width

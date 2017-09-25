@@ -1,0 +1,17 @@
+% Order of the probe sites in the recording file
+% silico360_2colB_12.prb
+
+iLayer = 1; iCol1 = 2;   iCol2 = 4;
+channels = sub2ind([30,4,1], toRow(repmat(1:30,[2,1])), toRow([repmat(iCol1,[1,30]); repmat(iCol2,[1,30])]), repmat(iLayer,[1,60]));
+
+% Site location in micrometers (x and y)
+geometry = zeros(60, 2);
+geometry(1:2:60,1) = -23 + 16*(iCol1-1);
+geometry(2:2:60,1) = -23 + 16*(iCol2-1);
+geometry(:,2) = toRow(repmat(750 + (0:29)*20, [2,1]));
+
+% Recording contact pad size in micrometers. Height x width
+pad = [12 12];
+
+% Default prm
+um_per_pix = 20;

@@ -1,0 +1,34 @@
+% Order of the probe sites in the recording file
+channels = 65+[16, 31, 17, 30, 18, 29, 26, 19, 22, 28, 25, 20, 23, 27, 24, 21, 5, 11, 2, 4, 14, 12, 1, 3, 15, 13, 0, 45, 33, 46, 32, 47, 63, 60, 48, 51, 62, 59, 49, 52, 61, 58, 50, 39, 40, 36, 38, 43, 41, 35, 37, 44, 42, 34];
+
+% Site location, x (first column)
+nSites = numel(channels);
+site_x = zeros(nSites, 1);
+site_y = zeros(nSites, 1);
+
+site_x(1:2:16) = 0;
+site_x(2:2:16) = 22;
+site_x(17:2:27) = 250;
+site_x(18:2:27) = 250 + 22;
+site_x(28:2:43) = 500;
+site_x(29:2:43) = 500+22;
+site_x(44:2:54) = 750;
+site_x(45:2:54) = 750 + 22;
+
+site_y(1:16) = (0:15) * 12.5;
+site_y(17:27) = (0:10) * 12.5;
+site_y(28:43) = (0:15) * 12.5;
+site_y(44:54) = (0:10) * 12.5;
+
+geometry = [site_x(:), site_y(:)];
+
+% Recording contact pad size in micrometers. Height x width
+pad = [15 11];
+
+% select shank
+cviShank = {1:16, 16+(1:11), 27+(1:16), 43+(1:11)};
+iShank = 1;
+channels = channels(cviShank{iShank});
+geometry = geometry(cviShank{iShank},:);
+
+
