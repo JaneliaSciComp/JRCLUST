@@ -23,6 +23,7 @@ setpath_();
 fExit = 1;
 switch lower(vcCmd)
     % No arguments
+    case 'version', jrc_version_();
     case {'help', '-h', '?', '--help'}, help_(); about_();
     case 'clear', clear_(vcArg1);
     case 'doc', doc_();
@@ -236,6 +237,8 @@ csHelp = {...
     '    Open a JRCLUST Wiki webpage (hosted on Github.com)';     
     '  jrc doc';
     '    Open a help document (pdf)';         
+    '  jrc version';
+    '    Display the version number and the updated date';            
     '';
     '[Main commands]';
     '  jrc edit (myparam.prm)';
@@ -10297,10 +10300,6 @@ if fZipFile
     fprintf('Zip file creation took %0.1f\n', toc(t1));
     close_(hMsg);    
     msgbox_('Update the Dropbox link for www.jrclust.org');
-%     delete_(csFiles_jrc3_full);
-%     rmdir([vcDir, 'kilosort'], 's');
-else
-    msgbox_('Zip files to jrc3.zip and update the Dropbox link for www.jrclust.org');
 end
 end %func
 
@@ -16585,4 +16584,14 @@ mrCor = int16(-sqrt(mrCor));
 % figure; 
 % subplot 121; imagesc(mrWav1(1:2000,:));
 % subplot 122; imagesc(((mrCor1(1:2000,:))));
+end %func
+
+
+%--------------------------------------------------------------------------
+function [vcVer, vcDate] = jrc_version_()
+vcVer = 'v0.3.2';
+vcDate = '9/26/2017';
+if nargout==0
+    fprintf('%s, updated on %s\n', vcVer, vcDate);
+end
 end %func

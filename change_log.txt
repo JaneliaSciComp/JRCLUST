@@ -10,6 +10,8 @@ Added "jrc wiki" command.
   It opens a JRCLUST wiki webpage, a new home for the JRCLUST documentation.
 Unit test is expanded.
   "jrc preview" GUI is added.
+"jrc version" command is added.
+  It displays the current version and the date updated.
 
 [2017/9/17]
 Bugfix: Program crashed when the number of clusters were less than 7.
