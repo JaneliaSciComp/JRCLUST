@@ -14,6 +14,7 @@ sRateHz = 25000;            % sampling rate
 uV_per_bit = 0.305176;      % uV per bit resolution
 fTranspose_bin = 1;         % file ordered by channels first and time second (whisper format) [Document format specifier]
 fInverse_file = 0;          % flip polarity of set to one
+header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % Execution parameters
 version = '2017-0721';      % JRCLUST version
