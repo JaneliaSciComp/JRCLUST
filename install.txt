@@ -40,36 +40,36 @@ Written by J. James Jun, Apr 5, 2017
   For CUDA 6.5, the path is "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin"
 6. Run Nsight Monitor > Nsight Monitor options (bottom right) > set "WDDM TDR enabled" to false.  
 
-[JRCLUST installation from Dropbox, for Janelia researchers and collaborators only]
+[Installation from Dropbox, for Janelia researchers and collaborators only]
 1. Copy jrclust folder in the Dropbox folder (e.g. "C:\Dropbox\jrclust") to another location (e.g. "C:\jrclust_user").
 2. Start Matlab and "cd" to the copied location (e.g. "C:\jrclust_user").
-3. Run "jrc2 install".
+3. Run "jrc install".
 4. Edit "path_dropbox" in "user.cfg" and specify the path to the dropbox folder containing JRCLUST (e.g. "C:\Dropbox\jrclust").
-  You can update JRCLUST by running "jrc2 update".
+  You can update JRCLUST by running "jrc update".
 
-[JRCLUST installation from jrc2.zip downloaded from www.jrclust.org]
-1. Download jrc2.zip and unzip.
-2. Start Matlab and "cd" to the unzipped location(eg. "C:\jrc2\").
-3. Run "jrc2 install".
-4. To update, you need to download jrc2.zip from the website.
+[Installation from the zip file]
+1. Download jrc3.zip from www.jrclust.org and unzip (or the latest jrc version).
+2. Start Matlab and "cd" to the unzipped location(e.g. "C:\jrc3\").
+3. Run "jrc install".
+4. To update, you need to download jrc3.zip from www.jrclust.org (or the latest version).
 
 [Test using the included sample data]
 1. Download sample data by running
-  >jrc2 download sample
+  >jrc download sample
 1. Create a new parameter file
-  >jrc2 makeprm sample.bin sample.prb
+  >jrc makeprm sample.bin sample.prb
   This creates "sample_sample.prm" file. 
 2. Display the raw traces
-  >jrc2 traces sample_sample.prm
+  >jrc traces sample_sample.prm
   or you can also run
-  >jrc2 traces
+  >jrc traces
   You can omit sample_sample.prm since JRCLUST remembers the current parameter file.
-  Run "jrc2 clear" to clear the JRCLUST memory.
+  Run "jrc clear" to clear the JRCLUST memory.
 3. Run spike sorting
-  >jrc2 spikesort
+  >jrc spikesort
 4. Manual verification/sorting
-  >jrc2 manual
+  >jrc manual
 6. You can clear the memory and delete all output files for a given parameter file by running
-  >jrc2 clear sample_sample.prm
+  >jrc clear sample_sample.prm
 7. To test the full suite, run
-  >jrc2 unit-teset
+  >jrc unit-test

@@ -5,7 +5,7 @@
 % Recording file format
 vcFile = '';			% raw file path (D:\Chronic2\ANM305341\20150828-1915-A2.bin)
 csFile_merge = {'sample.bin', 'sample.bin'};          % list of files to merge if running batch
-probe_file = 'sample.prb';			% probe file 
+probe_file = '.\prb\sample.prb';			% probe file 
 nChans = 130;			% # channels stored
 vcDataType = 'int16';			% raw data format
 sRateHz = 25000;			% sampling rate

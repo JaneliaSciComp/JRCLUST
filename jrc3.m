@@ -29,6 +29,7 @@ switch lower(vcCmd)
     case 'update', update_(vcArg1);
     case 'install', install_();
     case 'commit', commit_(vcArg1);
+    case 'wiki', web('https://github.com/jamesjun/JRCLUST/wiki'); 
         
     case 'which', return;    
     case 'download', download_(vcArg1);
@@ -102,7 +103,8 @@ P = loadParam_(vcFile_prm);
 if isempty(P), return; end    
 fError = 0;
 switch lower(vcCmd)    
-    case 'preview', preview_(P);
+    case 'preview', preview_(P); 
+    case 'preview-test', preview_(P, 1); gui_test_(P, 'Fig_preview');
     case 'traces', traces_(P, 0, vcArg2);
     case 'dir', dir_files_(P.csFile_merge);
     case 'traces-test'
@@ -223,111 +225,121 @@ end %func
 function csHelp = help_()
 csHelp = {...
     ''; 
-    'Usage: jrc3 command arg1 arg2 ...';
+    'Usage: jrc command arg1 arg2 ...';
+    '  jrc calls the latest jrclust version (currently jrc3.m)';
+    '  You can also run "jrc3 command ..." to explicitly specify the version number.';
+    '';
+    '[Documentation and help]';
+    '  jrc help';
+    '    Display a help menu'; 
+    '  jrc wiki';
+    '    Open a JRCLUST Wiki webpage (hosted on Github.com)';     
+    '  jrc doc';
+    '    Open a help document (pdf)';         
     '';
     '[Main commands]';
-    '  jrc3 edit (myparam.prm)';
+    '  jrc edit (myparam.prm)';
     '    Edit .prm file currently working on'; 
-    '  jrc3 clear';
+    '  jrc clear';
     '    Clear cache';
-    '  jrc3 clear myparam.prm';
+    '  jrc clear myparam.prm';
     '    Delete previous results (files: _jrc.mat, _spkwav.jrc, _spkraw.jrc, _spkfet.jrc)';        
-    '  jrc3 doc';
-    '    Open jrc3 documentation';     
-    '  jrc3 spikesort myparams.prm';
+    '  jrc doc';
+    '    Open jrc documentation';     
+    '  jrc spikesort myparams.prm';
     '    Run the whole suite (spike detection and clustering) ';
-    '  jrc3 detect myparams.prm';
+    '  jrc detect myparams.prm';
     '    Run spike detection and extract spike waveforms';
     '    Output files: _jrc.mat, _spkwav.jrc (filtered spike waveforms), _spkraw.jrc (raw spike waveforms), _spkfet.jrc (features)';
-    '  jrc3 sort myparams.prm';
+    '  jrc sort myparams.prm';
     '    Cluster spikes (after spike detection)';
     '    Output files: _jrc.mat';
-    '  jrc3 auto myparams.prm';
+    '  jrc auto myparams.prm';
     '    Recluster spikes after updating post-clustering paramters';
-    '  jrc3 download sample';
+    '  jrc download sample';
     '    Download sample data from Neuropix phase 2 probe';
-    '  jrc3 probe {myprobe.prb, myparams.prm}';
+    '  jrc probe {myprobe.prb, myparams.prm}';
     '    Plot probe layout'; 
-    '  jrc3 makeprm myrecording.bin myprobe.prb';
+    '  jrc makeprm myrecording.bin myprobe.prb';
     '    create a new parameter file based on the default template file (default.prm) and probe file';
-    '  jrc3 makeprm myrecording.bin myprobe.prb mytemplate.prm';
+    '  jrc makeprm myrecording.bin myprobe.prb mytemplate.prm';
     '    create a new parameter file based on the specified template file and probe file';    
-    '  jrc3 traces myparams.prm';
+    '  jrc traces myparams.prm';
     '    Displays raw trace';                
-    '  jrc3 describe myparams.prm';
+    '  jrc describe myparams.prm';
     '    Display information about a clu dataset ';
-    '  jrc3 manual myparams.prm';
+    '  jrc manual myparams.prm';
     '    Run the manual clustering GUI ';
-    '  jrc3 auto-manual myparams.prm';
+    '  jrc auto-manual myparams.prm';
     '    Run the auto clustering and do the manual clustering next';        
-    '  jrc3 plot-activity myparams.prm';
+    '  jrc plot-activity myparams.prm';
     '    Show firing rate as a function of time and depth';         
-    '  jrc3 verify myparams.prm';
+    '  jrc verify myparams.prm';
     '    Compares against ground truth file (_gt.mat)';
-    '  jrc3 drift myparams.prm';
+    '  jrc drift myparams.prm';
     '    Visualize drift.';       
-    '  jrc3 plot-rd myparams.prm';
+    '  jrc plot-rd myparams.prm';
     '    Rho vs. Delta plot used in DPCLUS clustering (Rodriguez-Laio).';      
-    '  jrc3 batch myparam.batch (command)';
+    '  jrc batch myparam.batch (command)';
     '    Batch process list of prm files';         
-    '  jrc3 batch myparam.batch template.prm';
+    '  jrc batch myparam.batch template.prm';
     '    Batch process list of .bin files using a template prm file';             
     '';
     '[Import and export]';
-    '  jrc3 export myparams.prm';
+    '  jrc export myparams.prm';
     '    Export the global struct (S0) to the workspace. This is also contained in _jrc.mat output file.';    
-    '  jrc3 export-csv myparams.prm';
+    '  jrc export-csv myparams.prm';
     '    Export clustered information to a csv file (spike time, cluster #, max site#)';
-    '  jrc3 export-jrc1 myparams.prm';
+    '  jrc export-jrc1 myparams.prm';
     '    Export to version 1 format (write to _evt.mat and _clu.mat)';
-    '  jrc3 import-jrc1 myparams.prm';
+    '  jrc import-jrc1 myparams.prm';
     '    Import from version 1 format';    
-    '  jrc3 export-imec-sync myparams.prm';
+    '  jrc export-imec-sync myparams.prm';
     '    Export Sync channel (uint16) to the workspace (vnSync)';            
-    '  jrc3 export-wav myparams.prm';
+    '  jrc export-wav myparams.prm';
     '    Export the entire raw traces (mnWav) to the Workpace';
-    '  jrc3 export-spkwav myparams.prm (clu#)';
+    '  jrc export-spkwav myparams.prm (clu#)';
     '    Export spike waveforms organized by clusters to the Workspace';
-    '  jrc3 export-spk myparams.prm';
+    '  jrc export-spk myparams.prm';
     '    Export spike waveforms to the Workspace, sorted by the time of spike';    
-    '  jrc3 export-spkamp myparams.prm (clu#)';
+    '  jrc export-spkamp myparams.prm (clu#)';
     '    Export spike amplitudes to the Workspace'; 
-    '  jrc3 export-fet myparams.prm';
+    '  jrc export-fet myparams.prm';
     '    Export feature matrix (trFet) and sites (miFet_sites) to the Workspace';     
-    '  jrc3 export-prm myparams.prm (myparam_full.prm)';
+    '  jrc export-prm myparams.prm (myparam_full.prm)';
     '    Export complete list of parameters to a new file.';
     '    If the second argument is omitted, the current parameter file is updated.';
     '    If some parameter values are missing, they will be copied from the default template file (default.prm).';
-    '  jrc3 import-intan intanrec*.dat myprobe.prb';
+    '  jrc import-intan intanrec*.dat myprobe.prb';
     '    Import from intan recordings, which saved each channel as -A###.dat file in int16 format.';        
     '    Combine .dat files to a single .bin file and saves to the directory above.';
     '    Generate .prm file by combining the .bin and .prb file names (e.g. binfile_prbfile.prm).';    
-    '  jrc3 import-nsx myrec.ns5 myprobe.prb';
+    '  jrc import-nsx myrec.ns5 myprobe.prb';
     '    Imports Neuroshare format and export the analog channels to .bin file.';
     '    Generates .prm file by combining the .bin and .prb file names (e.g. binfile_prbfile.prm).';
     '';
     '[Sorting multiple files]';
-    '  jrc3 dir myparam.prm'; 
+    '  jrc dir myparam.prm'; 
     '    List all recording files to be clustered together (csFile_merge)';
-    '  jrc3 traces myparam.prm';
+    '  jrc traces myparam.prm';
     '    List all recording files and select which one to display';
-    '  jrc3 traces myparam.prm File#';
+    '  jrc traces myparam.prm File#';
     '    Direcly specify the file number to display';
     '';
     '[Developer''s commands]';
-    '  jrc3 unit-test';
+    '  jrc unit-test';
     '    Run a suite of unit teste.';       
-    '  jrc3 update';
+    '  jrc update';
     '    Update code by copying from the dropbox location (specified in user.cfg or default.cfg)';
-    '  jrc3 install';
-    '    Install jrc3 by compiling codes';    
-    '  jrc3 compile';
+    '  jrc install';
+    '    Install jrc by compiling codes';    
+    '  jrc compile';
     '    Recompile CUDA code (GPU codes, *.cu)';     
     '';
     '[Experimental commands]';
-    '  jrc3 trackdepth myparams.prm';
+    '  jrc trackdepth myparams.prm';
     '    LFP based depth tracking'            
-    '  jrc3 syncvid myparams.prm';
+    '  jrc syncvid myparams.prm';
     '    Synchronize video using LED blinking';    
 };
 if nargout==0, disp_cs_(csHelp); end
@@ -390,7 +402,9 @@ end %func
 
 %--------------------------------------------------------------------------
 function probe_(vcFile_prb)
-if nargin<1, vcFile_prb='imec2.prb'; end
+% if nargin<1, vcFile_prb='imec2.prb'; end
+
+% set prb file
 if matchFileExt_(vcFile_prb, {'.bin', '.dat'})
     vcFile_prb = subsFileExt_(vcFile_prb, '.prm');
 end
@@ -402,6 +416,7 @@ if matchFileExt_(vcFile_prb, '.prm')
         vcFile_prb = replacePath_(vcFile_prb, vcFile_prm);
     end
 end
+vcFile_prb = search_file_(vcFile_prb, './prb');
 S_prb = file2struct_(vcFile_prb);
 if ~isfield(S_prb, 'shank'), S_prb.shank = ones(size(S_prb.channels)); end
 
@@ -435,7 +450,7 @@ switch lower(vcMode)
     case {'sample3', 'neuropix3' 'neuropixels3', 'phase3', 'phaseiii'}
         csLink = S_cfg.path_sample_phase3;
     otherwise
-        disp('Invalid selection. Try "jrc3 download sample".');
+        disp('Invalid selection. Try "jrc download sample".');
         return;
 end %switch
 
@@ -684,8 +699,9 @@ if ~strcmpi(pwd(), S_cfg.path_alpha), disp('must commit from alpha'); return; en
 
 if strcmpi(vcArg1, 'log')
 %     sprintf('copyfile change_log.txt ''%s'' f;', S_cfg.path_dropbox);  
-    copyfile_('change_log.txt', S_cfg.path_dropbox);
-    copyfile_('change_log.txt', S_cfg.path_dropbox3);
+    copyfile_('change_log.txt', ...
+        struct_get_(S_cfg, ...
+            'path_dropbox', 'path_dropbox2', 'path_web', 'path_bitbucket', 'path_github'));
     disp('Commited change_log.txt');
     return;
 elseif ~strcmpi(vcArg1, 'skip')
@@ -707,12 +723,27 @@ copyfile_(S_cfg.sync_list, S_cfg.path_dropbox); %destination root
 copyfile_(S_cfg.csFiles_sample, S_cfg.path_dropbox);
 
 % commit jrc3 related files only
-commit_jrc3_(S_cfg, [S_cfg.path_web, filesep()], 1);
-commit_jrc3_(S_cfg, [S_cfg.path_bitbucket, filesep()], 0);
+try commit_jrc3_(S_cfg, [S_cfg.path_web, filesep()], 1); catch; disperr_(); end
+try commit_jrc3_(S_cfg, [S_cfg.path_bitbucket, filesep()], 0); catch; disperr_(); end
+try commit_jrc3_(S_cfg, [S_cfg.path_github, filesep()], 0); catch; disperr_(); end
 
 edit change_log.txt
 fprintf('Commited, took %0.1fs.\n', toc(t1));
 end
+
+
+%--------------------------------------------------------------------------
+% 9/26/17 JJJ: Created and tested
+function cvr = struct_get_(S, varargin)
+% Obtain a member of struct
+cvr = cell(size(varargin));
+for i=1:numel(varargin)
+    vcName = varargin{i};
+    if isfield(S, vcName)
+        cvr{i} = S.(vcName);
+    end
+end %for
+end %func
 
 
 %--------------------------------------------------------------------------
@@ -1152,9 +1183,12 @@ end
 % Load prb file
 if ~isfield(P, 'probe_file'), P.probe_file = P0.probe_file; end
 try    
-    if ~exist(P.probe_file, 'file')
+    probe_file_ = search_file_(P.probe_file, '.\prb\');
+    if isempty(probe_file_)
         P.probe_file = replacePath_(P.probe_file, vcFile_prm); 
         if ~exist(P.probe_file, 'file'), error('prb file does not exist'); end
+    else
+        P.probe_file = probe_file_;
     end
     P0 = load_prb_(P.probe_file, P0);
 catch
@@ -1422,8 +1456,16 @@ end %func
 
 
 %--------------------------------------------------------------------------
+% 9/26/17 JJJ: Added prb directory
 function P = load_prb_(vcFile_prb, P)
 % append probe file to P
+
+% Find the probe file
+vcFile_prb = search_file_(vcFile_prb, './prb/');
+if isempty(vcFile_prb)
+    error(['Probe file does not exist: ', vcFile_prb]);
+end
+
 P.probe_file = vcFile_prb;
 %     [P.viSite2Chan, P.mrSiteXY, P.vrSiteHW, P.cviShank] = read_prb_file(vcFile_prb);
 S_prb = file2struct_(vcFile_prb);
@@ -1442,6 +1484,34 @@ S_prb = remove_struct_(S_prb, 'channels', 'geometry', 'pad', 'ref_sites', ...
 P.viChan_aux = setdiff(1:P.nChans, 1:max(P.viSite2Chan)); %aux channel. change for
 P = struct_merge_(P, S_prb);
 end %func
+
+
+%--------------------------------------------------------------------------
+% 9/26/17 JJJ: Created and tested
+function vcFile = search_file_(vcFile, csDir)
+% Search file in the provided directory location if it doesn't exist
+if ischar(csDir), csDir = {csDir}; end
+
+if ~exist(vcFile, 'file')
+    for iDir = 1:numel(csDir)
+        vcFile_ = subsDir_(vcFile, csDir{iDir});
+        if exist(vcFile_, 'file')
+            vcFile = vcFile_;
+            return;
+        end
+    end
+    vcFile = []; % file not found
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 9/26/17 JJJ: Created and tested
+function vcFile_new = subsDir_(vcFile, vcDir_new)
+% Substitute dir
+[vcDir, vcFile, vcExt] = fileparts(vcFile);
+vcFile_new = fullfile(vcDir_new, [vcFile, vcExt]);
+end % func
 
 
 %--------------------------------------------------------------------------
@@ -2981,9 +3051,12 @@ csCmd = {...
     'jrc3 compile', ...
     'jrc3 probe sample.prb', ...
     'jrc3 makeprm sample_list.txt sample.prb', ...
-    'jrc3 makeprm sample.bin sample.prb', 'jrc3 probe sample_sample.prm', ...    
+    'jrc3 makeprm sample.bin sample.prb', ...
+    'jrc3 probe sample_sample.prm', ...    
     'jrc3 traces sample_sample.prm', 'jrc3 traces', ...
     'jrc3 traces-test sample_sample.prm', ...    
+    'jrc3 preview-test sample_sample.prm', ...    
+    'jrc3 makeprm sample.bin sample.prb', ...
     'jrc3 detectsort sample_sample.prm', 'jrc3 clear sample_sample.prm', ...
     'jrc3 probe sample_sample_merge.prm', 'jrc3 detectsort sample_sample_merge.prm', 'jrc3 clear sample_sample_merge.prm', ... %multishank, multifile test
     'jrc3 detect sample_sample.prm', 'jrc3 sort sample_sample.prm', ...        
@@ -7241,30 +7314,31 @@ for iCmd = 1:numel(csCmd)
             end
             
         case 'Menu' % run menu items, except for the exit and save (make a black list)
-            csMenu_skip = {'Show traces', 'Exit'};
-            hFigWav = get_fig_('FigWav');
-            vMenu0 = findobj('Type', 'uimenu', 'Parent', hFigWav);
-            cvMenu = cell(size(vMenu0));            
-            for iMenu0 = 1:numel(vMenu0)
-                cvMenu{iMenu0} = findobj('Type', 'uimenu', 'Parent', vMenu0(iMenu0))';
-            end
-            vMenu = [cvMenu{:}];
-            cCallback_menu = get(vMenu, 'Callback');
-            csLabel_menu = get(vMenu, 'Label');
-            fprintf('\tTesting menu items\n');
-            for iMenu = 1:numel(csLabel_menu)    
-                vcMenu = csLabel_menu{iMenu};             
-                if ismember(vcMenu, csMenu_skip), continue; end
-                try        
-                    hFunc = cCallback_menu{iMenu};
-%                     hFunc(hFigWav, []); %call function
-                    hFunc(vMenu(iMenu), []); %call function
-                    fprintf('\tMenu ''%s'' success.\n', vcMenu);                    
-                catch
-                    fprintf(2, '\tMenu ''%s'' failed.\n', vcMenu);
-                    disperr_();
-                end
-            end
+%             csMenu_skip = {'Show traces', 'Exit'};
+%             hFigWav = get_fig_('FigWav');
+            menu_test_(get_fig_('FigWav'), {'Show traces', 'Exit'});
+%             vMenu0 = findobj('Type', 'uimenu', 'Parent', hFigWav);
+%             cvMenu = cell(size(vMenu0));            
+%             for iMenu0 = 1:numel(vMenu0)
+%                 cvMenu{iMenu0} = findobj('Type', 'uimenu', 'Parent', vMenu0(iMenu0))';
+%             end
+%             vMenu = [cvMenu{:}];
+%             cCallback_menu = get(vMenu, 'Callback');
+%             csLabel_menu = get(vMenu, 'Label');
+%             fprintf('\tTesting menu items\n');
+%             for iMenu = 1:numel(csLabel_menu)    
+%                 vcMenu = csLabel_menu{iMenu};             
+%                 if ismember(vcMenu, csMenu_skip), continue; end
+%                 try        
+%                     hFunc = cCallback_menu{iMenu};
+% %                     hFunc(hFigWav, []); %call function
+%                     hFunc(vMenu(iMenu), []); %call function
+%                     fprintf('\tMenu ''%s'' success.\n', vcMenu);                    
+%                 catch
+%                     fprintf(2, '\tMenu ''%s'' failed.\n', vcMenu);
+%                     disperr_();
+%                 end
+%             end
             
         case 'FigWav' % test all possible keyboard press
             keyPress_fig_(get_fig_cache_('FigWav'), get_keyPress_('all'));          
@@ -7585,6 +7659,55 @@ try
     close(hFig); %close traces figure. other figures may remain
     close(get_fig_('FigPsd'));
 catch
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+function gui_test_(P, vcFig, csMenu_skip)
+if nargin<3, csMenu_skip = {}; end
+drawnow;
+hFig = get_fig_(vcFig);
+keyPress_fig_(hFig, get_keyPress_('all'));
+
+% Menu test
+menu_test_(hFig, csMenu_skip);
+
+try
+    close(hFig); %close traces figure. other figures may remain
+catch
+    ;
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+function [vlSuccess_menu, csLabel_menu] = menu_test_(hFig, csMenu_skip)
+vMenu0 = findobj('Type', 'uimenu', 'Parent', hFig);
+cvMenu = cell(size(vMenu0));            
+for iMenu0 = 1:numel(vMenu0)
+    cvMenu{iMenu0} = findobj('Type', 'uimenu', 'Parent', vMenu0(iMenu0))';
+end
+vMenu = [cvMenu{:}];
+cCallback_menu = get(vMenu, 'Callback');
+csLabel_menu = get(vMenu, 'Label');
+fprintf('\tTesting menu items\n');
+
+vlSuccess_menu = true(size(csLabel_menu));
+for iMenu = 1:numel(csLabel_menu)    
+    vcMenu = csLabel_menu{iMenu};             
+    if ismember(vcMenu, csMenu_skip), continue; end
+    try        
+        hFunc = cCallback_menu{iMenu};
+        if isempty(hFunc), continue; end
+%                     hFunc(hFigWav, []); %call function
+        hFunc(vMenu(iMenu), []); %call function
+        fprintf('\tMenu ''%s'' success.\n', vcMenu);             
+    catch
+        fprintf(2, '\tMenu ''%s'' failed.\n', vcMenu);
+        disperr_();
+        vlSuccess_menu(iMenu) = 0;
+    end
 end
 end %func
 
@@ -9835,20 +9958,41 @@ end %func
 
 
 %--------------------------------------------------------------------------
+% 9/26/17 JJJ: multiple targeting copy file. Tested
 function copyfile_(csFiles, vcDir_dest)
 % copyfile_(vcFile, vcDir_dest)
 % copyfile_(csFiles, vcDir_dest)
+% copyfile_(csFiles, csDir_dest)
+
+% Recursion if cell is used
+if iscell(vcDir_dest)
+    csDir_dest = vcDir_dest;
+    for iDir = 1:numel(csDir_dest)
+        try
+            copyfile_(csFiles, csDir_dest{iDir});
+        catch
+            disperr_();
+        end
+    end
+    return;
+end
+
 if ischar(csFiles), csFiles = {csFiles}; end
 for iFile=1:numel(csFiles)
     vcPath_from_ = csFiles{iFile};
-    if exist(vcPath_from_, 'file') == 2
+    if exist(vcPath_from_, 'dir') == 7        
+        [vcPath_,~,~] = fileparts(vcPath_from_);
+        vcPath_from_ =  sprintf('%s%s*', vcPath_, filesep());
+        vcPath_to_ = sprintf('%s%s%s%s', vcDir_dest, filesep(), vcPath_, filesep());
+        if exist(vcPath_to_, 'dir') ~= 7, mkdir(vcPath_to_); end    
+        disp([vcPath_from_, '; ', vcPath_to_]);
+    else
         vcPath_to_ = vcDir_dest;
-    elseif exist(vcPath_from_, 'dir') == 7        
-        [~,vcPath_,~] = fileparts(vcPath_from_);
-        vcPath_from_ =  sprintf('%s%s*', vcPath_from_, filesep());
-        vcPath_to_ = sprintf('%s%s%s', vcDir_dest, vcPath_, filesep());
-        if exist(vcPath_to_, 'dir') ~= 7, mkdir(vcPath_to_); end      
-    end    
+        if exist(vcPath_to_, 'dir') ~= 7
+            mkdir(vcPath_to_); 
+            disp(['Created a folder ', vcPath_to_]);
+        end
+    end
     try   
         vcEval1 = sprintf('copyfile ''%s'' ''%s'' f;', vcPath_from_, vcPath_to_);
         eval(vcEval1);
@@ -10130,8 +10274,9 @@ end
 
 disp(['Commiting to ', vcDir]);
 for i=1:2
+    disp(['Deleting files in ' vcDir]);
     delete_([vcDir, '*']);
-    delete_([vcDir, '\kilosort\*']);
+%     delete_([vcDir, '\kilosort\*']);
     pause(.5);
 end
 
@@ -14230,6 +14375,7 @@ if isempty(vcFile_prb) % ask user
 end
 
 % Assign prm file name
+vcFile_prb = search_file_(vcFile_prb, '.\prb\');
 [~,vcPostfix,~] = fileparts(vcFile_prb);
 P.vcFile_prm = subsFileExt_(vcFile_bin, ['_', vcPostfix, '.prm']);
 P.probe_file = vcFile_prb;
@@ -15274,10 +15420,13 @@ end %func
 
 %--------------------------------------------------------------------------
 % 8/6/17 JJJ: Initial implementation, documented and tested
-function S_fig = preview_(P, fDebug)
+function S_fig = preview_(P, fDebug_ui_)
 % Data summary figure, interactive
-if nargin<2, fDebug = 0; end
-if ~fDebug, set(0, 'UserData', []); end
+
+global fDebug_ui
+if nargin<2, fDebug_ui_ = 0; end
+fDebug_ui = fDebug_ui_;
+set0_(fDebug_ui);
 if ischar(P), P = loadParam_(P); end
 [mnWav_raw, S_preview] = load_preview_(P);
 set0_(P);
@@ -15955,6 +16104,7 @@ if isempty(csAns), return; end
 % if isnan(site_start) || isnan(site_end), return; end;
 blank_thresh = str2num(csAns{1});
 blank_period_ms = str2num(csAns{2});
+if isempty(blank_thresh), blank_thresh = 0; end
 if isnan(blank_thresh) || isnan(blank_period_ms), return; end
 
 S_fig = set_(S_fig, 'blank_thresh', blank_thresh, 'blank_period_ms', blank_period_ms);

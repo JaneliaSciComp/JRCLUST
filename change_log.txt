@@ -2,6 +2,15 @@
 James Jun, HHMI-Janelia Research Campus, Applied Physics and Instrumentation Group
 
 --------------------------------------------------------------------
+[2017/9/26]
+Probe file moved to "./prb" folder. 
+  The prm files is backward compatible. 
+  .prb files will be searched in './prb/' folders if not found in the main JRCLUST folder.
+Added "jrc wiki" command. 
+  It opens a JRCLUST wiki webpage, a new home for the JRCLUST documentation.
+Unit test is expanded.
+  "jrc preview" GUI is added.
+
 [2017/9/17]
 Bugfix: Program crashed when the number of clusters were less than 7.
   The color grouping size is 7 (# colors for cluster mean waveforms).

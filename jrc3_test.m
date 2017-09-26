@@ -219,3 +219,21 @@ S_out = jrc3('test', 'cell2vec_', {{[1,2,3], [4,5]', [], [6,7]}}, 1);
 %%
 S_out = jrc3('test', 'setlim_', {1:5, [3 5]}, 1);
 S_out = jrc3('test', 'setlim_', {rand(3,3), [.3 .5]}, 1);
+
+
+%%
+S_in = struct('a',1,'b',2,'c',struct('a',1,'b',2));
+S_out = jrc3('test', 'struct_get_', {S_in, 'a','b','c','d'}, 1);
+
+% Testing copy file
+S_out = jrc3('test', 'copyfile_', {'c:\test1\*', 'c:\test2\'}, 0);
+S_out = jrc3('test', 'copyfile_', {'c:\test1\*', {'c:\test2\', 'c:\test3\'}}, 0);
+S_out = jrc3('test', 'copyfile_', {{'c:\test1\file1.txt', 'c:\test1\file2.txt'}, 'c:\test2\'}, 0);
+
+S_out = jrc3('test', 'subsDir_', {'c:\test1\test.prb', 'd:\github\'}, 1);
+S_out = jrc3('test', 'subsDir_', {'c:\test1\test.prb', 'd:\github'}, 1);
+S_out = jrc3('test', 'subsDir_', {'c:\test1\test.prb', './probe'}, 1);
+
+S_out = jrc3('test', 'search_file_', {'sample.prb', './prb'}, 1);
+S_out = jrc3('test', 'search_file_', {'sample.prb', {'.pra', './prb'}}, 1);
+S_out = jrc3('test', 'search_file_', {'sample.prb', {'.pra', './prc'}}, 1);
