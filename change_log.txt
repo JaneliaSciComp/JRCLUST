@@ -3,6 +3,9 @@ James Jun, HHMI-Janelia Research Campus, Applied Physics and Instrumentation Gro
 
 --------------------------------------------------------------------
 [2017/9/26]
+"jrc git-pull" updates JRCLUST from the Github repository
+  https://github.com/jamesjun/JRCLUST
+  git must be installed in Windows (https://git-scm.com/download/win).
 Probe file moved to "./prb" folder. 
   The prm files is backward compatible. 
   .prb files will be searched in './prb/' folders if not found in the main JRCLUST folder.

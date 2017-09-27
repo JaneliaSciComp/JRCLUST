@@ -28,6 +28,7 @@ switch lower(vcCmd)
     case 'clear', clear_(vcArg1);
     case 'doc', doc_();
     case 'update', update_(vcArg1);
+    case 'git-pull', git_pull_();
     case 'install', install_();
     case 'commit', commit_(vcArg1);
     case 'wiki', web('https://github.com/jamesjun/JRCLUST/wiki'); 
@@ -359,7 +360,7 @@ end %func
 %--------------------------------------------------------------------------
 function update_(vcFile)
 % update_(vcFile) %update specific files
-% update_() %update files in default.csf.sync_list
+% update_() %update files in default.cfg\sync_list
 fCompile_ksort = 0;
 
 S_cfg = read_cfg_();
@@ -16659,4 +16660,26 @@ vcDate = '9/26/2017';
 if nargout==0
     fprintf('%s, updated on %s\n', vcVer, vcDate);
 end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 9/26/17 JJJ: Created and tested
+function git_pull_()
+% https://github.com/drbenvincent/github-sync-matlab
+startDir = cd();
+repoURL = 'https://github.com/jamesjun/JRCLUST';
+repoName = 'JRCLUST';
+try
+	% Attempt to pull latest verion
+% 	cd(fullfile(defineInstallPath(),repoName))
+% 	addpath(cd)
+	system('git pull');
+catch
+	% If this fails, we assume repo is not present, therefore clone
+% 	cd(defineInstallPath())
+    system('git init');
+	system(sprintf('git clone %s.git startDir', repoURL));
+end
+cd(startDir)
 end %func

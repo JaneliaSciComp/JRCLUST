@@ -52,7 +52,6 @@ end
 %----------------
 % Run the filter chain
 fInt16 = isa(mr, 'int16');
-
 if P.fGpu_filt, mr = gpuArray(mr); end
 mr = filt_pad_('add', mr, P.nPad_filt); %slow
 if fInt16, mr = single(mr); end   %double for long data?
