@@ -3,6 +3,8 @@ James Jun, HHMI-Janelia Research Campus, Applied Physics and Instrumentation Gro
 
 --------------------------------------------------------------------
 [2017/9/26]
+jrc can run from any path after adding path to the jrclust location
+  Run "addpath('jrclust_location')". Note that this doesn't persist after Matlab restart.
 "jrc git-pull" updates JRCLUST from the Github repository
   https://github.com/jamesjun/JRCLUST
   git must be installed in Windows (https://git-scm.com/download/win).

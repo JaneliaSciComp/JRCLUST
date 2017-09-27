@@ -16,7 +16,6 @@ if nargin<4, vcArg3=''; end
 if nargin<5, vcArg4=''; end
 if nargin<6, vcArg5=''; end
 if nargin==0, vcCmd = 'help'; end
-
 setpath_();
 
 % Basic commands
@@ -420,7 +419,7 @@ if matchFileExt_(vcFile_prb, '.prm')
         vcFile_prb = replacePath_(vcFile_prb, vcFile_prm);
     end
 end
-vcFile_prb = search_file_(vcFile_prb, './prb');
+vcFile_prb = find_prb_(vcFile_prb); 
 S_prb = file2struct_(vcFile_prb);
 if ~isfield(S_prb, 'shank'), S_prb.shank = ones(size(S_prb.channels)); end
 
@@ -441,6 +440,38 @@ axis equal;
 % set(hFig, 'Name', vcFile_prb, 'NumberTitle', 'off');
 edit(vcFile_prb); %show probe file
 figure(hFig);
+end %func
+
+
+%--------------------------------------------------------------------------
+% 9/26/17 JJJ: Find
+function vcFile_prb = find_prb_(vcFile_prb)
+% Find a prb file
+vcFile_prb = search_file_(vcFile_prb, [jrcpath_(), 'prb', filesep()]);
+end %func
+
+
+%--------------------------------------------------------------------------
+% 9/26/17 JJJ: Created and tested
+function vcFile_full = jrcpath_(vcFile, fConditional)
+% make it a jrc path
+% Add a full path if the file doesn't exist in the current folder
+% 
+
+if nargin<1, vcFile = ''; end
+if nargin<2, fConditional = 0; end
+
+jrcpath = fileparts(mfilename('fullpath'));
+if fConditional
+    if exist(vcFile, 'file') == 2
+        vcFile_full = vcFile;
+        return;
+    end
+end
+vcFile_full = [jrcpath, filesep(), vcFile];
+% if exist(vcFile_full, 'file') ~= 2
+%     vcFile_full = [];
+% end
 end %func
 
 
@@ -661,8 +692,9 @@ S_cfg = file2struct_('default.cfg');
 if exist('user.cfg', 'file')
     S_cfg1 = file2struct_('user.cfg'); %override
     S_cfg = struct_merge_(S_cfg, S_cfg1, {'path_dropbox', 'path_backup', 'default_prm'});
+    fprintf('Configuration loaded from user.cfg.\n');
 else
-    fprintf('user.cfg does not exist.\n');
+    fprintf('Configuration loaded from default.cfg.\n');
 end
 if nargin==0
     val = S_cfg; 
@@ -1167,7 +1199,7 @@ if ~exist(vcFile_prm, 'file')
     error('.prm file does not exist: %s\n', vcFile_prm);
 %     P=[]; return; 
 end
-P0 = file2struct_(read_cfg_('default_prm'));  %P = defaultParam();
+P0 = file2struct_(jrcpath_(read_cfg_('default_prm')));  %P = defaultParam();
 P = file2struct_(vcFile_prm);
 if ~isfield(P, 'template_file'), P.template_file = ''; end
 if ~isempty(P.template_file)
@@ -1186,7 +1218,7 @@ end
 % Load prb file
 if ~isfield(P, 'probe_file'), P.probe_file = P0.probe_file; end
 try    
-    probe_file_ = search_file_(P.probe_file, '.\prb\');
+    probe_file_ = find_prb_(P.probe_file);
     if isempty(probe_file_)
         P.probe_file = replacePath_(P.probe_file, vcFile_prm); 
         if ~exist(P.probe_file, 'file'), error('prb file does not exist'); end
@@ -1464,7 +1496,7 @@ function P = load_prb_(vcFile_prb, P)
 % append probe file to P
 
 % Find the probe file
-vcFile_prb = search_file_(vcFile_prb, './prb/');
+vcFile_prb = find_prb_(vcFile_prb);
 if isempty(vcFile_prb)
     error(['Probe file does not exist: ', vcFile_prb]);
 end
@@ -2436,7 +2468,7 @@ if matchFileExt_(vcCommand, '.prm')
     vcFile_template = vcCommand;
     vcCommand = 'spikesort';
 else
-    vcFile_template = read_cfg_('default_prm');
+    vcFile_template = jrcpath_(read_cfg_('default_prm'));
 end
 
 csFiles_prm = load_batch_(vcFile_batch);
@@ -14155,7 +14187,8 @@ end
 
 % C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.5\bin
 for i=1:numel(csFiles_cu)
-    vcCmd1 = sprintf('%s -ptx -m 64 -arch sm_35 %s', vcPath_nvcc, csFiles_cu{i});
+    vcFile_ = jrcpath_(csFiles_cu{i});
+    vcCmd1 = sprintf('%s -ptx -m 64 -arch sm_35 "%s"', vcPath_nvcc, vcFile_);
     fprintf('\t%s\n\t', vcCmd1);
     try                
         status = system(vcCmd1);
@@ -14363,7 +14396,7 @@ if nargin<3, vcFile_template = ''; end
 if nargin<4, fAsk = 1; end
 
 [P, vcPrompt] = deal([]); 
-P0 = file2struct_(read_cfg_('default_prm'));  %P = defaultParam();
+P0 = file2struct_(jrcpath_(read_cfg_('default_prm')));  %P = defaultParam();
 if ~isempty(vcFile_template)
     if exist(vcFile_template, 'file') == 2
         P0 = struct_merge_(P0, file2struct_(vcFile_template));
@@ -14380,17 +14413,20 @@ if any(vcFile_bin=='*') %wild card provided
 elseif isTextFile_(vcFile_bin)
     P.csFile_merge = vcFile_bin;
 %     vcFile_bin = subsFileExt_(vcFile_bin, '.bin');
-elseif exist(vcFile_bin, 'file') == 2
-    P.vcFile = vcFile_bin;
-    P.csFile_merge = {};
 else
-    vcPrompt = sprintf('%s does not exist.\n', vcFile_bin);    
-    fprintf(2, '%s\n', vcPrompt); 
-    return;
+    if ~exist_file_(vcFile_bin)
+        vcFile_bin_ = jrcpath_(vcFile_bin);
+        if exist(vcFile_bin_, 'file') == 2, vcFile_bin = vcFile_bin_; end
+    end
+    if exist_file_(vcFile_bin)
+        P.vcFile = vcFile_bin;
+        P.csFile_merge = {};
+    else
+        vcPrompt = sprintf('%s does not exist.\n', vcFile_bin);    
+        fprintf(2, '%s\n', vcPrompt); 
+        return;
+    end
 end
-
-% Use the template file provifded
-% if matchFileExt_(vcFile_template, '.prm'), P.template_file = vcFile_template; end
 
 % Load meta file
 if isempty(P.csFile_merge)
@@ -14403,6 +14439,7 @@ else
         vcFile_meta = subsFileExt_(csFiles_bin{1}, '.meta');
     end
 end
+vcFile_meta = jrcpath_(vcFile_meta, 1);
 P_meta = read_meta_file_(vcFile_meta);
 if isempty(P_meta), P=[]; return; end
 
@@ -14426,12 +14463,11 @@ if isempty(vcFile_prb) % ask user
 end
 
 % Assign prm file name
-vcFile_prb = search_file_(vcFile_prb, '.\prb\');
 [~,vcPostfix,~] = fileparts(vcFile_prb);
 P.vcFile_prm = subsFileExt_(vcFile_bin, ['_', vcPostfix, '.prm']);
 P.probe_file = vcFile_prb;
 try
-    S_prb = file2struct_(vcFile_prb);
+    S_prb = file2struct_(find_prb_(vcFile_prb));
     if isfield(S_prb, 'maxSite'), P.maxSite = S_prb.maxSite; end
     if isfield(S_prb, 'nSites_ref'), P.nSites_ref = S_prb.nSites_ref; end
 catch
@@ -14456,7 +14492,7 @@ P = struct_merge_(P, P_meta);
 P = struct_merge_(P, file_info_(vcFile_bin));
 P.duration_file = P.nBytes_file / bytesPerSample_(P.vcDataType) / P.nChans / P.sRateHz; %assuming int16
 try
-    copyfile(read_cfg_('default_prm'), P.vcFile_prm, 'f');
+    copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
 catch
     fprintf(2, 'Invalid path: %s\n', P.vcFile_prm);
     return;
@@ -14476,14 +14512,6 @@ function P = struct_merge_(P, P1, csNames)
 % P = struct_merge_(P, P_append)
 % P = struct_merge_(P, P_append, var_list) : only update list of variable names
 
-% if numel(varargin)==1
-%     P1 = varargin{1};
-%     if isempty(P1) || ~isstruct(varargin{1}), return; end    
-% elseif isempty(varargin)
-%     return; 
-% else
-%     P1 = struct(varargin{:});
-% end
 if isempty(P1), return; end
 if nargin<3, csNames = fieldnames(P1); end
 if ischar(csNames), csNames = {csNames}; end
@@ -14684,9 +14712,9 @@ try
         P.Smeta = S_meta;    
     else
         fprintf('%s is not found. Asking users to fill out the missing info\n', vcFile_meta);
-        csAns = inputdlg({'sampling rate (Hz)', '# channels in file', 'uV/bit', 'Neuropixels option (0 if N/A)'}, 'Recording format', 1, {'30000', '385', '1','0'});
+        csAns = inputdlg({'sampling rate (Hz)', '# channels in file', 'uV/bit', 'Neuropixels option (0 if N/A)', 'Header offset (bytes)'}, 'Recording format', 1, {'30000', '385', '1','0','0'});
         if isempty(csAns), return; end
-        P = struct('sRateHz', str2double(csAns{1}), 'nChans', str2double(csAns{2}), 'uV_per_bit', str2double(csAns{3}), 'imProbeOpt', str2double(csAns{4}));
+        P = struct('sRateHz', str2double(csAns{1}), 'nChans', str2double(csAns{2}), 'uV_per_bit', str2double(csAns{3}), 'imProbeOpt', str2double(csAns{4}), 'header_offset', str2double(csAns{5}));
         P.Smeta = P;
     end
 catch
@@ -16290,7 +16318,7 @@ function export_prm_(vcFile_prm, vcFile_out_prm, fShow)
 if nargin<3, fShow = 1; end
 
 if isempty(vcFile_out_prm), vcFile_out_prm = vcFile_prm; end
-copyfile(read_cfg_('default_prm'), vcFile_out_prm, 'f');
+copyfile(jrcpath_(read_cfg_('default_prm')), vcFile_out_prm, 'f');
 P = get0_('P');
 if isempty(P), P = file2struct_(vcFile_prm); end
 edit_prm_file_(P, vcFile_out_prm);
@@ -16348,7 +16376,7 @@ end
 P.duration_file = nSamples / P.sRateHz; %assuming int16
 P.vcFile_prm = vcFile_prm;
 P.vcFile = vcFile_bin;
-copyfile(read_cfg_('default_prm'), P.vcFile_prm, 'f');
+copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
 edit_prm_file_(P, P.vcFile_prm);
 vcPrompt = sprintf('Created a new parameter file\n\t%s', P.vcFile_prm);
 disp(vcPrompt);
@@ -16375,7 +16403,7 @@ P.vcFile = vcFile_nsx;
 [~, vcFile_prb_] = fileparts(vcFile_prb);
 vcFile_prm = subsFileExt_(P.vcFile, sprintf('_%s.prm', vcFile_prb_));
 if isempty(vcTemplate_prm)
-    vcTemplate_prm = read_cfg_('default_prm');
+    vcTemplate_prm = jrcpath_(read_cfg_('default_prm'));
 end
 assert(exist(vcTemplate_prm, 'file')~=2, sprintf('Template file does not exist: %s', vcTemplate_prm));
 
@@ -16683,4 +16711,13 @@ if code ~= 0
     fprintf(2, '\tsystem(''git clone %s.git myDest''\n', repoURL);
     fprintf(2, '\tReplace "myDest" with the desired installation location or omit to install in ./JRCLUST.\n', repoURL);
 end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 9/26/17 JJJ: Created and tested
+function flag = exist_file_(vcFile)
+% Different from exist(vcFile, 'file') which uses search path
+
+flag = ~isempty(dir(vcFile));
 end %func

@@ -2,5 +2,5 @@ function varargout = jrc(varargin)
 % calls jrclust
 
 %jrclust(varargin{:});
-disp('Running jrc3.m');
+fprintf('Running ''%s%sjrc3.m''\n', fileparts(mfilename('fullpath')), filesep());
 jrc3(varargin{:});

@@ -221,7 +221,7 @@ S_out = jrc3('test', 'setlim_', {1:5, [3 5]}, 1);
 S_out = jrc3('test', 'setlim_', {rand(3,3), [.3 .5]}, 1);
 
 
-%%
+%% 9/26/17 JJJ
 S_in = struct('a',1,'b',2,'c',struct('a',1,'b',2));
 S_out = jrc3('test', 'struct_get_', {S_in, 'a','b','c','d'}, 1);
 
@@ -237,3 +237,9 @@ S_out = jrc3('test', 'subsDir_', {'c:\test1\test.prb', './probe'}, 1);
 S_out = jrc3('test', 'search_file_', {'sample.prb', './prb'}, 1);
 S_out = jrc3('test', 'search_file_', {'sample.prb', {'.pra', './prb'}}, 1);
 S_out = jrc3('test', 'search_file_', {'sample.prb', {'.pra', './prc'}}, 1);
+
+S_out = jrc3('test', 'jrcpath_', {}, 1)
+S_out = jrc3('test', 'jrcpath_', {'test.m'}, 1)
+
+S_out = jrc3('test', 'exist_file_', {'sample.bin'}, 1)
+S_out = jrc3('test', 'exist_file_', {'./jrclust_alpha/sample.bin'}, 1)
