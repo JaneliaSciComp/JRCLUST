@@ -31,6 +31,7 @@ switch lower(vcCmd)
     case 'install', install_();
     case 'commit', commit_(vcArg1);
     case 'wiki', web('https://github.com/jamesjun/JRCLUST/wiki'); 
+    case 'gui', gui_(vcArg1, vcFile_prm_);    
         
     case 'which', return;    
     case 'download', download_(vcArg1);
@@ -1270,18 +1271,27 @@ P = struct_default_(P, 'mrColor_proj', [.75 .75 .75; 0 0 0; 1 0 0]);
 P.mrColor_proj = reshape(P.mrColor_proj(:), [], 3); %backward compatible
 P = struct_default_(P, {'blank_thresh', 'thresh_corr_bad_site', 'tlim_load'}, []);
 if isfield(P, 'rejectSpk_mean_thresh'), P.blank_thresh = P.rejectSpk_mean_thresh; end
-if isempty(get_(P, 'vcFilter'))
-    if get_(P, 'nDiff_filt') > 0
-        P.vcFilter = 'sgdiff';
-    else
-        P.vcFilter = 'bandpass';
-    end
-end 
+P.vcFilter = get_filter_(P);
 if isempty(get_(P, 'vcFilter_show'))
     P.vcFilter_show = P.vcFilter;
 end
 assert(validate_param_(P), 'Parameter file contains error.');
 if fEditFile, edit(P.vcFile_prm); end % Show settings file
+end %func
+
+
+%--------------------------------------------------------------------------
+% 9/27/17 JJJ: Created and tested
+function vcFilter = get_filter_(P)
+if isfield(P, 'vcFilter')
+    vcFilter = P.vcFilter;
+else
+    if get_(P, 'nDiff_filt') > 0
+        vcFilter = 'sgdiff';
+    else
+        vcFilter = 'bandpass';
+    end
+end
 end %func
 
 
@@ -2712,6 +2722,7 @@ n_post = size(mnWav1_post,1);
 if n_pre > 0 || n_post > 0
     mnWav2 = [mnWav1_pre; mnWav2; mnWav1_post];
 end
+P.vcFilter = get_filter_(P);
 switch lower(P.vcFilter)
     case {'sgdiff', 'sgfilt'}
         mnWav2 = sgfilt_(mnWav2, P.nDiff_filt, P.fGpu);
@@ -3398,7 +3409,6 @@ uimenu(mh_proj, 'Label', 'cov', 'Callback', @(h,e)proj_view_(h), ...
 mh_plot = uimenu(hFig,'Label','Plot'); 
 uimenu(mh_plot, 'Label', 'All unit firing rate vs. aux. input', 'Callback', @(h,e)plot_aux_rate_);
 uimenu(mh_plot, 'Label', 'Selected unit firing rate vs. aux. input', 'Callback', @(h,e)plot_aux_rate_(1));
-
 
 mh_info = uimenu(hFig,'Label','','Tag', 'mh_info'); 
 uimenu(mh_info, 'Label', 'Annotate unit', 'Callback', @unit_annotate_);
@@ -7822,8 +7832,8 @@ function vr_uV = bit2uV_(vn, P)
 % use only for filtered traces
 
 if nargin<2, P = get0_('P'); end
-if isempty(get_(P, 'nDiff_filt')), P.nDiff_filt = 0; end
-if strcmpi(P.vcFilter, 'sgdiff') && P.nDiff_filt > 1
+% if isempty(get_(P, 'nDiff_filt')), P.nDiff_filt = 0; end
+if strcmpi(get_filter_(P), 'sgdiff')
     norm = sum((1:P.nDiff_filt).^2) * 2;
 else
     norm = 1;
@@ -10379,7 +10389,7 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function [csFiles_full, csFiles] = dir_(vcFilter, csExcl)
+function [csFiles_full, csFiles] = dir_(vcFilter_dir, csExcl)
 % return name of files full path, exclude files
 if nargin>=2
     if ischar(csExcl), csExcl = {csExcl}; end
@@ -10387,10 +10397,10 @@ if nargin>=2
 else
     csExcl = [];
 end
-csFiles = dir(vcFilter);
+csFiles = dir(vcFilter_dir);
 csFiles  = {csFiles.('name')};
 csFiles = setdiff(csFiles, csExcl);
-[vcDir, ~, ~] = fileparts(vcFilter);
+[vcDir, ~, ~] = fileparts(vcFilter_dir);
 if isempty(vcDir), vcDir='.'; end
 csFiles_full = cellfun(@(vc)[vcDir, filesep(), vc], csFiles, 'UniformOutput', 0);
 end %func
@@ -12264,6 +12274,7 @@ figure_wait_(1, hFig); drawnow;
 sRateHz = P.sRateHz / P.nSkip_show;
 viSamples1 = 1:P.nSkip_show:size(mnWav1,1);
 spkLim = round(P.spkLim / P.nSkip_show); %show 2x of range
+P.vcFilter = get_filter_(P);
 if strcmpi(S_fig.vcFilter, 'on')
     P1=P; P1.sRateHz = sRateHz; P1.fGpu = 0;
     P1.vcFilter = get_set_(P, 'vcFilter_show', P.vcFilter);
@@ -15606,7 +15617,6 @@ else
 end
 
 % Perform filter fft_thresh
-% [P_.vcCommonRef, P_.fGpu, P_.vcFilter] = deal('none', 0, S_fig.vcFilter);
 P_ = set_(P, 'vcCommonRef', 'none', 'fGpu', 0, 'vcFilter', S_fig.vcFilter, ...
     'blank_period_ms', S_fig.blank_period_ms, 'blank_thresh', S_fig.blank_thresh, 'fParfor', 0);
 mnWav_filt = filt_car_(S_fig.mnWav_clean, P_);
@@ -16086,7 +16096,7 @@ uimenu(mh_edit, 'Label', 'Spike detection threshold', 'Callback', @(h,e)Fig_prev
 
 mh_edit_filter = uimenu(mh_edit, 'Label', 'Filter mode');
 uimenu_options_(mh_edit_filter, {'sgdiff', 'bandpass'}, @Fig_preview_filter_, hFig);
-menu_checkbox_(mh_edit_filter, P.vcFilter);
+menu_checkbox_(mh_edit_filter, get_filter_(P));
 
 mh_edit_ref = uimenu(mh_edit, 'Label', 'Reference mode');
 uimenu_options_(mh_edit_ref, {'none', 'mean', 'median'}, @Fig_preview_ref_, hFig); % @TODO: local mean
@@ -16544,7 +16554,7 @@ if nargin<1, fSelectedUnit = 0; end %plot all
 P = loadParam_(P.vcFile_prm);
 vrWav_aux = load_aux_(P);
 if isempty(vrWav_aux), msgbox_('Aux input is not found'); return; end
-mrRate_clu = clu_rate_(S_clu, [], nSamples);
+mrRate_clu = clu_rate_(S_clu, [], numel(vrWav_aux));
 if ~isempty(vrTime_aux)
     vrCorr_aux_clu = arrayfun(@(i)corr(vrWav_aux, mrRate_clu(:,i), 'type', 'Pearson'), 1:size(mrRate_clu,2));
 end
@@ -16556,26 +16566,48 @@ end %func
 
 
 %--------------------------------------------------------------------------
+% 9/27/17 JJJ: Imported from SPARC grant
 function [vrWav_aux, vrTime_aux] = load_aux_(P)
-vcFile_aux = get_set_(P, 'vcFile_aux', subsFileExt_(P.vcFile, '.ns2'));
-if exist(vcFile_aux, 'file')==2
-    if matchFileExt_(vcFile_aux, '.ns2')
+
+[vrWav_aux, vrTime_aux] = deal([]);
+if isempty(P.vcFile), msgbox_('Multi-file mode is currently not supported'); return; end
+[~,~,vcExt] = fileparts(P.vcFile);
+vcFile_aux = get_set_(P, 'vcFile_aux', '');
+if isempty(vcFile_aux)
+    switch lower(vcExt)
+        case '.ns5', vcFile_aux = subsFileExt_(P.vcFile, '.ns2');
+        case {'.bin', '.dat'}, vcFile_aux = P.vcFile;
+        otherwise
+            fprintf(2, 'Unable to determine the aux file. You must manually specify "vcFile_aux".\n');
+            return;
+    end
+end
+if ~exist_file_(vcFile_aux), return; end
+
+[~,~,vcExt_aux] = fileparts(vcFile_aux);
+switch lower(vcExt_aux)
+    case '.ns2'
         iChan_aux = get_set_(P, 'iChan_aux', 1);
         [mnWav_aux, hFile_aux, S_aux] = load_nsx_(vcFile_aux);
         scale_aux = hFile_aux.Entity(iChan_aux).Scale * P.vrScale_aux;
         vrWav_aux = single(mnWav_aux(iChan_aux,:)') * scale_aux;        
-        nSamples = numel(vrWav_aux);
-        vrTime_aux = (1:nSamples) / S_aux.sRateHz;
-    elseif matchFileExt_(vcFile_aux, '.mat')
+        sRateHz_aux = S_aux.sRateHz;
+    case '.mat'
         S_aux = load(vcFile_aux);
         csField_aux = fieldnames(S_aux);
         vrWav_aux = S_aux.(csField_aux{1});
-        nSamples = numel(vrWav_aux);
-        vrTime_aux = (1:nSamples) / get_set_(P, 'sRateHz_aux', 1000);
-    end
-else
-    [vrWav_aux, vrTime_aux] = deal([]);
-end
+        sRateHz_aux = get_set_(P, 'sRateHz_aux', P.sRateHz_rate);
+    case {'.dat', '.bin'}
+        iChan_aux = get_set_(P, 'iChan_aux', []);
+        if isempty(iChan_aux), return; end
+        mnWav_aux = load_bin_(vcFile_aux, P.vcDataType);
+        vrWav_aux = single(mnWav_aux(iChan_aux:P.nChans:end)') * P.uV_per_bit * P.vrScale_aux;  
+        sRateHz_aux = get_set_(P, 'sRateHz_aux', P.sRateHz);
+    otherwise
+        fprintf(2, 'vcFile_aux: unsupported file format: %s\n', vcExt_aux);
+        return;
+end %switch
+if nargout>=2, vrTime_aux = single(1:numel(vrWav_aux))' / sRateHz_aux; end
 end %func
 
 
@@ -16720,4 +16752,23 @@ function flag = exist_file_(vcFile)
 % Different from exist(vcFile, 'file') which uses search path
 
 flag = ~isempty(dir(vcFile));
+end %func
+
+
+%--------------------------------------------------------------------------
+% 9/27/17 JJJ: Created
+function gui_(vcArg1, vcFile_prm_)
+% JRCLUST GUI interface
+
+if ~isempty(vcArg1)
+    vcFile_prm = vcArg1;
+elseif ~isempty(vcFile_prm_)
+    vcFile_prm = vcFile_prm_;
+else
+    vcFile_prm = '';
+end
+S_gui.vcFile_prm = vcFile_prm;
+set0_(S_gui);
+jrc3_gui();
+
 end %func

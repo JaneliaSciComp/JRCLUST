@@ -243,3 +243,8 @@ S_out = jrc3('test', 'jrcpath_', {'test.m'}, 1)
 
 S_out = jrc3('test', 'exist_file_', {'sample.bin'}, 1)
 S_out = jrc3('test', 'exist_file_', {'./jrclust_alpha/sample.bin'}, 1)
+
+%% 9/27/17 JJJ
+S_out = jrc3('test', 'get_filter_', {struct('nDiff_filt', 0)}, 1)
+S_out = jrc3('test', 'get_filter_', {struct('nDiff_filt', 1)}, 1)
+S_out = jrc3('test', 'get_filter_', {struct('vcFilter', 'bandpass')}, 1)
