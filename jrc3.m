@@ -16674,12 +16674,13 @@ try
 	% Attempt to pull latest verion
 % 	cd(fullfile(defineInstallPath(),repoName))
 % 	addpath(cd)
-	system('git pull');
+	code = system('git pull');
 catch
-	% If this fails, we assume repo is not present, therefore clone
-% 	cd(defineInstallPath())
-    system('git init');
-	system(sprintf('git clone %s.git startDir', repoURL));
+	code = -1;
 end
-cd(startDir)
+if code ~= 1
+    fprintf(2, 'Not a git repository. Please run the following command to clone from GitHub.\n');    
+    fprintf(2, '\tsystem(''git clone %s.git myDest''\n', repoURL);
+    fprintf(2, '\tReplace "myDest" with the desired installation location or omit to install in ./JRCLUST.\n', repoURL);
+end
 end %func
