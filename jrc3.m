@@ -16678,7 +16678,7 @@ try
 catch
 	code = -1;
 end
-if code ~= 1
+if code ~= 0
     fprintf(2, 'Not a git repository. Please run the following command to clone from GitHub.\n');    
     fprintf(2, '\tsystem(''git clone %s.git myDest''\n', repoURL);
     fprintf(2, '\tReplace "myDest" with the desired installation location or omit to install in ./JRCLUST.\n', repoURL);
