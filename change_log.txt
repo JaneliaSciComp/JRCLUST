@@ -3,6 +3,7 @@ James Jun, HHMI-Janelia Research Campus, Applied Physics and Instrumentation Gro
 
 --------------------------------------------------------------------
 [2017/9/27]
+Added a parameter validater. Incorrect parameter values will be rejected with warning messages.
 Bugfix: "vcFilter" issue is resolved for older format.
 
 [2017/9/26]

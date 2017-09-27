@@ -375,8 +375,8 @@ t1 = tic;
 fprintf('Updating from %s...\n', vcSource);
 csCopy = ifeq_(isempty(vcFile), S_cfg.sync_list, {vcFile});   
 for iCopy = 1:numel(csCopy)
-    try_eval_(sprintf('copyfile ''%s\\%s'' .\\ f;', vcSource, csCopy{iCopy}));
-    try_eval_(sprintf('copyfile ''.\\%s'' ''%s\\'' f;', csCopy{iCopy}, vcBackup));
+    try_eval_(sprintf('copyfile ''%s\\%s'' .\\ f;', vcSource, csCopy{iCopy}), 0);
+    try_eval_(sprintf('copyfile ''.\\%s'' ''%s\\'' f;', csCopy{iCopy}, vcBackup), 0);
 end
 
 % Compile CUDA code
@@ -391,7 +391,7 @@ end
 if fCompile_ksort
     try 
         mkdir_('./kilosort');
-        try_eval_(sprintf('copyfile ''%s\\kilosort\\*'' .\\kilosort\\ f;', vcSource));
+        try_eval_(sprintf('copyfile ''%s\\kilosort\\*'' .\\kilosort\\ f;', vcSource), 0);
         if fCompile, compile_ksort_(); end
     catch
         disperr_();
@@ -10250,12 +10250,15 @@ end
 
 
 %--------------------------------------------------------------------------
-function try_eval_(vcEval1)
+function try_eval_(vcEval1, fVerbose)
+if nargin<2, fVerbose = 1; end
 try 
     eval(vcEval1); 
     fprintf('\t%s\n', vcEval1);  
 catch
-    fprintf(2, '\tError evaluating ''%s''\n', vcEval1);  
+    if fVerbose
+        fprintf(2, '\tError evaluating ''%s''\n', vcEval1);  
+    end
 end
 end %func
 
@@ -13663,10 +13666,25 @@ end %func
 
 
 %--------------------------------------------------------------------------
+% 9/27/17 Validate parameters
 function flag = validate_param_(P)
-% validate P. @TODO
+% validate P
+
+NDIM_SORT_MAX = 30;
+
 csError = {};
 
+nSites_spk = P.maxSite * 2 + 1 - P.nSites_ref;
+nFet_sort = nSites_spk * P.nPcPerChan;
+
+if nSites_spk <= 0
+    csError{end+1} = sprintf('Negative # Sites/spk. Use this formula to adjust maxSite and nSites_ref (nSites_spk = 1+maxSite*2-nSites_ref)');
+end
+if nFet_sort > NDIM_SORT_MAX
+    csError{end+1} = sprintf('# dimensions (%d) exceeds the maximum limit for CUDA code (%d), decrease maxSite', nFet_sort, NDIM_SORT_MAX);
+end
+
+% nFet = P.
 % Validate format
 % if isempty(P.vcFile) && isempty(P.csFile_merge)
 %     csError{end+1} = '''vcFile'' or ''csFile_merge'' must be set.';
@@ -15637,7 +15655,7 @@ S_fig.mnWav_filt = mnWav_filt;
 % vrPower_psd = abs(mean(fft(S_fig.mnWav_raw(:,~S_fig.vlSite_bad)), 2));
 [mrPower_psd, S_fig.vrFreq_psd] = psd_(S_fig.mnWav_raw(:,~S_fig.vlSite_bad), P.sRateHz, 4);
 [mrPower_clean_psd] = psd_(S_fig.mnWav_clean(:,~S_fig.vlSite_bad), P.sRateHz, 4);
-[S_fig.vrPower_psd, S_fig.vrPower_clean_psd] = multifun(@(x)mean(x,2), mrPower_psd, mrPower_clean_psd);
+[S_fig.vrPower_psd, S_fig.vrPower_clean_psd] = multifun_(@(x)mean(x,2), mrPower_psd, mrPower_clean_psd);
 
 % Apply threshold and perform spike detection
 vrRmsQ_site = mr2rms_(mnWav_filt, 1e5);
