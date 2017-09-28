@@ -7,7 +7,7 @@ Written by J. James Jun, Apr 5, 2017
 [Requirements]
 1. Matlab (R2014b or newer) and toolboxes: Parallel computing, Signal processing, Statistics and Machine Learning, Image processing toolbox.
 2. RAM size should be greater than 1/4 or the recording file size.
-3. NVidia GPU cards (Compute version 3.0 or higher, which includes Kepler, Maxwell, Pascal-based GPUs). 
+3. NVidia GPU cards (Compute version 3.5 or higher, which includes Kepler, Maxwell, Pascal-based GPUs). 
   Note that Pascal-based GPU is only supported by CUDA 8.0 or higher, which requires Matlab 2017a or higher.
 4. NVIDIA CUDA toolkit (Install a correct version supported by your Matlab version)
   R2017a: CUDA 8.0, R2016b: CUDA 7.5, R2016a: CUDA 7.5, R2015b: CUDA 7.0, R2015a: CUDA 6.5, R2014b: CUDA 6.0
@@ -56,18 +56,18 @@ Written by J. James Jun, Apr 5, 2017
 [Test using the included sample data]
 1. Download sample data by running
   >jrc download sample
-1. Create a new parameter file
+2. Create a new parameter file
   >jrc makeprm sample.bin sample.prb
   This creates "sample_sample.prm" file. 
-2. Display the raw traces
+3. Display the raw traces
   >jrc traces sample_sample.prm
   or you can also run
   >jrc traces
   You can omit sample_sample.prm since JRCLUST remembers the current parameter file.
   Run "jrc clear" to clear the JRCLUST memory.
-3. Run spike sorting
+4. Run spike sorting
   >jrc spikesort
-4. Manual verification/sorting
+5. Manual verification/sorting
   >jrc manual
 6. You can clear the memory and delete all output files for a given parameter file by running
   >jrc clear sample_sample.prm

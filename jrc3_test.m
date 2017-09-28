@@ -248,3 +248,6 @@ S_out = jrc3('test', 'exist_file_', {'./jrclust_alpha/sample.bin'}, 1)
 S_out = jrc3('test', 'get_filter_', {struct('nDiff_filt', 0)}, 1)
 S_out = jrc3('test', 'get_filter_', {struct('nDiff_filt', 1)}, 1)
 S_out = jrc3('test', 'get_filter_', {struct('vcFilter', 'bandpass')}, 1)
+
+S_out = jrc3('test', 'wiki_', {}, 0)
+S_out = jrc3('test', 'wiki_', {'Command-line-interface'}, 0)

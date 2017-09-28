@@ -2,6 +2,11 @@
 James Jun, HHMI-Janelia Research Campus, Applied Physics and Instrumentation Group
 
 --------------------------------------------------------------------
+[2017/9/28]
+Bugfix: "version" field in .prm file is correctly updated.
+"jrc git-pull version#" will download a specific version # tag.
+  "jrc git-pull" will download the latest release.
+
 [2017/9/27]
 Added a parameter validater. Incorrect parameter values will be rejected with warning messages.
 Bugfix: "vcFilter" issue is resolved for older format.

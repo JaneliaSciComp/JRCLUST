@@ -23,15 +23,20 @@ fExit = 1;
 switch lower(vcCmd)
     % No arguments
     case 'version', jrc_version_();
-    case {'help', '-h', '?', '--help'}, help_(); about_();
+    case {'help', '-h', '?', '--help'}, help_(vcArg1); about_();
+    case 'about', about_();
     case 'clear', clear_(vcArg1);
     case 'doc', doc_();
     case 'update', update_(vcArg1);
-    case 'git-pull', git_pull_();
+    case 'git-pull', git_pull_(vcArg1);
+%     case 'git-revert', git_revert_(vcArg1);
     case 'install', install_();
     case 'commit', commit_(vcArg1);
-    case 'wiki', web('https://github.com/jamesjun/JRCLUST/wiki'); 
-    case 'gui', gui_(vcArg1, vcFile_prm_);    
+    case 'wiki', wiki_(vcArg1);
+    case 'wiki-download', wiki_download_();
+    case 'gui', gui_(vcArg1, vcFile_prm_);
+    case 'wiki-download', wiki_download_();
+    case 'issue', issue_('post');
         
     case 'which', return;    
     case 'download', download_(vcArg1);
@@ -224,7 +229,10 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function csHelp = help_()
+function csHelp = help_(vcCommand)
+if nargin<1, vcCommand = ''; end
+if ~isempty(vcCommand), wiki_(vcCommand); return; end
+
 csHelp = {...
     ''; 
     'Usage: jrc command arg1 arg2 ...';
@@ -234,12 +242,18 @@ csHelp = {...
     '[Documentation and help]';
     '  jrc help';
     '    Display a help menu'; 
-    '  jrc wiki';
-    '    Open a JRCLUST Wiki webpage (hosted on Github.com)';     
     '  jrc doc';
     '    Open a help document (pdf)';         
     '  jrc version';
     '    Display the version number and the updated date';            
+    '  jrc about';
+    '    Display about information';       
+    '  jrc wiki';
+    '    Open a JRCLUST Wiki on GitHub';     
+    '  jrc wiki-download';
+    '    Download the JRCLUST Wiki on GitHub to ./wiki/';    
+    '  jrc issue';
+    '    Post an issue at GitHub (log-in with your GitHub account)';        
     '';
     '[Main commands]';
     '  jrc edit (myparam.prm)';
@@ -248,8 +262,6 @@ csHelp = {...
     '    Clear cache';
     '  jrc clear myparam.prm';
     '    Delete previous results (files: _jrc.mat, _spkwav.jrc, _spkraw.jrc, _spkfet.jrc)';        
-    '  jrc doc';
-    '    Open jrc documentation';     
     '  jrc spikesort myparams.prm';
     '    Run the whole suite (spike detection and clustering) ';
     '  jrc detect myparams.prm';
@@ -269,7 +281,7 @@ csHelp = {...
     '  jrc makeprm myrecording.bin myprobe.prb mytemplate.prm';
     '    create a new parameter file based on the specified template file and probe file';    
     '  jrc traces myparams.prm';
-    '    Displays raw trace';                
+    '    Displays raw trace';
     '  jrc describe myparams.prm';
     '    Display information about a clu dataset ';
     '  jrc manual myparams.prm';
@@ -322,7 +334,7 @@ csHelp = {...
     '    Imports Neuroshare format and export the analog channels to .bin file.';
     '    Generates .prm file by combining the .bin and .prb file names (e.g. binfile_prbfile.prm).';
     '';
-    '[Sorting multiple files]';
+    '[Sorting multiple recordings together]';
     '  jrc dir myparam.prm'; 
     '    List all recording files to be clustered together (csFile_merge)';
     '  jrc traces myparam.prm';
@@ -330,21 +342,16 @@ csHelp = {...
     '  jrc traces myparam.prm File#';
     '    Direcly specify the file number to display';
     '';
-    '[Developer''s commands]';
+    '[Deployment]';
+    '  jrc update';
+    '    Update code by copying from the dropbox location (specified in user.cfg or default.cfg)';    
     '  jrc unit-test';
     '    Run a suite of unit teste.';       
-    '  jrc update';
-    '    Update code by copying from the dropbox location (specified in user.cfg or default.cfg)';
     '  jrc install';
     '    Install jrc by compiling codes';    
     '  jrc compile';
     '    Recompile CUDA code (GPU codes, *.cu)';     
     '';
-    '[Experimental commands]';
-    '  jrc trackdepth myparams.prm';
-    '    LFP based depth tracking'            
-    '  jrc syncvid myparams.prm';
-    '    Synchronize video using LED blinking';    
 };
 if nargout==0, disp_cs_(csHelp); end
 end %func
@@ -486,7 +493,7 @@ switch lower(vcMode)
     case {'sample3', 'neuropix3' 'neuropixels3', 'phase3', 'phaseiii'}
         csLink = S_cfg.path_sample_phase3;
     otherwise
-        disp('Invalid selection. Try "jrc download sample".');
+        disp('Invalid selection. Try "jrc download sample or jrc download sample3".');
         return;
 end %switch
 
@@ -3422,7 +3429,10 @@ mh_history = uimenu(hFig,'Label', 'History', 'Tag', 'History');
 
 mh_help = uimenu(hFig,'Label','Help'); 
 uimenu(mh_help, 'Label', '[H]elp', 'Callback', @help_FigWav_);
+uimenu(mh_help, 'Label', 'Wiki on GitHub', 'Callback', @(h,e)wiki_());
 uimenu(mh_help, 'Label', 'About', 'Callback', @(h,e)msgbox_(about_()));
+uimenu(mh_help, 'Label', 'Post an issue on GitHub', 'Callback', @(h,e)issue_('search'));
+uimenu(mh_help, 'Label', 'Search issues on GitHub', 'Callback', @(h,e)issue_('post'));
 
 drawnow;
 set(hFig, 'OuterPosition', posvec);
@@ -3485,6 +3495,7 @@ try
     end
     delete_multi_(get_fig_all_(S0.csFig), src);
     close_(get_fig_('FigTrial'));
+    close_(get_fig_('FigAux'));
 catch
     disperr_();
     close(src);
@@ -6126,10 +6137,11 @@ end %func
 % function about_()
 % 7/24/17 JJJ: Updated requirements and contact info
 function csAbout = about_(varargin)
+[vcVer, vcDate] = jrc_version_();
 csAbout = { ...            
     ''; 
-    'Janelia Rapid Clust V3 (jrc3.m)';
-    '  Last updated on 2017 July 24';
+    sprintf('Janelia Rapid Clust %s (jrc3.m)', vcVer);
+    sprintf('  Last updated on %s', vcDate);
     '  Created by James Jun (james@vidriotech.com)';
     '  Vidrio Technologies, LLC';
     '  HHMI - Janelia Research Campus';
@@ -14520,6 +14532,7 @@ P = struct_merge_(P0, P);
 P = struct_merge_(P, P_meta);    
 P = struct_merge_(P, file_info_(vcFile_bin));
 P.duration_file = P.nBytes_file / bytesPerSample_(P.vcDataType) / P.nChans / P.sRateHz; %assuming int16
+P.version = jrc_version_();
 try
     copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
 catch
@@ -16402,6 +16415,7 @@ catch
     disperr_(sprintf('Error loading the probe file: %s\n', vcFile_prb));
 end
 P.duration_file = nSamples / P.sRateHz; %assuming int16
+P.version = jrc_version_();
 P.vcFile_prm = vcFile_prm;
 P.vcFile = vcFile_bin;
 copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
@@ -16418,6 +16432,11 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
 % Import neuroshare format
 % sample size is determined by the smallest file in the chan recording set
 if nargin<3, vcTemplate_prm = ''; end
+if matchFileExt_(vcFile_prb, '.prm')
+    vcTemplate_prm = vcFile_prb;
+    S_ = file2struct_(vcTemplate_prm);
+    vcFile_prb = S_.probe_file;
+end
 
 % vcFile_nsx = 'E:\TimBruns\Ichabod Trial 14\exp_9_ichabod0014.ns5';
 if ~exist(vcFile_nsx, 'file'), error('File does not exist.') ;end
@@ -16433,17 +16452,18 @@ vcFile_prm = subsFileExt_(P.vcFile, sprintf('_%s.prm', vcFile_prb_));
 if isempty(vcTemplate_prm)
     vcTemplate_prm = jrcpath_(read_cfg_('default_prm'));
 end
-assert(exist(vcTemplate_prm, 'file')~=2, sprintf('Template file does not exist: %s', vcTemplate_prm));
+assert(exist_file_(vcTemplate_prm), sprintf('Template file does not exist: %s', vcTemplate_prm));
 
 % Write to a .prm file
 try
-    S_prb = file2struct_(vcFile_prb);
+    S_prb = file2struct_(find_prb_(vcFile_prb));
     if isfield(S_prb, 'maxSite'), P.maxSite = S_prb.maxSite; end
     if isfield(S_prb, 'nSites_ref'), P.nSites_ref = S_prb.nSites_ref; end
 catch
     disperr_(sprintf('Error loading the probe file: %s\n', vcFile_prb));
 end
 P.duration_file = nSamples / P.sRateHz; %assuming int16
+P.version = jrc_version_();
 P.vcFile_prm = vcFile_prm;
 % P.vcFile = vcFile_bin;
 copyfile(vcTemplate_prm, P.vcFile_prm, 'f');
@@ -16570,12 +16590,10 @@ function plot_aux_rate_(fSelectedUnit)
 if nargin<1, fSelectedUnit = 0; end %plot all
 [P, S_clu, iCluCopy] = get0_('P', 'S_clu', 'iCluCopy');
 P = loadParam_(P.vcFile_prm);
-vrWav_aux = load_aux_(P);
+[vrWav_aux, vrTime_aux] = load_aux_(P);
 if isempty(vrWav_aux), msgbox_('Aux input is not found'); return; end
 mrRate_clu = clu_rate_(S_clu, [], numel(vrWav_aux));
-if ~isempty(vrTime_aux)
-    vrCorr_aux_clu = arrayfun(@(i)corr(vrWav_aux, mrRate_clu(:,i), 'type', 'Pearson'), 1:size(mrRate_clu,2));
-end
+vrCorr_aux_clu = arrayfun(@(i)corr(vrWav_aux, mrRate_clu(:,i), 'type', 'Pearson'), 1:size(mrRate_clu,2));
 if ~fSelectedUnit, iCluCopy = []; end
 plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluCopy);
 vcMsg = assignWorkspace_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux);    
@@ -16698,7 +16716,7 @@ end %func
 % 9/22/17 JJJ: Created for SPARC
 function [P, nSamples, hFile] = nsx_info_(vcFile_nsx)
 addpath('./neuroshare/');
-[ns_RESULT, hFile] = ns_OpenFile_(vcFile_nsx);
+[ns_RESULT, hFile] = ns_OpenFile(vcFile_nsx);
 vlAnalog_chan= strcmpi({hFile.Entity.EntityType}, 'Analog');
 nSamples = hFile.TimeSpan / hFile.FileInfo.Period;
 % viElecID = double([hFile.Entity.ElectrodeID]);
@@ -16734,7 +16752,7 @@ end %func
 %--------------------------------------------------------------------------
 function [vcVer, vcDate] = jrc_version_()
 vcVer = 'v3.0.1';
-vcDate = '9/26/2017';
+vcDate = '9/27/2017';
 if nargout==0
     fprintf('%s, updated on %s\n', vcVer, vcDate);
 end
@@ -16743,16 +16761,19 @@ end %func
 
 %--------------------------------------------------------------------------
 % 9/26/17 JJJ: Created and tested
-function git_pull_()
+function git_pull_(vcVersion)
 % https://github.com/drbenvincent/github-sync-matlab
-startDir = cd();
+% startDir = cd();
+if nargin<1, vcVersion = ''; end
+
 repoURL = 'https://github.com/jamesjun/JRCLUST';
-repoName = 'JRCLUST';
+% repoName = 'JRCLUST';
 try
-	% Attempt to pull latest verion
-% 	cd(fullfile(defineInstallPath(),repoName))
-% 	addpath(cd)
-	code = system('git pull');
+    if isempty(vcVersion)
+        code = system('git pull');
+    else
+        code = system(sprintf('git reset --hard "%s"', vcVersion));
+    end
 catch
 	code = -1;
 end
@@ -16760,6 +16781,30 @@ if code ~= 0
     fprintf(2, 'Not a git repository. Please run the following command to clone from GitHub.\n');    
     fprintf(2, '\tsystem(''git clone %s.git myDest''\n', repoURL);
     fprintf(2, '\tReplace "myDest" with the desired installation location or omit to install in ./JRCLUST.\n', repoURL);
+    fprintf(2, '\tYou may need to install git from https://git-scm.com/downloads.\n');  
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 9/28/17 JJJ: Created and tested
+function wiki_download_()
+repoURL = 'https://github.com/jamesjun/JRCLUST.wiki.git';
+repoName = 'wiki';
+if isempty(dir(repoName))
+    vcEval = sprintf('git clone %s %s', repoURL, repoName);
+else
+    vcEval = sprintf('git pull %s', repoName);
+end
+try
+	code = system(vcEval);
+catch
+	code = -1;
+end
+if code == 0
+    fprintf('Wiki on GitHub is downloaded to ./%s/\n', repoName);
+else
+    fprintf(2, 'Please install git from https://git-scm.com/downloads.\n');        
 end
 end %func
 
@@ -16789,4 +16834,26 @@ S_gui.vcFile_prm = vcFile_prm;
 set0_(S_gui);
 jrc3_gui();
 
+end %func
+
+
+%--------------------------------------------------------------------------
+% 9/27/17 JJJ: Created
+function wiki_(vcPage)
+if nargin<1, vcPage = ''; end
+if isempty(vcPage)
+    web('https://github.com/jamesjun/JRCLUST/wiki'); 
+else
+    web(['https://github.com/jamesjun/JRCLUST/wiki/', vcPage]); 
+end
+end
+
+
+%--------------------------------------------------------------------------
+% 9/27/17 JJJ: Created
+function issue_(vcMode)
+switch lower(vcMode)
+    case 'post', web('https://github.com/jamesjun/JRCLUST/issues/new')
+    case 'search', web('https://github.com/jamesjun/JRCLUST/issues')
+end %switch
 end %func
