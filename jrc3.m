@@ -16784,6 +16784,8 @@ if code ~= 0
     fprintf(2, '\tsystem(''git clone %s.git myDest''\n', repoURL);
     fprintf(2, '\tReplace "myDest" with the desired installation location or omit to install in ./JRCLUST.\n', repoURL);
     fprintf(2, '\tYou may need to install git from https://git-scm.com/downloads.\n');  
+else
+    edit('change_log.txt');
 end
 end %func
 
