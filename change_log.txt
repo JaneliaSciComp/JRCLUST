@@ -3,9 +3,12 @@ James Jun, HHMI-Janelia Research Campus, Applied Physics and Instrumentation Gro
 
 --------------------------------------------------------------------
 [2017/9/28]
-Bugfix: "version" field in .prm file is correctly updated.
+New user interface: jrc gui
+  It opens a GUI that allows users to access majority of the JRCLUST commands via menu or buttons.
+  This is recommended for new users who are not familiar with JRCLUST commands.
 "jrc git-pull version#" will download a specific version # tag.
   "jrc git-pull" will download the latest release.
+Bugfix: "version" field in .prm file is correctly updated.
 
 [2017/9/27]
 Added a parameter validater. Incorrect parameter values will be rejected with warning messages.

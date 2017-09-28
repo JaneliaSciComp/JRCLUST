@@ -40,7 +40,9 @@ switch lower(vcCmd)
         
     case 'which', return;    
     case 'download', download_(vcArg1);
-    case {'makeprm', 'createprm'}, vcFile_prm_ = makeprm_(vcArg1, vcArg2, 1, vcArg3);
+    case {'makeprm', 'createprm'}
+        vcFile_prm_ = makeprm_(vcArg1, vcArg2, 1, vcArg3);
+        varargout{1} = vcFile_prm_;
     case 'makeprm-f', makeprm_(vcArg1, vcArg2, 0, vcArg3);
     case 'import-tsf', import_tsf_(vcArg1);
     case 'import-jrc1', import_jrc1_(vcArg1);
@@ -14754,7 +14756,7 @@ try
         P.Smeta = S_meta;    
     else
         fprintf('%s is not found. Asking users to fill out the missing info\n', vcFile_meta);
-        csAns = inputdlg({'sampling rate (Hz)', '# channels in file', 'uV/bit', 'Neuropixels option (0 if N/A)', 'Header offset (bytes)'}, 'Recording format', 1, {'30000', '385', '1','0','0'});
+        csAns = inputdlg_({'sampling rate (Hz)', '# channels in file', 'uV/bit', 'Neuropixels option (0 if N/A)', 'Header offset (bytes)'}, 'Recording format', 1, {'30000', '385', '1','0','0'});
         if isempty(csAns), return; end
         P = struct('sRateHz', str2double(csAns{1}), 'nChans', str2double(csAns{2}), 'uV_per_bit', str2double(csAns{3}), 'imProbeOpt', str2double(csAns{4}), 'header_offset', str2double(csAns{5}));
         P.Smeta = P;
