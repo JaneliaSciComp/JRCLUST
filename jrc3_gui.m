@@ -22,7 +22,7 @@ function varargout = jrc3_gui(varargin)
 
 % Edit the above text to modify the response to help jrc3_gui
 
-% Last Modified by GUIDE v2.5 28-Sep-2017 07:16:29
+% Last Modified by GUIDE v2.5 29-Sep-2017 14:42:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -51,9 +51,16 @@ function jrc3_gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to jrc3_gui (see VARARGIN)
-image(handles.axes1, imread('./img/gui_background.png'));
-set(handles.axes1, 'XTick', [], 'YTick', [], 'Visible', 'off');
-axis(handles.axes1, 'equal');
+
+% Background image
+% image(handles.axes1, imread('./img/gui_background.png'));
+% set(handles.axes1, 'XTick', [], 'YTick', [], 'Visible', 'off');
+% axis(handles.axes1, 'equal');
+
+% Disable buttons and menus
+enable_(handles, {'Spikesort', 'Detect', 'Sort', 'ClearPrm', 'EditPrm', ...
+    'Auto', 'Probe', 'Preview', 'Traces', 'Manual', 'Describe', 'Drift'}, 0);
+
 % Choose default command line output for jrc3_gui
 handles.output = hObject;
 
@@ -141,71 +148,71 @@ function Untitled_18_Callback(hObject, eventdata, handles)
 
 
 % --------------------------------------------------------------------
-function gui_help_wiki_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_help_wiki (see GCBO)
+function menuWiki_Callback(hObject, eventdata, handles)
+% hObject    handle to menuWiki (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_help_gitpull_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_help_gitpull (see GCBO)
+function menuGitPull_Callback(hObject, eventdata, handles)
+% hObject    handle to menuGitPull (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_help_update_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_help_update (see GCBO)
+function menuUpdate_Callback(hObject, eventdata, handles)
+% hObject    handle to menuUpdate (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_help_about_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_help_about (see GCBO)
+function menuAbout_Callback(hObject, eventdata, handles)
+% hObject    handle to menuAbout (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_help_issue_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_help_issue (see GCBO)
+function menuIssue_Callback(hObject, eventdata, handles)
+% hObject    handle to menuIssue (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_view_traces_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_view_traces (see GCBO)
+function menuTraces_Callback(hObject, eventdata, handles)
+% hObject    handle to menuTraces (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_view_preview_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_view_preview (see GCBO)
+function menuPreview_Callback(hObject, eventdata, handles)
+% hObject    handle to menuPreview (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_view_manual_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_view_manual (see GCBO)
+function menuManual_Callback(hObject, eventdata, handles)
+% hObject    handle to menuManual (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_edit_sort_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_edit_sort (see GCBO)
+function menuSort_Callback(hObject, eventdata, handles)
+% hObject    handle to menuSort (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_edit_auto_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_edit_auto (see GCBO)
+function menuAuto_Callback(hObject, eventdata, handles)
+% hObject    handle to menuAuto (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -218,15 +225,15 @@ function Untitled_15_Callback(hObject, eventdata, handles)
 
 
 % --------------------------------------------------------------------
-function gui_edit_spikesort_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_edit_spikesort (see GCBO)
+function menuSpikesort_Callback(hObject, eventdata, handles)
+% hObject    handle to menuSpikesort (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_file_openprm_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_file_openprm (see GCBO)
+function menuLoadPrm_Callback(hObject, eventdata, handles)
+% hObject    handle to menuLoadPrm (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 load_prm_(hObject);
@@ -242,10 +249,9 @@ if isempty(vcFile_prm)
 end
 S_gui = guidata(hObject);
 set(S_gui.Fig_gui, 'Name', vcFile_prm);
-vhBtn = [S_gui.btnEditPrm, S_gui.btnSpikesort, S_gui.btnProbe, S_gui.btnPreview, S_gui.btnTraces, S_gui.btnDetect, S_gui.btnClearPrm];
-set(vhBtn, 'Enable', 'on');
-if ~isempty(dir(strrep(vcFile_prm, '.prm', '_jrc.mat')))
-    set([S_gui.btnManual, S_gui.btnDescribe, S_gui.btnDrift, S_gui.btnSort, S_gui.btnAuto], 'Enable', 'on');
+enable_(S_gui, {'EditPrm', 'Spikesort', 'Probe', 'Preview', 'Traces', 'Detect', 'ClearPrm'}, 1);
+if ~isempty(dir(strrep(vcFile_prm, '.prm', '_jrc.mat')))    
+    enable_(S_gui, {'Manual', 'Describe', 'Drift', 'Sort', 'Auto'}, 1);
 end
 edit(vcFile_prm);
 S_gui.vcFile_prm = vcFile_prm;
@@ -253,15 +259,15 @@ guidata(hObject, S_gui)
 
 
 % --------------------------------------------------------------------
-function gui_file_makeprm_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_file_makeprm (see GCBO)
+function menuMakePrm_Callback(hObject, eventdata, handles)
+% hObject    handle to menuMakePrm (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_edit_prm_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_edit_prm (see GCBO)
+function menuEditPrm_Callback(hObject, eventdata, handles)
+% hObject    handle to menuEditPrm (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -310,7 +316,8 @@ function btnDetect_Callback(hObject, eventdata, handles)
 S_gui = guidata(hObject);
 try
     jrc('detect', S_gui.vcFile_prm);
-    set([S_gui.btnDescribe, S_gui.btnSort], 'Enable', 'on');
+    enable_(S_gui, {'Describe', 'Sort'}, 1);
+    enable_(S_gui, {'Drift', 'Auto'}, 0);
 catch
     disperr_();
 end
@@ -324,7 +331,7 @@ function btnSpikesort_Callback(hObject, eventdata, handles)
 S_gui = guidata(hObject);
 try
     jrc('spikesort', S_gui.vcFile_prm);
-    set([S_gui.btnDrift, S_gui.btnDescribe], 'Enable', 'on');
+    enable_(S_gui, {'Drift', 'Describe', 'Sort', 'Auto'}, 1);
 catch
     disperr_();
 end
@@ -338,7 +345,7 @@ function btnSort_Callback(hObject, eventdata, handles)
 S_gui = guidata(hObject);
 try
     jrc('sort', S_gui.vcFile_prm);
-    set([S_gui.btnDrift, S_gui.btnDescribe, S_gui.btnAuto], 'Enable', 'on');
+    enable_(S_gui, {'Drift', 'Describe', 'Auto'}, 1);
 catch
     disperr_();
 end
@@ -383,8 +390,8 @@ end
 
 
 % --------------------------------------------------------------------
-function gui_view_probe_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_view_probe (see GCBO)
+function menuProbe_Callback(hObject, eventdata, handles)
+% hObject    handle to menuProbe (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -423,7 +430,7 @@ function btnAuto_Callback(hObject, eventdata, handles)
 S_gui = guidata(hObject);
 try
     jrc('auto', S_gui.vcFile_prm);
-    set([S_gui.btnDrift, S_gui.btnDescribe], 'Enable', 'on');
+    enable_(S_gui, {'Drift', 'Describe'}, 1);
 catch
     disperr_();
 end
@@ -498,15 +505,15 @@ catch
 end
 
 % --------------------------------------------------------------------
-function gui_edit_clearprm_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_edit_clearprm (see GCBO)
+function menuClearPrm_Callback(hObject, eventdata, handles)
+% hObject    handle to menuClearPrm (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
-function gui_edit_clear_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_edit_clear (see GCBO)
+function menuClear_Callback(hObject, eventdata, handles)
+% hObject    handle to menuClear (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -524,8 +531,8 @@ catch
 end
 
 % --------------------------------------------------------------------
-function gui_view_drift_Callback(hObject, eventdata, handles)
-% hObject    handle to gui_view_drift (see GCBO)
+function menuDrift_Callback(hObject, eventdata, handles)
+% hObject    handle to menuDrift (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -538,7 +545,7 @@ function btnClearPrm_Callback(hObject, eventdata, handles)
 S_gui = guidata(hObject);
 try
     jrc('clear', S_gui.vcFile_prm);
-    set([S_gui.btnSort, S_gui.btnAuto, S_gui.btnManual, S_gui.btnDescribe, S_gui.btnDrift], 'Enable', 'off');
+    enable_(S_gui, {'Sort', 'Auto', 'Manual', 'Describe', 'Drift'}, 0);
 catch
     disperr_();
 end
@@ -571,3 +578,32 @@ for i=1:numel(varargin)
         varargout{i} = S_gui.(varargin{i});
     end
 end
+
+
+% --------------------------------------------------------------------
+function menuDetect_Callback(hObject, eventdata, handles)
+% hObject    handle to menuDetect (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function enable_(S, csStr, fEnable)
+% Enable handle object
+if fEnable, vcEnable = 'on'; else vcEnable='off'; end
+if ischar(csStr), csStr = {csStr}; end
+for i=1:numel(csStr)
+    try
+        eval(sprintf('set(S.btn%s, ''Enable'', ''%s'');', csStr{i}, vcEnable));
+        eval(sprintf('set(S.menu%s, ''Enable'', ''%s'');', csStr{i}, vcEnable));
+    catch
+        disp(lasterr());
+    end
+end
+
+
+% --------------------------------------------------------------------
+function menuDescribe_Callback(hObject, eventdata, handles)
+% hObject    handle to menuDescribe (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)

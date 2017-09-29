@@ -2,6 +2,10 @@
 James Jun, HHMI-Janelia Research Campus, Applied Physics and Instrumentation Group
 
 --------------------------------------------------------------------
+[2017/9/29]
+"jrc gui" menu items are disabled if can't run given the current state, just like the buttons do.
+Current version number of JRCLUST is overwritten in P.version after running.
+
 [2017/9/28]
 New user interface: jrc gui
   It opens a GUI that allows users to access majority of the JRCLUST commands via menu or buttons.

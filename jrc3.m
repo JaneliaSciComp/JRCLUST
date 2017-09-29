@@ -7,7 +7,7 @@ function varargout = jrc3(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
 % Memory-efficient version. Rewrote from scratch and minimalistic
 % P is static and loaded from file. For dynamic property set S0
 persistent vcFile_prm_
-global tnWav_spk viSite_spk viTime_spk_ P;
+% global tnWav_spk viSite_spk viTime_spk_ P
 
 % input parse
 if nargin<2, vcArg1=''; end
@@ -22,7 +22,7 @@ setpath_();
 fExit = 1;
 switch lower(vcCmd)
     % No arguments
-    case 'version', jrc_version_();
+    case 'version', jrc_version_(vcArg1);
     case {'help', '-h', '?', '--help'}, help_(vcArg1); about_();
     case 'about', about_();
     case 'clear', clear_(vcArg1);
@@ -42,7 +42,7 @@ switch lower(vcCmd)
     case 'download', download_(vcArg1);
     case {'makeprm', 'createprm'}
         vcFile_prm_ = makeprm_(vcArg1, vcArg2, 1, vcArg3);
-        varargout{1} = vcFile_prm_;
+        if nargout>0, varargout{1} = vcFile_prm_; end
     case 'makeprm-f', makeprm_(vcArg1, vcArg2, 0, vcArg3);
     case 'import-tsf', import_tsf_(vcArg1);
     case 'import-jrc1', import_jrc1_(vcArg1);
@@ -682,29 +682,19 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function val = read_cfg_(vcName)
+function val = read_cfg_(vcName, fVerbose)
 % read configuration file that stores path to folder
-% @TODo: cross-platform support can be fixed here
 % load from default.cfg but override with user.cfg if it exists
-% if ~exist('default.cfg', 'file')
-%     S_cfg = struct( ...
-%         'path_dropbox', 'C:\Dropbox (HHMI)\Git\jrclust', ...
-%         'path_backup', 'C:\backup', ...
-%         'path_alpha', 'C:\Dropbox (HHMI)\Git\jrclust_alpha', ...
-%         'sync_list_ver2', {'jrc3.m', 'kilosort.m'}, ... %required for jrc3
-%         'sync_list', {'default.prm', '*.txt', '*.m', '*.ptx', '*.cu', '*.prb', 'default.cfg', 'JRClust manual.docx', ...
-%         'path_sample_phase2', 'https://www.dropbox.com/s/t0my3nf8dmpzmr6/sample.meta?dl=1', 'https://www.dropbox.com/s/xhgbb624h2tls6h/sample.bin?dl=1', ... 
-%         'path_sample_phase3', 'https://www.dropbox.com/s/9vuldabqw68ilpa/sample3.meta?dl=1', 'https://www.dropbox.com/s/lcowg4c9f4xiat5/sample3.bin?dl=1', ...        
-%         });
-% else
+if nargin<2, fVerbose = 1; end
+
 S_cfg = file2struct_('default.cfg');
 % end
 if exist('user.cfg', 'file')
     S_cfg1 = file2struct_('user.cfg'); %override
     S_cfg = struct_merge_(S_cfg, S_cfg1, {'path_dropbox', 'path_backup', 'default_prm'});
-    fprintf('Configuration loaded from user.cfg.\n');
+    if fVerbose, fprintf('Configuration loaded from user.cfg.\n'); end
 else
-    fprintf('Configuration loaded from default.cfg.\n');
+    if fVerbose, fprintf('Configuration loaded from default.cfg.\n'); end
 end
 if nargin==0
     val = S_cfg; 
@@ -1209,7 +1199,7 @@ if ~exist(vcFile_prm, 'file')
     error('.prm file does not exist: %s\n', vcFile_prm);
 %     P=[]; return; 
 end
-P0 = file2struct_(jrcpath_(read_cfg_('default_prm')));  %P = defaultParam();
+P0 = file2struct_(jrcpath_(read_cfg_('default_prm', 0)));  %P = defaultParam();
 P = file2struct_(vcFile_prm);
 if ~isfield(P, 'template_file'), P.template_file = ''; end
 if ~isempty(P.template_file)
@@ -4609,118 +4599,6 @@ end
 %     disp('a');
 % end
 end %func
-
-
-%--------------------------------------------------------------------------
-% function trFet1 = trFet_(viPc1, viSite1, viSpk1, Sclu, mrWav, P)
-% % return trFet from the memory
-% 
-% [trFet1, vlKeep, viSite1, viSpk1] = trFet_site_S0_([], viSite1, viSpk1);
-% if ~isempty(viPc1)
-%     viPc1 = min(viPc1, size(trFet1,1));
-%     trFet1 = trFet1(viPc1, :, :);
-% end
-% end
-
-
-%--------------------------------------------------------------------------
-% function [trFet1, vlKeep, viSite1, viSpk1] = trFet_site_S0_(S0, viSite1, viSpk1)
-% % [trFet1, vlKeep] = trFet_site_S0(S0, viSite1, viTime1)
-% % [trFet1, vlKeep] = trFet_site_S0(S0, iClu)
-% 
-% % iterate by sites
-% if isempty(S0), S0 = get(0, 'UserData'); end
-% trFet = S0.Sevt.trFet;
-%     
-%     
-% if nargin==2
-%     S_clu = S0.S_clu;
-%     iClu1 = viSite1;
-%     if isfield(S0, 'P')
-%         P = S0.P; 
-%     else
-%         P = S_clu.P;
-%     end    
-%     viSite1 = P.miSites(:, S_clu.viSite_clu(iClu1));
-%     if isfield(S_clu, 'cviSpk_clu')
-%         viSpk1 = S_clu.cviSpk_clu{iClu1};
-%     else
-%         viSpk1 = find(S_clu.viClu == iClu1);
-%     end
-% else
-%     if islogical(viSpk1), viSpk1 = find(viSpk1); end
-% end
-% 
-% Sevt = S0.Sevt;
-% if ~isfield(Sevt, 'miSites_fet'), Sevt.miSites_fet=[]; end
-% if isempty(Sevt.miSites_fet)
-%     [trFet1, vlKeep, viSite1, viSpk1] = deal([]);
-%     return;
-% end
-% trFet1 = zeros(size(trFet,1), numel(viSite1), numel(viSpk1), 'single');
-% viSite_evt1 = Sevt.viSite(viSpk1);
-% viSite1_unique = unique(viSite_evt1);
-% viSite1_unique = viSite1_unique(:)';
-% vlKeep = true(size(viSpk1));
-% fError = 0;
-% nSite1 = numel(viSite1);
-% for iSite1 = viSite1_unique
-%     viiSpk1 = find(viSite_evt1==iSite1);
-%     viSites2 = Sevt.miSites_fet(:, iSite1);
-%     [viSites12, ~] = find(bsxfun(@eq, viSites2(:), viSite1(:)'));
-%     if numel(viSites12) == nSite1
-%         trFet1(:,:,viiSpk1) = trFet(:, viSites12, viSpk1(viiSpk1));
-%     else
-%         viSites21 = (ismember(viSite1, viSites2));
-%         trFet1(:,viSites21,viiSpk1) = trFet(:, viSites12, viSpk1(viiSpk1));
-% %         vlKeep(viiSpk1) = 0;
-% %         fError = 1;
-%     end
-% end
-% if fError
-%     trFet1 = trFet1(:,:,vlKeep);
-% end
-% % mrFet12 = reshape(mrFet12, [], size(mrFet12,3));
-% end
-
-
-%--------------------------------------------------------------------------
-% function tnWav_spk1 = tnWav_sites_(tnWav_spk, viSpk1, viSites1)
-% % Return tnWav at specified spike index and site range
-% % tnWav_spk1 = tnWav_sites_(viSpk1)
-% % tnWav_spk1 = tnWav_sites_(viSpk1, viSites1)
-% 
-% [viSite_spk, P] = get0_('viSite_spk', 'P');
-% nT_spk = size(tnWav_spk, 1);
-% nSpk1 = numel(viSpk1);
-% viSites_spk1 = viSite_spk(viSpk1);
-% if P.fGpu
-%     tnWav_spk1_ = gpuArray(tnWav_spk(:,:,viSpk1)); 
-% else
-%     tnWav_spk1_ = tnWav_spk(:,:,viSpk1);
-% end
-% 
-% % return tnWav at specified spikes and site range
-% if nargin>=3 % viSites1 specified
-%     tnWav_spk1 = zeros([nT_spk, numel(viSites1), nSpk1], 'like', tnWav_spk1_);
-%     for iSite1 = 1:numel(viSites1) %only care about the first site
-%         iSite11 = viSites1(iSite1);
-%         viSpk11 = find(viSites_spk1 == iSite11);
-%         if isempty(viSpk11), continue; end
-%         viSites11 = P.miSites(:, iSite11);
-%         [vlA11, viiB11] = ismember(viSites11, viSites1);
-%         tnWav_spk1(:,viiB11(vlA11),viSpk11) = tnWav_spk1_(:,vlA11,viSpk11);
-%     end
-% else %expand and return for all sites
-%     nSites = numel(P.viSite2Chan);
-%     miSites1 = P.miSites(:, viSites_spk1);
-%     tnWav_spk1 = zeros([nT_spk, nSites, nSpk1], 'like', tnWav_spk1_); %subset of spk, complete
-%     for iSpk1=1:nSpk1 %slow
-%         tnWav_spk1(:,miSites1(:,iSpk1),iSpk1) = tnWav_spk1_(:,:,iSpk1);
-%     end    
-% end
-% tnWav_spk1 = gather_(tnWav_spk1);
-% end %func
 
 
 %--------------------------------------------------------------------------
@@ -8422,12 +8300,19 @@ end %func
 
 
 %--------------------------------------------------------------------------
+% 9/29/17 Updating the version number when saving JRCLUST
 function S0 = save0_(vcFile_mat)
 % save S0 structure to a mat file
 try
     fprintf('Saving 0.UserData to %s...\n', vcFile_mat);
     warning off;
     S0 = get(0, 'UserData'); %add gather script
+    
+    % update version number
+    S0.P.version = jrc_version_();
+    P = S0.P;
+    set0_(P);
+    
     struct_save_(S0, vcFile_mat, 1);
     vcFile_prm = S0.P.vcFile_prm;
     export_prm_(vcFile_prm, strrep(vcFile_prm, '.prm', '_full.prm'), 0);
@@ -16752,11 +16637,29 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function [vcVer, vcDate] = jrc_version_()
-vcVer = 'v3.0.1';
-vcDate = '9/27/2017';
+% 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
+function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
+if nargin<1, vcFile_prm = ''; end
+vcVer = 'v3.0.4';
+vcDate = '9/29/2017';
+vcVer_used = '';
 if nargout==0
-    fprintf('%s, updated on %s\n', vcVer, vcDate);
+    fprintf('%s (%s) installed\n', vcVer, vcDate);
+end
+try 
+    if isempty(vcFile_prm)
+        P = get0_('P');
+        if ~isempty(P)
+            fprintf('\t%s used in %s\n', P.version, P.vcFile_prm);
+            vcVer_used = P.version;
+        end
+    elseif exist_file_(vcFile_prm)
+        P = loadParam_(vcFile_prm);
+        fprintf('\t%s used in %s\n', P.version, vcFile_prm);
+        vcVer_used = P.version;
+    end
+catch
+    ;
 end
 end %func
 
@@ -16817,8 +16720,11 @@ end %func
 % 9/26/17 JJJ: Created and tested
 function flag = exist_file_(vcFile)
 % Different from exist(vcFile, 'file') which uses search path
-
-flag = ~isempty(dir(vcFile));
+if isempty(vcFile)
+    flag = 0; 
+else
+    flag = ~isempty(dir(vcFile));
+end
 end %func
 
 

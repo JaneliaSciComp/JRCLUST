@@ -251,3 +251,10 @@ S_out = jrc3('test', 'get_filter_', {struct('vcFilter', 'bandpass')}, 1)
 
 S_out = jrc3('test', 'wiki_', {}, 0)
 S_out = jrc3('test', 'wiki_', {'Command-line-interface'}, 0)
+
+%% 9/29/17 JJJ
+S_out = jrc3('test', 'jrc_version_', {}, 0);
+S_out = jrc3('test', 'jrc_version_', {}, 1);
+S_out = jrc3('test', 'jrc_version_', {}, 2);
+S_out = jrc3('test', 'jrc_version_', {'sample_sample.prm'}, 2);
+S_out = jrc3('test', 'jrc_version_', {'sample_sample.prm'}, 1);
