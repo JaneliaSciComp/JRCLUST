@@ -3,6 +3,9 @@ James Jun, HHMI-Janelia Research Campus, Applied Physics and Instrumentation Gro
 
 --------------------------------------------------------------------
 [2017/9/29]
+Display fix: curves in rho-delta plot (bottom-right plot in the manual view) is suppressed.
+  These spikes come from delta==0 values whose nearest pair has exactly same feature scores.
+  These spikes are now hidden from the display.
 "jrc gui" menu items are disabled if can't run given the current state, just like the buttons do.
 Current version number of JRCLUST is overwritten in P.version after running.
 

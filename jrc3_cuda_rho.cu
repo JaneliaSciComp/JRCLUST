@@ -118,7 +118,7 @@ __global__ void jrc3_cuda_rho(float * vrRho1, const float * mrFet12, const int *
             nComp1 += mnComp1_[tx1][tx];
         }
         if (i1_tx < n1){
-            if (nRho1<1) nRho1 = 1; 
+            //if (nRho1<1) nRho1 = 1; 
             vrRho1[i1_tx] = (float)(((double)(nRho1)) / ((double)nComp1));
         }
         // vnRho1[i1 + i_c_] = nRho1 - 1;
