@@ -3,6 +3,9 @@ James Jun, HHMI-Janelia Research Campus, Applied Physics and Instrumentation Gro
 
 --------------------------------------------------------------------
 [2017/9/29]
+Bugfix: negative rho is fixed. This was caused by dc==0 (radius of the neighbor-finding spheres)
+  when the median distance-cutoff was zero. This is fixed by discarding zero-distance values before
+  calculating the quantile values.
 Display fix: curves in rho-delta plot (bottom-right plot in the manual view) is suppressed.
   These spikes come from delta==0 values whose nearest pair has exactly same feature scores.
   These spikes are now hidden from the display.

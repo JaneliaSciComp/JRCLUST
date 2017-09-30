@@ -88,6 +88,7 @@ __global__ void jrc3_cuda_delta(float * vrDelta1, unsigned int * viNneigh1, cons
     
     // fill in the shared memory A
     for (int i12_tx = tx; i12_tx < n12; i12_tx += blockDim.x){
+    //for (int i12_tx = 1; i12_tx < n12; ++i12_tx){
         // compute time difference
         char vlDist_c[CHUNK];
         int iiSpk12_ord_tx = viiSpk12_ord[i12_tx];

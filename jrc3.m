@@ -1953,7 +1953,6 @@ if P.fGpu && FLAG_FIXN == 0
         vrRho1 = zeros([1, n1], 'single', 'gpuArray'); 
         vnConst = int32([n1, n12, nC, dn_max, get_set_(P, 'fDc_spk', 0)]);
         vrRho1 = feval(CK, vrRho1, mrFet12, viiSpk12_ord, vnConst, dc2);
-%         vrRho1_ = vrRho1;
         return;
     catch        
         disperr_();
@@ -2038,7 +2037,12 @@ end
 mrDist11_2_ = eucl2_dist_(mrFet12, mrFet1_);
 mlKeep11_2_ = abs(bsxfun(@minus, viiSpk12_ord, viiSpk1_ord_')) < (n1_+n2_) / P.nTime_clu;
 mrDist11_2_(~mlKeep11_2_) = nan;
-dc2_ = median(quantile(subsample_mr_(mrDist11_2_, P.dc_subsample, 2), P.dc_percent/100));  
+mrDist_sub = subsample_mr_(mrDist11_2_, P.dc_subsample, 2);
+mrDist_sub(mrDist_sub<=0) = nan;
+dc2_ = nanmedian(quantile(mrDist_sub, P.dc_percent/100));  
+if isnan(dc2_)
+    dc2_ = quantile(mrDist_sub(:), P.dc_percent/100);
+end
 end %func
 
 
@@ -16168,10 +16172,11 @@ if fLocal
         [y_det_, z_] = detrend_(x_, y_, viDetrend, 1);
         viSpk_ = S0.cviSpk_site{iSite};        
         if isempty(viSpk_), continue; end
+        vl_zero_ = find(delta_==0);
+        [y_det_(vl_zero_), z_(vl_zero_)] = nan;
         [icl_, vrZ_] = find_topn_(y_det_, maxCluPerSite, find(rho_ > 10^P.rho_cut));
         if isempty(icl_), continue; end
         cvi_cl{iSite} = viSpk_(icl_); 
-        z_(delta_==0) = nan;
         z(viSpk_) = z_;
 %         figure; plot(x_, y_det_, 'k.', x_(icl_), y_det_(icl_), 'ro'); axis([-5 0 -1 1]); grid on;
     end
@@ -16180,10 +16185,10 @@ else
     x = log10(S_clu.rho);
     y = S_clu.delta;
     viDetrend = find(S_clu.delta < 1 & S_clu.delta > 0 & S_clu.rho > 10^P.rho_cut & S_clu.rho < .1 & isfinite(x) & isfinite(y));    
-    [y_det_, z] = detrend_(x, y, viDetrend, 1);
-    [icl, vrZ_] = find_topn_(z, maxCluPerSite * numel(S0.cviSpk_site), find(S_clu.rho > 10^P.rho_cut));
-    icl(vrZ_ < 10^P.delta1_cut) = [];
+    [~, z] = detrend_(x, y, viDetrend, 1);
     z(S_clu.delta==0) = nan;
+    [icl, vrZ_] = find_topn_(z, maxCluPerSite * numel(S0.cviSpk_site), find(S_clu.rho > 10^P.rho_cut));
+    icl(vrZ_ < 10^P.delta1_cut) = [];    
 %     icl = find(x>=P.rho_cut & z>=10^P.delta1_cut);
 end
 
@@ -16643,7 +16648,7 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.0.4';
+vcVer = 'v3.0.5';
 vcDate = '9/29/2017';
 vcVer_used = '';
 if nargout==0

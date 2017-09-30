@@ -75,13 +75,14 @@ __global__ void jrc3_cuda_rho(float * vrRho1, const float * mrFet12, const int *
     
     // Inspect distance relationship between i1 and i12_tx
     for (int i12_tx = tx; i12_tx < n12; i12_tx += blockDim.x){
+    //for (int i12_tx = 1; i12_tx < n12; ++i12_tx){
         // compute time difference
-        char vlDist_c[CHUNK];
+        //char vlDist_c[CHUNK];
         int iiSpk12_ord_tx = viiSpk12_ord[i12_tx];        
-        for (int i_c = 0; i_c < CHUNK; ++i_c){
+        /*for (int i_c = 0; i_c < CHUNK; ++i_c){
             int di_spk_tx = ABS(viiSpk1_ord_[i_c] - iiSpk12_ord_tx);
             vlDist_c[i_c] = (di_spk_tx <= dn_max);
-        }
+        } */
         
         // compute distance
         float vrDist_c[CHUNK];
@@ -95,8 +96,10 @@ __global__ void jrc3_cuda_rho(float * vrRho1, const float * mrFet12, const int *
         }
         
         // Compare the index and distance
-        for (int i_c = 0; i_c < CHUNK; ++i_c){            
-            if (vlDist_c[i_c] == 1){
+        for (int i_c = 0; i_c < CHUNK; ++i_c){
+            int di_spk_tx = ABS(viiSpk1_ord_[i_c] - iiSpk12_ord_tx);
+            if (di_spk_tx <= dn_max){
+            //if (vlDist_c[i_c] == 1){
                 ++mnComp1_[tx][i_c];
                 if (fDc_spk==0){
                     if (vrDist_c[i_c] < dc2) ++mnRho1_[tx][i_c];
