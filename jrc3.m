@@ -935,9 +935,11 @@ if nSites_spk==1, mrWav_ref=[]; return; end
 dimm1 = size(trWav2);
 [nT_spk, nSpk] = deal(dimm1(1), dimm1(2));
 switch fSort_car
-    case 1% use n sites having the least SD as reference sites
+    case 1 % use n sites having the least SD as reference sites
         if isempty(viSite2_spk)
-            mrWav_ref = mean(trWav2(:,:,2:nSites_spk), 3);
+%             viSite_ref_ = 2:nSites_spk;
+            viSite_ref_ = ceil(nSites_spk/2):nSites_spk;
+            mrWav_ref = mean(trWav2(:,:,viSite_ref_), 3);
         else
             trWav3 = trWav2(:,:,1:nSites_spk);
             trWav3(:,:,1) = 0;
@@ -1761,37 +1763,12 @@ end %func
 function S_clu = fet2clu_(S0, P)
 % can process different shanks separately
 global trFet_spk
-fRepeat_clu = get_set_(P, 'fRepeat_clu', 1);
 fprintf('Clustering\n');
-
 S_clu = cluster_spacetime_(S0, P);        
 S_clu = postCluster_(S_clu, P);
 
-if fRepeat_clu
-    trFet_spk0 = trFet_spk;
-    nSites_fet = P.maxSite*2+1-P.nSites_ref;
-    nFetPerSite = size(trFet_spk,1) / nSites_fet;
-    vrSnr_clu = S_clu_snr_(S_clu);
-    %         vlRedo_clu = vrSnr_clu < quantile(vrSnr_clu, 2^(-iRepeat_clu+1)); %exponential selection
-    vlRedo_clu = vrSnr_clu < quantile(vrSnr_clu, 1/2); %ilnear selection
-    vlRedo_spk = ismember(S_clu.viClu, find(vlRedo_clu));        
+if get_set_(P, 'fRepeat_clu', 1), S_clu = S_clu_reclust_(S_clu, S0, P); end
 
-    % top half
-%     S_clu_A = postCluster_(cluster_spacetime_(S0, P, ~vlRedo_spk), P);
-
-    % Bottom half (reduce feature diemnsion)    
-    mlFet_ = false(nSites_fet, nFetPerSite);
-    nSites_fet = ceil(nSites_fet*.75);
-    mlFet_(1:nSites_fet, :) = 1;
-    trFet_spk = trFet_spk(find(mlFet_),:,:);
-    S_clu_B = postCluster_(cluster_spacetime_(S0, P, vlRedo_spk), P);        
-
-    % combine
-%     S_clu.viClu(~vlRedo_spk) = S_clu_A.viClu;
-%     S_clu.viClu(vlRedo_spk) = S_clu_B.viClu + max(S_clu_A.viClu);
-    S_clu = S_clu_combine_(S_clu, S_clu_B, vlRedo_clu, vlRedo_spk);
-    trFet_spk = trFet_spk0; %restore
-end
 % S_clu = clu2wav_(S_clu, S0.viSite_spk, tnWav_spk, tnWav_raw);
 S_clu = post_merge_(S_clu, P, 0);
 S_clu.viClu_auto = S_clu.viClu;
@@ -3217,20 +3194,11 @@ switch P.vcDetrend_postclu
         y = log10(S_clu.delta(:));
         fDetrend = 0;
     case 'global'
-%         [icl, x, y] = detrend_ztran_(S_clu.rho, S_clu.delta, P.rho_cut, P.delta1_cut);
         [icl, x, y] = detrend_local_(S_clu, P, 0);
-%         y(y<=0) = nan;
-%         y = log10(y);
-%         y(~isreal(y)) = nan;
         y = log10(y);
         y(~isreal(y)) = nan;
         fDetrend = 1;
     case 'local'
-%         icl = S_clu.icl;
-%         x = log10(S_clu.rho(:));
-%         y = S_clu.delta(:);
-%         viDetrend = find(S_clu.delta < 1 & S_clu.rho > 10^P.rho_cut & S_clu.rho < .1 & isfinite(x) & isfinite(y));
-%         [~,y] = detrend_(x,y, viDetrend);
         [icl, x, y] = detrend_local_(S_clu, P, 1);
         y = log10(y);
         y(~isreal(y)) = nan;
@@ -4365,23 +4333,6 @@ trWav2_spk = spkwav_car_(trWav2_spk, P, nSites_spk, viSite2_spk);
 switch lower(P.vcFet) %{'xcor', 'amp', 'slope', 'pca', 'energy', 'vpp', 'diff248', 'spacetime'}       
     case {'spacetime', 'cov', 'cov2'}
         [mrFet1, mrFet2] = trWav2fet_cov_(trWav2_spk, P);
-%         nDelay = 3;
-%         if fMeanSubt
-%             gtrWav1 = meanSubt_(trWav_spk1); 
-%         else
-%             gtrWav1 = (trWav_spk1); 
-%         end
-%         mr1 = gtrWav1(:,:,1);
-%         mr1 = bsxfun(@rdivide, mr1, sqrt(mean(mr1.^2))); %zscore fast        
-%         mr2 = mr1([ones(1,nDelay),1:end-nDelay],:,1); %time shift
-%         mrFet1 = mean(gtrWav1 .* repmat(mr1, [1,1,size(gtrWav1,3)]), 1);
-%         mrFet2 = mean(gtrWav1 .* repmat(mr2, [1,1,size(gtrWav1,3)]), 1);
-%         mrFet1 = permute(mrFet1, [3,2,1]);
-%         mrFet2 = permute(mrFet2, [3,2,1]);
-%         if strcmpi(P.vcFet, 'cov2')
-%             mrFet1(viSites_ref,:) = 0;
-%             mrFet2(viSites_ref,:) = 0;
-%         end
     case 'cov_prev'
         nDelay = 3;
         gtrWav1 = meanSubt_(trWav2_spk); 
@@ -16627,8 +16578,8 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.0.6';
-vcDate = '10/8/2017';
+vcVer = 'v3.0.7';
+vcDate = '10/9/2017';
 vcVer_used = '';
 if nargout==0
     fprintf('%s (%s) installed\n', vcVer, vcDate);
@@ -16769,4 +16720,47 @@ if ~exist_file_(vcFile)
 end
 fprintf('Editing %s\n', vcFile);
 edit(vcFile);
+end %func
+
+
+
+%--------------------------------------------------------------------------
+function S_clu = S_clu_reclust_(S_clu, S0, P);
+global trFet_spk
+vcMode_divide = 'amp';  % {'amp', 'density'}
+
+trFet_spk0 = trFet_spk;
+nSites_fet = P.maxSite*2+1-P.nSites_ref;
+nFetPerSite = size(trFet_spk,1) / nSites_fet;
+switch vcMode_divide
+    case 'amp'
+        vrSnr_clu = S_clu_snr_(S_clu);
+        vlRedo_clu = vrSnr_clu < quantile(vrSnr_clu, 1/2);
+        vlRedo_spk = ismember(S_clu.viClu, find(vlRedo_clu));    
+        
+        % reproject the feature
+%         nSpk_ = sum(vlRedo_spk);
+%         nFets_spk_ = ceil(size(trFet_spk,1)/2);
+%         trFet_spk_ = pca(reshape(trFet_spk(:,:,vlRedo_spk), size(trFet_spk,1), []), 'NumComponents', nFets_spk_);
+%         trFet_spk_ = permute(reshape(trFet_spk_, [size(trFet_spk,2), nSpk_, nFets_spk_]), [3,1,2]);
+%         trFet_spk = trFet_spk(1:nFets_spk_,:,:);
+%         trFet_spk(:,:,vlRedo_spk) = trFet_spk_;
+        
+        mlFet_ = false(nSites_fet, nFetPerSite);
+        nSites_fet = ceil(nSites_fet*.75); %*.75
+        mlFet_(1:nSites_fet, :) = 1;
+        trFet_spk = trFet_spk(find(mlFet_),:,:); 
+        
+        S_clu_B = postCluster_(cluster_spacetime_(S0, P, vlRedo_spk), P);        
+        S_clu = S_clu_combine_(S_clu, S_clu_B, vlRedo_clu, vlRedo_spk);
+        trFet_spk = trFet_spk0; %restore
+        
+    case 'density'
+        vlRedo_clu = S_clu.vnSpk_clu > quantile(S_clu.vnSpk_clu, 1/2); %ilnear selection %2^(-iRepeat_clu+1)         
+        vlRedo_spk = ismember(S_clu.viClu, find(vlRedo_clu));    
+        S_clu_A = postCluster_(cluster_spacetime_(S0, P, ~vlRedo_spk), P);
+        S_clu_B = postCluster_(cluster_spacetime_(S0, P, vlRedo_spk), P);        
+         S_clu.viClu(~vlRedo_spk) = S_clu_A.viClu;
+        S_clu.viClu(vlRedo_spk) = S_clu_B.viClu + max(S_clu_A.viClu);
+end
 end %func

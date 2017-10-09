@@ -1,7 +1,13 @@
 [JRCLUST (JRC) change log]
-James Jun, HHMI-Janelia Research Campus, Applied Physics and Instrumentation Group
+J. James Jun
 
 --------------------------------------------------------------------
+[2017/10/8: v3.0.7]
+Improved automated clustering for small amplitude units
+  For feature extraction, vcSpkRef='nmean' now subtracts the average spike waveform across sites 
+  excluding the nearest half of the sites from the center site. Previously the Local average was 
+  calculated by excluding only the center site.
+
 [2017/10/8: v3.0.6]
 Improved automated clustering
   Setting the flag fRepeat_clu=1 (default) will re-runs clustering for the lower half of the cluster amplitudes.

@@ -258,3 +258,9 @@ S_out = jrc3('test', 'jrc_version_', {}, 1);
 S_out = jrc3('test', 'jrc_version_', {}, 2);
 S_out = jrc3('test', 'jrc_version_', {'sample_sample.prm'}, 2);
 S_out = jrc3('test', 'jrc_version_', {'sample_sample.prm'}, 1);
+
+%% 10/9/17
+S_out = jrc3('test', 'importTSF_', {'E:\CatalinMitelut\sep_3_2017\layout_0.tsf'}, 2);
+
+
+
