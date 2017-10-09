@@ -1,8 +1,7 @@
 % Default parameters for jrclust (default.prm)
-% James Jun, 2017 July 21
 
 % #Recording file format
-vcFile = '';                % raw file path (D:\Chronic2\ANM305341\20150828-1915-A2.bin)
+vcFile = '';                % raw file path
 csFile_merge = {};          % list of files to merge if running batch
 sort_file_merge = 1;        % Sort files by the 0: alphabetical order, 1: metafile, 2: file created time, 3: file modified time, 4: numerical order in the file names
 vcFile_prm = '';            % Default: current file name if left empty (*.prm)
@@ -17,7 +16,7 @@ fInverse_file = 0;          % flip polarity of set to one
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = '2017-0721';      % JRCLUST version
+version = 'v3.0.6';      % JRCLUST version
 fVerbose = 0;
 fParfor = 1;                % Use Multiple cores
 fGpu = 1;                   % Use GPU
@@ -80,16 +79,18 @@ maxDist_site_um = 50;       % Radius of spike event merging. Keep spikes that ha
 % #Feature extraction (run "jrc spikesort" after change)
 vcFet = 'gpca';              % Feature list: {'gpca', 'cov', 'spacetime', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'}
 nPcPerChan = 3;             % number of principal components per chan.
-nSites_ref = 8;             % set to 0 for global referencing (move to feature section) @TODO: diagram
+nSites_ref = 4;             % set to 0 for global referencing (move to feature section) @TODO: diagram
 vcSpkRef = 'nmean';          % Subtract mean of the spiking event sites {'nmean', 'none'}
 
 % #Clustering (run "jrc sort" after change)
 nTime_clu = 2;              % number of time periods to perform separate clustering (later to be merged after clustering)
 dc_percent = 2;             % used for distribution cutting
+fRepeat_clu = 1;            % Flag for whether to repeat clustering for the bottom half of the cluster amplitudes.
 nThreads = 128;             % number of GPU threads for clustering
+nC_max = 45;                % (read-only) Set by the CUDA code. Maximum number of dimensions per event
 
 % #Post-cluster parameters (run "jrc auto" after change)
-min_count = 10;             % Minimum cluster size          
+min_count = 10;             % Minimum cluster size (min_count will be set to 2*#features if lower).
 delta1_cut = .5;            % RL cluster: delta cut-off. Increasing this will produce less clusters.
 rho_cut = -2.5;             % RL cluster: rho cut-off. Decreasing (more negative) this will produce more clusters.
 maxWavCor = .97;             % merge if waveform correlation is greater than maxWavCor.

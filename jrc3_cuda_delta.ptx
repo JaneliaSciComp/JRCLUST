@@ -37,7 +37,7 @@
 	// demoted variable
 	.shared .align 4 .b8 _Z15jrc3_cuda_deltaPfPjPKfPKiS4_S4_f$__cuda_local_var_200246_32_non_const_viiRho1_ord_[64];
 	// demoted variable
-	.shared .align 4 .b8 _Z15jrc3_cuda_deltaPfPjPKfPKiS4_S4_f$__cuda_local_var_200247_34_non_const_mrFet1_[1920];
+	.shared .align 4 .b8 _Z15jrc3_cuda_deltaPfPjPKfPKiS4_S4_f$__cuda_local_var_200247_34_non_const_mrFet1_[2880];
 	// demoted variable
 	.shared .align 4 .b8 _Z15jrc3_cuda_deltaPfPjPKfPKiS4_S4_f$__cuda_local_var_200248_34_non_const_mrDelta1_[8192];
 	// demoted variable

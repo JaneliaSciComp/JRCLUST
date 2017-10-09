@@ -13,7 +13,7 @@
 #define MIN(A,B) ((A)<(B)) ? (A) : (B)
 #define MAX(A,B) ((A)>(B)) ? (A) : (B)
 #define NTHREADS 128
-#define NC 30 // number of Channels
+#define NC 45 // number of Channels
 #define CHUNK 16 //previously defined as CHUNK
 #define SINGLE_INF (3.402E+38)
 

@@ -1,7 +1,6 @@
 %--------------------------------------------------------------------------
-% JRCLUST ver. 3
-% James Jun, Vidrio Technologies, LLC
-% HHMI - Janelia Research Campus
+% JRCLUST v3
+% James Jun
  
 function varargout = jrc3(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
 % Memory-efficient version. Rewrote from scratch and minimalistic
@@ -26,16 +25,15 @@ switch lower(vcCmd)
     case {'help', '-h', '?', '--help'}, help_(vcArg1); about_();
     case 'about', about_();
     case 'clear', clear_(vcArg1);
-    case 'doc', doc_();
+    case 'doc', doc_('JRCLUST manual.pdf');
+    case 'doc-edit', doc_('JRCLUST manual.docx');
     case 'update', update_(vcArg1);
     case 'git-pull', git_pull_(vcArg1);
-%     case 'git-revert', git_revert_(vcArg1);
     case 'install', install_();
     case 'commit', commit_(vcArg1);
     case 'wiki', wiki_(vcArg1);
     case 'wiki-download', wiki_download_();
     case 'gui', gui_(vcArg1, vcFile_prm_);
-    case 'wiki-download', wiki_download_();
     case 'issue', issue_('post');
         
     case 'which', return;    
@@ -78,10 +76,9 @@ if isempty(vcArg1) && ~isempty(vcFile_prm), disp(['Working on ', vcFile_prm]); e
 fExit = 1;
 switch lower(vcCmd)    
     case 'probe', probe_(vcFile_prm);
-    case 'edit', edit(vcFile_prm); 
+    case 'edit', edit_(vcFile_prm); 
     case 'batch', batch_(vcArg1, vcArg2); 
     case 'batch-mat', batch_mat_(vcArg1, vcArg2); %text file containing binary files and template file
-%     case 'batch-bin', batch_bin_(vcArg1, vcArg2); %text file containing binary files and template file
     case {'batch-verify', 'batch-validate'}, batch_verify_(vcArg1, vcArg2); 
     case {'batch-plot', 'batch-activity'}, batch_plot_(vcArg1, vcArg2); 
     case 'describe', describe_(vcFile_prm); 
@@ -127,7 +124,6 @@ switch lower(vcCmd)
     case {'sort', 'cluster', 'clust', 'sort-verify', 'sort-validate', 'sort-manual'}
         if ~is_detected_(P), detect_(P); end
         sort_(P); describe_(P.vcFile_prm);
-%     case {'manual', 'gui', 'ui'}, manual_(P);
     case {'auto', 'auto-verify', 'auto-manual'}
         auto_(P); describe_(P.vcFile_prm);
     case 'manual-test'
@@ -169,7 +165,7 @@ elseif contains_(lower(vcCmd), {'manual',' gui', 'ui'})
 elseif fError
     help_();
 end
-end %func jrc
+end %func
 
 
 %--------------------------------------------------------------------------
@@ -934,7 +930,7 @@ if isempty(nSites_spk)
 end
 if nSites_spk==1, mrWav_ref=[]; return; end
 
-if P.nSites_ref==0, fSort_car = -1; end
+% if P.nSites_ref==0, fSort_car = -1; end
 % nSites_spk = 1 + 2 * P.maxSite; % size(tnWav_spk, 2);
 dimm1 = size(trWav2);
 [nT_spk, nSpk] = deal(dimm1(1), dimm1(2));
@@ -1368,12 +1364,6 @@ vii1 = find(viSite == iSite);
 viSpk1 = viSpk(vii1);
 vrSpk1 = vrSpk(vii1);
 viSiteNear = findNearSite_(P.mrSiteXY, iSite, maxDist_site_um);
-% if fMerge_half
-%     n_use = 1 + ceil(P.maxSite);
-%     viSiteNear = P.miSites(1:n_use,iSite);
-% else
-%     viSiteNear = P.miSites(:,iSite);
-% end
 vi2 = find(ismember(viSite, viSiteNear));
 viSpk2 = viSpk(vi2); 
 vrSpk2 = vrSpk(vi2);
@@ -1770,34 +1760,40 @@ end %func
 %--------------------------------------------------------------------------
 function S_clu = fet2clu_(S0, P)
 % can process different shanks separately
-nRepeat_clu = get_set_(P, 'nRepeat_clu', 1);
-
+global trFet_spk
+fRepeat_clu = get_set_(P, 'fRepeat_clu', 1);
 fprintf('Clustering\n');
-% for iRepeat_clu = 1:nRepeat_clu
+
 S_clu = cluster_spacetime_(S0, P);        
 S_clu = postCluster_(S_clu, P);
 
-for iRepeat_clu = 2:nRepeat_clu
-% subselect bottom half
+if fRepeat_clu
+    trFet_spk0 = trFet_spk;
+    nSites_fet = P.maxSite*2+1-P.nSites_ref;
+    nFetPerSite = size(trFet_spk,1) / nSites_fet;
     vrSnr_clu = S_clu_snr_(S_clu);
-    vlRedo_clu = vrSnr_clu < quantile(vrSnr_clu, 2^(-iRepeat_clu+1-1));
-    vlRedo_spk = ismember(S_clu.viClu, find(vlRedo_clu));
-    % find spikes to redo    
-    S_clu1 = cluster_spacetime_(S0, P, vlRedo_spk);
-    S_clu1 = postCluster_(S_clu1, P);
-    S_clu = S_clu_combine_(S_clu, S_clu1, vlRedo_clu, vlRedo_spk);
-end
+    %         vlRedo_clu = vrSnr_clu < quantile(vrSnr_clu, 2^(-iRepeat_clu+1)); %exponential selection
+    vlRedo_clu = vrSnr_clu < quantile(vrSnr_clu, 1/2); %ilnear selection
+    vlRedo_spk = ismember(S_clu.viClu, find(vlRedo_clu));        
 
+    % top half
+%     S_clu_A = postCluster_(cluster_spacetime_(S0, P, ~vlRedo_spk), P);
+
+    % Bottom half (reduce feature diemnsion)    
+    mlFet_ = false(nSites_fet, nFetPerSite);
+    nSites_fet = ceil(nSites_fet*.75);
+    mlFet_(1:nSites_fet, :) = 1;
+    trFet_spk = trFet_spk(find(mlFet_),:,:);
+    S_clu_B = postCluster_(cluster_spacetime_(S0, P, vlRedo_spk), P);        
+
+    % combine
+%     S_clu.viClu(~vlRedo_spk) = S_clu_A.viClu;
+%     S_clu.viClu(vlRedo_spk) = S_clu_B.viClu + max(S_clu_A.viClu);
+    S_clu = S_clu_combine_(S_clu, S_clu_B, vlRedo_clu, vlRedo_spk);
+    trFet_spk = trFet_spk0; %restore
+end
 % S_clu = clu2wav_(S_clu, S0.viSite_spk, tnWav_spk, tnWav_raw);
 S_clu = post_merge_(S_clu, P, 0);
-
-
-
-%     if iRepeat_clu < nRepeat_clu
-%         S_clu = post_recenter_(S_clu, P); % recenters the features and 
-%     end
-% end
-
 S_clu.viClu_auto = S_clu.viClu;
 fprintf('\tClustering took %0.1f s\n', S_clu.t_runtime);
 end %func
@@ -1812,7 +1808,6 @@ vi1 = vi(vl1);
 end %func
 
 
-
 %--------------------------------------------------------------------------
 function d = eucl2_dist_(X, Y)
 % a: m x d1; b: m x d2
@@ -1821,6 +1816,7 @@ function d = eucl2_dist_(X, Y)
 % X = [mrFet1_, mrFet2_];
 d = bsxfun(@plus, sum(Y.^2), bsxfun(@minus, sum(X.^2)', 2*X'*Y));
 end %func
+
 
 %--------------------------------------------------------------------------
 function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
@@ -1939,6 +1935,7 @@ if nargin==0, nC_ = 0; return; end
 if isempty(nC_), nC_ = 0; end
 [nC, n12] = size(mrFet12); %nc is constant with the loop
 dn_max = int32(round((n1+n2) / P.nTime_clu));
+nC_max = get_set_(P, 'nC_max', 45);
 dc2 = single(dc2);
 FLAG_FIXN = 0; %flag variable number of neighbors (otherwise fixed to 2*dn_max+1)
 if P.fGpu && FLAG_FIXN == 0
@@ -1947,7 +1944,7 @@ if P.fGpu && FLAG_FIXN == 0
             nC_ = nC;
             CK = parallel.gpu.CUDAKernel('jrc3_cuda_rho.ptx','jrc3_cuda_rho.cu');
             CK.ThreadBlockSize = [P.nThreads, 1];          
-            CK.SharedMemorySize = 4 * P.CHUNK * (2 + nC + 2 * P.nThreads); % @TODO: update the size
+            CK.SharedMemorySize = 4 * P.CHUNK * (2 + nC_max + 2 * P.nThreads); % @TODO: update the size
         end
         CK.GridSize = [ceil(n1 / P.CHUNK / P.CHUNK), P.CHUNK]; %MaxGridSize: [2.1475e+09 65535 65535]    
         vrRho1 = zeros([1, n1], 'single', 'gpuArray'); 
@@ -1983,14 +1980,14 @@ if nargin==0, nC_ = 0; return; end
 if isempty(nC_), nC_ = 0; end
 [nC, n12] = size(mrFet12); %nc is constant with the loop
 dn_max = int32(round((n1+n2) / P.nTime_clu));
-
+nC_max = get_set_(P, 'nC_max', 45);
 if P.fGpu
     try
         if (nC_ ~= nC) % create cuda kernel
             nC_ = nC;
             CK = parallel.gpu.CUDAKernel('jrc3_cuda_delta.ptx','jrc3_cuda_delta.cu');
             CK.ThreadBlockSize = [P.nThreads, 1];          
-            CK.SharedMemorySize = 4 * P.CHUNK * (3 + nC + 2*P.nThreads); % @TODO: update the size
+            CK.SharedMemorySize = 4 * P.CHUNK * (3 + nC_max + 2*P.nThreads); % @TODO: update the size
         end
         CK.GridSize = [ceil(n1 / P.CHUNK / P.CHUNK), P.CHUNK]; %MaxGridSize: [2.1475e+09 65535 65535]    
         vrDelta1 = zeros([1, n1], 'single', 'gpuArray'); 
@@ -2079,15 +2076,7 @@ switch nFet_use
 end
 if get_set_(P, 'fSqrt_fet', 0), mrFet12_ = signsqrt_(mrFet12_); end
 if get_set_(P, 'fLog_fet', 0), mrFet12_ = signlog_(mrFet12_); end
-% try
-%     size(viSpk12_)
-%     g = gpuDevice(); g.AvailableMemory
-%     mrFet12_ = gpuArray_(mrFet12_, P.fGpu);
-%     viSpk12_ = gpuArray_(viSpk12_, P.fGpu);
 viiSpk12_ord_ = rankorder_(viSpk12_, 'ascend');
-% catch
-%     disperr_(sprintf('iSite: %d', iSite));
-% end
 end %func
 
 
@@ -2156,11 +2145,11 @@ assignWorkspace_(S_score); %put in workspace
 
 figure; set(gcf,'Name',P.vcFile_prm);
 subplot 121; plot_cdf_(S_score.S_score_clu.vrFp); hold on; plot_cdf_(S_score.S_score_clu.vrMiss); 
-legend({'false positives', 'miss rates'}); ylabel('CDF'); grid on; xlabel('Cluster count');
+legend({'False Positives', 'False Negatives'}); ylabel('CDF'); grid on; xlabel('Cluster count');
 
 subplot 122; hold on;
 plot(S_score.vrSnr_min_gt, S_score.S_score_clu.vrFp, 'b.', S_score.vrSnr_min_gt, S_score.S_score_clu.vrMiss, 'r.');
-legend({'false positives', 'miss rates'}); ylabel('score'); grid on; xlabel('SNR (Vp/Vrms)');
+legend({'False Positives', 'False Negatives'}); ylabel('score'); grid on; xlabel('SNR (Vp/Vrms)');
 
 disp_score_(S_score.vrSnr_min_gt, S_score.S_score_clu.vrFp, S_score.S_score_clu.vrMiss, snr_thresh_score);
 
@@ -2374,13 +2363,6 @@ nRepeat_merge = get_set_(P, 'nRepeat_merge', 10);
 fMerge_pv = 0;
 fClean_clu = 1;
 
-% if isfield(S_clu, 'cS_clu_shank')
-%     S_clu = post_merge_shank_(S_clu.cS_clu_shank, P);
-% elseif iscell(S_clu)
-%     S_clu = post_merge_shank_(S_clu, P);
-% else
-%     S_clu = postCluster_(S_clu, P);
-% end
 if fPostCluster, S_clu = postCluster_(S_clu, P); end
 
 % Add S_clu fields
@@ -2392,8 +2374,6 @@ S_clu = S_clu_refresh_(S_clu);
 S_clu = S_clu_sort_(S_clu, 'viSite_clu');
 S_clu = rmfield_(S_clu, 'csNote_clu');
 
-% Determine cluster mean waveform
-% P.miSites = findNearSites(P.mrSiteXY, P.maxSite);
 if isempty(tnWav_raw)
     fprintf(2, 'postmerge: Loading tnWav_raw... (should not see this)\n');
     tnWav_raw = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);
@@ -3111,6 +3091,8 @@ global fDebug_ui;
 if nargin<1, vcArg1 = ''; end
 if nargin<2, vcArg2 = ''; end
 if nargin<3, vcArg3 = ''; end
+
+if ~exist_file_('sample.bin'), jrc3('download', 'sample'); end
 
 nFailed = 0;
 profile('clear'); %reset profile stats
@@ -6024,11 +6006,9 @@ function csAbout = about_(varargin)
 [vcVer, vcDate] = jrc_version_();
 csAbout = { ...            
     ''; 
-    sprintf('Janelia Rapid Clust %s (jrc3.m)', vcVer);
+    sprintf('Jun Rocket Clust %s (jrc3.m)', vcVer);
     sprintf('  Last updated on %s', vcDate);
-    '  Created by James Jun (james@vidriotech.com)';
-    '  Vidrio Technologies, LLC';
-    '  HHMI - Janelia Research Campus';
+    '  Created by James Jun (jamesjun@gmail.com)';
     '';
     'Hardware Requirements';
     '  32GB ram (or 1/4 of recording size)';
@@ -11267,26 +11247,12 @@ end %func
 
 
 %--------------------------------------------------------------------------
-% function max_dist = max_xcorr2_mr_(mrWav_clu1, mrWav_clu2, cvi1, cvi2)
-% % vrDist12 = xcorr_mr_(mrWav1, mrWav2, nShift)
-% % vrDist12 = xcorr_mr_(mrWav1, mrWav2, cvi1, cvi2)
-% n = numel(cvi1);
-% % vrDist12 = zeros(size(cvi1), 'like', mrWav_clu1);
-% max_dist = 0;
-% for iDist = 1:numel(vrDist12)    
-% %     mr1 = mrWav_clu1(cvi1{iDist},:);
-% %     mr2 = mrWav_clu2(cvi2{iDist},:);
-% %     vrDist12(iDist) = corr_(mr1(:), mr2(:));
-%     
-% end
-% % max_dist = max(vrDist12);
-% end %func
-
-
-%--------------------------------------------------------------------------
+% 10/8/17 JJJ: find correlation
 function vrDist12 = xcorr2_mr_(mrWav1, mrWav2, arg1, arg2)
 % vrDist12 = xcorr_mr_(mrWav1, mrWav2, nShift)
 % vrDist12 = xcorr_mr_(mrWav1, mrWav2, cvi1, cvi2)
+fMeanSubt_post = 1;
+fSquared = 0;
 if nargin == 3
     nShift = arg1;    
     nT = size(mrWav1, 1);
@@ -11295,11 +11261,19 @@ else
     cvi1 = arg1;
     cvi2 = arg2;
 end
+if fSquared
+    mrWav1 = mrWav1 .^ 2;
+    mrWav2 = mrWav2 .^ 2;
+end
 vrDist12 = zeros(size(cvi1));
 for iDist = 1:numel(vrDist12)    
     mr1 = mrWav1(cvi1{iDist},:);
     mr2 = mrWav2(cvi2{iDist},:);
-    vrDist12(iDist) = corr_(mr1(:), mr2(:));
+    if ~fMeanSubt_post
+        mr1 = meanSubt_(mr1);
+        mr2 = meanSubt_(mr2);
+    end
+    vrDist12(iDist) = corr_(mr1(:), mr2(:), fMeanSubt_post);
 end
 end %func
 
@@ -12014,20 +11988,20 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function C = corr_(A, B)
+function C = corr_(A, B, fMeanSubt)
 % mr = corr_(A, B)
 % mr = corr_(A) % n1 x n2 becomes n1 x 
 % mr = corr_(vr1, vr2) % single coefficient
-
+if nargin<3, fMeanSubt = 1; end
 % https://stackoverflow.com/questions/9262933/what-is-a-fast-way-to-compute-column-by-column-correlation-in-matlab
-An = bsxfun(@minus,A,mean(A)); %%% zero-mean
-An = bsxfun(@times,An,1./sqrt(sum(An.^2))); %% L2-normalization
+if fMeanSubt, A = bsxfun(@minus,A,mean(A)); end %% zero-mean
+A = bsxfun(@times,A,1./sqrt(sum(A.^2))); %% L2-normalization
 if nargin == 1
-    C = An' * An;
+    C = A' * A;
 else
-    Bn = bsxfun(@minus,B,mean(B)); %%% zero-mean
-    Bn = bsxfun(@times,Bn,1./sqrt(sum(Bn.^2))); %% L2-normalization
-    C = An' * Bn;
+    if fMeanSubt, B = bsxfun(@minus,B,mean(B)); end %%% zero-mean
+    B = bsxfun(@times,B,1./sqrt(sum(B.^2))); %% L2-normalization
+    C = A' * B;
 end
 end %func
 
@@ -12834,7 +12808,7 @@ for iClu2 = 1:nClu
         viClu1 = find(ismember(viSite_clu, findNearSite_(P.mrSiteXY, iSite_clu2, maxDist_site_um)));
     else
         viClu1 = find(viSite_clu == iSite_clu2 | viSite2_clu == iSite_clu2 | viSite3_clu == iSite_clu2 | ...
-                viSite_clu == viSite2_clu(iClu2) | viSite_clu == viSite3_clu(iClu2));
+                viSite_clu == viSite2_clu(iClu2) | viSite_clu == viSite3_clu(iClu2)); %viSite2_clu == viSite2_clu(iClu2) |
     end
     viClu1(viClu1 <= iClu2) = []; % symmetric matrix comparison
     tmrWav_clu21 = tmrWav_clu(:,viSite2,:); %temp
@@ -13573,7 +13547,7 @@ end %func
 function flag = validate_param_(P)
 % validate P
 
-NDIM_SORT_MAX = 30;
+NDIM_SORT_MAX = get_set_(P, 'nC_max', 45);
 
 csError = {};
 
@@ -13870,24 +13844,18 @@ end %func
 
 
 %--------------------------------------------------------------------------
-% function doc_()
-% Open JRCLUST PDF documentation 
+% 10/8/17 JJJ: Opens the doc file from the current JRC folder
 % 7/24/17 JJJ: open the latest manual from Dropbox if the link is valid
 function doc_(vcFile_doc)
+% Open JRCLUST PDF documentation 
 if nargin<1, vcFile_doc = 'JRCLUST manual.pdf'; end
-try
-    S_cfg = read_cfg_();
-    vcFile_doc1 = [S_cfg.path_dropbox, filesep(), vcFile_doc];
-    if exist(vcFile_doc, 'file') == 2
-        disp(vcFile_doc1);
-        open(vcFile_doc1);
-        return;
-    end
-catch
-    disperr_();
+vcFile_doc = jrcpath_(vcFile_doc);
+if exist_file_(vcFile_doc)
+    disp(vcFile_doc);
+    open(vcFile_doc);
+else
+    fprintf(2, 'File does not exist: %s\n', vcFile_doc); 
 end
-disp(vcFile_doc);
-open(vcFile_doc);
 end %func
 
 
@@ -14103,6 +14071,7 @@ end %func
 
 %--------------------------------------------------------------------------
 % Compile CUDA codes for JRCLUST
+% 10/5/17 JJJ: Error messages converted to warning
 % 7/26/17 JJJ: Code cleanup and testing
 function fSuccess = compile_cuda_(S_cfg)
 if nargin<1, S_cfg = read_cfg_(); end
@@ -14122,12 +14091,15 @@ for i=1:numel(csFiles_cu)
     vcFile_ = jrcpath_(csFiles_cu{i});
     vcCmd1 = sprintf('%s -ptx -m 64 -arch sm_35 "%s"', vcPath_nvcc, vcFile_);
     fprintf('\t%s\n\t', vcCmd1);
-    try                
+    try          
         status = system(vcCmd1);
         fSuccess = fSuccess && (status==0);        
     catch
-        fprintf(2, '\tFailed to compile.\n');
+        fprintf('\tWarning: CUDA could not be compiled: %s\n', vcFile_); 
     end
+end
+if ~fSuccess
+    fprintf('\tWarning: CUDA could not be compiled but JRCLUST may work fine. If not, install CUDA toolkit v%0.1f and run "jrc install".\n', S_gpu.ToolkitVersion);
 end
 fprintf('\tFinished compiling, took %0.1fs\n', toc(t1));
 end %func
@@ -14135,6 +14107,7 @@ end %func
 
 %--------------------------------------------------------------------------
 % Compile Kilosort code
+% 10/5/17 JJJ: Error messages converted to warning
 % 7/26/17 JJJ: Code cleanup and test
 function fSuccess = compile_ksort_()
 fSuccess = 1;
@@ -14151,11 +14124,14 @@ for iFile = 1:numel(csFiles_cu)
             break;
         catch
             if iTry == nTry
-                fprintf(2, 'Kilosort compile failed for %s.\n', csFiles_cu{iFile});
+                fprintf('\tKilosort could not be compiled: %s\n', csFiles_cu{iFile});
                 fSuccess = 0;
             end
         end
     end
+end
+if ~fSuccess
+    fprintf('\tWarning: Kilosort could not be compiled but it may work fine. If not, install Visual Studio 2013 and run "jrc install".\n');
 end
 end %func
 
@@ -16174,7 +16150,8 @@ if fLocal
         if isempty(viSpk_), continue; end
         vl_zero_ = find(delta_==0);
         [y_det_(vl_zero_), z_(vl_zero_)] = nan;
-        [icl_, vrZ_] = find_topn_(y_det_, maxCluPerSite, find(rho_ > 10^P.rho_cut));
+        [icl_, vrZ_] = find_topn_(y_det_, maxCluPerSite, ...
+            find(rho_ > 10^P.rho_cut & ~isnan(y_det_)));
         if isempty(icl_), continue; end
         cvi_cl{iSite} = viSpk_(icl_); 
         z(viSpk_) = z_;
@@ -16187,7 +16164,8 @@ else
     viDetrend = find(S_clu.delta < 1 & S_clu.delta > 0 & S_clu.rho > 10^P.rho_cut & S_clu.rho < .1 & isfinite(x) & isfinite(y));    
     [~, z] = detrend_(x, y, viDetrend, 1);
     z(S_clu.delta==0) = nan;
-    [icl, vrZ_] = find_topn_(z, maxCluPerSite * numel(S0.cviSpk_site), find(S_clu.rho > 10^P.rho_cut));
+    [icl, vrZ_] = find_topn_(z, maxCluPerSite * numel(S0.cviSpk_site), ...
+        find(S_clu.rho > 10^P.rho_cut & ~isnan(z)));
     icl(vrZ_ < 10^P.delta1_cut) = [];    
 %     icl = find(x>=P.rho_cut & z>=10^P.delta1_cut);
 end
@@ -16195,6 +16173,7 @@ end
 
 if nargout==0
     figure; plot(x,z,'.', x(icl),z(icl),'ro'); grid on; 
+    axis([-5 0 -20 100]);
     title(sprintf('%d clu', numel(icl)));
 end
 end %func
@@ -16648,8 +16627,8 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.0.5';
-vcDate = '9/29/2017';
+vcVer = 'v3.0.6';
+vcDate = '10/8/2017';
 vcVer_used = '';
 if nargout==0
     fprintf('%s (%s) installed\n', vcVer, vcDate);
@@ -16774,4 +16753,20 @@ switch lower(vcMode)
     case 'post', web('https://github.com/jamesjun/JRCLUST/issues/new')
     case 'search', web('https://github.com/jamesjun/JRCLUST/issues')
 end %switch
+end %func
+
+
+%--------------------------------------------------------------------------
+% 10/8/17 JJJ: Created
+function edit_(vcFile)
+% vcFile0 = vcFile;
+if ~exist_file_(vcFile)
+    if matchFileExt_(vcFile, '.prb')
+        vcFile = find_prb_(vcFile);
+    else
+        vcFile = jrcpath_(vcFile, 1);
+    end
+end
+fprintf('Editing %s\n', vcFile);
+edit(vcFile);
 end %func

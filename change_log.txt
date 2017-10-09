@@ -2,6 +2,14 @@
 James Jun, HHMI-Janelia Research Campus, Applied Physics and Instrumentation Group
 
 --------------------------------------------------------------------
+[2017/10/8: v3.0.6]
+Improved automated clustering
+  Setting the flag fRepeat_clu=1 (default) will re-runs clustering for the lower half of the cluster amplitudes.
+  For Neuropixels probes, the default number of sites for feature extraction is increased:
+    nSites_spk = 1+2*maxSite-nSites_ref = 1+6.5*2-4 = 10
+CUDA codes are recomplied to accept up to 45 feature dimensions (previously 30).
+  The max number of dimensions is stored in "nC_max" parameter (read-only, do not change).
+
 [2017/9/29]
 Bugfix: negative rho is fixed. This was caused by dc==0 (radius of the neighbor-finding spheres)
   when the median distance-cutoff was zero. This is fixed by discarding zero-distance values before

@@ -16,10 +16,10 @@ geometry(ref_sites,:) = [];
 % Recording contact pad size in micrometers. Height x width
 pad = [12 12];
 
-% Default prm
-maxSite = 6.5;
-um_per_pix = 20;
-nSites_ref = 8;
-
 % Shanks
-% shank = ones(size(channels)); shank(geometry(:,1)>0)=2;
+shank = ones(size(channels));    % Leave it empty if single shank
+
+% Default prm
+maxSite = 6.5;              % Number of neighboring sites in each direction to extract spike waveforms
+nSites_ref = 4;             % Total number of reference sites to exclude for feature extraction
+um_per_pix = 20;            % Micrometers per center-to-center vertical site spacing

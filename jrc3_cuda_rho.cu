@@ -14,8 +14,7 @@
 #define MIN(A,B) ((A)<(B)) ? (A) : (B)
 #define MAX(A,B) ((A)>(B)) ? (A) : (B)
 #define NTHREADS 128
-#define NC 30 //max dimm
-// #define NC (9)
+#define NC 45 //max dimm
 #define CHUNK 16
 #define SINGLE_INF (3.402E+38) // equipvalent to NAN. consider -1 value
 
@@ -102,7 +101,7 @@ __global__ void jrc3_cuda_rho(float * vrRho1, const float * mrFet12, const int *
             //if (vlDist_c[i_c] == 1){
                 ++mnComp1_[tx][i_c];
                 if (fDc_spk==0){
-                    if (vrDist_c[i_c] < dc2) ++mnRho1_[tx][i_c];
+                    if (vrDist_c[i_c] <= dc2) ++mnRho1_[tx][i_c];
                 }else{
                     if (vrDist_c[i_c] < vrDc1_[i_c]) ++mnRho1_[tx][i_c];
                 }
