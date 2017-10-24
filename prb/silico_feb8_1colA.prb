@@ -1,0 +1,13 @@
+% Order of the probe sites in the recording file
+% silico_feb8_1colA.prb
+% reads 'E:\CatalinMitelut\feb_8_2017_4mins_600chs\drift_4col.bin'
+istart = 1; %{1,2,3,4}
+channels = istart:4:120;
+
+% Site location in micrometers (x and y)
+geometry = zeros(30, 2);
+geometry(:,2) = (0:29) * 20;
+geometry(:,1) = 0;
+
+% Recording contact pad size in micrometers. Height x width
+pad = [12 12];

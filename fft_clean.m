@@ -14,16 +14,16 @@ mr1 = bsxfun(@minus, mr, vrMu);
 n = size(mr1,1);
 % pad if needed
 n_pow2 = 2^nextpow2(n);
-try
+% try
     if n < n_pow2
         mr1 = fft(mr1, n_pow2);
     else
         mr1 = fft(mr1);
     end
-catch
-    disp('fft_clean: GPU-based FFT failed. Trying CPU-based FFT. Reset GPU or restart Matlab.');
-    mr1 = fft(gather(mr1), n_pow2); %GPU-based FFT failed
-end
+% catch
+%     disp('fft_clean: GPU-based FFT failed. Trying CPU-based FFT. Reset GPU or restart Matlab.');
+%     mr1 = fft(gather(mr1), n_pow2); %GPU-based FFT failed
+% end
 n1 = floor(n_pow2/2);
 viFreq = (1:n1)';
 % vrFft1 = abs(mean(bsxfun(@times, mr1(1+viFreq,:), viFreq), 2));

@@ -262,5 +262,44 @@ S_out = jrc3('test', 'jrc_version_', {'sample_sample.prm'}, 1);
 %% 10/9/17
 S_out = jrc3('test', 'importTSF_', {'E:\CatalinMitelut\sep_3_2017\layout_0.tsf'}, 2);
 
+%% 10/11
+S_out = jrc3('test', 'load_spkraw_', {}, 1, 0);
+S_out = jrc3('test', 'load_spkwav_', {}, 1, 0);
 
+S_out = jrc3('test', 'fread_spkwav_', {}, 1, 0);
 
+S_out = jrc3('test', 'fread_spkwav_', {1:10}, 1, 0);
+global tnWav_spk
+b = tnWav_spk(:,:,1:10) - S_out.out1;
+max(b(:)) - min(b(:))
+
+S_out = jrc3('test', 'fread_spkraw_', {1:10}, 1, 0);
+global tnWav_raw
+b = tnWav_raw(:,:,1:10) - S_out.out1;
+max(b(:)) - min(b(:))
+
+stats = [];
+viSpk = [1:100:190918];
+viSpk2 = [viSpk(1:2:end); fliplr(viSpk(2:2:end))];
+viSpk2 = viSpk2(:);
+for i=1:30
+    tic
+    S_out = jrc3('test', 'fread_spkraw_', {viSpk}, 1, 0); %
+    t1=toc;
+    tic
+%     global tnWav_spk
+%     a = tnWav_spk(:,:,viSpk);
+    S_out = jrc3('test', 'fread_spkraw_', {viSpk2}, 1, 0); %
+    t2=toc;
+    stats(end+1)=t1/t2;
+end
+printstat(stats)
+
+%% 10/12
+
+S_out = jrc3('test', 'set_diag_', {rand(3,4), nan}, 1); %
+S_out = jrc3('test', 'set_diag_', {rand(3,3), nan}, 1); %
+S_out = jrc3('test', 'set_diag_', {[], nan}, 1); %
+S_out = jrc3('test', 'set_diag_', {rand(3,3), 1:3}, 1); %
+S_out = jrc3('test', 'set_diag_', {rand(3,4), 1:3}, 1); %
+S_out = jrc3('test', 'set_diag_', {rand(3,4), 1:4}, 1); %

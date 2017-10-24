@@ -2,6 +2,37 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/10/24: v3.0.8]
+Faster manual GUI loading speed. Optimized caching
+Improved drift resistance. Three average unit waveforms are computed based on the vertical spike positions,
+  and waveform similarities are compared for spatial and temporal shifts.
+Faster post-hoc automated merging by using parfor (parallel computing toolbox)
+Bugfix: manual GUI waveform similiarity matrix calculation.
+Bugfix: Removed a horizontal curve from the rho-delta plot.
+Bugfix: Manual GUI will clear the unsaved results when user selects "do not save".
+  Previously cached information was incorrectly shown when the manual GUI was restarted.
+New default: Raw spike waveform duration is now the same as the filtered spike waveform length.
+  spkLim_ms = [-.25, .75]; sets the spike waveform range to 0.25 ms before the negative peak and 0.75 ms after the peak. 
+  Setting spkLim_raw_ms = []; will set spkLim_raw_ms = spkLim_ms.
+
+[2017/10/9]
+Default changed: nPcPerChan=1 (previously 3), since other PC dimensions explain less than
+  2% of the total variance when differentiator filter is used. Using only the first PC is 
+  also more robust to the presence of overlapping spikes.
+New default filter: vcFilter = 'ndiff' (convolves with [1,2,-2,-1] if nDiff_filt=2 chosen). 
+  The new differentiator filter is less attenuating than 'sgdiff' for small spikes,
+    which convolves with [2,1,0,-1,-2] if nDiff_filt=2 is chosen.
+Default changed: fRepeat_clu=0 (previously 1)
+  Repeating clustering is not necessary if lower feature dimension is used (nPcPerChan=1).
+Default changed: delta1_cut=0.6 (previously 0.5) if lower feature dimension is used.
+Improved auto-merging based on mean unit waveforms using interpolation
+  Unit waveform similarity matrix is computed by finding the maximum correlation score 
+    by relatively time-shifting waveform pairs after interpolating 4x in time.
+Bugfix: Diagonal waveform similarity is calculated correctly after merge and subtract
+Reduced the peak memory use by 50%. Spike waveforms are directly saved to the disk.
+  fRamCache = 1; is set to default, which stores both the raw and filtered spike waveforms in RAM.
+  Setting "fRamCache = 0" will only load either raw or filtered spike waveforms in RAM to save space.
+
 [2017/10/8: v3.0.7]
 Improved automated clustering for small amplitude units
   For feature extraction, vcSpkRef='nmean' now subtracts the average spike waveform across sites 

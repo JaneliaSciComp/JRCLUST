@@ -16,7 +16,7 @@ fInverse_file = 0;          % flip polarity of set to one
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.0.7';      % JRCLUST version
+version = 'v3.0.8';      % JRCLUST version
 fVerbose = 0;
 fParfor = 1;                % Use Multiple cores
 fGpu = 1;                   % Use GPU
@@ -28,6 +28,7 @@ vcFile_thresh = '';         % Spike detection threshold values stored
 sec_per_load_preview = 1;   % Duration of sec per load for preview
 nLoads_max_preview = 30;    % Number of loads for preview
 offset_sec_preview = 0;     % offset to apply 
+fCacheRam = 1;              % Cache spikew aveform information in RAM. Uses more RAM but faster
 
 % #Display parameters (Affects display only, *:changeable in the UI)
 tlim = [0, .2];             % Time range to display 
@@ -45,12 +46,12 @@ vcFilter_show = '';         % Filter to apply in the "traces" view. Choices: {''
 
 % #Pre-processing (run "jrc spikesort" after change)
 tlim_load = [];             % Time range to load in sec (uses all time range if set to empty)
-vcFilter = 'sgdiff';        % {'bandpass', 'sgdiff'} @TODO: sgdiff: Savitzky-Golay first order differentiation filter
+vcFilter = 'ndiff';        % {'bandpass', 'sgdiff', 'none'} @TODO: sgdiff: Savitzky-Golay first order differentiation filter
 nDiff_filt = 2;			    % Differentiation filter for vcFilter='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
 freqLim = [300, 3000];      % Frequency cut-off limit for vcFilter='bandpass', ignored otherwise. 
 filtOrder = 3;              % Bandpass filter order
 fEllip = 1;                 % Use Elliptic filter. set to 0 for Butterworth filter. Only valid for vcFilter='bandpass'.
-fft_thresh = 0;             % Automatically remove frequency outliers (unit:MAD, 20 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
+fft_thresh = 0;             % Automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
 freqLimNotch = {};          % Notch filter frequency range to exclude manually. {[start1, end1], [start2, end2]}. Can be used in conjunction with fft_thresh.
 vcCommonRef = 'mean';       % common reference mode {'none', 'mean'} %deprecated: 'nmean', 'median', 'none', 'holtzman', 'trimmean', 'tmean'}
 viSiteZero = [];            % Site# to ignore manually
@@ -59,42 +60,42 @@ gain_boost = 1;             % multiply the raw recording by this gain to boost u
 thresh_corr_bad_site = [];      % Automatically reject bad sites based on the max. correlation with neighboring sites using raw waveforms. Set to [] to disable
 
 % #Spike detection and grouping (run "jrc spikesort" after change)
-qqFactor = 5;               % Spike detection thresold (Threshold = qqFactor*S, S = med(x-med(x))/.6745). (RQ Quiroga'04).
+qqFactor = 4;               % Spike detection thresold (Threshold = qqFactor*S, S = med(x-med(x))/.6745). (RQ Quiroga'04).
 qqSample = 4;               % Median subsample factor (1 every n)
 spkThresh_uV = [];          % Manual threshold (applies to all channels)
 spkThresh_max_uV = [];      % maximum absolute amp. allowed
-spkLim_ms = [-.25, .75];    % Spike waveform time range
+spkLim_ms = [-.25, .75];    % Time range to capture the filtered spike waveforms
+spkLim_raw_ms = [];         % Raw spike waveform range, setting to [] will use spkLim_ms
 maxSite = 6.5;              % Max number of sites (nSpikes_spk = 1+2*maxSite-nSite_ref), nSpikes_spk*nFet_spk<=30
-spkRefrac_ms = .5;          % Detection refractory period
-refrac_factor = 2;          % Refractory period for the same channel  (spkRefrac_ms x refrac_factor)
+spkRefrac_ms = .25;          % Detection refractory period
 vcSpatialFilter = 'none';   % Spatial filter for detection {'mean', 'imec2', 'subtract', 'csd'}
 fSaveEvt = 1;               % Flag to save event file
 fDetectBipolar = 0;         % bipolar amplitude detection (0 means negative)
 fSaveRawSpk = 0;            % Save spike detected per site (saves minimum peak)
 blank_thresh = [];          % reject spikes exceeding the channel mean after filtering (MAD unit), ignored if [] or 0
 blank_period_ms = 5;        % (miliseconds) Duration of blanking when the common mean exceeds a threhold (blank_thresh)
-nneigh_min_detect = 1;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
+nneigh_min_detect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
 maxDist_site_um = 50;       % Radius of spike event merging. Keep spikes that has most negative peaks within x um radius.
 
 % #Feature extraction (run "jrc spikesort" after change)
 vcFet = 'gpca';              % Feature list: {'gpca', 'cov', 'spacetime', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'}
-nPcPerChan = 3;             % number of principal components per chan.
+nPcPerChan = 1;             % number of principal components per chan.
 nSites_ref = 4;             % set to 0 for global referencing (move to feature section) @TODO: diagram
 vcSpkRef = 'nmean';          % Subtract mean of the spiking event sites {'nmean', 'none'}
 
 % #Clustering (run "jrc sort" after change)
-nTime_clu = 2;              % number of time periods to perform separate clustering (later to be merged after clustering)
+nTime_clu = 4;              % number of time periods to perform separate clustering (later to be merged after clustering)
 dc_percent = 2;             % used for distribution cutting
-fRepeat_clu = 1;            % Flag for whether to repeat clustering for the bottom half of the cluster amplitudes.
+fRepeat_clu = 0;            % Flag for whether to repeat clustering for the bottom half of the cluster amplitudes.
 nThreads = 128;             % number of GPU threads for clustering
 nC_max = 45;                % (read-only) Set by the CUDA code. Maximum number of dimensions per event
 
 % #Post-cluster parameters (run "jrc auto" after change)
+delta1_cut = .6;            % RL cluster: delta cut-off. Increasing this will produce less clusters.
+rho_cut = -2.5;               % RL cluster: rho cut-off. Decreasing (more negative) this will produce more clusters.
+maxWavCor = .98;            % merge if waveform correlation is greater than maxWavCor.
 min_count = 10;             % Minimum cluster size (min_count will be set to 2*#features if lower).
-delta1_cut = .5;            % RL cluster: delta cut-off. Increasing this will produce less clusters.
-rho_cut = -2.5;             % RL cluster: rho cut-off. Decreasing (more negative) this will produce more clusters.
-maxWavCor = .97;             % merge if waveform correlation is greater than maxWavCor.
-nRepeat_merge = 10;          % # of repeats for average unit raw waveform based merging
+nRepeat_merge = 10;         % # of repeats for average unit raw waveform based merging
 vcDetrend_postclu = 'global'; % 'none', 'hidehiko', 'global', 'local', 'logz'
 thresh_mad_clu = 7.5;       % This sets the MAD score threshold to remove outlier spikes for each cluster.
 maxCluPerSite = 20;         % Maximum clusters per site allowed if local detrending is used.
@@ -216,6 +217,7 @@ fPcaDetect = 0;             % Detect spikes after projecting waveform in 1st pri
 fRms_detect = 0;            % don't use rms filter for detection if selectec
 rms_filt_ms = 0;            % RMS filter for spike detection. Set to 0 to ignore
 maxSite_detect = 1.5;       % Max site to sum neighboring channels for detection
+refrac_factor = 2;          % Refractory period for the same channel  (spkRefrac_ms x refrac_factor)
 
 % Feature extraction
 slopeLim_ms = [.05 .35];    % Slope feature parameter
