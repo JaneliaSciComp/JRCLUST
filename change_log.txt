@@ -2,6 +2,13 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/10/25: v3.0.9]
+Faster auto-splitting. Now displaying three principal component axis.
+  Individual spike waveforms are no longer displayed but mean waveforms are displayed
+  nSites_ref (reference sites) are not included in the auto-splitting projection
+Faster updates for manual GUI. Refresh speed increased when user selects a unit.
+Bugfix: Waveform correlation matrix error fixed.
+
 [2017/10/24: v3.0.8]
 Faster manual GUI loading speed. Optimized caching
 Improved drift resistance. Three average unit waveforms are computed based on the vertical spike positions,
