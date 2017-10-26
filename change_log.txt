@@ -2,6 +2,19 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/10/26: v3.1.0]
+Bugfix: raw waveform display fixed for the manual GUI. 
+  Waveforms did not display if you used an older .prm file
+'fir1' filter is supported for "vcFilter" parameter.
+  Finite Impulse Response filter
+  The frequency range is sett by "freqLim=[f_low, f_high]" parameter.
+New default: Detection threshold set to "qqFactor = 5".
+  Increasing the detection threshold can incorrectly merge large amplitude units with background noise.
+New default: Auto-calculation of maxSite and nSites_ref based on the physical distance.
+  maxSite=[] and nSites_ref=[] will automatically set it based on the site spacing and layout.
+  The parameter "maxDist_site_um" is used to determine the number of sites used for features (default 50 um)
+  The parameter "maxDist_site_spk_um" is used to determine the number of reference sites (default 75 um)
+
 [2017/10/25: v3.0.9]
 Faster auto-splitting. Now displaying three principal component axis.
   Individual spike waveforms are no longer displayed but mean waveforms are displayed

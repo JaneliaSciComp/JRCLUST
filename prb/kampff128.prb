@@ -20,5 +20,5 @@ sRateHz = 30000;
 viSiteZero = [];
 uV_per_bit = 0.195;
 vcDataType = 'uint16';
-maxSite = 4;
-nSites_ref = 0;
+%maxSite = 4;
+%nSites_ref = 0;

@@ -16,7 +16,7 @@ fInverse_file = 0;          % flip polarity of set to one
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.0.9';         % JRCLUST version. Updated on Oct 25, 2017
+version = 'v3.1.0';         % JRCLUST version. Updated on Oct 26, 2017
 fVerbose = 0;
 fParfor = 1;                % Use Multiple cores
 fGpu = 1;                   % Use GPU
@@ -60,13 +60,13 @@ gain_boost = 1;             % multiply the raw recording by this gain to boost u
 thresh_corr_bad_site = [];      % Automatically reject bad sites based on the max. correlation with neighboring sites using raw waveforms. Set to [] to disable
 
 % #Spike detection and grouping (run "jrc spikesort" after change)
-qqFactor = 4;               % Spike detection thresold (Threshold = qqFactor*S, S = med(x-med(x))/.6745). (RQ Quiroga'04).
+qqFactor = 5;               % Spike detection thresold (Threshold = qqFactor*S, S = med(x-med(x))/.6745). (RQ Quiroga'04).
 qqSample = 4;               % Median subsample factor (1 every n)
 spkThresh_uV = [];          % Manual threshold (applies to all channels)
 spkThresh_max_uV = [];      % maximum absolute amp. allowed
 spkLim_ms = [-.25, .75];    % Time range to capture the filtered spike waveforms
 spkLim_raw_ms = [];         % Raw spike waveform range, setting to [] will use spkLim_ms
-maxSite = 6.5;              % Max number of sites (nSpikes_spk = 1+2*maxSite-nSite_ref), nSpikes_spk*nFet_spk<=30
+maxSite = [];              % Max number of sites (nSpikes_spk = 1+2*maxSite-nSite_ref), nSpikes_spk*nFet_spk<=30
 spkRefrac_ms = .25;          % Detection refractory period
 vcSpatialFilter = 'none';   % Spatial filter for detection {'mean', 'imec2', 'subtract', 'csd'}
 fSaveEvt = 1;               % Flag to save event file
@@ -76,11 +76,12 @@ blank_thresh = [];          % reject spikes exceeding the channel mean after fil
 blank_period_ms = 5;        % (miliseconds) Duration of blanking when the common mean exceeds a threhold (blank_thresh)
 nneigh_min_detect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
 maxDist_site_um = 50;       % Radius of spike event merging. Keep spikes that has most negative peaks within x um radius.
+maxDist_site_spk_um = 70;   % Max. radius for extracting waveforms. Used if maxSite=[] and nSites_ref=[]
 
 % #Feature extraction (run "jrc spikesort" after change)
 vcFet = 'gpca';              % Feature list: {'gpca', 'cov', 'spacetime', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'}
 nPcPerChan = 1;             % number of principal components per chan.
-nSites_ref = 4;             % set to 0 for global referencing (move to feature section) @TODO: diagram
+nSites_ref = [];             % set to 0 for global referencing (move to feature section) @TODO: diagram
 vcSpkRef = 'nmean';          % Subtract mean of the spiking event sites {'nmean', 'none'}
 
 % #Clustering (run "jrc sort" after change)

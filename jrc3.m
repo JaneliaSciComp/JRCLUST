@@ -46,6 +46,7 @@ switch lower(vcCmd)
         if strcmpi(vcCmd, 'makeprm-all'), jrc3('all', vcFile_prm_); end
     case 'makeprm-f', makeprm_(vcArg1, vcArg2, 0, vcArg3);
     case 'import-tsf', import_tsf_(vcArg1);
+    case 'import-h5', import_h5_(vcArg1);
     case 'import-jrc1', import_jrc1_(vcArg1);
     case 'export-jrc1', export_jrc1_(vcArg1);
     case 'import-intan', vcFile_prm_ = import_intan_(vcArg1, vcArg2, vcArg3); return;
@@ -1073,7 +1074,7 @@ end %func
 %--------------------------------------------------------------------------
 function [nLoad1, nSamples_load1, nSamples_last1] = plan_load_(nBytes_file, P)
 % plan load file size according to the available memory and file size (nBytes_file1)
-LOAD_FACTOR = 10; %GPU memory usage factor. 4x means 1/4 of GPU memory can be loaded
+LOAD_FACTOR = 5; %GPU memory usage factor. 4x means 1/4 of GPU memory can be loaded
 
 nSamples1 = floor(nBytes_file / bytesPerSample_(P.vcDataType) / P.nChans);
 % nSamples_max = floor(mem_max_(P) / P.nChans / 4); % Bound by MAX_BYTES_LOAD
@@ -1087,6 +1088,7 @@ if P.fft_thresh>0 %FFT memory limit
     end
     nSamples_max = min(floor(P.MAX_BYTES_LOAD / P.nChans), floor(P.sRateHz * P.MAX_LOAD_SEC)); % 1 min window
 elseif isempty(P.MAX_LOAD_SEC)
+% if isempty(P.MAX_LOAD_SEC)
    nSamples_max = floor(P.MAX_BYTES_LOAD / P.nChans / bytesPerSample_(P.vcDataType));
 else
     nSamples_max = floor(P.sRateHz * P.MAX_LOAD_SEC);
@@ -1208,36 +1210,36 @@ end %func
 
 %--------------------------------------------------------------------------
 function [P, vcFile_prm] = loadParam_(vcFile_prm, fEditFile)
+% Load prm file
 
 if nargin<2, fEditFile = 1; end
-% Load prm file
-if ~exist(vcFile_prm, 'file')
-    error('.prm file does not exist: %s\n', vcFile_prm);
-%     P=[]; return; 
-end
+assert_(exist_file_(vcFile_prm), sprintf('.prm file does not exist: %s\n', vcFile_prm));
 P0 = file2struct_(jrcpath_(read_cfg_('default_prm', 0)));  %P = defaultParam();
 P = file2struct_(vcFile_prm);
 if ~isfield(P, 'template_file'), P.template_file = ''; end
 if ~isempty(P.template_file)
-    P0 = struct_merge_(P0, file2struct_(P.template_file));
+    assert_(exist_file_(P.template_file), sprintf('template file does not exist: %s', P.template_file));
+    P = struct_merge_(file2struct_(P.template_file), P);
 end
 P.vcFile_prm = vcFile_prm;
-% todo: substitute bin file path
-assert(isfield(P, 'vcFile'), sprintf('Check "%s" file syntax', vcFile_prm));
+assert_(isfield(P, 'vcFile'), sprintf('Check "%s" file syntax', vcFile_prm));
 
-if ~exist(P.vcFile, 'file')
+if ~exist_file_(P.vcFile)
     P.vcFile = replacePath_(P.vcFile, vcFile_prm);
-    if ~exist(P.vcFile, 'file')
+    if ~exist_file_(P.vcFile)
         fprintf('vcFile not specified. Assuming multi-file format ''csFiles_merge''.\n');
     end
 end
+
+
+%-----
 % Load prb file
 if ~isfield(P, 'probe_file'), P.probe_file = P0.probe_file; end
 try    
     probe_file_ = find_prb_(P.probe_file);
     if isempty(probe_file_)
         P.probe_file = replacePath_(P.probe_file, vcFile_prm); 
-        if ~exist(P.probe_file, 'file'), error('prb file does not exist'); end
+        assert_(exist_file_(P.probe_file), 'prb file does not exist');
     else
         P.probe_file = probe_file_;
     end
@@ -1245,9 +1247,8 @@ try
 catch
     fprintf('loadParam: %s not found.\n', P.probe_file);
 end
-
-% Load prb file
 P = struct_merge_(P0, P);    
+if isempty(get_(P, 'maxSite')), P = calc_maxSite_(P); end
 
 % check GPU
 P.fGpu = ifeq_(license('test', 'Distrib_Computing_Toolbox'), P.fGpu, 0);
@@ -1265,9 +1266,6 @@ P.spkRefrac = round(P.spkRefrac_ms * P.sRateHz / 1000);
 P.spkLim = round(P.spkLim_ms * P.sRateHz / 1000);
 P.spkLim_raw = round(get_set_(P, 'spkLim_raw_ms', P.spkLim_ms) * P.sRateHz / 1000); %10/17/2017 JJJ: changed from spkLim_wav*2
 
-% if isempty(P.spkLim_ms_fet), P.spkLim_ms_fet = P.spkLim_ms; end
-% P.spkLim_fet = round(P.spkLim_ms_fet * P.sRateHz / 1000);
-% P.slopeLim = round(P.slopeLim_ms * P.sRateHz / 1000);
 if isempty(get_(P, 'nDiff_filt'))
     if isempty(get_(P, 'nDiff_ms_filt'))
         P.nDiff_filt = 0;
@@ -1292,8 +1290,30 @@ P.vcFilter = get_filter_(P);
 if isempty(get_(P, 'vcFilter_show'))
     P.vcFilter_show = P.vcFilter;
 end
-assert(validate_param_(P), 'Parameter file contains error.');
+assert_(validate_param_(P), 'Parameter file contains error.');
 if fEditFile, edit(P.vcFile_prm); end % Show settings file
+end %func
+
+
+%--------------------------------------------------------------------------
+% 10/25/17 JJJ: Created and tested
+function P = calc_maxSite_(P)
+% Auto determine maxSite from the radius and site ifno
+
+if ~isempty(get_(P, 'maxSite')), return; end
+mrDist_site = pdist2(P.mrSiteXY, P.mrSiteXY);
+maxDist_site_um = get_set_(P, 'maxDist_site_um', 50);
+nSites_fet = median(sum(mrDist_site <= maxDist_site_um));
+if isempty(get_(P, 'nSites_ref'))        
+    maxDist_site_spk_um = get_set_(P, 'maxDist_site_spk_um', maxDist_site_um+25);        
+    nSites_spk = median(sum(mrDist_site <= maxDist_site_spk_um));
+    P.maxSite = (nSites_spk-1)/2;
+    P.nSites_ref = nSites_spk - nSites_fet;
+else        
+    nSites_spk = nSites_fet + P.nSites_ref;
+    P.maxSite = (nSites_spk-1)/2;
+end
+fprintf('Auto-set: maxSite=%0.1f, nSites_ref=%0.1f\n', P.maxSite, P.nSites_ref);
 end %func
 
 
@@ -2710,16 +2730,18 @@ P.vcFilter = get_filter_(P);
 switch lower(P.vcFilter)
     case 'user'
         %         vnFilter_user = -[5,0,-3,-4,-3,0,5]; % sgdiff acceleration
-        vnFilter_user = int16(get_set_(P, 'vnFilter_user', []));
+        vnFilter_user = single(get_set_(P, 'vnFilter_user', []));
         assert_(~isempty(vnFilter_user), 'Set vnFilter_user to use vcFilter=''user''');
         for i=1:size(mnWav2,2)
             mnWav2(:,i) = conv(mnWav2(:,i), vnFilter_user, 'same'); 
         end
+    case 'fir1'
+        n5ms = round(P.sRateHz / 1000 * 5);
+        vrFilter = single(fir1(n5ms, P.freqLim/P.sRateHz*2));
+        for i=1:size(mnWav2,2)
+            mnWav2(:,i) = conv(mnWav2(:,i), vrFilter, 'same'); 
+        end        
     case 'ndiff'
-%         mnWav2(3:end-2,:) = (mnWav2(5:end,:)-mnWav2(3:end-2,:)) + (mnWav2(4:end-1,:)-mnWav2(2:end-3,:)); mnWav2([1,2,end-1,end],:) = 0;
-%         mnWav2(3:end-2,:) = 2*(mnWav2(4:end-1,:)-mnWav2(2:end-3,:)) + (mnWav2(5:end,:)-mnWav2(1:end-4,:)); mnWav2([1,2,end-1,end],:) = 0;
-%         mnWav2(3:end-2,:) = mnWav2(1:end-4,:) + mnWav2(2:end-3,:) + mnWav2(4:end-1,:) + mnWav2(5:end,:) - 4 * mnWav2(3:end-2,:);
-%         mnWav2(3:end-2,:) = -2*(mnWav2(1:end-4,:) - mnWav2(3:end-2,:) + mnWav2(5:end,:)) + mnWav2(2:end-3,:) + mnWav2(4:end-1,:); %2nd derivative, flip sign        
         mnWav2 = ndiff_(mnWav2, P.nDiff_filt);
     case {'sgdiff', 'sgfilt'}
         mnWav2 = sgfilt_(mnWav2, P.nDiff_filt);
@@ -3683,7 +3705,8 @@ end %func
 function vrX = wav_clu_x_(iClu, P)
 % determine x range of a cluster
 if P.fWav_raw_show
-    nSamples = diff(P.spkLim_raw) + 1;
+    dimm_raw = get0_('dimm_raw');
+    nSamples = dimm_raw(1); %diff(P.spkLim_raw) + 1;
     x_offset = (P.spkLim_raw(2)) / nSamples + iClu - 1;
 %     vrX = (0:nSamples-1) / nSamples + x_offset;
 else
@@ -4585,7 +4608,7 @@ end %func
 function tnWav1 = tnWav1_sites_1_(tnWav1_, miSites1, viSites1)
 [nT_spk, nSites_spk, nSpk1] = size(tnWav1_);
 nSites1 = numel(viSites1);
-% assert(nSites_spk==nSites1, 'tnWav1_sites_: nSites must agree');
+% assert_(nSites_spk==nSites1, 'tnWav1_sites_: nSites must agree');
 tnWav1 = zeros([nT_spk, nSpk1, nSites1], 'like', tnWav1_); %subset of spk, complete
 for iSite1 = 1:nSites1
     [viSite11, viiSpk11] = find(miSites1 == viSites1(iSite1));
@@ -4636,7 +4659,7 @@ function tnWav1 = tnWav1_sites_2_(tnWav1_, viSites_spk1, viSites1, P)
 % nSites1 = numel(viSites1);
 nSites = numel(P.viSite2Chan);
 tnWav1 = zeros([nT_spk, nSites, nSpk1], 'like', tnWav1_); %full
-% assert(nSites_spk==nSites1, 'tnWav1_sites_: nSites must agree');
+% assert_(nSites_spk==nSites1, 'tnWav1_sites_: nSites must agree');
 % tnWav1 = zeros([nT_spk, nSpk1, nSites1], 'like', tnWav1_); %subset of spk, complete
 for iSite1 = 1:numel(viSites1)
     iSite11 = viSites1(iSite1);
@@ -5565,7 +5588,7 @@ end
 for iClu3 = iClu+1:S_clu.nClu % update cluster chain info
     S_clu = S_clu_update_note_(S_clu, iClu3, get_next_clu_(S_clu, iClu3) - 1);
 end
-assert(S_clu_valid_(S_clu), 'Cluster number is inconsistent after deleting');
+assert_(S_clu_valid_(S_clu), 'Cluster number is inconsistent after deleting');
 end %func
 
 
@@ -5756,7 +5779,7 @@ S_clu = S_clu_refrac_(S_clu, P, iClu1); % remove refrac
 S_clu = S_clu_update_(S_clu, iClu1, P);
 S_clu = delete_clu_(S_clu, iClu2);
 % S_clu = S_clu_remove_empty_(S_clu);
-assert(S_clu_valid_(S_clu), 'Cluster number is inconsistent after merging');
+assert_(S_clu_valid_(S_clu), 'Cluster number is inconsistent after merging');
 fprintf('%s [W] merging Clu %d and %d\n', datestr(now, 'HH:MM:SS'), iClu1, iClu2);
 end %func
 
@@ -9438,7 +9461,7 @@ for iRepeat = 1:nRepeat_max
     viStart(viStart > viEnd(end)) = [];
     nGroup = numel(viStart);
     if nGroup==0, return; end
-    assert(nGroup == numel(viEnd), 'spike_refrac_:nStart==nEnd');    
+    assert_(nGroup == numel(viEnd), 'spike_refrac_:nStart==nEnd');    
     vlRemove = false(size(viTime_spk));
     
     for iGroup = 1:nGroup
@@ -12122,7 +12145,7 @@ viA2B = int32(viA2B);
 [vl, viA] = ismember(int32(viB), int32(viA2B));
 
 % vl = ismember(viB, viA2B);
-% assert(all(vl), 'reverse_lookup_: all viB must belong to viA2B');
+% assert_(all(vl), 'reverse_lookup_: all viB must belong to viA2B');
 % viA = arrayfun(@(i)find(viA2B==i), viB(vl), 'UniformOutput', 1); 
 end %func
 
@@ -12238,7 +12261,7 @@ viSite_spk_ = gpuArray_(viSite_spk);
 tnWav_spk_raw = gather_(tnWav_spk_raw);
 nSite_use = P.maxSite*2+1 - P.nSites_ref;
 if nSite_use==1, nFet_use=1; end
-assert(nSite_use >0, 'nSites_use = maxSite*2+1 - nSites_ref must be greater than 0');
+assert_(nSite_use >0, 'nSites_use = maxSite*2+1 - nSites_ref must be greater than 0');
 switch nFet_use
     case 3
         [viSite2_spk, viSite3_spk] = find_site_spk23_(tnWav_spk, viSite_spk_, P); fprintf('.');
@@ -16227,7 +16250,7 @@ vcFile_prm = subsFileExt_(P.vcFile, sprintf('_%s.prm', vcFile_prb_));
 if isempty(vcTemplate_prm)
     vcTemplate_prm = jrcpath_(read_cfg_('default_prm'));
 end
-assert(exist_file_(vcTemplate_prm), sprintf('Template file does not exist: %s', vcTemplate_prm));
+assert_(exist_file_(vcTemplate_prm), sprintf('Template file does not exist: %s', vcTemplate_prm));
 
 % Write to a .prm file
 try
@@ -16528,8 +16551,8 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.0.9';
-vcDate = '10/25/2017';
+vcVer = 'v3.1.0';
+vcDate = '10/26/2017';
 vcVer_used = '';
 if nargout==0
     fprintf('%s (%s) installed\n', vcVer, vcDate);
@@ -16788,7 +16811,7 @@ end
 if isempty(fid_)
     [P, dimm_] = get0_('P', 'dimm_spk');
     vcFile_ = strrep(P.vcFile_prm, '.prm', '_spkwav.jrc');
-    assert(exist_file_(vcFile_), sprintf('File must exist: %s\n', vcFile_));
+    assert_(exist_file_(vcFile_), sprintf('File must exist: %s\n', vcFile_));
     fid_ = fopen(vcFile_, 'r');
 end
 
@@ -16821,7 +16844,7 @@ end
 if isempty(fid_)
     [P, dimm_] = get0_('P', 'dimm_raw');
     vcFile_ = strrep(P.vcFile_prm, '.prm', '_spkraw.jrc');
-    assert(exist_file_(vcFile_), sprintf('File must exist: %s\n', vcFile_));
+    assert_(exist_file_(vcFile_), sprintf('File must exist: %s\n', vcFile_));
     fid_ = fopen(vcFile_, 'r');
 end
 
@@ -17192,3 +17215,48 @@ if ~flag
     disperr_(vcMsg); 
 end
 end
+
+%--------------------------------------------------------------------------
+% 10/26/17 JJJ: Created
+function import_h5_(vcFile_h5)
+% Brian Allen h5 data
+if nargin<1, vcFile_h5 = ''; end
+if isempty(vcFile_h5), vcFile_h5 = 'E:\BrianAllen\915_18\915_18_1\915_18_1.h5'; end
+
+S_h5.att.patch_sample_rate      = h5readatt(vcFile_h5, '/', 'abfsamplerate');
+S_h5.att.mea_sample_rate        = h5readatt(vcFile_h5, '/', 'MEAsamplerate');
+S_h5.att.probe_layout           = h5readatt(vcFile_h5, '/','probelayout');
+S_h5.att.bad_channels           = h5readatt(vcFile_h5, '/','badchannels');
+S_h5.att.n_chans                = S_h5.att.probe_layout(1) * S_h5.att.probe_layout(2);
+% S_h5.att.max_chan               = h5readatt(vcFile_h5, '/', 'spikes'); %spikes/max_channel');
+% S_h5.spikes.burst_index         = h5read(vcFile_h5, '/spikes/burstindex');
+
+%% CONSTANTS
+% options.data_length             = 30;
+% options.data_length             = Inf;
+% % length of data to pull in, in seconds. Set to Inf if you wish to pull
+% % in all the data at once (typically ~8 minutes worth)
+% options.isi_criterion           = .02; % 20ms, from Staba, Richard J., et al. "Single neuron..
+% %burst firing in the human hippocampus during sleep." Hippocampus 12.6 (2002): 724-734.
+% options.spike_wfm_len           = .002; %plot 2ms on each side of spike peak
+[vcDir, vcFile, vcExt] = fileparts(vcFile_h5);
+vcFile_raw = fullfile(vcDir, 'Recordings', [vcFile, '_raw.h5']);
+vcFile_filtered = fullfile(vcDir, 'Recordings', [vcFile, '_filtered.h5']);
+
+rawMEA = h5read(vcFile_raw, '/rawMEA');
+rawPipette = h5read(vcFile_raw, '/rawPipette');
+syncMEA = h5read(vcFile_raw, '/syncMEA');
+
+% if isinf(options.data_length)
+    data.mea = h5read(vcFile_h5, '/filtered/filteredMEA', [1 1], [Inf  Inf]);
+    data.patch = h5read(vcFile_h5, '/raw/rawPipette', [1 1], [Inf 1]);    
+% else
+%     data.mea = h5read(filename, '/filtered/filteredMEA', [1 1], [(options.data_length * data.att.mea_sample_rate)  Inf]);
+%     data.patch = h5read(filename, '/raw/rawPipette', [1 1], [(options.data_length * data.att.mea_sample_rate) 1]);
+% end
+
+% P.uV_per_bit = 1/10;
+% mnWav = int16(S_h5.mea * 1/P.uV_per_bit)';
+% write_bin(vcFile_bin, mnWav)
+
+end %func
