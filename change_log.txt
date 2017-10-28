@@ -2,6 +2,20 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/10/27: v3.1.1]
+Bugfix: PSTH time offset error is removed (0.01 s previously)
+Manual GUI: Speed improvement when selecting a unit.
+Bugfix: raw waveform display fixed for the manual GUI. 
+  Waveforms did not display if you used an older .prm file
+New paramter: fInterp_fet = 1 (default), set to 0 to disable this new feature since v3.0.8
+  This interpolates the spike waveforms 2x and finds the optimal time-lag to project the principal vector.
+New paramter: fDrift_merge = 1 (default). Set to 0 to disable this new feature since v3.0.8
+  This compares mean unit waveforms at three drift locations based on the spike position (CoM).
+New paramter: nInterp_merge = 2 (default), set to 1 to disable this new feature since v3.0.8
+  This compares mean unit waveforms at three drift locations based on the spike position (CoM).
+Bugfix: Annotations previously got deleted when deleting clusteres using "delete-auto" command.
+Manual GUI: "auto-merge" to automatically merge units based on the waveform correlations.
+
 [2017/10/26: v3.1.0]
 Bugfix: raw waveform display fixed for the manual GUI. 
   Waveforms did not display if you used an older .prm file

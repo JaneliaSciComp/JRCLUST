@@ -21,5 +21,5 @@ pad = [12 12];
 
 % Default prm
 um_per_pix = 20;
-maxSite = 6.5;
-nSites_ref = 4;
+%maxSite = 6.5;
+%nSites_ref = 4;

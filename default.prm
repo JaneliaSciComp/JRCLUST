@@ -16,7 +16,7 @@ fInverse_file = 0;          % flip polarity of set to one
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.1.0';         % JRCLUST version. Updated on Oct 26, 2017
+version = 'v3.1.1';         % JRCLUST version. Updated on Oct 27, 2017
 fVerbose = 0;
 fParfor = 1;                % Use Multiple cores
 fGpu = 1;                   % Use GPU
@@ -29,6 +29,7 @@ sec_per_load_preview = 1;   % Duration of sec per load for preview
 nLoads_max_preview = 30;    % Number of loads for preview
 offset_sec_preview = 0;     % offset to apply 
 fCacheRam = 1;              % Cache spikew aveform information in RAM. Uses more RAM but faster
+fRamCache = 1;              % Cache both raw and filtered spike waveforms in RAM (greater memory demand)
 
 % #Display parameters (Affects display only, *:changeable in the UI)
 tlim = [0, .2];             % Time range to display 
@@ -79,10 +80,11 @@ maxDist_site_um = 50;       % Radius of spike event merging. Keep spikes that ha
 maxDist_site_spk_um = 70;   % Max. radius for extracting waveforms. Used if maxSite=[] and nSites_ref=[]
 
 % #Feature extraction (run "jrc spikesort" after change)
-vcFet = 'gpca';              % Feature list: {'gpca', 'cov', 'spacetime', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'}
+vcFet = 'gpca';             % Feature list: {'gpca', 'cov', 'spacetime', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'}
 nPcPerChan = 1;             % number of principal components per chan.
-nSites_ref = [];             % set to 0 for global referencing (move to feature section) @TODO: diagram
-vcSpkRef = 'nmean';          % Subtract mean of the spiking event sites {'nmean', 'none'}
+nSites_ref = [];            % set to 0 for global referencing (move to feature section) @TODO: diagram
+vcSpkRef = 'nmean';         % Subtract mean of the spiking event sites {'nmean', 'none'}
+fInterp_fet = 1;            % Interpolate the waveforms for feature projection to find the optimal delay (2x interp). Set to 0 to disable
 
 % #Clustering (run "jrc sort" after change)
 nTime_clu = 4;              % number of time periods to perform separate clustering (later to be merged after clustering)
@@ -91,15 +93,17 @@ fRepeat_clu = 0;            % Flag for whether to repeat clustering for the bott
 nThreads = 128;             % number of GPU threads for clustering
 nC_max = 45;                % (read-only) Set by the CUDA code. Maximum number of dimensions per event
 
-% #Post-cluster parameters (run "jrc auto" after change)
+% #Post-cluster auto-merging parameters (run "jrc auto" after change)
 delta1_cut = .6;            % RL cluster: delta cut-off. Increasing this will produce less clusters.
-rho_cut = -2.5;               % RL cluster: rho cut-off. Decreasing (more negative) this will produce more clusters.
+rho_cut = -2.5;              % RL cluster: rho cut-off. Decreasing (more negative) this will produce more clusters.
 maxWavCor = .98;            % merge if waveform correlation is greater than maxWavCor.
 min_count = 10;             % Minimum cluster size (min_count will be set to 2*#features if lower).
 nRepeat_merge = 10;         % # of repeats for average unit raw waveform based merging
 vcDetrend_postclu = 'global'; % 'none', 'hidehiko', 'global', 'local', 'logz'
 thresh_mad_clu = 7.5;       % This sets the MAD score threshold to remove outlier spikes for each cluster.
 maxCluPerSite = 20;         % Maximum clusters per site allowed if local detrending is used.
+fDrift_merge = 1;           % Compute multiple waveforms at three drift locations based on the spike position (CoM).
+nInterp_merge = 1;          % Interpolation factor for the mean unit waveforms, set to 1 to disable
 
 % #Trial
 vcFile_trial = '';          % mat or csv file containing timestamp in seconds unit. use any variable name.
