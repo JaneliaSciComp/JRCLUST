@@ -3,4 +3,4 @@ function jrc1(varargin)
 
 %jrclust(varargin{:});
 disp('Running jrclust.m (ver. 1)');
-jrc3(varargin{:});
+jrclust(varargin{:});

@@ -303,3 +303,10 @@ S_out = jrc3('test', 'set_diag_', {[], nan}, 1); %
 S_out = jrc3('test', 'set_diag_', {rand(3,3), 1:3}, 1); %
 S_out = jrc3('test', 'set_diag_', {rand(3,4), 1:3}, 1); %
 S_out = jrc3('test', 'set_diag_', {rand(3,4), 1:4}, 1); %
+
+%% 11/1
+mr = rand(3,4);
+S_out = jrc3('test', 'zero_start_', mr, 1); %
+
+tr = rand(3,4,2);
+S_out = jrc3('test', 'zero_start_', tr, 1); %

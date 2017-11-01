@@ -2,6 +2,11 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/11/1: v3.1.2]
+New parameter: maxDist_site_merge_um = 35 (default).
+  Max. distance separation of the peak sites to consider merging based on the unit waveform similarity
+Bugfix: auto-merge now computes the self-correlation of the waveform correlation matrix
+
 [2017/10/27: v3.1.1]
 Bugfix: PSTH time offset error is removed (0.01 s previously)
 Manual GUI: Speed improvement when selecting a unit.

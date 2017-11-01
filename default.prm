@@ -16,7 +16,7 @@ fInverse_file = 0;          % flip polarity of set to one
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.1.1';         % JRCLUST version. Updated on Oct 27, 2017
+version = 'v3.1.2';         % JRCLUST version. Updated on Nov 1, 2017
 fVerbose = 0;
 fParfor = 1;                % Use Multiple cores
 fGpu = 1;                   % Use GPU
@@ -47,11 +47,12 @@ vcFilter_show = '';         % Filter to apply in the "traces" view. Choices: {''
 
 % #Pre-processing (run "jrc spikesort" after change)
 tlim_load = [];             % Time range to load in sec (uses all time range if set to empty)
-vcFilter = 'ndiff';        % {'bandpass', 'sgdiff', 'none'} @TODO: sgdiff: Savitzky-Golay first order differentiation filter
+vcFilter = 'ndiff';         % {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'none'}
 nDiff_filt = 2;			    % Differentiation filter for vcFilter='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
 freqLim = [300, 3000];      % Frequency cut-off limit for vcFilter='bandpass', ignored otherwise. 
 filtOrder = 3;              % Bandpass filter order
 fEllip = 1;                 % Use Elliptic filter. set to 0 for Butterworth filter. Only valid for vcFilter='bandpass'.
+vnFilter_user = [];         % User-specified filter kernel. Used if vcFilter='user' is set.
 fft_thresh = 0;             % Automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
 freqLimNotch = {};          % Notch filter frequency range to exclude manually. {[start1, end1], [start2, end2]}. Can be used in conjunction with fft_thresh.
 vcCommonRef = 'mean';       % common reference mode {'none', 'mean'} %deprecated: 'nmean', 'median', 'none', 'holtzman', 'trimmean', 'tmean'}
@@ -67,8 +68,8 @@ spkThresh_uV = [];          % Manual threshold (applies to all channels)
 spkThresh_max_uV = [];      % maximum absolute amp. allowed
 spkLim_ms = [-.25, .75];    % Time range to capture the filtered spike waveforms
 spkLim_raw_ms = [];         % Raw spike waveform range, setting to [] will use spkLim_ms
-maxSite = [];              % Max number of sites (nSpikes_spk = 1+2*maxSite-nSite_ref), nSpikes_spk*nFet_spk<=30
-spkRefrac_ms = .25;          % Detection refractory period
+maxSite = [];               % Max number of sites (nSpikes_spk = 1+2*maxSite-nSite_ref), nSpikes_spk*nFet_spk<=30
+spkRefrac_ms = .25;         % Detection refractory period in milliseconds
 vcSpatialFilter = 'none';   % Spatial filter for detection {'mean', 'imec2', 'subtract', 'csd'}
 fSaveEvt = 1;               % Flag to save event file
 fDetectBipolar = 0;         % bipolar amplitude detection (0 means negative)
@@ -80,7 +81,7 @@ maxDist_site_um = 50;       % Radius of spike event merging. Keep spikes that ha
 maxDist_site_spk_um = 70;   % Max. radius for extracting waveforms. Used if maxSite=[] and nSites_ref=[]
 
 % #Feature extraction (run "jrc spikesort" after change)
-vcFet = 'gpca';             % Feature list: {'gpca', 'cov', 'spacetime', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'}
+vcFet = 'gpca';             % Feature list: {'gpca', 'cov', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'}
 nPcPerChan = 1;             % number of principal components per chan.
 nSites_ref = [];            % set to 0 for global referencing (move to feature section) @TODO: diagram
 vcSpkRef = 'nmean';         % Subtract mean of the spiking event sites {'nmean', 'none'}
@@ -104,6 +105,7 @@ thresh_mad_clu = 7.5;       % This sets the MAD score threshold to remove outlie
 maxCluPerSite = 20;         % Maximum clusters per site allowed if local detrending is used.
 fDrift_merge = 1;           % Compute multiple waveforms at three drift locations based on the spike position (CoM).
 nInterp_merge = 1;          % Interpolation factor for the mean unit waveforms, set to 1 to disable
+maxDist_site_merge_um = 35; % Max. distance separation of the peak sites to consider merging
 
 % #Trial
 vcFile_trial = '';          % mat or csv file containing timestamp in seconds unit. use any variable name.

@@ -83,7 +83,7 @@ switch lower(vcCmd)
     case 'probe', probe_(vcFile_prm);
     case 'edit', edit_(vcFile_prm); 
     case 'batch', batch_(vcArg1, vcArg2); 
-    case 'batch-mat', batch_mat_(vcArg1, vcArg2); %text file containing binary files and template file
+    %case 'batch-mat', batch_mat_(vcArg1, vcArg2); %text file containing binary files and template file
     case {'batch-verify', 'batch-validate'}, batch_verify_(vcArg1, vcArg2); 
     case {'batch-plot', 'batch-activity'}, batch_plot_(vcArg1, vcArg2); 
     case 'describe', describe_(vcFile_prm); 
@@ -2959,12 +2959,11 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function manual_(P, vcMode, vcFile_ui)
+function manual_(P, vcMode)
 % display manual sorting interface
 global fDebug_ui trFet_spk
 
 if nargin<2, vcMode = 'normal'; end %{'normal', 'debug'}
-if nargin<3, vcFile_ui = ''; end
 
 % Load info
 S0 = load_cached_(P);
@@ -6032,7 +6031,7 @@ function csAbout = about_(varargin)
 [vcVer, vcDate] = jrc_version_();
 csAbout = { ...            
     ''; 
-    sprintf('Jun Rocket Clust %s (jrc3.m)', vcVer);
+    sprintf('JRCLUST %s (jrc3.m)', vcVer);
     sprintf('  Last updated on %s', vcDate);
     '  Created by James Jun (jamesjun@gmail.com)';
     '';
@@ -7760,46 +7759,6 @@ else
         S_fig_cache_.(vcFig_tag) = hFig;
     end
 end
-% switch vcFig
-%     case 'FigPos'
-%         if ~isvalid_(hFigPos), hFigPos = get_fig_(vcFig); end
-%         hFig = hFigPos;    
-%     case 'FigMap'
-%         if ~isvalid_(hFigMap), hFigMap = get_fig_(vcFig); end
-%         hFig = hFigMap;        
-%     case 'FigWav'
-%         if ~isvalid_(hFigWav), hFigWav = get_fig_(vcFig); end
-%         hFig = hFigWav;     
-%     case 'FigTime'
-%         if ~isvalid_(hFigTime), hFigTime = get_fig_(vcFig); end
-%         hFig = hFigTime;                
-%     case 'FigProj'
-%         if ~isvalid_(hFigProj), hFigProj = get_fig_(vcFig); end
-%         hFig = hFigProj;
-%     case 'FigWavCor'
-%         if ~isvalid_(hFigWavCor), hFigWavCor = get_fig_(vcFig); end
-%         hFig = hFigWavCor;        
-%     case 'FigHist'
-%         if ~isvalid_(hFigHist), hFigHist = get_fig_(vcFig); end
-%         hFig = hFigHist;                
-%     case 'FigIsi'
-%         if ~isvalid_(hFigIsi), hFigIsi = get_fig_(vcFig); end
-%         hFig = hFigIsi;   
-%     case 'FigCorr'
-%         if ~isvalid_(hFigCorr), hFigCorr = get_fig_(vcFig); end
-%         hFig = hFigCorr;           
-%     case 'FigRD'
-%         if ~isvalid_(hFigRD), hFigRD = get_fig_(vcFig); end
-%         hFig = hFigRD;   
-%     case 'Fig_traces'
-%         if ~isvalid_(hFig_traces), hFig_traces = get_fig_(vcFig); end
-%         hFig = hFig_traces;      
-%     case 'Fig_preview'
-%         if ~isvalid_(hFig_preview), hFig_preview = get_fig_(vcFig); end
-%         hFig = hFig_preview;            
-%     otherwise
-%         fprintf(2, 'get_fig_cache_: invalid figure tag: %s\n', vcFig); 
-% end %switch
 if nargout>1, S_fig = get(hFig, 'UserData'); end
 end %func
 
@@ -8593,6 +8552,46 @@ else
     vi(viSort) = 1:n;
 end
 end %func
+
+
+%--------------------------------------------------------------------------
+function mi = rankorder_mr_(mr, val0)
+if nargin<2, val0 = 0; end % separate positive and negaitve number ranks
+
+if isrow(mr), mr=mr'; end
+
+dimm1 = size(mr); %=numel(vr);
+if numel(dimm1)==3
+%     mr = reshape(mr, [], dimm1(3));  % spike by spike order
+    mr = mr(:); % global order
+end
+
+mi=zeros(size(mr));
+for iCol = 1:size(mr,2)
+    vr1 = mr(:,iCol);
+    vi_p = find(vr1>val0);    
+    if ~isempty(vi_p)
+        [~, vi_p_srt] = sort(vr1(vi_p), 'ascend');
+        mi(vi_p(vi_p_srt), iCol) = 1:numel(vi_p);
+    end
+    
+    vi_n = find(vr1<val0);
+    if ~isempty(vi_n)
+        [~, vi_n_srt] = sort(vr1(vi_n), 'descend');
+        mi(vi_n(vi_n_srt), iCol) = -(1:numel(vi_n));
+    end
+end
+% [~,miSort] = sort(mr, vcOrder);
+% vr_ = (1:size(mr,1))';
+% for iCol = 1:size(mr,2)
+%     vi_ = miSort(:,iCol);
+%     mr(vi_, iCol)
+%     mi(,iCol) = vr_;
+% end
+
+if numel(dimm1)==3, mi = reshape(mi, dimm1); end
+end %func
+
 
 
 %--------------------------------------------------------------------------
@@ -10238,9 +10237,6 @@ function export_fet_(P)
 % export feature matrix to workspace
 S0 = load(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
 trFet = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
-%mrFet2 = load_bin_(strrep(P.vcFile_prm, '.prm', '_fet2.bin'), 'single', S0.dimm_fet);
-%miFet_sites = load_bin_(strrep(P.vcFile_prm, '.prm', '_fet_sites.bin'), 'int32', S0.dimm_fet_sites);
-%assignWorkspace_(mrFet, miFet_sites);
 assignWorkspace_(trFet);
 end %func
 
@@ -11246,6 +11242,7 @@ end
 
 
 %--------------------------------------------------------------------------
+% 10/30/17 JJJ: To be deprecated
 function batch_mat_(vcFile_batch_mat, vcCommand)
 % batch process binary file from a template file
 % batch_(myfile_batch.mat, vcCommand)
@@ -12569,15 +12566,17 @@ end %func
 function mrWavCor = S_clu_wavcor_(S_clu, P, viClu_update)
 % symmetric matrix and common basis comparison only
 
-fUsePeak2 = 1;
+fUsePeak2 = 0;
 nInterp_merge = get_set_(P, 'nInterp_merge', 1); % set to 1 to disable
 fDrift_merge = get_set_(P, 'fDrift_merge', 0);
 P.fGpu = 0;
 nShift = ceil(P.spkRefrac_ms / 1000 * P.sRateHz * nInterp_merge); % +/-n number of samples to compare time shift
 % nShift = 0;
-
 fWaveform_raw = get_set_(P, 'fWavRaw_merge', 1);
-% fMaxSite_excl = 0; %excl max site that undergoes most change during drift
+
+fZeroStart_raw = get_set_(P, 'fZeroStart_raw', 0);
+fRankCorr_merge = get_set_(P, 'fRankCorr_merge', 0);
+fMode_cor = 1; %0: pearson, 1:no mean subt pearson
 
 if nargin<3, viClu_update = []; end
 if ~isfield(S_clu, 'mrWavCor'), viClu_update = []; end
@@ -12588,6 +12587,12 @@ if fDrift_merge && fWaveform_raw % only works on raw
     ctmrWav_clu = {tmrWav_clu, S_clu.tmrWav_raw_lo_clu, S_clu.tmrWav_raw_hi_clu};
 else
     ctmrWav_clu = {tmrWav_clu};
+end
+if fZeroStart_raw
+    ctmrWav_clu = cellfun(@(x)zero_start_(x), ctmrWav_clu, 'UniformOutput', 0);
+end
+if fRankCorr_merge
+    ctmrWav_clu = cellfun(@(x)rankorder_mr_(x,0), ctmrWav_clu, 'UniformOutput', 0);
 end
 if nInterp_merge>1
     ctmrWav_clu = cellfun(@(x)interpft_(x, nInterp_merge), ctmrWav_clu, 'UniformOutput', 0);
@@ -12615,16 +12620,16 @@ else
     nClu_pre = size(mrWavCor0, 1);
     vlClu_update((1:nClu) > nClu_pre) = 1;
 end
-cell_4args = {vlClu_update, cviShift1, cviShift2, mrWavCor0};
+cell_5args = {vlClu_update, cviShift1, cviShift2, mrWavCor0, fMode_cor};
 try
     parfor iClu2 = 1:nClu  %parfor speedup: 4x
-        vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_4args, iClu2);    
+        vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2);    
         if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
     end
 catch
     fprintf('S_clu_wavcor_: parfor failed. retrying for loop\n');
     for iClu2 = 1:nClu  %parfor speedup: 4x
-        vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_4args, iClu2);    
+        vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2);    
         if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
     end
 end
@@ -12638,9 +12643,9 @@ end %func
 
 %--------------------------------------------------------------------------
 % 10/27/17 JJJ: distance-based neighboring unit selection
-function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_4args, iClu2)
+function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2)
 
-[vlClu_update, cviShift1, cviShift2, mrWavCor0] = deal(cell_4args{:});
+[vlClu_update, cviShift1, cviShift2, mrWavCor0, fMode_cor] = deal(cell_5args{:});
 if numel(cviSite_clu) == 1
     viSite_clu = cviSite_clu{1};
     fUsePeak2 = 0;    
@@ -12648,7 +12653,6 @@ else
     [viSite_clu, viSite2_clu, viSite3_clu] = deal(cviSite_clu{:});
     fUsePeak2 = 1;
 end
-maxDist_site_um = get_set_(P, 'maxDist_site_um', 50);
 nClu = numel(viSite_clu);
 iSite_clu2 = viSite_clu(iClu2);    
 if iSite_clu2==0 || isnan(iSite_clu2), vrWavCor2 = []; return; end
@@ -12658,6 +12662,8 @@ if fUsePeak2
     viClu1 = find(viSite_clu == iSite_clu2 | viSite2_clu == iSite_clu2 | viSite3_clu == iSite_clu2 | ...
             viSite_clu == viSite2_clu(iClu2) | viSite_clu == viSite3_clu(iClu2)); %viSite2_clu == viSite2_clu(iClu2) 
 else
+%     maxDist_site_um = get_set_(P, 'maxDist_site_um', 50);
+    maxDist_site_um = get_set_(P, 'maxDist_site_merge_um', 35);
     viClu1 = find(ismember(viSite_clu, findNearSite_(P.mrSiteXY, iSite_clu2, maxDist_site_um)));
 end
 viClu1(viClu1 >= iClu2) = []; % symmetric matrix comparison
@@ -12681,23 +12687,29 @@ for iClu11 = 1:numel(viClu1)
             cmrWav_clu2_ = cellfun(@(x)x(:,viSite12), cmrWav_clu2, 'UniformOutput', 0);
             cmrWav_clu1_ = cellfun(@(x)x(:,viSite12,iClu11), ctmrWav_clu1, 'UniformOutput', 0);
         end                
-        vrWavCor2(iClu1) = maxCor_drift_(cmrWav_clu2_, cmrWav_clu1_, cviShift1, cviShift2);
+        vrWavCor2(iClu1) = maxCor_drift_(cmrWav_clu2_, cmrWav_clu1_, cviShift1, cviShift2, fMode_cor);
     end        
 end %iClu2 loop
 end %func
 
 
 %--------------------------------------------------------------------------
-% 10/23/17 JJJ: find max correlation pair (combining drift and temporal shift)
-% function [tmrWav_clu21, mrWav_clu21] = deal_cluwav_(tr, viClu1, iClu2)
-% tmrWav_clu21 = tr(:,:,viClu1);
-% mrWav_clu21 = tr(:,:,iClu2);
-% end %func
+% 11/1/17 JJJ: Created 
+function tr1 = zero_start_(tr1)
+% subtract the first 
+dimm1 = size(tr1);
+if numel(dimm1) ~= 2, tr1 = reshape(tr1, dimm1(1), []); end
+
+tr1 = bsxfun(@minus, tr1, tr1(1,:));
+
+if numel(dimm1) ~= 2, tr1 = reshape(tr1, dimm1); end
+end %func
 
 
 %--------------------------------------------------------------------------
 % 10/23/17 JJJ: find max correlation pair (combining drift and temporal shift)
-function maxCor = maxCor_drift_(cmr1, cmr2, cviShift1, cviShift2)
+function maxCor = maxCor_drift_(cmr1, cmr2, cviShift1, cviShift2, fMode_cor)
+if nargin<5, fMode_cor=0; end %pearson corr
 assert_(numel(cmr1) == numel(cmr2), 'maxCor_drift_: numel must be the same');
 if numel(cmr1)==1
     maxCor = max(xcorr2_mr_(cmr1{1}, cmr2{1}, cviShift1, cviShift2));
@@ -12707,14 +12719,19 @@ else
     nDrift = numel(cmr1);
     nShift = numel(cviShift1);
     vrCor = zeros(1, nShift);
-    for iShift = 1:nShift        
+    for iShift = 1:nShift 
         mr1_ = reshape(tr1(cviShift1{iShift},:,:), [], nDrift);
-        mr2_ = reshape(tr2(cviShift2{iShift},:,:), [], nDrift);
-        mr1_ = bsxfun(@minus, mr1_, sum(mr1_)/size(mr1_,1));
-        mr2_ = bsxfun(@minus, mr2_, sum(mr2_)/size(mr2_,1));
-        mr1_ = bsxfun(@rdivide, mr1_, sqrt(sum(mr1_.^2)));
-        mr2_ = bsxfun(@rdivide, mr2_, sqrt(sum(mr2_.^2)));
-        vrCor(iShift) = max(max(mr1_' * mr2_));
+        mr2_ = reshape(tr2(cviShift2{iShift},:,:), [], nDrift);          
+        if fMode_cor == 0          
+            mr1_ = bsxfun(@minus, mr1_, sum(mr1_)/size(mr1_,1));
+            mr2_ = bsxfun(@minus, mr2_, sum(mr2_)/size(mr2_,1));
+            mr1_ = bsxfun(@rdivide, mr1_, sqrt(sum(mr1_.^2)));
+            mr2_ = bsxfun(@rdivide, mr2_, sqrt(sum(mr2_.^2)));
+            vrCor(iShift) = max(max(mr1_' * mr2_));
+        else
+            mr12_ = (mr1_' * mr2_) ./ sqrt(sum(mr1_.^2)' * sum(mr2_.^2));
+            vrCor(iShift) = max(mr12_(:));
+        end
     end
     maxCor = max(vrCor);
     
@@ -12773,7 +12790,8 @@ end %func
 
 %--------------------------------------------------------------------------
 function [viSite, viSite2, viSite3] = S_clu_peak2_(S_clu)
-mrMin_clu = squeeze_(min(S_clu.tmrWav_spk_clu) - max(S_clu.tmrWav_spk_clu));
+mrMin_clu = squeeze_(min(S_clu.tmrWav_spk_clu) - S_clu.tmrWav_spk_clu(1,:,:));
+% mrMin_clu = squeeze_(min(S_clu.tmrWav_spk_clu) - max(S_clu.tmrWav_spk_clu));
 % mrMin_clu = squeeze_(min(S_clu.tmrWav_spk_clu));
 % mrMin_clu = squeeze_(min(S_clu.tmrWav_raw_clu));
 
@@ -13585,6 +13603,8 @@ if isnan(maxWavCor), msgbox_('Invalid criteria.'); return; end
 figure_wait_(1); drawnow;
 nClu_prev = S_clu.nClu;
 S_clu = post_merge_wav_(S_clu, P.nRepeat_merge, setfield(P, 'maxWavCor', maxWavCor));
+% [S_clu, S0] = S_clu_commit_(S_clu, 'post_merge_');
+S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, S_clu_self_corr_(S_clu));
 set0_(S_clu);
 S0 = gui_update_();
 figure_wait_(0);
@@ -16593,8 +16613,8 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.1.1';
-vcDate = '10/27/2017';
+vcVer = 'v3.1.2';
+vcDate = '11/1/2017';
 vcVer_used = '';
 if nargout==0
     fprintf('%s (%s) installed\n', vcVer, vcDate);

@@ -1,5 +1,5 @@
-
 function jrclust(varargin)
+% JRCLUST v1 (called by jrc1.m)
 % James Jun 2016 01 18 17:05
 % addpath('./util');
 % [Usage]
