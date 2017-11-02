@@ -16,7 +16,7 @@ fInverse_file = 0;          % flip polarity of set to one
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.1.2';         % JRCLUST version. Updated on Nov 1, 2017
+version = 'v3.1.3';         % JRCLUST version. Updated on Nov 2, 2017
 fVerbose = 0;
 fParfor = 1;                % Use Multiple cores
 fGpu = 1;                   % Use GPU

@@ -3080,7 +3080,7 @@ end
 
 
 %--------------------------------------------------------------------------
-function S0 = update_cursor_(S0, iClu, fPaste)
+function  S0 = update_cursor_(S0, iClu, fPaste)
 if isempty(iClu), return; end
 if isempty(S0), S0 = get(0, 'UserData'); end
 P = S0.P; S_clu = S0.S_clu;
@@ -5113,7 +5113,7 @@ switch(event.Button)
         S0 = update_cursor_(S0, xPos, 1);
 end
 figure_wait_(1);
-set0_(S0);
+% set(0, 'UserData', S0);
 keyPressFcn_cell_(get_fig_cache_('FigWav'), {'c','t','j','i','v','e','f'}, S0); %'z'
 plot_raster_();
 auto_scale_proj_time_();
@@ -9764,6 +9764,7 @@ end %func
 %--------------------------------------------------------------------------
 function struct_save_(S, vcFile, fVerbose)
 % 7/13/17 JJJ: Version check routine
+nRetry = 3;
 if nargin<3, fVerbose = 0; end
 if fVerbose
     fprintf('Saving a struct to %s...\n', vcFile); t1=tic;
@@ -9771,10 +9772,25 @@ end
 version_year = version('-release');
 version_year = str2double(version_year(1:end-1));
 if version_year >= 2017
-    save(vcFile, '-struct', 'S', '-v7.3', '-nocompression'); %faster    
-else
-%     disp('Saving with -nocompression flag failed. Trying without compression');
-    save(vcFile, '-struct', 'S', '-v7.3');
+    for iRetry=1:nRetry
+        try
+            save(vcFile, '-struct', 'S', '-v7.3', '-nocompression'); %faster    
+            break;
+        catch
+            pause(.5);
+        end
+        fprintf(2, 'Saving failed: %s\n', vcFile);
+    end
+else    
+    for iRetry=1:nRetry
+        try
+            save(vcFile, '-struct', 'S', '-v7.3');   
+            break;
+        catch
+            pause(.5);
+        end
+        fprintf(2, 'Saving failed: %s\n', vcFile);
+    end    
 end
 if fVerbose
     fprintf('\ttook %0.1fs.\n', toc(t1));
@@ -11688,7 +11704,7 @@ end %func
 function S0 = clear_log_(S0)
 S0.cS_log = {};
 S0.miClu_log = [];
-set0_(S0);
+set(0, 'UserData', S0);
 delete_files_(strrep(S0.P.vcFile_prm, '.prm', '_log.mat'), 0);
 end %func
 
@@ -16613,8 +16629,8 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.1.2';
-vcDate = '11/1/2017';
+vcVer = 'v3.1.3';
+vcDate = '11/2/2017';
 vcVer_used = '';
 if nargout==0
     fprintf('%s (%s) installed\n', vcVer, vcDate);
