@@ -15994,7 +15994,7 @@ uimenu(mh_edit, 'Label', 'Bad site threshold', 'Callback', @(h,e)Fig_preview_sit
 uimenu(mh_edit, 'Label', 'Spike detection threshold', 'Callback', @(h,e)Fig_preview_spk_thresh_(hFig));
 
 mh_edit_filter = uimenu(mh_edit, 'Label', 'Filter mode');
-uimenu_options_(mh_edit_filter, {'ndiff', 'bandpass', 'sgdiff', 'user'}, @Fig_preview_filter_, hFig);
+uimenu_options_(mh_edit_filter, {'ndiff', 'bandpass', 'sgdiff', 'fir1', 'user'}, @Fig_preview_filter_, hFig);
 menu_checkbox_(mh_edit_filter, get_filter_(P));
 
 mh_edit_ref = uimenu(mh_edit, 'Label', 'Reference mode');

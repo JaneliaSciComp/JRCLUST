@@ -2,6 +2,10 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/11/3: v3.1.5]
+JRCLUST repository moved to JanalieSciComp
+  https://github.com/JaneliaSciComp/JRCLUST
+
 [2017/11/3: v3.1.4]
 JRCLUST repository moved to JanalieSciComp
   https://github.com/JaneliaSciComp/JRCLUST
