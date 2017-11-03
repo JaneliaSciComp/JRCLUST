@@ -2,6 +2,10 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/11/3: v3.1.4]
+JRCLUST repository moved to JanalieSciComp
+  https://github.com/JaneliaSciComp/JRCLUST
+
 [2017/11/1: v3.1.3]
 Bugfix: 'S0' nested saving error fixed. 
 Speed improvement: Manual GUI mouse click doesn't slow down over time.
