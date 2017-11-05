@@ -2,9 +2,14 @@
 J. James Jun
 
 --------------------------------------------------------------------
-[2017/11/3: v3.1.5]
-JRCLUST repository moved to JanalieSciComp
-  https://github.com/JaneliaSciComp/JRCLUST
+[2017/11/5: v3.1.5]
+Bugfix: 'jrc describe' failed to report clustering time
+Bugfix: Probe file backward compatibility added
+  Failed if 'maxSite' exists but 'nSites_ref' doesn't exist in the probe file (.prb)
+  Now nSites_ref is computed based on 'maxDist_site_spk_um' (see wiki)
+Bugfix: 'jrc update' command now copies sub-folders and backup files correctly
+  Previously subfolders didn't get copied and files were not back-up properly.
+  **Run 'jrc update' twice to get proper updates, since you need to run a new update script.**
 
 [2017/11/3: v3.1.4]
 JRCLUST repository moved to JanalieSciComp

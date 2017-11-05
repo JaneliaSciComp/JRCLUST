@@ -381,11 +381,13 @@ mkdir_(vcBackup);
 
 t1 = tic;
 fprintf('Updating from %s...\n', vcSource);
-csCopy = ifeq_(isempty(vcFile), S_cfg.sync_list, {vcFile});   
-for iCopy = 1:numel(csCopy)
-    try_eval_(sprintf('copyfile ''%s\\%s'' .\\ f;', vcSource, csCopy{iCopy}), 0);
-    try_eval_(sprintf('copyfile ''.\\%s'' ''%s\\'' f;', csCopy{iCopy}, vcBackup), 0);
-end
+% csCopy = ifeq_(isempty(vcFile), S_cfg.sync_list, {vcFile});   
+% for iCopy = 1:numel(csCopy)
+%     try_eval_(sprintf('copyfile ''.\\%s'' ''%s\\'' f;', csCopy{iCopy}, vcBackup), 0); % backup before copying 11/5/17
+%     try_eval_(sprintf('copyfile ''%s\\%s'' .\\ f;', vcSource, csCopy{iCopy}), 0);    
+% end
+copyfile_(fullfile('.', '*'), vcBackup); %backup
+copyfile_(S_cfg.sync_list, '.', vcSource);
 
 % Compile CUDA code
 fCompile = isempty(vcFile);
@@ -727,9 +729,6 @@ function commit_(vcArg1)
 if nargin<1, vcArg1=''; end
 t1 = tic;
 S_cfg = read_cfg_();
-% csCopy = S_cfg.sync_list;
-% vcDest = S_cfg.path_dropbox;
-% vcDest2 = S_cfg.path_dropbox2;
 if ~strcmpi(pwd(), S_cfg.path_alpha), disp('must commit from alpha'); return; end
 
 if strcmpi(vcArg1, 'log')
@@ -837,12 +836,12 @@ S0 = load_cached_(P); % load cached data or from file if exists
 % Sort and save
 S_clu = fet2clu_(S0, P);
 [S_clu, S0] = S_clu_commit_(S_clu, 'sort_');
-set0_(P); %, dimm_fet, cvrTime_site, cvrVpp_site, cmrFet_site, P);
+% S0 = set0_(P); %, dimm_fet, cvrTime_site, cvrVpp_site, cmrFet_site, P);
 
 % measure time
 runtime_sort = toc(runtime_sort);
 fprintf('Sorting took %0.1fs for %s\n', runtime_sort, P.vcFile_prm);
-set0_(runtime_sort);
+S0 = set0_(runtime_sort, P);
 S0 = clear_log_(S0);
 
 save0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
@@ -1248,7 +1247,7 @@ catch
     fprintf('loadParam: %s not found.\n', P.probe_file);
 end
 P = struct_merge_(P0, P);    
-if isempty(get_(P, 'maxSite')), P = calc_maxSite_(P); end
+P = calc_maxSite_(P);
 
 % check GPU
 P.fGpu = ifeq_(license('test', 'Distrib_Computing_Toolbox'), P.fGpu, 0);
@@ -1300,19 +1299,23 @@ end %func
 function P = calc_maxSite_(P)
 % Auto determine maxSite from the radius and site ifno
 
-if ~isempty(get_(P, 'maxSite')), return; end
+P.maxSite = get_(P, 'maxSite');   
+P.nSites_ref = get_(P, 'nSites_ref');
+if ~isempty(P.maxSite) && ~isempty(P.nSites_ref), return; end
 mrDist_site = pdist2(P.mrSiteXY, P.mrSiteXY);
 maxDist_site_um = get_set_(P, 'maxDist_site_um', 50);
 nSites_fet = median(sum(mrDist_site <= maxDist_site_um));
-if isempty(get_(P, 'nSites_ref'))        
+if isempty(P.nSites_ref)        
     maxDist_site_spk_um = get_set_(P, 'maxDist_site_spk_um', maxDist_site_um+25);        
     nSites_spk = median(sum(mrDist_site <= maxDist_site_spk_um));
-    P.maxSite = (nSites_spk-1)/2;
+    maxSite = (nSites_spk-1)/2;
     P.nSites_ref = nSites_spk - nSites_fet;
 else        
     nSites_spk = nSites_fet + P.nSites_ref;
-    P.maxSite = (nSites_spk-1)/2;
+    maxSite = (nSites_spk-1)/2;
 end
+
+if isempty(P.maxSite), P.maxSite = maxSite; end
 fprintf('Auto-set: maxSite=%0.1f, nSites_ref=%0.1f\n', P.maxSite, P.nSites_ref);
 end %func
 
@@ -9863,7 +9866,7 @@ end %func
 
 %--------------------------------------------------------------------------
 % 9/26/17 JJJ: multiple targeting copy file. Tested
-function copyfile_(csFiles, vcDir_dest)
+function copyfile__(csFiles, vcDir_dest)
 % copyfile_(vcFile, vcDir_dest)
 % copyfile_(csFiles, vcDir_dest)
 % copyfile_(csFiles, csDir_dest)
@@ -9905,6 +9908,66 @@ for iFile=1:numel(csFiles)
         fprintf(2, '\tFailed to copy %s\n', vcPath_from_);
     end
 end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 11/5/17 JJJ: added vcDir_from
+% 9/26/17 JJJ: multiple targeting copy file. Tested
+function copyfile_(csFiles, vcDir_dest, vcDir_from)
+% copyfile_(vcFile, vcDir_dest)
+% copyfile_(csFiles, vcDir_dest)
+% copyfile_(csFiles, csDir_dest)
+
+if nargin<3, vcDir_from = ''; end
+% Recursion if cell is used
+if iscell(vcDir_dest)
+    csDir_dest = vcDir_dest;
+    for iDir = 1:numel(csDir_dest)
+        try
+            copyfile_(csFiles, csDir_dest{iDir});
+        catch
+            disperr_();
+        end
+    end
+    return;
+end
+
+if ischar(csFiles), csFiles = {csFiles}; end
+for iFile=1:numel(csFiles)
+    vcPath_from_ = csFiles{iFile};   
+    if ~isempty(vcDir_from), vcPath_from_ = fullfile(vcDir_from, vcPath_from_); end
+    if exist_dir_(vcPath_from_)
+        [vcPath_,~,~] = fileparts(vcPath_from_);
+        vcPath_from_ =  sprintf('%s%s*', vcPath_, filesep());
+        vcPath_to_ = sprintf('%s%s%s', vcDir_dest, filesep(), dir_filesep_(csFiles{iFile}));
+        if ~exist_dir_(vcPath_to_), mkdir(vcPath_to_); end    
+%         disp([vcPath_from_, '; ', vcPath_to_]);
+    else
+        vcPath_to_ = vcDir_dest;
+        if ~exist_dir_(vcPath_to_)
+            mkdir(vcPath_to_); 
+            disp(['Created a folder ', vcPath_to_]);
+        end
+    end    
+    try   
+        vcEval1 = sprintf('copyfile ''%s'' ''%s'' f;', vcPath_from_, vcPath_to_);
+        eval(vcEval1);
+        fprintf('\tCopied ''%s'' to ''%s''\n', vcPath_from_, vcPath_to_);
+    catch
+        fprintf(2, '\tFailed to copy ''%s''\n', vcPath_from_);
+    end
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 11/5/17 JJJ: Created
+function vc = dir_filesep_(vc)
+% replace the file seperaation characters
+if isempty(vc), return; end
+vl = vc == '\' | vc == '/';
+if any(vl), vc(vl) = filesep(); end
 end %func
 
 
@@ -16629,8 +16692,8 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.1.4';
-vcDate = '11/3/2017';
+vcVer = 'v3.1.5';
+vcDate = '11/5/2017';
 vcVer_used = '';
 if nargout==0
     fprintf('%s (%s) installed\n', vcVer, vcDate);
@@ -16714,6 +16777,13 @@ if isempty(vcFile)
 else
     flag = ~isempty(dir(vcFile));
 end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 11/5/17 JJJ: Created
+function flag = exist_dir_(vcDir)
+flag = exist(vcDir, 'dir') == 7;
 end %func
 
 
