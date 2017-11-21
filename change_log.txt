@@ -4,6 +4,13 @@ J. James Jun
 --------------------------------------------------------------------
 [2017/11/20: v3.1.6]
 Bugfix: Nested S0 struct is removed when older version is loaded.
+Drift correction is improved. Three average waveforms are computed by grouping
+  spikes from similar center-of-mass. Now using all spikes from the same unit
+  previously used spikes that were centered at the peak site only.
+New parameter: fSpatialMask_clu (1 by default) applies spatial masking to 
+  the features. Half decay length set by the maxDist_site_um.
+Added support to import hdf5 dataset from the Ed Boyden lab recordings for 
+  paired intracellular recording validation.
 
 
 [2017/11/5: v3.1.5]
