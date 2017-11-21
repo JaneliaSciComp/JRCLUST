@@ -30,7 +30,7 @@ end %func
 function ops = config_(P)
 % ops = config_(P)
 % ops = config_()
-Nfilt_per_site = 2;
+Nfilt_per_site = 4;  % number of clusters to use (2-4 times more than Nchan, should be a multiple of 32)
 if nargin>=1
     useGPU = P.fGpu;
     [fpath, ~, ~] = fileparts(P.vcFile);

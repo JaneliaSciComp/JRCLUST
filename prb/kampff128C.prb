@@ -12,11 +12,15 @@ geometry(vi1+3, 2) = geometry(vi1, 2);
 geometry(end,:)=[]; %128 site probe
 clear vi1;
 
+vi1 = sort([1:8:127, 3:8:127, 5:8:127, 7:8:127]);
+geometry = geometry(vi1,:);
+channels = channels(vi1);
+
 pad = [20 20]; %in micrometers, height x width. circle.
 
 % Import to .prm files
-nChans = 128;
-sRateHz = 30000;
+%nChans = 128;
+%sRateHz = 30000;
 viSiteZero = [];
 uV_per_bit = 0.195;
 vcDataType = 'uint16';

@@ -1,10 +1,11 @@
 % Order of the probe sites in the recording file
-channels = 1:256;
+channels = sort([2:8:256, 4:8:256, 6:8:256, 8:8:256]);
 
 % Site location in micrometers (x and y)
 geometry = zeros(256, 2);
 geometry(:,1) = repmat((0:3)'*11, [64,1]);
 geometry(:,2) = reshape(repmat((0:63)*11, [4,1]), 256,1);
+geometry = geometry(channels,:);
 
 % Recording contact pad size in micrometers. Height x width
 pad = [9 9];
