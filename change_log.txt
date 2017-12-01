@@ -2,6 +2,15 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/12/1: v3.1.7]
+Bugfix: Feature projection view
+  Correct y-axis values (PC2) are plotted when splitting on the diagonal 
+  site pairs when PCA feature is selected. 
+Speed improvement: fft_clean operation (fft_thresh parameter) is performed faster.
+New feature: Auto-splitting now supports manual splitting in three PC dimensions.
+  Auto-split now offers three choices: {'yes', 'no', 'manual'}.
+  Select "manual" and choose the projection ('PC1 vs PC2', 'PC3 vs PC2', 'PC1 vs PC3').
+
 [2017/11/20: v3.1.6]
 Bugfix: Nested S0 struct is removed when older version is loaded.
 Drift correction is improved. Three average waveforms are computed by grouping

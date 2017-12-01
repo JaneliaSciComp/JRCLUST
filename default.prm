@@ -1,7 +1,7 @@
 % Default parameters for jrclust (default.prm)
 
 % #Recording file format
-vcFile = '';                % Raw recording file path (leave empty if multiple files need to be merged)
+vcFile = '';                % Raw recording file path (leave empty if multiple files are sorted together)
 csFile_merge = {};          % List of recording files to merge (leave empty if single file is used)
 sort_file_merge = 1;        % Sort files by the 0: alphabetical order, 1: metafile, 2: file created time, 3: file modified time, 4: numerical order in the file names
 vcFile_prm = '';            % Current parameter file path (.prm) if left empty
@@ -16,22 +16,22 @@ fInverse_file = 0;          % Set to 1 to flip the polarity of the signal
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.1.6';         % JRCLUST version. Updated on Nov 20, 2017
+version = 'v3.1.7';         % JRCLUST version. Updated on Dec 1, 2017
 fVerbose = 0;               % Verbose flag, set to 0 to suppress displaying extra information 
 fParfor = 1;                % Use Multiple CPU cores (if parallel processing toolbox is installed)
 fGpu = 1;                   % Use GPU if parallel processing toolbox is installed
-iGpu = 1;                   % Use specific GPU ID (run 'gpuDevice()' to retrieve the list of GPUs).
+iGpu = 1;                   % Use specific GPU ID (run 'gpuDevice()' to retrieve the list of GPUs)
 MAX_BYTES_LOAD = [];        % Default memory loading block size (bytes)
-MAX_LOAD_SEC = [];          % Maximum loading duration (seconds)
+MAX_LOAD_SEC = [];          % Maximum loading duration (seconds). This overrides "MAX_BYTES_LOAD".
 MAX_LOG = 10;               % Maximum number of histories to track for 'manual' GUI
 vcFile_thresh = '';         % Name of .mat file taht stores the spike detection threshold in 'vnThresh_site' variable. Created by 'preview' GUI
-sec_per_load_preview = 1;   % Duration of sec per load for preview
-nLoads_max_preview = 30;    % Number of loads for preview
-offset_sec_preview = 0;     % offset to apply 
+sec_per_load_preview = 1;   % Recording duration (sec) per continuous segment to preview
+nLoads_max_preview = 30;    % Number of time segments to load for preview
+offset_sec_preview = 0;     % Time offset (sec) to apply to the preview
 fCacheRam = 1;              % Cache spikew aveform information in RAM. Uses more RAM but faster
 fRamCache = 1;              % Cache both raw and filtered spike waveforms in RAM (greater memory demand)
 
-% #Display parameters (Affects display only, *:changeable in the UI)
+% #Display parameters (Affects display only, (*):Can be modified in the manual GUI)
 tlim = [0, .2];             % Time range to display 
 nTime_traces = 1;           % Number of time segments to display. Set to 1 to show one continuous time segment
 nSkip_show = 1;             % Show 1 in n samples when plotting traces
