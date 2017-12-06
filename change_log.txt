@@ -2,6 +2,12 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/12/6: v3.1.9]
+Bugfix: v3.1.8 incorrectly points to v3.1.7 on Github. Please download this version instead.
+Bugfix: Opening previously sorted data (v3.1.1) to the latest vresion now works.
+  Parameter version upgrade function (upgrad_param_()) now handles new way to compute 
+  maxSite and nSites_ref parameters.
+
 [2017/12/6: v3.1.8]
 New feature: Rho-Delta plot is captured as .png file when _jrc.mat file is saved
   Setting the parameter 'fSavePlot_RD = 0' will disable the figure capture (enabled by default).

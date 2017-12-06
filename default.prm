@@ -16,7 +16,7 @@ fInverse_file = 0;          % Set to 1 to flip the polarity of the signal
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.1.8';         % JRCLUST version. Updated on Dec 1, 2017
+version = 'v3.1.9';         % JRCLUST version. Updated on Dec 6, 2017
 fVerbose = 0;               % Verbose flag, set to 0 to suppress displaying extra information 
 fParfor = 1;                % Use Multiple CPU cores (if parallel processing toolbox is installed)
 fGpu = 1;                   % Use GPU if parallel processing toolbox is installed
@@ -124,7 +124,7 @@ vcFile_vid = '';            % video file
 iChan_vid = [];             % video sync channel, zero-based
 flim_vid = [];              % used for video sync, video frame #
 tlim_vid = [];              % used for video sync, ephys time
-vcFile_bonsai = '';         % bonsai 5-column ontput (x,y are 2 and 3)
+vcFile_bonsai = '';         % bonsai 5-column output (x,y are 2 and 3)
 
 % #Firing rate estimation for unit
 sRateHz_rate = 1000;                % Resampling rate for the firing rate
