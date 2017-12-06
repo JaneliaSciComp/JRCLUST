@@ -16,7 +16,7 @@ fInverse_file = 0;          % Set to 1 to flip the polarity of the signal
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.1.7';         % JRCLUST version. Updated on Dec 1, 2017
+version = 'v3.1.8';         % JRCLUST version. Updated on Dec 1, 2017
 fVerbose = 0;               % Verbose flag, set to 0 to suppress displaying extra information 
 fParfor = 1;                % Use Multiple CPU cores (if parallel processing toolbox is installed)
 fGpu = 1;                   % Use GPU if parallel processing toolbox is installed
@@ -30,6 +30,7 @@ nLoads_max_preview = 30;    % Number of time segments to load for preview
 offset_sec_preview = 0;     % Time offset (sec) to apply to the preview
 fCacheRam = 1;              % Cache spikew aveform information in RAM. Uses more RAM but faster
 fRamCache = 1;              % Cache both raw and filtered spike waveforms in RAM (greater memory demand)
+fSavePlot_RD = 1;           % Save the Rho-Delta plot as .png file (prefix: '_RD.png' at the end of the .prm file name)
 
 % #Display parameters (Affects display only, (*):Can be modified in the manual GUI)
 tlim = [0, .2];             % Time range to display 
@@ -66,8 +67,9 @@ qqFactor = 5;               % Spike detection thresold (Threshold = qqFactor*S, 
 qqSample = 4;               % Median subsample factor (1 every n)
 spkThresh_uV = [];          % Manual threshold (applies to all channels)
 spkThresh_max_uV = [];      % maximum absolute amp. allowed
-spkLim_ms = [-.25, .75];    % Time range to capture the filtered spike waveforms
-spkLim_raw_ms = [];         % Raw spike waveform range, setting to [] will use spkLim_ms
+spkLim_ms = [-.25, .75];    % Time range to capture the filtered spike waveforms; spkLim = round(P.spkLim_ms/1000*P.sRateHz)
+spkLim_raw_ms = [];         % Raw spike waveform range, setting to [] will use spkLim_raw_factor to determine spkLim_raw (# samples)
+spkLim_raw_factor = 2;      % if spkLim_raw_ms==[] then spkLim_raw = spkLim * spkLim_raw_factor
 maxSite = [];               % Max number of sites (nSpikes_spk = 1+2*maxSite-nSite_ref), nSpikes_spk*nFet_spk<=30
 spkRefrac_ms = .25;         % Detection refractory period in milliseconds
 vcSpatialFilter = 'none';   % Spatial filter for detection {'mean', 'imec2', 'subtract', 'csd'}
@@ -78,7 +80,7 @@ blank_thresh = [];          % reject spikes exceeding the channel mean after fil
 blank_period_ms = 5;        % (miliseconds) Duration of blanking when the common mean exceeds a threhold (blank_thresh)
 nneigh_min_detect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
 maxDist_site_um = 50;       % Radius of spike event merging. Keep spikes that has most negative peaks within x um radius.
-maxDist_site_spk_um = 70;   % Max. radius for extracting waveforms. Used if maxSite=[] and nSites_ref=[]
+maxDist_site_spk_um = 75;   % Max. radius for extracting waveforms. Used if maxSite=[] and nSites_ref=[]
 
 % #Feature extraction (run "jrc spikesort" after change)
 vcFet = 'gpca';             % Feature list: {'gpca', 'cov', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'}
@@ -106,6 +108,7 @@ maxCluPerSite = 20;         % Maximum clusters per site allowed if local detrend
 fDrift_merge = 1;           % Compute multiple waveforms at three drift locations based on the spike position (CoM).
 nInterp_merge = 1;          % Interpolation factor for the mean unit waveforms, set to 1 to disable
 maxDist_site_merge_um = 35; % Max. distance separation of the peak sites to consider merging
+spkLim_factor_merge = 1;    % Waveform range for computing the correlation. spkLim_factor_merge <= spkLim_raw_factor_merge. circa v3.1.8
 
 % #Trial
 vcFile_trial = '';          % mat or csv file containing timestamp in seconds unit. use any variable name.

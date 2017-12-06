@@ -2,6 +2,22 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/12/6: v3.1.8]
+New feature: Rho-Delta plot is captured as .png file when _jrc.mat file is saved
+  Setting the parameter 'fSavePlot_RD = 0' will disable the figure capture (enabled by default).
+  You may adjust 'rho_cut' and 'delta1_cut' paramters based on the Rho-Delta plot.
+  Run 'jrc plot-rd' command to view the Rho-Delta plot.
+Manual GUI
+  Unit position view displays number of spikes in a selected unit
+  Bugfix: Clusters with less than 6 spikes after manual splitting doesn't crash any more.
+  Bufix: Second manual splitting erases the first drawn polygon (splitting in the waveform view)
+  Bugfix: Switching between filtered and raw waveforms now use the same set of colors
+Improved error reporting: "jrc_error_log.mat" records detailed error log.
+Raw waveform duration is reverted back to 2 msec
+  spkLim_raw_factor = 2 (default) will use 2x of the time range (spkLim_ms) used for the filtered waveform 
+  spkLim_factor_merge = 1 (default) will use 1x of the spkLim_ms (1 msec default) for the waveform based auto-merging
+New default: maxDist_site_spk_um = 75 (changed from 70) for improved performance for probes with 25 um site spacing
+
 [2017/12/1: v3.1.7]
 Bugfix: Feature projection view
   Correct y-axis values (PC2) are plotted when splitting on the diagonal 

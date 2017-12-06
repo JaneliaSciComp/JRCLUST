@@ -353,6 +353,10 @@ csHelp = {...
     '[Deployment]';
     '  jrc update';
     '    Update code by copying from the dropbox location (specified in user.cfg or default.cfg)';    
+    ' jrc git-pull';
+    '    Update to the latest version from GitHub (valid only if installed by "git checkout" command)';
+    ' jrc git-pull version_tag';
+    '    Revert to a specific release version ("version_tag") from GitHub (valid only if installed by "git checkout" command)';    
     '  jrc unit-test';
     '    Run a suite of unit teste.';       
     '  jrc install';
@@ -714,7 +718,7 @@ else
     try
         val = S_cfg.(vcName);
     catch
-        disp_err_('read_cfg_');
+        disperr_('read_cfg_');
         switch lower(vcName)
             case 'default_prm'
                 val = 'default.prm';
@@ -841,7 +845,7 @@ function S0 = sort_(P)
 % Extract feature and sort
 runtime_sort = tic;
 
-S0 = load_cached_(P); % load cached data or from file if exists
+[S0, P] = load_cached_(P); % load cached data or from file if exists
 
 % Sort and save
 S_clu = fet2clu_(S0, P);
@@ -855,18 +859,17 @@ S0 = set0_(runtime_sort, P);
 S0 = clear_log_(S0);
 
 save0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
-
-% delete the history
 end %func
 
 
 %--------------------------------------------------------------------------
 % 8/1/17 JJJ: Bugfix: If S_clu is empty, reload _jrc.mat file
-function S0 = load_cached_(P, fLoadWav)
+function [S0, P] = load_cached_(P, fLoadWav)
 % Load cached data either from RAM or disk
 % Usage
 % S0 = load_cached_(P)
 % S0 = load_cached_(vcFile)
+% P0: Previously stored P in S0, S0.P = P overwritten
 if nargin<2, fLoadWav=1; end
 
 global tnWav_spk tnWav_raw trFet_spk %spike waveform (filtered)
@@ -893,8 +896,10 @@ try
         fLoad0 = 1;
     end
     
-    if fLoad0, S0 = load0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat')); end
-    S0.P = P;
+    vcFile_jrc = strrep(P.vcFile_prm, '.prm', '_jrc.mat');
+    if ~exist_file_(vcFile_jrc), S0.P=P; return; end
+    if fLoad0, S0 = load0_(vcFile_jrc); end
+    [P0, S0.P] = deal(S0.P, P); %swap
     if isempty(tnWav_spk) || isempty(tnWav_raw) || isempty(trFet_spk)
         if ~fLoadWav, return; end
         if isempty(S0), return; end %no info                
@@ -910,12 +915,37 @@ try
             disperr_();
         end        
     end
-catch
-    disperr_();
+    P = upgrade_param_(S0, P0);
+    S0.P = P;
+catch hErr
+    disperr_('load_cached_ error', hErr);
 end
 % S0.P = P; % force S0 to take the latest values from the prm file
 % set(0, 'UserData', S0);
 end
+
+
+%--------------------------------------------------------------------------
+function P = upgrade_param_(S0, P0)
+% Upgrade parameter struct P based on the old value P0
+P = S0.P;
+nSamples_raw = S0.dimm_raw(1);
+nSamples_raw_P = diff(S0.P.spkLim_raw) + 1;
+if nSamples_raw_P ~= nSamples_raw
+    spkLim_raw = P.spkLim * 2;
+    nSamples_raw_P = diff(spkLim_raw) + 1;
+    if nSamples_raw_P == nSamples_raw
+        P.spkLim_raw = spkLim_raw;
+        P.spkLim_raw_factor = 2;
+        P.spkLim_raw_ms = [];
+    else
+        P.spkLim_raw = P0.spkLim_raw;
+        P.spkLim_raw_factor = P.spkLim_raw(1) /  P.spkLim(1);
+        P.spkLim_raw_ms = [];
+%         disperr_('Dimension of spkLim_raw is inconsistent between S0 and P');
+    end
+end
+end %func
 
 
 %--------------------------------------------------------------------------
@@ -1281,7 +1311,7 @@ P = struct_default_(P, 'vcFile_gt', '');
 if isempty(P.vcFile_gt), P.vcFile_gt = subsFileExt_(P.vcFile_prm, '_gt.mat'); end
 P.spkRefrac = round(P.spkRefrac_ms * P.sRateHz / 1000);
 P.spkLim = round(P.spkLim_ms * P.sRateHz / 1000);
-P.spkLim_raw = round(get_set_(P, 'spkLim_raw_ms', P.spkLim_ms) * P.sRateHz / 1000); %10/17/2017 JJJ: changed from spkLim_wav*2
+P.spkLim_raw = calc_spkLim_raw_(P);
 
 if isempty(get_(P, 'nDiff_filt'))
     if isempty(get_(P, 'nDiff_ms_filt'))
@@ -1313,6 +1343,20 @@ if isempty(get_(P, 'vcFilter_show'))
 end
 assert_(validate_param_(P), 'Parameter file contains error.');
 if fEditFile, edit(P.vcFile_prm); end % Show settings file
+end %func
+
+
+%--------------------------------------------------------------------------
+function spkLim_raw = calc_spkLim_raw_(P)
+% Calculate the raw spike waveform range
+
+spkLim_raw_ms = get_(P, 'spkLim_raw_ms');
+if isempty(spkLim_raw_ms)
+    spkLim = round(P.spkLim_ms * P.sRateHz / 1000);
+    spkLim_raw = spkLim * get_set_(P, 'spkLim_raw_factor', 2); % backward compatible
+else
+    spkLim_raw = round(P.spkLim_raw_ms * P.sRateHz / 1000);
+end
 end %func
 
 
@@ -2720,14 +2764,14 @@ ax(1)=subplot(311); hold on;
 plot(vrSnr(:), vrFp(:), 'k.', 'MarkerSize', 2);
 boxplot_(vrFp(:), vrSnr(:), vpp_bin, [3, 40]); ylabel('False Positive'); 
 xlabel('SNR (Vp/Vrms)'); grid on; set(gca,'YScale','linear');
-ylim([0, .2]); xlim([0 40]);
+ylim_([0, .2]); xlim_([0 40]);
 title_(vcFile_batch);
 
 ax(2)=subplot(312);  hold on;
 plot(vrSnr(:), vrFn(:), 'k.', 'MarkerSize', 2);
 boxplot_(vrFn(:), vrSnr(:), vpp_bin, [3, 40]); ylabel('False Negative'); 
 xlabel('SNR (Vp/Vrms)'); grid on; set(gca,'YScale','linear');
-ylim([0, .2]); xlim([0 40]);
+ylim_([0, .2]); xlim_([0 40]);
 set(gcf,'Color','w');
 
 ax(3)=subplot(313);  hold on;
@@ -2735,9 +2779,9 @@ plot(vrSnr(:), vnSite(:), 'k.', 'MarkerSize', 2);
 boxplot_(vnSite(:), vrSnr(:), vpp_bin, [3, 40]); ylabel('#sites>thresh'); 
 xlabel('SNR (Vp/Vrms)'); grid on; set(gca,'YScale','linear');
 linkaxes(ax,'x');
-ylim([0, .2]); xlim([0 40]);
+ylim_([0, .2]); xlim_([0 40]);
 set(gcf,'Color','w');
-ylim([0, 16]); 
+ylim_([0, 16]); 
 end %func
 
 
@@ -3064,7 +3108,7 @@ global fDebug_ui trFet_spk
 if nargin<2, vcMode = 'normal'; end %{'normal', 'debug'}
 
 % Load info
-S0 = load_cached_(P);
+[S0, P] = load_cached_(P);
 if ~isfield(S0, 'mrPos_spk')
     S0.mrPos_spk = spk_pos_(S0, trFet_spk);
     set(0, 'UserData', S0);
@@ -3225,8 +3269,8 @@ set(S_fig.hCursorV, 'XData', iClu1*[1,1], 'YData', [.5, S_clu.nClu+.5]);
 title_(S_fig.hAx, sprintf('Clu%d vs. Clu%d: %0.3f; %s', iClu1, iClu2, cor12, S_fig.vcTitle));    
 if iClu1==iClu2, color_H = [0 0 0]; else color_H = [1 0 0]; end
 set(S_fig.hCursorH, 'YData', iClu2*[1,1], 'XData', [.5, S_clu.nClu+.5], 'Color', color_H);
-xlim(S_fig.hAx, trim_lim_(iClu1 + [-6,6], [.5, S_clu.nClu+.5]));
-ylim(S_fig.hAx, trim_lim_(iClu2 + [-6,6], [.5, S_clu.nClu+.5]));
+xlim_(S_fig.hAx, trim_lim_(iClu1 + [-6,6], [.5, S_clu.nClu+.5]));
+ylim_(S_fig.hAx, trim_lim_(iClu2 + [-6,6], [.5, S_clu.nClu+.5]));
 end %func
 
 
@@ -3351,7 +3395,8 @@ vl_nan = y<=0;
 y = log10(y);
 y(vl_nan) = nan;
 end %func
-        
+
+
 %--------------------------------------------------------------------------
 function S_clu = plot_FigRD_(S_clu, P)
 % P = funcDefStr_(P, ...
@@ -3392,7 +3437,7 @@ end
 
 hold on; plot(x, y, '.');
 axis tight;
-ylim([-.5, 2]);
+axis_([-4 -.5 -1 2])
 set(gcf,'color','w');
 set(gcf, 'UserData', struct('x', x, 'y', y)); grid on; 
 set(gca,'XScale','linear', 'YScale', 'linear');
@@ -3440,7 +3485,7 @@ if isempty(S_fig)
     
 %     set(gca, 'ButtonDownFcn', @(src,event)button_CluWav_(src,event), 'BusyAction', 'cancel');
     set(hFig, 'KeyPressFcn', @keyPressFcn_FigWav_, 'CloseRequestFcn', @exit_manual_, 'BusyAction', 'cancel');
-    axis([0, S_clu.nClu + 1, 0, nSites + 1]);
+    axis_([0, S_clu.nClu + 1, 0, nSites + 1]);
     add_menu_(hFig, P);      
     mouse_figure(hFig, S_fig.hAx, @button_CluWav_);
     S_fig = plot_spkwav_(S_fig, P); %plot spikes
@@ -3742,7 +3787,7 @@ if isempty(S_fig)
     S_fig.hAx = axes_new_(hFig);
     set(S_fig.hAx, 'Position', [.1 .1 .8 .8], 'XLimMode', 'manual', 'YLimMode', 'manual', 'Layer', 'top');
     set(S_fig.hAx, {'XTick', 'YTick'}, {1:nClu, 1:nClu});
-    axis(S_fig.hAx, [0 nClu 0 nClu]+.5);
+    axis_(S_fig.hAx, [0 nClu 0 nClu]+.5);
     axis(S_fig.hAx, 'xy');
     grid(S_fig.hAx, 'on');
     xlabel(S_fig.hAx, 'Clu#'); 
@@ -3984,7 +4029,7 @@ switch lower(event.Key)
         
     case 'r' %reset view
         figure_wait_(1);
-        axis([0, S0.S_clu.nClu + 1, 0, numel(P.viSite2Chan) + 1]);
+        axis_([0, S0.S_clu.nClu + 1, 0, numel(P.viSite2Chan) + 1]);
         figure_wait_(0);
         
     case {'d', 'backspace', 'delete'}, S0 = ui_delete_();
@@ -4130,7 +4175,7 @@ else
     set(S_fig.hBar, 'XData', vrTime_lag, 'YData', vnCnt);
 end
 title_(S_fig.hAx, sprintf('Clu%d vs Clu%d', iClu1, iClu2));
-xlim(S_fig.hAx, [-nLags, nLags] * P.jitter_ms);
+xlim_(S_fig.hAx, [-nLags, nLags] * P.jitter_ms);
 set(hFig, 'UserData', S_fig);
 end %func
 
@@ -4158,7 +4203,7 @@ else
     vrTime2 = [];
     vcTitle = sprintf('Clu%d (black); %s', S0.iCluCopy, vcTitle);
 end
-time_lim = double([0, S0.viTime_spk(end)] / P.sRateHz);
+time_lim = double([0, abs(S0.viTime_spk(end))] / P.sRateHz);
 
 %------------
 % draw
@@ -4188,7 +4233,7 @@ if isempty(S_fig)
         set(S_fig.hAx, 'XTick', time_lim(1):P.time_tick_show:time_lim(end));
     end
 end
-vpp_lim = [0, S_fig.maxAmp];
+vpp_lim = [0, abs(S_fig.maxAmp)];
 % iFet = S_fig.iFet;
 % iFet = 1;
 if ~isfield(S_fig, 'iSite'), S_fig.iSite = []; end
@@ -4207,7 +4252,7 @@ end
 if ~isfield(S_fig, 'fPlot0'), S_fig.fPlot0 = 1; end
 toggleVisible_(S_fig.hPlot0, S_fig.fPlot0);
 
-axis(S_fig.hAx, [time_lim, vpp_lim]);
+axis_(S_fig.hAx, [time_lim, vpp_lim]);
 title_(S_fig.hAx, vcTitle);    
 ylabel(S_fig.hAx, vcYlabel);
 
@@ -4394,7 +4439,7 @@ else
 end
 
 % Annotate axes
-axis(S_fig.hAx, [0 nSites 0 nSites]);
+axis_(S_fig.hAx, [0 nSites 0 nSites]);
 set(S_fig.hAx,'XTick',.5:1:nSites,'YTick',.5:1:nSites, 'XTickLabel', P.viSites_show, 'YTickLabel', P.viSites_show, 'Box', 'off');
 xlabel(S_fig.hAx, sprintf(vcXLabel, S_fig.maxAmp));   
 ylabel(S_fig.hAx, sprintf(vcYLabel, S_fig.maxAmp));  
@@ -4896,7 +4941,7 @@ if isempty(S_fig) %first time the iCluPaste is always empty
     S_fig.hAx = axes_new_(hFig);
     S_fig.hPlot1 = stairs(S_fig.hAx, nan, nan, 'k'); 
     S_fig.hPlot2 = stairs(S_fig.hAx, nan, nan, 'r');     
-    xlim(S_fig.hAx, [1 10000]); %in msec
+    xlim_(S_fig.hAx, [1 10000]); %in msec
     grid(S_fig.hAx, 'on');
     xlabel(S_fig.hAx, 'ISI (ms)');
     ylabel(S_fig.hAx, 'Prob. Density');
@@ -4939,7 +4984,7 @@ if isempty(S_fig)
     S_fig.hPlot2 = plot(S_fig.hAx, nan, nan, 'ro');
     set(S_fig.hAx, 'XScale','log', 'YScale','log');   
     xlabel('ISI_{k} (ms)'); ylabel('ISI_{k+1} (ms)');
-    axis(S_fig.hAx, [1 10000 1 10000]);
+    axis_(S_fig.hAx, [1 10000 1 10000]);
     grid(S_fig.hAx, 'on');
     % show refractory line
     line(get(S_fig.hAx,'XLim'), P.spkRefrac_ms*[1 1], 'Color', [1 0 0]);
@@ -4995,7 +5040,7 @@ else
     set(S_fig.hPatch, 'CData', mrVpp);    
 end
 title_(S_fig.hAx, sprintf('Max: %0.1f \\muVpp', max(vrVpp)));
-axis(S_fig.hAx, S_fig.alim);
+axis_(S_fig.hAx, S_fig.alim);
 caxis(S_fig.hAx, [0, max(vrVpp)]);
 
 set(hFig, 'UserData', S_fig);
@@ -5081,18 +5126,20 @@ end
 plot_unit_(S_clu1, S_fig.hAx, [0 0 0]);
 %vrPosXY1 = [S_clu.vrPosX_clu(S_clu1.iClu), S_clu.vrPosY_clu(S_clu1.iClu)] / P.um_per_pix;
 vrPosXY1 = [S_clu.vrPosX_clu(S_clu1.iClu), S_clu.vrPosY_clu(S_clu1.iClu)];
-if isempty(S_clu2)    
-    vcTitle = sprintf('Unit %d: (X=%0.1f, Y=%0.1f) [um]', S_clu1.iClu, vrPosXY1);
+nSpk1 = S_clu.vnSpk_clu(S_clu1.iClu);
+if isempty(S_clu2)        
+    vcTitle = sprintf('Unit %d: %d spikes; (X=%0.1f, Y=%0.1f) [um]', S_clu1.iClu, nSpk1, vrPosXY1);
     try
         vcTitle = sprintf('%s\n%0.1fuVmin, %0.1fuVpp, SNR:%0.1f IsoDist:%0.1f ISIrat:%0.2f L-rat:%0.1f', ...
             vcTitle, S_clu1.uVmin, S_clu1.uVpp, S_clu1.snr, S_clu1.iso_dist, S_clu1.isi_ratio, S_clu1.l_ratio);
     catch
     end
 else
+    nSpk2 = S_clu.vnSpk_clu(S_clu2.iClu);
     vrPosXY2 = [S_clu.vrPosX_clu(S_clu2.iClu), S_clu.vrPosY_clu(S_clu2.iClu)] / P.um_per_pix;
     plot_unit_(S_clu2, S_fig.hAx, [1 0 0]);
-    vcTitle = sprintf('Unit %d/%d(red)\n(X=%0.1f/%0.1f, Y=%0.1f/%0.1f) [um]', ...
-        S_clu1.iClu, S_clu2.iClu, ...
+    vcTitle = sprintf('Unit %d(black)/%d(red); (%d/%d) spikes\n(X=%0.1f/%0.1f, Y=%0.1f/%0.1f) [um]', ...
+        S_clu1.iClu, S_clu2.iClu, nSpk1, nSpk2, ...
         [vrPosXY1(1), vrPosXY2(1), vrPosXY1(2), vrPosXY2(2)]);
 end
 title_(S_fig.hAx, vcTitle);
@@ -5139,8 +5186,8 @@ end
 xlabel(hAx, 'X pos [pix]');
 ylabel(hAx, 'Z pos [pix]');
 grid(hAx, 'on');
-xlim(hAx, [min(mrX1(:)), max(mrX1(:))]);
-ylim(hAx, [floor(min(mrY1(:))-1), ceil(max(mrY1(:))+1)]);
+xlim_(hAx, [min(mrX1(:)), max(mrX1(:))]);
+ylim_(hAx, [floor(min(mrY1(:))-1), ceil(max(mrY1(:))+1)]);
 end %func
 
 
@@ -5184,10 +5231,10 @@ switch (get(gcf, 'Tag'))
         [S_fig, maxAmp_prev] = set_fig_maxAmp_('FigTime', event);
         switch lower(P.vcFet_show)    
             case 'vpp'
-                ylim(S_fig.hAx, [0 S_fig.maxAmp]);
+                ylim_(S_fig.hAx, [0 S_fig.maxAmp]);
                 imrect_set_(S_fig.hRect, [], [0 S_fig.maxAmp*2]);
             otherwise
-                ylim(S_fig.hAx, [0, 1] * S_fig.maxAmp);
+                ylim_(S_fig.hAx, [0, 1] * S_fig.maxAmp);
                 imrect_set_(S_fig.hRect, [], [0, 1] * S_fig.maxAmp);
         end
 
@@ -5278,7 +5325,7 @@ switch lower(event.Key)
         
     case 'r' %reset view
         if ~isVisible_(S_fig.hAx), return; end
-        axis(S_fig.hAx, [S_fig.time_lim, S_fig.vpp_lim]);
+        axis_(S_fig.hAx, [S_fig.time_lim, S_fig.vpp_lim]);
         imrect_set_(S_fig.hRect, S_fig.time_lim, S_fig.vpp_lim);
 
     case 'm' %merge
@@ -5456,7 +5503,7 @@ switch lower(event.Key)
         end
         
     case 'r' %reset view
-        axis([0 numel(viSites_show) 0 numel(viSites_show)]);
+        axis_([0 numel(viSites_show) 0 numel(viSites_show)]);
 
     case 's' %split
         figure_wait_(0);
@@ -5610,7 +5657,6 @@ nSpks = numel(viTime_spk);
 nSites = numel(P.viSite2Chan);
 spkLim_wav = P.spkLim;
 spkLim_raw = P.spkLim_raw;
-% spkLim_raw = round(get_set_(P, 'spkLim_raw_ms', P.spkLim_ms) * P.sRateHz / 1000); %10/17/2017 JJJ: changed from spkLim_wav*2
 nSites_spk = (P.maxSite * 2) + 1;
 tnWav_raw = zeros(diff(spkLim_raw) + 1, nSites_spk, nSpks, 'like', mnWav_raw);
 tnWav_spk = zeros(diff(spkLim_wav) + 1, nSites_spk, nSpks, 'like', mnWav_spk);
@@ -5996,7 +6042,7 @@ end
 mrSpkWav1 = tnWav2uV_(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu1}, viSites1, S0), P);
 mrSpkWav1 = reshape(mrSpkWav1, [], size(mrSpkWav1,3));
 [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [], 2);
-
+hPoly = [];
 hFigTemp = gcf;
 try, drawnow; close(hMsg); catch; end
 while 1
@@ -6020,6 +6066,7 @@ while 1
             axes(hAx_); cla(hAx_);
             [vrX1, vrY1] = deal(mrFet_split(:,iAx1), mrFet_split(:,iAx2));
             plot(hAx_, vrX1, vrY1, 'k.');
+            close_(hPoly);
             hPoly = impoly_();
             mrPolyPos = getPosition(hPoly);              
             vlSpkIn = inpolygon(vrX1, vrY1, mrPolyPos(:,1), mrPolyPos(:,2));
@@ -6451,7 +6498,7 @@ else
     ylabel(S_fig.vhAx_track, 'Y Pos [pix]');
     S_fig.xylim_track(3:4) = round(median(vrY1)) + [-1,1] * floor(P.maxSite);
 end
-axis(S_fig.vhAx_track, S_fig.xylim_track);
+axis_(S_fig.vhAx_track, S_fig.xylim_track);
 colormap(S_fig.vhAx_track, flipud(colormap('gray')));
 set(S_fig.vhAx_track, 'CLim', [.5 3.5]);
 grid(S_fig.vhAx_track, 'on');
@@ -6560,10 +6607,10 @@ else
 end
 % switch lower(P.vcFet_show)
 %     case 'vpp'
-ylim(S_fig.hAx, [0, 1] * S_fig.maxAmp);
+ylim_(S_fig.hAx, [0, 1] * S_fig.maxAmp);
 imrect_set_(S_fig.hRect, [], [0, 1] * S_fig.maxAmp);    
 %     otherwise
-%         ylim(S_fig.hAx, [0, 1] * P.maxAmp);
+%         ylim_(S_fig.hAx, [0, 1] * P.maxAmp);
 %         imrect_set_(S_fig.hRect, [], [0, 1] * P.maxAmp);    
 % end
 grid(S_fig.hAx, 'on');
@@ -6733,6 +6780,12 @@ vrT = (P.spkLim(1):P.spkLim(end)) / P.sRateHz * 1000;
 viIn = randomSelect_(find(vlIn), P.nSpk_show);
 viOut = randomSelect_(find(~vlIn), P.nSpk_show);
 
+if isempty(viIn) || isempty(viOut)
+    fSplit = 0; 
+    close_(hFig);
+    return;
+end
+
 subplot 222; hold on;
 plot(vrT, mrWavX(:,viOut), 'k', vrT, mrWavX(:,viIn), 'r');
 title(vcXlabel); ylabel('Voltage (\muV)'); xlabel('Time (ms)');
@@ -6748,7 +6801,7 @@ if strcmpi(questdlg_('Split?', 'Confirmation', 'Yes', 'No', 'Yes'), 'Yes')
 else
     fSplit = 0;
 end
-try close(hFig); catch; end
+close_(hFig);
 end %func
 
 
@@ -6850,7 +6903,7 @@ else
 end
 hText = text(mrSiteXY(:,1), mrSiteXY(:,2), csText, ...
     'VerticalAlignment', 'top', 'HorizontalAlignment', 'left');
-axis([min(mrPatchX(:)), max(mrPatchX(:)), min(mrPatchY(:)), max(mrPatchY(:))]);
+axis_([min(mrPatchX(:)), max(mrPatchX(:)), min(mrPatchY(:)), max(mrPatchY(:))]);
 title('Site# / Chan# (zoom: wheel; pan: hold wheel & drag)');
 % vrPos = get(gcf, 'Position');
 xlabel('X Position (\mum)');
@@ -7241,13 +7294,7 @@ if ~fDrift_merge
     return;
 end
 
-% if ~fUseCenterSpk
-%     [mrWav_clu1, mrWav_lo_clu1, mrWav_hi_clu1] = mean_wav_lo_hi_(tnWav_, viSpk_clu1, viSite_spk1, iSite_clu1, nSamples_max, S0.P);
-%     return;
-% end
-
 vrPosY_spk1 = S0.mrPos_spk(viSpk_clu1,2);  %position based quantile
-% vrPosY_spk1 = viSpk_clu1; %time based quantile
 vrYLim = quantile(vrPosY_spk1, [0,1,2,3]/3);
 [viSpk_clu_, viSite_clu_] = spk_select_pos_(viSpk_clu1, vrPosY_spk1, vrYLim(2:3), nSamples_max, viSite_spk1);
 mrWav_clu1 = nanmean_int16_(tnWav_(:,:,viSpk_clu_), 3, fUseCenterSpk, iSite_clu1, viSite_clu_, S0.P); % * S0.P.uV_per_bit;
@@ -7291,26 +7338,37 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function mrWav_clu1 = nanmean_int16_(tnWav_, dimm_mean, fUseCenterSpk, iSite1, viSite1, P); % * S0.P.uV_per_bit;
+function mrWav_clu1 = nanmean_int16_(tnWav0, dimm_mean, fUseCenterSpk, iSite1, viSite0, P); % * S0.P.uV_per_bit;
 if fUseCenterSpk
-    mrWav_clu1 = mean(single(tnWav_), dimm_mean);
+    mrWav_clu1 = mean(single(tnWav0), dimm_mean);
 else
-    nSites = numel(P.viSite2Chan);
-    trWav = nan([size(tnWav_,1), nSites, numel(viSite1)], 'single');
-    viSites_unique = unique(viSite1(:))';
-    for iSite_unique = viSites_unique
-        viSpk_ = find(viSite1 == iSite_unique);
-        trWav(:, P.miSites(:,iSite_unique), viSpk_) = tnWav_(:,:,viSpk_);
+%     nSites = numel(P.viSite2Chan);
+    viSite1 = P.miSites(:, iSite1);
+    trWav = nan([size(tnWav0,1), numel(viSite1), numel(viSite0)], 'single');
+    viSites_uniq = unique(viSite0);
+    nSites_uniq = numel(viSites_uniq);
+    miSites_uniq = P.miSites(:, viSites_uniq);
+    for iSite_uniq1 = 1:nSites_uniq
+        iSite_uniq = viSites_uniq(iSite_uniq1);
+        viSpk_ = find(viSite0 == iSite_uniq);
+        [~, viSite1a_, viSite1b_] = intersect(viSite1, miSites_uniq(:,iSite_uniq1));
+        if isempty(viSite1a_), continue; end
+        trWav(:, viSite1a_, viSpk_) = tnWav0(:,viSite1b_,viSpk_); % P.miSites(:,iSite_unique)
     end
-    mrWav_clu1 = nanmean(trWav(:,P.miSites(:, iSite1),:), dimm_mean);
+    mrWav_clu1 = nanmean(trWav, dimm_mean);
+%     mrWav_clu1 = nanmean(trWav(:,P.miSites(:, iSite1),:), dimm_mean);
 end
 end %func
 
 
 %--------------------------------------------------------------------------
+% 17/12/5 JJJ: If lim_y criteria is not found return the original
 function [viSpk_clu2, viSite_clu2] = spk_select_pos_(viSpk_clu1, vrPosY_spk1, lim_y, nSamples_max, viSite_clu1);
 vlSpk2 = vrPosY_spk1 >= lim_y(1) & vrPosY_spk1 < lim_y(2);
-if ~any(vlSpk2), [viSpk_clu2, viSite_clu2] = deal([]); return; end
+if ~any(vlSpk2)
+    [viSpk_clu2, viSite_clu2] = deal(viSpk_clu1, viSite_clu1); 
+    return; 
+end
 viSpk_clu2 = subsample_vr_(viSpk_clu1(vlSpk2), nSamples_max);
 if nargout>=2
     viSite_clu2 = subsample_vr_(viSite_clu1(vlSpk2), nSamples_max);
@@ -7724,8 +7782,10 @@ if nargin<4, fToolbar = 0; end
 if nargin<5, fMenubar = 0; end
 if isempty(vcTag)
     hFig = figure();
-else
+elseif ischar(vcTag)
     hFig = figure_new_(vcTag); 
+else
+    hFig = vcTag;
 end
 set(hFig, 'Name', vcName, 'NumberTitle', 'off', 'Color', 'w');
 clf(hFig);
@@ -8461,7 +8521,16 @@ try
     
     struct_save_(S0, vcFile_mat, 1);
     vcFile_prm = S0.P.vcFile_prm;
-    export_prm_(vcFile_prm, strrep(vcFile_prm, '.prm', '_full.prm'), 0);
+    export_prm_(vcFile_prm, strrep(vcFile_prm, '.prm', '_full.prm'), 0);    
+
+    % save the rho-delta plot    
+    if ~isfield(S0, 'S_clu') || ~get_set_(P, 'fSavePlot_RD', 1), return; end
+    try
+        save_fig_(strrep(P.vcFile_prm, '.prm', '_RD.png'), plot_rd_(P), 1);
+        fprintf('\tYou can use ''jrc plot-rd'' command to plot this figure.');
+    catch
+        fprintf(2, 'Failed to save the rho-delta plot: %s.\n', lasterr());
+    end    
 catch
     disperr_();
 end
@@ -8552,10 +8621,10 @@ if P.fPlot
 %     set(gca, 'YScale', 'log'); 
 %     set(gca, 'XScale', 'linear'); 
     xlabel('Frequency (Hz)'); ylabel('Mean power across sites (dB uV^2/Hz)');
-    % xlim([0 P.sRateHz/2]);
+    % xlim_([0 P.sRateHz/2]);
     grid on;
     try
-    xlim(vrFreq([1, end]));
+    xlim_(vrFreq([1, end]));
     set(gcf,'color','w');
     title(vcFname, 'Interpreter', 'none');
     catch
@@ -9151,47 +9220,47 @@ ylim1(1) = max(ylim1(1), ylim0(1));
 xlim1(2) = min(xlim1(2), xlim0(2));
 ylim1(2) = min(ylim1(2), ylim0(2));
 
-axis([xlim1, ylim1]);
+axis_([xlim1, ylim1]);
 
 figure(hFig_prev);
 end %func
 
 
-%--------------------------------------------------------------------------
-function mrDist_clu = S_clu_wavcor_1_(S_clu, P)
-% oldd version
-% viShift0 = 0; %-2:2; %compare time shifted version
-viShift0 = -6:6; %time shift range
-fWav_cumsum = 0;
-
-% tmrWav_clu = ifeq_(fWav_cumsum, S_clu.tmrWav_clu, S_clu.tmrWav_spk_clu);
-tmrWav_clu = meanSubt_(S_clu.tmrWav_raw_clu);
-% maxSite = P.maxSite_merge;
-maxSite = ceil(P.maxSite/2);
-mrDist_clu = nan(S_clu.nClu);
-miSites = P.miSites;
-% miSites = P.miSites(1:(maxSite+1), :); % center
-for iClu2 = 1:S_clu.nClu         
-    iSite2 = S_clu.viSite_clu(iClu2);   
-    viSite2 = miSites(:,iSite2);
-    vrWav2 = get_wav_(tmrWav_clu, viSite2, iClu2);
-    mrWav2 = zscore_(shift_vr_(vrWav2(:), viShift0)); %try +/-4 samples
-    viClu1 = find(abs(S_clu.viSite_clu - iSite2) <= maxSite);
-    viClu1(viClu1 == iClu2) = [];
-    viClu1 = viClu1(:)';
-    vlWav2 = vrWav2~=0;
-    for iClu1 = viClu1   
-        try            
-            vrWav1 = zscore_(get_wav_(tmrWav_clu, viSite2, iClu1));
-            n12 = sum(vlWav2 & vrWav1~=0);
-            corr12 = max(vrWav1' * mrWav2) / n12; %numel(vrWav1);
-            mrDist_clu(iClu1, iClu2)=corr12;
-        catch
-            disp('Sclu_wavcor: error');
-        end
-    end
-end
-end %func
+% %--------------------------------------------------------------------------
+% function mrDist_clu = S_clu_wavcor_1_(S_clu, P)
+% % oldd version
+% % viShift0 = 0; %-2:2; %compare time shifted version
+% viShift0 = -6:6; %time shift range
+% fWav_cumsum = 0;
+% 
+% % tmrWav_clu = ifeq_(fWav_cumsum, S_clu.tmrWav_clu, S_clu.tmrWav_spk_clu);
+% tmrWav_clu = meanSubt_(S_clu.tmrWav_raw_clu);
+% % maxSite = P.maxSite_merge;
+% maxSite = ceil(P.maxSite/2);
+% mrDist_clu = nan(S_clu.nClu);
+% miSites = P.miSites;
+% % miSites = P.miSites(1:(maxSite+1), :); % center
+% for iClu2 = 1:S_clu.nClu         
+%     iSite2 = S_clu.viSite_clu(iClu2);   
+%     viSite2 = miSites(:,iSite2);
+%     vrWav2 = get_wav_(tmrWav_clu, viSite2, iClu2);
+%     mrWav2 = zscore_(shift_vr_(vrWav2(:), viShift0)); %try +/-4 samples
+%     viClu1 = find(abs(S_clu.viSite_clu - iSite2) <= maxSite);
+%     viClu1(viClu1 == iClu2) = [];
+%     viClu1 = viClu1(:)';
+%     vlWav2 = vrWav2~=0;
+%     for iClu1 = viClu1   
+%         try            
+%             vrWav1 = zscore_(get_wav_(tmrWav_clu, viSite2, iClu1));
+%             n12 = sum(vlWav2 & vrWav1~=0);
+%             corr12 = max(vrWav1' * mrWav2) / n12; %numel(vrWav1);
+%             mrDist_clu(iClu1, iClu2)=corr12;
+%         catch
+%             disp('Sclu_wavcor: error');
+%         end
+%     end
+% end
+% end %func
 
 
 %--------------------------------------------------------------------------
@@ -9358,7 +9427,65 @@ hold(vhAx(4), 'on');
 title(vhAx(4), 'Mean spike waveforms');
 plot(vhAx(4), mean(mrSpkWav(viSpk1,vlIn_spk),2),'b');
 plot(vhAx(4), mean(mrSpkWav(viSpk1,vlOut_spk),2),'r');
-ylim([min_y max_y]);
+ylim_([min_y max_y]);
+end %func
+
+
+%--------------------------------------------------------------------------
+function ylim_(arg1, arg2)
+% ylim function
+% ylim_(lim_)
+% ylim_(hAx, lim_)
+if nargin==1
+    [hAx_, lim_] = deal(gca, arg1);
+else
+    [hAx_, lim_] = deal(arg1, arg2);
+end
+if any(isnan(lim_)), return; end
+try
+    ylim(hAx_, sort(lim_));
+catch
+    disperr_();
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+function xlim_(arg1, arg2)
+% ylim function
+% ylim_(lim_)
+% ylim_(hAx, lim_)
+if nargin==1
+    [hAx_, lim_] = deal(gca, arg1);
+else
+    [hAx_, lim_] = deal(arg1, arg2);
+end
+if any(isnan(lim_)), return; end
+try
+    xlim(hAx_, sort(lim_));
+catch
+    disperr_();
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+function axis_(arg1, arg2)
+if nargin==1
+    [hAx_, lim_] = deal(gca, arg1);
+else
+    [hAx_, lim_] = deal(arg1, arg2);
+end
+if ischar(lim_)
+    axis(hAx_, lim_);
+    return;
+end
+if any(isnan(lim_)), return; end
+try
+    axis(hAx_, [sort(lim_(1:2)), sort(lim_(3:4))]);
+catch
+    disperr_();
+end
 end %func
 
 
@@ -9566,7 +9693,7 @@ grid(hAx, 'on');
 hold(hAx, 'on'); 
 plot(hAx, [0 0], get(hAx,'YLim'), 'r-');
 ylabel(hAx, 'Rate (Hz)');
-xlim(hAx, P.tlim_psth);
+xlim_(hAx, P.tlim_psth);
 end
 
 
@@ -10179,17 +10306,21 @@ end %func
 
 
 %--------------------------------------------------------------------------
+% 12/5/17 JJJ: Colors are hard coded
 % 9/17/17 JJJ: nGroups fixed, can have less than 7 clusters
 function vhPlot = plot_group_(hAx, mrX, mrY, varargin)
-nGroups = min(7, size(mrX,2));
+mrColor = [0, 0.4470, 0.7410; 0.8500, 0.3250, 0.0980; 0.9290, 0.6940, 0.1250; 0.4940, 0.1840, 0.5560; 0.4660, 0.6740, 0.1880; 0.3010, 0.7450, 0.9330; 0.6350, 0.0780, 0.1840]';
+nGroups = min(size(mrColor,2), size(mrX,2));
+mrColor = mrColor(:,1:nGroups);
 vhPlot = zeros(nGroups, 1);
 hold(hAx, 'on');
 for iGroup=1:nGroups
     vrX1 = mrX(:, iGroup:nGroups:end);
     vrY1 = mrY(:, iGroup:nGroups:end);
-    vhPlot(iGroup) = plot(hAx, vrX1(:), vrY1(:), varargin{:});
+    vhPlot(iGroup) = plot(hAx, vrX1(:), vrY1(:), varargin{:}, 'Color', mrColor(:,iGroup)');
 end
 end %func
+
 
 
 %--------------------------------------------------------------------------
@@ -10313,7 +10444,7 @@ if fPlot
     xlabel('Spike #'); ylabel('Site #'); 
     set(gca, 'YTick', range_(miSite_clu(:,iClu)), ...
         'XTick', (1:nSpk1) * nT_spk - P.spkLim(2), 'XTickLabel', 1:nSpk1); 
-    axis([0, nSpk1*nT_spk+1, (limit_(miSite_clu(:,iClu)) + [-1,1])]);
+    axis_([0, nSpk1*nT_spk+1, (limit_(miSite_clu(:,iClu)) + [-1,1])]);
     grid on;
     title(sprintf('Cluster%d (n=%d), Scale=%0.1f uV', iClu, nSpk1, P.maxAmp)); 
     mouse_figure(hFig);
@@ -11986,7 +12117,7 @@ if get_set_(P, 'fRepeat_clu', 0)
     describe_(P.vcFile_prm);
     return; 
 end
-S0 = load_cached_(P); % load cached data or from file if exists
+[S0, P] = load_cached_(P); % load cached data or from file if exists
 S_clu = get_(S0, 'S_clu');
 S_clu.P = P;
 
@@ -12340,9 +12471,9 @@ nTime_traces = get_(P, 'nTime_traces');
 if nTime_traces > 1
     tlim1 = ([0, size(mnWav1,1)] + S_fig.nlim_bin(1) - 1) / P.sRateHz;
     tlim1 = round(tlim1*1000)/1000;
-    axis(S_fig.hAx, [tlim1, 0, numel(P.viSite2Chan)+1]);
+    axis_(S_fig.hAx, [tlim1, 0, numel(P.viSite2Chan)+1]);
 else
-    axis(S_fig.hAx, [S_fig.nlim_bin / P.sRateHz, 0, numel(P.viSite2Chan)+1]);
+    axis_(S_fig.hAx, [S_fig.nlim_bin / P.sRateHz, 0, numel(P.viSite2Chan)+1]);
 end 
 end %func
 
@@ -12845,7 +12976,7 @@ end %func
 
 %--------------------------------------------------------------------------
 % 6/29/17 JJJ: distance-based neighboring unit selection
-function mrWavCor = S_clu_wavcor_(S_clu, P, viClu_update)
+function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
 % symmetric matrix and common basis comparison only
 
 fUsePeak2 = 0;
@@ -12863,10 +12994,17 @@ fMode_cor = 1; %0: pearson, 1:no mean subt pearson
 if nargin<3, viClu_update = []; end
 if ~isfield(S_clu, 'mrWavCor'), viClu_update = []; end
 fprintf('Computing waveform correlation...'); t1 = tic;
-tmrWav_clu = ifeq_(fWaveform_raw, S_clu.tmrWav_raw_clu, S_clu.tmrWav_spk_clu);
+if fWaveform_raw
+    tmrWav_clu = trim_spkraw_(S_clu.tmrWav_raw_clu, P);
+else
+    tmrWav_clu = S_clu.tmrWav_spk_clu;
+end
+% tmrWav_clu = ifeq_(fWaveform_raw, S_clu.tmrWav_raw_clu, S_clu.tmrWav_spk_clu);
 % tmrWav_clu = gpuArray_(tmrWav_clu, P.fGpu);
 if fDrift_merge && fWaveform_raw % only works on raw
-    ctmrWav_clu = {tmrWav_clu, S_clu.tmrWav_raw_lo_clu, S_clu.tmrWav_raw_hi_clu};
+    tmrWav_lo_clu = trim_spkraw_(S_clu.tmrWav_raw_lo_clu, P);
+    tmrWav_hi_clu = trim_spkraw_(S_clu.tmrWav_raw_hi_clu, P);
+    ctmrWav_clu = {tmrWav_clu, tmrWav_lo_clu, tmrWav_hi_clu};
 else
     ctmrWav_clu = {tmrWav_clu};
 end
@@ -12924,6 +13062,18 @@ end %func
 
 
 %--------------------------------------------------------------------------
+function tmrWav = trim_spkraw_(tmrWav, P)
+spkLim_raw = get_(P, 'spkLim_raw');
+nSamples_raw = diff(spkLim_raw) + 1;
+spkLim_factor_merge = get_set_(P, 'spkLim_factor_merge', 1);
+spkLim_merge = round(P.spkLim * spkLim_factor_merge);
+lim_merge = [spkLim_merge(1) - spkLim_raw(1) + 1,  nSamples_raw - spkLim_raw(2) + spkLim_merge(2)];
+tmrWav = tmrWav(lim_merge(1):lim_merge(2), :, :);
+tmrWav = meanSubt_(tmrWav);
+end %func
+
+
+%--------------------------------------------------------------------------
 % 10/27/17 JJJ: distance-based neighboring unit selection
 function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2)
 
@@ -12954,11 +13104,6 @@ viClu1(viClu1 >= iClu2) = []; % symmetric matrix comparison
 if isempty(viClu1), return; end
 cmrWav_clu2 = cellfun(@(x)x(:,viSite2,iClu2), ctmrWav_clu, 'UniformOutput', 0);
 ctmrWav_clu1 = cellfun(@(x)x(:,viSite2,viClu1), ctmrWav_clu, 'UniformOutput', 0);
-% if get_set_(P, 'fSpatialMask_clu', 1)
-%     vrWeight_site = spatialMask_(P, viSite2(1), numel(viSite2), P.maxDist_site_spk_um);
-%     ctmrWav_clu1 = cellfun(@(x)x .* repmat(vrWeight_site(:)', [size(x,1), 1, size(x,3)]), ctmrWav_clu1, 'UniformOutput', 0);
-%     cmrWav_clu2 = cellfun(@(x)x .* repmat(vrWeight_site(:)', [size(x,1), 1]), cmrWav_clu2, 'UniformOutput', 0);
-% end
 for iClu11 = 1:numel(viClu1)
     iClu1 = viClu1(iClu11);
     if ~vlClu_update(iClu1) && ~vlClu_update(iClu2)
@@ -13827,25 +13972,66 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function plot_rd_(P)
+function hFig = plot_rd_(P)
 fLog_delta = 0;
-max_delta = 10;
+max_delta = 5;
 S0 = load0_(P);
 S_clu = S0.S_clu;
 % S_clu = get0_('S_clu');
 if fLog_delta
     vrY_plot = log10(S_clu.delta);
     vcY_label = 'log10 Delta';
-    vrY_plot(vrY_plot>log10(max_delta)) = log10(max_delta);
+    vrY_plot(vrY_plot>log10(max_delta)) = nan;
 else
     vrY_plot = (S_clu.delta);
     vcY_label = 'Delta';
-    vrY_plot(vrY_plot>max_delta) = max_delta;
+    vrY_plot(vrY_plot>max_delta) = nan;
 end
-figure; plot(log10(S_clu.rho), vrY_plot, '.');
-xlabel('log10 Rho'); ylabel(vcY_label);
-title_(P.vcFile_prm);
-grid on;
+vrX_plot = S_clu.rho;
+vrX_plot1 = log10(S_clu.rho);
+[~, ~, vrY_plot1] = detrend_local_(S_clu, P, 0);
+vrY_plot1 = log10(vrY_plot1);
+
+% Plot
+vhAx = [];
+hFig = figure('Color','w','Name', P.vcFile_prm, 'Visible', 'off');
+create_figure_(hFig, [0 0 .5 1], P.vcFile_prm, 1, 1);
+vhAx(1) = subplot(211); hold on; 
+plot(vrX_plot1, vrY_plot, '.', 'Color', repmat(.5,1,3));
+plot(vrX_plot1(S_clu.icl), vrY_plot(S_clu.icl), 'ro');
+plot(P.rho_cut*[1,1], [0, max_delta], 'r-');
+xylabel_(gca, 'log10 Rho', vcY_label, sprintf('lin-log plot, nClu: %d', S_clu.nClu)); 
+axis_([-4, -.5, 0, max_delta]); grid on;
+
+vhAx(2) = subplot(212); hold on;
+plot(vrX_plot1, vrY_plot1, '.', 'Color', repmat(.5,1,3));
+plot(vrX_plot1(S_clu.icl), vrY_plot1(S_clu.icl), 'ro');
+plot(P.rho_cut*[1,1], [-.5, 2], 'r-', [-4, -.5], P.delta1_cut*[1,1], 'r-');
+xylabel_(gca, 'log10 Rho', 'log10 Delta (detrended)', ...
+    sprintf('detrended log-log plot (P.rho_cut=%0.3f; P.delta1_cut=%0.3f; nClu:%d)', ...
+        P.rho_cut, P.delta1_cut, S_clu.nClu));
+axis_([-4, -.5, -.5, 2]); grid on;
+
+linkaxes(vhAx, 'x');
+end %func
+
+
+%--------------------------------------------------------------------------
+function save_fig_(vcFile_png, hFig, fClose);
+% Save a figure to a figure file
+if nargin<2, hFig = []; end
+if nargin<3, fClose = 0; end
+if isempty(hFig), hFig = gcf; end
+
+% vcFile_png = strrep(P.vcFile_prm, '.prm', '.png');
+try
+    drawnow;
+    saveas(hFig, vcFile_png);
+    fprintf('Saved figure to %s.\n', vcFile_png);
+    if fClose, close(hFig); end
+catch
+    fprintf(2, 'Failed to save a figure to %s.\n', vcFile_png);
+end
 end %func
 
 
@@ -14149,18 +14335,61 @@ end %func
 
 
 %--------------------------------------------------------------------------
-% function disperr_()
+% 17/12/5 JJJ: Error info is saved
 % Display error message and the error stack
-function disperr_(vcMsg)
-% ask user to email jrclust@vidriotech.com ? for the error ticket?
+function disperr_(vcMsg, hErr)
+% disperr_(vcMsg): error message for user
+% disperr_(vcMsg, hErr): hErr: MException class
+% disperr_(vcMsg, vcErr): vcErr: error string
+
 dbstack('-completenames'); % display an error stack
-vcErr = lasterr();
+try
+    if nargin<2, hErr = lasterror('reset');  end
+    if ischar(hErr) % properly formatted error
+        vcErr = hErr;
+    else
+        save_err_(hErr, vcMsg); % save hErr object?   
+        vcErr = hErr.message;        
+    end
+catch
+    vcErr = '';
+end
 if nargin==0
     fprintf(2, '%s\n', vcErr);
-else
+elseif ~isempty(vcErr)
     fprintf(2, '%s:\n\t%s\n', vcMsg, vcErr);
+else
+    fprintf(2, '%s:\n', vcMsg);
 end
 try gpuDevice(1); disp('GPU device reset'); catch, end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 17/12/5 JJJ: created
+function save_err_(hErr, vcMsg)
+% save error object
+if nargin<2, vcMsg = ''; end
+
+vcDatestr = datestr(now, 'yyyy_mmdd_HHMMSS');
+S_err = struct('message', hErr.message(), 'error', vcMsg, ...
+    'P', get0_('P'), 'time', vcDatestr, 'MException', hErr);
+        
+vcVar_err = sprintf('err_%s', vcDatestr);
+eval(sprintf('%s = S_err;', vcVar_err));
+
+% save to a file
+vcFile_err = fullfile(jrcpath_(), 'jrc_log_error.mat');
+if ~exist_file_(vcFile_err)
+    save(vcFile_err, vcVar_err, '-v7.3');
+else
+    try
+        save(vcFile_err, vcVar_err ,'-append', '-v7.3');
+    catch
+        save(vcFile_err, vcVar_err, '-v7.3'); % file might get too full, start over
+    end
+end
+fprintf('Error log updated: %s\n', vcFile_err);
 end %func
 
 
@@ -14881,12 +15110,18 @@ if nargin<3, fAsk = 1; end
 if nargin<4, vcFile_template = ''; end
 
 if fDebug_ui==1, fAsk = 0; end
+[vcFile_prm, vcPrompt] = deal([]);
+
+if ~exist_file_(vcFile_bin), fprintf(2, '%s does not exist\n', vcFile_bin); return; end
 
 set(0, 'UserData', []); %clear memory
 if matchFileExt_(vcFile_prb, '.prm') && isempty(vcFile_template)
     vcFile_template = vcFile_prb;
+    if ~exist_file_(vcFile_template), fprintf(2, '%s does not exist\n', vcFile_template); return; end
     S0 = file2struct_(vcFile_template);
     vcFile_prb = S0.probe_file;    
+else
+    if ~exist_file_(find_prb_(vcFile_prb)), fprintf(2, '%s does not exist\n', vcFile_prb); return; end
 end
 [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_template, fAsk);   
 if isempty(P)
@@ -15613,7 +15848,7 @@ switch lower(event.Key)
         
     case 'r' %reset view
         P = get0_('P');
-        axis(S_fig.hAx_traces, [S_fig.nlim_bin / P.sRateHz, S_fig.siteLim+[-1,1]]);
+        axis_(S_fig.hAx_traces, [S_fig.nlim_bin / P.sRateHz, S_fig.siteLim+[-1,1]]);
     
     case 'e' % export to workspace
         Fig_preview_export_(hFig);
@@ -16485,7 +16720,7 @@ end
 
 if nargout==0
     figure; plot(x,z,'.', x(icl),z(icl),'ro'); grid on; 
-    axis([-5 0 -20 100]);
+    axis_([-5 0 -20 100]);
     title(sprintf('%d clu', numel(icl)));
 end
 end %func
@@ -16940,8 +17175,8 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.1.7';
-vcDate = '12/1/2017';
+vcVer = 'v3.1.8';
+vcDate = '12/6/2017';
 vcVer_used = '';
 if nargout==0
     fprintf('%s (%s) installed\n', vcVer, vcDate);
@@ -17605,10 +17840,10 @@ end %func
 
 %--------------------------------------------------------------------------
 % 10/18/17 JJJ: Created
-function assert_(flag, vcMsg)
+function flag = assert_(flag, vcMsg)
 if ~flag
     errordlg(vcMsg);
-    disperr_(vcMsg); 
+    disperr_(vcMsg, ''); 
 end
 end
 
@@ -17696,7 +17931,163 @@ jrc3('setprm', P.vcFile_prm); % set the currently working prm file
 end %func
 
 
+%--------------------------------------------------------------------------
 function min_ = min_step_(vr)
 min_ = diff(sort(vr));
 min_ = min(min_(min_>0));
 end %func
+
+
+%--------------------------------------------------------------------------
+% 2017/12/5 JJJ: distance-based neighboring unit selection
+function mrWavCor = S_clu_wavcor_(S_clu, P, viClu_update)
+% version selector
+fUse_old = 1;
+
+spkLim_raw_factor = get_set_(P, 'spkLim_raw_factor', 2);
+spkLim_factor_merge = get_set_(P, 'spkLim_factor_merge', 1);
+if nargin<3, viClu_update = []; end
+
+if spkLim_factor_merge < spkLim_raw_factor && ~fUse_old
+    mrWavCor = S_clu_wavcor_2_(S_clu, P, viClu_update); % newer format v3.1.8
+else
+    mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update); % older format
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 2017/12/5 JJJ: distance-based neighboring unit selection
+function mrWavCor = S_clu_wavcor_2_(S_clu, P, viClu_update) % works for only the latest format
+% use extra padding for spkRaw to time-shift nShift
+
+P.fGpu = 0;
+
+if nargin<3, viClu_update = []; end
+if ~isfield(S_clu, 'mrWavCor'), viClu_update = []; end
+fprintf('Computing waveform correlation...'); t1 = tic;
+ctmrWav_clu = {S_clu.tmrWav_raw_clu, S_clu.tmrWav_raw_lo_clu, S_clu.tmrWav_raw_hi_clu};
+
+nClu = S_clu.nClu;
+mrWavCor = gpuArray_(zeros(nClu), P.fGpu);
+if isempty(viClu_update)
+    vlClu_update = true(nClu, 1);
+    mrWavCor0 = [];
+else
+    vlClu_update = false(nClu, 1);
+    vlClu_update(viClu_update) = 1;
+    mrWavCor0 = S_clu.mrWavCor;
+    nClu_pre = size(mrWavCor0, 1);
+    vlClu_update((1:nClu) > nClu_pre) = 1;
+end
+[cviShift1, cviShift2] = calc_shift_range_(P);
+cell_5args = {P, vlClu_update, mrWavCor0, cviShift1, cviShift2};
+try
+    parfor iClu2 = 1:nClu  %parfor speedup: 4x
+        vrWavCor2 = clu_wavcor_2_(ctmrWav_clu, S_clu.viSite_clu, iClu2, cell_5args);
+        if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
+    end
+catch
+    fprintf('S_clu_wavcor_: parfor failed. retrying for loop\n');
+    for iClu2 = 1:nClu  %parfor speedup: 4x
+        vrWavCor2 = clu_wavcor_2_(ctmrWav_clu, S_clu.viSite_clu, iClu2, cell_5args);
+        if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
+    end
+end
+
+mrWavCor = max(mrWavCor, mrWavCor'); %make it symmetric
+mrWavCor(mrWavCor==0) = nan;
+mrWavCor = gather_(mrWavCor);
+fprintf('\ttook %0.1fs\n', toc(t1));
+end %func
+
+
+%--------------------------------------------------------------------------
+% 10/27/17 JJJ: distance-based neighboring unit selection
+function vrWavCor2 = clu_wavcor_2_(ctmrWav_clu, viSite_clu, iClu2, cell_5args)
+[P, vlClu_update, mrWavCor0, cviShift1, cviShift2] = deal(cell_5args{:});
+nClu = numel(viSite_clu);
+iSite_clu2 = viSite_clu(iClu2);    
+if iSite_clu2==0 || isnan(iSite_clu2), vrWavCor2 = []; return; end
+viSite2 = P.miSites(:,iSite_clu2); 
+maxDist_site_um = get_set_(P, 'maxDist_site_merge_um', 35);
+viClu1 = find(ismember(viSite_clu, findNearSite_(P.mrSiteXY, iSite_clu2, maxDist_site_um)));
+
+vrWavCor2 = zeros(nClu, 1, 'single');
+viClu1(viClu1 >= iClu2) = []; % symmetric matrix comparison
+if isempty(viClu1), return; end
+cmrWav_clu2 = cellfun(@(x)x(:,viSite2,iClu2), ctmrWav_clu, 'UniformOutput', 0);
+ctmrWav_clu1 = cellfun(@(x)x(:,viSite2,viClu1), ctmrWav_clu, 'UniformOutput', 0);
+for iClu11 = 1:numel(viClu1)
+    iClu1 = viClu1(iClu11);
+    if ~vlClu_update(iClu1) && ~vlClu_update(iClu2)
+        vrWavCor2(iClu1) = mrWavCor0(iClu1, iClu2);
+    else            
+        iSite_clu1 = viSite_clu(iClu1);
+        if iSite_clu1==0 || isnan(iSite_clu1), continue; end                
+        if iSite_clu1 == iSite_clu2
+            cmrWav_clu2_ = cmrWav_clu2;
+            cmrWav_clu1_ = cellfun(@(x)x(:,:,iClu11), ctmrWav_clu1, 'UniformOutput', 0);
+        else
+            viSite1 = P.miSites(:,iSite_clu1);
+            viSite12 = find(ismember(viSite2, viSite1));
+            if isempty(viSite12), continue; end
+            cmrWav_clu2_ = cellfun(@(x)x(:,viSite12), cmrWav_clu2, 'UniformOutput', 0);
+            cmrWav_clu1_ = cellfun(@(x)x(:,viSite12,iClu11), ctmrWav_clu1, 'UniformOutput', 0);
+        end                
+        vrWavCor2(iClu1) = maxCor_drift_2_(cmrWav_clu2_, cmrWav_clu1_, cviShift1, cviShift2);
+    end        
+end %iClu2 loop
+end %func
+
+
+%--------------------------------------------------------------------------
+% 10/27/17 JJJ: distance-based neighboring unit selection
+function [cvi1, cvi2] = calc_shift_range_(P)
+
+% compute center range for the raw spike waveform
+spkLim_raw = get_(P, 'spkLim_raw');
+nSamples_raw = diff(spkLim_raw) + 1;
+spkLim_factor_merge = get_set_(P, 'spkLim_factor_merge', 1);
+spkLim_merge = round(P.spkLim * spkLim_factor_merge);
+viRange = (spkLim_merge(1) - spkLim_raw(1) + 1):(nSamples_raw - spkLim_raw(2) + spkLim_merge(2));
+
+% compute shift
+nShift = ceil(P.spkRefrac_ms / 1000 * P.sRateHz); % +/-n number of samples to compare time shift
+[cvi1, cvi2] = deal(cell(nShift*2+1, 1));
+viShift = -nShift:nShift;
+for iShift_ = 1:numel(viShift)
+    iShift = viShift(iShift_);
+    iShift1 = -round(iShift/2);
+    iShift2 = iShift + iShift1;
+    viRange1 = viRange + iShift1;
+    viRange2 = viRange + iShift2;
+    vl12 = (viRange1>=1 & viRange1<=nSamples_raw) & (viRange2>=1 & viRange2<=nSamples_raw);
+    cvi1{iShift_} = viRange1(vl12);
+    cvi2{iShift_} = viRange2(vl12);
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 10/23/17 JJJ: find max correlation pair (combining drift and temporal shift)
+function maxCor = maxCor_drift_2_(cmr1, cmr2, cviShift1, cviShift2)
+% assert(numel(cmr1) == numel(cmr2), 'maxCor_drift_: numel must be the same');
+nDrift = numel(cmr1);
+if nDrift == 1
+    maxCor = max(xcorr2_mr_(cmr1{1}, cmr2{1}, cviShift1, cviShift2));
+else
+    tr1 = cat(3, cmr1{:}); %nT x nC x nDrifts
+    tr2 = cat(3, cmr2{:});    
+    nShift = numel(cviShift1);
+    vrCor = zeros(1, nShift);
+    for iShift = 1:nShift 
+        mr1_ = reshape(meanSubt_(tr1(cviShift1{iShift},:,:)), [], nDrift);
+        mr2_ = reshape(meanSubt_(tr2(cviShift2{iShift},:,:)), [], nDrift);
+        
+        mr12_ = (mr1_' * mr2_) ./ sqrt(sum(mr1_.^2)' * sum(mr2_.^2));
+        vrCor(iShift) = max(mr12_(:));
+    end
+    maxCor = max(vrCor);
+end
+end
