@@ -63,7 +63,9 @@ enable_(handles, {'Spikesort', 'Detect', 'Sort', 'ClearPrm', 'EditPrm', ...
 
 % Choose default command line output for jrc3_gui
 handles.output = hObject;
-
+if ~isempty(varargin{1})    
+    handles.vcFile_prm = load_prm_(hObject, varargin{1});
+end
 % Update handles structure
 guidata(hObject, handles);
 
@@ -331,7 +333,7 @@ function btnSpikesort_Callback(hObject, eventdata, handles)
 S_gui = guidata(hObject);
 try
     jrc('spikesort', S_gui.vcFile_prm);
-    enable_(S_gui, {'Drift', 'Describe', 'Sort', 'Auto'}, 1);
+    enable_(S_gui, {'Drift', 'Describe', 'Sort', 'Auto', 'Manual'}, 1);
 catch
     disperr_();
 end
@@ -345,7 +347,7 @@ function btnSort_Callback(hObject, eventdata, handles)
 S_gui = guidata(hObject);
 try
     jrc('sort', S_gui.vcFile_prm);
-    enable_(S_gui, {'Drift', 'Describe', 'Auto'}, 1);
+    enable_(S_gui, {'Drift', 'Describe', 'Auto', 'Manual'}, 1);
 catch
     disperr_();
 end
@@ -430,7 +432,7 @@ function btnAuto_Callback(hObject, eventdata, handles)
 S_gui = guidata(hObject);
 try
     jrc('auto', S_gui.vcFile_prm);
-    enable_(S_gui, {'Drift', 'Describe'}, 1);
+    enable_(S_gui, {'Drift', 'Describe', 'Manual'}, 1);
 catch
     disperr_();
 end

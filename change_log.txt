@@ -2,6 +2,29 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/12/15: v3.1.10]
+New parameter: 'nSamples_gpu' which sets the number of samples to be loaded to GPU memory.
+  Current default is 250,000, and previous default was 1000,000 which could not be changed.
+  Reduce this number if you run out of GPU memory.  
+  This value is used if P.fft_thresh > 0 or P.vcCommonRef=='whitening'.
+New parameter: 'fSpatialMask_clu' is disabled by default (previously enabled)
+  Spatial mask applies spatially decaying weight as a function of distance from the center site
+  "maxDist_site_um" is used as the half-distance scale (1/2 weight is multiplied at that distance)
+  Spatial masking is disabled if you have less than "min_sites_mask" number of sites per spiking events.
+n-trode geometry is now supported (n>=1). You need to set each tetrode group as separate shanks by setting 
+  "shank" parameter in the .prb file for each site number. 
+  (e.g.) if site 1:4 belongs to tetrode 1 and site 5:8 belongs to tetrode 2, then set shank = [1 1 1 1 2 2 2 2];
+Bugfix: Spikes near the beginning of the recordings are now properly merged (spkMerge_single_() function).
+New options for common-mode rejection: 'vcCommonRef' now supports 'median' and 'whitening'.
+  Setting vcCommonRef = 'whitening' will perform spatial whitening between channels.
+Trace GUI: color of spikes remains consistent between time window switching.
+Manual GUI: Bugfix: Combination of selecting 'raw waveform' view in 'pca' unit works properly.
+New feature: "maketrial" command
+  This function generates trial timestamps to plot PSTH (either rising or falling edges) and generates .mat file
+    containing timestamps and sets 'vcFile_trial' field.
+  For IMEC probes, use "maketrial-imec" to extract event input on the digital input pins (1-16). 
+    Specify the digital input channel by setting "dinput_imec_trial".
+
 [2017/12/6: v3.1.9]
 Bugfix: v3.1.8 incorrectly points to v3.1.7 on Github. Please download this version instead.
 Bugfix: Opening previously sorted data (v3.1.1) to the latest vresion now works.

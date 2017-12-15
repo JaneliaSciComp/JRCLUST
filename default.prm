@@ -16,7 +16,7 @@ fInverse_file = 0;          % Set to 1 to flip the polarity of the signal
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.1.9';         % JRCLUST version. Updated on Dec 6, 2017
+version = 'v3.1.10';        % JRCLUST version. Updated on Dec 15, 2017
 fVerbose = 0;               % Verbose flag, set to 0 to suppress displaying extra information 
 fParfor = 1;                % Use Multiple CPU cores (if parallel processing toolbox is installed)
 fGpu = 1;                   % Use GPU if parallel processing toolbox is installed
@@ -24,6 +24,7 @@ iGpu = 1;                   % Use specific GPU ID (run 'gpuDevice()' to retrieve
 MAX_BYTES_LOAD = [];        % Default memory loading block size (bytes)
 MAX_LOAD_SEC = [];          % Maximum loading duration (seconds). This overrides "MAX_BYTES_LOAD".
 MAX_LOG = 10;               % Maximum number of histories to track for 'manual' GUI
+nSamples_gpu = 250000;      % Number of samples to process in GPU at a time. Reduce this number if GPU crashes for high-channel arrays
 vcFile_thresh = '';         % Name of .mat file taht stores the spike detection threshold in 'vnThresh_site' variable. Created by 'preview' GUI
 sec_per_load_preview = 1;   % Recording duration (sec) per continuous segment to preview
 nLoads_max_preview = 30;    % Number of time segments to load for preview
@@ -56,11 +57,11 @@ fEllip = 1;                 % Use Elliptic filter. set to 0 for Butterworth filt
 vnFilter_user = [];         % User-specified filter kernel. Used if vcFilter='user' is set.
 fft_thresh = 0;             % Automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
 freqLimNotch = {};          % Notch filter frequency range to exclude manually. {[start1, end1], [start2, end2]}. Can be used in conjunction with fft_thresh.
-vcCommonRef = 'mean';       % common reference mode {'none', 'mean'} %deprecated: 'nmean', 'median', 'none', 'holtzman', 'trimmean', 'tmean'}
+vcCommonRef = 'mean';     % common reference mode {'none', 'mean', 'median', 'whiten'}
 viSiteZero = [];            % Site# to ignore manually
 nPad_filt = 100;            % Number of samples to overlap between multiple loading (filter edge safe).
 gain_boost = 1;             % multiply the raw recording by this gain to boost uV per bit
-thresh_corr_bad_site = [];      % Automatically reject bad sites based on the max. correlation with neighboring sites using raw waveforms. Set to [] to disable
+thresh_corr_bad_site = [];  % Automatically reject bad sites based on the max. correlation with neighboring sites using raw waveforms. Set to [] to disable
 
 % #Spike detection and grouping (run "jrc spikesort" after change)
 qqFactor = 5;               % Spike detection thresold (Threshold = qqFactor*S, S = med(x-med(x))/.6745). (RQ Quiroga'04).
@@ -95,12 +96,14 @@ dc_percent = 2;             % used for distribution cutting
 fRepeat_clu = 0;            % Flag for whether to repeat clustering for the bottom half of the cluster amplitudes.
 nThreads = 128;             % number of GPU threads for clustering
 nC_max = 45;                % (read-only) Set by the CUDA code. Maximum number of dimensions per event
+fSpatialMask_clu = 0;       % Apply spatial mask calculated from the distances between sites to the peak site (half-scale: P.maxDist_site_um). circa v3.1.10
+min_sites_mask = 5;         % Minimum number of sites to have to apply spatial mask. Used if fSpatialMask_clu==1. circa v3.1.10
 
 % #Post-cluster auto-merging parameters (run "jrc auto" after change)
 delta1_cut = .6;            % RL cluster: delta cut-off. Increasing this will produce less clusters.
 rho_cut = -2.5;              % RL cluster: rho cut-off. Decreasing (more negative) this will produce more clusters.
 maxWavCor = .98;            % merge if waveform correlation is greater than maxWavCor.
-min_count = 10;             % Minimum cluster size (min_count will be set to 2*#features if lower).
+min_count = 30;             % Minimum cluster size (min_count will be set to 2*#features if lower).
 nRepeat_merge = 10;         % # of repeats for average unit raw waveform based merging
 vcDetrend_postclu = 'global'; % 'none', 'hidehiko', 'global', 'local', 'logz'
 thresh_mad_clu = 7.5;       % This sets the MAD score threshold to remove outlier spikes for each cluster.
@@ -112,19 +115,15 @@ spkLim_factor_merge = 1;    % Waveform range for computing the correlation. spkL
 
 % #Trial
 vcFile_trial = '';          % mat or csv file containing timestamp in seconds unit. use any variable name.
-tRefrac_trial = .001;       % trial time stamp refractory period in sec
 thresh_trial = [];          % if empty use half between min max
-tlim_psth = [-1 5];
-tbin_psth = .01;
-xtick_psth = .2;            % time unit in sec
-fAverageTrial_psth = 1;     % plot individual trials
-nSmooth_ms_psth = 50;
+tRefrac_trial = .001;       % Trial timestamp refractory period (sec), disable duplicate events
+tlim_psth = [-1 5];         % Time range to display PSTH
+tbin_psth = .01;            % Time bin for the PSTH histogram
+xtick_psth = .2;            % PSTH time tick mark spacing
+fAverageTrial_psth = 1;     % Plot PSTH for averaged trial if set to 1, otherwise plot individual trials (opens multiple tabs)
+nSmooth_ms_psth = 50;       % PSTH smoothing time window
 rateLim_psth = [];          % range range in Hz
-vcFile_vid = '';            % video file
-iChan_vid = [];             % video sync channel, zero-based
-flim_vid = [];              % used for video sync, video frame #
-tlim_vid = [];              % used for video sync, ephys time
-vcFile_bonsai = '';         % bonsai 5-column output (x,y are 2 and 3)
+dinput_imec_trial = 1;      % IMEC digital input channel number (1-16) to generate trial file (vcFile_trial) using 'maketrial-imec' command.
 
 % #Firing rate estimation for unit
 sRateHz_rate = 1000;                % Resampling rate for the firing rate
@@ -261,3 +260,10 @@ fProcessReverseOrder = 0;
 fProcessOdd = 0;
 fProcessEven = 0;
 fRun = 1;                   % Run the job for batch
+
+% Trial
+vcFile_vid = '';            % video file
+iChan_vid = [];             % video sync channel, zero-based
+flim_vid = [];              % used for video sync, video frame #
+tlim_vid = [];              % used for video sync, ephys time
+vcFile_bonsai = '';         % bonsai 5-column output (x,y are 2 and 3)
