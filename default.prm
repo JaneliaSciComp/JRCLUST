@@ -16,7 +16,7 @@ fInverse_file = 0;          % Set to 1 to flip the polarity of the signal
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.1.10';        % JRCLUST version. Updated on Dec 15, 2017
+version = 'v3.2.0';        % JRCLUST version. Updated on Dec 21, 2017
 fVerbose = 0;               % Verbose flag, set to 0 to suppress displaying extra information 
 fParfor = 1;                % Use Multiple CPU cores (if parallel processing toolbox is installed)
 fGpu = 1;                   % Use GPU if parallel processing toolbox is installed
@@ -57,7 +57,7 @@ fEllip = 1;                 % Use Elliptic filter. set to 0 for Butterworth filt
 vnFilter_user = [];         % User-specified filter kernel. Used if vcFilter='user' is set.
 fft_thresh = 0;             % Automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
 freqLimNotch = {};          % Notch filter frequency range to exclude manually. {[start1, end1], [start2, end2]}. Can be used in conjunction with fft_thresh.
-vcCommonRef = 'mean';     % common reference mode {'none', 'mean', 'median', 'whiten'}
+vcCommonRef = 'mean';       % common reference mode {'none', 'mean', 'median', 'whiten'}
 viSiteZero = [];            % Site# to ignore manually
 nPad_filt = 100;            % Number of samples to overlap between multiple loading (filter edge safe).
 gain_boost = 1;             % multiply the raw recording by this gain to boost uV per bit
@@ -71,7 +71,7 @@ spkThresh_max_uV = [];      % maximum absolute amp. allowed
 spkLim_ms = [-.25, .75];    % Time range to capture the filtered spike waveforms; spkLim = round(P.spkLim_ms/1000*P.sRateHz)
 spkLim_raw_ms = [];         % Raw spike waveform range, setting to [] will use spkLim_raw_factor to determine spkLim_raw (# samples)
 spkLim_raw_factor = 2;      % if spkLim_raw_ms==[] then spkLim_raw = spkLim * spkLim_raw_factor
-maxSite = [];               % Max number of sites (nSpikes_spk = 1+2*maxSite-nSite_ref), nSpikes_spk*nFet_spk<=30
+maxSite = [];               % Auto-calculated by `maxDist_site_spk_um` if empty. `nSites_spk` = 1+2*`maxSite`-`nSite_ref`)
 spkRefrac_ms = .25;         % Detection refractory period in milliseconds
 vcSpatialFilter = 'none';   % Spatial filter for detection {'mean', 'imec2', 'subtract', 'csd'}
 fSaveEvt = 1;               % Flag to save event file
@@ -101,7 +101,7 @@ min_sites_mask = 5;         % Minimum number of sites to have to apply spatial m
 
 % #Post-cluster auto-merging parameters (run "jrc auto" after change)
 delta1_cut = .6;            % RL cluster: delta cut-off. Increasing this will produce less clusters.
-rho_cut = -2.5;              % RL cluster: rho cut-off. Decreasing (more negative) this will produce more clusters.
+rho_cut = -2.5;             % RL cluster: rho cut-off. Decreasing (more negative) this will produce more clusters.
 maxWavCor = .98;            % merge if waveform correlation is greater than maxWavCor.
 min_count = 30;             % Minimum cluster size (min_count will be set to 2*#features if lower).
 nRepeat_merge = 10;         % # of repeats for average unit raw waveform based merging
@@ -113,30 +113,36 @@ nInterp_merge = 1;          % Interpolation factor for the mean unit waveforms, 
 maxDist_site_merge_um = 35; % Max. distance separation of the peak sites to consider merging
 spkLim_factor_merge = 1;    % Waveform range for computing the correlation. spkLim_factor_merge <= spkLim_raw_factor_merge. circa v3.1.8
 
-% #Trial
-vcFile_trial = '';          % mat or csv file containing timestamp in seconds unit. use any variable name.
-thresh_trial = [];          % if empty use half between min max
+% #Trial (used for plotting PSTH for each unit after clustering)
+vcFile_trial = '';          % .mat or .csv file containing timestamp in seconds unit. use any variable name.
+thresh_trial = [];          % Threshold to detect trial event timing from the TTL pulse. If empty, half between min and max is used.
 tRefrac_trial = .001;       % Trial timestamp refractory period (sec), disable duplicate events
-tlim_psth = [-1 5];         % Time range to display PSTH
-tbin_psth = .01;            % Time bin for the PSTH histogram
+tlim_psth = [-1 5];         % Time range to display PSTH (in seconds)
+tbin_psth = .01;            % Time bin for the PSTH histogram (in seconds)
 xtick_psth = .2;            % PSTH time tick mark spacing
 fAverageTrial_psth = 1;     % Plot PSTH for averaged trial if set to 1, otherwise plot individual trials (opens multiple tabs)
-nSmooth_ms_psth = 50;       % PSTH smoothing time window
+nSmooth_ms_psth = 50;       % PSTH smoothing time window (in milliseconds)
 rateLim_psth = [];          % range range in Hz
 dinput_imec_trial = 1;      % IMEC digital input channel number (1-16) to generate trial file (vcFile_trial) using 'maketrial-imec' command.
 
 % #Firing rate estimation for unit
-sRateHz_rate = 1000;                % Resampling rate for the firing rate
+sRateHz_rate = 1000;                % Resampled rate for the firing rate
 filter_sec_rate = 2;                % Time period to determine the firing rate
 filter_shape_rate = 'triangle';     % {'triangle', 'rectangle'} kernel shape for temporal averaging
 
-% #Aux channel
+% #Aux channel (used for correlating with the unit firing rates)
 vcFile_aux = '';            % Aux channel file
 sRateHz_aux = [];           % sampling rate for aux file
-iChan_aux = [];              % Aux channel # to correlate with the unit firing rate    
+iChan_aux = [];             % Aux channel # to correlate with the unit firing rate    
 vcLabel_aux = '';           % Label for the aux channel
 vrScale_aux = 1;            % Scale factor for the aux input
 nClu_show_aux = 10;         % Max # clusters to show for aux vs. firing rate correlation
+
+% #LFP
+vcFile_lfp = '';            % LFP file
+sRateHz_lfp = 2500;         % Target LFP sampling rate (Hz)
+nSkip_lfp = [];             % downsample factor used to determine sRateHz_lfp if sRateHz_lfp==[]
+
 
 
 %--------------------------------------------------------------------------
@@ -208,7 +214,6 @@ fWav_raw_show = 0;          % Show raw waveform (0 to show filtered); [D]
 nSites_excl_ref = 6;        % excl three nearest sites when perfomaing 'nmean' local referencing [D]
 thresh_sd_ref = 5;          % local common referencing threshold (SD) [D]
 fSaveSpk = 1;               % flag to save .spk file (large binary) [D]
-nSkip_lfp = 10;             % LFP subsample ratio to AP band [D]
 freqLim_lfp = [];           % LFP filter range in Hz. [#] for lowpass and [#,#] for bandpass [D?]
 freqLimNotch_lfp = [];      % Notch filter for LFP band [D?]
 fWhiten_traces = 0;         % Apply whitening of the traces after filtering. (kilosort and spykingcircus use this). [D?]

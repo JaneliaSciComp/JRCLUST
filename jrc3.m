@@ -90,7 +90,7 @@ switch lower(vcCmd)
     case {'batch-verify', 'batch-validate'}, batch_verify_(vcArg1, vcArg2); 
     case {'batch-plot', 'batch-activity'}, batch_plot_(vcArg1, vcArg2); 
     case 'describe', describe_(vcFile_prm); 
-    case 'import-silico', import_silico_(vcFile_prm, 0); 
+    case 'import-silico', import_silico_(vcFile_prm, 0);     
     case 'import-silico-sort', import_silico_(vcFile_prm, 1); 
     case {'import-kilosort', 'import-ksort'}, import_ksort_(vcFile_prm, 0); 
     case {'import-kilosort-sort', 'import-ksort-sort'}, import_ksort_(vcFile_prm, 1);  
@@ -120,12 +120,15 @@ switch lower(vcCmd)
     case 'preview', preview_(P); 
     case 'preview-test', preview_(P, 1); gui_test_(P, 'Fig_preview');
     case 'traces', traces_(P, 0, vcArg2);
+    case 'traces-lfp', traces_lfp_(P)
     case 'dir', dir_files_(P.csFile_merge);
     case 'traces-test'
         traces_(P, 1); traces_test_(P);           
     case {'full', 'all'}
+        fprintf('Performing "jrc detect", "jrc sort", "jrc manual" operations.\n');
         detect_(P); sort_(P, 0); describe_(P.vcFile_prm); manual_(P); return;      
     case {'spikesort', 'detectsort', 'detect-sort', 'spikesort-verify', 'spikesort-validate', 'spikesort-manual', 'detectsort-manual'}
+        fprintf('Performing "jrc detect", "jrc sort" operations.\n');
         detect_(P); sort_(P, 0); describe_(P.vcFile_prm);
     case {'detect', 'spikedetect'}
         detect_(P); describe_(P.vcFile_prm);
@@ -148,11 +151,11 @@ switch lower(vcCmd)
         mnWav = load_file_(P.vcFile, [], P);
         assignWorkspace_(mnWav);
     case 'export-spk'
-        S0 = get0_();
+        S0 = get(0, 'UserData');
         trSpkWav = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
         assignWorkspace_(trSpkWav);        
     case 'export-raw'
-        S0 = get0_();
+        S0 = get(0, 'UserData');
         trWav_raw = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_spk);
         assignWorkspace_(trWav_raw);  
     case {'export-spkwav', 'spkwav'}, export_spkwav_(P, vcArg2); % export spike waveforms
@@ -163,6 +166,7 @@ switch lower(vcCmd)
     case {'activity', 'plot-activity'}, plot_activity_(P);    
     case {'export-fet', 'export-features', 'export-feature'}, export_fet_(P);
     case 'export-diff', export_diff_(P); %spatial differentiation for two column probe
+    case 'import-lfp', import_lfp_(P); 
     case 'drift', plot_drift_(P);  
     case 'plot-rd', plot_rd_(P);
     otherwise, fError = 1;
@@ -534,7 +538,8 @@ function keyPressFcn_Fig_traces_(hFig, event)
 % 2017/6/22 James Jun: Added nTime_traces multiview
 
 global mnWav1 mrWav1 mnWav
-[S0, P] = get0_();
+S0 = get(0, 'UserData'); 
+P = S0.P;
 S_fig = get(hFig, 'UserData');
 factor = 1 + 3 * key_modifier_(event, 'shift');
 nSites = numel(P.viSite2Chan);
@@ -855,7 +860,7 @@ if nargin<2, fLoad = 1; end
 if fLoad
     [S0, P] = load_cached_(P); 
 else
-    S0 = get0_();
+    S0 = get(0, 'UserData');
 end
 
 % Sort and save
@@ -894,6 +899,9 @@ fprintf('overlapping spike detection took %0.1fs\n', toc(t1));
 % Cancel overlap    
 % subtract other spike waveforms and features
 trFet_spk = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0, S_clu, P);
+% write to trFet_spk
+% strategy 1. find nearest features and copy cluster identity
+% strategy 2. recluster the whole thing after cancellation
 
 %-----
 % recluster
@@ -903,8 +911,83 @@ end %func
 
 %--------------------------------------------------------------------------
 % 2017/12/15 JJJ: correct overlapping spikes
+% Question: how to best fit? using global spike pca (pick) or cluster-private pca
 function trFet_spk = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0, S_clu, P)
-;
+global tnWav_spk trFet_spk tnWav_raw
+
+viSites_ref = ceil(size(tnWav_spk,2)/2):size(tnWav_spk,2);
+nPc_fit = min(get_set_(P, 'nPc_fit_overlap', 5), size(S0.mrPv_global,2));
+mrPv = S0.mrPv_global(:,1:nPc_fit) / sqrt(size(S0.mrPv_global,1));
+% fit and cancel overlap using delay and mean clu waveform
+for iClu = 1:S_clu.nClu
+    [viSpk_o_1, viSpk_o_12, viDelay1] = deal(cviSpk_o_1{iClu}, cviSpk_o_12{iClu}, cviDelay1{iClu});
+    if isempty(viSpk_o_1), continue; end
+    [mrWav_clu1, iSite1] = deal(S_clu.trWav_spk_clu(:,:,iClu), S_clu.viSite_clu(iClu));    
+    [viSite_clu1, viSite1, viSite12] = deal(P.miSites(:, iSite1), S0.viSite_spk(viSpk_o_1), S0.viSite_spk(viSpk_o_12));
+    trWav1 = trWav_car_(tnWav_spk(:,:,viSpk_o_1), P);
+    trWav12 = trWav_car_(tnWav_spk(:,:,viSpk_o_12), P);
+%     [tnWav1, tnWav12] = deal(tnWav_spk(:,:,viSpk_o_1), tnWav_spk(:,:,viSpk_o_12));    
+%     mrWav_clu1_car = bsxfun(@minus, mrWav_clu1, mean(mrWav_clu1(:,viSites_ref),2));
+%     mrWav_clu1_shift = vr_shift_(mrWav_clu1_car(:,1), -1:.5:1);
+    % fft and use power to fit waveforms using the primary sites only. preserve phase and change power
+    
+    % calculate private pc. using non-colliding spikes (?). generate basis for the cluster
+%     viSpk_clu1 = S_clu.cviSpk_clu{iClu};
+%     viSpk_clu1 = subsample_vr_(viSpk_clu1(S0.viSite_spk(viSpk_clu1) == iSite1), 5e3);
+%     mr_ = reshape(meanSubt_(tnWav_spk(:,:,viSpk_clu1)), [], numel(viSpk_clu1));
+%     [~,mrPv_clu1] = pca(mr_, 'NumComponents', 3); %subsample if must
+    
+    % fit 
+    mrPv = mrPv_clu1;
+    
+%     trWav1 = single(tnWav1);
+    iSite_fit = 1:14;
+    vrData = toVec(meanSubt_(trWav1(:,iSite_fit,1)));
+    a = mrPv' * vrData;  % coefficient  
+    mrWav1_fit = mrPv * a;    
+    mrWav_err1 = trWav1(:,iSite_fit,1) - mrWav1_fit;
+    myfig; plot(meanSubt_(trWav1(:,iSite_fit,1)), 'k'); plot(mrWav_err1, 'r');
+    myfig; plot(mrWav1_fit, 'g'); plot(mrWav_err1, 'r');
+%     tnWav_raw1 = tnWav_raw(:,:,viSpk_o_1);
+%     tnWav_raw12 = tnWav_raw(:,:,viSpk_o_12);
+    % fit using center channel only
+%     trWav_car1 = trWav_car_(trWav1, P);
+%     trWav_car12 = trWav_car_(trWav12, P);
+    
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+function mr = vr_shift_(vr, viShift);
+% viShift = [0, -1,-.5,.5,1]; %[0, -.5, .5]
+% viShift = [0, -1:.25:-.25,.25:.25:1]; 
+nShifts = numel(viShift);
+vr = vr(:);
+vi0 = (1:numel(vr))';
+mr = zeros(numel(vr), nShifts, 'like', vr);
+for iShift = 1:nShifts
+    dn = viShift(iShift);
+    if dn~=0
+        mr(:,iShift) = interp1(vi0, vr, vi0+dn, 'pchip', 'extrap');
+    else
+        mr(:,iShift) = vr; 
+    end    
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+% CAR subtraction using outer half of sites
+function tr = trWav_car_(tr, P)
+vcSpkRef = get_set_(P, 'vcSpkRef', 'nmean');
+if ~strcmpi(P.vcSpkRef, 'nmean'), return; end
+tr = single(permute(tr, [1,3,2]));
+dimm_tr = size(tr);
+viSite_ref = ceil(size(tr,3)/2):size(tr,3);
+mrWav_ref = mean(tr(:,:,viSite_ref), 3);
+tr = meanSubt_(reshape(bsxfun(@minus, reshape(tr,[],dimm_tr(3)), mrWav_ref(:)), dimm_tr));
+tr = permute(tr, [1,3,2]);
 end %func
 
 
@@ -1188,7 +1271,7 @@ dimm2 = size(trWav2);
 if ismatrix(trWav2), dimm2(end+1) = 1; end
 if ~isempty(mrWav_ref)
     trWav2 = meanSubt_(reshape(bsxfun(@minus, reshape(trWav2,[],dimm2(3)), mrWav_ref(:)), dimm2));
-%     trWav2 = (reshape(bsxfun(@minus, reshape(trWav2,[],dimm2(3)), mrWav_ref(:)), dimm2));
+%     trWav2 = reshape(bsxfun(@minus, reshape(trWav2,[],dimm2(3)), mrWav_ref(:)), dimm2); % no meanSubt_
 else
     trWav2 = meanSubt_(trWav2);
 end
@@ -1336,6 +1419,10 @@ function [mnWav1, vrWav_mean1, dimm_wav] = load_file_(fid_bin, nSamples_load1, P
 if ischar(fid_bin)
     vcFile = fid_bin;
     [fid_bin, nBytes_file1] = fopen_(vcFile, 'r');
+    if ~isempty(get_(P, 'header_offset'))
+        nBytes_file1 = nBytes_file1 - P.header_offset;
+        fseek(fid_bin, P.header_offset, 'bof');
+    end
     nSamples_load1 = floor(nBytes_file1 / P.nChans / bytesPerSample_(P.vcDataType));    
 else
     vcFile = [];
@@ -1473,7 +1560,13 @@ end
 if ~isempty(get_(P, 'viSiteZero')), P.viSiteZero(P.viSiteZero > numel(P.viSite2Chan)) = []; end
 if ~isfield(P, 'viShank_site'), P.viShank_site = []; end
 try P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site); catch; end %find closest sites
-P.sRateHz_lfp = P.sRateHz / P.nSkip_lfp;        %LFP sampling rate
+% LFP sampling rate
+if ~isempty(get_(P, 'nSkip_lfp'))
+    P.sRateHz_lfp = P.sRateHz / P.nSkip_lfp;
+else
+    P.sRateHz_lfp = get_set_(P, 'sRateHz_lfp', 2500);
+    P.nSkip_lfp = round(P.sRateHz / P.sRateHz_lfp);
+end
 P.bytesPerSample = bytesPerSample_(P.vcDataType);
 P = struct_default_(P, 'vcFile_prm', subsFileExt_(P.vcFile, '.prm'));
 if ~isempty(get_(P, 'gain_boost')), P.uV_per_bit = P.uV_per_bit / P.gain_boost; end
@@ -1660,6 +1753,7 @@ end %func
 function [viTime_spk2, vnAmp_spk2, viSite_spk2] = spikeMerge_single_(viTime_spk, vnAmp_spk, viSite_spk, iSite1, P)
 
 maxDist_site_um = get_set_(P, 'maxDist_site_um', 50);
+% maxDist_site_um = get_set_(P, 'maxDist_site_merge_um', 35);
 % nPad_pre = get_set_(P, 'nPad_pre', 0);
 nlimit = int32(abs(P.spkRefrac));
 % spkLim = [-nlimit, nlimit];
@@ -1781,8 +1875,8 @@ end %func
 function flag = is_sorted_(P)
 % return true if already detected. .spkwav file must exist
 S0 = load0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
-flag = ~isempty(get0_('S_clu'));
-% flag = exist(strrep(P.vcFile_prm, '.prm', '_clu.mat'), 'file');
+S_clu = get_(S0, 'S_clu');
+flag = ~isempty(S_clu);
 end %func
 
 
@@ -1946,15 +2040,26 @@ end %func
 function dimm_mr = write_bin_(vcFile, mr)
 t1=tic;
 dimm_mr = size(mr);
+fVerbose = 1;
 if isempty(mr), return; end
 if isstruct(mr)
-    save(vcFile, '-struct', 'mr', '-v7.3');
+    save(vcFile, '-struct', 'mr', '-v7.3'); % save to matlab file
 else
-    fidw = fopen(vcFile, 'W');
-    fwrite(fidw, mr, class(mr));
-    fclose(fidw);
+    if ischar(vcFile)
+        fid_w = fopen(vcFile, 'W'); 
+    else
+        fid_w = vcFile;
+    end
+    fwrite(fid_w, mr, class(mr));
+    if ischar(vcFile)
+        fclose(fid_w); 
+    else
+        fVerbose = 0;
+    end
 end
-fprintf('Writing to %s took %0.1fs\n', vcFile, toc(t1));
+if fVerbose
+    fprintf('Writing to %s took %0.1fs\n', vcFile, toc(t1));
+end
 end %func
 
 
@@ -1974,39 +2079,44 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function mnWav = load_bin_(vcFile, vcDataType, dimm)
+function mnWav = load_bin_(vcFile, vcDataType, dimm, header)
 % mnWav = load_bin_(vcFile, dimm, vcDataType)
 % mnWav = load_bin_(fid, dimm, vcDataType)
+% header: header bytes
 
 if nargin<2, vcDataType = []; end
 if nargin<3, dimm = []; end
+if nargin<4, header = 0; end
 if isempty(vcDataType), vcDataType = 'int16'; end
+mnWav = [];
+
 if ischar(vcFile)
     fid = []; 
-    if ~exist(vcFile, 'file')
+    if ~exist_file_(vcFile)
         fprintf(2, 'File does not exist: %s\n', vcFile);
-        mnWav=[]; 
         return; 
     end
-    if isempty(dimm)
+    fid = fopen(vcFile, 'r');
+    if header>0, fseek(fid, header, 'bof'); end
+    if isempty(dimm) % read all
         S_file = dir(vcFile);
-        nData = S_file(1).bytes / bytesPerSample_(vcDataType);
+        if numel(S_file)~=1, return; end % there must be one file
+        nData = floor((S_file(1).bytes - header) / bytesPerSample_(vcDataType));
         dimm = [nData, 1]; %return column
     end
 else % fid directly passed
     fid = vcFile;
-    vcFile = [];
     if isempty(dimm), dimm = inf; end
 end
 try
     t1 = tic;
-    if isempty(fid), fid = fopen(vcFile, 'r'); end
     mnWav = fread_(fid, dimm, vcDataType);
-    if ~isempty(vcFile), fclose(fid); end %close fid if file name passed
-    if ~isempty(vcFile), fprintf('Loading %s took %0.1fs\n', vcFile, toc(t1)); end
+    if ischar(vcFile)
+        fclose(fid);
+        fprintf('Loading %s took %0.1fs\n', vcFile, toc(t1)); 
+    end
 catch
     disperr_();
-    mnWav = [];
 end
 end %func
 
@@ -2455,7 +2565,7 @@ S_clu = S0.S_clu;
 % Load ground truth file
 if ~exist(P.vcFile_gt, 'file'), P.vcFile_gt = subsFileExt_(P.vcFile, '_gt.mat'); end
 if ~strcmpi(vcFile_prm_, P.vcFile_prm), vcFile_prm_=[]; end
-if isempty(vcFile_prm_) % cache ground truth result
+if isempty(vcFile_prm_) || isempty(S_gt) % cache ground truth result
     vcFile_prm_ = P.vcFile_prm;
     vcFile_gt1 = strrep(P.vcFile_prm, '.prm', '_gt1.mat');
     if exist_file_(vcFile_gt1)
@@ -2753,7 +2863,7 @@ fClean_clu = 1;
 if fPostCluster, S_clu = postCluster_(S_clu, P); end
 
 % Add S_clu fields
-% S0 = get0_();
+% S0 = get(0, 'UserData');
 S_clu = rmfield_(S_clu, 'tmrWav_clu', 'vrPosX_clu', 'vrPosY_clu', 'vrVpp_clu', ...
     'vrVpp_uv_clu', 'vrVmin_uv_clu', 'vrSnr_clu', 'vnSite_clu', ...
     'vrIsoDist_clu', 'vrLRatio_clu', 'vrIsiRatio_clu');
@@ -2769,7 +2879,7 @@ S_clu = S_clu_update_wav_(S_clu, P);
                 
 % set diagonal element
 [S_clu, S0] = S_clu_commit_(S_clu, 'post_merge_');
-S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, S_clu_self_corr_(S_clu));
+S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, S_clu_self_corr_(S_clu, [], S0));
 S_clu.P = P;
 S_clu = S_clu_position_(S_clu);
 S_clu.csNote_clu = cell(S_clu.nClu, 1);  %reset note
@@ -2780,7 +2890,7 @@ end %func
 
 %--------------------------------------------------------------------------
 function S_clu = post_merge_wav_(S_clu, nRepeat_merge, P)
-% S0 = get0_();
+% S0 = get(0, 'UserData');
 
 % create covariance matrix (mrDist_wav)
 S_clu = S_clu_wav_(S_clu);
@@ -2796,7 +2906,7 @@ end %func
 %--------------------------------------------------------------------------
 function S_clu = S_clu_update_wav_(S_clu, P)
 if nargin<2, P = get0_('P'); end
-% if nargin<2, S0 = get0_(); end
+% if nargin<2, S0 = get(0, 'UserData'); end
 
 S_clu = S_clu_wav_(S_clu);
 S_clu.mrWavCor = S_clu_wavcor_(S_clu, P);  
@@ -3202,6 +3312,7 @@ try
     if isempty(dimm_wav)
         mnWav1 = fread(fid_bin, inf, ['*', vcDataType]);
     else
+        if numel(dimm_wav)==1, dimm_wav = [dimm_wav, 1]; end
         mnWav1 = fread(fid_bin, prod(dimm_wav), ['*', vcDataType]);
         if numel(mnWav1) == prod(dimm_wav)
             mnWav1 = reshape(mnWav1, dimm_wav);
@@ -3395,11 +3506,11 @@ switch lower(vcMode)
 end
 
 % Create figures
-hMsg = msgbox_('Plotting...'); t1=tic;
+hMsg = msgbox_('Plotting... (this closes automatically)'); t1=tic;
 set(0, 'UserData', S0);
 S0 = figures_manual_(P); %create figures for manual interface
 clear mouse_figure;
-clear get_fig_cache_; %clear persistent figure handles
+clear get_fig_cache_ get_tag_ %clear persistent figure handles
 
 % Set fields
 S0 = struct_merge_(S0, ...
@@ -3422,8 +3533,7 @@ S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'z'}, S0); %zoom
 %S0.cS_log = load_(strrep(P.vcFile_prm, '.prm', '_log.mat'), 'cS_log', 0); 
 S_log = load_(strrep(P.vcFile_prm, '.prm', '_log.mat'), [], 0);
 if ~isempty(S_log), S0.cS_log = {S_log}; end
-S0 = save_log_('start', S0); %crash proof log
-set(0, 'UserData', S0);
+save_log_('start', S0); %crash proof log
 
 % Finish up
 close_(hMsg);
@@ -3434,19 +3544,19 @@ end %func
 %--------------------------------------------------------------------------
 function S0 = figures_manual_(P)
 % 'iFig', [], 'name', '', 'pos', [], 'fToolbar', 0, 'fMenubar', 0);
-create_figure_('FigPos', [0 0 .15 .5], ['Unit position; ', P.vcFile], 1, 1);
-create_figure_('FigMap', [0 .5 .15 .5], ['Probe map; ', P.vcFile], 1, 1);  
+create_figure_('FigPos', [0 0 .15 .5], ['Unit position; ', P.vcFile_prm], 1, 0);
+create_figure_('FigMap', [0 .5 .15 .5], ['Probe map; ', P.vcFile_prm], 1, 0);  
 
-create_figure_('FigWav', [.15 .2 .35 .8],['Averaged waveform: ', P.vcFile], 0, 1);
+create_figure_('FigWav', [.15 .2 .35 .8],['Averaged waveform: ', P.vcFile_prm], 0, 1);
 create_figure_('FigTime', [.15 0 .7 .2], ['Time vs. Amplitude; (Sft)[Up/Down] channel; [h]elp; [a]uto scale; ', P.vcFile]);
 
-create_figure_('FigProj', [.5 .2 .35 .5], ['Feature projection: ', P.vcFile]);
-create_figure_('FigWavCor', [.5 .7 .35 .3], ['Waveform correlation (click): ', P.vcFile]);
+create_figure_('FigProj', [.5 .2 .35 .5], ['Feature projection: ', P.vcFile_prm]);
+create_figure_('FigWavCor', [.5 .7 .35 .3], ['Waveform correlation (click): ', P.vcFile_prm]);
 
-create_figure_('FigHist', [.85 .75 .15 .25], ['ISI Histogram: ', P.vcFile]);
-create_figure_('FigIsi', [.85 .5 .15 .25], ['Return map: ', P.vcFile]);
-create_figure_('FigCorr', [.85 .25 .15 .25], ['Time correlation: ', P.vcFile]);
-create_figure_('FigRD', [.85 0 .15 .25], ['Cluster rho-delta: ', P.vcFile]);
+create_figure_('FigHist', [.85 .75 .15 .25], ['ISI Histogram: ', P.vcFile_prm]);
+create_figure_('FigIsi', [.85 .5 .15 .25], ['Return map: ', P.vcFile_prm]);
+create_figure_('FigCorr', [.85 .25 .15 .25], ['Time correlation: ', P.vcFile_prm]);
+create_figure_('FigRD', [.85 0 .15 .25], ['Cluster rho-delta: ', P.vcFile_prm]);
 
 csFig = {'FigPos', 'FigMap', 'FigTime', 'FigWav', 'FigWavCor', 'FigProj', 'FigRD', 'FigCorr', 'FigIsi', 'FigHist'};
 cvrFigPos0 = cellfun(@(vc)get(get_fig_(vc), 'OuterPosition'), csFig, 'UniformOutput', 0);
@@ -3558,8 +3668,10 @@ csCmd = {...
     'jrc3 compile', ...
     'jrc3 probe sample.prb', ...
     'jrc3 makeprm sample_list.txt sample.prb', ...
-    'jrc3 makeprm sample.bin sample.prb', ...    
+    'jrc3 makeprm sample.bin sample.prb', ...        
     'jrc3 probe sample_sample.prm', ...    
+    'jrc3 import-lfp sample_sample.prm', ...    
+    'jrc3 traces-lfp sample_sample.prm', ...    
     'jrc3 traces sample_sample.prm', 'jrc3 traces', ...
     'jrc3 traces-test sample_sample.prm', ...    
     'jrc3 preview-test sample_sample.prm', ...    
@@ -3720,7 +3832,7 @@ end %func
 
 %--------------------------------------------------------------------------
 function S0 = plot_FigWav_(S0)
-if nargin<1, S0 = get0_(); end
+if nargin<1, S0 = get(0, 'UserData'); end
 P = S0.P; S_clu = S0.S_clu;
 
 [hFig, S_fig] = get_fig_cache_('FigWav'); 
@@ -3744,12 +3856,12 @@ if isempty(S_fig)
     axis_([0, S_clu.nClu + 1, 0, nSites + 1]);
     add_menu_(hFig, P);      
     mouse_figure(hFig, S_fig.hAx, @button_CluWav_);
-    S_fig = plot_spkwav_(S_fig, P); %plot spikes
+    S_fig = plot_spkwav_(S_fig, S0); %plot spikes
     S_fig = plot_tnWav_clu_(S_fig, P); %do this after plotSpk_
     S_fig.cvhHide_mouse = mouse_hide_(hFig, S_fig.hSpkAll, S_fig);
 else
 %     mh_info = [];
-    S_fig = plot_spkwav_(S_fig, P); %plot spikes
+    S_fig = plot_spkwav_(S_fig, S0); %plot spikes
     try delete(S_fig.vhPlot); catch; end %delete old text
     S_fig = rmfield_(S_fig, 'vhPlot');
     S_fig = plot_tnWav_clu_(S_fig, P); %do this after plotSpk_
@@ -3757,7 +3869,7 @@ end
 
 % create text
 % S0 = set0_(mh_info);
-S_fig = figWav_clu_count_(S_fig);
+S_fig = figWav_clu_count_(S_fig, S_clu);
 S_fig.csHelp = { ...            
     '[Left-click] Cluter select/unselect (point at blank)', ...
     '[Right-click] Second cluster select (point at blank)', ...
@@ -3775,7 +3887,6 @@ S_fig.csHelp = { ...
     '[M] merge cluster', ...
     '[D] delete cluster', ...
     '[A] Resample spikes', ...
-    '[N] Spike count (toggle)', ...
     '[Z] zoom selected cluster', ...
     '[R] reset view', ...
     '------------------', ...
@@ -3830,7 +3941,7 @@ uimenu(mh_view,'Label', 'Show traces', 'Callback', @(h,e)traces_());
 uimenu(mh_view,'Label', 'View all [R]', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'r'));
 uimenu(mh_view,'Label', '[Z]oom selected', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'z'));
 uimenu(mh_view,'Label', '[W]aveform (toggle)', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'w'));
-uimenu(mh_view,'Label', '[N]umbers (toggle)', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'n'));
+% uimenu(mh_view,'Label', '[N]umbers (toggle)', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'n'));
 uimenu(mh_view,'Label', 'Show raw waveform', 'Callback', @(h,e)raw_waveform_(h), ...
     'Checked', ifeq_(get_(P, 'fWav_raw_show'), 'on', 'off'));
 %uimenu(mh_view,'Label', 'Threshold by sites', 'Callback', @(h,e)keyPressFcn_thresh_(hFig, 'n'));
@@ -3857,7 +3968,7 @@ uimenu(mh_info, 'Label', 'noise', 'Callback', @(h,e)unit_annotate_(h,e,'noise'))
 uimenu(mh_info, 'Label', 'clear annotation', 'Callback', @(h,e)unit_annotate_(h,e,''));
 uimenu(mh_info, 'Label', 'equal to', 'Callback', @(h,e)unit_annotate_(h,e,'=%d'));
 
-mh_history = uimenu(hFig,'Label', 'History', 'Tag', 'History'); 
+mh_history = uimenu(hFig, 'Label', 'History', 'Tag', 'mh_history'); 
 
 mh_help = uimenu(hFig,'Label','Help'); 
 uimenu(mh_help, 'Label', '[H]elp', 'Callback', @help_FigWav_);
@@ -3872,10 +3983,11 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function S_fig = plot_spkwav_(S_fig, P)
+function S_fig = plot_spkwav_(S_fig, S0)
 % fPlot_raw = 0;
-if nargin<2, P = get0_('P'); end
-[viSite_spk, S_clu] = get0_('viSite_spk', 'S_clu');
+if nargin<2, S0 = []; end
+if isempty(S0), S0 = get(0, 'UserData'); end
+[P, viSite_spk, S_clu] = deal(S0.P, S0.viSite_spk, S0.S_clu);
 tnWav = get_spkwav_(P);
 
 [cvrX, cvrY, cviSite] = deal(cell(S_clu.nClu, 1));
@@ -3949,9 +4061,8 @@ vcFile_jrc = subsFileExt_(P.vcFile_prm, '_jrc.mat');
 fExit = 1;
 switch lower(questdlg_(['Save to ', vcFile_jrc, ' ?'], 'Confirmation', 'Yes'))
     case 'yes'
-        hMsg = msgbox_('Saving');
-%         assignWorkspace_(Sclu);
-        save0_(vcFile_jrc);
+        hMsg = msgbox_('Saving... (this closes automatically)');
+        save0_(vcFile_jrc); % 1 will skip figure saving
         fExit = 1;
         close_(hMsg);
     case 'no'
@@ -4068,11 +4179,12 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function selfcorr = S_clu_self_corr_(S_clu, iClu1)
+function selfcorr = S_clu_self_corr_(S_clu, iClu1, S0)
 % plot top half vs bottom half correlation. sum of vpp
 if nargin<2, iClu1 = []; end
-
-[viSite_spk, P] = get0_('viSite_spk', 'P');
+if nargin<3, S0 = []; end
+if isempty(S0), S0 = get(0, 'UserData'); end
+[viSite_spk, P] = deal(S0.viSite_spk, S0.P);
 tnWav_raw = get_spkwav_(P, get_set_(P, 'fWavRaw_merge', 1));
 
 if isempty(iClu1)
@@ -4255,7 +4367,7 @@ switch lower(event.Key)
             S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'z'}, S0); 
         end
         
-    case 'm', S0 = ui_merge_(); % merge clusters
+    case 'm', S0 = ui_merge_(S0); % merge clusters
         
 %     case 'l' %LFP
 %         error('LFP is not implemented');
@@ -4281,14 +4393,14 @@ switch lower(event.Key)
         set(0, 'UserData', S0);
         button_CluWav_simulate_([], S0.iCluPaste);
         
-    case 's', auto_split_(1);
+    case 's', auto_split_(1, S0);
         
     case 'r' %reset view
         figure_wait_(1);
         axis_([0, S0.S_clu.nClu + 1, 0, numel(P.viSite2Chan) + 1]);
         figure_wait_(0);
         
-    case {'d', 'backspace', 'delete'}, S0 = ui_delete_();
+    case {'d', 'backspace', 'delete'}, S0 = ui_delete_(S0);
         
     case 'z' %zoom
         iClu = S0.iCluCopy;
@@ -4344,12 +4456,12 @@ switch lower(event.Key)
         
     case 'j', plot_FigProj_(S0); %projection view
         
-    case 'n'        
-        if strcmpi(get(S_fig.vhText(1), 'Visible'), 'on')
-            set(S_fig.vhText, 'Visible', 'off');
-        else
-            set(S_fig.vhText, 'Visible', 'on');
-        end       
+%     case 'n'        
+%         if strcmpi(get(S_fig.vhText(1), 'Visible'), 'on')
+%             set(S_fig.vhText, 'Visible', 'off');
+%         else
+%             set(S_fig.vhText, 'Visible', 'on');
+%         end       
         
     case 'i', plot_FigHist_(S0); %ISI histogram
         
@@ -4791,10 +4903,9 @@ if nargin<3, nSites_spk = []; end
 if nargin<4, viSite2_spk = []; end
 
 [mrFet1, mrFet2, mrFet3] = deal(single([]));
-fMeanSubt = 1;
 trWav2_spk = single(permute(tnWav1_spk, [1,3,2]));    
 trWav2_spk = spkwav_car_(trWav2_spk, P, nSites_spk, viSite2_spk);
-% shift samples caused by the local car subtraction
+% if get_set_(P, 'fMeanSubt_fet', 1), trWav2_spk = meanSubt_(trWav2_spk); end % 12/16/17 JJJ experimental
 
 switch lower(P.vcFet) %{'xcor', 'amp', 'slope', 'pca', 'energy', 'vpp', 'diff248', 'spacetime'}       
     case {'spacetime', 'cov', 'cov2'}
@@ -4986,7 +5097,7 @@ end %func
 function [mrMin, mrMax] = getFet_spk_(viSpk1, viSites1, S0)
 % get feature for the spikes of interest
 
-if nargin<3, S0 = get0_(); end
+if nargin<3, S0 = get(0, 'UserData'); end
 P = S0.P;
 
 switch lower(P.vcFet_show)
@@ -5054,7 +5165,7 @@ function tnWav_spk1 = tnWav_spk_sites_(viSpk1, viSites1, S0, fWav_raw_show)
 % P = get0_('P');
 % if nargin<3, fWav_raw_show = P.fWav_raw_show; end
 if nargin<3, S0 = []; end
-if isempty(S0), S0 = get0_(); end
+if isempty(S0), S0 = get(0, 'UserData'); end
 if nargin<4, fWav_raw_show = 0; end
 
 % unique exception handling %171201 JJJ
@@ -5308,7 +5419,7 @@ function clu_info_(S0)
 % This also plots cluster position
 if nargin<1, S0 = get(0, 'UserData'); end
 P = S0.P; S_clu = S0.S_clu;
-mh_info = findobj('Type', 'uimenu', 'Tag', 'mh_info');
+mh_info = get_tag_('mh_info', 'uimenu');
 S_clu1 = get_cluInfo_(S0.iCluCopy);
 if ~isempty(S0.iCluPaste)
     S_clu2 = get_cluInfo_(S0.iCluPaste);
@@ -5543,10 +5654,9 @@ end %func
 function keyPressFcn_FigTime_(hObject, event, S0)
 
 if nargin<3, S0 = get(0, 'UserData'); end
-P = S0.P; S_clu = S0.S_clu;
-hFig = hObject;
+[P, S_clu, hFig] = deal(S0.P, S0.S_clu, hObject);
 S_fig = get(hFig, 'UserData');
-% mrWav = S.mrWav;
+
 nSites = numel(P.viSite2Chan);
 % set(hObject, 'Pointer', 'watch');
 % figure_wait(1);
@@ -5576,7 +5686,7 @@ switch lower(event.Key)
         imrect_set_(S_fig.hRect, S_fig.time_lim, S_fig.vpp_lim);
 
     case 'm' %merge
-        ui_merge_();
+        ui_merge_(S0);
         
     case 'h' %help
         msgbox_(S_fig.csHelp, 1);
@@ -5718,7 +5828,7 @@ end
 %--------------------------------------------------------------------------
 function keyPressFcn_FigProj_(hFig, event)
 S0 = get(0, 'UserData');
-[P, S_clu] = get0_('P', 'S_clu');
+[P, S_clu] = deal(S0.P, S0.S_clu);
 [hFig, S_fig] = get_fig_cache_('FigProj');
 % nSites = numel(P.viSite2Chan);
 S_plot1 = get(S_fig.hPlot1, 'UserData');
@@ -5769,7 +5879,7 @@ switch lower(event.Key)
         end
         
     case 'm'
-        ui_merge_();
+        ui_merge_(S0);
         
     case 'f'
         disp('keyPressFcn_FigProj_: ''f'': not implemented yet');
@@ -5963,25 +6073,27 @@ end %func
 
 %--------------------------------------------------------------------------
 % 9/26/17 JJJ: Bugfix: returning S0 so that the cluster can be updated
-function S0 = ui_delete_()
-S0 = get(0, 'UserData');
+function S0 = ui_delete_(S0)
+if nargin<1, S0 = []; end
+if isempty(S0), S0 = get(0, 'UserData'); end
+P = S0.P;
 if ~isempty(S0.iCluPaste)
-    msgbox_('Must select one cluster'); return;
+    msgbox_('Must select one cluster', 1); return;
 end        
 figure_wait_(1);
 
 iClu_del = S0.iCluCopy;
-hMsg = msgbox_open_('Deleting...');
+% hMsg = msgbox_open_('Deleting...');
 S0.S_clu = delete_clu_(S0.S_clu, S0.iCluCopy);
 set(0, 'UserData', S0);
 plot_FigWav_(S0); %redraw plot 
 % S0.S_clu.mrWavCor = wavCor_delete_(S0.iCluCopy); 
 FigWavCor_update_(S0);
 S0.iCluCopy = min(S0.iCluCopy, S0.S_clu.nClu);
-set(0, 'UserData', S0);
+% set(0, 'UserData', S0);
 button_CluWav_simulate_(S0.iCluCopy);
 
-close_(hMsg);
+% close_(hMsg);
 figure_wait_(0);
 fprintf('%s [W] deleted Clu %d\n', datestr(now, 'HH:MM:SS'), iClu_del);
 S0 = save_log_(sprintf('delete %d', iClu_del), S0);
@@ -5991,7 +6103,7 @@ end
 
 %--------------------------------------------------------------------------
 function FigWavCor_update_(S0)
-if nargin<1, S0 = get0_(); end
+if nargin<1, S0 = get(0, 'UserData'); end
 
 [hFig, S_fig] = get_fig_cache_('FigWavCor');
 set(S_fig.hImWavCor, 'CData', S0.S_clu.mrWavCor);
@@ -6079,7 +6191,8 @@ end %func
 function restore_clu_(varargin)
 % restore last deleted. most negative clu is last deleted
 % error('to be fixed. Fix centroid code');
-[S0, P, S_clu] = get0_();
+S0 = get(0, 'UserData');
+[P, S_clu] = deal(S0.P, S0.S_clu);
 iClu_del = min(S_clu.viClu);
 if iClu_del >=0, msgbox_('Deleted cluster is not found'); return; end
 
@@ -6184,8 +6297,10 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function S0 = ui_merge_()
-[S0, P] = get0_();
+function S0 = ui_merge_(S0)
+if nargin<1, S0 = []; end
+if isempty(S0), S0 = get(0, 'UserData'); end
+P = S0.P;
 
 if isempty(S0.iCluPaste)
     msgbox_('Right-click a cluster to merge.', 1); return;
@@ -6270,18 +6385,18 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function auto_split_(fMulti)
+function auto_split_(fMulti, S0)
 % Auto-split feature that calls Hidehiko Inagaki's code
 % 20160426
 if nargin<1, fMulti = 0; end
+if nargin<2, S0 = []; end
+if isempty(S0), S0 = get(0, 'UserData'); end
+[P, S_clu] = deal(S0.P, S0.S_clu);
 
-S0 = get(0, 'UserData');
-P = S0.P;
-S_clu = S0.S_clu;
 if ~isempty(S0.iCluPaste), msgbox_('Select one cluster'); return; end
 if S_clu.vnSpk_clu(S0.iCluCopy)<2, msgbox_('At least two spikes required for splitting'); return; end
     
-hMsg = msgbox_('splitting...');
+hMsg = msgbox_('Splitting... (this closes automatically)');
 iClu1 = S0.iCluCopy;
 iSite1 = S_clu.viSite_clu(iClu1);
 if fMulti
@@ -6368,8 +6483,10 @@ viSite = double(S0.viSite_spk) - fZeroIndex; %zero base
 
 vcFile_csv = subsFileExt_(P.vcFile_prm, '.csv');
 dlmwrite(vcFile_csv, [vrTime(:), viClu(:), viSite(:)], 'precision', 9);
-fprintf('wrote to %s\n', vcFile_csv);
-fprintf('\ttime\tclu#\tsite (starts with 1)\n');
+fprintf('Wrote to %s. Columns:\n', vcFile_csv);
+fprintf('\tColumn 1: Spike time (s)\n');
+fprintf('\tColumn 2: Unit# (positive #: valid units, 0: noise cluster, negative #: deleted clusters)\n');
+fprintf('\tColumn 3: Site# (starts with 1)\n');
 end %func
 
 
@@ -6455,9 +6572,10 @@ else
     vcLabel = csAns{1};
     S0.S_clu.csNote_clu{iClu1} = vcLabel;
 end
-S0 = save_log_(sprintf('annotate %d %s', iClu1, vcLabel), S0);
+
 % set(0, 'UserData', S0);
 clu_info_(S0); %update label
+save_log_(sprintf('annotate %d %s', iClu1, vcLabel), S0);
 % update cluster
 end %func
 
@@ -6525,11 +6643,11 @@ function keyPressFcn_FigWavCor_(hObject, event)
 S0 = get(0, 'UserData');
 switch lower(event.Key)
     case 'm' %merge
-        ui_merge_();
+        ui_merge_(S0);
     case 's' %split
         auto_split_(1); %multi
     case {'d', 'backspace', 'delete'} %delete
-        ui_delete_();        
+        ui_delete_(S0);        
 end %switch
 end %func
 
@@ -6947,9 +7065,9 @@ S_clu = S_clu_update_(S_clu, [iClu1, iClu2], P);
 
 % update all the other views
 [S_clu, S0] = S_clu_commit_(S_clu, 'split_clu_');
-S0 = save_log_(sprintf('split %d', iClu1), S0); %@TODO: specify which cut to use
 plot_FigWav_(S0); %redraw plot
 plot_FigWavCor_(S0);
+save_log_(sprintf('split %d', iClu1), S0); %@TODO: specify which cut to use
 
 % select two clusters being split
 button_CluWav_simulate_(iClu1, iClu2);
@@ -6967,7 +7085,7 @@ site12_show = floor(mean(mrPolyPos));
 site12 = S1.viSites_show(site12_show+1);  
 
 % get amp
-S0 = get0_();
+S0 = get(0, 'UserData');
 S_clu = S0.S_clu;
 P = S0.P;
 iClu1 = S0.iCluCopy;
@@ -7101,7 +7219,7 @@ fig_prev = gcf;
 figure_wait_(1);
 [~, S_fig] = get_fig_cache_('FigWav');
 % plot_tnWav_clu_(S_fig, S0.P); %do this after plotSpk_
-plot_spkwav_(S_fig, S0.P);
+plot_spkwav_(S_fig, S0);
 close_(hMsg);
 figure_wait_(0);
 figure(fig_prev);
@@ -7477,7 +7595,7 @@ if nargin<2, viClu_update = []; end
 if nargin<3, fSkipRaw = 0; end
 % P = S_clu.P;
 % P = get0_('P'); 
-S0 = get0_();
+S0 = get(0, 'UserData');
 P = S0.P;
 % [dimm_spk, dimm_raw] = get0_('dimm_spk', 'dimm_raw');
 P.fMeanSubt = 0;
@@ -7560,7 +7678,7 @@ end %func
 %--------------------------------------------------------------------------
 % 10/22/17 JJJ
 function [mrWav_clu1, viSite_clu1, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_clu, tnWav_, iClu, S0)
-if nargin<4, S0 = get0_(); end
+if nargin<4, S0 = get(0, 'UserData'); end
 fUseCenterSpk = 0; % set to zero to use all spikes
 nSamples_max = 1000;
 
@@ -7670,7 +7788,7 @@ function [viSpk_clu1, viSite_clu1, vlSpk_clu1] = S_clu_subsample_spk_(S_clu, iCl
 
 fSelect_mid = 1;
 nSamples_max = 1000;
-if nargin<3, S0 = get0_(); end
+if nargin<3, S0 = get(0, 'UserData'); end
 
 % [P, viSite_spk] = get0_('P', 'viSite_spk'); end
 [viSpk_clu1, viSite_clu1, vlSpk_clu1] = deal([]);
@@ -7878,14 +7996,14 @@ end %func
 function S_clu = S_clu_update_(S_clu, viClu1, P)
 % update cluster waveform and self correlation score
 % mrWav not needed
+S0 = get(0, 'UserData');
 
-viSite_spk = get0_('viSite_spk');
 % find clu center
 for iClu = 1:numel(viClu1)
     iClu1 = viClu1(iClu);
     viSpk_clu1 = find(S_clu.viClu == iClu1);
     S_clu.cviSpk_clu{iClu1} = viSpk_clu1;
-    S_clu.viSite_clu(iClu1) = mode(viSite_spk(viSpk_clu1));
+    S_clu.viSite_clu(iClu1) = mode(S0.viSite_spk(viSpk_clu1));
     S_clu.vnSpk_clu(iClu1) = numel(viSpk_clu1);
 end
 
@@ -7898,7 +8016,7 @@ S_clu.mrWavCor = S_clu_wavcor_(S_clu, P, viClu1);
 S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, vrSelfCorr_clu);
 for iClu = 1:numel(viClu1)
     iClu1 = viClu1(iClu);
-    S_clu.mrWavCor(iClu1,iClu1) = S_clu_self_corr_(S_clu, iClu1);
+    S_clu.mrWavCor(iClu1,iClu1) = S_clu_self_corr_(S_clu, iClu1, S0);
 end
 S_clu = S_clu_position_(S_clu, viClu1);
 S_clu = S_clu_quality_(S_clu, P, viClu1);
@@ -8286,11 +8404,34 @@ end
 
 %--------------------------------------------------------------------------
 function flag = isvalid_(h)
+if isempty(h), flag = 0; return ;end
 try
     flag = isvalid(h);
 catch
     flag = 0;
 end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 12/21/17 JJJ: Get the tag by name which is cached (like hash table)
+function hObj = get_tag_(vcTag, vcType)
+% clear before starting manual
+% Return from persistent cache
+% Create a new figure if Tag doesn't exist
+
+persistent S_tag_cache_
+if nargin<2, vcType = []; end
+if isempty(S_tag_cache_)
+    S_tag_cache_ = struct(); 
+else
+    if isfield(S_tag_cache_, vcTag)
+        hObj = S_tag_cache_.(vcTag);
+        if isvalid_(hObj), return; end
+    end
+end
+hObj = findobj('Tag', vcTag, 'Type', vcType);
+S_tag_cache_.(vcTag) = hObj;
 end %func
 
 
@@ -8794,7 +8935,8 @@ end %func
 %--------------------------------------------------------------------------
 % 11/10/17: Removed recursive saving
 % 9/29/17 Updating the version number when saving JRCLUST
-function S0 = save0_(vcFile_mat)
+function S0 = save0_(vcFile_mat, fSkip_fig)
+if nargin<2, fSkip_fig = 0; end
 % save S0 structure to a mat file
 try    
     fprintf('Saving 0.UserData to %s...\n', vcFile_mat);
@@ -8811,10 +8953,12 @@ try
     vcFile_prm = S0.P.vcFile_prm;
     export_prm_(vcFile_prm, strrep(vcFile_prm, '.prm', '_full.prm'), 0);    
 
-    % save the rho-delta plot    
+    % save the rho-delta plot        
+    if fSkip_fig, return; end
     if ~isfield(S0, 'S_clu') || ~get_set_(P, 'fSavePlot_RD', 1), return; end
     try
-        save_fig_(strrep(P.vcFile_prm, '.prm', '_RD.png'), plot_rd_(P), 1);
+        if isempty(get_(S0.S_clu, 'delta')), return; end % skip kilosort
+        save_fig_(strrep(P.vcFile_prm, '.prm', '_RD.png'), plot_rd_(P, S0), 1);
         fprintf('\tYou can use ''jrc plot-rd'' command to plot this figure.\n');
     catch
         fprintf(2, 'Failed to save the rho-delta plot: %s.\n', lasterr());
@@ -8822,6 +8966,22 @@ try
 catch
     disperr_();
 end
+end %func
+
+
+%--------------------------------------------------------------------------
+% like gcf but doesn't create a new figure
+function hFig = gcf_()
+hFig = get(groot(),'CurrentFigure');
+end %func
+
+
+%--------------------------------------------------------------------------
+% error tolerent figure selection
+function hFig = figure_(hFig)
+if nargin<1, hFig = figure(); return; end
+if isempty(hFig), return; end
+try figure(hFig); catch; end
 end %func
 
 
@@ -9454,7 +9614,7 @@ global fDebug_ui
 if fDebug_ui==1, hMsg = []; return; end
 hFig = gcf;
 hMsg = msgbox(vcMessage);  
-figure(hFig); drawnow;
+figure(hFig); %drawnow;
 end
 
 
@@ -9587,7 +9747,6 @@ end %func
 %--------------------------------------------------------------------------
 function [S_clu, nClu_merged] = S_clu_wavcor_merge_(S_clu, P)
 
-% [viSite_spk] = get0_('viSite_spk');
 mrWavCor = S_clu.mrWavCor;
 nClu = size(mrWavCor, 2);
 
@@ -9888,7 +10047,7 @@ persistent hFig
 % P = loadParam(vcFile_prm);
 if nargin==0
     if ~isvalid_(hFig), return; end
-    S0 = get0_();
+    S0 = get(0, 'UserData');
     P = S0.P; iClu = [S0.iCluCopy, S0.iCluPaste]; S_clu = S0.S_clu;
 else
     if nargin < 2, iClu = []; end
@@ -10965,7 +11124,7 @@ function [mrFet, vrY_pre, vrY_post] = drift_correct_(mrFet, P) % drift correctio
 % mrFet last column contains the y coordinate
 fPlot_drift = 1;
 if isempty(getfield_(P, 'cvrDepth_drift')), return; end
-S0 = get0_();
+S0 = get(0, 'UserData');
 fprintf('Correcting drift\n\t'); t1=tic;
 vrY_pre = mrFet(end,:);
 vrY_post = vrY_pre;
@@ -11209,10 +11368,7 @@ end %func
 function [iClu, hPlot] = plot_tmrWav_clu_(S0, iClu, hPlot, vrColor)
 [S_clu, P] = getfield_(S0, 'S_clu', 'P');
 [hFig, S_fig] = get_fig_cache_('FigWav');
-% figure(hFig);
-% if isempty(get_(hPlot, 'Parent')), delete_(hPlot); hPlot = []; end
-% if ~isvalid(hPlot), hPlot = []; end
-if isempty(hPlot)
+if ~isvalid_(hPlot)
     hPlot = plot(nan, nan, 'Color', vrColor, 'LineWidth', 2, 'Parent', S_fig.hAx);
 end
 if P.fWav_raw_show
@@ -11527,7 +11683,10 @@ end
 
 
 %--------------------------------------------------------------------------
+% 12/21/17 JJJ: Annotate on the x-axis intead of floating text box (faster)
 function vhText = text_nClu_(S_clu, hAx)
+% update x label
+
 nClu = numel(S_clu.vnSpk_clu);
 viSite_clu = double(S_clu.viSite_clu);
 y_offset = .3;
@@ -11695,8 +11854,14 @@ end
 
 
 %--------------------------------------------------------------------------
+% 12/18/17 JJJ: can handle header_offset
 function nBytes_load = file_trim_(fid, nBytes_load, P)
-if isempty(P.tlim_load) || ~P.fTranspose_bin, return; end
+header_offset = get_set_(P, 'header_offset', 0);
+nBytes_load = nBytes_load - header_offset;
+if isempty(P.tlim_load) || ~P.fTranspose_bin
+    if header_offset > 0, fseek(fid, header_offset, 'bof'); end
+    return; 
+end
 
 bytesPerSample = bytesPerSample_(P.vcDataType);
 nSamples = floor(nBytes_load / bytesPerSample / P.nChans);
@@ -11705,7 +11870,9 @@ nSamples = floor(nBytes_load / bytesPerSample / P.nChans);
 nlim_load = min(max(round(P.tlim_load * P.sRateHz), 1), nSamples);
 nSamples_load = diff(nlim_load) + 1;
 nBytes_load = nSamples_load * bytesPerSample * P.nChans;
-if nlim_load(1)>1, fseek_(fid, nlim_load(1), P); end
+% if nlim_load(1)>1, 
+fseek_(fid, nlim_load(1), P); 
+% end
 end %func
 
 
@@ -11802,7 +11969,7 @@ function S0 = save_log_(vcCmd, S0)
 % check for crash
 % todo: save differential increment from the beginning
 
-if nargin<2, S0 = get0_(); end
+if nargin<2, S0 = get(0, 'UserData'); end
 [cS_log, P, S_clu, miClu_log] = get_(S0, 'cS_log', 'P', 'S_clu', 'miClu_log');
 
 if ~isempty(strfind(vcCmd, 'annotate'))
@@ -11824,16 +11991,15 @@ if isempty(miClu_log)
 end
 miClu_log(:, 2:end) = miClu_log(:, 1:end-1);
 miClu_log(:, 1) = int16(S_clu.viClu);
-
 %struct_save_(strrep(P.vcFile_prm, '.prm', '_log.mat'), 'cS_log', cS_log);
 S_log.viClu = int16(S_clu.viClu);
 struct_save_(S_log, strrep(P.vcFile_prm, '.prm', '_log.mat'), 0);
 S0.cS_log = cS_log;
 S0.miClu_log = miClu_log;
-set(0, 'UserData', S0);
 
-% update revert to list
-ui_update_log_(cS_log);
+ui_update_log_(cS_log, S0); % update revert to list
+
+if nargout<1, set(0, 'UserData', S0); end
 end %func
 
 
@@ -11851,19 +12017,20 @@ end
 
 
 %--------------------------------------------------------------------------
-function ui_update_log_(cS_log)
+function ui_update_log_(cS_log, S0)
 % the last one is selected
 % persistent mh_history
 
 % List recent activities
-% if nargin<2, S0 = get0_(); end
+% if nargin<2, S0 = get(0, 'UserData'); end
 % set(hMenu_history, 'Label', sprintf('Undo %s', cS_log.csCmd{end}), 'Enable', 'on');
+if nargin<2, S0=[]; end
+if isempty(S0), S0 = get(0, 'UserData'); end
+P = S0.P;
+mh_history = get_tag_('mh_history', 'uimenu');
 
-% if isempty(mh_history)
-mh_history = findobj('Type', 'uimenu', 'Tag', 'History');
-P = get0_('P');
 % Delete children and update
-delete(mh_history.Children); %kill all children
+delete_(mh_history.Children); %kill all children
 for iMenu = 1:numel(cS_log) % reverse order
     iLog = numel(cS_log) - iMenu + 1;
     S_log1 = cS_log{iLog};
@@ -11889,7 +12056,7 @@ hMsg = msgbox_(sprintf('Restoring to %s (%s)', S_clu1.vcCmd, datestr(S_clu1.date
 [S_clu, S0] = S_clu_new_(S_clu1);
 
 % Update checkbox
-mh_history = findobj('Type', 'uimenu', 'Tag', 'History');
+mh_history = get_tag_('mh_history', 'uimenu');
 vhMenu = mh_history.Children;
 vhMenu = vhMenu(end:-1:1); %reverse order
 for iMenu = 1:numel(vhMenu)
@@ -11917,7 +12084,7 @@ end %func
 
 %--------------------------------------------------------------------------
 function S0 = gui_update_(S0, S_clu)
-if nargin<1, S0 = get0_(); end
+if nargin<1, S0 = get(0, 'UserData'); end
 if nargin<2, S_clu = S0.S_clu; end
 plot_FigWav_(S0); %redraw plot
 S0.iCluCopy = min(S0.iCluCopy, S_clu.nClu);
@@ -12032,7 +12199,7 @@ for iFile=1:numel(csFiles_prm)
         jrc3('clear');
         if ~strcmpi(vcCommand, 'skip')                        
             jrc3(vcCommand, vcFile_prm1);
-            S0 = get0_();
+            S0 = get(0, 'UserData');
         else
             S0 = load_cached_(vcFile_prm1);
         end
@@ -12053,7 +12220,7 @@ function S_plot = S_plot_new_(S0)
 % S_plot contains quantities to be plotted
 % Copied from jrclust.m quality_metric_
 
-if nargin<1, S0 = get0_(); end
+if nargin<1, S0 = get(0, 'UserData'); end
 P = S0.P;
 tnWav_spk = get_spkwav_(P, 0);
 
@@ -12377,7 +12544,7 @@ nArgs = nargin();
 csVars = varargin;
 csVars = csVars(~isempty_(csVars));
 if isempty(csVars), csVars = {'S0'}; end
-S0 = get0_();
+S0 = get(0, 'UserData');
 for iArg = 1:numel(csVars)
     vcVar = csVars{iArg};
     if isempty(vcVar), continue; end
@@ -12502,12 +12669,13 @@ end %func
 % 6/23/JJJ
 
 %--------------------------------------------------------------------------
-function traces_(P, fDebug_ui_, vcFileId)
+function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
 % show raw traces
 % If file format is nChans x nSamples, load subset of file (fTranspose=1)
 % If file format is nSamples x nChans, load all and save to global (fTranspose=0)
 % 2017/6/22 James Jun: Added multiview (nTime_traces )
 global fDebug_ui mnWav mnWav1 % only use if P.fTranspose=0
+if nargin<4, fPlot_lfp = 0; end
 if nargin==0
     P = get0_('P'); 
 else
@@ -12518,9 +12686,14 @@ if nargin<3, vcFileId=''; end
 if isempty(P), disperr_('traces_: P is empty'); return; end
 % S0 = load0_(P);
 fDebug_ui = fDebug_ui_;
-S0 = load_cached_(P, 0);
-set(0, 'UserData', S0);
-set0_(fDebug_ui);
+if ~fPlot_lfp
+    S0 = load_cached_(P, 0);
+    set(0, 'UserData', S0);
+    set0_(fDebug_ui);
+else
+    S0 = struct('P', P);
+    set(0, 'UserData', S0);
+end
 % S0 = load_cached_(P, 0); %don't load raw waveform
 
 % get file to show
@@ -12866,7 +13039,11 @@ if nargin<7, mnWav1_post = []; end
 nFet_use = get_set_(P, 'nFet_use', 2);
 fMerge_spk = 1; %debug purpose
 fShift_pos = 0; % shift center position based on center of mass
-fRecenter_spk = 0;
+% fRecenter_spk = 0;
+nSite_use = P.maxSite*2+1 - P.nSites_ref;
+if nSite_use==1, nFet_use=1; end
+vnThresh_site = get0_('vnThresh_site');
+nPad_pre = size(mnWav1_pre,1);
 
 %-----
 % Filter
@@ -12909,13 +13086,15 @@ else
     [mnWav3, nShift_post] = filter_detect_(mnWav2, P); % apply stdfilter for peak search
 end
 
-
 %-----
 % detect spikes or use the one passed from the input (importing)
-nPad_pre = size(mnWav1_pre,1);
-vnThresh_site = get0_('vnThresh_site');
 if isempty(vnThresh_site)
-    vnThresh_site = gather_(int16(mr2rms_(mnWav3, 1e5) * P.qqFactor));
+    try
+        vnThresh_site = gather_(int16(mr2rms_(mnWav3, 1e5) * P.qqFactor));
+    catch
+        vnThresh_site = int16(mr2rms_(gather_(mnWav3), 1e5) * P.qqFactor);
+        P.fGpu = 0;
+    end
 end
 if isempty(viTime_spk) || isempty(viSite_spk)
     P_ = setfield(P, 'nPad_pre', nPad_pre);
@@ -12940,30 +13119,44 @@ if isempty(viTime_spk), return; end
 % Extract spike waveforms and build a spike table
 fprintf('\tExtracting features'); t_fet = tic;
 % mnWav2 = gather_(mnWav2); %do in CPU. 10.2s in GPU, 10.4s in CPU
-if fRecenter_spk % center site is where the energy is the highest, if disabled min is chosen
-    tnWav_spk = mn2tn_wav_spk2_(mnWav2, viSite_spk, viTime_spk, P);
-    %[~, viMaxSite_spk] = max(squeeze_(std(single(tnWav_spk))));
-    [~, viMaxSite_spk] = max(squeeze_(max(tnWav_spk) - min(tnWav_spk)));
-    viSite_spk = P.miSites(sub2ind(size(P.miSites), viMaxSite_spk(:), viSite_spk));
-end
+% if fRecenter_spk % center site is where the energy is the highest, if disabled min is chosen
+%     tnWav_spk = mn2tn_wav_spk2_(mnWav2, viSite_spk, viTime_spk, P);
+%     %[~, viMaxSite_spk] = max(squeeze_(std(single(tnWav_spk))));
+%     [~, viMaxSite_spk] = max(squeeze_(max(tnWav_spk) - min(tnWav_spk)));
+%     viSite_spk = P.miSites(sub2ind(size(P.miSites), viMaxSite_spk(:), viSite_spk));
+% end
 viSite_spk_ = gpuArray_(viSite_spk);
 [tnWav_spk_raw, tnWav_spk, viTime_spk] = mn2tn_wav_(mnWav1, mnWav2, viSite_spk_, viTime_spk, P); fprintf('.');
+if nFet_use >= 2
+    viSite2_spk = find_site_spk23_(tnWav_spk, viSite_spk_, P);
+    tnWav_spk2 = mn2tn_wav_spk2_(mnWav2, viSite2_spk, viTime_spk, P);
+else
+    [viSite2_spk, tnWav_spk2] = deal([]);
+end
+
+%-----
+% Cancel overlap
+if get_set_(P, 'fCancel_overlap', 0)
+    try
+        [tnWav_spk, tnWav_spk2] = cancel_overlap_spk_(tnWav_spk, tnWav_spk2, viTime_spk, viSite_spk, viSite2_spk, vnThresh_site, P); 
+    catch
+        fprintf(2, 'fCancel_overlap failed\n');
+    end
+end
+
 tnWav_spk_raw = gather_(tnWav_spk_raw);
-nSite_use = P.maxSite*2+1 - P.nSites_ref;
-if nSite_use==1, nFet_use=1; end
 assert_(nSite_use >0, 'nSites_use = maxSite*2+1 - nSites_ref must be greater than 0');
 switch nFet_use
     case 3
         [viSite2_spk, viSite3_spk] = find_site_spk23_(tnWav_spk, viSite_spk_, P); fprintf('.');
         mrFet1 = trWav2fet_(tnWav_spk, P); fprintf('.');
-        mrFet2 = trWav2fet_(mn2tn_wav_spk2_(mnWav2, viSite2_spk, viTime_spk, P), P); fprintf('.');
+        mrFet2 = trWav2fet_(tnWav_spk2, P); fprintf('.');
         mrFet3 = trWav2fet_(mn2tn_wav_spk2_(mnWav2, viSite3_spk, viTime_spk, P), P); fprintf('.');
         trFet_spk = permute(cat(3, mrFet1, mrFet2, mrFet3), [1,3,2]); %nSite x nFet x nSpk
         miSite_spk = [viSite_spk_(:), viSite2_spk(:), viSite3_spk(:)]; %nSpk x nFet
-    case 2
-        viSite2_spk = find_site_spk23_(tnWav_spk, viSite_spk_, P); fprintf('.');
+    case 2        
         mrFet1 = trWav2fet_(tnWav_spk, P); fprintf('.');
-        mrFet2 = trWav2fet_(mn2tn_wav_spk2_(mnWav2, viSite2_spk, viTime_spk, P), P); fprintf('.');
+        mrFet2 = trWav2fet_(tnWav_spk2, P); fprintf('.');
         trFet_spk = permute(cat(3, mrFet1, mrFet2), [1,3,2]); %nSite x nFet x nSpk
         miSite_spk = [viSite_spk_(:), viSite2_spk(:)]; %nSpk x nFet
     case 1
@@ -12973,11 +13166,117 @@ switch nFet_use
     otherwise
         error('wav2spk_: nFet_use must be 1, 2 or 3');
 end
+
 if nPad_pre > 0, viTime_spk = viTime_spk - nPad_pre; end
 [viTime_spk, trFet_spk, miSite_spk, tnWav_spk] = ...
     gather_(viTime_spk, trFet_spk, miSite_spk, tnWav_spk);
 fGpu = P.fGpu;
 fprintf('\ttook %0.1fs\n', toc(t_fet));
+end %func
+
+
+%--------------------------------------------------------------------------
+% 12/16/17 JJJ: Find overlapping spikes and set superthreshold sample points to zero in the overlapping region 
+function [tnWav_spk_out, tnWav_spk2_out] = cancel_overlap_spk_(tnWav_spk, tnWav_spk2, viTime_spk, viSite_spk, viSite2_spk, vnThresh_site, P)
+% Overlap detection. only return one stronger than other
+fGpu = isGpu_(tnWav_spk);
+[viTime_spk, tnWav_spk, tnWav_spk2] = gather_(viTime_spk, tnWav_spk, tnWav_spk2);
+[viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = detect_overlap_spk_(viTime_spk, viSite_spk, P);
+[tnWav_spk_out, tnWav_spk2_out] = deal(tnWav_spk, tnWav_spk2);
+% find spike index that are larger and fit and deploy
+viSpk_ol_a = find(viSpk_ol_spk>0); % later occuring
+[viSpk_ol_b, vnDelay_ol_b] = deal(viSpk_ol_spk(viSpk_ol_a), vnDelay_ol_spk(viSpk_ol_a)); % first occuring
+viTime_spk0 = int32(P.spkLim(1):P.spkLim(2));
+vnThresh_site = gather_(-abs(vnThresh_site(:))');
+% for each pair identify time range where threshold crossing occurs and set to zero
+% correct only first occuring (b)
+miSites = P.miSites;
+nSpk_ol = numel(viSpk_ol_a);
+nSpk = size(tnWav_spk,2);
+for iSpk_ol = 1:nSpk_ol    
+    [iSpk_b, nDelay_b] = deal(viSpk_ol_b(iSpk_ol), vnDelay_ol_b(iSpk_ol));
+    viSite_b = miSites(:,viSite_spk(iSpk_b));
+    mnWav_b = tnWav_spk_out(nDelay_b+1:end,:,iSpk_b);
+    mlWav_b = bsxfun(@le, mnWav_b, vnThresh_site(viSite_b));
+    mnWav_b(mlWav_b) = 0;
+    tnWav_spk_out(nDelay_b+1:end,:,iSpk_b) = mnWav_b;
+    
+%     vnWav_b = median(tnWav_spk(nDelay_b+1:end,:,iSpk_b), 2);
+%     tnWav_spk_out(nDelay_b+1:end,:,iSpk_b) = repmat(vnWav_b, 1, nSpk);
+%     mnWav_b(nDelay_b+1:end,:) = repmat(vnWav_b, 1, nSpk);
+%     mlWav_b(1:nDelay_b,:) = 0; % safe time zone. remainders get cancelled
+%     mnWav_b(mlWav_b) = 0; % spike cancelled
+    
+    if ~isempty(tnWav_spk2)
+        viSite_b = miSites(:,viSite2_spk(iSpk_b));
+        mnWav_b = tnWav_spk2_out(nDelay_b+1:end,:,iSpk_b);
+        mlWav_b = bsxfun(@le, mnWav_b, vnThresh_site(viSite_b));
+        mnWav_b(mlWav_b) = 0;
+        tnWav_spk2_out(nDelay_b+1:end,:,iSpk_b) = mnWav_b;
+    end
+end %for
+% tnWav_spk = gpuArray_(tnWav_spk, fGpu);
+%     [iSite_a, iSite_b] = deal(viSite_spk(iSpk_a), viSite_spk(iSpk_b));
+%     [viSite_a, viSite_b] = deal(miSites(:,iSite_a), miSites(:,iSite_b));
+%     [viSite_ab, via_, vib_] = intersect(viSite_a, viSite_b);    
+    
+    
+%     if isempty(viSite_ab), continue; end    
+    
+    % find points under threshold
+%     [mnWav_a, mnWav_b] = deal(tnWav_spk(:,via_,iSpk_a), tnWav_spk(:,vib_,iSpk_b));
+%     vnThresh_ab = -vnThresh_site(viSite_ab);
+%     [mlWav_a, mlWav_b] = deal(bsxfun(@lt, mnWav_a, vnThresh_ab), bsxfun(@lt, mnWav_b, vnThresh_ab));
+%     
+    
+%     
+    % correct both A and B by removing super-threshold points
+%     [mnWav_a, mnWav_b] = deal(tnWav_spk(:,:,iSpk_a), tnWav_spk(:,:,iSpk_b));
+%     [mlWav_a, mlWav_b] = deal(bsxfun(@lt, mnWav_a, -vnThresh_site(viSite_a)), bsxfun(@lt, mnWav_b, -vnThresh_site(viSite_b)));
+%     nDelay_b = vnDelay_ol_b(iSpk_ol);
+    
+    % set no overthreshold zone based on the delay, set it to half. only set superthreshold spikes to zero    
+end %func
+
+
+%--------------------------------------------------------------------------
+% 12/16/17 JJJ: find overlapping spikes. only return spikes more negative than others
+function [viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = detect_overlap_spk_(viTime_spk, viSite_spk, P);
+
+mrDist_site = squareform(pdist(P.mrSiteXY));
+nlimit = int32(diff(P.spkLim));
+maxDist_site_um = P.maxDist_site_um;
+nSpk = numel(viTime_spk);
+nSites = max(viSite_spk);
+cviSpk_site = arrayfun(@(iSite)int32(find(viSite_spk==iSite)), (1:nSites)', 'UniformOutput', 0);
+viTime_spk = gather_(viTime_spk);
+[viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = deal(zeros(size(viSite_spk), 'int32'));
+for iSite = 1:nSites
+    viSpk1 = cviSpk_site{iSite};    
+    if isempty(viSpk1), continue; end
+    viSite2 = find(mrDist_site(:,iSite) <= maxDist_site_um & mrDist_site(:,iSite) > 0);
+    viSpk2 = cell2mat_(cviSpk_site(viSite2));    
+    [n1, n2] = deal(numel(viSpk1), numel(viSpk2));
+    viSpk12 = [viSpk1(:); viSpk2(:)];
+    [viTime1, viTime12] = deal(viTime_spk(viSpk1), viTime_spk(viSpk12));
+        
+    % find overlapping spikes that has smaller amplitudes and within site limit
+%     [viOverlap1, viDelay1] = deal(zeros(size(viTime12), 'like', viTime12));
+%     vlOverlap1 = false(size(viTime1));    
+    for iDelay = 0:nlimit
+        [vl12_, vi1_] = ismember(viTime12, viTime1 + iDelay);
+        if iDelay == 0 , vl12_(1:n1) = 0; end % exclude same site comparison
+        vi12_ = find(vl12_);
+        if isempty(vi12_), continue; end
+        [viSpk1_, viSpk12_] = deal(viSpk1(vi1_(vi12_)), viSpk12(vi12_));
+%         viiSpk_ = find(viTime_spk(viSpk12_) < viTime_spk(viSpk1_)); % pick earlier time only
+%         if isempty(viiSpk_), continue; end;
+%         [viSpk1_, viSpk12_] = deal(viSpk1_(viiSpk_), viSpk12_(viiSpk_));
+        viSpk_ol_spk(viSpk12_) = viSpk1_;
+        vnDelay_ol_spk(viSpk12_) = iDelay;
+        vnCount_ol_spk(viSpk12_) = vnCount_ol_spk(viSpk12_) + 1; % 13% spikes collide
+    end
+end
 end %func
 
 
@@ -13709,7 +14008,7 @@ vrVmin_uv_clu = mr2vr_sub2ind_(mrVmin_uv_clu, S_clu.viSite_clu, 1:S_clu.nClu);
 % [vrVpp_clu, viSite_clu, vrVmin_clu] = multifun_(@(x)x(:), vrVpp_clu, viSite_clu, vrVmin_clu);
 
 try
-    S0 = get0_();
+    S0 = get(0, 'UserData');
     if isempty(S0), S0 = load0_(subsFileExt_(P.vcFile_prm, '_jrc.mat')); end
     vrVrms_site = bit2uV_(single(S0.vrThresh_site(:)) / S0.P.qqFactor, P);
 %     vrSnr_clu = vrVpp_clu ./ vrVrms_site(viSite_clu);
@@ -13788,7 +14087,7 @@ end %func
 %--------------------------------------------------------------------------
 function auto_scale_proj_time_(S0)
 % auto-scale and refgresh
-if nargin<1, S0 = get0_(); end
+if nargin<1, S0 = get(0, 'UserData'); end
 
 autoscale_pct = get_set_(S0.P, 'autoscale_pct', 99.5);
 [hFig, S_fig] = get_fig_cache_('FigProj');
@@ -13952,7 +14251,7 @@ if isempty(S), S = get(0, 'UserData'); end
 if isempty(S), val = def_val; return; end
 if ~isstruct(S)
     val = []; 
-    fprintf(2, 'get_set_: %s be a struct\n', inputname(1));
+    fprintf(2, 'get_set_: %s must be a struct\n', inputname(1));
     return;
 end
 val = get_(S, vcName);
@@ -14271,10 +14570,11 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function hFig = plot_rd_(P)
+function hFig = plot_rd_(P, S0)
 fLog_delta = 0;
 max_delta = 5;
-S0 = load0_(P);
+if nargin<2, S0 = []; end
+if isempty(S0), S0 = load0_(P); end
 S_clu = S0.S_clu;
 % S_clu = get0_('S_clu');
 if fLog_delta
@@ -14293,8 +14593,7 @@ vrY_plot1 = log10(vrY_plot1);
 
 % Plot
 vhAx = [];
-hFig = figure('Color','w','Name', P.vcFile_prm, 'Visible', 'off');
-create_figure_(hFig, [0 0 .5 1], P.vcFile_prm, 1, 1);
+hFig = create_figure_('Fig_RD1', [0 0 .5 1], P.vcFile_prm, 1, 1);
 vhAx(1) = subplot(211); hold on; 
 plot(vrX_plot1, vrY_plot, '.', 'Color', repmat(.5,1,3));
 plot(vrX_plot1(S_clu.icl), vrY_plot(S_clu.icl), 'ro');
@@ -14338,7 +14637,7 @@ end %func
 
 %--------------------------------------------------------------------------
 function vrSnr_clu = S_clu_snr_(S_clu)
-S0 = get0_();
+S0 = get(0, 'UserData');
 S_clu = S_clu_wav_(S_clu, [], 1);
 mrVmin_clu = shiftdim(min(S_clu.tmrWav_clu,[],1));
 [vrVmin_clu, viSite_clu] = min(mrVmin_clu,[],1);
@@ -14360,7 +14659,7 @@ end %func
 function delete_auto_()
 % SNR based delete functionality
 % Ask SNR
-S0 = get0_();
+S0 = get(0, 'UserData');
 [S_clu, P] = get0_('S_clu', 'P');
 hFig = create_figure_('', [.5 .7 .35 .3], ['Delete Auto: ', P.vcFile]);
 
@@ -14392,15 +14691,16 @@ S0 = gui_update_();
 figure_wait_(0);
 
 msgbox_(sprintf('Deleted %d clusters <%0.1f SNR or <%d spikes/unit.', numel(viClu_delete), snr_min_thresh, count_thresh));
-S0 = save_log_(sprintf('delete-auto <%0.1f SNR or <%d spikes/unit', snr_min_thresh, count_thresh), S0);
+save_log_(sprintf('delete-auto <%0.1f SNR or <%d spikes/unit', snr_min_thresh, count_thresh), S0);
 end %func
 
 
 %--------------------------------------------------------------------------
-function merge_auto_()
+function merge_auto_(S0)
 % SNR based delete functionality
 % Ask SNR
-S0 = get0_();
+if nargin<1, S0 = []; end
+if isempty(S0), S0 = get(0, 'UserData'); end
 [S_clu, P] = deal(S0.S_clu, S0.P);
 
 % snr_thresh = inputdlg_num_('SNR threshold: ', 'Auto-deletion based on SNR', 10); % also ask about # spikes/unit (or firing rate) @TODO
@@ -14416,7 +14716,7 @@ figure_wait_(1); drawnow;
 nClu_prev = S_clu.nClu;
 S_clu = post_merge_wav_(S_clu, P.nRepeat_merge, setfield(P, 'maxWavCor', maxWavCor));
 % [S_clu, S0] = S_clu_commit_(S_clu, 'post_merge_');
-S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, S_clu_self_corr_(S_clu));
+S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, S_clu_self_corr_(S_clu, [], S0));
 set0_(S_clu);
 S0 = gui_update_();
 figure_wait_(0);
@@ -14424,7 +14724,7 @@ figure_wait_(0);
 assert_(S_clu_valid_(S_clu), 'Cluster number is inconsistent after deleting');
 nClu_merge = nClu_prev - S_clu.nClu;
 msgbox_(sprintf('Merged %d clusters >%0.2f maxWavCor.', nClu_merge, maxWavCor));
-S0 = save_log_(sprintf('merge-auto <%0.2f maxWavCor', maxWavCor), S0);
+save_log_(sprintf('merge-auto <%0.2f maxWavCor', maxWavCor), S0);
 end %func
 
 
@@ -14556,7 +14856,7 @@ function [S_clu, S0] = S_clu_commit_(S_clu, vcMsg)
 if nargin<2, vcMsg = ''; end
 if ~S_clu_valid_(S_clu)
     fprintf(2, '%s: Cluster number is inconsistent.', vcMsg);
-    S0 = get0_();
+    S0 = get(0, 'UserData');
     S_clu = get_(S0, 'S_clu');
 else
     S0 = set0_(S_clu);
@@ -14607,15 +14907,22 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function S_fig = figWav_clu_count_(S_fig)
+function S_fig = figWav_clu_count_(S_fig, S_clu)
 if nargin<1, [hFig, S_fig] = get_fig_cache_('FigWav'); end
-[P, S_clu] = get0_('P', 'S_clu');
-delete_(get_(S_fig, 'vhText'));
-if get_(P, 'fText')
-    S_fig.vhText = text_nClu_(S_clu, S_fig.hAx);
-else
-    S_fig.vhText = [];
-end
+if nargin<2, S_clu = []; end
+if isempty(S_clu), S_clu = get0_('S_clu'); end
+
+csText_clu = arrayfun(@(i)sprintf('%d (%d)', i, S_clu.vnSpk_clu(i)), 1:S_clu.nClu, 'UniformOutput', 0);
+set(S_fig.hAx, 'Xtick', 1:S_clu.nClu, 'XTickLabel', csText_clu)
+
+% [P, S_clu] = get0_('P', 'S_clu');
+% text_nClu_(S_clu, S_fig.hAx);
+% delete_(get_(S_fig, 'vhText'));
+% if get_(P, 'fText')
+%     S_fig.vhText = text_nClu_(S_clu, S_fig.hAx);
+% else
+%     S_fig.vhText = [];
+% end
 end %func
 
 
@@ -15333,6 +15640,7 @@ end %func
 
 
 %--------------------------------------------------------------------------
+% 12/21/17 JJJ: clearing a batch file (v3.2.0)
 % 10/15/17 JJJ: clear function memory
 % 7/31/17 JJJ: Documentation and test
 function clear_(vcFile_prm)
@@ -15350,10 +15658,19 @@ try gpuDevice(1); catch, fprintf(2, 'GPU reset error.\n'); end
 disp('Memory cleared on CPU and GPU');
 fDebug_ui = [];
 
+if isempty(vcFile_prm), return; end
+
 % clear specific parameter file. erase prm file related files
-if ~isempty(vcFile_prm)    
-    csFiles_del = strrep(vcFile_prm, '.prm', {'_jrc.mat', '_spkraw.jrc', '_spkwav.jrc', '_spkfet.jrc', '_log.mat', '_gt1.mat'});
-    delete_files_(csFiles_del);
+if matchFileExt_(vcFile_prm, '.batch')
+    csFile_prm = load_batch_(vcFile_prm);
+elseif matchFileExt_(vcFile_prm, '.prm')
+    csFile_prm = {vcFile_prm};
+else
+    return;
+end
+for iFile = 1:numel(csFile_prm)
+    csFiles_del = strrep(csFile_prm{iFile}, '.prm', {'_jrc.mat', '_spkraw.jrc', '_spkwav.jrc', '_spkfet.jrc', '_log.mat', '_gt1.mat'});
+    delete_files_(csFiles_del);    
 end
 end %func
 
@@ -15615,7 +15932,6 @@ function varargout = get0_(varargin)
 % [S0, P] = get0_();
 % [S0, P, S_clu] = get0_();
 % [var1, var2] = get0_('var1', 'var2'); %sets [] if doesn't exist
-
 S0 = get(0, 'UserData'); 
 if ~isfield(S0, 'S_clu'), S0.S_clu = []; end
 if nargin==0
@@ -16098,7 +16414,7 @@ end %func
 %--------------------------------------------------------------------------
 % 8/6/17 JJJ: Initial implementation, documented and tested
 function S0 = keyPressFcn_Fig_preview_(hFig, event, S0)
-if nargin<3, S0 = get0_(); end
+if nargin<3, S0 = get(0, 'UserData'); end
 P = get_(S0, 'P');
 S_fig = get(hFig, 'UserData');
 factor = 1 + 3 * key_modifier_(event, 'shift');
@@ -17238,7 +17554,7 @@ end % func
 %--------------------------------------------------------------------------
 % 9/19/17 JJJ: Created for SPARC
 function mrRate_clu = clu_rate_(S_clu, viClu, nSamples)
-S0 = get0_();
+S0 = get(0, 'UserData');
 P = S0.P;
 if nargin<2, viClu = []; end 
 if nargin<3, nSamples = []; end
@@ -17486,8 +17802,8 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.1.10';
-vcDate = '12/15/2017';
+vcVer = 'v3.2.0';
+vcDate = '12/21/2017';
 vcVer_used = '';
 if nargout==0
     fprintf('%s (%s) installed\n', vcVer, vcDate);
@@ -17715,7 +18031,7 @@ end %func
 %--------------------------------------------------------------------------
 % 10/10/17 JJJ: load tnWav_raw from disk
 function tnWav_raw = load_spkraw_(S0)
-if nargin<1, S0 = get0_(); end
+if nargin<1, S0 = get(0, 'UserData'); end
 tnWav_raw = load_bin_(strrep(S0.P.vcFile_prm, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);
 end %func
 
@@ -17723,7 +18039,7 @@ end %func
 %--------------------------------------------------------------------------
 % 10/10/17 JJJ: load tnWav_spk from disk
 function tnWav_spk = load_spkwav_(S0)
-if nargin<1, S0 = get0_(); end
+if nargin<1, S0 = get(0, 'UserData'); end
 tnWav_spk = load_bin_(strrep(S0.P.vcFile_prm, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
 end %func
 
@@ -17884,7 +18200,7 @@ function trFet_spk_ = nneigh_ave_(S_clu, P, trFet_spk)
 % cluster based averaging fet cleanup
 error('not done');
 nClu = S_clu.nClu;
-S0 = get0_();
+S0 = get(0, 'UserData');
 trFet_spk = gpuArray(trFet_spk);
 trFet_spk_ = zeros(size(trFet_spk), 'like', trFet_spk);
 for iClu = 1:nClu
@@ -17915,7 +18231,7 @@ function trFet_spk_ = denoise_fet_(trFet_spk, P, vlRedo_spk)
 nRepeat_fet = get_set_(P, 'nRepeat_fet', 0);
 if nRepeat_fet==0, trFet_spk_ = trFet_spk; return ;end
 
-S0 = get0_();
+S0 = get(0, 'UserData');
 fprintf('Denoising features using nneigh\n\t'); t1=tic;
 nSites = numel(P.viSite2Chan);
 nC = size(trFet_spk,1);
@@ -18418,7 +18734,7 @@ csAns = inputdlg('Which channel to load', 'Channel', 1, {num2str(P.nChans)});
 iChan = str2double(csAns{1});
 
 % get output file
-vcFile_trial = subsFileExt(P.vcFile,  sprintf('_ch%d_trial.mat', iChan));
+vcFile_trial = subsFileExt(P.vcFile_prm,  sprintf('_ch%d_trial.mat', iChan));
 try
     [FileName,PathName,FilterIndex] = uiputfile(vcFile_trial, 'Save file name');
     if ~FilterIndex, return; end %cancelled
@@ -18430,9 +18746,9 @@ end
 vcAns = questdlg_('TTL Edge', 'Select rising or falling edge for the TTL pulses', 'Rising edge', 'Falling edge', 'Rising edge');
 if isempty(vcAns), return; end
 
-hMsg = msgbox_('Loading...');
+hMsg = msgbox_('Loading... (this closes automatically)');
 vrWav = load_bin_chan_(P, iChan);
-if isempty(vrWav), fprintf(2, 'File loading error: %s\n', P.vcFile); return; end
+if isempty(vrWav), fprintf(2, 'File loading error: %s\n', P.vcFile_prm); return; end
 % fid = memmapfile(P.vcFile, 'Offset', 0, 'Format', P.vcDataType, 'Repeat', inf);
 % vrWav = fid.Data(iChan:P.nChans:end);
 % clear fid;
@@ -18487,21 +18803,147 @@ end %func
 
 
 %--------------------------------------------------------------------------
+% 12/20/17 JJJ: support combined recordings and header containing files
 % 12/15/17 JJJ: Load a single channel in memory efficient way
 function vrWav = load_bin_chan_(P, iChan)
 vrWav = [];
-if ~exist_file_(P.vcFile), return; end
-try        
-    S_file = dir(P.vcFile);
-    if isempty(S_file), return; end
-    bytesPerSample = bytesPerSample_(P.vcDataType);
-    nSamples = floor(S_file(1).bytes / bytesPerSample / P.nChans);
 
-    fid = fopen(P.vcFile, 'r');    
-    fseek(fid, bytesPerSample * (iChan-1), 'bof');
+% Join multiple recordings if P.csFile_merge is set
+if isempty(P.vcFile) && ~isempty(P.csFile_merge)
+    csFile_bin = filter_files_(P.csFile_merge);   
+    cvrWav = cell(numel(csFile_bin), 1);
+    P_ = setfield(P, 'csFile_merge', {}); 
+    for iFile=1:numel(csFile_bin)
+        P_ = setfield(P, 'vcFile', csFile_bin{iFile});
+        cvrWav{iFile} = load_bin_chan_(P_, iChan);
+    end
+    vrWav = cell2mat_(cvrWav);
+    return;
+end
+
+if ~exist_file_(P.vcFile), return; end    
+try        
+    nBytes = getBytes_(P.vcFile);
+    if isempty(nBytes), return; end
+    header_offset = get_(P, 'header_offset', 0);
+    bytesPerSample = bytesPerSample_(P.vcDataType);
+    nSamples = floor((nBytes-header_offset) / bytesPerSample / P.nChans);
+
+    fid = fopen(P.vcFile, 'r');     
+    fseek(fid, bytesPerSample * (iChan-1) + header_offset, 'bof');
     vrWav = fread(fid, [nSamples, 1], ['*', lower(P.vcDataType)], (P.nChans-1) * bytesPerSample);     
     fclose(fid);
 catch
     return;
 end
+end %func
+
+
+%--------------------------------------------------------------------------
+% 12/20/17 JJJ: Export to LFP file
+function import_lfp_(P)
+% % Merge LFP file for IMEC3 probe
+% try
+%     if ~isempty(strfind(lower(vcFile), '.imec.ap.bin'))    
+%         func_ap2lf = @(x)strrep(lower(x), '.imec.ap.bin', '.imec.lf.bin');
+%         vcFile_lf = func_ap2lf(vcFile);
+%         csFile_merge_lf = cellfun(@(x)func_ap2lf(x), csFile_merge1, 'UniformOutput', 0);
+%         merge_binfile_(vcFile_lf, csFile_merge_lf);
+%     end
+% catch
+%     disp('Merge LFP file error for IMEC3.');
+% end
+P.vcFile_lfp = strrep(P.vcFile_prm, '.prm', '.lfp.jrc');
+t1 = tic;
+if isempty(P.csFile_merge)
+    % single file
+    if is_new_imec_(P.vcFile) % don't do anything, just set the file name
+        P.vcFile_lfp = strrep(P.vcFile, '.imec.ap.bin', '.imec.lf.bin');
+        P.nSkip_lfp = 12;
+        P.sRateHz_lfp = 2500;      
+    else
+        bin_file_copy_(P.vcFile, P.vcFile_lfp, P);
+    end 
+else % craete a merged output file
+    csFiles_bin = filter_files_(P.csFile_merge);
+    fid_lfp = fopen(P.vcFile_lfp, 'w');
+    % multiple files merging
+    P_ = P;
+    for iFile = 1:numel(csFiles_bin)
+        vcFile_ = csFiles_bin{iFile};
+        if is_new_imec_(vcFile_)        
+            vcFile_ = strrep(vcFile_, '.imec.ap.bin', '.imec.lf.bin');
+            P_.nSkip_lfp = 1;
+        end
+        bin_file_copy_(vcFile_, fid_lfp, P_);        
+    end
+    fclose(fid_lfp);
+end
+% update the lfp file name in the parameter file
+edit_prm_file_(P, P.vcFile_prm);
+fprintf('\tLFP file (vcFile_lfp) updated: %s\n\ttook %0.1fs\n', P.vcFile_lfp, toc(t1));
+end %func
+
+
+%--------------------------------------------------------------------------
+function flag = is_new_imec_(vcFile)
+flag = ~isempty(regexp(lower(vcFile), '.imec.ap.bin$'));
+end %func
+
+
+%--------------------------------------------------------------------------
+function bin_file_copy_(vcFile_r, vcFile_w, P)
+% bin_file_copy_(vcFile_r, fid_w, P): provide file handle to write
+% bin_file_copy_(vcFile_r, vcFile_w, P): provide file name to write
+
+if ischar(vcFile_w)
+    fid_w = fopen(vcFile_w, 'w');
+else
+    fid_w = vcFile_w;
+end
+try
+    vn = load_bin_(vcFile_r, P.vcDataType, [], P.header_offset);
+    if P.nSkip_lfp > 1
+        nSkip_lfp = round(P.nSkip_lfp);        
+        vn = reshape_(vn, P.nChans)'; % return nTime x nChans
+        dimm_ = size(vn); % [nTime x nChans]
+        nSamples_lfp = floor(dimm_(1) / nSkip_lfp);
+        if dimm_(1) ~= (nSamples_lfp * nSkip_lfp)
+            vn = vn(1:nSamples_lfp * nSkip_lfp, :); % trim extra time
+        end
+        vn = mean(reshape(vn, nSkip_lfp, []), 1);
+        vn = reshape(cast(vn, P.vcDataType), nSamples_lfp, [])';
+    end
+    write_bin_(fid_w, vn); %write all straight
+catch E
+    disperr_('bin_file_copy_', E);
+end
+if ischar(vcFile_w)
+    fclose(fid_w);
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+function mr = reshape_(vr, n1)
+% n1: leading dimension
+n = numel(vr);
+n2 = floor(n / n1);
+if n == (n1*n2)
+    mr = reshape(vr, n1, n2);
+else
+    mr = reshape(vr(1:(n1*n2)), n1, n2);
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+% Show LFP traces
+function traces_lfp_(P)
+P.sRateHz = P.sRateHz_lfp;
+P.vcFile = P.vcFile_lfp;
+P.csFile_merge = {};
+P.tlim(2) = P.tlim(1) + diff(P.tlim) * P.nSkip_lfp;
+P.header_offset = 0;
+traces_(P, 0, [], 1); % don't show spikes, don't set P to S0
 end %func

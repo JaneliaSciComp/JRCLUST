@@ -73,18 +73,21 @@ end
 mr1 = bsxfun(@plus, mr1, vrMu); %add mean back
 
 if nargout==0 || fDebug
+    figure; set(gcf,'Color','w');
+    subplot(121); plot(vrFreq, vrFft1,'k.','MarkerSize',8); xlabel('Freq (Hz)');
+    axis([0 10000 -10 40]);
     n = min(10000, size(mr,1));
-    figure; plot(mr(1:n,1)); hold on; plot(mr1(1:n,1));
-    plot(mr1(1:n,1)-mr(1:n,1));    
+    subplot(122); plot(mr(1:n,1)); hold on; plot(mr1(1:n,1));
+%     plot(mr1(1:n,1)-mr(1:n,1));    
     
-    return;
+%     return;
 %     sRateHz = 25000;
 %     vrFreq = (1:size(mr1,1))/size(mr1,1)*sRateHz;
 %     figure; plot(viFreq, vrFft0, '.');
-    subplot(2,2,3:4); plot(viFreq, vrFft1, '.');
+    subplot(1,2,2); plot(viFreq, vrFft1, '.');
     hold on; plot(viFreq(vi_noise), vrFft1(vi_noise), 'o');
     grid on; ylim([-5 20]);
     
     plot(get(gca,'XLim'), thresh*[1,1]);
-    
+    axis([0 10000 -10 40]);
 end

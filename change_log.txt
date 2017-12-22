@@ -2,21 +2,42 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/12/21: v3.2.0]
+Bugfix (Manual GUI): Unit selection cursors do not disappear anymore after file saving.
+  This has been an issue since v3.1.8 with an introduction of saving the 
+  cluster selection plot (rho vs. delta for the DPCLUS clustering algorithm).
+Bugfix ('maketrial' command): Supports binary files with header information and/or
+  multiple combined recordings if multiple binary files are set in "csFile_merge" parameter.
+Speed improvement: "delete/merge/split" operation for Manual GUI got significantly faster
+  Removed unnecessary visual updates and text box display for the unit counts, which is now
+  shown on the x-axis as "unit# (counts)". The text box indicating the unit count used to
+  block the waveforms and took a long time to plot.
+"jrc clear mybatch.batch" will clear the output of the .prm files listed the batch text file (.batch).
+LFP-related commands are migrated from jrclust.m (ver. 1)
+  "jrc import-lfp" extracts LFP signal by subsampling the raw traces or by loading 
+    the LFP file (.imec.lf.bin) for Neuropixels recordings.
+  LFP file name (.lfp.jrc) is automatically generated from .prm file and 
+    `vcFile_lfp` parameter is updated in .prm file.
+  Subsampling is done by averaging the time bin (P.nSkip_lfp) to prevent aliasing 
+    as opposed to simply skipping samples.
+  "jrc traces-lfp" plots the LFP traces with a larger time window by a factor of P.nSkip_lfp.
+    This works similarly to "jrc traces" command for viewing wide-band traces.
+
 [2017/12/15: v3.1.10]
-New parameter: 'nSamples_gpu' which sets the number of samples to be loaded to GPU memory.
+New parameter: `nSamples_gpu` which sets the number of samples to be loaded to GPU memory.
   Current default is 250,000, and previous default was 1000,000 which could not be changed.
   Reduce this number if you run out of GPU memory.  
-  This value is used if P.fft_thresh > 0 or P.vcCommonRef=='whitening'.
+  This value is used if P.fft_thresh > 0 or "P.vcCommonRef=='whitening'".
 New parameter: 'fSpatialMask_clu' is disabled by default (previously enabled)
   Spatial mask applies spatially decaying weight as a function of distance from the center site
-  "maxDist_site_um" is used as the half-distance scale (1/2 weight is multiplied at that distance)
+  `maxDist_site_um` is used as the half-distance scale (1/2 weight is multiplied at that distance)
   Spatial masking is disabled if you have less than "min_sites_mask" number of sites per spiking events.
 n-trode geometry is now supported (n>=1). You need to set each tetrode group as separate shanks by setting 
-  "shank" parameter in the .prb file for each site number. 
-  (e.g.) if site 1:4 belongs to tetrode 1 and site 5:8 belongs to tetrode 2, then set shank = [1 1 1 1 2 2 2 2];
+  `shank` parameter in the .prb file for each site number. 
+  (e.g.) if site 1:4 belongs to tetrode 1 and site 5:8 belongs to tetrode 2, then set "shank = [1 1 1 1 2 2 2 2];";
 Bugfix: Spikes near the beginning of the recordings are now properly merged (spkMerge_single_() function).
 New options for common-mode rejection: 'vcCommonRef' now supports 'median' and 'whitening'.
-  Setting vcCommonRef = 'whitening' will perform spatial whitening between channels.
+  Setting `vcCommonRef` = 'whitening' will perform spatial whitening between channels.
 Trace GUI: color of spikes remains consistent between time window switching.
 Manual GUI: Bugfix: Combination of selecting 'raw waveform' view in 'pca' unit works properly.
 New feature: "maketrial" command
@@ -284,13 +305,13 @@ You can specify a file sorting option at the end "jrc dir file*.bin mylist.txt [
   If .meta file is unavailable, user will be asked to provide required info (sampling rate, # channels/file, uV/bit, probe file).
 
 [2017/8/4]
-'blank_period_ms' is now using millisecond unit. Previous it was using second unit.
+`blank_period_ms` is now using millisecond unit. Previous it was using second unit.
 
 [2017/8/2]
-Bugfix: 'makeprm' sometimes couldn't create .prm file. Now fixed.
+Bugfix: `makeprm` sometimes couldn't create .prm file. Now fixed.
 
 [2017/8/1]
-Bugfix: 'makeprm' sometimes couldn't locate .meta file. Now fixed.
+Bugfix: `makeprm` sometimes couldn't locate .meta file. Now fixed.
 
 [2017/7/31]
 'makeprm' command now works with a wild-card file path (csFile_merge = 'f*.bin')

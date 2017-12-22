@@ -1,0 +1,20 @@
+nTetrodes = 4;  % Number of tetrodes
+
+channels = 1:(nTetrodes*4);
+
+geometry = zeros(numel(channels), 2); % create a geometry of electrodes (assuming 25 um site separation)
+geometry(1:2:end,1) = 0;
+geometry(2:2:end,1) = 25;
+geometry(1:4:end,2) = 100*(1:nTetrodes);
+geometry(3:4:end,2) = geometry(1:4:end,2) + 25;
+geometry(2:2:end,2) = geometry(1:2:end,2);
+
+% Shanks
+shank = repmat([1:nTetrodes], 4,1); 
+shank = shank(:)';
+
+% Micrometers per center-to-center vertical site spacing
+um_per_pix = 25;            
+
+% Recording contact pad size in micrometers. Height x width
+pad = [12 12];

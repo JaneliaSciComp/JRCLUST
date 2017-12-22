@@ -4,8 +4,8 @@ channels = 1 + [40  103 39	104	41	102	38	105	42	101	37	106	43	100	36	107, 44	99	
 % Site location in micrometers (x and y)
 geometry = zeros(128, 2);
 geometry(1:2:end,1) = 0;
-geometry(2:2:end,1) = 28;
-geometry(1:2:end,2) = 20*(0:63);
+geometry(2:2:end,1) = 25;
+geometry(1:2:end,2) = 25*(0:63);
 geometry(2:2:end,2) = geometry(1:2:end,2);
 
 % Reference sites are being excluded
