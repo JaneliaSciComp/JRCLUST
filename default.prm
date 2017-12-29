@@ -16,14 +16,14 @@ fInverse_file = 0;          % Set to 1 to flip the polarity of the signal
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.2.0';        % JRCLUST version. Updated on Dec 21, 2017
+version = 'v3.2.1';        % JRCLUST version. Updated on Dec 29, 2017
 fVerbose = 0;               % Verbose flag, set to 0 to suppress displaying extra information 
 fParfor = 1;                % Use Multiple CPU cores (if parallel processing toolbox is installed)
 fGpu = 1;                   % Use GPU if parallel processing toolbox is installed
 iGpu = 1;                   % Use specific GPU ID (run 'gpuDevice()' to retrieve the list of GPUs)
 MAX_BYTES_LOAD = [];        % Default memory loading block size (bytes)
 MAX_LOAD_SEC = [];          % Maximum loading duration (seconds). This overrides "MAX_BYTES_LOAD".
-MAX_LOG = 10;               % Maximum number of histories to track for 'manual' GUI
+MAX_LOG = 5;               % Maximum number of histories to track for 'manual' GUI
 nSamples_gpu = 250000;      % Number of samples to process in GPU at a time. Reduce this number if GPU crashes for high-channel arrays
 vcFile_thresh = '';         % Name of .mat file taht stores the spike detection threshold in 'vnThresh_site' variable. Created by 'preview' GUI
 sec_per_load_preview = 1;   % Recording duration (sec) per continuous segment to preview
@@ -46,6 +46,7 @@ nShow_proj = 500;           % Max. number of spikes to show in the projection vi
 vcFet_show = 'vpp';         % Feature to show in time plot {'vpp', 'cov', 'pca'} (*)
 mrColor_proj = [.75 .75 .75; 0 0 0; 1 0 0];     % background, selected, comparison color
 vcFilter_show = '';         % Filter to apply in the "traces" view. Choices: {'', 'bandpass', 'sgdiff'}. '' uses vcFilter setting.
+fText = 1;                  % Show spike count per unit (*, press 'n' to toggle in manual GUI)
 
 % #Pre-processing (run "jrc spikesort" after change)
 tlim_load = [];             % Time range to load in sec (uses all time range if set to empty)
@@ -82,6 +83,7 @@ blank_period_ms = 5;        % (miliseconds) Duration of blanking when the common
 nneigh_min_detect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
 maxDist_site_um = 50;       % Radius of spike event merging. Keep spikes that has most negative peaks within x um radius.
 maxDist_site_spk_um = 75;   % Max. radius for extracting waveforms. Used if maxSite=[] and nSites_ref=[]
+fGroup_shank = 0;           % Group all sites in the same shank
 
 % #Feature extraction (run "jrc spikesort" after change)
 vcFet = 'gpca';             % Feature list: {'gpca', 'cov', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'}
@@ -197,7 +199,6 @@ viChan_aux = [];            % aux and sync channels [D]
 cviShank = {};              % Shank channel group [D]
 
 % Display parameters
-fText = 1;                  % Show text description [D]
 LineStyle = '';             % Line style string [D]
 fShowAllSites = 0;          % Show mean traces from all sites [D]
 fAddCommonRef = 0;          % Add common ref [D]

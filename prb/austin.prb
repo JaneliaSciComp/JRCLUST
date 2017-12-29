@@ -20,6 +20,7 @@ geometry = [0, 0;   7, 0;   14, 0;  21, 0;
             0, 49;   7, 49;   14, 49;  21, 49];
 geometry(33:end,1) = geometry(33:end,1) + 250; %shanks are 250 um apart
 
-cviShank = {1:32, 33:64};
+shank = ones(size(channels));
+shank(33:end) = 2;
 
 pad = [5 5]; %in micrometers, height x width

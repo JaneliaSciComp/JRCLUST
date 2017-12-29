@@ -153,23 +153,12 @@ function MainFig = mouse_figure(MainFig, axs, hFunClick)
                 xyPoint = get(axs, 'CurrentPoint');
                 if ~isempty(hFunClick)
                     hFunClick(xyPoint([1,3]), vcButton); 
-%                       hFunClick(varargin{:});   
                 end
             case 'extend'
-%                 set(axs, 'Visible', 'off');
                 status = 'down';
                 % hide objects
                 hide_drag_(MainFig);                
                 previous_point = get(axs, 'CurrentPoint');                              
-            % reset view on double click
-%             case 'alt' % double click (left or right)
-%                 return; %JJJ
-%                 set(axs, 'Xlim', original_xlim,...
-%                          'Ylim', original_ylim);  
-            % right click - set new reset state
-%             case 'alt'
-%                 original_xlim = get(axs, 'xlim');
-%                 original_ylim = get(axs, 'ylim');
         end
     end
     

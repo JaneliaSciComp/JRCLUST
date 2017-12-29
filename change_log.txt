@@ -2,6 +2,18 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2017/12/29: v3.2.1]
+Old multishank probe file format is supported (v1, jrclust.m). 
+  'cviShank' which is a cell containing a list of sites is converted to 'shank' format
+FFT clean operation is faster now (used if "fft_clean" parameter is greater than 0)
+Manual GUI: Number of spikes per unit displayed the x-axis label can be toggled by pressing 'n' 
+Manual GUI: performance improvement
+  Faster update when a unit is selected
+  Faster PSTH plot
+  Default log length decreased to 5 from 10 previously ('MAX_LOG' parameter).
+New command: "jrc quality myparam.prm"
+  This command displays the unit quality info and exports to a csv file (ends with "_quality.csv").
+
 [2017/12/21: v3.2.0]
 Bugfix (Manual GUI): Unit selection cursors do not disappear anymore after file saving.
   This has been an issue since v3.1.8 with an introduction of saving the 

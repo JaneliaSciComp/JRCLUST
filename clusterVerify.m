@@ -14,7 +14,7 @@ viCluGt_unique = unique(viCluGt);
 nCluGt = numel(viCluGt_unique);
 % nClu = numel(viClu_unique);
 nClu = max(viClu);
-[mrMiss, mrFp] = deal(nan(nClu, nCluGt, 'single'));
+[mrMiss, mrFp, mrAccuracy] = deal(nan(nClu, nCluGt, 'single'));
 [vnDetected, vnCluGt] = deal(zeros(nCluGt,1,'int32'));
 cviTime = arrayfun(@(iClu)unique(int32(viTime(viClu==iClu)/jitter)), 1:nClu, 'UniformOutput', 0);
 % cviTimeGt = arrayfun(@(iClu)gpuArray(viTimeGt(viCluGt==iClu)/jitter), viCluGt_unique, 'UniformOutput', 0);
@@ -34,17 +34,19 @@ parfor iCluGt1=1:nCluGt
 
     % detection check
     vnDetected(iCluGt1) = count_overlap_(rGT1, viTime0);
-    [gvrMiss1, gvrFp1] = deal(zeros(nClu, 1, 'single'));
+    [vrMiss_, vrFp_, vrAccuracy_] = deal(zeros(nClu, 1, 'single'));
     for iClu=1:nClu
         rComp1 = cviTime{iClu};
         n3 = count_overlap_(rGT1, rComp1);
         n2 = numel(rComp1);
         n1 = numel(rGT1);
-        gvrMiss1(iClu) = (n1-n3)/n1;
-        gvrFp1(iClu) = (n2-n3)/n2;
+        vrMiss_(iClu) = (n1-n3)/n1;
+        vrFp_(iClu) = (n2-n3)/n2;   
+        vrAccuracy_(iClu) = n3 / (n1+n2-n3);
     end
-    mrMiss(:,iCluGt1) = gvrMiss1;
-    mrFp(:,iCluGt1) = gvrFp1;    
+    mrMiss(:,iCluGt1) = vrMiss_;
+    mrFp(:,iCluGt1) = vrFp_;    
+    mrAccuracy(:,iCluGt1) = vrAccuracy_;
     fprintf('.');
 end
 fprintf('\n\ttook %0.1fs.\n', toc(t1));
@@ -72,12 +74,12 @@ for iCluGt=1:nCluGt
     cviSpk_gt_hit{iCluGt} = viSpk_gt1(vlSpk_gt1);
     cviSpk_gt_miss{iCluGt} = viSpk_gt1(~vlSpk_gt1);
     cviSpk_clu_hit{iCluGt} = viSpk_clu1(vlSpk_clu1);
-    cviSpk_clu_miss{iCluGt} = viSpk_clu1(~vlSpk_clu1);    
+    cviSpk_clu_miss{iCluGt} = viSpk_clu1(~vlSpk_clu1);  
 end
-
+[vrAccuracy, viCluMatch_accuracy] = max(mrAccuracy);
 S_score_clu = makeStruct_(vrScore, vrMiss, vrFp, viCluMatch, cviHit_gt, ...
     cviMiss_gt, cviHit_clu, cviMiss_clu, cviSpk_gt_hit, cviSpk_gt_miss, ...
-    cviSpk_clu_hit, cviSpk_clu_miss);
+    cviSpk_clu_hit, cviSpk_clu_miss, vrAccuracy, viCluMatch_accuracy);
 % viCluMatch1 = viClu_unique(viCluMatch);
 % vrScore = 1-vrMiss-vrFp;
 func1=@(x)quantile(x, [.25,.5,.75])*100;
@@ -88,6 +90,8 @@ fprintf('\tFalse-positives (<%0.1f%%> %0.1f %0.1f %0.1f): %s\n', ...
     nanmean(vrFp)*100, func1(vrFp), sprintf('%0.1f ', vrFp*100));
 fprintf('\tFalse-negatives (<%0.1f%%> %0.1f %0.1f %0.1f): %s\n', ...
     nanmean(vrMiss)*100, func1(vrMiss), sprintf('%0.1f ', vrMiss*100));
+fprintf('\tAccuracy (<%0.1f%%> %0.1f %0.1f %0.1f): %s\n', ...
+    nanmean(vrAccuracy)*100, func1(vrAccuracy), sprintf('%0.1f ', vrAccuracy*100));
 fprintf('\tScore (<%0.1f%%> %0.1f %0.1f %0.1f): %s\n', ...
     nanmean(vrScore)*100, func1(vrScore), sprintf('%0.1f ', vrScore*100));
 fprintf('\tCluster-size: %s\n', sprintf('%d, ', vnCluGt));

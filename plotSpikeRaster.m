@@ -135,6 +135,7 @@ p.addParamValue('RelSpikeStartTime',0,@(x) isnumeric(x) && isscalar(x));
 p.addParamValue('RasterWindowOffset',NaN,@(x) isnumeric(x) && isscalar(x));
 p.addParamValue('VertSpikePosition',0,@(x) isnumeric(x) && isscalar(x));
 p.addParamValue('VertSpikeHeight',1,@(x) isnumeric(x) && isscalar(x));
+p.addParamValue('hAx',gca,@ishandle); % 122917 JJJ: axes handle
 p.parse(spikes,varargin{:});
 
 spikes = p.Results.spikes;
@@ -150,6 +151,7 @@ relSpikeStartTime = p.Results.RelSpikeStartTime;
 rasterWindowOffset = p.Results.RasterWindowOffset;
 vertSpikePosition = p.Results.VertSpikePosition;
 vertSpikeHeight = p.Results.VertSpikeHeight;
+hAx = p.Results.hAx; % 122917 JJJ: axes handle
 
 if ~isnan(rasterWindowOffset) && relSpikeStartTime==0
     relSpikeStartTime = rasterWindowOffset;
@@ -160,8 +162,8 @@ elseif ~isnan(rasterWindowOffset) && relSpikeStartTime~=0
 end
 
 %% Initialize figure and begin plotting logic
-figure(figH);
-hold on;
+% figure(figH);
+hold(hAx, 'on');
 
 if islogical(spikes)
     %% Binary spike train matrix case. Initialize variables and set axes.
@@ -173,8 +175,8 @@ if islogical(spikes)
     relSpikeStartTime = relSpikeStartTime/timePerBin;
     
     % Note: xlim and ylim are much, much faster than axis or set(gca,...).
-    xlim([0+relSpikeStartTime nTimes+1+relSpikeStartTime]);
-    ylim([0 nTrials+1]);        
+    xlim(hAx, [0+relSpikeStartTime nTimes+1+relSpikeStartTime]);
+    ylim(hAx, [0 nTrials+1]);        
     
     switch plotType
         case 'horzline'
@@ -193,7 +195,7 @@ if islogical(spikes)
                     
             xPoints = xPoints(:);
             yPoints = yPoints(:);
-            plot(xPoints,yPoints,'k',lineFormat{:});
+            plot(hAx, xPoints,yPoints,'k',lineFormat{:});
         case 'vertline'
             %% Vertical Lines
             % Find the trial (yPoints) and timebin (xPoints) of each spike
@@ -211,7 +213,7 @@ if islogical(spikes)
 
             xPoints = xPoints(:);
             yPoints = yPoints(:);
-            plot(xPoints,yPoints,'k',lineFormat{:});
+            plot(hAx, xPoints,yPoints,'k',lineFormat{:});
         case 'horzline2'
             %% Horizontal lines, for many timebins
             % Plots a horizontal line the width of a time bin for each
@@ -265,7 +267,7 @@ if islogical(spikes)
                 end
             end
             
-            plot(xPoints, yPoints,'k', lineFormat{:});
+            plot(hAx, xPoints, yPoints,'k', lineFormat{:});
             
         case 'vertline2'
             %% Vertical lines, for many trials
@@ -302,7 +304,7 @@ if islogical(spikes)
                 end
             end
             
-            plot(xPoints, yPoints, 'k', lineFormat{:});
+            plot(hAx, xPoints, yPoints, 'k', lineFormat{:});
             
         case 'scatter'
             %% Dots or other markers (scatterplot style)
@@ -310,7 +312,7 @@ if islogical(spikes)
             % spike
             [yPoints,xPoints] = find(spikes==1);
             xPoints = xPoints + relSpikeStartTime;
-            plot(xPoints,yPoints,'.k',markerFormat{:});
+            plot(hAx, xPoints,yPoints,'.k',markerFormat{:});
             
         case 'imagesc'
             %% Imagesc
@@ -322,12 +324,12 @@ if islogical(spikes)
         otherwise
             error('Invalid plot type. Must be horzline, vertline, horzline2, vertline2, scatter, or imagesc');
     end % switch
-    set(gca,'YDir','reverse');
+    set(hAx,'YDir','reverse');
     
     %% Label
     if autoLabel
-        xlabel('Time (ms)');
-        ylabel('Trial');
+        xlabel(hAx, 'Time (ms)');
+        ylabel(hAx, 'Trial');
     end
 
 else % Equivalent to elseif iscell(spikes).
@@ -383,8 +385,8 @@ else % Equivalent to elseif iscell(spikes).
         % End result, if both limits are automatically set, is that the x
         % axis is expanded 0.1%, so you can see initial and final spikes.
     end
-    xlim(xLimForCell);
-    ylim([0 nTrials+1]);
+    xlim(hAx, xLimForCell);
+    ylim(hAx, [0 nTrials+1]);
     
     if strcmpi(plotType,'vertline') || strcmpi(plotType,'horzline')
         %% Vertical or horizontal line logic
@@ -442,7 +444,7 @@ else % Equivalent to elseif iscell(spikes).
         end
         
         % Plot everything at once! We will reverse y-axis direction later.
-        plot(xPoints, yPoints, 'k', lineFormat{:});
+        plot(hAx, xPoints, yPoints, 'k', lineFormat{:});
         
     elseif strcmpi(plotType,'scatter')
         %% Dots or other markers (scatterplot style)
@@ -460,7 +462,7 @@ else % Equivalent to elseif iscell(spikes).
         yPoints = [ trials{:} ];
         
         % Now we can plot! We will reverse y-axis direction later.
-        plot(xPoints,yPoints,'.k',markerFormat{:});
+        plot(hAx, xPoints,yPoints,'.k',markerFormat{:});
         
     elseif strcmpi(plotType,'imagesc') || strcmpi(plotType,'vertline2') || strcmpi(plotType,'horzline2')
         error('Can''t use imagesc/horzline2/vertline2 with cell array. Use with logical array of binary spike train data.');
@@ -469,28 +471,28 @@ else % Equivalent to elseif iscell(spikes).
     end % plot type switching
     
     %% Reverse y-axis direction and label
-    set(gca,'YDir','reverse');
+    set(hAx,'YDir','reverse');
     if autoLabel
-        xlabel('Time (s)');
-        ylabel('Trial');
+        xlabel(hAx, 'Time (s)');
+        ylabel(hAx, 'Trial');
     end
     
 end % logical vs cell switching
 
 %% Figure formatting
 % Draw the tick marks on the outside
-set(gca,'TickDir','out') 
+set(hAx,'TickDir','out') 
 
 % Use special formatting if there is only a single trial.
 % Source - http://labrigger.com/blog/2011/12/05/raster-plots-and-matlab/
 if size(spikes,1) == 1
-    set(gca,'YTick', [])                        % don't draw y-axis ticks
-    set(gca,'PlotBoxAspectRatio',[1 0.05 1])    % short and wide
-    set(gca,'YColor',get(gcf,'Color'))          % hide the y axis
-    ylim([0.5 1.5])
+    set(hAx,'YTick', [])                        % don't draw y-axis ticks
+    set(hAx,'PlotBoxAspectRatio',[1 0.05 1])    % short and wide
+    set(hAx,'YColor',get(gcf,'Color'))          % hide the y axis
+    ylim(hAx, [0.5 1.5])
 end
 
-hold off;
+hold(hAx, 'off');
 
 end % main function
 
