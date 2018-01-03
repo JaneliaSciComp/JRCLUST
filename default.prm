@@ -16,15 +16,15 @@ fInverse_file = 0;          % Set to 1 to flip the polarity of the signal
 header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
 
 % #Execution parameters
-version = 'v3.2.3';         % JRCLUST version. Updated on Jan 3, 2018
+version = 'v3.2.1';        % JRCLUST version. Updated on Dec 29, 2017
 fVerbose = 0;               % Verbose flag, set to 0 to suppress displaying extra information 
 fParfor = 1;                % Use Multiple CPU cores (if parallel processing toolbox is installed)
 fGpu = 1;                   % Use GPU if parallel processing toolbox is installed
 iGpu = 1;                   % Use specific GPU ID (run 'gpuDevice()' to retrieve the list of GPUs)
 MAX_BYTES_LOAD = [];        % Default memory loading block size (bytes)
 MAX_LOAD_SEC = [];          % Maximum loading duration (seconds). This overrides "MAX_BYTES_LOAD".
-MAX_LOG = 5;                % Maximum number of histories to track for 'manual' GUI
-nLoads_gpu = 8;             % Ratio of RAM to GPU memory. If your GPU memory is 12 GB and RAM is 96 GB, set nLoads_gpu = 8. Increase this number if you get GPU memory error.
+MAX_LOG = 5;               % Maximum number of histories to track for 'manual' GUI
+nSamples_gpu = 250000;      % Number of samples to process in GPU at a time. Reduce this number if GPU crashes for high-channel arrays
 vcFile_thresh = '';         % Name of .mat file taht stores the spike detection threshold in 'vnThresh_site' variable. Created by 'preview' GUI
 sec_per_load_preview = 1;   % Recording duration (sec) per continuous segment to preview
 nLoads_max_preview = 30;    % Number of time segments to load for preview

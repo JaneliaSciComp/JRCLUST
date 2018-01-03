@@ -1,6 +1,4 @@
 function mr1 = fft_clean(mr, thresh, nbins)
-% mr must be single
-
 if nargin<2, thresh = 6; end
 if nargin<3, nbins = 20; end
 nSkip_med = 4;
@@ -10,16 +8,22 @@ fDebug = 0;
 if thresh==0, thresh = []; end
 if isempty(thresh), mr1=mr; return ;end
 
-% mr = single(mr);
+mr = single(mr);
 vrMu = mean(mr, 1);
 mr1 = bsxfun(@minus, mr, vrMu);
 n = size(mr1,1);
+% pad if needed
 n_pow2 = 2^nextpow2(n);
-if n < n_pow2
-    mr1 = fft(mr1, n_pow2);
-else
-    mr1 = fft(mr1);
-end
+% try
+    if n < n_pow2
+        mr1 = fft(mr1, n_pow2);
+    else
+        mr1 = fft(mr1);
+    end
+% catch
+%     disp('fft_clean: GPU-based FFT failed. Trying CPU-based FFT. Reset GPU or restart Matlab.');
+%     mr1 = fft(gather(mr1), n_pow2); %GPU-based FFT failed
+% end
 n1 = floor(n_pow2/2);
 viFreq = (1:n1)';
 % vrFft1 = abs(mean(bsxfun(@times, mr1(1+viFreq,:), viFreq), 2));
@@ -60,9 +64,12 @@ end
 
 mr1(1+vi_noise,:) = 0;
 mr1(end-vi_noise+1,:) = 0;
-mr1 = real(ifft(mr1, n_pow2, 'symmetric')); %~30% faster than below
-% mr1 = real(ifft(mr1));
-if n < n_pow2, mr1 = mr1(1:n,:); end
+mr1 = real(ifft(mr1)); %slow
+if n < n_pow2
+    mr1 = mr1(1:n,:);
+end
+
+
 mr1 = bsxfun(@plus, mr1, vrMu); %add mean back
 
 if nargout==0 || fDebug

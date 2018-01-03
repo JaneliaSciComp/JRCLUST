@@ -2,19 +2,6 @@
 J. James Jun
 
 --------------------------------------------------------------------
-[2019/1/3: v3.2.3]
-Bugfix: incorrect "gather" function was called for R2017b when Bigdata toolbox is installed.
-Faster and more robust fft_clean operation (run if `fft_thresh` > 0)
-  It can handle a limited GPU memory.
-`nLoads_gpu` parameter is introduced, which is the ratio of the system memory (RAM) to GPU memory.
-  If your GPU memory size is 12 GB and RAM is 96 GB, set nLoads_gpu = 8.
-  Increase this value if GPU error occurs (default: 8), do not change the default value otherwise.
-  `nSamples_gpu` is now deprecated, and automatically calculated from `nLoads_gpu` parameter.
-
-[2017/12/30: v3.2.2]
-Bugfix: PSTH histogram plot error is fixed and two PSTH plots are displayed
-  top and bottom when two units are selected.
-
 [2017/12/29: v3.2.1]
 Old multishank probe file format is supported (v1, jrclust.m). 
   'cviShank' which is a cell containing a list of sites is converted to 'shank' format
