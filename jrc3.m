@@ -3053,7 +3053,8 @@ end %func
 %--------------------------------------------------------------------------
 % 17/12/11 JJJ: Created. Apply spatial whitening
 function [mnWav2, mrWhiten] = whiten_(mnWav1, P)
-nSamples_max = get_set_(P, 'nSamples_gpu', 25e4);
+nLoads_gpu = get_set_(P, 'nLoads_gpu', 8);
+nSamples_max = round(size(mnWav1,1) / nLoads_gpu);
 fprintf('Whitening\n\t'); t1 = tic;
 [mr_sub, vi_sub] = subsample_mr_(mnWav1, nSamples_max, 1);
 viSites = setdiff(1:size(mnWav1,2), P.viSiteZero);
@@ -3310,6 +3311,8 @@ switch lower(P.vcFilter)
         mnWav2 = int16(mnWav2);
     case {'none', 'skip'} % no filter is applied
         ;
+    case 'ndist'
+        mnWav2 = ndist_filt_(mnWav2, get_set_(P, 'ndist_filt', 5));
     otherwise
         error('filt_car_: invalid filter option (vcFilter=''%s'')', P.vcFilter);
 end  %switch
@@ -3318,14 +3321,9 @@ end  %switch
 if (n_pre > 0 || n_post > 0) && fTrim_pad
     mnWav2 = mnWav2(n_pre+1:end-n_post,:);
 end
-% mean subtract
-% if strcmpi(P.vcCommonRef, 'mean')
-%     mnWav2 = bsxfun(@minus, mnWav2, int16(mean(mnWav2,2)));
-% end
-% % Better to do CAR after spike detection and merging
-% if ~strcmpi(P.vcCommonRef, 'mean')
-[mnWav2, vnWav2_mean] = wav_car_(mnWav2, P); %global subtraction before 
-% end
+
+%global subtraction before 
+[mnWav2, vnWav2_mean] = wav_car_(mnWav2, P); 
 end %func
 
 
@@ -3555,6 +3553,7 @@ S0 = plot_FigWav_(S0); % hFigWav %do this after for ordering
 
 % hFigProj, hFigHist, hFigIsi, hFigCorr, hFigPos, hFigMap, hFigTime
 close_(get_fig_('FigTrial')); %close previous FigTrial figure
+close_(get_fig_('FigTrial_b')); %close previous FigTrial figure
 S0 = button_CluWav_simulate_(1, [], S0); %select first clu
 auto_scale_proj_time_(S0);
 S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'z'}, S0); %zoom
@@ -3606,7 +3605,7 @@ S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'j','t','c','i','v','e','f'}, 
 set(0, 'UserData', S0);
 
 auto_scale_proj_time_(S0);
-plot_raster_(); %psth
+plot_raster_(S0); %psth
 figure_wait_(0, hFig);
 end
 
@@ -3942,25 +3941,25 @@ mh_file = uimenu(hFig,'Label','File');
 uimenu(mh_file,'Label', 'Save', 'Callback', @save_manual_);
 uimenu(mh_file,'Label', 'Save figures as .fig', 'Callback', @(h,e)save_figures_('.fig'));
 uimenu(mh_file,'Label', 'Save figures as .png', 'Callback', @(h,e)save_figures_('.png'));
-uimenu(mh_file,'Label', 'Describe', 'Callback', @(h,e)msgbox_(describe_()));
+uimenu(mh_file,'Label', 'Describe', 'Callback', @(h,e)msgbox_(describe_()), 'Separator', 'on');
 uimenu(mh_file,'Label', 'Edit prm file', 'Callback', @edit_prm_);
 uimenu(mh_file,'Label', 'Reload prm file', 'Callback', @reload_prm_);
-uimenu(mh_file,'Label', 'Export units to csv', 'Callback', @export_csv_);
+uimenu(mh_file,'Label', 'Export units to csv', 'Callback', @export_csv_, 'Separator', 'on');
+uimenu(mh_file,'Label', 'Export unit qualities to csv', 'Callback', @(h,e)export_quality_);
 uimenu(mh_file,'Label', 'Export all mean unit waveforms', 'Callback', @export_tmrWav_clu_);
 uimenu(mh_file,'Label', 'Export selected mean unit waveforms', 'Callback', @(h,e)export_mrWav_clu_);
 uimenu(mh_file,'Label', 'Export all waveforms from the selected unit', 'Callback', @(h,e)export_tnWav_spk_);
 uimenu(mh_file,'Label', 'Export firing rate for all units', 'Callback', @(h,e)export_rate_);
-uimenu(mh_file,'Label', 'Exit', 'Callback', @exit_manual_);
+uimenu(mh_file,'Label', 'Exit', 'Callback', @exit_manual_, 'Separator', 'on', 'Accelerator', 'Q');
 
 mh_edit = uimenu(hFig,'Label','Edit'); 
 uimenu(mh_edit,'Label', '[M]erge', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'm'));
 uimenu(mh_edit,'Label', 'Merge auto', 'Callback', @(h,e)merge_auto_());
-uimenu(mh_edit,'Label', '[D]elete', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'd'));
+uimenu(mh_edit,'Label', '[D]elete', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'd'), 'Separator', 'on');
 uimenu(mh_edit,'Label', 'Delete auto', 'Callback', @(h,e)delete_auto_());
-uimenu(mh_edit,'Label', '[S]plit', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 's'));
+uimenu(mh_edit,'Label', '[S]plit', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 's'), 'Separator', 'on');
 uimenu(mh_edit,'Label', 'Auto split max-chan', 'Callback', @(h,e)auto_split_(0));
 uimenu(mh_edit,'Label', 'Auto split multi-chan', 'Callback', @(h,e)auto_split_(1));
-% uimenu(mh_edit,'Label', 'Restore last deleted', 'Callback', @(h,e)restore_clu_());
 uimenu(mh_edit,'Label', 'Annotate', 'Callback', @(h,e)unit_annotate_());
 
 mh_view = uimenu(hFig,'Label','View'); 
@@ -4067,6 +4066,7 @@ try
     end
     delete_multi_(get_fig_all_(S0.csFig), src);
     close_(get_fig_('FigTrial'));
+    close_(get_fig_('FigTrial_b'));
     close_(get_fig_('FigAux'));    
 catch
     disperr_();
@@ -4425,8 +4425,8 @@ switch lower(event.Key)
     case 'e', plot_FigMap_(S0);        
     case 'u', update_FigCor_(S0);        
     case 'p' %PSTH plot
-        if isempty(P.vcFile_trial), msgbox_('''vcFile_trial'' not set.'); return; end
-        plot_raster_(S0.P, S0.iCluCopy, S0.S_clu); %psth        
+        if isempty(P.vcFile_trial), msgbox_('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
+        plot_raster_(S0, 1);
     otherwise, figure_wait_(0); %stop waiting
 end
 figure_(hObject); %change the focus back to the current object
@@ -5564,27 +5564,9 @@ figure_wait_(1);
 S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'j','t','c','i','v','e','f'}, S0); %'z'
 auto_scale_proj_time_(S0);
 set(0, 'UserData', S0);
-plot_raster_();
+plot_raster_(S0);
 figure_wait_(0);
 end %func
-
-
-%--------------------------------------------------------------------------
-% function rescale_FigWav_(S_clu, P)
-% S0 = get(0, 'UserData');
-% [hFig, S_fig] = get_fig_cache_('FigWav');
-% vhPlot = S_fig.vhPlot;
-% % tmrCluWav = hideCluSite_(Sclu, P);
-% for iPlot=1:numel(vhPlot)
-%     
-% end %for
-% % for iClu=1:S_clu.nClu
-% %     viSites1 = P.miSites(:, S_clu.viSite_clu(iClu));
-% %     mrY1 = S_clu.tmrWav_clu(:,viSites1,iClu) / S_fig.maxAmp; 
-% %     mrY1 = bsxfun(@plus, mrY1, single(viSites1'));
-% %     set(vhPlot(iClu), 'YData', mrY1(:));
-% % end
-% end %func
 
 
 %--------------------------------------------------------------------------
@@ -8814,11 +8796,8 @@ function S = makeStruct_(varargin)
 %MAKESTRUCT all the inputs must be a variable. 
 %don't pass function of variables. ie: abs(X)
 %instead create a var AbsX an dpass that name
-
-S=[];
-for i=1:nargin
-    S = setfield(S, inputname(i), varargin{i});
-end
+S = struct();
+for i=1:nargin, S.(inputname(i)) =  varargin{i}; end
 end %func
 
 
@@ -10000,28 +9979,21 @@ end %func
 
 %--------------------------------------------------------------------------
 % 122917 JJJ: Got rid of Tab which is slow
-function plot_raster_(P, iClu, S_clu)
+function plot_raster_(S0, fNewFig)
 %plot_raster_()
 %   plot if window open using curretnly selected clusters
 %plot_raster_(P, iClu, S_clu)
 %   Open window and plot specific clusters and S_clu
 
-persistent hFig vhAx1 vhAx2
-
+persistent hFig hFig_b
+if nargin<2, fNewFig = 0; end
 % import  trial time
 % P = loadParam(vcFile_prm);
-if nargin == 0 && ~isvalid_(hFig), return; end
-if nargin<3    
-    S0 = get(0, 'UserData');
-    if nargin<2, iClu = []; end
-    if nargin<1, P = S0.P; end
-    S_clu = S0.S_clu;
-    if isempty(iClu), iClu = S0.iCluCopy; end
-end
-%  iClu = [S0.iCluCopy, S0.iCluPaste]; S_clu = S0.S_clu;
+if ~isvalid_(hFig) && ~fNewFig, return; end
+if nargin<1, S0 = get(0, 'UserData'); end
+[P, S_clu, iCluCopy, iCluPaste] = deal(S0.P, S0.S_clu, S0.iCluCopy, S0.iCluPaste);
+if isfield(P, 'vcFile_psth'), P.vcFile_trial = P.vcFile_psth; end % old field name
 
-if isfield(P, 'vcFile_psth'), P.vcFile_trial = P.vcFile_psth; end
-%
 try
     if ~exist_file_(P.vcFile_trial), P.vcFile_trial = subsDir_(P.vcFile_trial, P.vcFile_prm); end
     if ~exist_file_(P.vcFile_trial)
@@ -10032,40 +10004,33 @@ try
 catch
     return;
 end
-%viTime_spk = get0_('viTime_spk');
-%vrTime_trial = loadTrial_(P.vcFile_trial);
-if ~iscell(crTime_trial)
-    crTime_trial = {crTime_trial};
-end
+if ~iscell(crTime_trial), crTime_trial = {crTime_trial}; end
 nstims = numel(crTime_trial);
-[axoffset, axlen] = deal(.05, 1/nstims);
 if isempty(crTime_trial), msgbox('Trial file does not exist', 'modal'); return; end
-if ~isvalid_(hFig)
-    hFig = create_figure_('FigTrial', [.5  0 .5 1], P.vcFile_trial, 0, 0);
-    [vhAx1, vhAx2] = deal(nan(nstims, 1));
-    for iStim = 1:nstims
-        vhAx1(iStim) = axes('Parent', hFig, 'Position',[.08 axoffset .9 axlen*.68]);
-        vhAx2(iStim) = axes('Parent', hFig, 'Position',[.08 axoffset + axlen*.68 .9 axlen*.2]);
-        axoffset = axoffset + axlen;
-    end
-end
-% clf(hFig);
-%figure(hFig); clf(hFig); 
-% hTabGroup = uitabgroup(hFig);
-% offset = 0;
-if isempty(iClu)
-    viClu_plot = 1:S_clu.nClu;
+
+[hFig, hFig_b] = create_figure_psth_(hFig, hFig_b, P, nstims);
+plot_figure_psth_(hFig, iCluCopy, crTime_trial, S_clu, P);
+if ~isempty(iCluPaste)
+    set(hFig_b, 'Visible', 'on');
+    plot_figure_psth_(hFig_b, iCluPaste, crTime_trial, S_clu, P);
 else
-    viClu_plot = iClu; %copy and paste
+    set(hFig_b, 'Visible', 'off');
 end
-% for iClu = viClu_plot
-%     htab1 = uitab(hTabGroup, 'Title', sprintf('Clu %d', iClu), 'BackgroundColor', 'w');    
-for iStim = 1:nstims
+end %func
+
+
+%--------------------------------------------------------------------------
+function plot_figure_psth_(hFig, iClu, crTime_trial, S_clu, P)
+S_fig = get(hFig, 'UserData');
+[vhAx1, vhAx2, vcColor] = deal(S_fig.vhAx1, S_fig.vhAx2, S_fig.vcColor);
+for iStim = 1:numel(vhAx1)
+    cla(vhAx1(iStim));
+    cla(vhAx2(iStim));
     vrTime_trial = crTime_trial{iStim}; %(:,1);
     nTrials = numel(vrTime_trial);
     viTime_clu1 = S_clu_time_(S_clu, iClu);
     plot_raster_clu_(viTime_clu1, vrTime_trial, P, vhAx1(iStim));
-    plot_psth_clu_(viTime_clu1, vrTime_trial, P, vhAx2(iStim));
+    plot_psth_clu_(viTime_clu1, vrTime_trial, P, vhAx2(iStim), vcColor);
     title(vhAx2(iStim), sprintf('Cluster %d; %d trials', iClu, nTrials));
 end
 %     offset = offset + nTrials;
@@ -10074,14 +10039,49 @@ if numel(vhAx1)>2
     for ax = vhAx1(2:end)
         xlabel(ax, '')
     end
-end
-% end
+end % end
 end %func
 
 
 %--------------------------------------------------------------------------
-function plot_psth_clu_(viTime_clu, vrTime_trial, P, hAx)
+function [hFig, hFig_b] = create_figure_psth_(hFig, hFig_b, P, nStims)
+
+% Figure handle for the iCluCopy
+[axoffset, axlen] = deal(.08, 1/nStims);
+
+if ~isvalid_(hFig)    
+    hFig = create_figure_('FigTrial', [.5  .5 .5 .5], P.vcFile_trial, 0, 0);
+    [vhAx1, vhAx2] = deal(nan(nStims, 1));
+    for iStim = 1:nStims
+        axoffset_ = axoffset + (iStim-1) * axlen;
+        vhAx1(iStim) = axes('Parent', hFig, 'Position',[.08 axoffset_ .9 axlen*.68]);
+        vhAx2(iStim) = axes('Parent', hFig, 'Position',[.08 axoffset_ + axlen*.68 .9 axlen*.2]);
+    end
+    vcColor = 'k';
+    set(hFig, 'UserData', makeStruct_(vhAx1, vhAx2, vcColor));
+end
+
+% Figure handle for the iCluPaste
+if ~isvalid_(hFig_b)
+    hFig_b = create_figure_('FigTrial_b', [.5  0 .5 .5], P.vcFile_trial, 0, 0);
+    set(hFig_b, 'Visible', 'off');
+    [vhAx1, vhAx2] = deal(nan(nStims, 1));
+    for iStim = 1:nStims
+        axoffset_ = axoffset + (iStim-1) * axlen;
+        vhAx1(iStim) = axes('Parent', hFig_b, 'Position',[.08 axoffset_ .9 axlen*.68]);
+        vhAx2(iStim) = axes('Parent', hFig_b, 'Position',[.08 axoffset_ + axlen*.68 .9 axlen*.2]);
+    end
+    vcColor = 'r';
+    set(hFig_b, 'UserData', makeStruct_(vhAx1, vhAx2, vcColor));
+end
+end %func
+
+
+%--------------------------------------------------------------------------
+function plot_psth_clu_(viTime_clu, vrTime_trial, P, hAx, vcColor)
 if nargin<4, hAx=gca; end
+if nargin<5, vcColor = 'k'; end
+
 tbin = P.tbin_psth;
 nbin = round(tbin * P.sRateHz);
 nlim = round(P.tlim_psth/tbin);
@@ -10092,9 +10092,7 @@ vlTime1(ceil(double(viTime_clu)/nbin))=1;
 mr1 = vr2mr2_(double(vlTime1), viTime_Trial, nlim);
 vnRate = mean(mr1,2) / tbin;
 vrTimePlot = (nlim(1):nlim(end))*tbin + tbin/2;
-
-bar(hAx, vrTimePlot, vnRate, 1, 'EdgeColor', 'none');
-
+bar(hAx, vrTimePlot, vnRate, 1, 'EdgeColor', 'none', 'FaceColor', vcColor);
 vrXTick = P.tlim_psth(1):(P.xtick_psth):P.tlim_psth(2);
 set(hAx, 'XTick', vrXTick, 'XTickLabel', []);
 grid(hAx, 'on');
@@ -10117,15 +10115,13 @@ for iTrial = 1:nTrials
     rTime_trial1 = vrTime_trial(iTrial);
     vrTime_lim1 = rTime_trial1 + P.tlim_psth;
     vrTime_clu1 = double(viTime_clu) / P.sRateHz;
-    vrTime_clu1 = vrTime_clu1(vrTime_clu1>=vrTime_lim1(1) & vrTime_clu1<vrTime_lim1(2));
-    
+    vrTime_clu1 = vrTime_clu1(vrTime_clu1>=vrTime_lim1(1) & vrTime_clu1<vrTime_lim1(2));    
     vrTime_clu1 = (vrTime_clu1 - rTime_trial1 + t0) / trialLength;
     spikeTimes{iTrial} = vrTime_clu1';
 end
 
 % Plot
 % hAx_pre = axes_(hAx);
-cla(hAx);
 plotSpikeRaster(spikeTimes,'PlotType','vertline','RelSpikeStartTime',0,'XLimForCell',[0 1], ...
     'LineFormat', struct('LineWidth', 1.5), 'hAx', hAx);
 % axes_(hAx_pre);
@@ -10746,10 +10742,13 @@ end %func
 %--------------------------------------------------------------------------
 function varargout = gather_(varargin)
 for i=1:nargin
-    try
-        varargout{i} = gather(varargin{i});
-    catch
-        varargout{i} = [];
+    varargout{i} = varargin{i};
+    if isa(varargin{i}, 'gpuArray')
+        try
+            varargout{i} = gather(varargin{i});
+        catch
+            ;
+        end
     end
 end
 end %func
@@ -13041,10 +13040,12 @@ end
 % set0_(vlKeep_ref);
 fprintf('\ttook %0.1fs\n', toc(t_filter));
 
-if isempty(get_(P, 'vcFilter_detect'))
-    mnWav3 = mnWav2;
-else
-    [mnWav3, nShift_post] = filter_detect_(mnWav2, P); % apply stdfilter for peak search
+switch get_set_(P, 'vcFilter_detect', '')
+    case {'', 'none'}, mnWav3 = mnWav2;
+    case 'ndist'
+        [mnWav3, nShift_post] = filter_detect_(mnWav1, P); % pass raw trace
+    otherwise
+        [mnWav3, nShift_post] = filter_detect_(mnWav2, P); % pass filtered trace
 end
 
 %-----
@@ -13354,7 +13355,9 @@ fprintf('filter_detect\n\t'); t1= tic;
 miSites = gpuArray_(P.miSites(viSites_use, :));
 miSites_ref = gpuArray_(P.miSites(viSites_ref, :));
 nShift_post = 0;
-switch lower(vcMode)        
+switch lower(vcMode)
+    case 'ndist'
+        mn1 = ndist_filt_(mn, get_set_(P, 'ndist_filt', 5));
     case 'chancor'
         mn1 = chancor_(mn, P);        
     case 'matched'
@@ -14272,20 +14275,16 @@ fGpu = get_set_(P, 'fGpu', isGpu_(mnWav));
 if isempty(P.fft_thresh) || P.fft_thresh==0 || isempty(mnWav), mnWav1=mnWav; return; end
 [vcClass, fGpu_mnWav] = class_(mnWav);
 fprintf('Applying FFT cleanup...'); t1=tic;
-if 1
+if 0
     if fGpu
-        try
-            mnWav1 = cast(fft_clean(single(mnWav), P.fft_thresh), vcClass);
-        catch
-            fGpu = 0;
-        end
-    end
-    if ~fGpu
-        mnWav1 = cast(fft_clean(single(gather_(mnWav)), P.fft_thresh), vcClass);
+        mnWav1 = fft_clean__(mnWav, P.fft_thresh);
+    else
+        mnWav1 = fft_clean__(gather_(mnWav), P.fft_thresh);
     end
 else
-    nSamples_gpu = get_set_(P, 'nSamples_gpu', 25e4);  % GPU load limit    
-    [nLoad1, nSamples_load1, nSamples_last1] = partition_load_(size(mnWav,1), nSamples_gpu);
+    nLoads_gpu = get_set_(P, 'nLoads_gpu', 8);  % GPU load limit        
+    nSamples = size(mnWav,1);
+    [nLoad1, nSamples_load1, nSamples_last1] = partition_load_(nSamples, round(nSamples/nLoads_gpu));
     mnWav1 = zeros(size(mnWav), 'like', mnWav);    
     for iLoad = 1:nLoad1
         iOffset = (iLoad-1) * nSamples_load1;
@@ -14294,21 +14293,87 @@ else
         else
             vi1 = (1:nSamples_last1) + iOffset;
         end
-        mnWav1_ = single(mnWav(vi1,:));
+        mnWav1_ = mnWav(vi1,:);
         if fGpu % use GPU
             try 
                 if ~fGpu_mnWav, mnWav1_ = gpuArray_(mnWav1_); end
-                mnWav1(vi1,:) = cast(fft_clean(mnWav1_, P.fft_thresh), vcClass);
+                mnWav1(vi1,:) = fft_clean__(mnWav1_, P.fft_thresh);
             catch
                 fGpu = 0;
             end
         end
         if ~fGpu % use CPU 
-            mnWav1(vi1,:) = cast(fft_clean(gather_(mnWav1_, P.fft_thresh)), vcClass);
+            mnWav1(vi1,:) = fft_clean__(gather_(mnWav1_), P.fft_thresh);
         end
     end %for
 end
 fprintf(' took %0.1fs', toc(t1));
+end %func
+
+
+%--------------------------------------------------------------------------
+function mr1 = fft_clean__(mr, thresh, nbins)
+% mr must be single
+
+if nargin<2, thresh = 6; end
+if nargin<3, nbins = 20; end
+nSkip_med = 4;
+nw = 3; %frequency neighbors to set to zero
+
+if thresh==0, thresh = []; end
+if isempty(thresh), mr1=mr; return ;end
+n = size(mr,1);
+n_pow2 = 2^nextpow2(n);
+vcClass = class_(mr);    
+for iRetry = 1:2
+    try
+        mr1 = single(mr);
+        vrMu = mean(mr1, 1);
+        mr1 = bsxfun(@minus, mr1, vrMu);
+        if n < n_pow2
+            mr1 = fft(mr1, n_pow2);
+        else
+            mr1 = fft(mr1);
+        end
+        break;
+    catch
+        fprintf('GPU processing failed, retrying on CPU\n');
+        mr = gather_(mr);
+    end
+end %for
+
+% Find frequency outliers    
+n1 = floor(n_pow2/2);
+viFreq = (1:n1)';
+% vrFft1 = abs(mean(bsxfun(@times, mr1(1+viFreq,:), viFreq), 2));
+vrFft1 = (mean(bsxfun(@times, abs(mr1(1+viFreq,:)), viFreq), 2));
+n2 = round(n1/nbins); 
+for ibin=1:nbins
+    vi1 = (n2*(ibin-1) : n2*ibin) + 1;
+    if ibin==nbins, vi1(vi1>n1)=[]; end
+    vrFft2 = vrFft1(vi1);
+    vrFft2 = vrFft2 - median(vrFft2(1:nSkip_med:end)); %mad transform
+    vrFft1(vi1) = vrFft2 / median(abs(vrFft2(1:nSkip_med:end)));
+end
+
+% broaden spectrum
+vl_noise = vrFft1>thresh;
+vi_noise = find(vl_noise);
+for i_nw=1:nw
+    viA = vi_noise-i_nw;    viA(viA<1)=[];
+    viB = vi_noise+i_nw;    viB(viB>n1)=[];
+    vl_noise(viA)=1;
+    vl_noise(viB)=1;
+end
+vi_noise = find(vl_noise);
+mr1(1+vi_noise,:) = 0;
+mr1(end-vi_noise+1,:) = 0;
+
+% inverse transform back to the time domain
+mr1 = real(ifft(mr1, n_pow2, 'symmetric')); %~30% faster than below
+if n < n_pow2, mr1 = mr1(1:n,:); end
+mr1 = bsxfun(@plus, mr1, vrMu); %add mean back
+mr1 = cast(mr1, vcClass); % cast back to the original type
 end %func
 
 
@@ -17800,8 +17865,8 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.2.1';
-vcDate = '12/29/2017';
+vcVer = 'v3.2.3';
+vcDate = '1/3/2018';
 vcVer_used = '';
 if nargout==0
     fprintf('%s (%s) installed\n', vcVer, vcDate);
@@ -18268,8 +18333,8 @@ try
 %               [vrDelta2, viNneigh2] = min(mrD11);
         end
         
-        trFet_spk_(:,1,viSpk1) = gather(mrFet1);
-        trFet_spk_(:,2,viSpk1) = gather(mrFet2);
+        trFet_spk_(:,1,viSpk1) = gather_(mrFet1);
+        trFet_spk_(:,2,viSpk1) = gather_(mrFet2);
         [mrFet1, mrFet2, vrDelta1, viNneigh1] = deal([]);
         fprintf('.');    
     end
@@ -19005,9 +19070,16 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function export_quality_(P)
+function export_quality_(varargin)
 % export_csv_(hObject, event)
-% if nargin<2, 
+if nargin==1
+    P = varargin{1};
+    fGui = 0;
+else
+    P = get0_('P');
+    fGui = 1;
+end
+
 [S0, P] = load_cached_(P); 
 if ~isfield(S0, 'S_clu'), fprintf(2, 'File must be sorted first.\n'); return; end
 S = S0.S_clu;
@@ -19021,21 +19093,41 @@ disp(table_);
 
 vcFile_csv = subsFileExt_(P.vcFile_prm, '_quality.csv');
 writetable(table_, vcFile_csv);
-fprintf('Wrote to %s. Columns:\n', vcFile_csv);
-fprintf('\tColumn 1: unit_id: Unit ID\n');
-fprintf('\tColumn 2: SNR: |Vp/Vrms|; Vp: negative peak amplitude of the peak site; Vrms: SD of the Gaussian noise (estimated from MAD)\n');
-fprintf('\tColumn 3: center_site: Peak site number which contains the most negative peak amplitude\n');
-fprintf('\tColumn 4: nSpikes: Number of spikes\n');
-fprintf('\tColumn 5: xpos: x position (width dimension) center-of-mass\n');
-fprintf('\tColumn 6: ypos: y position (depth dimension) center-of-mass, referenced from the tip\n');
-fprintf('\tColumn 7: uV_min: negative peak voltage (microvolts)\n');
-fprintf('\tColumn 8: uV_pp: peak-to-peak voltage (microvolts)\n');
-fprintf('\tColumn 9: IsoDist: Isolation distance quality metric\n');
-fprintf('\tColumn 10: LRatio: L-ratio quality metric\n');
-fprintf('\tColumn 11: IsiRat: ISI-ratio quality metric\n');
-fprintf('\tColumn 12: note: user comments\n');
+csMsg = { ...
+    sprintf('Wrote to %s. Columns:', vcFile_csv), ...
+    sprintf('\tColumn 1: unit_id: Unit ID'), ...
+    sprintf('\tColumn 2: SNR: |Vp/Vrms|; Vp: negative peak amplitude of the peak site; Vrms: SD of the Gaussian noise (estimated from MAD)'), ...
+    sprintf('\tColumn 3: center_site: Peak site number which contains the most negative peak amplitude'), ...
+    sprintf('\tColumn 4: nSpikes: Number of spikes'), ...
+    sprintf('\tColumn 5: xpos: x position (width dimension) center-of-mass'), ...
+    sprintf('\tColumn 6: ypos: y position (depth dimension) center-of-mass, referenced from the tip'), ...
+    sprintf('\tColumn 7: uV_min: negative peak voltage (microvolts)'), ...
+    sprintf('\tColumn 8: uV_pp: peak-to-peak voltage (microvolts)'), ...
+    sprintf('\tColumn 9: IsoDist: Isolation distance quality metric'), ...
+    sprintf('\tColumn 10: LRatio: L-ratio quality metric'), ...
+    sprintf('\tColumn 11: IsiRat: ISI-ratio quality metric'), ...
+    sprintf('\tColumn 12: note: user comments')};
+
+cellfun(@(x)fprintf('%s\n',x), csMsg);
+if fGui, msgbox_(csMsg); end
 end %func
 
+
+%--------------------------------------------------------------------------
+function mnWav2 = ndist_filt_(mnWav2, ndist_filt)
+
+vnFilt_ = gpuArray_(ones(ndist_filt,1,'single'), isGpu_(mnWav2));
+mnWav_ = mnWav2(1+ndist_filt:end,:) - mnWav2(1:end-ndist_filt,:);        
+[n1, nChans] = deal(round((ndist_filt-1)/2) , size(mnWav_,2));
+n2 = ndist_filt - n1;
+mnWav_ = [zeros([n1, nChans], 'like', mnWav_); mnWav_; zeros([n2, nChans], 'like', mnWav_)];                
+vcDataType_ = class_(mnWav2);
+for iChan = 1:nChans
+    vn_ = cast(sqrt(conv(single(mnWav_(:,iChan)).^2, vnFilt_, 'same')), vcDataType_); 
+    vn_ = median(vn_(1:10:end)) - vn_;
+    mnWav2(:,iChan) = vn_;
+end
+end %func
 
 %     case 'o' %overlap waveforms across sites
 %         hFig_temp = figure; hold on;
