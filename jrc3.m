@@ -5757,7 +5757,7 @@ viSites_show = S_plot1.viSites_show;
 figure_wait_(1);
 switch lower(event.Key)
     case {'uparrow', 'downarrow'}
-        rescale_FigProj_(event, hFig, S_fig);
+        rescale_FigProj_(event, hFig, S_fig, S0);
 
     case {'leftarrow', 'rightarrow'} % change channels
         fPlot = 0;
@@ -14062,22 +14062,19 @@ if nargin<1, S0 = get(0, 'UserData'); end
 if nargin<2, fPlot = 0; end
 
 autoscale_pct = get_set_(S0.P, 'autoscale_pct', 99.5);
-[hFig, S_fig] = get_fig_cache_('FigProj');
-% vrY = [S_fig.hPlot0.YData(:); S_fig.hPlot1.YData(:); S_fig.hPlot2.YData(:)];
-[mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, S_fig.viSites_show);
-% mrAmp = [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2];
-% mrAmp = [mrMin1, mrMax1, mrMin2, mrMax2];
-% S_fig.maxAmp = quantile(mrAmp(:), autoscale_pct/100);
+[hFig_proj, S_fig_proj] = get_fig_cache_('FigProj');
+[mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, S_fig_proj.viSites_show);
 if isempty(mrMin2) || isempty(mrMax2)
     cmrAmp = {mrMin1, mrMax1};
 else
     cmrAmp = {mrMin1, mrMax1, mrMin2, mrMax2};
 end
-S_fig.maxAmp = max(cellfun(@(x)quantile(x(:), autoscale_pct/100), cmrAmp));
-% S_fig.maxAmp %debug
-set(hFig, 'UserData', S_fig);
+S_fig_proj.maxAmp = max(cellfun(@(x)quantile(x(:), autoscale_pct/100), cmrAmp));
+set(hFig_proj, 'UserData', S_fig_proj);
 
-[hFig, S_fig] = get_fig_cache_('FigTime');
+
+% Update time
+[hFig_time, S_fig_time] = get_fig_cache_('FigTime');
 iSite = S0.S_clu.viSite_clu(S0.iCluCopy);
 [vrFet0, vrTime0] = getFet_site_(iSite, [], S0);    % plot background    
 [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.iCluCopy, S0); % plot iCluCopy
@@ -14087,14 +14084,15 @@ else
     [vrFet2, vrTime2, vcYlabel, viSpk2] = getFet_site_(iSite, S0.iCluPaste, S0); % plot iCluCopy
     vrFet = [vrFet0(:); vrFet1(:); vrFet2(:)];
 end
-S_fig.maxAmp = quantile(vrFet, autoscale_pct/100);
-set(hFig, 'UserData', S_fig);
+S_fig_time.maxAmp = quantile(vrFet, autoscale_pct/100);
+set(hFig_time, 'UserData', S_fig_time);
 
+% plot
 if fPlot
-    keyPressFcn_cell_(get_fig_cache_('FigWav'), {'j', 't'}); 
+    keyPressFcn_cell_(get_fig_cache_('FigWav'), {'j', 't'}, S0); 
 else
-    rescale_FigProj_(S_fig.maxAmp);    
-    rescale_FigTime_(S_fig.maxAmp, S0, S0.P);
+    rescale_FigProj_(S_fig_proj.maxAmp, hFig_proj, S_fig_proj, S0);    
+    rescale_FigTime_(S_fig_time.maxAmp, S0, S0.P);
 end
 end %func
 
@@ -14965,7 +14963,7 @@ if nargin<3, fText = 1; end
 if isempty(S_clu), S_clu = get0_('S_clu'); end
 
 if fText
-    csText_clu = arrayfun(@(i)sprintf('%d (%d)', i, S_clu.vnSpk_clu(i)), 1:S_clu.nClu, 'UniformOutput', 0);
+    csText_clu = arrayfun(@(i)sprintf('%d(%d)', i, S_clu.vnSpk_clu(i)), 1:S_clu.nClu, 'UniformOutput', 0);
 else
     csText_clu = arrayfun(@(i)sprintf('%d', i), 1:S_clu.nClu, 'UniformOutput', 0);
 end
@@ -17865,8 +17863,8 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.2.3';
-vcDate = '1/3/2018';
+vcVer = 'v3.2.4';
+vcDate = '1/4/2018';
 vcVer_used = '';
 if nargout==0
     fprintf('%s (%s) installed\n', vcVer, vcDate);
