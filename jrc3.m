@@ -159,8 +159,6 @@ switch lower(vcCmd)
         trWav_raw = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_spk);
         assignWorkspace_(trWav_raw);  
     case {'export-spkwav', 'spkwav'}, export_spkwav_(P, vcArg2); % export spike waveforms
-    case {'export-chan'}, export_chan_(P, vcArg2); % export channels
-    case {'export-car'}, export_car_(P, vcArg2); % export common average reference
     case {'export-spkwav-diff', 'spkwav-diff'}, export_spkwav_(P, vcArg2, 1); % export spike waveforms        
     case 'export-spkamp', export_spkamp_(P, vcArg2); %export microvolt unit
     case {'export-csv', 'exportcsv'}, export_csv_(P);
@@ -170,7 +168,6 @@ switch lower(vcCmd)
     case {'export-fet', 'export-features', 'export-feature'}, export_fet_(P);
     case 'export-diff', export_diff_(P); %spatial differentiation for two column probe
     case 'import-lfp', import_lfp_(P); 
-    case 'export-lfp', export_lfp_(P); 
     case 'drift', plot_drift_(P);  
     case 'plot-rd', plot_rd_(P);
     otherwise, fError = 1;
@@ -1513,7 +1510,7 @@ end
 P.vcFile_prm = vcFile_prm;
 assert_(isfield(P, 'vcFile'), sprintf('Check "%s" file syntax', vcFile_prm));
 
-if ~exist_file_(P.vcFile) && isempty(get_(P, 'csFile_merge'))
+if ~exist_file_(P.vcFile)
     P.vcFile = replacePath_(P.vcFile, vcFile_prm);
     if ~exist_file_(P.vcFile)
         fprintf('vcFile not specified. Assuming multi-file format ''csFiles_merge''.\n');
@@ -3300,9 +3297,8 @@ switch lower(P.vcFilter)
         for i=1:size(mnWav2,2)
             mnWav2(:,i) = conv(mnWav2(:,i), vrFilter, 'same'); 
         end        
-    case 'ndiff', mnWav2 = ndiff_(mnWav2, P.nDiff_filt);
-    case 'fftdiff', mnWav2 = fftdiff_(mnWav2, P);        
-%     case 'fftdiff', mnWav2 = fftdiff__(gather_(mnWav2), P.freqLim(2)/P.sRateHz/2);        
+    case 'ndiff'
+        mnWav2 = ndiff_(mnWav2, P.nDiff_filt);
     case {'sgdiff', 'sgfilt'}
         mnWav2 = sgfilt_(mnWav2, P.nDiff_filt);
     case 'bandpass'
@@ -3328,60 +3324,6 @@ end
 
 %global subtraction before 
 [mnWav2, vnWav2_mean] = wav_car_(mnWav2, P); 
-end %func
-
-
-%--------------------------------------------------------------------------
-function mnWav1 = fftdiff_(mnWav, P)
-    
-fGpu = isGpu_(mnWav);
-nLoads_gpu = get_set_(P, 'nLoads_gpu', 8);  % GPU load limit    
-
-% [fGpu, nLoads_gpu] = deal(0, 1); %debug
-
-nSamples = size(mnWav,1);
-[nLoad1, nSamples_load1, nSamples_last1] = partition_load_(nSamples, round(nSamples/nLoads_gpu));
-mnWav1 = zeros(size(mnWav), 'like', mnWav);    
-freqLim_ = P.freqLim / (P.sRateHz / 2);
-for iLoad = 1:nLoad1
-    iOffset = (iLoad-1) * nSamples_load1;
-    if iLoad<nLoad1
-        vi1 = (1:nSamples_load1) + iOffset;
-    else
-        vi1 = (1:nSamples_last1) + iOffset;
-    end
-    mnWav1_ = mnWav(vi1,:);
-    if fGpu % use GPU
-        try 
-            mnWav1(vi1,:) = fftdiff__(mnWav1_, freqLim_);
-        catch
-            fGpu = 0;
-        end
-    end
-    if ~fGpu % use CPU 
-        mnWav1(vi1,:) = fftdiff__(gather_(mnWav1_), freqLim_);
-    end
-end %for
-end %func
-
-
-%--------------------------------------------------------------------------
-function mnWav1 = fftdiff__(mnWav, freqLim_)
-% apply fft to diffrentiate
-% mnWav = gather_(mnWav);
-
-n = size(mnWav,1);
-% n1 = round(n/2*freqLim_(1));
-% n2 = round(n/2*diff(freqLim_));
-
-n1 = round(n/2 * freqLim_(2));
-npow2 = 2^nextpow2(n);
-% w = single([linspace(0, 1, n2), linspace(1, 0, n2)])';
-% w = [zeros(n1, 1, 'single'); w; zeros(npow2-2*n1-4*n2, 1, 'single'); -w; zeros(n1, 1, 'single')];
-% w = single(pi*1i) * w;
-w = single(pi*1i) * single([linspace(0, 1, n1), linspace(1, -1, npow2-2*n1), linspace(-1, 0, n1)]');
-mnWav1 = real(ifft(bsxfun(@times, fft(single(mnWav), npow2), w), 'symmetric'));
-mnWav1 = cast(mnWav1(1:n,:), class_(mnWav));
 end %func
 
 
@@ -4037,8 +3979,6 @@ uimenu(mh_proj, 'Label', 'vpp', 'Callback', @(h,e)proj_view_(h), ...
     'Checked', if_on_off_(P.vcFet_show, {'vpp', 'vmin'}));
 uimenu(mh_proj, 'Label', 'pca', 'Callback', @(h,e)proj_view_(h), ...
     'Checked', if_on_off_(P.vcFet_show, {'pca'}));
-uimenu(mh_proj, 'Label', 'ppca', 'Callback', @(h,e)proj_view_(h), ...
-    'Checked', if_on_off_(P.vcFet_show, {'ppca', 'private pca'}));
 % uimenu(mh_proj, 'Label', 'cov', 'Callback', @(h,e)proj_view_(h), ...
 %     'Checked', if_on_off_(P.vcFet_show, {'cov', 'spacetime'}));
 
@@ -4661,8 +4601,26 @@ if nargin<3, S0 = get(0, 'UserData'); end
 % S_clu = S0.S_clu;
 P = S0.P;
 if ~isfield(P, 'vcFet_show'), P.vcFet_show = 'vpp'; end
+% vrFet1 = []; vrTime1=[];
+% iFet = str2double(P.vcFet_show(end));
 [vrFet1, viSpk1] = getFet_clu_(iClu, iSite, S0);
 vrTime1 = double(S0.viTime_spk(viSpk1)) / P.sRateHz;
+        
+% if nargin < 2
+%    % get background feature      
+%    switch lower(P.vcFet_show)
+%        case {'vmin', 'vpp'}
+%             vrFet1 = S0.cvrVpp_site{iSite};   
+%        otherwise
+%            error('not implemented yet'); % list of background spikes
+% %                 vrFet1 = S0.cmrFet_site{iSite}(:,iFet);
+%     end
+%    vrTime1 = S0.cvrTime_site{iSite};
+%    viSpk1 = []; %@TODO: Sclu.cviSpk_site{iSite};
+% else        
+%     [vrFet1, viSpk1] = getFet_clu_(iClu, iSite);
+%     vrTime1 = double(S0.viTime_spk(viSpk1)) / P.sRateHz;
+% end
 
 % label
 switch lower(P.vcFet_show)
@@ -5068,15 +5026,6 @@ switch lower(P.vcFet_show)
         if ~isempty(iClu2)  
             [mrMin2, mrMax2] = pca_pc_spk_(viSpk02, viSites0, mrPv1, mrPv2);
         end 
-                
-    case {'ppca', 'private pca'} %channel by channel pca. do it by channel
-        % determine pca vector from cluster 1
-        [mrPv1, mrPv2] = pca_pv_clu_(viSites0, iClu1, iClu2);            
-        [mrMin0, mrMax0] = pca_pc_spk_(viSpk00, viSites0, mrPv1, mrPv2); %getall spikes whose center lies in certain range
-        [mrMin1, mrMax1] = pca_pc_spk_(viSpk01, viSites0, mrPv1, mrPv2); %getall spikes whose center lies in certain range
-        if ~isempty(iClu2)              
-            [mrMin2, mrMax2] = pca_pc_spk_(viSpk02, viSites0, mrPv1, mrPv2);
-        end
         
     otherwise % generic
         [mrMin0, mrMax0] = getFet_spk_(viSpk00, viSites0, S0); %getall spikes whose center lies in certain range
@@ -5163,7 +5112,7 @@ function tnWav_spk1 = tnWav_spk_sites_(viSpk1, viSites1, S0, fWav_raw_show)
 % if nargin<3, fWav_raw_show = P.fWav_raw_show; end
 if nargin<3, S0 = []; end
 if isempty(S0), S0 = get(0, 'UserData'); end
-if nargin<4, fWav_raw_show = get_set_(S0.P, 'fWav_raw_show', 0); end
+if nargin<4, fWav_raw_show = 0; end
 
 % unique exception handling %171201 JJJ
 [viSites1_uniq, ~, viiSites1_uniq] = unique(viSites1);
@@ -5584,26 +5533,11 @@ end
 function rescale_FigTime_(event, S0, P)
 % rescale_FigTime_(event, S0, P)
 % rescale_FigTime_(maxAmp, S0, P)
-if nargin<2, S0 = []; end
-if nargin<3, P = []; end
-
-if isempty(S0), S0 = get0_(); end
-if isempty(P), P = S0.P; end
-S_clu = S0.S_clu;
+if nargin<3, P = S0.P; end
 
 [S_fig, maxAmp_prev] = set_fig_maxAmp_('FigTime', event);
 ylim_(S_fig.hAx, [0, 1] * S_fig.maxAmp);
 imrect_set_(S_fig.hRect, [], [0, S_fig.maxAmp]);
-iSite = S_clu.viSite_clu(S0.iCluCopy);
-
-% switch lower(P.vcFet_show)
-%     case {'vpp', 'vmin'} %voltage feature
-%         vcYlabel = sprintf('Site %d (\\mu%s)', iSite, P.vcFet_show);
-%     otherwise %other feature options
-%         vcYlabel = sprintf('Site %d (%s)', iSite, P.vcFet_show);
-% end
-% ylabel(S_fig.hAx, vcYlabel);
-
 end %func
 
 
@@ -5823,7 +5757,7 @@ viSites_show = S_plot1.viSites_show;
 figure_wait_(1);
 switch lower(event.Key)
     case {'uparrow', 'downarrow'}
-        rescale_FigProj_(event, hFig, S_fig, S0);
+        rescale_FigProj_(event, hFig, S_fig);
 
     case {'leftarrow', 'rightarrow'} % change channels
         fPlot = 0;
@@ -5896,10 +5830,9 @@ function S_fig = rescale_FigProj_(event, hFig, S_fig, S0)
 if nargin<2, hFig = []; end
 if nargin<3, S_fig = []; end
 if nargin<4, S0 = []; end
+
 if isempty(hFig) || isempty(S_fig), [hFig, S_fig] = get_fig_cache_('FigProj'); end
 if isempty(S0), S0 = get(0, 'UserData'); end
-P = S0.P;
-
 if isnumeric(event)
     S_fig.maxAmp = event;
 else
@@ -5908,14 +5841,6 @@ end
 vhPlot = [S_fig.hPlot0, S_fig.hPlot1, S_fig.hPlot2];
 if isempty(S0.iCluPaste), vhPlot(end) = []; end
 rescaleProj_(vhPlot, S_fig.maxAmp, S0.P);
-switch lower(P.vcFet_show)
-    case {'vpp', 'vmin', 'vmax'}
-        S_fig.vcXLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
-        S_fig.vcYLabel = 'Site # (%0.0f \\muV_{min})';
-    otherwise
-        S_fig.vcXLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.vcFet_show, P.vcFet_show, P.vcFet_show);
-        S_fig.vcYLabel = sprintf('Site # (%%0.0f %s)', P.vcFet_show);    
-end
 xlabel(S_fig.hAx, sprintf(S_fig.vcXLabel, S_fig.maxAmp));   
 ylabel(S_fig.hAx, sprintf(S_fig.vcYLabel, S_fig.maxAmp));  
 if nargout==0
@@ -5988,9 +5913,6 @@ switch lower(P.vcFet_show)
         mrFet1 = calc_cov_spk_(viSpk1, iSite);
     case {'pca', 'gpca'}
         mrFet1 = pca_pc_spk_(viSpk1, iSite);
-    case {'ppca', 'private pca'}
-        [mrPv1, mrPv2] = pca_pv_clu_(iSite, S0.iCluCopy);
-        mrFet1 = pca_pc_spk_(viSpk1, iSite, mrPv1, mrPv2);
     otherwise
         error('not implemented yet');
 end
@@ -7095,12 +7017,7 @@ S0 = get(0, 'UserData');
 S_clu = S0.S_clu;
 P = S0.P;
 iClu1 = S0.iCluCopy;
-if ismember(P.vcFet_show, {'pca', 'ppca', 'gpca'})
-    fWav_raw_show = 0;
-else
-    fWav_raw_show = get_set_(P, 'fWav_raw_show', 0);
-end
-trWav12 = tnWav2uV_(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu1}, site12, S0, fWav_raw_show), P);
+trWav12 = tnWav2uV_(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu1}, site12, S0), P);
 if diff(site12) == 0, trWav12(:,2,:) = trWav12(:,1,:); end
 vxPoly = (mrPolyPos([1:end,1],1) - site12_show(1)) * S1.maxAmp;
 vyPoly = (mrPolyPos([1:end,1],2) - site12_show(2)) * S1.maxAmp;
@@ -7132,13 +7049,8 @@ switch lower(P.vcFet_show)
             vcXlabel = sprintf('Site %d (cov2)', site12(1));
         end  
         
-    case {'pca', 'ppca', 'gpca'}
-        if strcmpi(P.vcFet_show, 'ppca')
-            [mrPv1, mrPv2] = pca_pv_clu_(site12, S0.iCluCopy, S0.iCluPaste);
-            [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.cviSpk_clu{iClu1}, site12, mrPv1, mrPv2);
-        else
-            [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.cviSpk_clu{iClu1}, site12);
-        end
+    case 'pca'
+        [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.cviSpk_clu{iClu1}, site12);
         [mrAmin12, mrAmax12] = multifun_(@(x)abs(x'), mrAmin12, mrAmax12);
         vyPlot = mrAmin12(:,2);
         vcYlabel = sprintf('Site %d (PC1)', site12(2));
@@ -7643,7 +7555,6 @@ if ~isempty(viClu_update)
     nClu_pre = size(S_clu.trWav_spk_clu, 3);
     vlClu_update((1:nClu) > nClu_pre) = 1;
     [tmrWav_spk_clu, tmrWav_raw_clu] = deal(S_clu.tmrWav_spk_clu, S_clu.tmrWav_raw_clu);
-    [trWav_spk_clu, trWav_raw_clu] = deal(S_clu.trWav_spk_clu, S_clu.trWav_raw_clu);
     [tmrWav_raw_lo_clu, tmrWav_raw_hi_clu] = deal(S_clu.tmrWav_raw_lo_clu, S_clu.tmrWav_raw_hi_clu);    
 else
     vlClu_update = true(nClu, 1);
@@ -11469,52 +11380,22 @@ end %func
 %--------------------------------------------------------------------------
 function [mrPv1, mrPv2] = pca_pv_spk_(viSpk1, viSites1, tnWav_spk1)
 % if viSite not found just set to zero
-nSites = numel(viSites1);  
-S0 = get0_();
-mrPv_global = get_(S0, 'mrPv_global'); 
+
+if nargin<3
+    tnWav_spk1 = permute(tnWav_spk_sites_(viSpk1, viSites1), [1,3,2]);
+end
+nT = size(tnWav_spk1, 1);
+nSites = numel(viSites1);
+mrPv_global = get0_('mrPv_global');
 if ~isempty(mrPv_global)
     % show global pca
     mrPv1 = repmat(mrPv_global(:,1), [1, nSites]);
     mrPv2 = repmat(mrPv_global(:,2), [1, nSites]);
 else
-    if nargin<3
-        tnWav_spk1 = permute(tnWav_spk_sites_(viSpk1, viSites1, S0, 0), [1,3,2]);
-    end
-    nT = size(tnWav_spk1, 1);      
     % show site pca
     [mrPv1, mrPv2] = deal(zeros(nT, nSites, 'single'));
     for iSite1=1:nSites
         [mrPv1(:,iSite1), mrPv2(:,iSite1)] = pca_pv_(tnWav_spk1(:,:,iSite1));
-    end %for
-end
-end %func
-
-
-%--------------------------------------------------------------------------
-function [mrPv1, mrPv2] = pca_pv_clu_(viSites, iClu1, iClu2)
-% [mrPv1, mrPv2] = pca_pv_clu_(viSites, iClu1): return two prinvec per site from same clu
-% [mrPv1, mrPv2] = pca_pv_clu_(viSites, iClu1, iClu2): return one prinvec per clu per site
-
-if nargin<3, iClu2 = []; end
-S0 = get0_();
-S_clu = S0.S_clu;
-% show site pca
-MAX_SAMPLE = 10000; %for pca
-viSpk1 = subsample_vr_(S_clu.cviSpk_clu{iClu1}, MAX_SAMPLE);
-tnWav_spk1 = permute(tnWav_spk_sites_(viSpk1, viSites, S0, 0), [1,3,2]);
-[nT, nSites] = deal(size(tnWav_spk1, 1), numel(viSites));
-[mrPv1, mrPv2] = deal(zeros(nT, nSites, 'single'));
-
-if isempty(iClu2)
-    for iSite1=1:nSites
-        [mrPv1(:,iSite1), mrPv2(:,iSite1)] = pca_pv_(tnWav_spk1(:,:,iSite1));
-    end %for
-else
-    viSpk2 = subsample_vr_(S_clu.cviSpk_clu{iClu2}, MAX_SAMPLE);    
-    tnWav_spk2 = permute(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu2}, viSites, S0, 0), [1,3,2]);
-    for iSite1=1:nSites
-        mrPv1(:,iSite1) = pca_pv_(tnWav_spk1(:,:,iSite1));
-        mrPv2(:,iSite1) = pca_pv_(tnWav_spk2(:,:,iSite1));
     end %for
 end
 end %func
@@ -11575,14 +11456,17 @@ end %func
 function proj_view_(hMenu)
 P = get0_('P');
 vcFet_show = lower(get(hMenu, 'Label'));
-P.vcFet_show = vcFet_show;
+switch vcFet_show
+    case {'vpp', 'pca', 'cov'}, P.vcFet_show = vcFet_show;
+    otherwise, error('proj_view_:Invalid vcFet_show');
+end
 vhMenu = hMenu.Parent.Children;
 for iMenu=1:numel(vhMenu)
     vhMenu(iMenu).Checked = if_on_off_(vhMenu(iMenu).Label, vcFet_show);
 end
 % auto-scale the view
-S0 = set0_(P);
-button_CluWav_simulate_(S0.iCluCopy, S0.iCluPaste, S0);
+set0_(P);
+auto_scale_proj_time_();
 end %func
 
 
@@ -14178,40 +14062,39 @@ if nargin<1, S0 = get(0, 'UserData'); end
 if nargin<2, fPlot = 0; end
 
 autoscale_pct = get_set_(S0.P, 'autoscale_pct', 99.5);
-[hFig_proj, S_fig_proj] = get_fig_cache_('FigProj');
-[mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, S_fig_proj.viSites_show);
+[hFig, S_fig] = get_fig_cache_('FigProj');
+% vrY = [S_fig.hPlot0.YData(:); S_fig.hPlot1.YData(:); S_fig.hPlot2.YData(:)];
+[mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, S_fig.viSites_show);
+% mrAmp = [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2];
+% mrAmp = [mrMin1, mrMax1, mrMin2, mrMax2];
+% S_fig.maxAmp = quantile(mrAmp(:), autoscale_pct/100);
 if isempty(mrMin2) || isempty(mrMax2)
     cmrAmp = {mrMin1, mrMax1};
 else
     cmrAmp = {mrMin1, mrMax1, mrMin2, mrMax2};
 end
-S_fig_proj.maxAmp = max(cellfun(@(x)quantile(x(:), autoscale_pct/100), cmrAmp));
-set(hFig_proj, 'UserData', S_fig_proj);
+S_fig.maxAmp = max(cellfun(@(x)quantile(x(:), autoscale_pct/100), cmrAmp));
+% S_fig.maxAmp %debug
+set(hFig, 'UserData', S_fig);
 
-
-% Update time
-[hFig_time, S_fig_time] = get_fig_cache_('FigTime');
+[hFig, S_fig] = get_fig_cache_('FigTime');
 iSite = S0.S_clu.viSite_clu(S0.iCluCopy);
-% [vrFet0, vrTime0] = getFet_site_(iSite, [], S0);    % plot background    
+[vrFet0, vrTime0] = getFet_site_(iSite, [], S0);    % plot background    
 [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.iCluCopy, S0); % plot iCluCopy
 if isempty(S0.iCluPaste)
-%     vrFet = [vrFet0(:); vrFet1(:)];
-    cvrFet = {vrFet1};
+    vrFet = [vrFet0(:); vrFet1(:)];
 else
     [vrFet2, vrTime2, vcYlabel, viSpk2] = getFet_site_(iSite, S0.iCluPaste, S0); % plot iCluCopy
-%     vrFet = [vrFet0(:); vrFet1(:); vrFet2(:)];
-    cvrFet = {vrFet1, vrFet2};
+    vrFet = [vrFet0(:); vrFet1(:); vrFet2(:)];
 end
-% S_fig_time.maxAmp = quantile(vrFet, autoscale_pct/100);
-S_fig_time.maxAmp = max(cellfun(@(x)quantile(x(:), autoscale_pct/100), cvrFet));
-set(hFig_time, 'UserData', S_fig_time);
+S_fig.maxAmp = quantile(vrFet, autoscale_pct/100);
+set(hFig, 'UserData', S_fig);
 
-% plot
 if fPlot
-    keyPressFcn_cell_(get_fig_cache_('FigWav'), {'j', 't'}, S0); 
+    keyPressFcn_cell_(get_fig_cache_('FigWav'), {'j', 't'}); 
 else
-    rescale_FigProj_(S_fig_proj.maxAmp, hFig_proj, S_fig_proj, S0);    
-    rescale_FigTime_(S_fig_time.maxAmp, S0, S0.P);
+    rescale_FigProj_(S_fig.maxAmp);    
+    rescale_FigTime_(S_fig.maxAmp, S0, S0.P);
 end
 end %func
 
@@ -15082,20 +14965,11 @@ if nargin<3, fText = 1; end
 if isempty(S_clu), S_clu = get0_('S_clu'); end
 
 if fText
-    csText_clu = arrayfun(@(i)sprintf('%d(%d)', i, S_clu.vnSpk_clu(i)), 1:S_clu.nClu, 'UniformOutput', 0);
+    csText_clu = arrayfun(@(i)sprintf('%d (%d)', i, S_clu.vnSpk_clu(i)), 1:S_clu.nClu, 'UniformOutput', 0);
 else
     csText_clu = arrayfun(@(i)sprintf('%d', i), 1:S_clu.nClu, 'UniformOutput', 0);
 end
-set(S_fig.hAx, 'Xtick', 1:S_clu.nClu, 'XTickLabel', csText_clu, 'FontSize', 8);
-try
-    if fText
-        xtickangle(S_fig.hAx, -20); 
-    else
-        xtickangle(S_fig.hAx, 0); 
-    end
-catch; 
-end
-
+set(S_fig.hAx, 'Xtick', 1:S_clu.nClu, 'XTickLabel', csText_clu)
 S_fig.fText = fText;
 if nargout==0
     hFig = get_fig_cache_('FigWav');
@@ -17991,8 +17865,8 @@ end %func
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
 if nargin<1, vcFile_prm = ''; end
-vcVer = 'v3.2.4';
-vcDate = '1/8/2018';
+vcVer = 'v3.2.3';
+vcDate = '1/3/2018';
 vcVer_used = '';
 if nargout==0
     fprintf('%s (%s) installed\n', vcVer, vcDate);
@@ -18995,9 +18869,6 @@ end %func
 % 12/20/17 JJJ: support combined recordings and header containing files
 % 12/15/17 JJJ: Load a single channel in memory efficient way
 function vrWav = load_bin_chan_(P, iChan)
-% vrWav = load_bin_chan_(P, 0): return average of all valid channels
-% vrWav = load_bin_chan_(P, iChan): return specific channel
-if nargin<2, iChan = 0; end
 vrWav = [];
 
 % Join multiple recordings if P.csFile_merge is set
@@ -19008,85 +18879,26 @@ if isempty(P.vcFile) && ~isempty(P.csFile_merge)
     for iFile=1:numel(csFile_bin)
         P_ = setfield(P, 'vcFile', csFile_bin{iFile});
         cvrWav{iFile} = load_bin_chan_(P_, iChan);
-        fprintf('.');
     end
     vrWav = cell2mat_(cvrWav);
     return;
 end
 
-try       
-    vrWav = load_bin_paged_(P, iChan);    
+if ~exist_file_(P.vcFile), return; end    
+try        
+    nBytes = getBytes_(P.vcFile);
+    if isempty(nBytes), return; end
+    header_offset = get_(P, 'header_offset', 0);
+    bytesPerSample = bytesPerSample_(P.vcDataType);
+    nSamples = floor((nBytes-header_offset) / bytesPerSample / P.nChans);
+
+    fid = fopen(P.vcFile, 'r');     
+    fseek(fid, bytesPerSample * (iChan-1) + header_offset, 'bof');
+    vrWav = fread(fid, [nSamples, 1], ['*', lower(P.vcDataType)], (P.nChans-1) * bytesPerSample);     
+    fclose(fid);
 catch
-    disperr_();
     return;
 end
-end %func
-
-
-%--------------------------------------------------------------------------
-% 01/08/18: read and reduce
-function mn = load_bin_paged_(P, viChan, nBytes_page)
-% ~35x slower than RAM indexing
-% mn = load_bin_reduce_(P, 0)
-% mn = load_bin_reduce_(P, viChans)
-% mn = load_bin_reduce_(P, viChans)
-LOAD_FACTOR = 5;
-if nargin<3, nBytes_page = []; end
-if isempty(nBytes_page)
-    S = memory();
-    nBytes_page = floor(S.MaxPossibleArrayBytes() / LOAD_FACTOR);
-end
-bytesPerSample = bytesPerSample_(P.vcDataType);
-nSamples_page = floor(nBytes_page / P.nChans / bytesPerSample);
-mn = []; 
-
-% Determine number of samples
-if ~exist_file_(P.vcFile) || isempty(viChan), return; end    
-nBytes = getBytes_(P.vcFile);
-if isempty(nBytes), return; end
-header_offset = get_(P, 'header_offset', 0);
-nSamples = floor((nBytes-header_offset) / bytesPerSample / P.nChans);
-
-% Loading loop
-fid = fopen(P.vcFile, 'r');
-try
-    if header_offset>0, fseek(fid, header_offset, 'bof'); end
-    nPages = ceil(nSamples / nSamples_page);
-    if viChan(1) == 0
-        fMean = 1;
-        viChan = P.viSite2Chan;
-        viChan(P.viSiteZero) = [];    
-    else
-        fMean = 0;
-    end
-    if nPages == 1
-        mn = fread(fid, [P.nChans, nSamples], ['*', lower(P.vcDataType)]);
-        mn = mn(viChan,:);
-        if fMean, mn = cast(mean(mn), P.vcDataType); end
-        mn = mn';
-    else
-        if fMean
-            mn = zeros([nSamples, 1], P.vcDataType);
-        else
-            mn = zeros([nSamples, numel(viChan)], P.vcDataType);
-        end
-        for iPage = 1:nPages
-            if iPage < nPages
-                nSamples_ = nSamples_page;        
-            else
-                nSamples_ = nSamples - nSamples_page * (iPage-1);
-            end
-            vi_ = (1:nSamples_) + (iPage-1) * nSamples_page;    
-            mn_ = fread(fid, [P.nChans, nSamples_], ['*', lower(P.vcDataType)]);
-            mn_ = mn_(viChan,:);
-            if fMean, mn_ = cast(mean(mn_), P.vcDataType); end
-            mn(vi_,:) = mn_';
-        end
-    end
-catch
-    disperr_();
-end
-fclose_(fid);
 end %func
 
 
@@ -19133,26 +18945,6 @@ end
 % update the lfp file name in the parameter file
 edit_prm_file_(P, P.vcFile_prm);
 fprintf('\tLFP file (vcFile_lfp) updated: %s\n\ttook %0.1fs\n', P.vcFile_lfp, toc(t1));
-end %func
-
-
-%--------------------------------------------------------------------------
-function export_lfp_(P)
-% export LFP waveform to workspace (ordered by the site numbers)
-
-P.vcFile_lfp = strrep(P.vcFile_prm, '.prm', '.lfp.jrc');
-if ~exist_file_(P.vcFile_lfp)
-    import_lfp_(P)
-end
-mnLfp = load_bin_(P.vcFile_lfp, P.vcDataType);
-nSamples = floor(size(mnLfp,1) / P.nChans);
-mnLfp = reshape(mnLfp(1:P.nChans*nSamples), P.nChans, nSamples)';
-
-mnLfp = mnLfp(:, P.viSite2Chan);
-mrSiteXY = P.mrSiteXY;
-assignWorkspace_(mnLfp, mrSiteXY);
-fprintf('\tmnLfp has nSamples x nSites dimension, sites are ordered from the bottom to top, left to right\n');
-fprintf('\tmrSiteXY (site positions) has nSites x 2 dimension; col.1: x-coord, col.2: y-coord (um)\n');
 end %func
 
 
@@ -19336,48 +19128,6 @@ for iChan = 1:nChans
     mnWav2(:,iChan) = vn_;
 end
 end %func
-
-
-%--------------------------------------------------------------------------
-function export_chan_(P, vcArg1)
-% export list of channels to a bin file, use fskip?
-if isempty(vcArg1)
-    vcArg1 = inputdlg('Which channel(s) to export (separate by commas or space)', 'Channel', 1, {num2str(P.nChans)});
-    if isempty(vcArg1), return; end
-    vcArg1 = vcArg1{1};
-end
-viChan = str2num(vcArg1);
-if isnan(viChan), fprintf(2, 'Must provide a channel number\n'); return; end
-if any(viChan > P.nChans | viChan < 0)
-    fprintf(2, 'Exceeding nChans (=%d).\n', P.nChans);
-    return; 
-end
-try    
-    vcChan_ = sprintf('%d-', viChan);
-    vcFile_out = strrep(P.vcFile_prm, '.prm', sprintf('_ch%s.jrc', vcChan_(1:end-1)));
-    mn = load_bin_chan_(P, viChan);
-    write_bin_(vcFile_out, mn);    
-    if numel(viChan) == 1
-        eval(sprintf('ch%d = mn;', viChan));
-        eval(sprintf('assignWorkspace_(ch%d);', viChan));
-    else
-        assignWorkspace_(mn);        
-    end
-catch
-    fprintf('Out of memory, exporting individual channels\n'); 
-    for iChan1 = 1:numel(viChan)
-        iChan = viChan(iChan1);
-        vcFile_out = strrep(P.vcFile_prm, '.prm', sprintf('_ch%d.jrc', iChan));
-        fprintf('Loading chan %d(%d/%d) from %s\n\t', iChan, iChan1, numel(viChan), P.vcFile_prm);
-        t1 = tic;
-        vn_ = load_bin_chan_(P, iChan);
-        fprintf('\n\ttook %0.1fs\n', toc(t1));
-        write_bin_(vcFile_out, vn_);
-    end %for
-end
-end %func
-
-
 
 %     case 'o' %overlap waveforms across sites
 %         hFig_temp = figure; hold on;
