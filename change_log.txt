@@ -2,6 +2,34 @@
 J. James Jun
 
 --------------------------------------------------------------------
+[2019/1/5: v3.2.5]
+Centered cluster average waveforms are properly saved. 
+  `trWav_spk_clu` for filtered waveforms and `trWav_raw_clu` for raw waveforms
+  `tmrWav_spk_clu` and `tmrWav_raw_clu` have worked properly, which saves
+  waveforms at all sites.
+Selecting 'vpp' (peak-to-peak voltage) calcultes different values
+  depending on whether you are displaying filtered or raw waveforms.
+  When 'pca' or 'ppca' (private pca) features are selected, PCA values are computed for the filtered waveforms whether or not the raw waveforms are displayed.
+Manual GUI: The x-axis labels on the waveform view are displayed without overlapping for smaller sized monitors.
+  To avoid overlapping, the text size is decresased and text angle is rotated (new feature since Matlab 2016b).
+
+# New features
+Manual GUI: 'ppca' (private PCA) option is added under "Projection" menu.
+  When one unit is selected, filtered spike waveforms are projected to the first and second principal vectors of the selected unit for each site.
+  When two units are selected, filtered spike waveforms are projected to the first principal axes of the two selected units for each site.
+"jrc export-chan myparam.prm chan-list" exports channel(s) on "chan-list" to the Matlab workspace and to a binary file (_ch#.jrc).
+  To export more than one channel, use "," or ":" without space. 
+  For example, run "jrc export-chan 33,34,35" or "jrc export-chan 33:35" to export channels 33-35.
+"jrc export-lfp" to export the LFP waveforms (ordered by the site numbers) to the Matlab workspace
+  "mnLfp" has a nSamples x nSites dimension, and stores the LFP waveforms in the original data type (16-bit integer by default).
+  "mrSiteXY" has a nSites x 2 dimension, and stores x and y coordinate for the sites (in micrometers)
+  To extract a column of sites located at x=0, run "mnLfp(:, mrSiteXY(:,1)==0)"
+
+[2019/1/4: v3.2.4]
+# Bug fixes
+Manual GUI: projection display is correctly updated.
+  Previously the second unit selection (shown in red) required two right clicks to update.
+
 [2019/1/3: v3.2.3]
 Bugfix: incorrect "gather" function was called for R2017b when Bigdata toolbox is installed.
 Faster and more robust fft_clean operation (run if `fft_thresh` > 0)
