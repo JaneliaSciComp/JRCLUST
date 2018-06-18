@@ -1,26 +1,26 @@
-function varargout = jrc3_gui(varargin)
-% JRC3_GUI MATLAB code for jrc3_gui.fig
-%      JRC3_GUI, by itself, creates a new JRC3_GUI or raises the existing
+function varargout = jrc_gui(varargin)
+% JRC_GUI MATLAB code for jrc_gui.fig
+%      JRC_GUI, by itself, creates a new JRC_GUI or raises the existing
 %      singleton*.
 %
-%      H = JRC3_GUI returns the handle to a new JRC3_GUI or the handle to
+%      H = JRC_GUI returns the handle to a new JRC_GUI or the handle to
 %      the existing singleton*.
 %
-%      JRC3_GUI('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in JRC3_GUI.M with the given input arguments.
+%      JRC_GUI('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in JRC_GUI.M with the given input arguments.
 %
-%      JRC3_GUI('Property','Value',...) creates a new JRC3_GUI or raises the
+%      JRC_GUI('Property','Value',...) creates a new JRC_GUI or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before jrc3_gui_OpeningFcn gets called.  An
+%      applied to the GUI before jrc_gui_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to jrc3_gui_OpeningFcn via varargin.
+%      stop.  All inputs are passed to jrc_gui_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help jrc3_gui
+% Edit the above text to modify the response to help jrc_gui
 
 % Last Modified by GUIDE v2.5 29-Sep-2017 14:42:04
 
@@ -28,8 +28,8 @@ function varargout = jrc3_gui(varargin)
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @jrc3_gui_OpeningFcn, ...
-                   'gui_OutputFcn',  @jrc3_gui_OutputFcn, ...
+                   'gui_OpeningFcn', @jrc_gui_OpeningFcn, ...
+                   'gui_OutputFcn',  @jrc_gui_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,13 +44,13 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before jrc3_gui is made visible.
-function jrc3_gui_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before jrc_gui is made visible.
+function jrc_gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to jrc3_gui (see VARARGIN)
+% varargin   command line arguments to jrc_gui (see VARARGIN)
 
 % Background image
 % image(handles.axes1, imread('./img/gui_background.png'));
@@ -61,7 +61,7 @@ function jrc3_gui_OpeningFcn(hObject, eventdata, handles, varargin)
 enable_(handles, {'Spikesort', 'Detect', 'Sort', 'ClearPrm', 'EditPrm', ...
     'Auto', 'Probe', 'Preview', 'Traces', 'Manual', 'Describe', 'Drift'}, 0);
 
-% Choose default command line output for jrc3_gui
+% Choose default command line output for jrc_gui
 handles.output = hObject;
 if ~isempty(varargin{1})    
     handles.vcFile_prm = load_prm_(hObject, varargin{1});
@@ -69,12 +69,12 @@ end
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes jrc3_gui wait for user response (see UIRESUME)
+% UIWAIT makes jrc_gui wait for user response (see UIRESUME)
 % uiwait(handles.Fig_gui);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = jrc3_gui_OutputFcn(hObject, eventdata, handles) 
+function varargout = jrc_gui_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -464,7 +464,7 @@ function btnAbout_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 try
-    S_out = jrc3('test', 'about_', {}, 1, 0);
+    S_out = jrc('test', 'about_', {}, 1, 0);
     msgbox(S_out.out1);
     fprintf('%s\n', S_out.out1{:});
 catch
@@ -499,7 +499,7 @@ function btnDescribe_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 try
-    S_out = jrc3('test', 'describe_', {}, 1, 0);
+    S_out = jrc('test', 'describe_', {}, 1, 0);
     msgbox(S_out.out1);
     fprintf('%s\n', S_out.out1{:});
 catch
@@ -560,7 +560,7 @@ function btnMakePrm_Callback(hObject, eventdata, handles)
 csAns = inputdlg({'raw recording file', 'Probe file', 'Template file'}, 'Recording format', 1, {'', '', 'default.prm'});
 if isempty(csAns), return; end
 % S = struct('vcFile', csAns{1}, 'probe_file', csAns{2}, 'template_file', csAns{3});
-vcFile_prm = jrc3('makeprm', csAns{1}, csAns{2}, csAns{3});
+vcFile_prm = jrc('makeprm', csAns{1}, csAns{2}, csAns{3});
 % guidata_set_(hObject, vcFile_prm);
 load_prm_(hObject, vcFile_prm);
 

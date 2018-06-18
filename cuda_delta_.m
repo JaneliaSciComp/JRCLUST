@@ -11,7 +11,7 @@ function [vrDelta1, viNneigh1] = cuda_delta_(mrFet12, viiSpk12_ord, viiRho12_ord
         try
             if (nC_ ~= nC) % create cuda kernel
                 nC_ = nC;
-                CK = parallel.gpu.CUDAKernel('jrc3_cuda_delta.ptx','jrc3_cuda_delta.cu');
+                CK = parallel.gpu.CUDAKernel('jrc_cuda_delta.ptx','jrc_cuda_delta.cu');
                 CK.ThreadBlockSize = [P.nThreads, 1];
                 CK.SharedMemorySize = 4 * P.CHUNK * (3 + nC_max + 2*P.nThreads); % @TODO: update the size
             end

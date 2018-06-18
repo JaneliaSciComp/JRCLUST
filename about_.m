@@ -5,7 +5,7 @@ function csAbout = about_(varargin)
     [vcVer, vcDate] = jrc_version_();
     csAbout = { ...
     '';
-    sprintf('JRCLUST %s (jrc3.m)', vcVer);
+    sprintf('JRCLUST %s (jrc.m)', vcVer);
     sprintf('  Last updated on %s', vcDate);
     '  Created by James Jun (jamesjun@gmail.com)';
     '';

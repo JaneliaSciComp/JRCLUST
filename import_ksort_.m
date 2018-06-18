@@ -4,7 +4,7 @@ function import_ksort_(vcFile_prm, fSort)
     % import_ksort_(vcFile_prm, fSort)
     % fMerge_post = 0;
     % import kilosort result
-    % fSort: do sort using jrc3
+    % fSort: do sort using jrc
     if isstruct(vcFile_prm)
         P = vcFile_prm;
         vcFile_prm = P.vcFile_prm;
@@ -15,8 +15,8 @@ function import_ksort_(vcFile_prm, fSort)
     % S_ksort = load(strrep(P.vcFile_prm, '.prm', '_ksort.mat')); % contains rez structure
     if nargin<2, fSort = 0; end %
     global tnWav_raw tnWav_spk trFet_spk
-    % convert jrc1 format (_clu and _evt) to jrc3 format. no overwriting
-    % receive spike location, time and cluster number. the rest should be taken care by jrc3 processing
+    % convert jrc1 format (_clu and _evt) to jrc format. no overwriting
+    % receive spike location, time and cluster number. the rest should be taken care by jrc processing
 
     % Create a prm file to start with. set the filter parameter correctly. features?
     if isempty(P), return; end

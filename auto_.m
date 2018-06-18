@@ -10,7 +10,7 @@ function auto_(P)
     S_clu.P = P;
 
     if isempty(S_clu)
-        fprintf(2, 'You must sort first by running "jrc3 sort".\n');
+        fprintf(2, 'You must sort first by running "jrc sort".\n');
         return;
     end
     [S_clu, S0] = post_merge_(S_clu, P);

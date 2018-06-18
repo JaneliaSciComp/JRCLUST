@@ -2,7 +2,7 @@
 function batch_verify_(vcFile_batch, vcCommand)
     % batch process parameter files (.batch) file
     % Example
-    %   jrc3 batch-verify skip my.batch
+    %   jrc batch-verify skip my.batch
     %       just does the verification plot for all files in .batch file
     if ~exist(vcFile_batch, 'file'), fprintf(2, 'File does not exist\n'); return; end
     edit(vcFile_batch); %show script
@@ -14,10 +14,10 @@ function batch_verify_(vcFile_batch, vcCommand)
         for iFile=1:numel(csFiles_prm)
             try
                 vcFile_prm1 = csFiles_prm{iFile};
-                jrc3('clear');
-                jrc3(vcCommand, vcFile_prm1);
+                jrc('clear');
+                jrc(vcCommand, vcFile_prm1);
                 if isempty(strfind(vcCommand, 'verify'))
-                    jrc3('verify', vcFile_prm1); % try silent verify and collect result
+                    jrc('verify', vcFile_prm1); % try silent verify and collect result
                 end
             catch
                 disperr_();

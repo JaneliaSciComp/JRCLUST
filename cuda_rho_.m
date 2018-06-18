@@ -19,7 +19,7 @@ function vrRho1 = cuda_rho_(mrFet12, viiSpk12_ord, n1, n2, dc2, P)
         try
             if (nC_ ~= nC) % create cuda kernel
                 nC_ = nC;
-                CK = parallel.gpu.CUDAKernel('jrc3_cuda_rho.ptx','jrc3_cuda_rho.cu');
+                CK = parallel.gpu.CUDAKernel('jrc_cuda_rho.ptx','jrc_cuda_rho.cu');
                 CK.ThreadBlockSize = [P.nThreads, 1];
                 CK.SharedMemorySize = 4 * P.CHUNK * (2 + nC_max + 2 * P.nThreads); % @TODO: update the size
             end

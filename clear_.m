@@ -7,8 +7,8 @@ function clear_(vcFile_prm)
     if nargin<1, vcFile_prm = ''; end
     global fDebug_ui;
 
-    % clear jrc3
-    clear(mfilename()); % clear persistent variables in the current file. Same as clear jrc3
+    % clear jrc
+    clear(mfilename()); % clear persistent variables in the current file. Same as clear jrc
     clear global tnWav_spk tnWav_raw trFet_spk mnWav1 mrWav1 mnWav S_gt vcFile_prm_
     clear functions % clear function memory 10/15/17 JJJ
 

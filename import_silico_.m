@@ -9,8 +9,8 @@ function import_silico_(vcFile_prm, fSort)
     if nargin<2, fSort = 0; end
 
     global tnWav_raw tnWav_spk trFet_spk
-    % convert jrc1 format (_clu and _evt) to jrc3 format. no overwriting
-    % receive spike location, time and cluster number. the rest should be taken care by jrc3 processing
+    % convert jrc1 format (_clu and _evt) to jrc format. no overwriting
+    % receive spike location, time and cluster number. the rest should be taken care by jrc processing
     P = loadParam_(vcFile_prm); %makeParam_kilosort_
     if isempty(P), return; end
 
