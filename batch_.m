@@ -24,9 +24,9 @@ function batch_(vcFile_batch, vcCommand)
             vcFile_prm_ = makeprm_(vcFile_prm_, vcFile_template, 0);
         end
         try
-            jrc3('clear');
+            jrc('clear');
             fprintf('Processing file %d/%d: %s\n', iFile, numel(csFiles_prm), vcFile_prm_);
-            jrc3(vcCommand, vcFile_prm_);
+            jrc(vcCommand, vcFile_prm_);
             vlFile_err(iFile) = 0;
         catch
             csErr_file{iFile} = lasterr();

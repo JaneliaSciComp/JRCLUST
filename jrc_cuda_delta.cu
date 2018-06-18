@@ -1,7 +1,7 @@
 /**
- * jrc3_cuda_delta.cu
+ * jrc_cuda_delta.cu
  * block loading delta calculation. should be much faster
- * system('nvcc -ptx -m 64 -arch sm_35 jrc3_cuda_rho.cu')
+ * system('nvcc -ptx -m 64 -arch sm_35 jrc_cuda_rho.cu')
  * iA is multiple of CHUNK (16)
  * J. James Jun, Vidrio Technologies, LLC., 2017 Jun 11
 */
@@ -31,7 +31,7 @@
 // mrDist12_(mlRemove12_) = nan;
 // [vrDelta1, viNneigh1] = min(mrDist12_);
 
-__global__ void jrc3_cuda_delta(float * vrDelta1, unsigned int * viNneigh1, const float * mrFet12, const int * viiSpk12_ord, const int * viiRho12_ord, const int * vnConst, const float dc2){
+__global__ void jrc_cuda_delta(float * vrDelta1, unsigned int * viNneigh1, const float * mrFet12, const int * viiSpk12_ord, const int * viiRho12_ord, const int * vnConst, const float dc2){
     // int iA = blockIdx.x * CHUNK;    
     int i1 = (blockIdx.x + blockIdx.y * gridDim.x) * CHUNK;   // base index of i1
     int tx = threadIdx.x;

@@ -13,7 +13,7 @@ function trFet_spk_ = denoise_fet_(trFet_spk, P, vlRedo_spk)
     nC = size(trFet_spk,1);
     try
         nC_max = get_set_(P, 'nC_max', 45);
-        CK = parallel.gpu.CUDAKernel('jrc3_cuda_nneigh.ptx','jrc3_cuda_nneigh.cu');
+        CK = parallel.gpu.CUDAKernel('jrc_cuda_nneigh.ptx','jrc_cuda_nneigh.cu');
         CK.ThreadBlockSize = [P.nThreads, 1];
         CK.SharedMemorySize = 4 * P.CHUNK * (1 + nC_max + 2 * P.nThreads); % @TODO: update the size
     catch

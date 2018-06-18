@@ -22,9 +22,9 @@ function batch_plot_(vcFile_batch, vcCommand)
     for iFile=1:numel(csFiles_prm)
         try
             vcFile_prm1 = csFiles_prm{iFile};
-            jrc3('clear');
+            jrc('clear');
             if ~strcmpi(vcCommand, 'skip')
-                jrc3(vcCommand, vcFile_prm1);
+                jrc(vcCommand, vcFile_prm1);
                 S0 = get(0, 'UserData');
             else
                 S0 = load_cached_(vcFile_prm1);

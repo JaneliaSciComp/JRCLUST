@@ -12,6 +12,6 @@ function gui_(vcArg1, vcFile_prm_)
     end
     S_gui.vcFile_prm = vcFile_prm;
     set0_(S_gui);
-    jrc3_gui(vcFile_prm);
+    jrc_gui(vcFile_prm);
 
 end %func

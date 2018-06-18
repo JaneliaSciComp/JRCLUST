@@ -77,5 +77,5 @@ function import_h5_(vcFile_h5)
     assignWorkspace_(P, S_gt);
     fprintf('Created .prm file: %s\n', P.vcFile_prm);
     edit(P.vcFile_prm);
-    jrc3('setprm', P.vcFile_prm); % set the currently working prm file
+    jrc('setprm', P.vcFile_prm); % set the currently working prm file
 end %func

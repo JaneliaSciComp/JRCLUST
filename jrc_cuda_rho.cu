@@ -1,7 +1,7 @@
 /**
- * jrc3_cuda_rho.cu
+ * jrc_cuda_rho.cu
  * block loading rho calculation. should be much faster
- * system('nvcc -ptx -m 64 -arch sm_35 jrc3_cuda_rho.cu')
+ * system('nvcc -ptx -m 64 -arch sm_35 jrc_cuda_rho.cu')
  * i1 is multiple of chunk (16)
  * J. James Jun, Vidrio Technologies, LLC., 2017 Jun 11
  * 7/13/17: fDc_spk option added, which uses spike-specific distance cut-off (dc)
@@ -23,8 +23,8 @@
  * and calls doIterations to do the actual work.
  * Step through one B at a time
  */
-__global__ void jrc3_cuda_rho(float * vrRho1, const float * mrFet12, const int * viiSpk12_ord, const int *  vnConst, const float dc2){
-//__global__ void jrc3_cuda_rho(int *vnRho1, int *vnComp1, float const *mrFet12, int const *viiSpk12_ord, int const *vnC4, float const dc2){
+__global__ void jrc_cuda_rho(float * vrRho1, const float * mrFet12, const int * viiSpk12_ord, const int *  vnConst, const float dc2){
+//__global__ void jrc_cuda_rho(int *vnRho1, int *vnComp1, float const *mrFet12, int const *viiSpk12_ord, int const *vnC4, float const dc2){
     int i1 = (blockIdx.x + blockIdx.y * gridDim.x) * CHUNK;   // base index of i1    
     int tx = threadIdx.x; //nThreads for i12 index    
     int i1_tx = i1+tx;

@@ -6,8 +6,8 @@ function csHelp = help_(vcCommand)
     csHelp = {...
     '';
     'Usage: jrc command arg1 arg2 ...';
-    '  jrc calls the latest jrclust version (currently jrc3.m)';
-    '  You can also run "jrc3 command ..." to explicitly specify the version number.';
+    '  jrc calls the latest jrclust version (currently jrc.m)';
+    '  You can also run "jrc command ..." to explicitly specify the version number.';
     '';
     '[Documentation and help]';
     '  jrc help';
@@ -82,10 +82,6 @@ function csHelp = help_(vcCommand)
     '    Export clustered information to a csv file (spike time, cluster #, max site#)';
     '  jrc export-quality myparams.prm';
     '    Export unit quality information to a csv file (ends with "_quality.csv")';
-    '  jrc export-jrc1 myparams.prm';
-    '    Export to version 1 format (write to _evt.mat and _clu.mat)';
-    '  jrc import-jrc1 myparams.prm';
-    '    Import from version 1 format';
     '  jrc export-imec-sync myparams.prm';
     '    Export Sync channel (uint16) to the workspace (vnSync)';
     '  jrc export-wav myparams.prm';
