@@ -1,0 +1,12 @@
+# Matlab autosave files
+*.asv
+
+# sample binary files and JRC output
+sample*.bin
+sample*.jrc
+sample*.mat
+sample*.png
+sample*.prm
+
+# Jupyter notebooks
+*.ipynb
