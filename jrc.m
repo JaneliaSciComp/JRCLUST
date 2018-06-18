@@ -18,6 +18,7 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
     if nargin==0, vcCmd = 'help'; end
     setpath_();
     warning off;
+    
     %-----
     % Command type A: supporting functions
     fExit = 1;

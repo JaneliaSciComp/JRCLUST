@@ -8,5 +8,6 @@ sample*.mat
 sample*.png
 sample*.prm
 
-# Jupyter notebooks
+# Misc
+jrc_log_error.mat
 *.ipynb

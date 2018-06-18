@@ -11,8 +11,8 @@
 .address_size 64
 
 	// .globl	_Z19eucldist_sorted_rhoPKfPjiiif
-// _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_200227_34_non_const_sA has been demoted
-// _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_200228_41_non_const_rho1 has been demoted
+// _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_189900_34_non_const_sA has been demoted
+// _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_189901_41_non_const_rho1 has been demoted
 
 .visible .entry _Z19eucldist_sorted_rhoPKfPjiiif(
 	.param .u64 _Z19eucldist_sorted_rhoPKfPjiiif_param_0,
@@ -28,9 +28,9 @@
 	.reg .b32 	%r<237>;
 	.reg .b64 	%rd<62>;
 	// demoted variable
-	.shared .align 4 .b8 _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_200227_34_non_const_sA[1920];
+	.shared .align 4 .b8 _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_189900_34_non_const_sA[1920];
 	// demoted variable
-	.shared .align 4 .b8 _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_200228_41_non_const_rho1[8192];
+	.shared .align 4 .b8 _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_189901_41_non_const_rho1[8192];
 
 	ld.param.u64 	%rd14, [_Z19eucldist_sorted_rhoPKfPjiiif_param_0];
 	ld.param.u64 	%rd13, [_Z19eucldist_sorted_rhoPKfPjiiif_param_1];
@@ -63,7 +63,7 @@
 BB0_3:
 	mov.f32 	%f2, %f194;
 	shl.b64 	%rd17, %rd2, 6;
-	mov.u64 	%rd18, _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_200227_34_non_const_sA;
+	mov.u64 	%rd18, _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_189900_34_non_const_sA;
 	add.s64 	%rd3, %rd18, %rd17;
 	st.shared.f32 	[%rd3], %f2;
 	add.s32 	%r3, %r1, 1;
@@ -249,7 +249,7 @@ BB0_33:
 
 BB0_34:
 	mul.wide.s32 	%rd49, %r2, 64;
-	mov.u64 	%rd50, _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_200228_41_non_const_rho1;
+	mov.u64 	%rd50, _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_189901_41_non_const_rho1;
 	add.s64 	%rd4, %rd50, %rd49;
 	mov.u32 	%r61, 0;
 	st.shared.u32 	[%rd4], %r61;
@@ -332,7 +332,7 @@ BB0_36:
 	mov.f32 	%f203, %f241;
 	mov.f32 	%f200, %f241;
 	mov.f32 	%f197, %f241;
-	mov.u64 	%rd59, _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_200227_34_non_const_sA;
+	mov.u64 	%rd59, _Z19eucldist_sorted_rhoPKfPjiiif$__cuda_local_var_189900_34_non_const_sA;
 	setp.lt.s32	%p25, %r40, 1;
 	mov.u32 	%r233, %r61;
 	@%p25 bra 	BB0_38;
