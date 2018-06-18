@@ -46,22 +46,15 @@ function import_ksort_(vcFile_prm, fSort)
     S0.mrPos_spk = spk_pos_(S0, trFet_spk);
     set(0, 'UserData', S0);
 
-    % Save to file
-    % write_bin_(strrep(P.vcFile_prm, '.prm', '_spkraw.jrc'), tnWav_raw);
-    % write_bin_(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), tnWav_spk);
-    % write_bin_(strrep(P.vcFile_prm, '.prm', '_spkfet.jrc'), trFet_spk);
-
     % cluster and describe
-    % S0 = sort_(P);
-    % if ~fSort %use ground truth cluster
-    if get_set_(P, 'fMerge_post_ksort', 0)
+    S0.S_clu = cluster_spacetime_(S0, P);
+    
+    if get_set_(P, 'fMerge_post', 0)
         S0.S_clu = S_clu_new_(viClu_post, S0);
     else
         S0.S_clu = S_clu_new_(viClu, S0);
     end
     S0.S_clu = S_clu_sort_(S0.S_clu, 'viSite_clu');
-    % end
-    % S0.S_clu = S_clu_new_(S0.S_clu);
     set(0, 'UserData', S0);
 
     % Save

@@ -1,8 +1,10 @@
 %--------------------------------------------------------------------------
-function S_ksort = kilosort_(vcFile_prm)
+function S_ksort = kilosort(vcFile_prm)
+    % add actual KiloSort repo to path
+    [dirname, ~] = fileparts(fullfile(mfilename('fullpath')));
+    addpath(genpath(fullfile(dirname, 'KiloSort')));
+
     % Run Kilosort
-    fSavePhy = 1;
-    fMerge_post = 1;
     if ischar(vcFile_prm)
         fprintf('Running kilosort on %s\n', vcFile_prm);
         P = loadParam_(vcFile_prm);
@@ -12,25 +14,30 @@ function S_ksort = kilosort_(vcFile_prm)
         vcFile_prm = P.vcFile_prm;
         fprintf('Running kilosort on %s\n', vcFile_prm);
     end
+    
+    fSave_phy = get_set_(P, 'fSave_phy', 0);
+    fMerge_post = get_set_(P, 'fMerge_post', 0);
+    
     runtime_ksort = tic;
 
     % Run kilosort
     [fpath, ~, ~] = fileparts(vcFile_prm);
-    ops = kilosort('config', P); %get config
-    S_chanMap = kilosort('chanMap', P); %make channel map
+    ops = kilosort_config(P); % get config
+    S_chanMap = kilosort_chanMap(P); %make channel map
 
-    [rez, DATA, uproj] = kilosort('preprocessData', ops); % preprocess data and extract spikes for initialization
-    rez                = kilosort('fitTemplates', rez, DATA, uproj); % fit templates iteratively
-    rez                = kilosort('fullMPMU', rez, DATA); % extract final spike times (overlapping extraction)
+    [rez, DATA, uproj] = preprocessData(ops); % preprocess data and extract spikes for initialization
+    rez                = fitTemplates(rez, DATA, uproj); % fit templates iteratively
+    rez                = fullMPMU(rez, DATA); % extract final spike times (overlapping extraction)
 
     if fMerge_post
-        rez = kilosort('merge_posthoc2', rez); %ask whether to merge or not
+        rez = merge_posthoc2(rez);
     end
 
     % save python results file for Phy
-    if fSavePhy
+    if fSave_phy
+        addpath(fullfile(dirname, 'npy-matlab'));
         try
-            kilosort('rezToPhy', rez, fpath); %path to npy2mat needed
+            rezToPhy(rez, fpath); %path to npy2mat needed
         catch
             disperr_();
         end
