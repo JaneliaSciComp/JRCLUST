@@ -11,10 +11,10 @@
 .address_size 64
 
 	// .globl	_Z21eucldist_sorted_deltaPKfPKjPfPjiii
-// _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1 has been demoted
-// _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200231_34_non_const_smr_A1 has been demoted
-// _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200232_34_non_const_smr_delta1 has been demoted
-// _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200233_41_non_const_smi_nneigh1 has been demoted
+// _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1 has been demoted
+// _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189904_34_non_const_smr_A1 has been demoted
+// _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189905_34_non_const_smr_delta1 has been demoted
+// _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189906_41_non_const_smi_nneigh1 has been demoted
 
 .visible .entry _Z21eucldist_sorted_deltaPKfPKjPfPjiii(
 	.param .u64 _Z21eucldist_sorted_deltaPKfPKjPfPjiii_param_0,
@@ -31,13 +31,13 @@
 	.reg .b32 	%r<343>;
 	.reg .b64 	%rd<81>;
 	// demoted variable
-	.shared .align 4 .b8 _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1[64];
+	.shared .align 4 .b8 _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1[64];
 	// demoted variable
-	.shared .align 4 .b8 _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200231_34_non_const_smr_A1[1920];
+	.shared .align 4 .b8 _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189904_34_non_const_smr_A1[1920];
 	// demoted variable
-	.shared .align 4 .b8 _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200232_34_non_const_smr_delta1[8192];
+	.shared .align 4 .b8 _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189905_34_non_const_smr_delta1[8192];
 	// demoted variable
-	.shared .align 4 .b8 _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200233_41_non_const_smi_nneigh1[8192];
+	.shared .align 4 .b8 _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189906_41_non_const_smi_nneigh1[8192];
 
 	ld.param.u64 	%rd18, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii_param_0];
 	ld.param.u64 	%rd19, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii_param_1];
@@ -69,7 +69,7 @@
 BB0_3:
 	mov.f32 	%f2, %f326;
 	mul.wide.s32 	%rd22, %r2, 64;
-	mov.u64 	%rd23, _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200231_34_non_const_smr_A1;
+	mov.u64 	%rd23, _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189904_34_non_const_smr_A1;
 	add.s64 	%rd3, %rd23, %rd22;
 	st.shared.f32 	[%rd3], %f2;
 	add.s32 	%r3, %r1, 1;
@@ -260,7 +260,7 @@ BB0_34:
 	add.s32 	%r18, %r1, %r2;
 	setp.lt.s32	%p20, %r18, %r164;
 	mul.wide.s32 	%rd54, %r2, 4;
-	mov.u64 	%rd55, _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1;
+	mov.u64 	%rd55, _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1;
 	add.s64 	%rd4, %rd55, %rd54;
 	@%p20 bra 	BB0_37;
 	bra.uni 	BB0_36;
@@ -407,7 +407,7 @@ BB0_40:
 	mov.f32 	%f335, %f373;
 	mov.f32 	%f332, %f373;
 	mov.f32 	%f329, %f373;
-	mov.u64 	%rd77, _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200231_34_non_const_smr_A1;
+	mov.u64 	%rd77, _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189904_34_non_const_smr_A1;
 	setp.lt.s32	%p27, %r166, 1;
 	mov.u32 	%r299, %r195;
 	@%p27 bra 	BB0_42;
@@ -489,7 +489,7 @@ BB0_41:
 BB0_42:
 	mul.wide.s32 	%rd60, %r297, 4;
 	add.s64 	%rd61, %rd1, %rd60;
-	ld.shared.u32 	%r199, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1];
+	ld.shared.u32 	%r199, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1];
 	ld.global.u32 	%r74, [%rd61];
 	setp.lt.u32	%p29, %r74, %r199;
 	setp.lt.f32	%p30, %f373, %f390;
@@ -501,91 +501,91 @@ BB0_42:
 BB0_75:
 	selp.f32	%f390, %f373, %f390, %p1;
 	selp.b32	%r333, %r297, %r332, %p1;
-	ld.shared.u32 	%r277, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+4];
+	ld.shared.u32 	%r277, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+4];
 	setp.lt.u32	%p109, %r74, %r277;
 	setp.lt.f32	%p110, %f370, %f389;
 	and.pred  	%p111, %p110, %p109;
 	selp.f32	%f389, %f370, %f389, %p111;
 	selp.b32	%r323, %r297, %r322, %p111;
-	ld.shared.u32 	%r278, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+8];
+	ld.shared.u32 	%r278, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+8];
 	setp.lt.u32	%p112, %r74, %r278;
 	setp.lt.f32	%p113, %f367, %f388;
 	and.pred  	%p114, %p113, %p112;
 	selp.f32	%f388, %f367, %f388, %p114;
 	selp.b32	%r314, %r297, %r314, %p114;
-	ld.shared.u32 	%r279, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+12];
+	ld.shared.u32 	%r279, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+12];
 	setp.lt.u32	%p115, %r74, %r279;
 	setp.lt.f32	%p116, %f364, %f387;
 	and.pred  	%p117, %p116, %p115;
 	selp.f32	%f387, %f364, %f387, %p117;
 	selp.b32	%r313, %r297, %r313, %p117;
-	ld.shared.u32 	%r280, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+16];
+	ld.shared.u32 	%r280, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+16];
 	setp.lt.u32	%p118, %r74, %r280;
 	setp.lt.f32	%p119, %f361, %f386;
 	and.pred  	%p120, %p119, %p118;
 	selp.f32	%f386, %f361, %f386, %p120;
 	selp.b32	%r312, %r297, %r312, %p120;
-	ld.shared.u32 	%r281, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+20];
+	ld.shared.u32 	%r281, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+20];
 	setp.lt.u32	%p121, %r74, %r281;
 	setp.lt.f32	%p122, %f358, %f385;
 	and.pred  	%p123, %p122, %p121;
 	selp.f32	%f385, %f358, %f385, %p123;
 	selp.b32	%r311, %r297, %r311, %p123;
-	ld.shared.u32 	%r282, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+24];
+	ld.shared.u32 	%r282, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+24];
 	setp.lt.u32	%p124, %r74, %r282;
 	setp.lt.f32	%p125, %f355, %f384;
 	and.pred  	%p126, %p125, %p124;
 	selp.f32	%f384, %f355, %f384, %p126;
 	selp.b32	%r310, %r297, %r310, %p126;
-	ld.shared.u32 	%r283, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+28];
+	ld.shared.u32 	%r283, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+28];
 	setp.lt.u32	%p127, %r74, %r283;
 	setp.lt.f32	%p128, %f352, %f383;
 	and.pred  	%p129, %p128, %p127;
 	selp.f32	%f383, %f352, %f383, %p129;
 	selp.b32	%r309, %r297, %r309, %p129;
-	ld.shared.u32 	%r284, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+32];
+	ld.shared.u32 	%r284, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+32];
 	setp.lt.u32	%p130, %r74, %r284;
 	setp.lt.f32	%p131, %f349, %f382;
 	and.pred  	%p132, %p131, %p130;
 	selp.f32	%f382, %f349, %f382, %p132;
 	selp.b32	%r308, %r297, %r308, %p132;
-	ld.shared.u32 	%r285, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+36];
+	ld.shared.u32 	%r285, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+36];
 	setp.lt.u32	%p133, %r74, %r285;
 	setp.lt.f32	%p134, %f346, %f381;
 	and.pred  	%p135, %p134, %p133;
 	selp.f32	%f381, %f346, %f381, %p135;
 	selp.b32	%r307, %r297, %r307, %p135;
-	ld.shared.u32 	%r286, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+40];
+	ld.shared.u32 	%r286, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+40];
 	setp.lt.u32	%p136, %r74, %r286;
 	setp.lt.f32	%p137, %f343, %f380;
 	and.pred  	%p138, %p137, %p136;
 	selp.f32	%f380, %f343, %f380, %p138;
 	selp.b32	%r306, %r297, %r306, %p138;
-	ld.shared.u32 	%r287, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+44];
+	ld.shared.u32 	%r287, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+44];
 	setp.lt.u32	%p139, %r74, %r287;
 	setp.lt.f32	%p140, %f340, %f379;
 	and.pred  	%p141, %p140, %p139;
 	selp.f32	%f379, %f340, %f379, %p141;
 	selp.b32	%r305, %r297, %r305, %p141;
-	ld.shared.u32 	%r288, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+48];
+	ld.shared.u32 	%r288, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+48];
 	setp.lt.u32	%p142, %r74, %r288;
 	setp.lt.f32	%p143, %f337, %f378;
 	and.pred  	%p144, %p143, %p142;
 	selp.f32	%f378, %f337, %f378, %p144;
 	selp.b32	%r304, %r297, %r304, %p144;
-	ld.shared.u32 	%r289, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+52];
+	ld.shared.u32 	%r289, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+52];
 	setp.lt.u32	%p145, %r74, %r289;
 	setp.lt.f32	%p146, %f334, %f377;
 	and.pred  	%p147, %p146, %p145;
 	selp.f32	%f377, %f334, %f377, %p147;
 	selp.b32	%r303, %r297, %r303, %p147;
-	ld.shared.u32 	%r290, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+56];
+	ld.shared.u32 	%r290, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+56];
 	setp.lt.u32	%p148, %r74, %r290;
 	setp.lt.f32	%p149, %f331, %f376;
 	and.pred  	%p150, %p149, %p148;
 	selp.f32	%f376, %f331, %f376, %p150;
 	selp.b32	%r302, %r297, %r302, %p150;
-	ld.shared.u32 	%r291, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+60];
+	ld.shared.u32 	%r291, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+60];
 	setp.lt.u32	%p151, %r74, %r291;
 	setp.lt.f32	%p152, %f328, %f375;
 	and.pred  	%p153, %p152, %p151;
@@ -608,7 +608,7 @@ BB0_44:
 
 BB0_45:
 	mov.u32 	%r333, %r332;
-	ld.shared.u32 	%r203, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+4];
+	ld.shared.u32 	%r203, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+4];
 	setp.lt.u32	%p34, %r74, %r203;
 	setp.lt.f32	%p35, %f370, %f389;
 	and.pred  	%p36, %p35, %p34;
@@ -626,7 +626,7 @@ BB0_46:
 
 BB0_47:
 	mov.u32 	%r323, %r322;
-	ld.shared.u32 	%r207, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+8];
+	ld.shared.u32 	%r207, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+8];
 	setp.lt.u32	%p39, %r74, %r207;
 	setp.lt.f32	%p40, %f367, %f388;
 	and.pred  	%p41, %p40, %p39;
@@ -644,7 +644,7 @@ BB0_48:
 	selp.b32	%r314, %r314, %r297, %p43;
 
 BB0_49:
-	ld.shared.u32 	%r212, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+12];
+	ld.shared.u32 	%r212, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+12];
 	setp.lt.u32	%p44, %r74, %r212;
 	setp.lt.f32	%p45, %f364, %f387;
 	and.pred  	%p46, %p45, %p44;
@@ -662,7 +662,7 @@ BB0_50:
 	selp.b32	%r313, %r313, %r297, %p48;
 
 BB0_51:
-	ld.shared.u32 	%r217, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+16];
+	ld.shared.u32 	%r217, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+16];
 	setp.lt.u32	%p49, %r74, %r217;
 	setp.lt.f32	%p50, %f361, %f386;
 	and.pred  	%p51, %p50, %p49;
@@ -680,7 +680,7 @@ BB0_52:
 	selp.b32	%r312, %r312, %r297, %p53;
 
 BB0_53:
-	ld.shared.u32 	%r222, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+20];
+	ld.shared.u32 	%r222, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+20];
 	setp.lt.u32	%p54, %r74, %r222;
 	setp.lt.f32	%p55, %f358, %f385;
 	and.pred  	%p56, %p55, %p54;
@@ -698,7 +698,7 @@ BB0_54:
 	selp.b32	%r311, %r311, %r297, %p58;
 
 BB0_55:
-	ld.shared.u32 	%r227, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+24];
+	ld.shared.u32 	%r227, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+24];
 	setp.lt.u32	%p59, %r74, %r227;
 	setp.lt.f32	%p60, %f355, %f384;
 	and.pred  	%p61, %p60, %p59;
@@ -716,7 +716,7 @@ BB0_56:
 	selp.b32	%r310, %r310, %r297, %p63;
 
 BB0_57:
-	ld.shared.u32 	%r232, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+28];
+	ld.shared.u32 	%r232, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+28];
 	setp.lt.u32	%p64, %r74, %r232;
 	setp.lt.f32	%p65, %f352, %f383;
 	and.pred  	%p66, %p65, %p64;
@@ -734,7 +734,7 @@ BB0_58:
 	selp.b32	%r309, %r309, %r297, %p68;
 
 BB0_59:
-	ld.shared.u32 	%r237, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+32];
+	ld.shared.u32 	%r237, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+32];
 	setp.lt.u32	%p69, %r74, %r237;
 	setp.lt.f32	%p70, %f349, %f382;
 	and.pred  	%p71, %p70, %p69;
@@ -752,7 +752,7 @@ BB0_60:
 	selp.b32	%r308, %r308, %r297, %p73;
 
 BB0_61:
-	ld.shared.u32 	%r242, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+36];
+	ld.shared.u32 	%r242, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+36];
 	setp.lt.u32	%p74, %r74, %r242;
 	setp.lt.f32	%p75, %f346, %f381;
 	and.pred  	%p76, %p75, %p74;
@@ -770,7 +770,7 @@ BB0_62:
 	selp.b32	%r307, %r307, %r297, %p78;
 
 BB0_63:
-	ld.shared.u32 	%r247, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+40];
+	ld.shared.u32 	%r247, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+40];
 	setp.lt.u32	%p79, %r74, %r247;
 	setp.lt.f32	%p80, %f343, %f380;
 	and.pred  	%p81, %p80, %p79;
@@ -788,7 +788,7 @@ BB0_64:
 	selp.b32	%r306, %r306, %r297, %p83;
 
 BB0_65:
-	ld.shared.u32 	%r252, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+44];
+	ld.shared.u32 	%r252, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+44];
 	setp.lt.u32	%p84, %r74, %r252;
 	setp.lt.f32	%p85, %f340, %f379;
 	and.pred  	%p86, %p85, %p84;
@@ -806,7 +806,7 @@ BB0_66:
 	selp.b32	%r305, %r305, %r297, %p88;
 
 BB0_67:
-	ld.shared.u32 	%r257, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+48];
+	ld.shared.u32 	%r257, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+48];
 	setp.lt.u32	%p89, %r74, %r257;
 	setp.lt.f32	%p90, %f337, %f378;
 	and.pred  	%p91, %p90, %p89;
@@ -824,7 +824,7 @@ BB0_68:
 	selp.b32	%r304, %r304, %r297, %p93;
 
 BB0_69:
-	ld.shared.u32 	%r262, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+52];
+	ld.shared.u32 	%r262, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+52];
 	setp.lt.u32	%p94, %r74, %r262;
 	setp.lt.f32	%p95, %f334, %f377;
 	and.pred  	%p96, %p95, %p94;
@@ -842,7 +842,7 @@ BB0_70:
 	selp.b32	%r303, %r303, %r297, %p98;
 
 BB0_71:
-	ld.shared.u32 	%r267, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+56];
+	ld.shared.u32 	%r267, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+56];
 	setp.lt.u32	%p99, %r74, %r267;
 	setp.lt.f32	%p100, %f331, %f376;
 	and.pred  	%p101, %p100, %p99;
@@ -860,7 +860,7 @@ BB0_72:
 	selp.b32	%r302, %r302, %r297, %p103;
 
 BB0_73:
-	ld.shared.u32 	%r272, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200230_41_non_const_svi_I_A1+60];
+	ld.shared.u32 	%r272, [_Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189903_41_non_const_svi_I_A1+60];
 	setp.lt.u32	%p104, %r74, %r272;
 	setp.lt.f32	%p105, %f328, %f375;
 	and.pred  	%p106, %p105, %p104;
@@ -893,10 +893,10 @@ BB0_77:
 	mov.u32 	%r155, %r331;
 	mov.u32 	%r293, %tid.x;
 	mul.wide.s32 	%rd62, %r293, 64;
-	mov.u64 	%rd63, _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200232_34_non_const_smr_delta1;
+	mov.u64 	%rd63, _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189905_34_non_const_smr_delta1;
 	add.s64 	%rd64, %rd63, %rd62;
 	st.shared.f32 	[%rd64], %f390;
-	mov.u64 	%rd65, _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_200233_41_non_const_smi_nneigh1;
+	mov.u64 	%rd65, _Z21eucldist_sorted_deltaPKfPKjPfPjiii$__cuda_local_var_189906_41_non_const_smi_nneigh1;
 	add.s64 	%rd66, %rd65, %rd62;
 	st.shared.f32 	[%rd64+4], %f389;
 	st.shared.f32 	[%rd64+8], %f388;
