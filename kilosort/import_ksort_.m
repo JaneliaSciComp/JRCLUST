@@ -20,11 +20,17 @@ function import_ksort_(vcFile_prm, fSort)
 
     % Create a prm file to start with. set the filter parameter correctly. features?
     if isempty(P), return; end
-    S_ksort = load(strrep(P.vcFile_prm, '.prm', '_ksort.mat')); %get site # and
+    try
+        S_ksort = load(strrep(P.vcFile_prm, '.prm', '_ksort.mat')); %get site # and
+    catch
+        rez = load('rez.mat', 'rez');
+        S_ksort.rez = rez.rez; % -_-
+        S_ksort.P = P;
+        S_ksort.runtime_ksort = 0; % don't have this
+    end
     viTime_spk = S_ksort.rez.st3(:,1) - 6; %spike time (apply shift factor)
     viClu = S_ksort.rez.st3(:,2); % cluster
 
-    viClu_post = 1 + S_ksort.rez.st3(:,5); %post-merging result
     tnWav_clu = S_ksort.rez.Wraw; %nC, nT, nClu
     tnWav_clu = -abs(tnWav_clu);
     tnWav_clu = permute(tnWav_clu, [2,1,3]);
@@ -34,9 +40,7 @@ function import_ksort_(vcFile_prm, fSort)
     viSite(P.viSiteZero) = [];
     viSite_clu = viSite(viSite_clu);
     viSite_spk = viSite_clu(viClu);
-    % vnAmp_spk = S_ksort.rez.st3(:,3);
 
-    % S0 = struct('viTime_spk', int32(viTime_spk), 'viSite_spk', int32(viSite_spk), 'P', P, 'S_ksort', S_ksort);
     S0 = file2spk_(P, int32(viTime_spk), int32(viSite_spk));
     S0.P = P;
     S0.S_ksort = S_ksort;
@@ -49,7 +53,8 @@ function import_ksort_(vcFile_prm, fSort)
     % cluster and describe
     S0.S_clu = cluster_spacetime_(S0, P);
     
-    if get_set_(P, 'fMerge_post', 0)
+    if get_set_(P, 'fMerge_post', 0) && size(S_ksort.rez.st3, 2) == 5
+        viClu_post = 1 + S_ksort.rez.st3(:,5); % post-merging result
         S0.S_clu = S_clu_new_(viClu_post, S0);
     else
         S0.S_clu = S_clu_new_(viClu, S0);
