@@ -1,12 +1,14 @@
 %--------------------------------------------------------------------------
-function prb = chanMap_to_prb(chanMap, prbFilename)
+function viSiteZero = chanMap_to_prb(chanMap, prbFilename)
     if ischar(chanMap)
         chanMap = load(chanMap);
     end
     
     fid = fopen(prbFilename, 'w');
     
-    channels = chanMap.chanMap(chanMap.connected);
+    viSiteZero = find(~chanMap.connected)';
+    
+    channels = chanMap.chanMap;
     fprintf(fid, 'channels = [%s];\n', strjoin(strsplit(num2str(channels(:)'))));
     fprintf(fid, 'xcoords = [%s];\n', strjoin(strsplit(num2str(chanMap.xcoords(:)'))));
     fprintf(fid, 'ycoords = [%s];\n', strjoin(strsplit(num2str(chanMap.ycoords(:)'))));

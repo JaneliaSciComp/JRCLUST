@@ -22,13 +22,14 @@ function import_ksort_(vcFile_prm, fSort)
     if isempty(P), return; end
     try
         S_ksort = load(strrep(P.vcFile_prm, '.prm', '_ksort.mat')); %get site # and
-    catch
+    catch % import rez.mat -- acl
         rez = load('rez.mat', 'rez');
         S_ksort.rez = rez.rez; % -_-
         S_ksort.P = P;
         S_ksort.runtime_ksort = 0; % don't have this
+        struct_save_(S_ksort, strrep(vcFile_prm, '.prm', '_ksort.mat'), 1);
     end
-    viTime_spk = S_ksort.rez.st3(:,1) - 6; %spike time (apply shift factor)
+    viTime_spk = S_ksort.rez.st3(:,1); %spike time
     viClu = S_ksort.rez.st3(:,2); % cluster
 
     tnWav_clu = S_ksort.rez.Wraw; %nC, nT, nClu
