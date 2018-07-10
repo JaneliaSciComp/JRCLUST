@@ -5,7 +5,7 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
     if nargin<2, fSkip_fig = 0; end
     % save S0 structure to a mat file
     try
-        fprintf('Saving 0.UserData to %s...\n', vcFile_mat);
+        fprintf('Saving UserData to %s...\n', vcFile_mat);
         warning off;
         S0 = get(0, 'UserData'); %add gather script
         if isfield(S0, 'S0'), S0 = rmfield(S0, 'S0'); end % Remove recursive saving
@@ -21,7 +21,7 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
 
         % save the rho-delta plot
         if fSkip_fig, return; end
-        if ~isfield(S0, 'S_clu') || ~get_set_(P, 'fSavePlot_RD', 1), return; end
+        if ~isfield(S0, 'icl') || ~get_set_(P, 'fSavePlot_RD', 1), return; end
         try
             if isempty(get_(S0.S_clu, 'delta')), return; end % skip kilosort
             save_fig_(strrep(P.vcFile_prm, '.prm', '_RD.png'), plot_rd_(P, S0), 1);

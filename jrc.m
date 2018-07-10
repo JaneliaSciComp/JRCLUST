@@ -94,9 +94,8 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'describe', describe_(vcFile_prm);
         case 'import-silico', import_silico_(vcFile_prm, 0);
         case 'import-silico-sort', import_silico_(vcFile_prm, 1);
-        case {'import-kilosort', 'import-ksort'}, import_ksort_(vcFile_prm, 0);
-        case {'import-kilosort-sort', 'import-ksort-sort'}, import_ksort_(vcFile_prm, 1);
-        case {'kilosort', 'ksort'}, kilosort(vcFile_prm); import_ksort_(vcFile_prm, 0);
+        case {'import-kilosort', 'import-ksort'}, import_ksort_(vcFile_prm);
+        case {'kilosort', 'ksort'}, kilosort(vcFile_prm); import_ksort_(vcFile_prm);
         case 'export-imec-sync', export_imec_sync_(vcFile_prm);
         case 'export-prm', export_prm_(vcFile_prm, vcArg2);
         case 'dir',
