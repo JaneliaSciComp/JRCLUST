@@ -33,22 +33,12 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case {'help', '-h', '?', '--help'}, help_(vcArg1); about_();
         case 'about', about_();
         case 'clear', clear_(vcArg1);
-        case 'doc', doc_('JRCLUST manual.pdf');
-        case 'doc-edit', doc_('JRCLUST manual.docx');
-        case 'update', update_(vcArg1);
-        case 'git-pull', git_pull_(vcArg1);
-        case 'install', install_();
-        case 'wiki', wiki_(vcArg1);
-        case 'wiki-download', wiki_download_();
         case 'gui', gui_(vcArg1, vcFile_prm_);
-        case 'issue', issue_('post');
-        case 'which', return;
-        case 'download', download_(vcArg1);
         case {'makeprm', 'createprm', 'makeprm-all'}
-        vcFile_prm_ = makeprm_(vcArg1, vcArg2, 1, vcArg3);
-        if nargout>0, varargout{1} = vcFile_prm_; end
-        if isempty(vcFile_prm_), return; end
-        if strcmpi(vcCmd, 'makeprm-all'), jrc('all', vcFile_prm_); end
+            vcFile_prm_ = makeprm_(vcArg1, vcArg2, 1, vcArg3);
+            if nargout>0, varargout{1} = vcFile_prm_; end
+            if isempty(vcFile_prm_), return; end
+            if strcmpi(vcCmd, 'makeprm-all'), jrc('all', vcFile_prm_); end
         case 'makeprm-f', makeprm_(vcArg1, vcArg2, 0, vcArg3);
         case 'import-tsf', import_tsf_(vcArg1);
         case 'import-h5', import_h5_(vcArg1);
@@ -57,8 +47,8 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'nsx-info', [~, ~, S_file] = nsx_info_(vcArg1); assignWorkspace_(S_file); return;
         case 'load-nsx', load_nsx_(vcArg1); return;
         case 'load-bin'
-        mnWav = load_bin_(vcArg1, vcArg2);
-        assignWorkspace_(mnWav);
+            mnWav = load_bin_(vcArg1, vcArg2);
+            assignWorkspace_(mnWav);
         case 'import-gt', import_gt_silico_(vcArg1);
         case 'unit-test', unit_test_(vcArg1, vcArg2, vcArg3);
         case 'compile', compile_cuda_(vcArg1);
@@ -99,13 +89,13 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'export-imec-sync', export_imec_sync_(vcFile_prm);
         case 'export-prm', export_prm_(vcFile_prm, vcArg2);
         case 'dir',
-        if any(vcFile_prm=='*')
-            dir_files_(vcFile_prm, vcArg2, vcArg3);
-        else
-            fExit = 0;
-        end
+            if any(vcFile_prm=='*')
+                dir_files_(vcFile_prm, vcArg2, vcArg3);
+            else
+                fExit = 0;
+            end
         otherwise
-        fExit = 0;
+            fExit = 0;
     end
     % if contains_(lower(vcCmd), 'verify'), fExit = 0; end
     if fExit, return; end
@@ -124,41 +114,41 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'traces-lfp', traces_lfp_(P)
         case 'dir', dir_files_(P.csFile_merge);
         case 'traces-test'
-        traces_(P, 1); traces_test_(P);
+            traces_(P, 1); traces_test_(P);
         case {'full', 'all'}
-        fprintf('Performing "jrc detect", "jrc sort", "jrc manual" operations.\n');
-        detect_(P); sort_(P, 0); describe_(P.vcFile_prm); manual_(P); return;
+            fprintf('Performing "jrc detect", "jrc sort", "jrc manual" operations.\n');
+            detect_(P); sort_(P, 0); describe_(P.vcFile_prm); manual_(P); return;
         case {'spikesort', 'detectsort', 'detect-sort', 'spikesort-verify', 'spikesort-validate', 'spikesort-manual', 'detectsort-manual'}
-        fprintf('Performing "jrc detect", "jrc sort" operations.\n');
-        detect_(P); sort_(P, 0); describe_(P.vcFile_prm);
+            fprintf('Performing "jrc detect", "jrc sort" operations.\n');
+            detect_(P); sort_(P, 0); describe_(P.vcFile_prm);
         case {'detect', 'spikedetect'}
-        detect_(P); describe_(P.vcFile_prm);
+            detect_(P); describe_(P.vcFile_prm);
         case {'sort', 'cluster', 'clust', 'sort-verify', 'sort-validate', 'sort-manual'}
-        if ~is_detected_(P)
-            detect_(P); sort_(P,0);
-        else
-            sort_(P);
-        end
-        describe_(P.vcFile_prm);
+            if ~is_detected_(P)
+                detect_(P); sort_(P,0);
+            else
+                sort_(P);
+            end
+            describe_(P.vcFile_prm);
         case {'auto', 'auto-verify', 'auto-manual'}
-        auto_(P); describe_(P.vcFile_prm);
+            auto_(P); describe_(P.vcFile_prm);
         case 'manual-test'
-        manual_(P, 'debug'); manual_test_(P); return;
+            manual_(P, 'debug'); manual_test_(P); return;
         case 'manual-test-menu'
-        manual_(P, 'debug'); manual_test_(P, 'Menu'); return;
+            manual_(P, 'debug'); manual_test_(P, 'Menu'); return;
         case {'kilosort-verify', 'ksort-verify'}
-        kilosort(P); import_ksort_(P); describe_(P.vcFile_prm);
+            kilosort(P); import_ksort_(P); describe_(P.vcFile_prm);
         case {'export-wav', 'wav'} % load raw and assign workspace
-        mnWav = load_file_(P.vcFile, [], P);
-        assignWorkspace_(mnWav);
+            mnWav = load_file_(P.vcFile, [], P);
+            assignWorkspace_(mnWav);
         case 'export-spk'
-        S0 = get(0, 'UserData');
-        trSpkWav = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
-        assignWorkspace_(trSpkWav);
+            S0 = get(0, 'UserData');
+            trSpkWav = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
+            assignWorkspace_(trSpkWav);
         case 'export-raw'
-        S0 = get(0, 'UserData');
-        trWav_raw = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_spk);
-        assignWorkspace_(trWav_raw);
+            S0 = get(0, 'UserData');
+            trWav_raw = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_spk);
+            assignWorkspace_(trWav_raw);
         case {'export-spkwav', 'spkwav'}, export_spkwav_(P, vcArg2); % export spike waveforms
         case {'export-chan'}, export_chan_(P, vcArg2); % export channels
         case {'export-car'}, export_car_(P, vcArg2); % export common average reference
@@ -184,6 +174,8 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         validate_(P);
     elseif contains_(lower(vcCmd), {'manual',' gui', 'ui'})
         manual_(P);
+    elseif contains_(lower(vcCmd), {'filter'})
+        TWfilter_(P);
     elseif fError
         help_();
     end
