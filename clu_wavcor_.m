@@ -39,12 +39,15 @@ function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2)
             if iSite_clu1 == iSite_clu2
                 cmrWav_clu2_ = cmrWav_clu2;
                 cmrWav_clu1_ = cellfun(@(x)x(:,:,iClu11), ctmrWav_clu1, 'UniformOutput', 0);
+                diff=false; % TW; appears to have no effect -- acl
             else
                 viSite1 = P.miSites(:,iSite_clu1);
                 viSite12 = find(ismember(viSite2, viSite1));
+                viSite23 = find(ismember(viSite1, viSite2)); % TW; appears to have no effect -- acl
                 if isempty(viSite12), continue; end
                 cmrWav_clu2_ = cellfun(@(x)x(:,viSite12), cmrWav_clu2, 'UniformOutput', 0);
                 cmrWav_clu1_ = cellfun(@(x)x(:,viSite12,iClu11), ctmrWav_clu1, 'UniformOutput', 0);
+                diff=true; % TW; appears to have no effect -- acl
             end
             vrWavCor2(iClu1) = maxCor_drift_(cmrWav_clu2_, cmrWav_clu1_, cviShift1, cviShift2, fMode_cor);
         end
