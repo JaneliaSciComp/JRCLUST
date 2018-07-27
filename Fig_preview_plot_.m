@@ -30,7 +30,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
         otherwise, disperr_();
     end
     set(S_fig.hPlot_mean, 'XData', vrTime_sec, 'YData', vrY_);
-    set(S_fig.hAx_mean, 'YLim', [-50, 50]);
+    set(S_fig.hAx_mean, 'YLim', [0, 100]); % TW
     xylabel_(S_fig.hAx_mean, 'Time (sec)', sprintf('Common ref. (MAD, %s)', S_fig.vcRef_view));
     fThresh_ref = strcmpi(S_fig.vcRef_view, 'binned') && ~isempty(S_fig.blank_thresh) && S_fig.blank_thresh ~= 0;
     if fThresh_ref
