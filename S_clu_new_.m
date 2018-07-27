@@ -1,18 +1,19 @@
 %--------------------------------------------------------------------------
-function [S_clu, S0] = S_clu_new_(viClu, S0)
+function [S_clu, S0] = S_clu_new_(arg1, S0)
     % S_clu = S_clu_new_(S_clu, S0)
-    % S_clu = S_clu_new_(viClu, S0)
+    % S_clu = S_clu_new_(arg1, S0)
 
     if nargin<2, S0 = get(0, 'UserData'); end
     % S_clu = S0.S_clu;
     % if ~isstruct(arg1), S_clu = struct(); end
     S_clu = get_(S0, 'S_clu'); %previous S_clu
     if isempty(S_clu), S_clu = struct(); end
-    if ~isstruct(viClu)
-        S_clu.viClu = viClu; %skip FigRD step for imported cluster
+    if ~isstruct(arg1)
+        S_clu.viClu = arg1; %skip FigRD step for imported cluster
     else
-        S_clu = struct_append_(S_clu, viClu);
+        S_clu = struct_append_(S_clu, arg1);
     end
+
     S_clu.viClu = int32(S_clu.viClu);
     S_clu = S_clu_refresh_(S_clu);
     S_clu = S_clu_update_wav_(S_clu, S0.P);
