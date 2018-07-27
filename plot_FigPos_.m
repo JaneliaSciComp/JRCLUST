@@ -16,8 +16,8 @@ function plot_FigPos_(S_clu1, S_clu2)
     if isempty(S_clu2)
         vcTitle = sprintf('Unit %d: %d spikes; (X=%0.1f, Y=%0.1f) [um]', S_clu1.iClu, nSpk1, vrPosXY1);
         try
-            vcTitle = sprintf('%s\n%0.1fuVmin, %0.1fuVpp, SNR:%0.1f IsoDist:%0.1f ISIrat:%0.2f L-rat:%0.1f', ...
-            vcTitle, S_clu1.uVmin, S_clu1.uVpp, S_clu1.snr, S_clu1.iso_dist, S_clu1.isi_ratio, S_clu1.l_ratio);
+            vcTitle = sprintf('%s\n%0.1fuVmin, %0.1fuVpp, SNR:%0.1f ISI%%:%2.3f IsoDist:%0.1f L-rat:%0.1f', ...
+                vcTitle, S_clu1.uVmin, S_clu1.uVpp, S_clu1.snr, S_clu1.isi_ratio*100, S_clu1.iso_dist,  S_clu1.l_ratio);
         catch
         end
     else
