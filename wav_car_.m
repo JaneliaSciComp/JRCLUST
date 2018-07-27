@@ -41,13 +41,15 @@ function [mnWav1, vnWav1_mean] = wav_car_(mnWav1, P)
         case 'whiten'
         [mnWav1, mrWhiten] = whiten_(mnWav1, P);
     end
-    % viSiteZero should be treated carefully. try to repair using nearest sites?
-    if get_(P, 'fMeanSite_drift')
-        mnWav1 = meanSite_drift_(mnWav1, P);
-    elseif fRepairSites
-        mnWav1 = meanSite_drift_(mnWav1, P, P.viSiteZero);
-    else
-        mnWav1(:, P.viSiteZero) = 0;
-    end
+
+    mnWav1(:, P.viSiteZero) = 0; % TW do not repair with fMeanSite_drift with was not used
+    % % viSiteZero should be treated carefully. try to repair using nearest sites?
+    % if get_(P, 'fMeanSite_drift')
+    %     mnWav1 = meanSite_drift_(mnWav1, P);
+    % elseif fRepairSites
+    %     mnWav1 = meanSite_drift_(mnWav1, P, P.viSiteZero);
+    % else
+    %     mnWav1(:, P.viSiteZero) = 0;
+    % end
     % fprintf('\n\ttook %0.1fs.\n', toc(t1));
 end %func
