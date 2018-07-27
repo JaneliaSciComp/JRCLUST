@@ -36,7 +36,7 @@ function S_fig = preview_(P, fDebug_ui_)
     % Build S_fig
     [nLoads, nSamples_bin, maxAmp] = deal(S_preview.nLoads, size(mnWav_raw,1), P.maxAmp);
     % nLoad_bin = S_preview.nSamples_per_load;
-    nLoad_bin = round(0.1 * P.sRateHz);
+    nLoad_bin = round(P.preview_window * P.sRateHz); % TW
     nlim_bin = [1, nLoad_bin];
     siteLim = [1, nSites];
     [vcFilter, vcCommonRef, thresh_corr_bad_site, fft_thresh, qqFactor, blank_thresh, blank_period_ms, viSiteZero] = ...
