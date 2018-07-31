@@ -41,7 +41,7 @@ function plot_raster_(S0, fNewFig)
     nstims = numel(crTime_trial);
     if isempty(crTime_trial), msgbox('Trial file does not exist', 'modal'); return; end
 
-    [hFig, hFig_b] = create_figure_psth_(hFig, hFig_b, P, nstims);
+    [hFig, hFig_b] = createFigurepsth_(hFig, hFig_b, P, nstims);
     plot_figure_psth_(hFig, iCluCopy, crTime_trial, S_clu, P);
     if ~isempty(iCluPaste)
         set(hFig_b, 'Visible', 'on');

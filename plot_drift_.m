@@ -41,7 +41,7 @@ function plot_drift_(P)
     % vrAmp_spk = 1 ./ sqrt(single(abs(S0.vrAmp_spk)));
     % vrAmp_spk = 1 ./ sqrt(sum(mrVp));
     vrAmp_spk = sqrt(mean(mrVp) ./ std(mrVp)); %spatial icv
-    hFig_drift = create_figure_('', [0 0 .5 1], P.vcFile_prm, 1, 1);
+    hFig_drift = createFigure('', [0 0 .5 1], P.vcFile_prm, 1, 1);
     % hFig_drift = gcf;
     figure(hFig_drift);
     ax = gca();

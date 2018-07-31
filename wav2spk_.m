@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk, vnThresh_site, fGpu] = ...
+function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk, vnThresh_site, useGPU] = ...
     wav2spk_(mnWav1, vrWav_mean1, P, viTime_spk, viSite_spk, mnWav1_pre, mnWav1_post)
     % tnWav_spk: spike waveform. nSamples x nSites x nSpikes
     % trFet_spk: nSites x nSpk x nFet
@@ -32,14 +32,14 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
     if ~isempty(mnWav1_pre) || ~isempty(mnWav1_post)
         mnWav1 = [mnWav1_pre; mnWav1; mnWav1_post];
     end
-    % [mnWav2, vnWav11, mnWav1, P.fGpu] = wav_preproces_(mnWav1, P);
+    % [mnWav2, vnWav11, mnWav1, P.useGPU] = wav_preproces_(mnWav1, P);
     mnWav1_ = mnWav1; % keep a copy in CPU
     try
-        [mnWav1, P.fGpu] = gpuArray_(mnWav1, P.fGpu);
+        [mnWav1, P.useGPU] = gpuArray_(mnWav1, P.useGPU);
         if P.fft_thresh>0, mnWav1 = fft_clean_(mnWav1, P); end
         [mnWav2, vnWav11] = filt_car_(mnWav1, P);
     catch % GPu failure
-        P.fGpu = 0;
+        P.useGPU = 0;
         mnWav1 = mnWav1_;
         if P.fft_thresh>0, mnWav1 = fft_clean_(mnWav1, P); end
         [mnWav2, vnWav11] = filt_car_(mnWav1, P);
@@ -76,7 +76,7 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
             vnThresh_site = gather_(int16(mr2rms_(mnWav3, 1e5) * P.qqFactor));
         catch
             vnThresh_site = int16(mr2rms_(gather_(mnWav3), 1e5) * P.qqFactor);
-            P.fGpu = 0;
+            P.useGPU = 0;
         end
     end
     if isempty(viTime_spk) || isempty(viSite_spk)
@@ -153,6 +153,6 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
     if nPad_pre > 0, viTime_spk = viTime_spk - nPad_pre; end
     [viTime_spk, trFet_spk, miSite_spk, tnWav_spk] = ...
     gather_(viTime_spk, trFet_spk, miSite_spk, tnWav_spk);
-    fGpu = P.fGpu;
+    useGPU = P.useGPU;
     fprintf('\ttook %0.1fs\n', toc(t_fet));
 end %func

@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function nBytes = mem_max_(P)
     try
-        if P.fGpu
+        if P.useGPU
             S = gpuDevice(); % does not reset GPU
             nBytes = floor(S(1).AvailableMemory());
         else

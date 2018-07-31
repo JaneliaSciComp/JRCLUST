@@ -3,9 +3,9 @@ function mr = filtfilt_chain(mr, varargin)
 P = funcDefStr_(funcInStr_(varargin{:}), ...
     'filtOrder', 3, 'sRateHz', 25000, 'fEllip', 1, ...
     'freqLimStop', [], 'freqLim', [], 'freqLimNotch', [], ...
-    'nPad_filt', 100, 'fGpu_filt', 0, 'gain_boost', 1, 'nDiff_filt', 0);
-if isfield(P, 'fGpu')
-    P.fGpu_filt = P.fGpu;
+    'nPad_filt', 100, 'useGPU_filt', 0, 'gain_boost', 1, 'nDiff_filt', 0);
+if isfield(P, 'useGPU')
+    P.useGPU_filt = P.useGPU;
 end
 %----------------
 % build a filter chain
@@ -52,7 +52,7 @@ end
 %----------------
 % Run the filter chain
 fInt16 = isa(mr, 'int16');
-if P.fGpu_filt, mr = gpuArray(mr); end
+if P.useGPU_filt, mr = gpuArray(mr); end
 mr = filt_pad_('add', mr, P.nPad_filt); %slow
 if fInt16, mr = single(mr); end   %double for long data?
 
@@ -77,7 +77,7 @@ if P.gain_boost ~= 1
 end
 if fInt16, mr = int16(mr); end
 mr = filt_pad_('remove', mr, P.nPad_filt); %slow    
-%if P.fGpu_filt, mr = gather(mr); end
+%if P.useGPU_filt, mr = gather(mr); end
 end %func
 
 
@@ -108,7 +108,7 @@ else
 end
 % vrFiltA = single(vrFiltA);
 % vrFiltB = single(vrFiltB);  
-if P.fGpu_filt  
+if P.useGPU_filt  
     vrFiltB = gpuArray(vrFiltB);
     vrFiltA = gpuArray(vrFiltA);
 end

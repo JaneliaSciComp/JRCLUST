@@ -24,7 +24,7 @@ function [mnWav_raw, S_preview] = load_preview_(P)
     % file loading loop
     [mnWav_raw, cviLim_load, csFile_load] = deal({});
     % [mnWav_raw, mnWav_filt] = deal({});
-    P.fGpu = 0;
+    P.useGPU = 0;
     for iFile = 1:numel(csFile_bin)
         try
             vcFile_bin_ = csFile_bin{iFile};

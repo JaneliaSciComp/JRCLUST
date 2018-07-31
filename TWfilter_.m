@@ -14,7 +14,7 @@ function TWfilter_(P, vcMode)
 	end
 	
 	fDebug_ui = 0;
-	P.fGpu = 0; %do not use GPU for manual use
+	P.useGPU = 0; %do not use GPU for manual use
 	set0_(fDebug_ui, P);
 
 	S0 = set0_(P); %update the P structure

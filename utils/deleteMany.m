@@ -1,22 +1,23 @@
 %--------------------------------------------------------------------------
-function delete_multi_(varargin)
+function deleteMany(varargin)
     % provide cell or multiple arguments
-    for i=1:nargin
+    for i = 1:nargin
         try
-            vr1 = varargin{i};
-            if numel(vr1)==1
+            arg = varargin{i};
+
+            if numel(arg) == 1
                 delete(varargin{i});
-            elseif iscell(vr1)
-                for i1=1:numel(vr1)
+            elseif iscell(arg)
+                for j = 1:numel(arg)
                     try
-                        delete(vr1{i1});
+                        delete(arg{j});
                     catch
                     end
                 end
             else
-                for i1=1:numel(vr1)
+                for j = 1:numel(arg)
                     try
-                        delete(vr1(i1));
+                        delete(arg(j));
                     catch
                     end
                 end
@@ -24,4 +25,4 @@ function delete_multi_(varargin)
         catch
         end
     end
-end %func
+end % func

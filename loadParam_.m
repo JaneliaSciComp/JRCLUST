@@ -41,8 +41,8 @@ function [P, vcFile_prm] = loadParam_(vcFile_prm, fEditFile)
     P = calc_maxSite_(P);
 
     % check GPU
-    P.fGpu = ifeq_(license('test', 'Distrib_Computing_Toolbox'), P.fGpu, 0);
-    if P.fGpu, P.fGpu = ifeq_(gpuDeviceCount()>0, 1, 0); end
+    P.useGPU = ifeq_(license('test', 'Distrib_Computing_Toolbox'), P.useGPU, 0);
+    if P.useGPU, P.useGPU = ifeq_(gpuDeviceCount()>0, 1, 0); end
 
     % Legacy support
     if isfield(P, 'fTranspose'), P.fTranspose_bin = P.fTranspose; end

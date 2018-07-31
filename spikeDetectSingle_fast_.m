@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 % 11/15/17 JJJ: Cast the threshold like the vrWav1
 function [viSpk1, vrSpk1, thresh1] = spikeDetectSingle_fast_(vrWav1, P, thresh1)
-    % P: spkThresh, qqSample, qqFactor, fGpu, uV_per_bit
+    % P: spkThresh, qqSample, qqFactor, useGPU, uV_per_bit
     % vrWav1 can be either single or int16
     % 6/27/17 JJJ: bugfix: hard set threshold is applied
 

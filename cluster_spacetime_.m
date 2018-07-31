@@ -20,7 +20,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     nTime_clu = get_set_(P, 'nTime_clu', 1);
     P.nTime_clu = nTime_clu;
     P.dc_subsample = 1000;
-    P.fGpu = 1;
+    P.useGPU = 1;
 
     % clear memory
     cuda_rho_();
@@ -99,7 +99,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
 
     %-----
     % package
-    % if P.fGpu
+    % if P.useGPU
     %     [vrRho, vrDelta, viNneigh] = multifun_(@gather_, vrRho, vrDelta, viNneigh);
     % end
     t_runtime = toc(t_func);

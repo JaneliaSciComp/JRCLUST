@@ -47,7 +47,7 @@ function keyPressFcn_FigProj_(hFig, event)
                 S_clu = split_clu_(S0.iCluCopy, vlIn);
             else
                 update_plot2_proj_();
-                %                 delete_multi_(S_plot1.hPoly);
+                %                 deleteMany(S_plot1.hPoly);
             end
         end
 

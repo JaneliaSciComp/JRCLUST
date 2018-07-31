@@ -35,7 +35,7 @@ function [mnWav2, vnWav2_mean] = filt_car_(mnWav2, P, mnWav1_pre, mnWav1_post, f
             mnWav2 = filtfilt_chain(single(mnWav2), P);
         catch
             fprintf('GPU filtering failed. Trying CPU filtering.\n');
-            mnWav2 = filtfilt_chain(single(mnWav2), setfield(P, 'fGpu', 0));
+            mnWav2 = filtfilt_chain(single(mnWav2), setfield(P, 'useGPU', 0));
         end
         mnWav2 = int16(mnWav2);
         case {'none', 'skip'} % no filter is applied

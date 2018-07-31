@@ -22,7 +22,7 @@ function [mnWav1, vrWav_mean1, dimm_wav] = load_file_(fid_bin, nSamples_load1, P
         dimm_wav = [nSamples_load1, P.nChans];
     end
     mnWav1 = fread_(fid_bin, dimm_wav, P.vcDataType);
-    % [mnWav1, P.fGpu] = gpuArray_(mnWav1, P.fGpu);
+    % [mnWav1, P.useGPU] = gpuArray_(mnWav1, P.useGPU);
     switch(P.vcDataType)
         case 'uint16', mnWav1 = int16(single(mnWav1)-2^15);
         case {'single', 'double'}, mnWav1 = int16(mnWav1 / P.uV_per_bit);

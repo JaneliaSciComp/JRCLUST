@@ -3,7 +3,7 @@
 function mrWavCor = S_clu_wavcor_2_(S_clu, P, viClu_update) % works for only the latest format
     % use extra padding for spkRaw to time-shift nShift
 
-    P.fGpu = 0;
+    P.useGPU = 0;
 
     if nargin<3, viClu_update = []; end
     if ~isfield(S_clu, 'mrWavCor'), viClu_update = []; end
@@ -11,7 +11,7 @@ function mrWavCor = S_clu_wavcor_2_(S_clu, P, viClu_update) % works for only the
     ctmrWav_clu = {S_clu.tmrWav_raw_clu, S_clu.tmrWav_raw_lo_clu, S_clu.tmrWav_raw_hi_clu};
 
     nClu = S_clu.nClu;
-    mrWavCor = gpuArray_(zeros(nClu), P.fGpu);
+    mrWavCor = gpuArray_(zeros(nClu), P.useGPU);
     if isempty(viClu_update)
         vlClu_update = true(nClu, 1);
         mrWavCor0 = [];

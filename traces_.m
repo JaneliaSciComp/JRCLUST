@@ -92,7 +92,7 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
     mnWav1 = uint2int_(mnWav1);
 
     % full screen width
-    hFig_traces = create_figure_('Fig_traces', [0 0 .5 1], vcFile_bin, 0, 1); %remove all other figure traces
+    hFig_traces = createFigure('Fig_traces', [0 0 .5 1], vcFile_bin, 0, 1); %remove all other figure traces
     hAx = axes_new_(hFig_traces); % create axis
     hPlot = line(hAx, nan, nan, 'Color', [1 1 1]*.5, 'Parent', hAx, 'LineWidth', .5);
     hPlot_edges = plot(nan, nan, 'Color', [1 0 0]*.5, 'Parent', hAx, 'LineWidth', 1);

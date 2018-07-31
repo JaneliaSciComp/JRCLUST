@@ -34,7 +34,7 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     end
 
     % Perform filter fft_thresh
-    P_ = set_(P, 'vcCommonRef', 'none', 'fGpu', 0, 'vcFilter', S_fig.vcFilter, ...
+    P_ = set_(P, 'vcCommonRef', 'none', 'useGPU', 0, 'vcFilter', S_fig.vcFilter, ...
     'blank_period_ms', S_fig.blank_period_ms, 'blank_thresh', S_fig.blank_thresh, 'fParfor', 0);
     mnWav_filt = filt_car_(S_fig.mnWav_clean, P_);
     % if strcmpi(S_fig.vcCommonRef, 'median')

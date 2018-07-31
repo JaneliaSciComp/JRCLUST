@@ -20,7 +20,7 @@ function Fig_traces_plot_(fAxis_reset)
     spkLim = round(P.spkLim / P.nSkip_show); %show 2x of range
     P.vcFilter = get_filter_(P);
     if strcmpi(S_fig.vcFilter, 'on')
-        P1=P; P1.sRateHz = sRateHz; P1.fGpu = 0;
+        P1=P; P1.sRateHz = sRateHz; P1.useGPU = 0;
         P1.vcFilter = get_set_(P, 'vcFilter_show', P.vcFilter);
         if P.fft_thresh>0, mnWav1 = fft_clean_(mnWav1, P); end
         mrWav1 = bit2uV_(filt_car_(mnWav1(viSamples1, P.viSite2Chan), P1), P1);
@@ -58,8 +58,8 @@ function Fig_traces_plot_(fAxis_reset)
 
     % Delete spikes from other threads
     S_fig_ = get(hFig, 'UserData');
-    if isfield(S_fig_, 'chSpk'), delete_multi_(S_fig_.chSpk); end
-    if isfield(S_fig, 'chSpk'), delete_multi_(S_fig.chSpk); end
+    if isfield(S_fig_, 'chSpk'), deleteMany(S_fig_.chSpk); end
+    if isfield(S_fig, 'chSpk'), deleteMany(S_fig.chSpk); end
 
     % plot spikes
     if strcmpi(S_fig.vcSpikes, 'on') && isfield(S0, 'viTime_spk')

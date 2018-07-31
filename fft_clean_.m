@@ -1,12 +1,12 @@
 %--------------------------------------------------------------------------
 % 2017/12/1 JJJ: auto-cast and memory division
-function [mnWav1, fGpu] = fft_clean_(mnWav, P)
-    fGpu = get_set_(P, 'fGpu', isGpu_(mnWav));
+function [mnWav1, useGPU] = fft_clean_(mnWav, P)
+    useGPU = get_set_(P, 'useGPU', isGpu_(mnWav));
     if isempty(P.fft_thresh) || P.fft_thresh==0 || isempty(mnWav), mnWav1=mnWav; return; end
-    [vcClass, fGpu_mnWav] = class_(mnWav);
+    [vcClass, useGPU_mnWav] = class_(mnWav);
     fprintf('Applying FFT cleanup...'); t1=tic;
     if 0
-        if fGpu
+        if useGPU
             mnWav1 = fft_clean__(mnWav, P.fft_thresh);
         else
             mnWav1 = fft_clean__(gather_(mnWav), P.fft_thresh);
@@ -24,15 +24,15 @@ function [mnWav1, fGpu] = fft_clean_(mnWav, P)
                 vi1 = (1:nSamples_last1) + iOffset;
             end
             mnWav1_ = mnWav(vi1,:);
-            if fGpu % use GPU
+            if useGPU % use GPU
                 try
-                    if ~fGpu_mnWav, mnWav1_ = gpuArray_(mnWav1_); end
+                    if ~useGPU_mnWav, mnWav1_ = gpuArray_(mnWav1_); end
                     mnWav1(vi1,:) = fft_clean__(mnWav1_, P.fft_thresh);
                 catch
-                    fGpu = 0;
+                    useGPU = 0;
                 end
             end
-            if ~fGpu % use CPU
+            if ~useGPU % use CPU
                 mnWav1(vi1,:) = fft_clean__(gather_(mnWav1_), P.fft_thresh);
             end
         end %for

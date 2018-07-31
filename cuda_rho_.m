@@ -15,7 +15,7 @@ function vrRho1 = cuda_rho_(mrFet12, viiSpk12_ord, n1, n2, dc2, P)
     nC_max = get_set_(P, 'nC_max', 45);
     dc2 = single(dc2);
     FLAG_FIXN = 0; %flag variable number of neighbors (otherwise fixed to 2*dn_max+1)
-    if P.fGpu && FLAG_FIXN == 0
+    if P.useGPU && FLAG_FIXN == 0
         try
             if (nC_ ~= nC) % create cuda kernel
                 nC_ = nC;

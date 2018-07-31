@@ -7,7 +7,7 @@ function [vrDelta1, viNneigh1] = cuda_delta_(mrFet12, viiSpk12_ord, viiRho12_ord
     [nC, n12] = size(mrFet12); %nc is constant with the loop
     dn_max = int32(round((n1+n2) / P.nTime_clu));
     nC_max = get_set_(P, 'nC_max', 45);
-    if P.fGpu
+    if P.useGPU
         try
             if (nC_ ~= nC) % create cuda kernel
                 nC_ = nC;

@@ -30,7 +30,7 @@ function plot_activity_(P) % single column only
 
     vlSite_left = P.mrSiteXY(:,1) == 0;
     vrSiteY = P.mrSiteXY(:,2);
-    hFig = create_figure_('FigActivity', [0 0 .5 1], P.vcFile_prm, 1, 1);
+    hFig = createFigure('FigActivity', [0 0 .5 1], P.vcFile_prm, 1, 1);
     subplot 121; imagesc(mrAmp90(vlSite_left, :), 'XData', (1:nTime) * tbin, 'YData', vrSiteY(vlSite_left)); axis xy; xlabel('Time'); ylabel('Sites'); title('Left edge sites');
     subplot 122; imagesc(mrAmp90(~vlSite_left, :), 'XData', (1:nTime) * tbin, 'YData', vrSiteY(~vlSite_left)); axis xy; xlabel('Time'); ylabel('Sites'); title('Right edge sites');
 

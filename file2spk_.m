@@ -68,7 +68,7 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
                 mnWav11_post = [];
             end
             [viTime_spk11, viSite_spk11] = filter_spikes_(viTime_spk0, viSite_spk0, nSamples1 + [1, nSamples11]);
-            [tnWav_raw_, tnWav_spk_, trFet_spk_, miSite_spk{end+1}, viTime_spk{end+1}, vrAmp_spk{end+1}, vnThresh_site{end+1}, P.fGpu] ...
+            [tnWav_raw_, tnWav_spk_, trFet_spk_, miSite_spk{end+1}, viTime_spk{end+1}, vrAmp_spk{end+1}, vnThresh_site{end+1}, P.useGPU] ...
             = wav2spk_(mnWav11, vrWav_mean11, P, viTime_spk11, viSite_spk11, mnWav11_pre, mnWav11_post);
             write_spk_(tnWav_raw_, tnWav_spk_, trFet_spk_);
             viTime_spk{end} = viTime_spk{end} + nSamples1;

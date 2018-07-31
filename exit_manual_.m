@@ -11,7 +11,7 @@ function exit_manual_(src, event)
         if ~isfield(S0, 'csFig')
             S0.csFig = {'FigPos', 'FigMap', 'FigTime', 'FigWav', 'FigWavCor', 'FigProj', 'FigRD', 'FigCorr', 'FigIsi', 'FigHist'};
         end
-        delete_multi_(get_fig_all_(S0.csFig), src);
+        deleteMany(get_fig_all_(S0.csFig), src);
         close_(get_fig_('FigTrial'));
         close_(get_fig_('FigTrial_b'));
         close_(get_fig_('FigAux'));

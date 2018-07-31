@@ -104,7 +104,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     P = struct_merge_(P, P_meta);
     P = struct_merge_(P, file_info_(vcFile_bin));
     P.duration_file = P.nBytes_file / bytesPerSample_(P.vcDataType) / P.nChans / P.sRateHz; %assuming int16
-    P.version = jrc_version_();
+    P.version = jrcVersion();
     try
         copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
     catch

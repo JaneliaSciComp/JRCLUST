@@ -3,7 +3,7 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
     % convert ground truth to spike waveforms
     fSubtract_nmean = 0;
     % fSubtract_ref = 1;
-    % P.fGpu = 0;
+    % P.useGPU = 0;
     MAX_SAMPLE = 1000; %mean calc
     nSubsample_clu = get_set_(P, 'nSubsample_clu', 8);
 

@@ -1,15 +1,15 @@
 %--------------------------------------------------------------------------
-function mnWav1 = sgfilt_(mnWav, nDiff_filt, fGpu)
+function mnWav1 = sgfilt_(mnWav, nDiff_filt, useGPU)
     % works for a vector, matrix and tensor
     fInvert_filter = 0;
-    if nargin<3, fGpu = isGpu_(mnWav); end
+    if nargin<3, useGPU = isGpu_(mnWav); end
     n1 = size(mnWav,1);
     if n1==1, n1 = size(mnWav,2);  end
     if nDiff_filt==0, mnWav1 = mnWav; return; end
     if fInvert_filter
-        [miB, miA] = sgfilt_init_(n1, nDiff_filt, fGpu);
+        [miB, miA] = sgfilt_init_(n1, nDiff_filt, useGPU);
     else
-        [miA, miB] = sgfilt_init_(n1, nDiff_filt, fGpu);
+        [miA, miB] = sgfilt_init_(n1, nDiff_filt, useGPU);
     end
 
     if isvector(mnWav)

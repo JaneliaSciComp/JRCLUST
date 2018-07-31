@@ -6,7 +6,7 @@ function [mrVpp1, mrVpp2] = calc_cov_spk_(viSpk1, viSites1)
 
     nSpk1 = numel(viSpk1);
     viSites_spk1 = viSite_spk(viSpk1);
-    tnWav_spk1 = gpuArray_(tnWav_spk(:,:,viSpk1), P.fGpu);
+    tnWav_spk1 = gpuArray_(tnWav_spk(:,:,viSpk1), P.useGPU);
     nSites_spk = 1 + P.maxSite * 2;
     [mrVpp1_, mrVpp2_] = trWav2fet_(tnWav_spk1, P, nSites_spk);
     [mrVpp1_, mrVpp2_] = multifun_(@(x)gather_(abs(x)), mrVpp1_, mrVpp2_);

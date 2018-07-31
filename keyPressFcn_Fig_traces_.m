@@ -85,7 +85,7 @@ function keyPressFcn_Fig_traces_(hFig, event)
         case 'p' %power spectrum
         iSite_show = inputdlg_num_(sprintf('Site# to show (1-%d, 0 for all)', nSites), 'Site#', 0);
         if isnan(iSite_show), return; end
-        hFig = create_figure_('FigPsd', [.5 0 .5 1], P.vcFile_prm, 1, 1); %show to the right
+        hFig = createFigure('FigPsd', [.5 0 .5 1], P.vcFile_prm, 1, 1); %show to the right
         % ask user which channels to plot
         if iSite_show>0
             mrWav2 = mrWav1(:, iSite_show);
@@ -113,7 +113,7 @@ function keyPressFcn_Fig_traces_(hFig, event)
         vrX = get(S_fig.hPlot, 'XData');
         vrY = get(S_fig.hPlot, 'YData');
         viIndex = find(vrX >= vrPos_rect(1) & vrX <= sum(vrPos_rect([1,3])) & vrY >= vrPos_rect(2) & vrY <= sum(vrPos_rect([2,4])));
-        if isempty(viIndex), delete_multi_(hRect); return; end
+        if isempty(viIndex), deleteMany(hRect); return; end
         index_plot = round(median(viIndex));
         [time1, iSite] = ind2sub(size(mrWav1), index_plot);
         mrX = reshape(vrX, S_plot.dimm);
@@ -124,6 +124,6 @@ function keyPressFcn_Fig_traces_(hFig, event)
         hold(S_fig.hAx, 'off');
         iChan = P.viSite2Chan(iSite);
         msgbox_(sprintf('Site: %d/ Chan: %d', iSite, iChan), 1);
-        delete_multi_(hRect, hLine, hPoint);
+        deleteMany(hRect, hLine, hPoint);
     end %return if S_fig didn't change
 end %func

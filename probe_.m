@@ -20,7 +20,7 @@ function probe_(vcFile_prb)
     % if ~isfield(S_prb, 'shank'), S_prb.shank = ones(size(S_prb.channels)); end
 
     % hFig = figure; hold on;
-    hFig = create_figure_('FigProbe', [0 0 .5 1], vcFile_prb);
+    hFig = createFigure('FigProbe', [0 0 .5 1], vcFile_prb);
     % viShank = unique(S_prb.shank);
     % vcColor_shank = 'kbgrcm'; % up to
     % for iShank=1:numel(viShank)

@@ -4,7 +4,7 @@ function delete_auto_()
     % Ask SNR
     S0 = get(0, 'UserData');
     [S_clu, P] = get0_('S_clu', 'P');
-    hFig = create_figure_('', [.5 .7 .35 .3], ['Delete Auto: ', P.vcFile]);
+    hFig = createFigure('', [.5 .7 .35 .3], ['Delete Auto: ', P.vcFile]);
 
     % Ask user which clusters to delete
     plot(S_clu.vrSnr_clu(:), S_clu.vnSpk_clu(:), '.'); % show cluster SNR and spike count

@@ -42,7 +42,7 @@ function vcFile_prm = import_intan_(vcFile_dat, vcFile_prb, vcArg3)
         disperr_(sprintf('Error loading the probe file: %s\n', vcFile_prb));
     end
     P.duration_file = nSamples / P.sRateHz; %assuming int16
-    P.version = jrc_version_();
+    P.version = jrcVersion();
     P.vcFile_prm = vcFile_prm;
     P.vcFile = vcFile_bin;
     copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');

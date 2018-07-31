@@ -69,7 +69,7 @@ function keyPressFcn_FigTime_(hObject, event, S0)
             if strcmpi(questdlg_('Split?', 'Confirmation', 'Yes'), 'yes')
                 split_clu_(S0.iCluCopy, vlIn);
             end
-            delete_multi_(hPoly, hSplit);
+            deleteMany(hPoly, hSplit);
         catch
             disp(lasterror());
         end

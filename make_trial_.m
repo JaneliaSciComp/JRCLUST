@@ -61,7 +61,7 @@ function make_trial_(vcFile_prm, fImec)
     fprintf('Parameter file updated: %s\n\tvcFile_trial = ''%s''\n', vcFile_prm, vcFile_trial);
 
     % plot
-    hFig = create_figure_('Trial timing', [0 0 .5 1], vcFile_trial, 1, 1); hold on;
+    hFig = createFigure('Trial timing', [0 0 .5 1], vcFile_trial, 1, 1); hold on;
     % vlOver = vr_set_(vrWav >= thresh, [viT_rising(:) - 1; viT_falling(:) + 1], 1);
     vlOver = vrWav >= thresh;
     plot(find(vlOver)/P.sRateHz, vrWav(vlOver), 'b.');

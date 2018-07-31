@@ -15,7 +15,7 @@ function plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluP
         viSrt = iCluPlot;
     end
 
-    hFig = create_figure_('FigAux', [.5 0 .5 1], P.vcFile_prm,1,1);
+    hFig = createFigure('FigAux', [.5 0 .5 1], P.vcFile_prm,1,1);
     hTabGroup = uitabgroup(hFig);
     for iClu1 = 1:nClu_show
         iClu = viSrt(iClu1);
