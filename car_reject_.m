@@ -18,7 +18,9 @@ function [vlKeep_ref, vrMad_ref] = car_reject_(vrWav_mean1, P)
         if nwin > 1
             over_thresh=find(~vlKeep_ref);
             for crossing=over_thresh'
-                vlKeep_ref(crossing-ceil(nwin/2):crossing+ceil(nwin/2))=0;
+                left = max(crossing-ceil(nwin/2), 1);
+                right = min(crossing+ceil(nwin/2), numel(vlKeep_ref));
+                vlKeep_ref(left:right)=0;
             end        
         end
     else
