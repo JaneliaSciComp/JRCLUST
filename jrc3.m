@@ -60,7 +60,7 @@ switch lower(vcCmd)
     case 'import-gt', import_gt_silico_(vcArg1);   
     case 'unit-test', unit_test_(vcArg1, vcArg2, vcArg3);    
     case 'compile', compile_cuda_(vcArg1); 
-    case 'compile-ksort', compile_ksort_();
+%     case 'compile-ksort', compile_ksort_();
     case 'test', varargout{1} = test_(vcArg1, vcArg2, vcArg3, vcArg4, vcArg5);
     case 'call', varargout{1} = call_(vcArg1, vcArg2, vcArg3);
     case 'export', export_(vcArg1, vcArg2, vcArg3);    
@@ -93,8 +93,8 @@ switch lower(vcCmd)
     case 'import-silico', import_silico_(vcFile_prm, 0);     
     case 'import-silico-sort', import_silico_(vcFile_prm, 1); 
     case {'import-kilosort', 'import-ksort'}, import_ksort_(vcFile_prm, 0); 
-    case {'import-kilosort-sort', 'import-ksort-sort'}, import_ksort_(vcFile_prm, 1);  
-    case {'kilosort', 'ksort'}, kilosort_(vcFile_prm); import_ksort_(vcFile_prm, 0); 
+%     case {'import-kilosort-sort', 'import-ksort-sort'}, import_ksort_(vcFile_prm, 1);  
+    case {'kilosort', 'ksort'}, kilosort_(vcFile_prm); % import_ksort_(vcFile_prm, 0); 
     case 'export-imec-sync', export_imec_sync_(vcFile_prm);
     case 'export-prm', export_prm_(vcFile_prm, vcArg2);        
     case 'dir', 
@@ -146,7 +146,7 @@ switch lower(vcCmd)
     case 'manual-test-menu'
         manual_(P, 'debug'); manual_test_(P, 'Menu'); return;                   
     case {'kilosort-verify', 'ksort-verify'}
-        kilosort_(P); import_ksort_(P); describe_(P.vcFile_prm); 
+        kilosort_(P); % import_ksort_(P); describe_(P.vcFile_prm); 
     case {'export-wav', 'wav'} % load raw and assign workspace
         mnWav = load_file_(P.vcFile, [], P);
         assignWorkspace_(mnWav);
@@ -396,7 +396,7 @@ end %func
 function update_(vcFile)
 % update_(vcFile) %update specific files
 % update_() %update files in default.cfg\sync_list
-fCompile_ksort = 0;
+% fCompile_ksort = 0;
 
 S_cfg = read_cfg_();
 vcSource = S_cfg.path_dropbox;
@@ -422,15 +422,15 @@ catch
 end
 
 % Copy kilosort and compile code
-if fCompile_ksort
-    try 
-        mkdir_('./kilosort');
-        try_eval_(sprintf('copyfile ''%s\\kilosort\\*'' .\\kilosort\\ f;', vcSource), 0);
-        if fCompile, compile_ksort_(); end
-    catch
-        disperr_();
-    end
-end
+% if fCompile_ksort
+%     try 
+%         mkdir_('./kilosort');
+%         try_eval_(sprintf('copyfile ''%s\\kilosort\\*'' .\\kilosort\\ f;', vcSource), 0);
+%         if fCompile, compile_ksort_(); end
+%     catch
+%         disperr_();
+%     end
+% end
 
 fprintf('Updated, took %0.1fs.', toc(t1));
 fprintf('\tPrevious files backed up to %s\n', vcBackup);
@@ -10546,50 +10546,53 @@ end %func
 
 
 %--------------------------------------------------------------------------
-function S_ksort = kilosort_(vcFile_prm)
-% Run Kilosort
-fSavePhy = 1;
-fMerge_post = 1;
-if ischar(vcFile_prm)
-    fprintf('Running kilosort on %s\n', vcFile_prm); 
-    P = loadParam_(vcFile_prm);
-    if isempty(P), return; end
-else
-    P = vcFile_prm;
-    vcFile_prm = P.vcFile_prm;
-    fprintf('Running kilosort on %s\n', vcFile_prm); 
-end
-runtime_ksort = tic;
-
-% Run kilosort
-[fpath, ~, ~] = fileparts(vcFile_prm);
-ops = kilosort('config', P); %get config
-S_chanMap = kilosort('chanMap', P); %make channel map
-
-[rez, DATA, uproj] = kilosort('preprocessData', ops); % preprocess data and extract spikes for initialization
-rez                = kilosort('fitTemplates', rez, DATA, uproj);  % fit templates iteratively
-rez                = kilosort('fullMPMU', rez, DATA);% extract final spike times (overlapping extraction)
-
-if fMerge_post
-    rez = kilosort('merge_posthoc2', rez); %ask whether to merge or not
-end
-
-% save python results file for Phy
-if fSavePhy
-    try
-        kilosort('rezToPhy', rez, fpath); %path to npy2mat needed
-    catch
-        disperr_();
-    end
-end
-
-runtime_ksort = toc(runtime_ksort);
-fprintf('\tkilosort took %0.1fs for %s\n', runtime_ksort, P.vcFile_prm);
-
-% output kilosort result
-S_ksort = struct('rez', rez, 'P', P, 'runtime_ksort', runtime_ksort);
-struct_save_(S_ksort, strrep(vcFile_prm, '.prm', '_ksort.mat'), 1);
+function kilosort_(vcFile_prm)
+error('running KiloSort through the JRCLUST interface has been deprecated');
 end %func
+% function S_ksort = kilosort_(vcFile_prm)
+% Run Kilosort
+% fSavePhy = 1;
+% fMerge_post = 1;
+% if ischar(vcFile_prm)
+%     fprintf('Running kilosort on %s\n', vcFile_prm); 
+%     P = loadParam_(vcFile_prm);
+%     if isempty(P), return; end
+% else
+%     P = vcFile_prm;
+%     vcFile_prm = P.vcFile_prm;
+%     fprintf('Running kilosort on %s\n', vcFile_prm); 
+% end
+% runtime_ksort = tic;
+% 
+% % Run kilosort
+% [fpath, ~, ~] = fileparts(vcFile_prm);
+% ops = kilosort('config', P); %get config
+% S_chanMap = kilosort('chanMap', P); %make channel map
+% 
+% [rez, DATA, uproj] = kilosort('preprocessData', ops); % preprocess data and extract spikes for initialization
+% rez                = kilosort('fitTemplates', rez, DATA, uproj);  % fit templates iteratively
+% rez                = kilosort('fullMPMU', rez, DATA);% extract final spike times (overlapping extraction)
+% 
+% if fMerge_post
+%     rez = kilosort('merge_posthoc2', rez); %ask whether to merge or not
+% end
+% 
+% % save python results file for Phy
+% if fSavePhy
+%     try
+%         kilosort('rezToPhy', rez, fpath); %path to npy2mat needed
+%     catch
+%         disperr_();
+%     end
+% end
+% 
+% runtime_ksort = toc(runtime_ksort);
+% fprintf('\tkilosort took %0.1fs for %s\n', runtime_ksort, P.vcFile_prm);
+% 
+% % output kilosort result
+% S_ksort = struct('rez', rez, 'P', P, 'runtime_ksort', runtime_ksort);
+% struct_save_(S_ksort, strrep(vcFile_prm, '.prm', '_ksort.mat'), 1);
+% end %func
 
 
 %--------------------------------------------------------------------------
@@ -15361,7 +15364,7 @@ end %func
 
 
 %--------------------------------------------------------------------------
-% Install JRCLUST 1) create user.cfg 2) compile cuda 3) compile kilosort
+% Install JRCLUST 1) create user.cfg 2) compile cuda
 % 7/26/17 Code cleanup and test
 function install_()
 % create user.cfg
@@ -15375,7 +15378,7 @@ if exist('user.cfg', 'file') ~= 2
 end
 
 compile_cuda_();
-compile_ksort_();
+% compile_ksort_();
 end %func
 
 
@@ -15423,31 +15426,31 @@ end %func
 % Compile Kilosort code
 % 10/5/17 JJJ: Error messages converted to warning
 % 7/26/17 JJJ: Code cleanup and test
-function fSuccess = compile_ksort_()
-fSuccess = 1;
-nTry = 3;
-csFiles_cu = {'./kilosort/mexMPmuFEAT.cu', './kilosort/mexWtW2.cu', './kilosort/mexMPregMU.cu'};
-delete ./kilosort/*.mex*;
-delete ./kilosort/*.lib;
-for iFile = 1:numel(csFiles_cu)
-    for iTry = 1:nTry
-        try
-            drawnow;
-            eval(sprintf('mexcuda -largeArrayDims -v %s;', csFiles_cu{iFile}));
-            fprintf('Kilosort compile success for %s.\n', csFiles_cu{iFile});
-            break;
-        catch
-            if iTry == nTry
-                fprintf('\tKilosort could not be compiled: %s\n', csFiles_cu{iFile});
-                fSuccess = 0;
-            end
-        end
-    end
-end
-if ~fSuccess
-    fprintf('\tWarning: Kilosort could not be compiled but it may work fine. If not, install Visual Studio 2013 and run "jrc install".\n');
-end
-end %func
+% function fSuccess = compile_ksort_()
+% fSuccess = 1;
+% nTry = 3;
+% csFiles_cu = {'./kilosort/mexMPmuFEAT.cu', './kilosort/mexWtW2.cu', './kilosort/mexMPregMU.cu'};
+% delete ./kilosort/*.mex*;
+% delete ./kilosort/*.lib;
+% for iFile = 1:numel(csFiles_cu)
+%     for iTry = 1:nTry
+%         try
+%             drawnow;
+%             eval(sprintf('mexcuda -largeArrayDims -v %s;', csFiles_cu{iFile}));
+%             fprintf('Kilosort compile success for %s.\n', csFiles_cu{iFile});
+%             break;
+%         catch
+%             if iTry == nTry
+%                 fprintf('\tKilosort could not be compiled: %s\n', csFiles_cu{iFile});
+%                 fSuccess = 0;
+%             end
+%         end
+%     end
+% end
+% if ~fSuccess
+%     fprintf('\tWarning: Kilosort could not be compiled but it may work fine. If not, install Visual Studio 2013 and run "jrc install".\n');
+% end
+% end %func
 
 
 %--------------------------------------------------------------------------
