@@ -1,6 +1,0 @@
-[submodule "kilosort/KiloSort"]
-	path = kilosort/KiloSort
-	url = git@github.com:cortex-lab/KiloSort.git
-[submodule "kilosort/npy-matlab"]
-	path = kilosort/npy-matlab
-	url = git@github.com:kwikteam/npy-matlab.git
