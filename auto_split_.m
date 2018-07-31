@@ -55,7 +55,7 @@ function auto_split_(fMulti, S0)
             axes(hAx_); cla(hAx_);
             [vrX1, vrY1] = deal(mrFet_split(:,iAx1), mrFet_split(:,iAx2));
             plot(hAx_, vrX1, vrY1, 'k.');
-            close_(hPoly);
+            tryClose(hPoly);
             hPoly = impoly_();
             mrPolyPos = getPosition(hPoly);
             vlSpkIn = inpolygon(vrX1, vrY1, mrPolyPos(:,1), mrPolyPos(:,2));

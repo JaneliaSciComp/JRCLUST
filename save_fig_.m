@@ -11,8 +11,8 @@ function save_fig_(vcFile_png, hFig, fClose);
         drawnow;
         saveas(hFig, vcFile_png);
         fprintf('Saved figure to %s.\n', vcFile_png);
-        if fClose, close_(hFig); end
-        close_(hMsg);
+        if fClose, tryClose(hFig); end
+        tryClose(hMsg);
     catch
         fprintf(2, 'Failed to save a figure to %s.\n', vcFile_png);
     end

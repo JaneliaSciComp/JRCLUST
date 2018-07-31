@@ -13,7 +13,7 @@ function fExit = save_manual_(varargin)
         hMsg = msgbox_('Saving... (this closes automatically)');
         save0_(vcFile_jrc); % 1 will skip figure saving
         fExit = 1;
-        close_(hMsg);
+        tryClose(hMsg);
         case 'no'
         fExit = 1;
         case 'cancel'

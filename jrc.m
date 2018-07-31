@@ -51,8 +51,10 @@ function varargout = jrc(cmd, varargin)
             about_();
         case 'clear'
             clear_(arg1);
-        case 'gui'
-            gui_(arg1, prmFile);
+        % case 'gui' % TODO: reference 'prmFile' before definition
+        %     gui_(arg1, prmFile);
+        case {'import-kilosort', 'import-ksort'}
+            importKiloSort(arg1);
         case {'makeprm', 'createprm', 'makeprm-all'}
             prmFile = makeprm_(arg1, arg2, 1, arg3);
             if nargout > 0
@@ -109,8 +111,6 @@ function varargout = jrc(cmd, varargin)
         case 'describe', describe_(prmFile);
         case 'import-silico', import_silico_(prmFile, 0);
         case 'import-silico-sort', import_silico_(prmFile, 1);
-        case {'import-kilosort', 'import-ksort'}, import_ksort_(prmFile);
-        case {'kilosort', 'ksort'}, kilosort(prmFile); import_ksort_(prmFile);
         case 'export-imec-sync', export_imec_sync_(prmFile);
         case 'export-prm', export_prm_(prmFile, arg2);
         case 'dir'
@@ -164,8 +164,6 @@ function varargout = jrc(cmd, varargin)
             manual(P, 'debug'); manual_test_(P); return;
         case 'manual-test-menu'
             manual(P, 'debug'); manual_test_(P, 'Menu'); return;
-        case {'kilosort-verify', 'ksort-verify'}
-            kilosort(P); import_ksort_(P); describe_(P.prmFile);
         case {'export-wav', 'wav'} % load raw and assign workspace
             mnWav = load_file_(P.vcFile, [], P);
             assignWorkspace_(mnWav);
@@ -198,7 +196,9 @@ function varargout = jrc(cmd, varargin)
     % supports compound commands (ie. 'sort-verify', 'sort-manual').
     if contains_(lower(cmd), {'verify', 'validate'})
         if ~is_detected_(P), detect_(P); end
-        if ~is_sorted_(P), sort_(P); end
+        if ~isSorted(P)
+            sort_(P);
+        end
         validate_(P);
     elseif contains_(lower(cmd), {'manual',' gui', 'ui'})
         manual(P);

@@ -45,7 +45,7 @@ function S_clu = split_clu_(iClu1, vlIn)
 
     % select two clusters being split
     button_CluWav_simulate_(iClu1, iClu2);
-    close_(hMsg);
+    tryClose(hMsg);
     fprintf('%s [W] splited Clu %d\n', datestr(now, 'HH:MM:SS'), iClu1);
     figure_wait_(0);
 end %func

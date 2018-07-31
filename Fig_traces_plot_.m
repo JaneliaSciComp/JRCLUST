@@ -124,5 +124,5 @@ function Fig_traces_plot_(fAxis_reset)
     if fAxis_reset, fig_traces_reset_(S_fig); end
     set(hFig, 'UserData', S_fig, 'Name', sprintf('%s: filter: %s', P.prmFile, (vcFilter_show)));
     figure_wait_(0, hFig);
-    close_(fWait);
+    tryClose(fWait);
 end %func

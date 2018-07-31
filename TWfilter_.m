@@ -3,7 +3,7 @@ function TWfilter_(P, vcMode)
 	global fDebug_ui trFet_spk
 
 	% Load info
-	if ~is_sorted_(P)
+	if ~isSorted(P)
 		fprintf(2, 'File must to be sorted first (run "jrc spikesort %s")\n', P.prmFile); 
 		return; 
 	end

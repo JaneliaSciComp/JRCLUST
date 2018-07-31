@@ -12,9 +12,9 @@ function exit_manual_(src, event)
             S0.csFig = {'FigPos', 'FigMap', 'FigTime', 'FigWav', 'FigWavCor', 'FigProj', 'FigRD', 'FigCorr', 'FigIsi', 'FigHist'};
         end
         deleteMany(get_fig_all_(S0.csFig), src);
-        close_(get_fig_('FigTrial'));
-        close_(get_fig_('FigTrial_b'));
-        close_(get_fig_('FigAux'));
+        tryClose(get_fig_('FigTrial'));
+        tryClose(get_fig_('FigTrial_b'));
+        tryClose(get_fig_('FigAux'));
     catch
         disperr_();
         close(src);

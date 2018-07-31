@@ -7,7 +7,7 @@ function update_spikes_(varargin)
     [~, S_fig] = get_fig_cache_('FigWav');
     % plot_tnWav_clu_(S_fig, S0.P); %do this after plotSpk_
     plot_spkwav_(S_fig, S0);
-    close_(hMsg);
+    tryClose(hMsg);
     figure_wait_(0);
     figure(fig_prev);
 end %func

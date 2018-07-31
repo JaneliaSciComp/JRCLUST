@@ -1,14 +1,18 @@
 %--------------------------------------------------------------------------
-function manual(P, debugMode)
+function manual(P, debugMode, alg)
     % display manual sorting interface
     global fDebug_ui trFet_spk
 
     if nargin < 2
         debugMode = 0;
     end
+    
+    if nargin < 3
+        alg = 'JRCLUST';
+    end
 
     % Load info
-    if ~is_sorted_(P)
+    if ~isSorted(P)
         error(['File must to be sorted first (run "jrc spikesort "', P.prmFile, '")']);
     end
 
@@ -55,7 +59,7 @@ function manual(P, debugMode)
 
     % Set fields
     S0 = struct_merge_(S0, ...
-    struct('iCluCopy', 1, 'iCluPaste', [], 'hCopy', [], 'hPaste', [], 'nSites', numel(P.viSite2Chan)));
+        struct('iCluCopy', 1, 'iCluPaste', [], 'hCopy', [], 'hPaste', [], 'nSites', numel(P.viSite2Chan)));
     set(0, 'UserData', S0);
 
     % hFigRD
@@ -67,8 +71,8 @@ function manual(P, debugMode)
     S0 = plot_FigWav_(S0); % hFigWav %do this after for ordering
 
     % hFigProj, hFigHist, hFigIsi, hFigCorr, hFigPos, hFigMap, hFigTime
-    close_(get_fig_('FigTrial')); %close previous FigTrial figure
-    close_(get_fig_('FigTrial_b')); %close previous FigTrial figure
+    tryClose(get_fig_('FigTrial')); %close previous FigTrial figure
+    tryClose(get_fig_('FigTrial_b')); %close previous FigTrial figure
     S0 = button_CluWav_simulate_(1, [], S0, 1); %select first clu TW
     auto_scale_proj_time_(S0);
     S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'z'}, S0); %zoom
@@ -78,6 +82,6 @@ function manual(P, debugMode)
     save_log_('start', S0); %crash proof log
 
     % Finish up
-    close_(hMsg);
+    tryClose(hMsg);
     fprintf('UI creation took %0.1fs\n', toc(t1));
 end %func
