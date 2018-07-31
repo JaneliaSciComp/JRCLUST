@@ -6,7 +6,7 @@ function plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluP
     [vrCorr_srt, viSrt] = sort(vrCorr_aux_clu, 'descend');
     nClu = numel(vrCorr_aux_clu);
     [P, S_clu] = get0_('P', 'S_clu');
-    P = loadParam_(P.vcFile_prm);
+    P = loadParams(P.prmFile);
     nClu_show = min(get_set_(P, 'nClu_show_aux', 4), nClu);
     vcLabel_aux = get_set_(P, 'vcLabel_aux', 'aux');
     nSubsample_aux = get_set_(P, 'nSubsample_aux', 100);
@@ -15,7 +15,7 @@ function plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluP
         viSrt = iCluPlot;
     end
 
-    hFig = createFigure('FigAux', [.5 0 .5 1], P.vcFile_prm,1,1);
+    hFig = createFigure('FigAux', [.5 0 .5 1], P.prmFile,1,1);
     hTabGroup = uitabgroup(hFig);
     for iClu1 = 1:nClu_show
         iClu = viSrt(iClu1);

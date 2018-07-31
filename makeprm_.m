@@ -29,5 +29,5 @@ function [vcFile_prm, vcPrompt] = makeprm_(vcFile_bin, vcFile_prb, fAsk, vcFile_
         return;
     end
     set0_(P);
-    vcFile_prm = P.vcFile_prm;
+    vcFile_prm = P.prmFile;
 end

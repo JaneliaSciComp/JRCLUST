@@ -37,7 +37,7 @@ function manual(P, debugMode)
                 case 'cancel'
                     return;
                 case 'yes'
-                    S0 = set0_(P); %update the P structure
+                    S0 = set0_(P); % update the P structure
                     S0.S_clu = S_clu_update_wav_(S0.S_clu, P);
             end
         end
@@ -72,8 +72,8 @@ function manual(P, debugMode)
     S0 = button_CluWav_simulate_(1, [], S0, 1); %select first clu TW
     auto_scale_proj_time_(S0);
     S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'z'}, S0); %zoom
-    %S0.cS_log = load_(strrep(P.vcFile_prm, '.prm', '_log.mat'), 'cS_log', 0);
-    S_log = load_(strrep(P.vcFile_prm, '.prm', '_log.mat'), [], 0);
+    %S0.cS_log = load_(strrep(P.prmFile, '.prm', '_log.mat'), 'cS_log', 0);
+    S_log = load_(strrep(P.prmFile, '.prm', '_log.mat'), [], 0);
     if ~isempty(S_log), S0.cS_log = {S_log}; end
     save_log_('start', S0); %crash proof log
 

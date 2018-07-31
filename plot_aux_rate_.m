@@ -4,7 +4,7 @@ function plot_aux_rate_(fSelectedUnit)
     % Aux channel vs. rate
     if nargin<1, fSelectedUnit = 0; end %plot all
     [P, S_clu, iCluCopy] = get0_('P', 'S_clu', 'iCluCopy');
-    P = loadParam_(P.vcFile_prm);
+    P = loadParams(P.prmFile);
     [vrWav_aux, vrTime_aux] = load_aux_(P);
     if isempty(vrWav_aux), msgbox_('Aux input is not found'); return; end
     mrRate_clu = clu_rate_(S_clu, [], numel(vrWav_aux));

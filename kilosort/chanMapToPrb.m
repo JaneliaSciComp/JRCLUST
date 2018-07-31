@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function viSiteZero = chanMap_to_prb(chanMap, prbFilename)
+function viSiteZero = chanMapToPrb(chanMap, prbFilename)
     if ischar(chanMap)
         chanMap = load(chanMap);
     end

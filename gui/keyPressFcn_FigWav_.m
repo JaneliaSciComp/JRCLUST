@@ -20,7 +20,7 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
             S0.iCluCopy = 1;
         elseif strcmpi(event.Key, 'end')
             S0.iCluCopy = S_clu.nClu;
-        elseif ~key_modifier_(event, 'shift');
+        elseif ~keyModifier(event, 'shift');
             if strcmpi(event.Key, 'leftarrow')
                 if S0.iCluCopy == 1, return; end
                 S0.iCluCopy = S0.iCluCopy - 1;

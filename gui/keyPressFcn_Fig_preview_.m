@@ -4,7 +4,7 @@ function S0 = keyPressFcn_Fig_preview_(hFig, event, S0)
     if nargin<3, S0 = get(0, 'UserData'); end
     P = get_(S0, 'P');
     S_fig = get(hFig, 'UserData');
-    factor = 1 + 3 * key_modifier_(event, 'shift');
+    factor = 1 + 3 * keyModifier(event, 'shift');
     nSites = numel(P.viSite2Chan);
 
     switch lower(event.Key)

@@ -31,7 +31,7 @@ function batch_verify_(vcFile_batch, vcCommand)
         try
             vcFile_prm_ = csFiles_prm{iFile};
             S_score1 = load(strrep(vcFile_prm_, '.prm', '_score.mat'));
-            P = loadParam_(vcFile_prm_);
+            P = loadParams(vcFile_prm_);
             set0_(P);
             S_ = S_score1.S_score_clu;
             cvrSnr{iFile} = gather_(S_score1.vrSnr_min_gt');

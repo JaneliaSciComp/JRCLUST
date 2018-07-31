@@ -12,11 +12,11 @@ function S_ksort = kilosort(vcFile_prm)
 
     % Run Kilosort
     if ischar(vcFile_prm)
-        P = loadParam_(vcFile_prm);
+        P = loadParams(vcFile_prm);
         if isempty(P), return; end
     else
         P = vcFile_prm;
-        vcFile_prm = P.vcFile_prm;
+        vcFile_prm = P.prmFile;
     end
 
     fprintf('Running KiloSort on %s\n', vcFile_prm);
@@ -64,7 +64,7 @@ function S_ksort = kilosort(vcFile_prm)
     end
 
     runtime_ksort = toc(runtime_ksort);
-    fprintf('\tKiloSort took %0.1fs for %s\n', runtime_ksort, P.vcFile_prm);
+    fprintf('\tKiloSort took %0.1fs for %s\n', runtime_ksort, P.prmFile);
 
     % output KiloSort result
     S_ksort = struct('rez', rez, 'P', P, 'runtime_ksort', runtime_ksort);

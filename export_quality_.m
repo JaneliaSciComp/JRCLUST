@@ -20,7 +20,7 @@ function export_quality_(varargin)
     table_ = table(unit_id, SNR, center_site, nSpikes, xpos, ypos, uV_min, uV_pp, IsoDist, LRatio, IsiRat, note);
     disp(table_);
 
-    vcFile_csv = subsFileExt_(P.vcFile_prm, '_quality.csv');
+    vcFile_csv = subsFileExt_(P.prmFile, '_quality.csv');
     writetable(table_, vcFile_csv);
     csMsg = { ...
     sprintf('Wrote to %s. Columns:', vcFile_csv), ...

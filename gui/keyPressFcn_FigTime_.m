@@ -13,7 +13,7 @@ function keyPressFcn_FigTime_(hObject, event, S0)
         if ~isVisible_(S_fig.hAx)
             msgbox_('Channel switching is disabled in the position view'); return;
         end
-        factor = key_modifier_(event, 'shift')*3 + 1;
+        factor = keyModifier(event, 'shift')*3 + 1;
         if strcmpi(event.Key, 'rightarrow')
             S_fig.iSite = min(S_fig.iSite + factor, nSites);
         else
@@ -97,7 +97,7 @@ function keyPressFcn_FigTime_(hObject, event, S0)
         %         [~, mrPv1] = pca(mrWav_mean1, 'NumComponents', P.nPc_dip, 'Center', 1);
         %         mrPv1 = norm_mr_(mrPv1);
         %
-        %         if key_modifier_(event, 'control') %show chain of clusters
+        %         if keyModifier(event, 'control') %show chain of clusters
         %             trPv1 = mrPv1;
         %             iClu_next = get_next_clu_(S_clu, S0.iCluCopy);
         %             viClu_track = S0.iCluCopy;

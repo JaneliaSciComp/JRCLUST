@@ -5,12 +5,12 @@ function Fig_preview_save_threshold_(hFig)
     P = get0_('P');
     S_fig = get(hFig, 'UserData');
     vnThresh_site = S_fig.vnThresh_site;
-    vcFile_thresh = strrep(P.vcFile_prm, '.prm', '_thresh.mat');
+    vcFile_thresh = strrep(P.prmFile, '.prm', '_thresh.mat');
     save(vcFile_thresh, 'vnThresh_site'); % also need to store filter values?
     P.vcFile_thresh = vcFile_thresh;
     set0_(P);
-    edit_prm_file_(P, P.vcFile_prm);
+    edit_prm_file_(P, P.prmFile);
 
     msgbox_(sprintf('Saved to %s and updated %s (vcFile_thresh)', ...
-    vcFile_thresh, P.vcFile_prm));
+    vcFile_thresh, P.prmFile));
 end %func

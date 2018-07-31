@@ -11,7 +11,7 @@ function import_silico_(vcFile_prm, fSort)
     global tnWav_raw tnWav_spk trFet_spk
     % convert jrc1 format (_clu and _evt) to jrc format. no overwriting
     % receive spike location, time and cluster number. the rest should be taken care by jrc processing
-    P = loadParam_(vcFile_prm); %makeParam_kilosort_
+    P = loadParams(vcFile_prm); %makeParam_kilosort_
     if isempty(P), return; end
 
     S_gt = load(strrep(vcFile_prm, '.prm', '_gt.mat')); %must contain viTime, viSite, viClu
@@ -27,9 +27,9 @@ function import_silico_(vcFile_prm, fSort)
     set(0, 'UserData', S0);
 
     % Save to file
-    write_bin_(strrep(P.vcFile_prm, '.prm', '_spkraw.jrc'), tnWav_raw);
-    write_bin_(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), tnWav_spk);
-    write_bin_(strrep(P.vcFile_prm, '.prm', '_spkfet.jrc'), trFet_spk);
+    write_bin_(strrep(P.prmFile, '.prm', '_spkraw.jrc'), tnWav_raw);
+    write_bin_(strrep(P.prmFile, '.prm', '_spkwav.jrc'), tnWav_spk);
+    write_bin_(strrep(P.prmFile, '.prm', '_spkfet.jrc'), trFet_spk);
 
     % cluster and describe
     S0 = sort_(P);
@@ -39,6 +39,6 @@ function import_silico_(vcFile_prm, fSort)
     set(0, 'UserData', S0);
 
     % Save
-    save0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
+    save0_(strrep(P.prmFile, '.prm', '_jrc.mat'));
     describe_(S0);
 end %func

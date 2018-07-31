@@ -15,8 +15,8 @@ function export_diff_(P)
     % fields to update, copy and save
     P1 = P;
     P1.vcFile = strrep(P.vcFile, '.bin', '_diff.bin');
-    P1.vcFile_prm = strrep(P.vcFile_prm, '.prm', '_diff.prm');
-    P1.probe_file = strrep(P.vcFile_prm, '.prm', '_diff.prb');
+    P1.vcFile_prm = strrep(P.prmFile, '.prm', '_diff.prm');
+    P1.probe_file = strrep(P.prmFile, '.prm', '_diff.prb');
     P1.fTranspose_bin = 0;
     P1.vcCommonRef = 'none';
     P1.fDetectBipolar = 1;
@@ -34,7 +34,7 @@ function export_diff_(P)
     P1.nChans = size(mnWav2, 2);
 
     % Output files
-    copyfile(P.vcFile_prm, P1.vcFile_prm, 'f');
+    copyfile(P.prmFile, P1.vcFile_prm, 'f');
     edit_prm_file_(P1, P1.vcFile_prm);
     write_bin_(P1.vcFile, mnWav2);
     % write to probe file

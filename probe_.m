@@ -8,7 +8,7 @@ function probe_(vcFile_prb)
     end
     if matchFileExt_(vcFile_prb, '.prm')
         vcFile_prm = vcFile_prb;
-        P = loadParam_(vcFile_prm);
+        P = loadParams(vcFile_prm);
         vcFile_prb = P.probe_file;
         if ~exist(vcFile_prb, 'file')
             vcFile_prb = replacePath_(vcFile_prb, vcFile_prm);

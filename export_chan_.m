@@ -14,7 +14,7 @@ function export_chan_(P, vcArg1)
     end
     try
         vcChan_ = sprintf('%d-', viChan);
-        vcFile_out = strrep(P.vcFile_prm, '.prm', sprintf('_ch%s.jrc', vcChan_(1:end-1)));
+        vcFile_out = strrep(P.prmFile, '.prm', sprintf('_ch%s.jrc', vcChan_(1:end-1)));
         mn = load_bin_chan_(P, viChan);
         write_bin_(vcFile_out, mn);
         if numel(viChan) == 1
@@ -27,8 +27,8 @@ function export_chan_(P, vcArg1)
         fprintf('Out of memory, exporting individual channels\n');
         for iChan1 = 1:numel(viChan)
             iChan = viChan(iChan1);
-            vcFile_out = strrep(P.vcFile_prm, '.prm', sprintf('_ch%d.jrc', iChan));
-            fprintf('Loading chan %d(%d/%d) from %s\n\t', iChan, iChan1, numel(viChan), P.vcFile_prm);
+            vcFile_out = strrep(P.prmFile, '.prm', sprintf('_ch%d.jrc', iChan));
+            fprintf('Loading chan %d(%d/%d) from %s\n\t', iChan, iChan1, numel(viChan), P.prmFile);
             t1 = tic;
             vn_ = load_bin_chan_(P, iChan);
             fprintf('\n\ttook %0.1fs\n', toc(t1));

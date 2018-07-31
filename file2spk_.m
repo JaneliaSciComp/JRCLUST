@@ -19,12 +19,12 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
     viSite_spk0 = viSite_spk0(:);
 
     if isempty(P.csFile_merge)
-        if ~exist_file_(P.vcFile), P.vcFile = subsDir_(P.vcFile, P.vcFile_prm); end
+        if ~exist_file_(P.vcFile), P.vcFile = subsDir_(P.vcFile, P.prmFile); end
         csFile = {P.vcFile};
     else
         csFile = filter_files_(P.csFile_merge);
         if isempty(csFile)
-            P.csFile_merge = subsDir_(P.csFile_merge, P.vcFile_prm);
+            P.csFile_merge = subsDir_(P.csFile_merge, P.prmFile);
             csFile = filter_files_(P.csFile_merge);
         end
     end
@@ -46,7 +46,7 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
     [nSamples1, nLoads] = deal(0); % initialize the counter
     [vrFilt_spk, mrPv_global] = deal([]); % reset the template
     set0_(mrPv_global, vrFilt_spk); % reeset mrPv_global and force it to recompute
-    write_spk_(P.vcFile_prm);
+    write_spk_(P.prmFile);
     for iFile=1:nFiles
         fprintf('File %d/%d: detecting spikes from %s\n', iFile, nFiles, csFile{iFile});
         t1 = tic;

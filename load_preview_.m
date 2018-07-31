@@ -4,7 +4,7 @@ function [mnWav_raw, S_preview] = load_preview_(P)
     % Load the subsampled dataset
     % Useful for inspecting threshold and so on. filter and
     % S_preview: which file and where it came from
-    if ischar(P), P = loadParam_(P); end
+    if ischar(P), P = loadParams(P); end
 
     nLoads_max_preview = get_set_(P, 'nLoads_max_preview', 30);
     sec_per_load_preview = get_set_(P, 'sec_per_load_preview', 1);

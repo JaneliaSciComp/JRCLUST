@@ -6,18 +6,18 @@ function validate_(P)
     % snr_thresh_score = 10;
     snr_thresh_stat = get_set_(P, 'snr_thresh_gt', 7);
 
-    S0 = load_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
+    S0 = load_(strrep(P.prmFile, '.prm', '_jrc.mat'));
     % if isempty(tnWav_spk)
-    %     tnWav_spk = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), P.vcDataType, S0.dimm_spk);
+    %     tnWav_spk = load_bin_(strrep(P.prmFile, '.prm', '_spkwav.jrc'), P.vcDataType, S0.dimm_spk);
     % end
     S_clu = S0.S_clu;
 
     % Load ground truth file
     if ~exist(P.vcFile_gt, 'file'), P.vcFile_gt = subsFileExt_(P.vcFile, '_gt.mat'); end
-    if ~strcmpi(vcFile_prm_, P.vcFile_prm), vcFile_prm_=[]; end
+    if ~strcmpi(vcFile_prm_, P.prmFile), vcFile_prm_=[]; end
     if isempty(vcFile_prm_) || isempty(S_gt) % cache ground truth result
-        vcFile_prm_ = P.vcFile_prm;
-        vcFile_gt1 = strrep(P.vcFile_prm, '.prm', '_gt1.mat');
+        vcFile_prm_ = P.prmFile;
+        vcFile_gt1 = strrep(P.prmFile, '.prm', '_gt1.mat');
         if exist_file_(vcFile_gt1)
             S_gt = load(vcFile_gt1);
         else
@@ -50,12 +50,12 @@ function validate_(P)
     fprintf('SNR_gt (Vp/Vrms): %s\n', sprintf('%0.1f ', S_score.vrSnr_gt));
     fprintf('nSites>thresh (GT): %s\n', sprintf('%d ', S_score.vnSite_gt));
 
-    write_struct_(strrep(P.vcFile_prm, '.prm', '_score.mat'), S_score);
+    write_struct_(strrep(P.prmFile, '.prm', '_score.mat'), S_score);
 
     set0_(S_score);
     assignWorkspace_(S_score); %put in workspace
 
-    figure; set(gcf,'Name',P.vcFile_prm);
+    figure; set(gcf,'Name',P.prmFile);
     subplot 121; plot_cdf_(S_score.S_score_clu.vrFp); hold on; plot_cdf_(S_score.S_score_clu.vrMiss);
     legend({'False Positives', 'False Negatives'}); ylabel('CDF'); grid on; xlabel('Cluster count');
 

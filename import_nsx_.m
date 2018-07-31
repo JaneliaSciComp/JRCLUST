@@ -36,11 +36,11 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     end
     P.duration_file = nSamples / P.sRateHz; %assuming int16
     P.version = jrcVersion();
-    P.vcFile_prm = vcFile_prm;
+    P.prmFile = vcFile_prm;
     % P.vcFile = vcFile_bin;
-    copyfile(vcTemplate_prm, P.vcFile_prm, 'f');
-    edit_prm_file_(P, P.vcFile_prm);
-    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.vcFile_prm);
+    copyfile(vcTemplate_prm, P.prmFile, 'f');
+    edit_prm_file_(P, P.prmFile);
+    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.prmFile);
     disp(vcPrompt);
-    edit(P.vcFile_prm);
+    edit(P.prmFile);
 end

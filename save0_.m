@@ -16,7 +16,7 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
         set0_(P);
 
         struct_save_(S0, vcFile_mat, 1);
-        vcFile_prm = S0.P.vcFile_prm;
+        vcFile_prm = S0.P.prmFile;
         export_prm_(vcFile_prm, strrep(vcFile_prm, '.prm', '_full.prm'), 0);
 
         % save the rho-delta plot
@@ -24,7 +24,7 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
         if ~isfield(S0, 'S_clu') || ~get_set_(P, 'fSavePlot_RD', 1), return; end
         try
             if ~isfield(S0, 'icl'), return; end % skip kilosort
-            save_fig_(strrep(P.vcFile_prm, '.prm', '_RD.png'), plot_rd_(P, S0), 1);
+            save_fig_(strrep(P.prmFile, '.prm', '_RD.png'), plot_rd_(P, S0), 1);
             fprintf('\tYou can use ''jrc plot-rd'' command to plot this figure.\n');
         catch
             fprintf(2, 'Failed to save the rho-delta plot: %s.\n', lasterr());

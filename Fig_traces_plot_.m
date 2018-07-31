@@ -122,7 +122,7 @@ function Fig_traces_plot_(fAxis_reset)
         S_fig.chSpk = [];
     end
     if fAxis_reset, fig_traces_reset_(S_fig); end
-    set(hFig, 'UserData', S_fig, 'Name', sprintf('%s: filter: %s', P.vcFile_prm, (vcFilter_show)));
+    set(hFig, 'UserData', S_fig, 'Name', sprintf('%s: filter: %s', P.prmFile, (vcFilter_show)));
     figure_wait_(0, hFig);
     close_(fWait);
 end %func

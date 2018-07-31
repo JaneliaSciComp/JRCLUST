@@ -2,7 +2,7 @@
 function export_lfp_(P)
     % export LFP waveform to workspace (ordered by the site numbers)
 
-    P.vcFile_lfp = strrep(P.vcFile_prm, '.prm', '.lfp.jrc');
+    P.vcFile_lfp = strrep(P.prmFile, '.prm', '.lfp.jrc');
     if ~exist_file_(P.vcFile_lfp)
         import_lfp_(P)
     end

@@ -5,7 +5,7 @@ function save_fig_(vcFile_png, hFig, fClose);
     if nargin<3, fClose = 0; end
     if isempty(hFig), hFig = gcf; end
 
-    % vcFile_png = strrep(P.vcFile_prm, '.prm', '.png');
+    % vcFile_png = strrep(P.prmFile, '.prm', '.png');
     try
         hMsg = msgbox_('Saving figure... (this closes automaticall)');
         drawnow;

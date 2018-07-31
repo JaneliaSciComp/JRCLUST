@@ -12,7 +12,7 @@ function import_lfp_(P)
     % catch
     %     disp('Merge LFP file error for IMEC3.');
     % end
-    P.vcFile_lfp = strrep(P.vcFile_prm, '.prm', '.lfp.jrc');
+    P.vcFile_lfp = strrep(P.prmFile, '.prm', '.lfp.jrc');
     t1 = tic;
     if isempty(P.csFile_merge)
         % single file
@@ -39,6 +39,6 @@ function import_lfp_(P)
         fclose(fid_lfp);
     end
     % update the lfp file name in the parameter file
-    edit_prm_file_(P, P.vcFile_prm);
+    edit_prm_file_(P, P.prmFile);
     fprintf('\tLFP file (vcFile_lfp) updated: %s\n\ttook %0.1fs\n', P.vcFile_lfp, toc(t1));
 end %func

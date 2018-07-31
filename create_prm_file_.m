@@ -76,7 +76,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
 
     % Assign prm file name
     [~,vcPostfix,~] = fileparts(vcFile_prb);
-    P.vcFile_prm = subsFileExt_(vcFile_bin, ['_', vcPostfix, '.prm']);
+    P.prmFile = subsFileExt_(vcFile_bin, ['_', vcPostfix, '.prm']);
     P.probe_file = vcFile_prb;
     try
         S_prb = file2struct_(find_prb_(vcFile_prb));
@@ -87,7 +87,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
         disperr_(sprintf('Error loading the probe file: %s\n', vcFile_prb));
     end
 
-    if exist(P.vcFile_prm, 'file') && fAsk
+    if exist(P.prmFile, 'file') && fAsk
         vcAns = questdlg_('File already exists. Overwrite prm file?', 'Warning', 'Yes', 'No', 'No');
         if ~strcmpi(vcAns, 'Yes')
             P = [];
@@ -106,15 +106,15 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     P.duration_file = P.nBytes_file / bytesPerSample_(P.vcDataType) / P.nChans / P.sRateHz; %assuming int16
     P.version = jrcVersion();
     try
-        copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
+        copyfile(jrcpath_(read_cfg_('default_prm')), P.prmFile, 'f');
     catch
-        fprintf(2, 'Invalid path: %s\n', P.vcFile_prm);
+        fprintf(2, 'Invalid path: %s\n', P.prmFile);
         return;
     end
 
     % Write to prm file
-    edit_prm_file_(P, P.vcFile_prm);
-    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.vcFile_prm);
+    edit_prm_file_(P, P.prmFile);
+    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.prmFile);
     disp(vcPrompt);
-    if fAsk, edit(P.vcFile_prm); end % Show settings file
+    if fAsk, edit(P.prmFile); end % Show settings file
 end %func

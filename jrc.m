@@ -11,33 +11,27 @@ function varargout = jrc(cmd, varargin)
     [dirname, ~] = fileparts(fullfile(mfilename('fullpath')));
     addpath(fullfile(dirname, 'meta')); % info functions
     addpath(fullfile(dirname, 'utils')); % miscellaneous (but useful) tools
-    addpath(fullfile(dirname, 'prm')); % .prm-related functions
+    addpath(fullfile(dirname, 'params')); % parameter-related functions
     addpath(fullfile(dirname, 'gui')); % GUI-related functions
     addpath(fullfile(dirname, 'kilosort')); % kilosort-related functions
 
-    % input parse
-    if nargin < 2
-        arg1 = '';
-    end
-    
-    if nargin < 3
-        arg2 = '';
-    end
-    
-    if nargin < 4
-        arg3 = '';
-    end
-    
-    if nargin < 5
-        arg4 = '';
-    end
-    
-    if nargin < 6
-        arg5 = '';
-    end
-    
-    if nargin == 0
-        cmd = 'help';
+    % process arguments
+    arg1 = ''; arg2 = arg1; arg3 = arg2; arg4 = arg3; arg5 = arg4;
+    switch nargin
+        case 2
+            arg1 = varargin{1};
+        case 3
+            arg1 = varargin{1}; arg2 = varargin{2};
+        case 4
+            arg1 = varargin{1}; arg2 = varargin{2}; arg3 = varargin{3};
+        case 5
+            arg1 = varargin{1}; arg2 = varargin{2}; arg3 = varargin{3};
+            arg4 = varargin{4};
+        case 6
+            arg1 = varargin{1}; arg2 = varargin{2}; arg3 = varargin{3};
+            arg4 = varargin{4}; arg5 = varargin{5};
+        case 0
+            cmd = 'help';
     end
 
     warning off;    
@@ -110,7 +104,6 @@ function varargout = jrc(cmd, varargin)
         case {'loadtrial-imec', 'load-trial-imec', 'make-trial-imec', 'maketrial-imec'}, make_trial_(prmFile, 1);
         case 'edit', edit_(prmFile);
         case 'batch', batch_(arg1, arg2);
-        %case 'batch-mat', batch_mat_(arg1, arg2); %text file containing binary files and template file
         case {'batch-verify', 'batch-validate'}, batch_verify_(arg1, arg2);
         case {'batch-plot', 'batch-activity'}, batch_plot_(arg1, arg2);
         case 'describe', describe_(prmFile);
@@ -129,14 +122,13 @@ function varargout = jrc(cmd, varargin)
         otherwise
             doExit = 0;
     end
-    % if contains_(lower(cmd), 'verify'), doExit = 0; end
     if doExit, return; end
 
     %-----
     % Command type C: Requires P structure (loaded from .prm)
     if ~matchFileExt_(prmFile, '.prm'), fprintf(2, 'Must provide .prm file\n'); return ;end
     if ~exist_file_(prmFile), fprintf(2, 'File does not exist: %s\n', prmFile); return ;end
-    P = loadParam_(prmFile);
+    P = loadParams(prmFile);
     if isempty(P), return; end
     fError = 0;
     switch lower(cmd)

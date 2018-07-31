@@ -5,7 +5,7 @@ function Fig_preview_menu_(hFig)
 
     set(hFig, 'MenuBar','None');
     mh_file = uimenu(hFig, 'Label','File');
-    uimenu(mh_file, 'Label', sprintf('Save to %s', P.vcFile_prm), 'Callback', @(h,e)Fig_preview_save_prm_(hFig));
+    uimenu(mh_file, 'Label', sprintf('Save to %s', P.prmFile), 'Callback', @(h,e)Fig_preview_save_prm_(hFig));
     uimenu(mh_file, 'Label', '[E]xport to workspace', 'Callback', @(h,e)Fig_preview_export_(hFig));
     uimenu(mh_file, 'Label', 'Save spike detection threshold', 'Callback', @(h,e)Fig_preview_save_threshold_(hFig));
 

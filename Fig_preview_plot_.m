@@ -88,7 +88,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     end
     xylabel_(S_fig.hAx_traces, '', 'Site #');
     vcFilter_ = ifeq_(S_fig.fFilter, sprintf('Filter=%s', S_fig.vcFilter), 'Filter off');
-    set(hFig, 'Name', sprintf('%s; %s; CommonRef=%s', P.vcFile_prm, vcFilter_, S_fig.vcCommonRef));
+    set(hFig, 'Name', sprintf('%s; %s; CommonRef=%s', P.prmFile, vcFilter_, S_fig.vcCommonRef));
 
     title_(S_fig.hAx_traces, sprintf('Scale: %0.1f uV', S_fig.maxAmp));
     menu_label_('menu_preview_view_filter', ifeq_(S_fig.fFilter, 'Show raw traces [F]', 'Show [F]iltered traces'));

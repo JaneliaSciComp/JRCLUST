@@ -44,7 +44,7 @@ function export_spkwav_(P, vcArg2, fDiff)
         iClu = viClu;
         nT_spk = (diff(P.spkLim)+1);
         nSpk1 = S_clu.vnSpk_clu(iClu);
-        hFig = createFigure(sprintf('Fig_clu%d', iClu), [0 0 .5 1], P.vcFile_prm, 1, 1);
+        hFig = createFigure(sprintf('Fig_clu%d', iClu), [0 0 .5 1], P.prmFile, 1, 1);
         multiplot([], P.maxAmp, [], ctrWav_clu{iClu}, miSite_clu(:,iClu));
         xlabel('Spike #'); ylabel('Site #');
         set(gca, 'YTick', range_(miSite_clu(:,iClu)), ...

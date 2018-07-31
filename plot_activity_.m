@@ -5,7 +5,7 @@ function plot_activity_(P) % single column only
 
     tbin = 10; %activity every 10 sec
     % plot activity as a function of time
-    % vcFile_evt = subsFileExt(P.vcFile_prm, '_evt.mat');
+    % vcFile_evt = subsFileExt(P.prmFile, '_evt.mat');
     S0 = load_cached_(P, 0); %do not load waveforms
     nSites = numel(P.viSite2Chan);
     % tdur = max(cell2mat_(cellfun(@(x)double(max(x)), Sevt.cviSpk_site, 'UniformOutput', 0))) / P.sRateHz;
@@ -30,7 +30,7 @@ function plot_activity_(P) % single column only
 
     vlSite_left = P.mrSiteXY(:,1) == 0;
     vrSiteY = P.mrSiteXY(:,2);
-    hFig = createFigure('FigActivity', [0 0 .5 1], P.vcFile_prm, 1, 1);
+    hFig = createFigure('FigActivity', [0 0 .5 1], P.prmFile, 1, 1);
     subplot 121; imagesc(mrAmp90(vlSite_left, :), 'XData', (1:nTime) * tbin, 'YData', vrSiteY(vlSite_left)); axis xy; xlabel('Time'); ylabel('Sites'); title('Left edge sites');
     subplot 122; imagesc(mrAmp90(~vlSite_left, :), 'XData', (1:nTime) * tbin, 'YData', vrSiteY(~vlSite_left)); axis xy; xlabel('Time'); ylabel('Sites'); title('Right edge sites');
 
