@@ -10,7 +10,7 @@ function mrWavCor = S_clu_wavcor_2_(S_clu, P, viClu_update) % works for only the
     fprintf('Computing waveform correlation...'); t1 = tic;
     ctmrWav_clu = {S_clu.tmrWav_raw_clu, S_clu.tmrWav_raw_lo_clu, S_clu.tmrWav_raw_hi_clu};
 
-    nClu = S_clu.nClu;
+    nClu = S_clu.nClusters;
     mrWavCor = gpuArray_(zeros(nClu), P.useGPU);
     if isempty(viClu_update)
         vlClu_update = true(nClu, 1);

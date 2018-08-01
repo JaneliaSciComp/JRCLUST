@@ -8,11 +8,11 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     P = file2struct_(vcFile_prm);
     if ~isfield(P, 'template_file'), P.template_file = ''; end
     if ~isempty(P.template_file)
-        assert_(exist_file_(P.template_file), sprintf('template file does not exist: %s', P.template_file));
+        dialogAssert(exist_file_(P.template_file), sprintf('template file does not exist: %s', P.template_file));
         P = mergeStructs(file2struct_(P.template_file), P);
     end
     P.prmFile = vcFile_prm;
-    assert_(isfield(P, 'vcFile'), sprintf('Check "%s" file syntax', vcFile_prm));
+    dialogAssert(isfield(P, 'vcFile'), sprintf('Check "%s" file syntax', vcFile_prm));
 
     if ~exist_file_(P.vcFile) && isempty(get_(P, 'csFile_merge'))
         P.vcFile = replacePath_(P.vcFile, vcFile_prm);
@@ -29,7 +29,7 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
         probe_file_ = find_prb_(P.probe_file);
         if isempty(probe_file_)
             P.probe_file = replacePath_(P.probe_file, vcFile_prm);
-            assert_(exist_file_(P.probe_file), 'prb file does not exist');
+            dialogAssert(exist_file_(P.probe_file), 'prb file does not exist');
         else
             P.probe_file = probe_file_;
         end
@@ -92,6 +92,6 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     if isempty(get_(P, 'vcFilter_show'))
         P.vcFilter_show = P.vcFilter;
     end
-    assert_(validate_param_(P), 'Parameter file contains error.');
+    dialogAssert(validate_param_(P), 'Parameter file contains error.');
     if fEditFile, edit(P.prmFile); end % Show settings file
 end %func

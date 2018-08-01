@@ -41,7 +41,7 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
     if nInterp_merge>1
         ctmrWav_clu = cellfun(@(x)interpft_(x, nInterp_merge), ctmrWav_clu, 'UniformOutput', 0);
     end
-    nClu = S_clu.nClu;
+    nClu = S_clu.nClusters;
     if fUsePeak2
         [viSite_clu, viSite2_clu, viSite3_clu] = S_clu_peak2_(S_clu);
         cviSite_clu = {viSite_clu, viSite2_clu, viSite3_clu};

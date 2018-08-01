@@ -13,7 +13,7 @@ function flag = S_clu_valid_(S_clu)
     [viMatch_v, viMatch_t, viMatch_c, viMatch_m] = multifun_(@find, viMatch_v, viMatch_t, viMatch_c, viMatch_m);
     csNames_m = csNames(viMatch_m);
     csNames_m{end+1} = 'mrWavCor';
-    nClu = S_clu.nClu;
+    nClu = S_clu.nClusters;
 
     vlError_v = cellfun(@(vc)numel(S_clu.(vc)) ~= nClu, csNames(viMatch_v));
     vlError_t = cellfun(@(vc)size(S_clu.(vc),3) ~= nClu, csNames(viMatch_t));

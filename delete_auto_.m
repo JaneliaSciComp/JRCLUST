@@ -24,7 +24,7 @@ function delete_auto_()
     end
     viClu_delete = find(S_clu.vrSnr_clu(:) < snr_min_thresh | S_clu.vnSpk_clu(:) < count_thresh | S_clu.vrSnr_clu(:) > snr_max_thresh);
     if isempty(viClu_delete), msgbox_('No clusters deleted.'); return; end
-    if numel(viClu_delete) >= S_clu.nClu, msgbox_('Cannot delete all clusters.'); return; end
+    if numel(viClu_delete) >= S_clu.nClusters, msgbox_('Cannot delete all clusters.'); return; end
 
     % Auto delete
     figure_wait_(1); drawnow;

@@ -9,7 +9,7 @@ function S0 = update_FigCor_(S0)
 
     xylim = get(gca, {'XLim', 'YLim'});
     S0.S_clu = S_clu;
-    plot_FigWavCor_(S0);
+    plotFigWavCor(S0);
     set(gca, {'XLim', 'YLim'}, xylim);
 
     set(S_fig.hCursorV, 'XData', S0.iCluCopy*[1 1]);

@@ -3,7 +3,7 @@ function unit_annotate_(hObject, event, vcLabel)
     S0 = get(0, 'UserData');
     S_clu = S0.S_clu;
     iClu1 = S0.iCluCopy;
-    if ~isfield(S_clu, 'csNote_clu'), S_clu.csNote_clu = cell(S_clu.nClu, 1); end
+    if ~isfield(S_clu, 'csNote_clu'), S_clu.csNote_clu = cell(S_clu.nClusters, 1); end
     if nargin==3
         if isempty(vcLabel), vcLabel='';
         elseif vcLabel(1) == '='

@@ -21,7 +21,7 @@ function make_trial_(vcFile_prm, fImec)
         fprintf('uiputfile error (old Matlab version). Accepting default');
     end
 
-    vcAns = questdlg_('TTL Edge', 'Select rising or falling edge for the TTL pulses', 'Rising edge', 'Falling edge', 'Rising edge');
+    vcAns = userDialog('TTL Edge', 'Select rising or falling edge for the TTL pulses', 'Rising edge', 'Falling edge', 'Rising edge');
     if isempty(vcAns), return; end
 
     hMsg = msgbox_('Loading... (this closes automatically)');

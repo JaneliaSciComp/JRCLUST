@@ -67,7 +67,7 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     % Spike detection
     % P_.fMerge_spk = 0;
     [vlKeep_ref, S_fig.vrMad_ref] = car_reject_(vrWav_filt_mean, P_);
-    [S_fig.viTime_spk, S_fig.vnAmp_spk, viSite_spk] = detect_spikes_(mnWav_filt, vnThresh_site, vlKeep_ref, P_);
+    [S_fig.spikeTimes, S_fig.vnAmp_spk, viSite_spk] = detect_spikes_(mnWav_filt, vnThresh_site, vlKeep_ref, P_);
     t_dur = size(mnWav_filt,1) / P.sRateHz;
     S_fig.vrEventRate_site = hist(viSite_spk, 1:nSites) / t_dur; % event count
     S_fig.vrEventSnr_site = abs(single(arrayfun(@(i)median(S_fig.vnAmp_spk(viSite_spk==i)), 1:nSites))) ./ vrRmsQ_site;

@@ -9,7 +9,7 @@ function plot_activity_(P) % single column only
     S0 = load_cached_(P, 0); %do not load waveforms
     nSites = numel(P.chanMap);
     % tdur = max(cell2mat_(cellfun(@(x)double(max(x)), Sevt.cviSpk_site, 'UniformOutput', 0))) / P.sRateHz;
-    tdur = double(max(S0.viTime_spk)) / P.sRateHz; % in sec
+    tdur = double(max(S0.spikeTimes)) / P.sRateHz; % in sec
     nTime = ceil(tdur / tbin);
 
     mrAmp90 = zeros(nTime, nSites);
@@ -18,10 +18,10 @@ function plot_activity_(P) % single column only
         viSpk1 = find(S0.viSite_spk == iSite);
         vrAmp_spk1 = S0.vrAmp_spk(viSpk1); % % S0.cvrSpk_site{iSite};  %spike amplitude
         if isempty(vrAmp_spk1), continue; end
-        viTime_spk1 = S0.viTime_spk(viSpk1);
+        spikeTimes1 = S0.spikeTimes(viSpk1);
         for iTime=1:nTime
             lim1 = lim0 + (iTime-1) * lim0(2);
-            vrAmp_spk11 = vrAmp_spk1(viTime_spk1 >= lim1(1) & viTime_spk1 <= lim1(2));
+            vrAmp_spk11 = vrAmp_spk1(spikeTimes1 >= lim1(1) & spikeTimes1 <= lim1(2));
             if isempty(vrAmp_spk11),  continue; end
             mrAmp90(iTime, iSite) = quantile(abs(vrAmp_spk11), .9);
         end

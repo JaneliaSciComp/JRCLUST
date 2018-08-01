@@ -1,0 +1,12 @@
+P.delta1_cut=P.log10DeltaCutoff
+P.min_count=P.minClusterSize
+P.rho_cut=P.log10RhoCutoff
+P.vcFile_prm=P.prmFile
+% P.vcFile=P.recordingFile
+P.viSite2Chan=P.chanMap
+
+S0.csFig=S0.figTags
+S0.cvrFigPos0=S0.figPositions
+S0.viTime_spk=S0.spikeTimes
+
+S_clu.icl=S_clu.clusterCenters

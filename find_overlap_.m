@@ -8,19 +8,19 @@ function [cviSpk_o_1, cviSpk_o_12, cviDelay1] = find_overlap_(S0, S_clu, P)
     mrDist_clu = squareform(pdist(P.mrSiteXY(S_clu.viSite_clu,:)));
     mrDist_site = squareform(pdist(P.mrSiteXY));
     nlimit = diff(P.spkLim);
-    [cviDelay1, cviSpk_o_1, cviSpk_o_12] = deal(cell(1, S_clu.nClu));
-    % [viTime_spk, vrAmp_spk, viSite_spk] = multifun_(@gpuArray_, S0.viTime_spk, abs(squeeze(trFet_spk(1,1,:))), S0.viSite_spk);
-    [viTime_spk, vrAmp_spk, viSite_spk] = deal(S0.viTime_spk, abs(squeeze(trFet_spk(1,1,:))), S0.viSite_spk);
+    [cviDelay1, cviSpk_o_1, cviSpk_o_12] = deal(cell(1, S_clu.nClusters));
+    % [spikeTimes, vrAmp_spk, viSite_spk] = multifun_(@gpuArray_, S0.spikeTimes, abs(squeeze(trFet_spk(1,1,:))), S0.viSite_spk);
+    [spikeTimes, vrAmp_spk, viSite_spk] = deal(S0.spikeTimes, abs(squeeze(trFet_spk(1,1,:))), S0.viSite_spk);
     [vrSnr_clu, viSite_clu, maxDist_site_um] = deal(S_clu.vrSnr_clu, S_clu.viSite_clu, P.maxDist_site_um);
     cviSpk_clu = cellfun(@int32, S_clu.cviSpk_clu, 'UniformOutput', 0);
-    viTime_spk_bin = int32(round(double(viTime_spk) / double(nlimit)));
-    for iClu1 = 1:S_clu.nClu
+    spikeTimes_bin = int32(round(double(spikeTimes) / double(nlimit)));
+    for iClu1 = 1:S_clu.nClusters
         if vrSnr_clu(iClu1) < snr_thresh_clu, continue; end
         % subtract waveform from others
         % find largest and second largest
         % fix two copies of the fet
         viSpk_clu1 = cviSpk_clu{iClu1};
-        viTime_clu1 = viTime_spk(viSpk_clu1);
+        viTime_clu1 = spikeTimes(viSpk_clu1);
 
         % find other spikes within clu1
         viClu12 = find(mrDist_clu(:,iClu1) <= maxDist_site_um); % find nearby clu
@@ -30,8 +30,8 @@ function [cviSpk_o_1, cviSpk_o_12, cviDelay1] = find_overlap_(S0, S_clu, P)
         viSpk_clu12 = viSpk_clu12(ismember(viSite_spk(viSpk_clu12), viSite_near1));
         if isempty(viSpk_clu12), continue; end
         viSpk_clu12 = sort(viSpk_clu12);
-        viSpk_clu12 = coarse_find_(viTime_spk_bin, viSpk_clu1, viSpk_clu12);
-        viTime_clu12 = viTime_spk(viSpk_clu12);
+        viSpk_clu12 = coarse_find_(spikeTimes_bin, viSpk_clu1, viSpk_clu12);
+        viTime_clu12 = spikeTimes(viSpk_clu12);
         [vrAmp_spk1, vrAmp_spk12] = deal(vrAmp_spk(viSpk_clu1), vrAmp_spk(viSpk_clu12));
 
         % find overlapping spikes that has smaller amplitudes and within site limit

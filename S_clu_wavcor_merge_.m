@@ -29,6 +29,6 @@ function [S_clu, nClu_merged] = S_clu_wavcor_merge_(S_clu, P)
     S_clu.mrWavCor = S_clu_wavcor_(S_clu, P, viClu_update);
     S_clu = S_clu_remove_empty_(S_clu);
 
-    nClu_merged = nClu - S_clu.nClu;
-    fprintf('\tnClu: %d->%d (%d merged, min-cor: %0.4f)\n', nClu, S_clu.nClu, nClu_merged, min_cor);
+    nClu_merged = nClu - S_clu.nClusters;
+    fprintf('\tnClu: %d->%d (%d merged, min-cor: %0.4f)\n', nClu, S_clu.nClusters, nClu_merged, min_cor);
 end %func

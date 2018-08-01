@@ -5,7 +5,7 @@ function trFet_spk = sort_overlap_(S0, S_clu, P)
 
     % find which spikes it's overlapping with
     % only use larger unit to correct smaller unit
-    % S_overlap = find_overlap_(S0.viTime_spk, S0.viSite_spk, S_clu, P);
+    % S_overlap = find_overlap_(S0.spikeTimes, S0.viSite_spk, S_clu, P);
     % load raw traces and redetect from filtered dtraces. load pairs
     % Find pair of spikes by unit. For unit A, find other units that collide with spikes. which spikes are colliding with which units
     % subtract other spike waveforms by using time delays, adjust feature amplitudes, larger corecting smaller spikes, mutual corection

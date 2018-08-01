@@ -1,6 +1,5 @@
 %--------------------------------------------------------------------------
-function y = log10_(y)
-    vl_nan = y<=0;
+function y = nanLog10(y)
+    y(y <= 0) = nan;
     y = log10(y);
-    y(vl_nan) = nan;
-end %func
+end % func

@@ -2,7 +2,7 @@
 % 10/23/17 JJJ: find max correlation pair (combining drift and temporal shift)
 function maxCor = maxCor_drift_(cmr1, cmr2, cviShift1, cviShift2, fMode_cor)
     if nargin<5, fMode_cor=0; end %pearson corr
-    assert_(numel(cmr1) == numel(cmr2), 'maxCor_drift_: numel must be the same');
+    dialogAssert(numel(cmr1) == numel(cmr2), 'maxCor_drift_: numel must be the same');
     if numel(cmr1)==1
         maxCor = max(xcorr2_mr_(cmr1{1}, cmr2{1}, cviShift1, cviShift2));
         

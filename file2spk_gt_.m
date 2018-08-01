@@ -1,11 +1,11 @@
 %--------------------------------------------------------------------------
-function [tnWav_spk, vrVrms_site] = file2spk_gt_(P, viTime_spk0)
+function [tnWav_spk, vrVrms_site] = file2spk_gt_(P, spikeTimes0)
     % file loading routine. keep spike waveform (tnWav_spk) in memory
     % assume that the file is chan x time format
     % usage:
     % [tnWav_raw, tnWav_spk, S0] = file2spk_(P)
     %
-    % [tnWav_raw, tnWav_spk, S0] = file2spk_(P, viTime_spk, viSite_spk)
+    % [tnWav_raw, tnWav_spk, S0] = file2spk_(P, spikeTimes, viSite_spk)
     %   construct spike waveforms from previous time markers
     % 6/29/17 JJJ: Added support for the matched filter
     P.fft_thresh = 0; %disable for GT
@@ -25,8 +25,8 @@ function [tnWav_spk, vrVrms_site] = file2spk_gt_(P, viTime_spk0)
         else
             mnWav11_post = [];
         end
-        [viTime_spk11] = filter_spikes_(viTime_spk0, [], nSamples1 + [1, nSamples11]);
-        [tnWav_spk{end+1}, vnThresh_site{end+1}] = wav2spk_gt_(mnWav11, P, viTime_spk11, mnWav11_pre, mnWav11_post);
+        [spikeTimes11] = filter_spikes_(spikeTimes0, [], nSamples1 + [1, nSamples11]);
+        [tnWav_spk{end+1}, vnThresh_site{end+1}] = wav2spk_gt_(mnWav11, P, spikeTimes11, mnWav11_pre, mnWav11_post);
         if iLoad1 < nLoad1, mnWav11_pre = mnWav11(end-P.nPad_filt+1:end, :); end
         nSamples1 = nSamples1 + nSamples11;
         clear mnWav11 vrWav_mean11;

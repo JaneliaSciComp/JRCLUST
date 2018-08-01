@@ -24,7 +24,7 @@ function export_csv_(varargin)
     else
         fprintf(2, 'Cannot find S_clu.\n');
     end
-    vrTime = double(S0.viTime_spk) / P.sRateHz;
+    vrTime = double(S0.spikeTimes) / P.sRateHz;
     viSite = double(S0.viSite_spk) - fZeroIndex; %zero base
 
     vcFile_csv = subsFileExt_(P.prmFile, '.csv');

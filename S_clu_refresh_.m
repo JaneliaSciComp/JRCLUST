@@ -3,7 +3,7 @@ function [S_clu, vlKeep_clu] = S_clu_refresh_(S_clu, fRemoveEmpty)
 
     if nargin<2, fRemoveEmpty=1; end
     nClu = double(max(S_clu.viClu));
-    S_clu.nClu = nClu;
+    S_clu.nClusters = nClu;
     viSite_spk = get0_('viSite_spk');
 
     % agglomerate spikes by cluster

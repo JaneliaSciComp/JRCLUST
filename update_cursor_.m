@@ -10,13 +10,13 @@ function  S0 = update_cursor_(S0, iClu, fPaste)
 
     if ~fPaste
         iCluCopy = iClu;
-        if iCluCopy <1 || iCluCopy > S_clu.nClu, return; end
+        if iCluCopy <1 || iCluCopy > S_clu.nClusters, return; end
         update_plot_(S0.hPaste, nan, nan); %hide paste
         S0.iCluPaste = [];
         [S0.iCluCopy, S0.hCopy] = plot_tmrWav_clu_(S0, iCluCopy, S0.hCopy, [0 0 0]);
     else
         iCluPaste = iClu;
-        if iCluPaste < 1 || iCluPaste > S_clu.nClu || S0.iCluCopy == iCluPaste, return; end
+        if iCluPaste < 1 || iCluPaste > S_clu.nClusters || S0.iCluCopy == iCluPaste, return; end
         [S0.iCluPaste, S0.hPaste] = plot_tmrWav_clu_(S0, iCluPaste, S0.hPaste, [1 0 0]);
     end
     % set(hFig, 'UserData', S_fig);

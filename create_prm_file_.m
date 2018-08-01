@@ -88,7 +88,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     end
 
     if exist(P.prmFile, 'file') && fAsk
-        vcAns = questdlg_('File already exists. Overwrite prm file?', 'Warning', 'Yes', 'No', 'No');
+        vcAns = userDialog('File already exists. Overwrite prm file?', 'Warning', 'Yes', 'No', 'No');
         if ~strcmpi(vcAns, 'Yes')
             P = [];
             vcPrompt = 'Cancelled by user.';

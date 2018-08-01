@@ -23,10 +23,10 @@ function export_spkwav_(P, vcArg2, fDiff)
     S_clu = S0.S_clu;
 
     % Collect waveforms by clusters
-    ctrWav_clu = cell(1, S_clu.nClu);
+    ctrWav_clu = cell(1, S_clu.nClusters);
     miSite_clu = P.miSites(:,S_clu.viSite_clu);
     fprintf('Collecting spikes from clusters\n\t'); t1=tic;
-    if isempty(viClu), viClu = 1:S_clu.nClu; end
+    if isempty(viClu), viClu = 1:S_clu.nClusters; end
     for iClu = viClu
         tnWav_clu1 = tnWav_spk_sites_(S_clu.cviSpk_clu{iClu}, miSite_clu(:,iClu), S0);
         if fDiff

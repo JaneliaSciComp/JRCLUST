@@ -1,21 +1,21 @@
 %--------------------------------------------------------------------------
-function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
-    % function [tnWav_raw, tnWav_spk, trFet_spk, S0] = file2spk_(P, viTime_spk0, viSite_spk0)
+function S0 = file2spk_(P, spikeTimes0, viSite_spk0)
+    % function [tnWav_raw, tnWav_spk, trFet_spk, S0] = file2spk_(P, spikeTimes0, viSite_spk0)
     % file loading routine. keep spike waveform (tnWav_spk) in memory
     % assume that the file is chan x time format
     % usage:
     % [tnWav_raw, tnWav_spk, S0] = file2spk_(P)
     %
-    % [tnWav_raw, tnWav_spk, S0] = file2spk_(P, viTime_spk, viSite_spk)
+    % [tnWav_raw, tnWav_spk, S0] = file2spk_(P, spikeTimes, viSite_spk)
     %   construct spike waveforms from previous time markers
     % 6/29/17 JJJ: Added support for the matched filter
 
-    if nargin<2, viTime_spk0 = []; end
+    if nargin<2, spikeTimes0 = []; end
     if nargin<3, viSite_spk0 = []; end
     S0 = [];
     % [tnWav_raw, tnWav_spk, trFet_spk, S0] = deal([]);
 
-    viTime_spk0 = viTime_spk0(:);
+    spikeTimes0 = spikeTimes0(:);
     viSite_spk0 = viSite_spk0(:);
 
     if isempty(P.csFile_merge)
@@ -39,8 +39,8 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
         end
     end
     if isempty(csFile), error('No binary files found.'); end
-    % [tnWav_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vrAmp_spk, vnThresh_site] = deal({});
-    [miSite_spk, viTime_spk, vrAmp_spk, vnThresh_site] = deal({});
+    % [tnWav_raw, tnWav_spk, trFet_spk, miSite_spk, spikeTimes, vrAmp_spk, vnThresh_site] = deal({});
+    [miSite_spk, spikeTimes, vrAmp_spk, vnThresh_site] = deal({});
     viT_offset_file = zeros(size(csFile));
     nFiles = numel(csFile);
     [nSamples1, nLoads] = deal(0); % initialize the counter
@@ -67,11 +67,11 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
             else
                 mnWav11_post = [];
             end
-            [viTime_spk11, viSite_spk11] = filter_spikes_(viTime_spk0, viSite_spk0, nSamples1 + [1, nSamples11]);
-            [tnWav_raw_, tnWav_spk_, trFet_spk_, miSite_spk{end+1}, viTime_spk{end+1}, vrAmp_spk{end+1}, vnThresh_site{end+1}, P.useGPU] ...
-            = wav2spk_(mnWav11, vrWav_mean11, P, viTime_spk11, viSite_spk11, mnWav11_pre, mnWav11_post);
+            [spikeTimes11, viSite_spk11] = filter_spikes_(spikeTimes0, viSite_spk0, nSamples1 + [1, nSamples11]);
+            [tnWav_raw_, tnWav_spk_, trFet_spk_, miSite_spk{end+1}, spikeTimes{end+1}, vrAmp_spk{end+1}, vnThresh_site{end+1}, P.useGPU] ...
+            = wav2spk_(mnWav11, vrWav_mean11, P, spikeTimes11, viSite_spk11, mnWav11_pre, mnWav11_post);
             write_spk_(tnWav_raw_, tnWav_spk_, trFet_spk_);
-            viTime_spk{end} = viTime_spk{end} + nSamples1;
+            spikeTimes{end} = spikeTimes{end} + nSamples1;
             nSamples1 = nSamples1 + nSamples11;
             if iLoad1 < nLoad1, mnWav11_pre = mnWav11(end-P.nPad_filt+1:end, :); end
             clear mnWav11 vrWav_mean11;
@@ -86,8 +86,8 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
     end %for
     write_spk_();
 
-    [miSite_spk, viTime_spk, vrAmp_spk, vnThresh_site] = ...
-    multifun_(@(x)cat(1, x{:}), miSite_spk, viTime_spk, vrAmp_spk, vnThresh_site);
+    [miSite_spk, spikeTimes, vrAmp_spk, vnThresh_site] = ...
+    multifun_(@(x)cat(1, x{:}), miSite_spk, spikeTimes, vrAmp_spk, vnThresh_site);
     vrThresh_site = mean(single(vnThresh_site),1);
     viSite_spk = miSite_spk(:,1);
     if size(miSite_spk,2) >= 2
@@ -98,7 +98,7 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
 
     % set S0
     [dimm_raw, dimm_spk, dimm_fet] = deal(size(tnWav_raw_), size(tnWav_spk_), size(trFet_spk_));
-    [dimm_raw(3), dimm_spk(3), dimm_fet(3)] = deal(numel(viTime_spk));
+    [dimm_raw(3), dimm_spk(3), dimm_fet(3)] = deal(numel(spikeTimes));
     nSites = numel(P.chanMap);
     cviSpk_site = arrayfun(@(iSite)find(miSite_spk(:,1) == iSite), 1:nSites, 'UniformOutput', 0);
     if size(miSite_spk,2) >= 2
@@ -112,7 +112,7 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
         cviSpk3_site = [];
     end
     [mrPv_global, vrD_global] = get0_('mrPv_global', 'vrD_global');
-    S0 = makeStruct_(P, viSite_spk, viSite2_spk, viTime_spk, vrAmp_spk, vrThresh_site, dimm_spk, ...
+    S0 = makeStruct_(P, viSite_spk, viSite2_spk, spikeTimes, vrAmp_spk, vrThresh_site, dimm_spk, ...
     cviSpk_site, cviSpk2_site, cviSpk3_site, dimm_raw, viT_offset_file, dimm_fet, nLoads, ...
     mrPv_global, vrFilt_spk, vrD_global);
 end %func

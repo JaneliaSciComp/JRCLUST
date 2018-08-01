@@ -62,16 +62,16 @@ function Fig_traces_plot_(fAxis_reset)
     if isfield(S_fig, 'chSpk'), deleteMany(S_fig.chSpk); end
 
     % plot spikes
-    if strcmpi(S_fig.vcSpikes, 'on') && isfield(S0, 'viTime_spk')
-        viTime_spk = S0.viTime_spk - int32(S0.viT_offset_file(S0.iFile_show));
+    if strcmpi(S_fig.vcSpikes, 'on') && isfield(S0, 'spikeTimes')
+        spikeTimes = S0.spikeTimes - int32(S0.viT_offset_file(S0.iFile_show));
         if nTime_traces > 1
-            viSpk1 = find(in_range_(viTime_spk, cvn_lim_bin));
-            [viSite_spk1, viTime_spk1] = multifun_(@(vr)vr(viSpk1), S0.viSite_spk, viTime_spk);
-            viTime_spk1 = round(reverse_lookup_(viTime_spk1, viRange_bin) / P.nSkip_show);
+            viSpk1 = find(in_range_(spikeTimes, cvn_lim_bin));
+            [viSite_spk1, spikeTimes1] = multifun_(@(vr)vr(viSpk1), S0.viSite_spk, spikeTimes);
+            spikeTimes1 = round(reverse_lookup_(spikeTimes1, viRange_bin) / P.nSkip_show);
         else
-            viSpk1 = find(viTime_spk >= S_fig.nlim_bin(1) & viTime_spk < S_fig.nlim_bin(end));
-            [viSite_spk1, viTime_spk1] = multifun_(@(vr)vr(viSpk1), S0.viSite_spk, viTime_spk);
-            viTime_spk1 = round((viTime_spk1 - S_fig.nlim_bin(1) + 1) / P.nSkip_show); %time offset
+            viSpk1 = find(spikeTimes >= S_fig.nlim_bin(1) & spikeTimes < S_fig.nlim_bin(end));
+            [viSite_spk1, spikeTimes1] = multifun_(@(vr)vr(viSpk1), S0.viSite_spk, spikeTimes);
+            spikeTimes1 = round((spikeTimes1 - S_fig.nlim_bin(1) + 1) / P.nSkip_show); %time offset
         end
         t_start1 = single(S_fig.nlim_bin(1) - 1) / P.sRateHz;
         viSite_spk1 = single(viSite_spk1);
@@ -82,25 +82,25 @@ function Fig_traces_plot_(fAxis_reset)
             for iSite=1:nSites %deal with subsample factor
                 viSpk11 = find(viSite_spk1 == iSite);
                 if isempty(viSpk11), continue; end
-                viTime_spk11 = viTime_spk1(viSpk11);
-                [mrY11, mrX11] = vr2mr3_(mrWav1(:,iSite), viTime_spk11, spkLim); %display purpose x2
-                %             vr2mr_spk_(mrWav1(:,iSite), viTime_spk11, P);
+                spikeTimes11 = spikeTimes1(viSpk11);
+                [mrY11, mrX11] = vr2mr3_(mrWav1(:,iSite), spikeTimes11, spkLim); %display purpose x2
+                %             vr2mr_spk_(mrWav1(:,iSite), spikeTimes11, P);
                 mrT11 = single(mrX11-1) / sRateHz + t_start1;
                 chSpk{iSite} = line(nan, nan, 'Color', [1 0 0], 'LineWidth', 1.5, 'Parent', S_fig.hAx);
                 multiplot(chSpk{iSite}, S_fig.maxAmp, mrT11, mrY11, iSite);
             end
         else % different color for each clu
             viClu_spk1 = S_clu.viClu(viSpk1);
-            mrColor_clu = [jet(S_clu.nClu); 0 0 0];
-            vrLineWidth_clu = (mod((1:S_clu.nClu)-1, 3)+1)'/2 + .5;  %(randi(3, S_clu.nClu, 1)+1)/2;
+            mrColor_clu = [jet(S_clu.nClusters); 0 0 0];
+            vrLineWidth_clu = (mod((1:S_clu.nClusters)-1, 3)+1)'/2 + .5;  %(randi(3, S_clu.nClusters, 1)+1)/2;
             if fShuttleOrder
                 mrColor_clu = shuffle_static_(mrColor_clu, 1);
                 vrLineWidth_clu = shuffle_static_(vrLineWidth_clu, 1);
             end
-            nSpk1 = numel(viTime_spk1);
+            nSpk1 = numel(spikeTimes1);
             chSpk = cell(nSpk1, 1);
             for iSpk1 = 1:nSpk1
-                iTime_spk11 = viTime_spk1(iSpk1);
+                iTime_spk11 = spikeTimes1(iSpk1);
                 iSite11 = viSite_spk1(iSpk1);
                 [mrY11, mrX11] = vr2mr3_(mrWav1(:,iSite11), iTime_spk11, spkLim); %display purpose x2
                 mrT11 = double(mrX11-1) / sRateHz + t_start1;

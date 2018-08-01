@@ -6,7 +6,7 @@ function [vrFilt_spk, vrVaf, nShift_post] = calc_matched_filt_(mnWav1, P) %detec
     % 6/30/17 JJJ: Range optimization
 
     vnThresh_site = gather_(int16(mr2rms_(mnWav1, 1e5) * P.qqFactor));
-    [viTime_spk, vnAmp_spk, viSite_spk] = detect_spikes_(mnWav1, vnThresh_site, [], P);
+    [spikeTimes, vnAmp_spk, viSite_spk] = detect_spikes_(mnWav1, vnThresh_site, [], P);
 
     % extract wave forms
     nSpks = numel(viSite_spk);
@@ -21,8 +21,8 @@ function [vrFilt_spk, vrVaf, nShift_post] = calc_matched_filt_(mnWav1, P) %detec
     for iSite = 1:nSites
         viiSpk11 = find(viSite_spk == iSite);
         if isempty(viiSpk11), continue; end
-        viTime_spk11 = viTime_spk(viiSpk11); %already sorted by time
-        mnWav_spk(:,viiSpk11) = gather_(vr2mr3_(mnWav1(:,iSite), viTime_spk11, spkLim));
+        spikeTimes11 = spikeTimes(viiSpk11); %already sorted by time
+        mnWav_spk(:,viiSpk11) = gather_(vr2mr3_(mnWav1(:,iSite), spikeTimes11, spkLim));
     end
 
     [vrFilt_spk, ~, vrVaf] = pca(single(mnWav_spk'), 'NumComponents', 1, 'Centered', 0);

@@ -26,12 +26,12 @@ function [mrFet12_, viSpk12_, n1_, n2_, viiSpk12_ord_] = fet12_site_(trFet_spk, 
             viSpk12_ = [viSpk1_; viSpk2_; viSpk3_];
             [n1_, n2_] = deal(numel(viSpk1_), numel(viSpk2_) + numel(viSpk3_));
         case 2
-            mrFet12_ = [squeeze_(trFet_spk(:,1,viSpk1_),2), squeeze_(trFet_spk(:,2,viSpk2_),2); single(S0.viTime_spk([viSpk1_;viSpk2_]))']; % TW
+            mrFet12_ = [squeeze_(trFet_spk(:,1,viSpk1_),2), squeeze_(trFet_spk(:,2,viSpk2_),2); single(S0.spikeTimes([viSpk1_;viSpk2_]))']; % TW
             mrFet12_(end, :) = time_feature_factor*std(mrFet12_(1, :)).*mrFet12_(end, :)./std(mrFet12_(end, :)); % TW
             viSpk12_ = [viSpk1_; viSpk2_];
             [n1_, n2_] = deal(numel(viSpk1_), numel(viSpk2_));
         case 1
-            mrFet12_ = [squeeze_(trFet_spk(:,1,viSpk1_),2); single(S0.viTime_spk(viSpk1_))']; % TW
+            mrFet12_ = [squeeze_(trFet_spk(:,1,viSpk1_),2); single(S0.spikeTimes(viSpk1_))']; % TW
             mrFet12_(end, :) = time_feature_factor*std(mrFet12_(1, :)).*mrFet12_(end, :)./std(mrFet12_(end, :)); % TW
             viSpk12_ = viSpk1_;
             [n1_, n2_] = deal(numel(viSpk1_), numel(viSpk2_));

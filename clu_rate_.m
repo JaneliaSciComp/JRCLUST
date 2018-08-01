@@ -6,7 +6,7 @@ function mrRate_clu = clu_rate_(S_clu, viClu, nSamples)
     if nargin<2, viClu = []; end
     if nargin<3, nSamples = []; end
 
-    if isempty(viClu), viClu = 1:S_clu.nClu; end
+    if isempty(viClu), viClu = 1:S_clu.nClusters; end
     sRateHz_rate = get_set_(P, 'sRateHz_rate', 1000);
     filter_sec_rate = get_set_(P, 'filter_sec_rate', 1);
     nFilt = round(sRateHz_rate * filter_sec_rate / 2);
@@ -26,7 +26,7 @@ function mrRate_clu = clu_rate_(S_clu, viClu, nSamples)
     for iClu1 = 1:numel(viClu)
         iClu = viClu(iClu1);
         viSpk_clu = S_clu.cviSpk_clu{iClu};
-        viTime_clu = S0.viTime_spk(viSpk_clu);
+        viTime_clu = S0.spikeTimes(viSpk_clu);
         viTime_ = round(double(viTime_clu) / P.sRateHz * sRateHz_rate);
         viTime_ = max(min(viTime_, nSamples), 1);
         mrRate_clu(viTime_, iClu1) = 1;

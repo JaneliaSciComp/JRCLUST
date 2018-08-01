@@ -24,7 +24,7 @@ function restore_log_(iMenu1)
     % update GUI
     S0 = gui_update_(S0, S_clu);
     % plot_FigWav_(S0); %redraw plot
-    % S0.iCluCopy = min(S0.iCluCopy, S_clu.nClu);
+    % S0.iCluCopy = min(S0.iCluCopy, S_clu.nClusters);
     % S0.iCluPaste = [];
     % set(0, 'UserData', S0);
     % update_plot_(S0.hPaste, nan, nan); %remove paste cursor

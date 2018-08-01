@@ -26,17 +26,17 @@ function hFig = plot_rd_(P, S0)
     vhAx(1) = subplot(211); hold on;
     plot(vrX_plot1, vrY_plot, '.', 'Color', repmat(.5,1,3));
     plot(vrX_plot1(S_clu.icl), vrY_plot(S_clu.icl), 'ro');
-    plot(P.rho_cut*[1,1], [0, max_delta], 'r-');
-    xylabel_(gca, 'log10 Rho', vcY_label, sprintf('lin-log plot, nClu: %d', S_clu.nClu));
+    plot(P.log10RhoCutoff*[1,1], [0, max_delta], 'r-');
+    xylabel_(gca, 'log10 Rho', vcY_label, sprintf('lin-log plot, nClu: %d', S_clu.nClusters));
     axis_([-4, -.5, 0, max_delta]); grid on;
 
     vhAx(2) = subplot(212); hold on;
     plot(vrX_plot1, vrY_plot1, '.', 'Color', repmat(.5,1,3));
     plot(vrX_plot1(S_clu.icl), vrY_plot1(S_clu.icl), 'ro');
-    plot(P.rho_cut*[1,1], [-.5, 2], 'r-', [-4, -.5], P.delta1_cut*[1,1], 'r-');
+    plot(P.log10RhoCutoff*[1,1], [-.5, 2], 'r-', [-4, -.5], P.log10DeltaCutoff*[1,1], 'r-');
     xylabel_(gca, 'log10 Rho', 'log10 Delta (detrended)', ...
-    sprintf('detrended log-log plot (P.rho_cut=%0.3f; P.delta1_cut=%0.3f; nClu:%d)', ...
-    P.rho_cut, P.delta1_cut, S_clu.nClu));
+    sprintf('detrended log-log plot (P.log10RhoCutoff=%0.3f; P.log10DeltaCutoff=%0.3f; nClu:%d)', ...
+    P.log10RhoCutoff, P.log10DeltaCutoff, S_clu.nClusters));
     axis_([-4, -.5, -.5, 2]); grid on;
 
     linkaxes(vhAx, 'x');

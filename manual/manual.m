@@ -36,7 +36,7 @@ function manual(P, debugMode, alg)
             S0 = setUserData(P);
         else
             if ~isempty(get_set_(S0, 'cS_log', {}))
-                switch lower(questdlg_('Load last saved?', 'Confirmation'))
+                switch lower(userDialog('Load last saved?', 'Confirmation'))
                     case 'no'
                         [S_clu, S0] = post_merge_(S0.S_clu, P);
                         S0 = clear_log_(S0);
@@ -66,16 +66,16 @@ function manual(P, debugMode, alg)
         set(0, 'UserData', S0);
 
         % hFigRD
-        S0.S_clu = plotFigRD(S0.S_clu, P); % ask user before doing so
+        S0.S_clu = plotFigRD(S0.S_clu, P);
 
         % Set initial amplitudes
         set(0, 'UserData', S0);
-        plot_FigWavCor_(S0); % hFigWavCor
-        S0 = plot_FigWav_(S0); % hFigWav %do this after for ordering
+        plotFigWavCor(S0); % hFigWavCor
+        S0 = plot_FigWav_(S0); % hFigWav % do this after for ordering
 
         % hFigProj, hFigHist, hFigIsi, hFigCorr, hFigPos, hFigMap, hFigTime
-        tryClose(figureByTag('FigTrial')); %close previous FigTrial figure
-        tryClose(figureByTag('FigTrial_b')); %close previous FigTrial figure
+        tryClose(figureByTag('FigTrial')); % close previous FigTrial figure
+        tryClose(figureByTag('FigTrial_b')); % close previous FigTrial figure
         S0 = button_CluWav_simulate_(1, [], S0, 1); %select first clu TW
         auto_scale_proj_time_(S0);
         S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom

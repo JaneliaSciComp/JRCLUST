@@ -21,9 +21,9 @@ function import_silico_(vcFile_prm, fSort)
     if ~isfield(S_gt, 'viSite')
         S_gt.viSite = S_gt.viSite_clu(S_gt.viClu);
     end
-    S0 = struct('viTime_spk', S_gt.viTime(:), 'viSite_spk', S_gt.viSite(:), 'P', P, 'S_gt', S_gt);
+    S0 = struct('spikeTimes', S_gt.viTime(:), 'viSite_spk', S_gt.viSite(:), 'P', P, 'S_gt', S_gt);
 
-    [tnWav_raw, tnWav_spk, trFet_spk, S0] = file2spk_(P, S0.viTime_spk, S0.viSite_spk);
+    [tnWav_raw, tnWav_spk, trFet_spk, S0] = file2spk_(P, S0.spikeTimes, S0.viSite_spk);
     set(0, 'UserData', S0);
 
     % Save to file

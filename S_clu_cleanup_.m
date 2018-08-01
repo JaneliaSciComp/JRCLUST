@@ -8,7 +8,7 @@ function S_clu = S_clu_cleanup_(S_clu, P)
 
     fprintf('Cleaning up clusters\n\t'); t1=tic;
     warning off;
-    for iClu = 1:S_clu.nClu
+    for iClu = 1:S_clu.nClusters
         mrFet1_clu1 = S_clu_getFet_(S_clu, iClu, viSite2_spk)';
         viSpk_clu1 = S_clu.cviSpk_clu{iClu};
         try

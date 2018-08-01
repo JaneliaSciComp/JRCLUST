@@ -4,7 +4,7 @@ function [S_clu, nRemoved] = S_clu_refrac_(S_clu, P, iClu1)
     % clu_refrac(Sclu, P, iClu1) %process on specific clusters
     % P.nSkip_refrac = 4;
     % P.fShow_refrac = 0;
-    viTime_spk = get0_('viTime_spk');
+    spikeTimes = get0_('spikeTimes');
     % remove refractory spikes
     if nargin==2
         %     P = varargin{1}; %second input
@@ -29,7 +29,7 @@ function [S_clu, nRemoved] = S_clu_refrac_(S_clu, P, iClu1)
         end
         if isempty(viSpk1), return; end
 
-        viTime1 = viTime_spk(viSpk1);
+        viTime1 = spikeTimes(viSpk1);
         nRefrac = round(P.spkRefrac_ms * P.sRateHz / 1000);
 
         % removal loop

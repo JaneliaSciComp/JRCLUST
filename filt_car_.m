@@ -15,7 +15,7 @@ function [mnWav2, vnWav2_mean] = filt_car_(mnWav2, P, mnWav1_pre, mnWav1_post, f
         case 'user'
         %         vnFilter_user = -[5,0,-3,-4,-3,0,5]; % sgdiff acceleration
         vnFilter_user = single(get_set_(P, 'vnFilter_user', []));
-        assert_(~isempty(vnFilter_user), 'Set vnFilter_user to use vcFilter=''user''');
+        dialogAssert(~isempty(vnFilter_user), 'Set vnFilter_user to use vcFilter=''user''');
         for i=1:size(mnWav2,2)
             mnWav2(:,i) = conv(mnWav2(:,i), vnFilter_user, 'same');
         end

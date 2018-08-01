@@ -14,10 +14,10 @@ function S_clu = S_clu_quality_(S_clu, P, viClu_update)
     % tmrWav_clu = S_clu.tmrWav_clu;
     % mrVmin_clu = shiftdim(min(tmrWav_clu,[],1));
     % mrVmax_clu = shiftdim(max(tmrWav_clu,[],1));
-    vrVpp_clu = mr2vr_sub2ind_(mrVmax_clu-mrVmin_clu, S_clu.viSite_clu, 1:S_clu.nClu);
-    vrVmin_clu = mr2vr_sub2ind_(mrVmin_clu, S_clu.viSite_clu, 1:S_clu.nClu);
-    vrVpp_uv_clu = mr2vr_sub2ind_(mrVmax_uv_clu-mrVmin_uv_clu, S_clu.viSite_clu, 1:S_clu.nClu);
-    vrVmin_uv_clu = mr2vr_sub2ind_(mrVmin_uv_clu, S_clu.viSite_clu, 1:S_clu.nClu);
+    vrVpp_clu = mr2vr_sub2ind_(mrVmax_clu-mrVmin_clu, S_clu.viSite_clu, 1:S_clu.nClusters);
+    vrVmin_clu = mr2vr_sub2ind_(mrVmin_clu, S_clu.viSite_clu, 1:S_clu.nClusters);
+    vrVpp_uv_clu = mr2vr_sub2ind_(mrVmax_uv_clu-mrVmin_uv_clu, S_clu.viSite_clu, 1:S_clu.nClusters);
+    vrVmin_uv_clu = mr2vr_sub2ind_(mrVmin_uv_clu, S_clu.viSite_clu, 1:S_clu.nClusters);
     % [vrVpp_clu, ~] = max(mrVmax_clu - mrVmin_clu,[],1);
     % [vrVmin_clu, viSite_min_clu] = min(mrVmin_clu,[],1);
     % if ~isfield(S_clu, 'viSite_clu')

@@ -21,7 +21,7 @@ function S0 = plot_FigWav_(S0)
 
         %     set(gca, 'ButtonDownFcn', @(src,event)button_CluWav_(src,event), 'BusyAction', 'cancel');
         set(hFig, 'KeyPressFcn', @keyPressFcn_FigWav_, 'CloseRequestFcn', @exit_manual_, 'BusyAction', 'cancel');
-        axis_([0, S_clu.nClu + 1, 0, nSites + 1]);
+        axis_([0, S_clu.nClusters + 1, 0, nSites + 1]);
         add_menu_(hFig, P);
         mouse_figure(hFig, S_fig.hAx, @button_CluWav_);
         S_fig = plot_spkwav_(S_fig, S0); %plot spikes

@@ -11,7 +11,7 @@ function [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, iClu, S0)
     P = S0.P;
     if ~isfield(P, 'vcFet_show'), P.vcFet_show = 'vpp'; end
     [vrFet1, viSpk1] = getFet_clu_(iClu, iSite, S0);
-    vrTime1 = double(S0.viTime_spk(viSpk1)) / P.sRateHz;
+    vrTime1 = double(S0.spikeTimes(viSpk1)) / P.sRateHz;
 
     % label
     switch lower(P.vcFet_show)

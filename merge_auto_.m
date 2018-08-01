@@ -16,7 +16,7 @@ function merge_auto_(S0)
 
     % Auto delete
     figure_wait_(1); drawnow;
-    nClu_prev = S_clu.nClu;
+    nClu_prev = S_clu.nClusters;
     S_clu = post_merge_wav_(S_clu, P.nRepeat_merge, setfield(P, 'maxWavCor', maxWavCor));
     % [S_clu, S0] = S_clu_commit_(S_clu, 'post_merge_');
     S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, S_clu_self_corr_(S_clu, [], S0));
@@ -24,8 +24,8 @@ function merge_auto_(S0)
     S0 = gui_update_();
     figure_wait_(0);
 
-    assert_(S_clu_valid_(S_clu), 'Cluster number is inconsistent after deleting');
-    nClu_merge = nClu_prev - S_clu.nClu;
+    dialogAssert(S_clu_valid_(S_clu), 'Cluster number is inconsistent after deleting');
+    nClu_merge = nClu_prev - S_clu.nClusters;
     msgbox_(sprintf('Merged %d clusters >%0.2f maxWavCor.', nClu_merge, maxWavCor));
     save_log_(sprintf('merge-auto <%0.2f maxWavCor', maxWavCor), S0);
 end %func

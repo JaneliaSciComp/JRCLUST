@@ -24,7 +24,7 @@ function export_csv_msort_(varargin)
     else
         fprintf(2, 'Cannot find S_clu.\n');
     end
-    vrTime = double(S0.viTime_spk);
+    vrTime = double(S0.spikeTimes);
     viSite = double(S0.viSite_spk) - fZeroIndex; %zero base
 
     vcFile_csv = subsFileExt_(P.prmFile, '_msort.csv');

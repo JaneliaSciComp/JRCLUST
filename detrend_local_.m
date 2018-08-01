@@ -21,30 +21,29 @@ function [icl, x, z] = detrend_local_(S_clu, P, fLocal)
             x_ = log10(rho_);
             %         y_ = log10(rho_) + log10(delta_);
             y_ = (delta_);
-            viDetrend = find(delta_ < 1 & delta_ > 0 & rho_ > 10^P.rho_cut & rho_ < .1 & isfinite(x_) & isfinite(y_));
+            viDetrend = find(delta_ < 1 & delta_ > 0 & rho_ > 10^P.log10RhoCutoff & rho_ < .1 & isfinite(x_) & isfinite(y_));
             [y_det_, z_] = detrend_(x_, y_, viDetrend, 1);
             viSpk_ = S0.cviSpk_site{iSite};
             if isempty(viSpk_), continue; end
             vl_zero_ = find(delta_==0);
             [y_det_(vl_zero_), z_(vl_zero_)] = nan;
             [icl_, vrZ_] = find_topn_(y_det_, maxCluPerSite, ...
-            find(rho_ > 10^P.rho_cut & ~isnan(y_det_)));
+            find(rho_ > 10^P.log10RhoCutoff & ~isnan(y_det_)));
             if isempty(icl_), continue; end
             cvi_cl{iSite} = viSpk_(icl_);
             z(viSpk_) = z_;
-            %         figure; plot(x_, y_det_, 'k.', x_(icl_), y_det_(icl_), 'ro'); axis([-5 0 -1 1]); grid on;
         end
         icl = cell2vec_(cvi_cl);
     else
         x = log10(S_clu.rho);
         y = S_clu.delta;
-        viDetrend = find(S_clu.delta < 1 & S_clu.delta > 0 & S_clu.rho > 10^P.rho_cut & S_clu.rho < .1 & isfinite(x) & isfinite(y));
+        viDetrend = find(S_clu.delta < 1 & S_clu.delta > 0 & S_clu.rho > 10^P.log10RhoCutoff & S_clu.rho < .1 & isfinite(x) & isfinite(y));
         [~, z] = detrend_(x, y, viDetrend, 1);
         z(S_clu.delta==0) = nan;
         [icl, vrZ_] = find_topn_(z, maxCluPerSite * numel(S0.cviSpk_site), ...
-        find(S_clu.rho > 10^P.rho_cut & ~isnan(z)));
-        icl(vrZ_ < 10^P.delta1_cut) = [];
-        %     icl = find(x>=P.rho_cut & z>=10^P.delta1_cut);
+        find(S_clu.rho > 10^P.log10RhoCutoff & ~isnan(z)));
+        icl(vrZ_ < 10^P.log10DeltaCutoff) = [];
+        %     icl = find(x>=P.log10RhoCutoff & z>=10^P.log10DeltaCutoff);
     end
 
 

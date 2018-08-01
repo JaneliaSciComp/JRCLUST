@@ -133,7 +133,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     title(vcYlabel); ylabel('Voltage (\muV)'); xlabel('Time (ms)');
     grid on;
 
-    if strcmpi(questdlg_('Split?', 'Confirmation', 'Yes', 'No', 'Yes'), 'Yes')
+    if strcmpi(userDialog('Split?', 'Confirmation', 'Yes', 'No', 'Yes'), 'Yes')
         fSplit = 1;
     else
         fSplit = 0;

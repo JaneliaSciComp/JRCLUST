@@ -66,7 +66,7 @@ function keyPressFcn_FigTime_(hObject, event, S0)
             vrY1 = double(get(S_fig.hPlot1, 'YData'));
             vlIn = inpolygon(vrX1, vrY1, mrPolyPos(:,1), mrPolyPos(:,2));
             hSplit = line(vrX1(vlIn), vrY1(vlIn), 'Color', [1 0 0], 'Marker', '.', 'LineStyle', 'none');
-            if strcmpi(questdlg_('Split?', 'Confirmation', 'Yes'), 'yes')
+            if strcmpi(userDialog('Split?', 'Confirmation', 'Yes'), 'yes')
                 split_clu_(S0.iCluCopy, vlIn);
             end
             deleteMany(hPoly, hSplit);

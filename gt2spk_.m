@@ -14,7 +14,7 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
     t1 = tic;
     fprintf('Computing ground truth units...\n');
     viClu = int32(S_gt.viClu);
-    viTime_spk = int32(S_gt.viTime);
+    spikeTimes = int32(S_gt.viTime);
     nSites = numel(P.chanMap);
 
     % load entire raw waveform to memory
@@ -23,26 +23,26 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
         [mnWav, vrWav_mean] = load_file_(P.vcFile, [], P);
         mnWav = fft_clean_(mnWav, P);
         if fProcessRaw
-            tnWav_raw = permute(mn2tn_gpu_(mnWav, P.spkLim_raw, viTime_spk), [1,3,2]);
+            tnWav_raw = permute(mn2tn_gpu_(mnWav, P.spkLim_raw, spikeTimes), [1,3,2]);
         end
         [mnWav, ~] = filt_car_(mnWav, P);
         %     mnWav = mnWav_filt_(mnWav, P); % Apply filtering in RAM
         if fSubtract_nmean % Apply nmean CAR to ground truth spikes (previous standard)
             P1=P; P1.vcCommonRef = 'nmean'; mnWav = wav_car_(mnWav, P1);
         end
-        tnWav_spk = permute(mn2tn_gpu_(mnWav, P.spkLim, viTime_spk), [1,3,2]);
+        tnWav_spk = permute(mn2tn_gpu_(mnWav, P.spkLim, spikeTimes), [1,3,2]);
         vrVrms_site = gather_(mr2rms_(mnWav, 1e5));
         clear mnWav;
     else % real ground truth: must block load and filter.
         viClu = viClu(1:nSubsample_clu:end);
-        viTime_spk = viTime_spk(1:nSubsample_clu:end);
-        [tnWav_spk, vrVrms_site] = file2spk_gt_(P, viTime_spk);
+        spikeTimes = spikeTimes(1:nSubsample_clu:end);
+        [tnWav_spk, vrVrms_site] = file2spk_gt_(P, spikeTimes);
         snr_thresh = []; %no SNR threshold
     end
 
     % trim excess spikes
     % nSpk = size(tnWav_spk,3);
-    % [viClu, viTime_spk, S_gt.viTime, S_gt.viClu] = multifun(@(x)x(1:nSpk), viClu, viTime_spk, S_gt.viTime, S_gt.viClu);
+    % [viClu, spikeTimes, S_gt.viTime, S_gt.viClu] = multifun(@(x)x(1:nSpk), viClu, spikeTimes, S_gt.viTime, S_gt.viClu);
 
     % determine mean spikes
     nClu = max(viClu);

@@ -15,8 +15,8 @@ function csDesc = describe_(vcFile_prm)
     P = S0.P;
 
     nSites = numel(P.chanMap);
-    tDur = double(max(S0.viTime_spk) - min(S0.viTime_spk)) / P.sRateHz;
-    nSpk = numel(S0.viTime_spk);
+    tDur = double(max(S0.spikeTimes) - min(S0.spikeTimes)) / P.sRateHz;
+    nSpk = numel(S0.spikeTimes);
     nSitesPerEvent = P.maxSite*2+1;
 
 
@@ -37,9 +37,9 @@ function csDesc = describe_(vcFile_prm)
     if isfield(S0, 'S_clu')
         S_clu = S0.S_clu;
         csDesc{end+1} = sprintf('Cluster');
-        csDesc{end+1} = sprintf('    #Clusters               %d', S_clu.nClu);
+        csDesc{end+1} = sprintf('    #Clusters               %d', S_clu.nClusters);
         csDesc{end+1} = sprintf('    #Unique events          %d', sum(S_clu.viClu>0));
-        csDesc{end+1} = sprintf('    min. spk/clu            %d', P.min_count);
+        csDesc{end+1} = sprintf('    min. spk/clu            %d', P.minClusterSize);
         if isfield(S_clu, 't_runtime')
             csDesc{end+1} = sprintf('    Cluster run-time        %0.1fs', S_clu.t_runtime);
         end

@@ -61,18 +61,18 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
         hide_plot_(S_fig.hPlot_traces_bad);
     end
     if S_fig.fShow_spk
-        vlSpk_ = S_fig.viTime_spk >= S_fig.nlim_bin(1) & S_fig.viTime_spk <= S_fig.nlim_bin(end);
-        viTime_spk_ = single(S_fig.viTime_spk(vlSpk_)-S_fig.nlim_bin(1)+1);
-        vrTime_spk_ = single(S_fig.viTime_spk(vlSpk_)) / P.sRateHz;
+        vlSpk_ = S_fig.spikeTimes >= S_fig.nlim_bin(1) & S_fig.spikeTimes <= S_fig.nlim_bin(end);
+        spikeTimes_ = single(S_fig.spikeTimes(vlSpk_)-S_fig.nlim_bin(1)+1);
+        vrTime_spk_ = single(S_fig.spikeTimes(vlSpk_)) / P.sRateHz;
         viSite_spk_ = single(S_fig.viSite_spk(vlSpk_));
     else
-        viTime_spk_ = [];
+        spikeTimes_ = [];
     end
-    if isempty(viTime_spk_)
+    if isempty(spikeTimes_)
         hide_plot_(S_fig.hPlot_traces_spk1);
         menu_label_('menu_preview_view_spike', 'Show [S]pikes');
     else
-        multiplot(S_fig.hPlot_traces_spk1, S_fig.maxAmp, vrTime_spk_, mr2vr_sub2ind_(mrWav_, viTime_spk_, viSite_spk_), viSite_spk_, 1);
+        multiplot(S_fig.hPlot_traces_spk1, S_fig.maxAmp, vrTime_spk_, mr2vr_sub2ind_(mrWav_, spikeTimes_, viSite_spk_), viSite_spk_, 1);
         menu_label_('menu_preview_view_spike', 'Hide [S]pikes');
     end
     vrThresh_site_uV = bit2uV_(-S_fig.vnThresh_site(:), setfield(P, 'vcFilter', S_fig.vcFilter));

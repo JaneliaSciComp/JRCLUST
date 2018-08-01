@@ -11,7 +11,7 @@ function S_clu = split_clu_(iClu1, vlIn)
     iClu2 = max(S_clu.viClu) + 1;
 
     % update cluster count and index
-    S_clu.nClu = double(iClu2);
+    S_clu.nClusters = double(iClu2);
     S_clu.vnSpk_clu(iClu1) = S_clu.vnSpk_clu(iClu1) - n2;
     S_clu.vnSpk_clu(iClu2) = sum(vlIn);
     viSpk1 = find(S_clu.viClu==iClu1);
@@ -40,7 +40,7 @@ function S_clu = split_clu_(iClu1, vlIn)
     % update all the other views
     [S_clu, S0] = S_clu_commit_(S_clu, 'split_clu_');
     plot_FigWav_(S0); %redraw plot
-    plot_FigWavCor_(S0);
+    plotFigWavCor(S0);
     save_log_(sprintf('split %d', iClu1), S0); %@TODO: specify which cut to use
 
     % select two clusters being split

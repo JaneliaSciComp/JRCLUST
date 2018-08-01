@@ -6,13 +6,13 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     if ~isfield(P, 'CHUNK'), P.CHUNK = 16; end
     if ~isfield(P, 'fTwoStep'), P.fTwoStep = 0; end
     if ~isfield(P, 'mrSiteXY'), P.mrSiteXY = []; end
-    if ~isfield(P, 'min_count'), P.min_count = []; end
+    if ~isfield(P, 'minClusterSize'), P.minClusterSize = []; end
     if nargin<3, vlRedo_spk=[]; end
 
     % g = gpuDevice();
     t_func = tic;
     nSites = numel(P.chanMap);
-    nSpk = numel(S0.viTime_spk);
+    nSpk = numel(S0.spikeTimes);
     vrRho = zeros(nSpk, 1, 'single');
     vrDelta = zeros(nSpk, 1, 'single');
     viNneigh = zeros(nSpk, 1, 'uint32');

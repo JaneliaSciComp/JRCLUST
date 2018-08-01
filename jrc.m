@@ -12,7 +12,8 @@ function varargout = jrc(cmd, varargin)
     addpath(fullfile(dirname, 'meta')); % info functions
     addpath(fullfile(dirname, 'utils')); % miscellaneous (but useful) tools
     addpath(fullfile(dirname, 'params')); % parameter-related functions
-    addpath(fullfile(dirname, 'manual')); % manual step functions
+    addpath(fullfile(dirname, 'gui')); % GUI functions
+    addpath(fullfile(dirname, 'manual')); % manual curation step functions
     addpath(fullfile(dirname, 'kilosort')); % kilosort-related functions
 
     % process arguments
@@ -148,7 +149,9 @@ function varargout = jrc(cmd, varargin)
             return;
         case {'spikesort', 'detectsort', 'detect-sort', 'spikesort-verify', 'spikesort-validate', 'spikesort-manual', 'detectsort-manual'}
             fprintf('Performing "jrc detect", "jrc sort" operations.\n');
-            detect_(P); sort_(P, 0); describe_(P.prmFile);
+            detect_(P);
+            sort_(P, 0);
+            describe_(P.prmFile);
         case {'detect', 'spikedetect'}
             detect_(P); describe_(P.prmFile);
         case {'sort', 'cluster', 'clust', 'sort-verify', 'sort-validate', 'sort-manual'}

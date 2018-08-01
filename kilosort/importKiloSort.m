@@ -1,7 +1,6 @@
 %--------------------------------------------------------------------------
 function importKiloSort(rezFile)
     % importKiloSort(rezFile)
-    % import kilosort result
     if isstruct(rezFile)
         rez = rezFile;
     else
@@ -16,23 +15,15 @@ function importKiloSort(rezFile)
         end
     end
 
-    % S_ksort = load(strrep(P.rezFile, '.prm', '_ksort.mat')); % contains rez structure
+    if isempty(rez)
+        error('rez is empty');
+    end
+
     global tnWav_raw tnWav_spk trFet_spk
-    % convert jrc1 format (_clu and _evt) to jrc format. no overwriting
     % receive spike location, time and cluster number. the rest should be taken care by jrc processing
 
-    % Create a prm file to start with. set the filter parameter correctly. features?
-    if isempty(P), return; end
-    try
-        S_ksort = load(strrep(P.rezFile, '.prm', '_ksort.mat')); %get site # and
-    catch % import rez.mat -- acl
-        rez = load('rez.mat', 'rez');
-        S_ksort.rez = rez.rez; % -_-
-        S_ksort.P = P;
-        S_ksort.runtime_ksort = 0; % don't have this
-        struct_save_(S_ksort, strrep(rezFile, '.prm', '_ksort.mat'), 1);
-    end
-    viTime_spk = S_ksort.rez.st3(:,1); %spike time
+    % construct P from scratch
+    spikeTimes = S_ksort.rez.st3(:,1); %spike time
     if get_set_(P, 'fMerge_post', 0) && size(S_ksort.rez.st3, 2) == 5
         viClu = 1 + S_ksort.rez.st3(:,5); % post-merging result
     else
@@ -49,7 +40,7 @@ function importKiloSort(rezFile)
     viSite_clu = viSite(viSite_clu);
     viSite_spk = viSite_clu(viClu);
 
-    S0 = file2spk_(P, int32(viTime_spk), int32(viSite_spk));
+    S0 = file2spk_(P, int32(spikeTimes), int32(viSite_spk));
     S0.P = P;
     S0.S_ksort = S_ksort;
     tnWav_raw = load_bin_(strrep(P.rezFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);

@@ -28,14 +28,14 @@ function auto_split_(fMulti, S0)
     mrWav_spk1 = squeeze_(tnWav2uV_(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu1}, site_to_use, S0), P)); % TW calculate amplitudes on the fly
     mrFet1 = max(mrWav_spk1)-min(mrWav_spk1); % TW calculate amplitudes on the fly
 
-    % [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [S0.viTime_spk(S_clu.cviSpk_clu{iClu1}) S0.vrAmp_spk(S_clu.cviSpk_clu{iClu1})], 2); % MNE
-    [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [S0.viTime_spk(S_clu.cviSpk_clu{iClu1}) mrFet1'], 2); %TW
+    % [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [S0.spikeTimes(S_clu.cviSpk_clu{iClu1}) S0.vrAmp_spk(S_clu.cviSpk_clu{iClu1})], 2); % MNE
+    [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [S0.spikeTimes(S_clu.cviSpk_clu{iClu1}) mrFet1'], 2); %TW
 
     hPoly = [];
     hFigTemp = gcf;
     try, drawnow; close(hMsg); catch; end
     while 1
-        vcAns = questdlg_('Split?', 'confirmation', 'Yes', 'No', 'Manual', 'Yes');
+        vcAns = userDialog('Split?', 'confirmation', 'Yes', 'No', 'Manual', 'Yes');
         switch lower(vcAns)
             case 'yes'
             close(hFigTemp);
@@ -43,7 +43,7 @@ function auto_split_(fMulti, S0)
             case {'no', ''}
             close(hFigTemp); return;
             case 'manual'
-            vcAns = questdlg_('Select projection', '', 'PC1 vs PC2', 'PC3 vs PC2', 'PC1 vs PC3', 'PC1 vs PC2');
+            vcAns = userDialog('Select projection', '', 'PC1 vs PC2', 'PC3 vs PC2', 'PC1 vs PC3', 'PC1 vs PC2');
             switch vcAns
                 case 'PC1 vs PC2', [hAx_, iAx1, iAx2] = deal(vhAx(1), 1, 2);
                 case 'PC3 vs PC2', [hAx_, iAx1, iAx2] = deal(vhAx(2), 3, 2);

@@ -9,8 +9,8 @@ function selfcorr = S_clu_self_corr_(S_clu, iClu1, S0)
 
     if isempty(iClu1)
         fprintf('Computing self correlation\n\t'); t1=tic;
-        selfcorr = zeros(1, S_clu.nClu);
-        for iClu=1:S_clu.nClu
+        selfcorr = zeros(1, S_clu.nClusters);
+        for iClu=1:S_clu.nClusters
             selfcorr(iClu) = S_clu_self_corr__(S_clu, tnWav_raw, iClu, viSite_spk);
             fprintf('.');
         end

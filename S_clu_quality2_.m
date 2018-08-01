@@ -8,11 +8,11 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
 
     nSamples_2ms = round(P.sRateHz * .002);
     nSamples_20ms = round(P.sRateHz * .02);
-    [viTime_spk, viSite_spk, viSite2_spk, cviSpk_site, cviSpk2_site] = ...
-    get0_('viTime_spk', 'viSite_spk', 'viSite2_spk', 'cviSpk_site', 'cviSpk2_site');
+    [spikeTimes, viSite_spk, viSite2_spk, cviSpk_site, cviSpk2_site] = ...
+    get0_('spikeTimes', 'viSite_spk', 'viSite2_spk', 'cviSpk_site', 'cviSpk2_site');
     if isempty(viClu_update)
-        [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = deal(nan(S_clu.nClu, 1));
-        viClu_update = 1:S_clu.nClu;
+        [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = deal(nan(S_clu.nClusters, 1));
+        viClu_update = 1:S_clu.nClusters;
     else
         [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = get_(S_clu, 'vrIsoDist_clu', 'vrLRatio_clu', 'vrIsiRatio_clu');
         viClu_update = viClu_update(:)';
@@ -20,7 +20,7 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
     for iClu = viClu_update
         viSpk_clu1 = S_clu.cviSpk_clu{iClu};
         % Compute ISI ratio
-        viTime_clu1 = viTime_spk(viSpk_clu1);
+        viTime_clu1 = spikeTimes(viSpk_clu1);
         viDTime_clu1 = diff(viTime_clu1);
         vrIsiRatio_clu(iClu) = sum(viDTime_clu1<=nSamples_2ms) ./ sum(viDTime_clu1<=nSamples_20ms);
 

@@ -6,7 +6,7 @@ function manual_test_(P, csCmd)
     if ischar(csCmd), csCmd = {csCmd}; end
     S0 = get(0, 'UserData');
     S_clu = S0.S_clu;
-    nClu = S0.S_clu.nClu;
+    nClu = S0.S_clu.nClusters;
 
     for iCmd = 1:numel(csCmd)
         vcCmd1 = csCmd{iCmd};

@@ -9,12 +9,12 @@ function S_plot = S_plot_new_(S0)
 
     vrVrms_site = single(S0.vrThresh_site(:)) / P.qqFactor;
     vrSnr_evt = single(abs(S0.vrAmp_spk(:))) ./ vrVrms_site(S0.viSite_spk(:));
-    t_dur = double(max(S0.viTime_spk) - min(S0.viTime_spk)) / P.sRateHz;
+    t_dur = double(max(S0.spikeTimes) - min(S0.spikeTimes)) / P.sRateHz;
     vrRate_site = cellfun(@numel, S0.cviSpk_site)' / t_dur;
     % nSites = numel(S0.cviSpk_site);
 
     % calc # spikes exceeding detection threshold
-    vnSite_evt = zeros(size(S0.viTime_spk), 'int16');
+    vnSite_evt = zeros(size(S0.spikeTimes), 'int16');
     for iSite = 1:numel(S0.cviSpk_site)
         viSpk_site1 = S0.cviSpk_site{iSite};
         mrMin_site1 = squeeze_(min(tnWav_spk(:,:,viSpk_site1)));

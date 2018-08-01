@@ -19,13 +19,13 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
         if strcmpi(event.Key, 'home')
             S0.iCluCopy = 1;
         elseif strcmpi(event.Key, 'end')
-            S0.iCluCopy = S_clu.nClu;
+            S0.iCluCopy = S_clu.nClusters;
         elseif ~keyModifier(event, 'shift');
             if strcmpi(event.Key, 'leftarrow')
                 if S0.iCluCopy == 1, return; end
                 S0.iCluCopy = S0.iCluCopy - 1;
             else
-                if S0.iCluCopy == S_clu.nClu, return; end
+                if S0.iCluCopy == S_clu.nClusters, return; end
                 S0.iCluCopy = S0.iCluCopy + 1;
             end
         else
@@ -36,7 +36,7 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
                 if S0.iCluPaste == 1, return; end
                 S0.iCluPaste = S0.iCluPaste - 1;
             else
-                if S0.iCluPaste == S_clu.nClu, return; end
+                if S0.iCluPaste == S_clu.nClusters, return; end
                 S0.iCluPaste = S0.iCluPaste + 1;
             end
         end
@@ -55,13 +55,13 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
         case 's', auto_split_(1, S0);
         case 'r' %reset view
         figure_wait_(1);
-        axis_([0, S0.S_clu.nClu + 1, 0, numel(P.chanMap) + 1]);
+        axis_([0, S0.S_clu.nClusters + 1, 0, numel(P.chanMap) + 1]);
         figure_wait_(0);
         case {'d', 'backspace', 'delete'}, S0 = ui_delete_(S0);
         case 'z' %zoom
         iClu = S0.iCluCopy;
         iSiteClu = S_clu.viSite_clu(S0.iCluCopy);
-        set_axis_(hFig, iClu+[-1,1]*6, iSiteClu+[-1,1]*(P.maxSite*2+1), [0 S_clu.nClu+1], [0 nSites+1]);
+        set_axis_(hFig, iClu+[-1,1]*6, iSiteClu+[-1,1]*(P.maxSite*2+1), [0 S_clu.nClusters+1], [0 nSites+1]);
         case 'c', plot_FigCorr_(S0);
         case 'v', plot_FigIsi_(S0);
         case 'a', update_spikes_(S0); clu_info_(S0);

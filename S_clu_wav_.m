@@ -15,7 +15,7 @@ function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
     fVerbose = isempty(viClu_update);
     if fVerbose, fprintf('Calculating cluster mean waveform.\n\t'); t1 = tic; end
     if isfield(S_clu, 'nClu')
-        nClu = S_clu.nClu;
+        nClu = S_clu.nClusters;
     else
         nClu = max(S_clu.viClu);
     end

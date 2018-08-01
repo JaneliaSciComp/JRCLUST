@@ -8,7 +8,7 @@ function trFet_spk = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0, S_c
     nPc_fit = min(get_set_(P, 'nPc_fit_overlap', 5), size(S0.mrPv_global,2));
     mrPv = S0.mrPv_global(:,1:nPc_fit) / sqrt(size(S0.mrPv_global,1));
     % fit and cancel overlap using delay and mean clu waveform
-    for iClu = 1:S_clu.nClu
+    for iClu = 1:S_clu.nClusters
         [viSpk_o_1, viSpk_o_12, viDelay1] = deal(cviSpk_o_1{iClu}, cviSpk_o_12{iClu}, cviDelay1{iClu});
         if isempty(viSpk_o_1), continue; end
         [mrWav_clu1, iSite1] = deal(S_clu.trWav_spk_clu(:,:,iClu), S_clu.viSite_clu(iClu));

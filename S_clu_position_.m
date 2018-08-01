@@ -12,8 +12,8 @@ function S_clu = S_clu_position_(S_clu, viClu_update)
         viClu_update = [];
     end
     if isempty(viClu_update)
-        [vrPosX_clu, vrPosY_clu] = deal(zeros(S_clu.nClu, 1));
-        viClu1 = 1:S_clu.nClu;
+        [vrPosX_clu, vrPosY_clu] = deal(zeros(S_clu.nClusters, 1));
+        viClu1 = 1:S_clu.nClusters;
     else % selective update
         vrPosX_clu = S_clu.vrPosX_clu;
         vrPosY_clu = S_clu.vrPosY_clu;

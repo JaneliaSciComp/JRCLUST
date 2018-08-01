@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function [viTime_spk, vrAmp_spk, viSite_spk] = detect_spikes_(mnWav3, vnThresh_site, vlKeep_ref, P)
+function [spikeTimes, vrAmp_spk, viSite_spk] = detect_spikes_(mnWav3, vnThresh_site, vlKeep_ref, P)
     % fMerge_spk = 1;
     fMerge_spk = get_set_(P, 'fMerge_spk', 1);
 
@@ -28,14 +28,14 @@ function [viTime_spk, vrAmp_spk, viSite_spk] = detect_spikes_(mnWav3, vnThresh_s
     % Group spiking events using vrWav_mean1. already sorted by time
     if fMerge_spk
         fprintf('\tMerging spikes...'); t2=tic;
-        [viTime_spk, vrAmp_spk, viSite_spk] = spikeMerge_(cviSpk_site, cvrSpk_site, P);
+        [spikeTimes, vrAmp_spk, viSite_spk] = spikeMerge_(cviSpk_site, cvrSpk_site, P);
         fprintf('\t%d spiking events found; took %0.1fs\n', numel(viSite_spk), toc(t2));
     else
-        viTime_spk = cell2mat_(cviSpk_site);
+        spikeTimes = cell2mat_(cviSpk_site);
         vrAmp_spk = cell2mat_(cvrSpk_site);
         viSite_spk = cell2vi_(cviSpk_site);
         %sort by time
-        [viTime_spk, viSrt] = sort(viTime_spk, 'ascend');
+        [spikeTimes, viSrt] = sort(spikeTimes, 'ascend');
         [vrAmp_spk, viSite_spk] = multifun_(@(x)x(viSrt), vrAmp_spk, viSite_spk);
     end
     vrAmp_spk = gather_(vrAmp_spk);
