@@ -2,7 +2,7 @@
 function gui_test_(P, vcFig, csMenu_skip)
     if nargin<3, csMenu_skip = {}; end
     drawnow;
-    hFig = get_fig_(vcFig);
+    hFig = figureByTag(vcFig);
     keyPress_fig_(hFig, get_keyPress_('all'));
 
     % Menu test

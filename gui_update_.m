@@ -11,6 +11,6 @@ function S0 = gui_update_(S0, S_clu)
     update_plot_(S0.hPaste, nan, nan); %remove paste cursor
     S0 = update_FigCor_(S0);
     S0 = button_CluWav_simulate_(S0.iCluCopy, [], S0);
-    keyPressFcn_cell_(get_fig_cache_('FigWav'), 'z');
+    keyPressFcn_cell_(getCachedFig('FigWav'), 'z');
     set(0, 'UserData', S0);
 end %func

@@ -5,7 +5,7 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
     if nargin<3, S0 = get(0, 'UserData'); end
     P = S0.P; S_clu = S0.S_clu;
     P.LineStyle=[];
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     hFig = hObject;
     S_fig = get(hFig, 'UserData');
 
@@ -42,7 +42,7 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
         end
         S0 = button_CluWav_simulate_(S0.iCluCopy, S0.iCluPaste, S0); %select first clu
         if strcmpi(event.Key, 'home') || strcmpi(event.Key, 'end') %'z' to recenter
-            S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'z'}, S0);
+            S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0);
         end
         case 'm', S0 = ui_merge_(S0); % merge clusters
         case 'space'
@@ -55,7 +55,7 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
         case 's', auto_split_(1, S0);
         case 'r' %reset view
         figure_wait_(1);
-        axis_([0, S0.S_clu.nClu + 1, 0, numel(P.viSite2Chan) + 1]);
+        axis_([0, S0.S_clu.nClu + 1, 0, numel(P.chanMap) + 1]);
         figure_wait_(0);
         case {'d', 'backspace', 'delete'}, S0 = ui_delete_(S0);
         case 'z' %zoom

@@ -15,7 +15,7 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
     fprintf('Computing ground truth units...\n');
     viClu = int32(S_gt.viClu);
     viTime_spk = int32(S_gt.viTime);
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
 
     % load entire raw waveform to memory
     % P = setfield(P, 'vcFilter', 'bandpass'); % use bandpass for GT evaluation

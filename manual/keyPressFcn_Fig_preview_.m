@@ -5,7 +5,7 @@ function S0 = keyPressFcn_Fig_preview_(hFig, event, S0)
     P = get_(S0, 'P');
     S_fig = get(hFig, 'UserData');
     factor = 1 + 3 * keyModifier(event, 'shift');
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
 
     switch lower(event.Key)
         case {'uparrow', 'downarrow'}

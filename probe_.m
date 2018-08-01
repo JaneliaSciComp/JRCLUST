@@ -25,11 +25,11 @@ function probe_(vcFile_prb)
     % vcColor_shank = 'kbgrcm'; % up to
     % for iShank=1:numel(viShank)
     %     viSite1 = find(S_prb.shank == iShank);
-    hPatch = plot_probe_(S_prb.mrSiteXY, S_prb.vrSiteHW, S_prb.viSite2Chan, S_prb.viShank_site);
+    hPatch = plot_probe_(S_prb.mrSiteXY, S_prb.vrSiteHW, S_prb.chanMap, S_prb.viShank_site);
     %     iShank1 = mod(iShank-1, numel(vcColor_shank))+1;
     %     set(hPatch, 'EdgeColor', vcColor_shank(iShank1));
     % end
-    % plot_probe_(mrSiteXY, vrSiteHW, viSite2Chan, vrVpp, hFig)
+    % plot_probe_(mrSiteXY, vrSiteHW, chanMap, vrVpp, hFig)
     % vrPos0 = get(0, 'ScreenSize');
     % set(hFig, 'OuterPosition', vrPos0, 'Color', 'w');
     axis equal;

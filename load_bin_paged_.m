@@ -29,7 +29,7 @@ function mn = load_bin_paged_(P, viChan, nBytes_page)
         nPages = ceil(nSamples / nSamples_page);
         if viChan(1) == 0
             fMean = 1;
-            viChan = P.viSite2Chan;
+            viChan = P.chanMap;
             viChan(P.viSiteZero) = [];
         else
             fMean = 0;

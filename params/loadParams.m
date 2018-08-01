@@ -9,7 +9,7 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     if ~isfield(P, 'template_file'), P.template_file = ''; end
     if ~isempty(P.template_file)
         assert_(exist_file_(P.template_file), sprintf('template file does not exist: %s', P.template_file));
-        P = struct_merge_(file2struct_(P.template_file), P);
+        P = mergeStructs(file2struct_(P.template_file), P);
     end
     P.prmFile = vcFile_prm;
     assert_(isfield(P, 'vcFile'), sprintf('Check "%s" file syntax', vcFile_prm));
@@ -37,7 +37,7 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     catch
         fprintf('loadParam: %s not found.\n', P.probe_file);
     end
-    P = struct_merge_(P0, P);
+    P = mergeStructs(P0, P);
     P = calc_maxSite_(P);
 
     % check GPU
@@ -64,10 +64,10 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
         end
     end
     if ~isempty(get_(P, 'viChanZero')) && isempty(P.viSiteZero)
-        [~, viSiteZero] = ismember(P.viChanZero, P.viSite2Chan);
+        [~, viSiteZero] = ismember(P.viChanZero, P.chanMap);
         P.viSiteZero = viSiteZero(viSiteZero>0);
     end
-    if ~isempty(get_(P, 'viSiteZero')), P.viSiteZero(P.viSiteZero > numel(P.viSite2Chan)) = []; end
+    if ~isempty(get_(P, 'viSiteZero')), P.viSiteZero(P.viSiteZero > numel(P.chanMap)) = []; end
     if ~isfield(P, 'viShank_site'), P.viShank_site = []; end
     try P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site); catch; end %find closest sites
     % LFP sampling rate

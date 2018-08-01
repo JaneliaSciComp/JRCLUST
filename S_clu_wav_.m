@@ -20,7 +20,7 @@ function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
         nClu = max(S_clu.viClu);
     end
     nSamples = S0.dimm_spk(1);
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     nSites_spk = S0.dimm_spk(2); % n sites per event group (maxSite*2+1);
 
     % Prepare cluster loop

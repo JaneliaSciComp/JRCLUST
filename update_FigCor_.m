@@ -2,7 +2,7 @@
 function S0 = update_FigCor_(S0)
     if nargin<1, S0 = get(0, 'UserData'); end
     P = S0.P; S_clu = S0.S_clu;
-    [hFig, S_fig] = get_fig_cache_('FigWavCor');
+    [hFig, S_fig] = getCachedFig('FigWavCor');
 
     % figure(hFig);
     % hMsg = msgbox_open('Computing Correlation');

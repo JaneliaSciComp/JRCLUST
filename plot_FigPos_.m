@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 function plot_FigPos_(S_clu1, S_clu2)
-    [hFig, S_fig] = get_fig_cache_('FigPos');
+    [hFig, S_fig] = getCachedFig('FigPos');
     [S0, P, S_clu] = get0_();
 
     % plot waveform in space

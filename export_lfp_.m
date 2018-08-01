@@ -10,7 +10,7 @@ function export_lfp_(P)
     nSamples = floor(size(mnLfp,1) / P.nChans);
     mnLfp = reshape(mnLfp(1:P.nChans*nSamples), P.nChans, nSamples)';
 
-    mnLfp = mnLfp(:, P.viSite2Chan);
+    mnLfp = mnLfp(:, P.chanMap);
     mrSiteXY = P.mrSiteXY;
     assignWorkspace_(mnLfp, mrSiteXY);
     fprintf('\tmnLfp has nSamples x nSites dimension, sites are ordered from the bottom to top, left to right\n');

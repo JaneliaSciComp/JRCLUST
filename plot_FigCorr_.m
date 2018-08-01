@@ -9,7 +9,7 @@ function plot_FigCorr_(S0)
     P.jitter_ms = jitter_ms;
     P.nLags_ms = nLags_ms;
 
-    [hFig, S_fig] = get_fig_cache_('FigCorr');
+    [hFig, S_fig] = getCachedFig('FigCorr');
     iClu1 = S0.iCluCopy;
     iClu2 = S0.iCluPaste;
     if isempty(iClu2), iClu2 = iClu1; end

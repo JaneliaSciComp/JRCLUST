@@ -5,12 +5,12 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     % S_fig = Fig_preview_update_(hFig, S_fig, P)
     % S_fig = Fig_preview_update_(hFig, S_fig, fUpdate)
 
-    if nargin<1, hFig = get_fig_cache_('Fig_preview'); end
+    if nargin<1, hFig = getCachedFig('Fig_preview'); end
     if nargin<2, S_fig = get(hFig, 'UserData'); end
     if nargin<3, fKeepView = 0; end
 
     P = get0_('P');
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     figure_wait_(1, hFig); drawnow;
     fft_thresh = S_fig.fft_thresh;
     if fft_thresh > 0

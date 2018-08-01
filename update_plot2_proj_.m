@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function update_plot2_proj_(vrX, vrY)
     if nargin==0, vrX=nan; vrY=nan; end
-    [hFig, S_fig] = get_fig_cache_('FigProj');
+    [hFig, S_fig] = getCachedFig('FigProj');
     % erase polygon
     if nargin==0
         try

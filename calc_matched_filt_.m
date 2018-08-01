@@ -10,7 +10,7 @@ function [vrFilt_spk, vrVaf, nShift_post] = calc_matched_filt_(mnWav1, P) %detec
 
     % extract wave forms
     nSpks = numel(viSite_spk);
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     %spkLim = [-1, 1] * round(mean(abs(P.spkLim))); %balanced
     % spkLim = [-1, 1] * round(max(abs(P.spkLim))); %balanced
     % spkLim = [-1, 1] * round(min(abs(P.spkLim))); %balanced

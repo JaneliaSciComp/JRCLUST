@@ -8,7 +8,7 @@ function S_fig = plot_tnWav_clu_(S_fig, P)
     [nSamples, nSites, nClu] = size(trWav_clu);
     nChans_show = size(P.miSites, 1);
     miSites_clu = P.miSites(:, S_clu.viSite_clu);
-    % nSites = numel(P.viSite2Chan);
+    % nSites = numel(P.chanMap);
 
     % determine x
     x_offset = P.spkLim(2) / (diff(P.spkLim)+1); %same for raw and filt

@@ -4,7 +4,7 @@ function Fig_preview_trange_(hFig, vc_trange, mh)
 
     if nargin<1, hFig = []; end
     if nargin<2, vc_trange = 'custom'; end
-    if isempty(hFig), hFig = get_fig_cache_('Fig_preview'); end
+    if isempty(hFig), hFig = getCachedFig('Fig_preview'); end
 
     if strcmpi(vc_trange, 'custom') % ask user input box
         vcAns = inputdlg_('Display time range (s)', 'Time range in seconds', 1, {'.2'});

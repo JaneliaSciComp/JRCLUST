@@ -11,7 +11,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
 
     % g = gpuDevice();
     t_func = tic;
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     nSpk = numel(S0.viTime_spk);
     vrRho = zeros(nSpk, 1, 'single');
     vrDelta = zeros(nSpk, 1, 'single');

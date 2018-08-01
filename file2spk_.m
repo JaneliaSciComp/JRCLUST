@@ -99,7 +99,7 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
     % set S0
     [dimm_raw, dimm_spk, dimm_fet] = deal(size(tnWav_raw_), size(tnWav_spk_), size(trFet_spk_));
     [dimm_raw(3), dimm_spk(3), dimm_fet(3)] = deal(numel(viTime_spk));
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     cviSpk_site = arrayfun(@(iSite)find(miSite_spk(:,1) == iSite), 1:nSites, 'UniformOutput', 0);
     if size(miSite_spk,2) >= 2
         cviSpk2_site = arrayfun(@(iSite)find(miSite_spk(:,2) == iSite), 1:nSites, 'UniformOutput', 0);

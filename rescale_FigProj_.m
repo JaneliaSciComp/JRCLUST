@@ -7,7 +7,7 @@ function S_fig = rescale_FigProj_(event, hFig, S_fig, S0)
     if nargin<2, hFig = []; end
     if nargin<3, S_fig = []; end
     if nargin<4, S0 = []; end
-    if isempty(hFig) || isempty(S_fig), [hFig, S_fig] = get_fig_cache_('FigProj'); end
+    if isempty(hFig) || isempty(S_fig), [hFig, S_fig] = getCachedFig('FigProj'); end
     if isempty(S0), S0 = get(0, 'UserData'); end
     P = S0.P;
 

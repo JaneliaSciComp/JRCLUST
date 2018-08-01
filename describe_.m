@@ -14,7 +14,7 @@ function csDesc = describe_(vcFile_prm)
     end
     P = S0.P;
 
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     tDur = double(max(S0.viTime_spk) - min(S0.viTime_spk)) / P.sRateHz;
     nSpk = numel(S0.viTime_spk);
     nSitesPerEvent = P.maxSite*2+1;

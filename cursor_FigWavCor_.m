@@ -3,7 +3,7 @@ function cursor_FigWavCor_(S0)
     if nargin==0, S0 = get(0, 'UseData'); end
     P = S0.P; S_clu = S0.S_clu;
 
-    [hFig, S_fig] = get_fig_cache_('FigWavCor');
+    [hFig, S_fig] = getCachedFig('FigWavCor');
     if isempty(S_fig)
         [hFig, S_fig] = plot_FigWavCor_(S0);
     end

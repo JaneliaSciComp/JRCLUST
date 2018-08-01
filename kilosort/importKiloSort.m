@@ -1,17 +1,22 @@
 %--------------------------------------------------------------------------
-function import_ksort_(vcFile_prm)
-    % import_ksort_(P, fSort)
-    % import_ksort_(vcFile_prm, fSort)
-    % fMerge_post = 0;
+function importKiloSort(rezFile)
+    % importKiloSort(rezFile)
     % import kilosort result
-    if isstruct(vcFile_prm)
-        P = vcFile_prm;
-        vcFile_prm = P.prmFile;
+    if isstruct(rezFile)
+        rez = rezFile;
     else
-        P = loadParams(vcFile_prm); %makeParam_kilosort_
+        try
+            rez = load(rezFile, '-mat', 'rez');
+        catch err
+            if startsWith(err.message, 'Unable to read MAT-file')
+                error('rezFile must be a MAT file');
+            else
+                throw err;
+            end
+        end
     end
 
-    % S_ksort = load(strrep(P.prmFile, '.prm', '_ksort.mat')); % contains rez structure
+    % S_ksort = load(strrep(P.rezFile, '.prm', '_ksort.mat')); % contains rez structure
     global tnWav_raw tnWav_spk trFet_spk
     % convert jrc1 format (_clu and _evt) to jrc format. no overwriting
     % receive spike location, time and cluster number. the rest should be taken care by jrc processing
@@ -19,13 +24,13 @@ function import_ksort_(vcFile_prm)
     % Create a prm file to start with. set the filter parameter correctly. features?
     if isempty(P), return; end
     try
-        S_ksort = load(strrep(P.prmFile, '.prm', '_ksort.mat')); %get site # and
+        S_ksort = load(strrep(P.rezFile, '.prm', '_ksort.mat')); %get site # and
     catch % import rez.mat -- acl
         rez = load('rez.mat', 'rez');
         S_ksort.rez = rez.rez; % -_-
         S_ksort.P = P;
         S_ksort.runtime_ksort = 0; % don't have this
-        struct_save_(S_ksort, strrep(vcFile_prm, '.prm', '_ksort.mat'), 1);
+        struct_save_(S_ksort, strrep(rezFile, '.prm', '_ksort.mat'), 1);
     end
     viTime_spk = S_ksort.rez.st3(:,1); %spike time
     if get_set_(P, 'fMerge_post', 0) && size(S_ksort.rez.st3, 2) == 5
@@ -39,7 +44,7 @@ function import_ksort_(vcFile_prm)
     tnWav_clu = permute(tnWav_clu, [2,1,3]);
     mnMin_clu = squeeze_(min(tnWav_clu, [], 1));
     [~, viSite_clu] = min(mnMin_clu, [], 1); %cluster location
-    viSite = 1:numel(P.viSite2Chan);
+    viSite = 1:numel(P.chanMap);
     viSite(P.viSiteZero) = [];
     viSite_clu = viSite(viSite_clu);
     viSite_spk = viSite_clu(viClu);
@@ -47,9 +52,9 @@ function import_ksort_(vcFile_prm)
     S0 = file2spk_(P, int32(viTime_spk), int32(viSite_spk));
     S0.P = P;
     S0.S_ksort = S_ksort;
-    tnWav_raw = load_bin_(strrep(P.prmFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);
-    tnWav_spk = load_bin_(strrep(P.prmFile, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
-    trFet_spk = load_bin_(strrep(P.prmFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
+    tnWav_raw = load_bin_(strrep(P.rezFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);
+    tnWav_spk = load_bin_(strrep(P.rezFile, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
+    trFet_spk = load_bin_(strrep(P.rezFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
     S0.mrPos_spk = spk_pos_(S0, trFet_spk);
     set(0, 'UserData', S0);
 
@@ -60,6 +65,6 @@ function import_ksort_(vcFile_prm)
     set(0, 'UserData', S0);
 
     % Save
-    save0_(strrep(P.prmFile, '.prm', '_jrc.mat'));
+    save0_(strrep(P.rezFile, '.prm', '_jrc.mat'));
     describe_(S0);
 end %func

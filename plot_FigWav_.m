@@ -3,13 +3,13 @@ function S0 = plot_FigWav_(S0)
     if nargin<1, S0 = get(0, 'UserData'); end
     P = S0.P; S_clu = S0.S_clu;
 
-    [hFig, S_fig] = get_fig_cache_('FigWav');
+    [hFig, S_fig] = getCachedFig('FigWav');
 
     % Show number of spikes per clusters
     % hold on; tight_plot(gca, [.04 .04], [.04 .02]);
     P.LineWidth = 1; %plot a thicker line
     P.viSite_clu = S_clu.viSite_clu;
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     if isempty(S_fig)
         % initialize
         S_fig.maxAmp = P.maxAmp;

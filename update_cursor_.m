@@ -3,7 +3,7 @@ function  S0 = update_cursor_(S0, iClu, fPaste)
     if isempty(iClu), return; end
     if isempty(S0), S0 = get(0, 'UserData'); end
     P = S0.P; S_clu = S0.S_clu;
-    % [hFig, S_fig] = get_fig_cache_('FigWav');
+    % [hFig, S_fig] = getCachedFig('FigWav');
 
     if ~isfield(S0, 'hCopy'), S0.hCopy = []; end
     if ~isfield(S0, 'hPaste'), S0.hPaste = []; end

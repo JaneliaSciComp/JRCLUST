@@ -7,7 +7,7 @@ function plot_activity_(P) % single column only
     % plot activity as a function of time
     % vcFile_evt = subsFileExt(P.prmFile, '_evt.mat');
     S0 = load_cached_(P, 0); %do not load waveforms
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     % tdur = max(cell2mat_(cellfun(@(x)double(max(x)), Sevt.cviSpk_site, 'UniformOutput', 0))) / P.sRateHz;
     tdur = double(max(S0.viTime_spk)) / P.sRateHz; % in sec
     nTime = ceil(tdur / tbin);

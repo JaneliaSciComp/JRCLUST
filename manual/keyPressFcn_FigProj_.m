@@ -2,8 +2,8 @@
 function keyPressFcn_FigProj_(hFig, event)
     S0 = get(0, 'UserData');
     [P, S_clu] = deal(S0.P, S0.S_clu);
-    [hFig, S_fig] = get_fig_cache_('FigProj');
-    % nSites = numel(P.viSite2Chan);
+    [hFig, S_fig] = getCachedFig('FigProj');
+    % nSites = numel(P.chanMap);
     S_plot1 = get(S_fig.hPlot1, 'UserData');
     viSites_show = S_plot1.viSites_show;
     % nSites = numel(viSites_show);
@@ -21,7 +21,7 @@ function keyPressFcn_FigProj_(hFig, event)
                 fPlot = 1;
             end
         else
-            if max(S_fig.viSites_show) < max(P.viSite2Chan)
+            if max(S_fig.viSites_show) < max(P.chanMap)
                 S_fig.viSites_show=S_fig.viSites_show+1;
                 fPlot = 1;
             end

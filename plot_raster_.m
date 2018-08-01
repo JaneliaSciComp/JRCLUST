@@ -10,7 +10,7 @@ function plot_raster_(S0, fNewFig)
     if nargin<2, fNewFig = 0; end
     % import  trial time
     % P = loadParam(vcFile_prm);
-    if ~isvalid_(hFig) && ~fNewFig, return; end
+    if ~tryIsValid(hFig) && ~fNewFig, return; end
     if nargin<1, S0 = get(0, 'UserData'); end
     [P, S_clu, iCluCopy, iCluPaste] = deal(S0.P, S0.S_clu, S0.iCluCopy, S0.iCluPaste);
     if isfield(P, 'vcFile_psth'), P.vcFile_trial = P.vcFile_psth; end % old field name

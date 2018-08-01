@@ -3,7 +3,7 @@ function plot_FigHist_(S0)
 
     if nargin<1, S0 = get(0, 'UserData'); end
     S_clu = S0.S_clu; P = S0.P;
-    [hFig, S_fig] = get_fig_cache_('FigHist');
+    [hFig, S_fig] = getCachedFig('FigHist');
 
     nBins_hist = 50; % @TODO: put this in param file
 

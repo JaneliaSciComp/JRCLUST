@@ -5,7 +5,7 @@ function keyPressFcn_FigTime_(hObject, event, S0)
     [P, S_clu, hFig] = deal(S0.P, S0.S_clu, hObject);
     S_fig = get(hFig, 'UserData');
 
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     % set(hObject, 'Pointer', 'watch');
     % figure_wait(1);
     switch lower(event.Key)

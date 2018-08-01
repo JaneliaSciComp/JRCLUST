@@ -2,7 +2,7 @@
 function plot_FigProj_(S0)
     if nargin<1, S0 = get(0, 'UserData'); end
     S_clu = S0.S_clu; P = S0.P;
-    [hFig, S_fig] = get_fig_cache_('FigProj');
+    [hFig, S_fig] = getCachedFig('FigProj');
 
     iClu1 = S0.iCluCopy;
     iClu2 = S0.iCluPaste;
@@ -74,7 +74,7 @@ function plot_FigProj_(S0)
     ylabel(S_fig.hAx, sprintf(vcYLabel, S_fig.maxAmp));
     title_(S_fig.hAx, vcTitle);
     vcFet_show = P.vcFet_show;
-    S_fig = struct_merge_(S_fig, ...
+    S_fig = mergeStructs(S_fig, ...
     makeStruct_(vcTitle, iClu1, iClu2, viSites_show, vcXLabel, vcYLabel, vcFet_show));
     S_fig.csHelp = { ...
     '[D]raw polygon', ...

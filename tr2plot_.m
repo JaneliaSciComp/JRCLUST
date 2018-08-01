@@ -3,7 +3,7 @@ function [vrY, vrX] = tr2plot_(trWav, iClu, viSite_show, maxAmp, P)
     if nargin<2, iClu=1; end
     iClu = double(iClu);
     if nargin<5, P = get0_('P'); end %S0 = get(0, 'UserData'); P = S0.P;
-    % [~, S_fig] = get_fig_cache_('FigWav');
+    % [~, S_fig] = getCachedFig('FigWav');
     % if isfield(S_fig, 'maxAmp')
     %     maxAmp = S_fig.maxAmp;
     % else

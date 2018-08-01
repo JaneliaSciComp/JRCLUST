@@ -8,7 +8,7 @@ function val = read_cfg_(vcName, fVerbose)
     % end
     if exist('user.cfg', 'file')
         S_cfg1 = file2struct_('user.cfg'); %override
-        S_cfg = struct_merge_(S_cfg, S_cfg1, {'path_dropbox', 'path_backup', 'default_prm'});
+        S_cfg = mergeStructs(S_cfg, S_cfg1, {'path_dropbox', 'path_backup', 'default_prm'});
         if fVerbose, fprintf('Configuration loaded from user.cfg.\n'); end
     else
         if fVerbose, fprintf('Configuration loaded from default.cfg.\n'); end

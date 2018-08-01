@@ -28,7 +28,7 @@ function plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluP
         ylabel(ax_(2), vcLabel_aux);
         iSite_ = S_clu.viSite_clu(iClu);
         vcTitle_ = sprintf('Clu %d (Site %d, Chan %d): Corr=%0.3f', ...
-        iClu, iSite_, P.viSite2Chan(iSite_), vrCorr_aux_clu(iClu));
+        iClu, iSite_, P.chanMap(iSite_), vrCorr_aux_clu(iClu));
         title(vcTitle_);
         set(ax_, 'XLim', vrTime_aux([1,end]));
         grid on;

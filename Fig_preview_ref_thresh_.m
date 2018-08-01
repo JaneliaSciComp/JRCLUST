@@ -7,7 +7,7 @@ function Fig_preview_ref_thresh_(hFig)
     vc_blank_thresh = num2str(S_fig.blank_thresh);
     vc_blank_period_ms = num2str(S_fig.blank_period_ms);
     % P = get0_('P');
-    % nSites = numel(P.viSite2Chan);
+    % nSites = numel(P.chanMap);
     csAns = inputdlg_({'blank_thresh (MAD)', 'blank_period_ms (millisecond)'}, ...
     'Common reference threshold', 1, {vc_blank_thresh, vc_blank_period_ms});
     if isempty(csAns), return; end

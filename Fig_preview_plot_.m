@@ -7,7 +7,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     if nargin<2, fKeepView = 0; end
     hWait = msgbox_('Plotting...', 0, 1);
     if isempty(P), P = get0_('P'); end
-    [hFig, S_fig] = get_fig_cache_('Fig_preview');
+    [hFig, S_fig] = getCachedFig('Fig_preview');
 
     figure_wait_(1, hFig);
     nSites = size(S_fig.mnWav_filt,2);

@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function plot_proj_(hPlot, mrMin, mrMax, P, maxAmp)
     if nargin<5
-        [hFig, S_fig] = get_fig_cache_('FigProj');
+        [hFig, S_fig] = getCachedFig('FigProj');
         maxAmp = S_fig.maxAmp;
     end
     [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, P.maxSite_show, P);

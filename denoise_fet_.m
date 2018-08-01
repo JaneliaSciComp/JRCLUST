@@ -9,7 +9,7 @@ function trFet_spk_ = denoise_fet_(trFet_spk, P, vlRedo_spk)
 
     S0 = get(0, 'UserData');
     fprintf('Denoising features using nneigh\n\t'); t1=tic;
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     nC = size(trFet_spk,1);
     try
         nC_max = get_set_(P, 'nC_max', 45);

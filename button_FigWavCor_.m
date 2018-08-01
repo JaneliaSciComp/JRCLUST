@@ -11,6 +11,6 @@ function button_FigWavCor_(xyPos, vcButton)
             S0.iCluPaste = xyPos(2);
         end
         S0 = button_CluWav_simulate_(S0.iCluCopy, S0.iCluPaste, S0);
-        S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'z'}, S0); %zoom
+        S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom
     end %switch
 end %func

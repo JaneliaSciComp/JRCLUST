@@ -2,7 +2,7 @@
 function [hFig, S_fig] = plot_FigWavCor_(S0)
     if nargin<1, S0 = get(0, 'UserData'); end
     S_clu = S0.S_clu; P = S0.P;
-    [hFig, S_fig] = get_fig_cache_('FigWavCor');
+    [hFig, S_fig] = getCachedFig('FigWavCor');
 
     figure_wait_(1, hFig);
     nClu = S_clu.nClu;

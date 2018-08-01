@@ -1,8 +1,8 @@
 %--------------------------------------------------------------------------
 function [iClu, hPlot] = plot_tmrWav_clu_(S0, iClu, hPlot, vrColor)
     [S_clu, P] = getfield_(S0, 'S_clu', 'P');
-    [hFig, S_fig] = get_fig_cache_('FigWav');
-    if ~isvalid_(hPlot)
+    [hFig, S_fig] = getCachedFig('FigWav');
+    if ~tryIsValid(hPlot)
         hPlot = plot(nan, nan, 'Color', vrColor, 'LineWidth', 2, 'Parent', S_fig.hAx);
     end
     if P.fWav_raw_show

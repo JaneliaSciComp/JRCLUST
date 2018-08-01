@@ -31,7 +31,7 @@
 function update_FigTime_()
     % display features in a new site
 
-    [hFig, S_fig] = get_fig_cache_('FigTime');
+    [hFig, S_fig] = getCachedFig('FigTime');
     S0 = get(0, 'UserData');
     P = S0.P;
     if ~isVisible_(S_fig.hAx), return ;end

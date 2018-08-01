@@ -20,7 +20,7 @@ function [vlIn_spk, mrFet, vhAx] = auto_split_wav_(mrSpkWav, mrFet, nSplits)
     % nSplit = preview_split_(mrSpkWav1);
     % if isnan(nSplit), return; end
 
-    resize_figure_([], [.5 0 .5 1]);
+    resizeFigure([], [.5 0 .5 1]);
     vhAx = zeros(4,1);
     for iAx=1:numel(vhAx)
         vhAx(iAx) = subplot(2,2,iAx); hold on;

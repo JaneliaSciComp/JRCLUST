@@ -2,7 +2,7 @@
 function plot_FigMap_(S0)
     if nargin<1, S0 = get(0, 'UserData'); end
     P = S0.P; S_clu = S0.S_clu;
-    [hFig, S_fig] = get_fig_cache_('FigMap');
+    [hFig, S_fig] = getCachedFig('FigMap');
 
     mrWav1 = S_clu.tmrWav_clu(:,:,S0.iCluCopy);
     vrVpp = squeeze_(max(mrWav1) - min(mrWav1));

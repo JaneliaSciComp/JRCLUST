@@ -7,7 +7,7 @@ function keyPressFcn_Fig_traces_(hFig, event)
     P = S0.P;
     S_fig = get(hFig, 'UserData');
     factor = 1 + 3 * keyModifier(event, 'shift');
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
 
     switch lower(event.Key)
         case 'h', msgbox_(S_fig.csHelp, 1);
@@ -122,7 +122,7 @@ function keyPressFcn_Fig_traces_(hFig, event)
         hPoint = plot(vrX(index_plot), vrY(index_plot), 'r*');
         hLine = plot(S_fig.hAx, mrX(:,iSite), mrY(:,iSite), 'r-');
         hold(S_fig.hAx, 'off');
-        iChan = P.viSite2Chan(iSite);
+        iChan = P.chanMap(iSite);
         msgbox_(sprintf('Site: %d/ Chan: %d', iSite, iChan), 1);
         deleteMany(hRect, hLine, hPoint);
     end %return if S_fig didn't change

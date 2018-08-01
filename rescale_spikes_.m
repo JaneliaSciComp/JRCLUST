@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function rescale_spikes_(hSpkAll, maxAmp_prev, P)
     S = get(hSpkAll, 'UserData');
-    [~, S_fig] = get_fig_cache_('FigWav');
+    [~, S_fig] = getCachedFig('FigWav');
     S0 = get(0, 'UserData');
     cvrY = S.cvrY;
     cviSite = S.cviSite;

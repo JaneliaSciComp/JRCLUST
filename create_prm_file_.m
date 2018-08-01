@@ -11,7 +11,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     P0 = file2struct_(jrcpath_(read_cfg_('default_prm'))); %P = defaultParam();
     if ~isempty(vcFile_template)
         if exist(vcFile_template, 'file') == 2
-            P0 = struct_merge_(P0, file2struct_(vcFile_template));
+            P0 = mergeStructs(P0, file2struct_(vcFile_template));
         else
             vcPrompt = sprintf('%s does not exist.\n', vcFile_bin);
             fprintf(2, '%s\n', vcPrompt);
@@ -80,7 +80,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     P.probe_file = vcFile_prb;
     try
         S_prb = file2struct_(find_prb_(vcFile_prb));
-        %     P = struct_merge_(P, S_prb);
+        %     P = mergeStructs(P, S_prb);
         if isfield(S_prb, 'maxSite'), P.maxSite = S_prb.maxSite; end
         if isfield(S_prb, 'nSites_ref'), P.nSites_ref = S_prb.nSites_ref; end
     catch
@@ -98,11 +98,11 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
 
     % Load prb file
     if isfield(P, 'template_file')
-        P = struct_merge_(file2struct_(P.template_file), P);
+        P = mergeStructs(file2struct_(P.template_file), P);
     end
-    P = struct_merge_(P0, P);
-    P = struct_merge_(P, P_meta);
-    P = struct_merge_(P, file_info_(vcFile_bin));
+    P = mergeStructs(P0, P);
+    P = mergeStructs(P, P_meta);
+    P = mergeStructs(P, file_info_(vcFile_bin));
     P.duration_file = P.nBytes_file / bytesPerSample_(P.vcDataType) / P.nChans / P.sRateHz; %assuming int16
     P.version = jrcVersion();
     try

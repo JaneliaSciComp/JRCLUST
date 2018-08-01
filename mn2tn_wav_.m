@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function [tnWav_raw, tnWav_spk, viTime_spk] = mn2tn_wav_(mnWav_raw, mnWav_spk, viSite_spk, viTime_spk, P)
     nSpks = numel(viTime_spk);
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     spkLim_wav = P.spkLim;
     spkLim_raw = P.spkLim_raw;
     nSites_spk = (P.maxSite * 2) + 1;

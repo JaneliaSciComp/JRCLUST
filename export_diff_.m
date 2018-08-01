@@ -4,10 +4,10 @@ function export_diff_(P)
     error('not implemented yet');
     if ~P.fTranspose_bin
         mnWav1 = reshape(load_bin_(P.vcFile, P.vcDataType), [], P.nChans);
-        mnWav1 = mnWav1(:,P.viSite2Chan);
+        mnWav1 = mnWav1(:,P.chanMap);
     else
         mnWav1 = reshape(load_bin_(P.vcFile, P.vcDataType), P.nChans, []);
-        mnWav1 = mnWav1(P.viSite2Chan, :)';
+        mnWav1 = mnWav1(P.chanMap, :)';
     end
 
     % mnWav1: nT x nSites
@@ -23,7 +23,7 @@ function export_diff_(P)
     P1.nSites_ref = 0;
 
     % differentiate channels and write to bin file (two column type)
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     viChan_HP = 1:2:nSites;
     viChan_HN = 2:2:nSites;
     viChan_VP = 1:(nSites-4);

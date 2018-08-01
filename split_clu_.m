@@ -4,7 +4,7 @@ function S_clu = split_clu_(iClu1, vlIn)
     figure_wait_(1); drawnow;
     [P, S_clu, viSite_spk] = get0_('P', 'S_clu', 'viSite_spk');
     hMsg = msgbox_open_('Splitting...');
-    figure(get_fig_cache_('FigWav'));
+    figure(getCachedFig('FigWav'));
 
     % create a new cluster (add at the end)
     n2 = sum(vlIn); %number of clusters to split off

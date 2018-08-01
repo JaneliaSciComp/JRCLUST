@@ -4,7 +4,7 @@ function plot_FigTime_(S0)
 
     if nargin<1, S0 = get(0, 'UserData'); end
     S_clu = S0.S_clu; P = S0.P;
-    [hFig, S_fig] = get_fig_cache_('FigTime');
+    [hFig, S_fig] = getCachedFig('FigTime');
 
     %----------------
     % collect info
@@ -74,7 +74,7 @@ function plot_FigTime_(S0)
     title_(S_fig.hAx, vcTitle);
     ylabel(S_fig.hAx, vcYlabel);
 
-    S_fig = struct_merge_(S_fig, makeStruct_(iSite, time_lim, P, vpp_lim, viSpk1));
+    S_fig = mergeStructs(S_fig, makeStruct_(iSite, time_lim, P, vpp_lim, viSpk1));
     S_fig.csHelp = {...
     'Up/Down: change channel', ...
     'Left/Right: Change sites', ...

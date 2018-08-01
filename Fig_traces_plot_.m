@@ -13,7 +13,7 @@ function Fig_traces_plot_(fAxis_reset)
     fWait = msgbox_('Plotting...',0,1);
     fShuttleOrder = 1; %shuffle cluster color
     [S0, P, S_clu] = get0_();
-    [hFig, S_fig] = get_fig_cache_('Fig_traces');
+    [hFig, S_fig] = getCachedFig('Fig_traces');
     figure_wait_(1, hFig); drawnow;
     sRateHz = P.sRateHz / P.nSkip_show;
     viSamples1 = 1:P.nSkip_show:size(mnWav1,1);
@@ -23,14 +23,14 @@ function Fig_traces_plot_(fAxis_reset)
         P1=P; P1.sRateHz = sRateHz; P1.useGPU = 0;
         P1.vcFilter = get_set_(P, 'vcFilter_show', P.vcFilter);
         if P.fft_thresh>0, mnWav1 = fft_clean_(mnWav1, P); end
-        mrWav1 = bit2uV_(filt_car_(mnWav1(viSamples1, P.viSite2Chan), P1), P1);
+        mrWav1 = bit2uV_(filt_car_(mnWav1(viSamples1, P.chanMap), P1), P1);
         vcFilter_show = P1.vcFilter;
     else
-        mrWav1 = meanSubt_(single(mnWav1(viSamples1, P.viSite2Chan))) * P.uV_per_bit;
+        mrWav1 = meanSubt_(single(mnWav1(viSamples1, P.chanMap))) * P.uV_per_bit;
         vcFilter_show = 'off';
     end
-    viSites = 1:numel(P.viSite2Chan);
-    % mrWav1 = meanSubt_(single(mnWav1(:, P.viSite2Chan))) * P.uV_per_bit;
+    viSites = 1:numel(P.chanMap);
+    % mrWav1 = meanSubt_(single(mnWav1(:, P.chanMap))) * P.uV_per_bit;
     % hide bad channels
     nTime_traces = get_(P, 'nTime_traces');
     if isempty(nTime_traces) || nTime_traces==1
@@ -42,7 +42,7 @@ function Fig_traces_plot_(fAxis_reset)
         tlim_show = (cellfun(@(x)x(1), cvn_lim_bin([1,end]))) / P.sRateHz;
         vcXLabel = sprintf('Time (s), %d segments merged (%0.1f ~ %0.1f s, %0.2f s each)', nTime_traces, tlim_show, diff(P.tlim));
         mrX_edges = vrTime_bin(repmat(viEdges(:)', [3,1]));
-        mrY_edges = repmat([0;numel(P.viSite2Chan)+1;nan],1,numel(viEdges));
+        mrY_edges = repmat([0;numel(P.chanMap)+1;nan],1,numel(viEdges));
         set(S_fig.hPlot_edges, 'XData', mrX_edges(:), 'YData', mrY_edges(:));
         csTime_bin = cellfun(@(x)sprintf('%0.1f', x(1)/P.sRateHz), cvn_lim_bin, 'UniformOutput', 0);
         set(S_fig.hAx, {'XTick', 'XTickLabel'}, {vrTime_bin(viEdges), csTime_bin});

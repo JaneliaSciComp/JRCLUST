@@ -1,12 +1,14 @@
 %--------------------------------------------------------------------------
 % 8/1/17 JJJ: Bugfix: If S_clu is empty, reload _jrc.mat file
-function [S0, P] = load_cached_(P, fLoadWav)
+function [S0, P] = load_cached_(P, loadWaveforms)
     % Load cached data either from RAM or disk
     % Usage
     % S0 = load_cached_(P)
     % S0 = load_cached_(vcFile)
     % P0: Previously stored P in S0, S0.P = P overwritten
-    if nargin<2, fLoadWav=1; end
+    if nargin < 2
+        loadWaveforms = 1;
+    end
 
     global tnWav_spk tnWav_raw trFet_spk %spike waveform (filtered)
     if ischar(P), P = loadParams(P); end
@@ -38,7 +40,7 @@ function [S0, P] = load_cached_(P, fLoadWav)
         if isempty(S0), S0.P = []; end
         [P0, S0.P] = deal(S0.P, P); %swap
         if isempty(tnWav_spk) || isempty(tnWav_raw) || isempty(trFet_spk)
-            if ~fLoadWav, return; end
+            if ~loadWaveforms, return; end
             if isempty(S0), return; end %no info
             try
                 if get_set_(P, 'fRamCache', 1)

@@ -10,9 +10,9 @@ function S0 = button_CluWav_simulate_(iCluCopy, iCluPaste, S0, initial_load) % T
     S0 = update_cursor_(S0, iCluCopy, 0);
     S0 = update_cursor_(S0, iCluPaste, 1);
     if initial_load==0
-        S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'t','c','i','v','e','f'}, S0); %'z' to recenter 'j', %TW
+        S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'t','c','i','v','e','f'}, S0); %'z' to recenter 'j', %TW
     else
-        S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'j','t','c','i','v','e','f'}, S0); %'z' to recenter 'j', %TW
+        S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'j','t','c','i','v','e','f'}, S0); %'z' to recenter 'j', %TW
     end
     set(0, 'UserData', S0);
 

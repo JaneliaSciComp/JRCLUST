@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
-function hPatch = plot_probe_(mrSiteXY, vrSiteHW, viSite2Chan, vrVpp, hFig)
-    if nargin<3, viSite2Chan=[]; end
+function hPatch = plot_probe_(mrSiteXY, vrSiteHW, chanMap, vrVpp, hFig)
+    if nargin<3, chanMap=[]; end
     if nargin<4, vrVpp=[]; end
     if nargin<5, hFig=[]; end
 
@@ -23,8 +23,8 @@ function hPatch = plot_probe_(mrSiteXY, vrSiteHW, viSite2Chan, vrVpp, hFig)
     else
         hPatch = patch(mrPatchX, mrPatchY, 'w', 'EdgeColor', 'k'); %[0 0 0], 'EdgeColor', 'none', 'FaceColor', 'flat', 'FaceVertexCData', [0 0 0], 'FaceAlpha', 0);
     end
-    if ~isempty(viSite2Chan)
-        csText = arrayfun(@(i)sprintf('%d/%d', i, viSite2Chan(i)), 1:numel(viSite2Chan), 'UniformOutput', 0);
+    if ~isempty(chanMap)
+        csText = arrayfun(@(i)sprintf('%d/%d', i, chanMap(i)), 1:numel(chanMap), 'UniformOutput', 0);
     else
         csText = arrayfun(@(i)sprintf('%d', i), 1:nSites, 'UniformOutput', 0);
     end

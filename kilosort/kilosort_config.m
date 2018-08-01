@@ -6,7 +6,7 @@ function ops = kilosort_config(P)
     if nargin>=1
         useGPU = P.useGPU;
         [fpath, ~, ~] = fileparts(P.vcFile);
-        nSites = numel(P.viSite2Chan);
+        nSites = numel(P.chanMap);
         ops.NchanTOT = P.nChans; % total number of chanels stored infile
     elseif nargin==0
         useGPU = 1;

@@ -85,7 +85,7 @@ function [fSplit, vlIn] = plot_split_(S1)
 
     % Plot temporary figure (auto-close)
     hFig = figure(10221); clf;
-    resize_figure_(hFig, [0 0 .5 1]);
+    resizeFigure(hFig, [0 0 .5 1]);
     subplot(2,2,[1,3]); hold on;
     line(vxPlot, vyPlot, 'Color', P.mrColor_proj(2,:), 'Marker', 'o', 'MarkerSize', 2, 'LineStyle', 'none');
     hPlot = line(vxPlot(vlIn), vyPlot(vlIn), 'Color', P.mrColor_proj(3,:), 'Marker', 'o', 'MarkerSize', 2, 'LineStyle', 'none');

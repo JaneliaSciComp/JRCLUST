@@ -1,0 +1,5 @@
+P.vcFile_prm = P.prmFile
+P.viSite2Chan = P.chanMap
+
+S0.csFig = S0.figTags
+S0.cvrFigPos0 = S0.figPositions

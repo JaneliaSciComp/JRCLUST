@@ -31,7 +31,7 @@ function [mnWav1, vrWav_mean1, dimm_wav] = load_file_(fid_bin, nSamples_load1, P
 
     % extract channels
     if P.fTranspose_bin
-        if ~isempty(P.viSite2Chan), mnWav1 = mnWav1(P.viSite2Chan,:); end
+        if ~isempty(P.chanMap), mnWav1 = mnWav1(P.chanMap,:); end
         vrWav_mean1 = single(mean(mnWav1, 1)); %6x faster to transpose in dimm1
         if fSingle
             mnWav1 = single(mnWav1') * P.uV_per_bit;
@@ -39,7 +39,7 @@ function [mnWav1, vrWav_mean1, dimm_wav] = load_file_(fid_bin, nSamples_load1, P
             mnWav1 = mnWav1';
         end
     else %Catalin's format. time x nChans
-        if ~isempty(P.viSite2Chan), mnWav1 = mnWav1(:,P.viSite2Chan); end
+        if ~isempty(P.chanMap), mnWav1 = mnWav1(:,P.chanMap); end
         if ~isempty(P.tlim_load)
             nSamples = size(mnWav1,1);
             nlim_load = min(max(round(P.tlim_load * P.sRateHz), 1), nSamples);

@@ -12,9 +12,9 @@ function P = load_prb_(vcFile_prb, P)
     end
 
     P.probe_file = vcFile_prb;
-    %     [P.viSite2Chan, P.mrSiteXY, P.vrSiteHW, P.cviShank] = read_prb_file(vcFile_prb);
+    %     [P.chanMap, P.mrSiteXY, P.vrSiteHW, P.cviShank] = read_prb_file(vcFile_prb);
     S_prb = file2struct_(vcFile_prb);
-    P.viSite2Chan = S_prb.channels;
+    P.chanMap = S_prb.channels;
     P.mrSiteXY = S_prb.geometry;
     P.vrSiteHW = S_prb.pad;
     shank = get_(S_prb, 'shank');
@@ -33,9 +33,9 @@ function P = load_prb_(vcFile_prb, P)
 
     % P = copyStruct_(P, S_prb, {'cviShank', 'maxSite', 'um_per_pix'});
     if isfield(P, 'nChans')
-        P.viChan_aux = setdiff(1:P.nChans, 1:max(P.viSite2Chan)); %aux channel. change for
+        P.viChan_aux = setdiff(1:P.nChans, 1:max(P.chanMap)); %aux channel. change for
     else
         P.viChan_aux = [];
     end
-    P = struct_merge_(P, S_prb);
+    P = mergeStructs(P, S_prb);
 end %func

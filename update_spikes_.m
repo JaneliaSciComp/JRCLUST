@@ -4,7 +4,7 @@ function update_spikes_(varargin)
     hMsg = msgbox_open_('Updating spikes');
     fig_prev = gcf;
     figure_wait_(1);
-    [~, S_fig] = get_fig_cache_('FigWav');
+    [~, S_fig] = getCachedFig('FigWav');
     % plot_tnWav_clu_(S_fig, S0.P); %do this after plotSpk_
     plot_spkwav_(S_fig, S0);
     tryClose(hMsg);

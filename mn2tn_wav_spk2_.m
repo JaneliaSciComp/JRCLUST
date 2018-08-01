@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function tnWav_spk1 = mn2tn_wav_spk2_(mnWav1, viSite_spk, viTime_spk, P)
     nSpks = numel(viSite_spk);
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     spkLim_wav = P.spkLim;
     nSites_spk = (P.maxSite * 2) + 1;
     tnWav_spk1 = zeros(diff(spkLim_wav) + 1, nSites_spk, nSpks, 'like', mnWav1);

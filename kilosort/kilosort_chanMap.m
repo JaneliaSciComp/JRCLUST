@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function S_chanMap = kilosort_chanMap(P)
     [fpath, ~, ~] = fileparts(P.vcFile);
-    chanMap = P.viSite2Chan;
+    chanMap = P.chanMap;
     chanMap = chanMap(:)';
     % chanMap = [33 34 8 10 12 14 16 18 20 22 24 26 28 30 32 ...
     %     7 9 11 13 15 17 19 21 23 25 27 29 31 1 2 3 4 5 6];
