@@ -29,7 +29,7 @@ function delete_auto_()
     % Auto delete
     figure_wait_(1); drawnow;
     S_clu = delete_clu_(S_clu, viClu_delete);
-    set0_(S_clu);
+    setUserData(S_clu);
     S0 = gui_update_();
     figure_wait_(0);
 

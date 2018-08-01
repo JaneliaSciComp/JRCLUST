@@ -36,7 +36,7 @@ function update_FigTime_()
     P = S0.P;
     if ~isVisible_(S_fig.hAx), return ;end
     % P.vcFet_show = S_fig.csFet{S_fig.iFet};
-    set0_(P);
+    setUserData(P);
     [vrFet0, vrTime0, vcYlabel] = getFet_site_(S_fig.iSite, [], S0);
     if ~isfield(S_fig, 'fPlot0'), S_fig.fPlot0 = 1; end
     toggleVisible_(S_fig.hPlot0, S_fig.fPlot0);

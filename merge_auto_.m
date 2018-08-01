@@ -20,7 +20,7 @@ function merge_auto_(S0)
     S_clu = post_merge_wav_(S_clu, P.nRepeat_merge, setfield(P, 'maxWavCor', maxWavCor));
     % [S_clu, S0] = S_clu_commit_(S_clu, 'post_merge_');
     S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, S_clu_self_corr_(S_clu, [], S0));
-    set0_(S_clu);
+    setUserData(S_clu);
     S0 = gui_update_();
     figure_wait_(0);
 

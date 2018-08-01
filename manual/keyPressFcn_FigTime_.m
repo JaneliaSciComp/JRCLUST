@@ -86,7 +86,7 @@ function keyPressFcn_FigTime_(hObject, event, S0)
         %         else
         %             P.vcFet_show = 'fet';
         %         end
-        %         set0_(P);
+        %         setUserData(P);
         %         update_FigTime_();
 
         case 'c' % compare pca across channels

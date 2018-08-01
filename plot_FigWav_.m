@@ -36,7 +36,7 @@ function S0 = plot_FigWav_(S0)
     end
 
     % create text
-    % S0 = set0_(mh_info);
+    % S0 = setUserData(mh_info);
     fText = get_set_(S_fig, 'fText', get_set_(P, 'Text', 1));
     S_fig = figWav_clu_count_(S_fig, S_clu, fText);
     S_fig.csHelp = { ...

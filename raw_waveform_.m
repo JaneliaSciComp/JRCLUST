@@ -10,9 +10,9 @@ function raw_waveform_(hMenu)
 
     if isempty(get_(S_clu, 'tmrWav_raw_clu'))
         S_clu = S_clu_wav_(S_clu);
-        S0 = set0_(P, S_clu);
+        S0 = setUserData(P, S_clu);
     else
-        S0 = set0_(P);
+        S0 = setUserData(P);
     end
     set(hMenu, 'Checked', ifeq_(P.fWav_raw_show, 'on', 'off'));
     % redraw windows

@@ -24,6 +24,6 @@ function Fig_preview_save_prm_(hFig)
     P = get0_('P');
     edit_prm_file_(P_update, P.prmFile);
     % P = struct_merge_(P, P_update);
-    % set0_(P);
+    % setUserData(P);
     edit(P.prmFile);
 end %func

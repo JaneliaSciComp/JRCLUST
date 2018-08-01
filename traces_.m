@@ -12,7 +12,7 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
     if nargin==0
         P = get0_('P');
     else
-        set0_(P);
+        setUserData(P);
     end
     if nargin<2, fDebug_ui_=0; end
     if nargin<3, vcFileId=''; end
@@ -22,7 +22,7 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
     if ~fPlot_lfp
         S0 = load_cached_(P, 0);
         set(0, 'UserData', S0);
-        set0_(fDebug_ui);
+        setUserData(fDebug_ui);
     else
         S0 = struct('P', P);
         set(0, 'UserData', S0);
@@ -52,7 +52,7 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
     else
         vcFile_bin = P.vcFile; % if multiple files exist, load first
     end
-    set0_(iFile_show);
+    setUserData(iFile_show);
     tlim_bin = P.tlim;
 
     % Open file

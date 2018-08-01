@@ -79,7 +79,7 @@ function nFailed = unit_test_(vcArg1, vcArg2, vcArg3)
         t1 = tic;
         profile('on');
         fDebug_ui = 1;
-        set0_(fDebug_ui);
+        setUserData(fDebug_ui);
         try
             if any(csCmd{iCmd} == '(' | csCmd{iCmd} == ';') %it's a function
                 evalin('base', csCmd{iCmd}); %run profiler
@@ -113,5 +113,5 @@ function nFailed = unit_test_(vcArg1, vcArg2, vcArg3)
         profview(0, cS_prof{1});
     end
     fDebug_ui = [];
-    set0_(fDebug_ui);
+    setUserData(fDebug_ui);
 end %func

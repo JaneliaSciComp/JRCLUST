@@ -59,7 +59,7 @@ function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites
             if isempty(mrPv_global)
                 [mrPv_global, vrD_global] = tnWav2pv_(trWav2_spk, P);
                 [mrPv_global, vrD_global] = gather_(mrPv_global, vrD_global);
-                set0_(mrPv_global, vrD_global);
+                setUserData(mrPv_global, vrD_global);
             end
             mrPv = mrPv_global;
         end

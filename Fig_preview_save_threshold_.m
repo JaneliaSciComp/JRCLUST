@@ -8,7 +8,7 @@ function Fig_preview_save_threshold_(hFig)
     vcFile_thresh = strrep(P.prmFile, '.prm', '_thresh.mat');
     save(vcFile_thresh, 'vnThresh_site'); % also need to store filter values?
     P.vcFile_thresh = vcFile_thresh;
-    set0_(P);
+    setUserData(P);
     edit_prm_file_(P, P.prmFile);
 
     msgbox_(sprintf('Saved to %s and updated %s (vcFile_thresh)', ...

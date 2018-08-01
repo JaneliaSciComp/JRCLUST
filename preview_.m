@@ -6,10 +6,10 @@ function S_fig = preview_(P, fDebug_ui_)
     global fDebug_ui
     if nargin<2, fDebug_ui_ = 0; end
     fDebug_ui = fDebug_ui_;
-    set0_(fDebug_ui);
+    setUserData(fDebug_ui);
     if ischar(P), P = loadParams(P); end
     [mnWav_raw, S_preview] = load_preview_(P);
-    set0_(P);
+    setUserData(P);
     nSites = size(mnWav_raw,2);
 
     % process signal, how about common mean?

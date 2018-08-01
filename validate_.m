@@ -52,7 +52,7 @@ function validate_(P)
 
     write_struct_(strrep(P.prmFile, '.prm', '_score.mat'), S_score);
 
-    set0_(S_score);
+    setUserData(S_score);
     assignWorkspace_(S_score); %put in workspace
 
     figure; set(gcf,'Name',P.prmFile);

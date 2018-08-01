@@ -17,5 +17,5 @@ function S0 = figures_manual_(P)
 
     csFig = {'FigPos', 'FigMap', 'FigTime', 'FigWav', 'FigWavCor', 'FigProj', 'FigRD', 'FigCorr', 'FigIsi', 'FigHist'};
     cvrFigPos0 = cellfun(@(vc)get(get_fig_(vc), 'OuterPosition'), csFig, 'UniformOutput', 0);
-    S0 = set0_(cvrFigPos0, csFig);
+    S0 = setUserData(cvrFigPos0, csFig);
 end %func

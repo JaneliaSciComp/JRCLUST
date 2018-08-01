@@ -58,7 +58,7 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
     else
         vlKeep_ref = [];
     end
-    % set0_(vlKeep_ref);
+    % setUserData(vlKeep_ref);
     fprintf('\ttook %0.1fs\n', toc(t_filter));
 
     switch get_set_(P, 'vcFilter_detect', '')

@@ -8,6 +8,6 @@ function proj_view_(hMenu)
         vhMenu(iMenu).Checked = if_on_off_(vhMenu(iMenu).Label, vcFet_show);
     end
     % auto-scale the view
-    S0 = set0_(P);
+    S0 = setUserData(P);
     button_CluWav_simulate_(S0.iCluCopy, S0.iCluPaste, S0);
 end %func

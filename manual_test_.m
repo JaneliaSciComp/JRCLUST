@@ -70,9 +70,9 @@ function manual_test_(P, csCmd)
             keyPress_fig_(get_fig_cache_('FigProj'), get_keyPress_('all'));
 
             case 'Exit'
-            %fDebug_ui = 0;  set0_(fDebug_ui); % disable debug flag
+            %fDebug_ui = 0;  setUserData(fDebug_ui); % disable debug flag
             exit_manual_(get_fig_cache_('FigWav'));
-            %             fDebug_ui = 1;  set0_(fDebug_ui);
+            %             fDebug_ui = 1;  setUserData(fDebug_ui);
 
             otherwise
             fprintf(2, 'Unsupported testing mode: %s\n', vcCmd1);

@@ -32,7 +32,7 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
         try
             S_thresh = load(P.vcFile_thresh);
             vnThresh_site = S_thresh.vnThresh_site;
-            set0_(vnThresh_site);
+            setUserData(vnThresh_site);
             fprintf('Loaded %s\n', P.vcFile_thresh);
         catch
             disperr_('vcFile_thresh load error');
@@ -45,7 +45,7 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
     nFiles = numel(csFile);
     [nSamples1, nLoads] = deal(0); % initialize the counter
     [vrFilt_spk, mrPv_global] = deal([]); % reset the template
-    set0_(mrPv_global, vrFilt_spk); % reeset mrPv_global and force it to recompute
+    setUserData(mrPv_global, vrFilt_spk); % reeset mrPv_global and force it to recompute
     write_spk_(P.prmFile);
     for iFile=1:nFiles
         fprintf('File %d/%d: detecting spikes from %s\n', iFile, nFiles, csFile{iFile});

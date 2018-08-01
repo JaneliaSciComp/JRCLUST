@@ -15,12 +15,12 @@ function S0 = sort_(P, fLoad)
         S_clu = sort_overlap_(S0, S_clu, P);
     end
     [S_clu, S0] = S_clu_commit_(S_clu, 'sort_');
-    % S0 = set0_(P); %, dimm_fet, cvrTime_site, cvrVpp_site, cmrFet_site, P);
+    % S0 = setUserData(P); %, dimm_fet, cvrTime_site, cvrVpp_site, cmrFet_site, P);
 
     % measure time
     runtime_sort = toc(runtime_sort);
     fprintf('Sorting took %0.1fs for %s\n', runtime_sort, P.prmFile);
-    S0 = set0_(runtime_sort, P);
+    S0 = setUserData(runtime_sort, P);
     S0 = clear_log_(S0);
 
     save0_(strrep(P.prmFile, '.prm', '_jrc.mat'));

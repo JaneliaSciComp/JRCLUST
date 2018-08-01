@@ -22,7 +22,7 @@ function [mn1, nShift_post] = filter_detect_(mn, P, vcMode)
                 lim_ = round([3,5]/8 * size(mn,1));
                 mn_ = mn(lim_(1):lim_(2),:);
                 [vrFilt_spk, vrVaf, nShift_post] = calc_matched_filt_(mn_, P); %detect primary
-                set0_(vrFilt_spk, nShift_post);
+                setUserData(vrFilt_spk, nShift_post);
             else
                 nShift_post = get0_('nShift_post');
             end

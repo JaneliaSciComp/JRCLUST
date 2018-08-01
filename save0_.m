@@ -13,7 +13,7 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
         % update version number
         S0.P.version = jrcVersion();
         P = S0.P;
-        set0_(P);
+        setUserData(P);
 
         struct_save_(S0, vcFile_mat, 1);
         vcFile_prm = S0.P.prmFile;

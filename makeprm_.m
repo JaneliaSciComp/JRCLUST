@@ -28,6 +28,6 @@ function [vcFile_prm, vcPrompt] = makeprm_(vcFile_bin, vcFile_prb, fAsk, vcFile_
         [vcFile_prm, vcPrompt] = deal('');
         return;
     end
-    set0_(P);
+    setUserData(P);
     vcFile_prm = P.prmFile;
 end

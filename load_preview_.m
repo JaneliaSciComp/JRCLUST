@@ -29,7 +29,7 @@ function [mnWav_raw, S_preview] = load_preview_(P)
         try
             vcFile_bin_ = csFile_bin{iFile};
             [fid_bin_, nBytes_bin_, P.header_offset] = fopen_(vcFile_bin_, 'r');
-            set0_(P);
+            setUserData(P);
             if isempty(fid_bin_)
                 fprintf(2, '.bin file does not exist: %s\n', vcFile_bin_);
                 continue;

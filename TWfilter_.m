@@ -15,9 +15,9 @@ function TWfilter_(P, vcMode)
 	
 	fDebug_ui = 0;
 	P.useGPU = 0; %do not use GPU for manual use
-	set0_(fDebug_ui, P);
+	setUserData(fDebug_ui, P);
 
-	S0 = set0_(P); %update the P structure
+	S0 = setUserData(P); %update the P structure
 	S0.S_clu = S_clu_update_wav_(S0.S_clu, P);                
 	set(0, 'UserData', S0);
     
