@@ -6,13 +6,13 @@ function varargout = jrc(cmd, varargin)
     % Memory-efficient version
     % P is static and loaded from file
     % Dynamic variables are set in S0=get(0,'UserData')
-    
+
     % Add paths
     [dirname, ~] = fileparts(fullfile(mfilename('fullpath')));
     addpath(fullfile(dirname, 'meta')); % info functions
     addpath(fullfile(dirname, 'utils')); % miscellaneous (but useful) tools
     addpath(fullfile(dirname, 'params')); % parameter-related functions
-    addpath(fullfile(dirname, 'gui')); % GUI-related functions
+    addpath(fullfile(dirname, 'manual')); % manual step functions
     addpath(fullfile(dirname, 'kilosort')); % kilosort-related functions
 
     % process arguments
@@ -34,8 +34,8 @@ function varargout = jrc(cmd, varargin)
             cmd = 'help';
     end
 
-    warning off;    
-    
+    warning off;
+
     %-----
     % Command type A: supporting functions
     doExit = 1;
