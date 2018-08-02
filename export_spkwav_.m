@@ -24,7 +24,7 @@ function export_spkwav_(P, vcArg2, fDiff)
 
     % Collect waveforms by clusters
     ctrWav_clu = cell(1, S_clu.nClusters);
-    miSite_clu = P.miSites(:,S_clu.viSite_clu);
+    miSite_clu = P.miSites(:,S_clu.clusterSites);
     fprintf('Collecting spikes from clusters\n\t'); t1=tic;
     if isempty(viClu), viClu = 1:S_clu.nClusters; end
     for iClu = viClu

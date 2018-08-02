@@ -16,13 +16,13 @@ function [S_clu, S0] = post_merge_(S_clu, P, fPostCluster)
     'vrVpp_uv_clu', 'vrVmin_uv_clu', 'vrSnr_clu', 'vnSite_clu', ...
     'vrIsoDist_clu', 'vrLRatio_clu', 'vrIsiRatio_clu');
     S_clu = S_clu_refresh_(S_clu);
-    S_clu = S_clu_sort_(S_clu, 'viSite_clu');
+    S_clu = S_clu_sort_(S_clu, 'clusterSites');
     S_clu = rmfield_(S_clu, 'csNote_clu');
 
     if fClean_clu, S_clu = S_clu_cleanup_(S_clu, P); end
     S_clu = post_merge_wav_(S_clu, nRepeat_merge, P);
     S_clu = S_clu_refresh_(S_clu);
-    S_clu = S_clu_sort_(S_clu, 'viSite_clu');
+    S_clu = S_clu_sort_(S_clu, 'clusterSites');
     S_clu = S_clu_update_wav_(S_clu, P);
 
     % set diagonal element

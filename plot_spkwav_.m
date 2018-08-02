@@ -8,7 +8,7 @@ function S_fig = plot_spkwav_(S_fig, S0)
 
     [cvrX, cvrY, cviSite] = deal(cell(S_clu.nClusters, 1));
     vnSpk = zeros(S_clu.nClusters, 1);
-    miSites_clu = P.miSites(:, S_clu.viSite_clu);
+    miSites_clu = P.miSites(:, S_clu.clusterSites);
     if isfield(S_fig, 'maxAmp')
         maxAmp = S_fig.maxAmp;
     else

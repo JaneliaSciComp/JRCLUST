@@ -21,7 +21,7 @@ function TWfilter_(P, vcMode)
 	S0.S_clu = S_clu_update_wav_(S0.S_clu, P);                
 	set(0, 'UserData', S0);
     
-    for i_clu = sort(find(S0.S_clu.viSite_clu>P.max_real_site),'descend')
+    for i_clu = sort(find(S0.S_clu.clusterSites>P.max_real_site),'descend')
     	S0.S_clu = delete_clu_(S0.S_clu, i_clu);
 		fprintf('Deleting cluster %d\n', i_clu); 
     end

@@ -90,7 +90,7 @@ function Fig_traces_plot_(fAxis_reset)
                 multiplot(chSpk{iSite}, S_fig.maxAmp, mrT11, mrY11, iSite);
             end
         else % different color for each clu
-            viClu_spk1 = S_clu.viClu(viSpk1);
+            viClu_spk1 = S_clu.spikeClusters(viSpk1);
             mrColor_clu = [jet(S_clu.nClusters); 0 0 0];
             vrLineWidth_clu = (mod((1:S_clu.nClusters)-1, 3)+1)'/2 + .5;  %(randi(3, S_clu.nClusters, 1)+1)/2;
             if fShuttleOrder

@@ -8,18 +8,18 @@ function [S_clu, vlKeep_clu] = S_clu_remove_empty_(S_clu, fSave_old)
 
     % waveform
     S_clu = S_clu_select_(S_clu, vlKeep_clu);
-    
+
     if fSave_old
-        S_clu.viClu_old = S_clu.viClu; % save old 
+        S_clu.spikeClustersOld = S_clu.spikeClusters; % save old 
     end
 
-    if min(S_clu.viClu) < 1
-        S_clu.viClu(S_clu.viClu<1) = 0;
-        [~,~,S_clu.viClu] = unique(S_clu.viClu+1);
-        S_clu.viClu = S_clu.viClu-1;
+    if min(S_clu.spikeClusters) < 1
+        S_clu.spikeClusters(S_clu.spikeClusters<1) = 0;
+        [~,~,S_clu.spikeClusters] = unique(S_clu.spikeClusters+1);
+        S_clu.spikeClusters = S_clu.spikeClusters-1;
     else
-        [~,~,S_clu.viClu] = unique(S_clu.viClu);
+        [~,~,S_clu.spikeClusters] = unique(S_clu.spikeClusters);
     end
-    S_clu.viClu = int32(S_clu.viClu);
-    S_clu.nClusters = double(max(S_clu.viClu));
+    S_clu.spikeClusters = int32(S_clu.spikeClusters);
+    S_clu.nClusters = double(max(S_clu.spikeClusters));
 end %func

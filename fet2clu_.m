@@ -9,6 +9,6 @@ function S_clu = fet2clu_(S0, P)
 
     S_clu = post_merge_(S_clu, P, 0);
 
-    S_clu.viClu_auto = S_clu.viClu;
+    S_clu.spikeClustersAuto = S_clu.spikeClusters;
     fprintf('\tClustering took %0.1f s\n', S_clu.t_runtime);
 end %func

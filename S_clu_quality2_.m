@@ -25,7 +25,7 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
         vrIsiRatio_clu(iClu) = sum(viDTime_clu1<=nSamples_2ms) ./ sum(viDTime_clu1<=nSamples_20ms);
 
         % Compute L-ratio an disodist (use neighboring features
-        iSite_clu1 = S_clu.viSite_clu(iClu);
+        iSite_clu1 = S_clu.clusterSites(iClu);
         % find spikes whose primary or secondary spikes reside there
         viSpk1_local = cviSpk_site{iSite_clu1}; %find(viSite_spk == iSite_clu1);
         viSpk2_local = cviSpk2_site{iSite_clu1}; %find(viSite2_spk == iSite_clu1);
@@ -36,7 +36,7 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
             mrFet12_spk = [squeeze_(trFet_spk(:,1,viSpk1_local)), squeeze_(trFet_spk(:,2,viSpk2_local))]; %squeeze_(cat(3, trFet_spk(:,1,viSpk1_local), trFet_spk(:,2,viSpk2_local)))';
             viSpk12_local = [viSpk1_local(:); viSpk2_local(:)];
         end
-        vlClu12_local = S_clu.viClu(viSpk12_local) == iClu;
+        vlClu12_local = S_clu.spikeClusters(viSpk12_local) == iClu;
         nSpk_clu1 = sum(vlClu12_local);
         [vrLRatio_clu(iClu), vrIsoDist_clu(iClu)] = deal(nan);
         try

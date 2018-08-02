@@ -77,7 +77,7 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
 
     % Find center location and spike SNR
     mrVmin_clu = shiftdim(min(trWav_clu));
-    [vrVmin_clu, viSite_clu] = min(mrVmin_clu); %center sites
+    [vrVmin_clu, clusterSites] = min(mrVmin_clu); %center sites
 
     % perform CAR after centering at the center site
     mrVmin_clu = squeeze_(min(trWav_clu));
@@ -85,15 +85,15 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
 
     % cluster specifications
     vrVmin_clu = abs(vrVmin_clu);
-    vrSnr_clu = (vrVmin_clu ./ vrVrms_site(viSite_clu))';
+    vrSnr_clu = (vrVmin_clu ./ vrVrms_site(clusterSites))';
     vrThresh_site = vrVrms_site * P.qqFactor;
-    vnSite_clu = sum(bsxfun(@lt, mrVmin_clu, -vrThresh_site(viSite_clu)));
+    vnSite_clu = sum(bsxfun(@lt, mrVmin_clu, -vrThresh_site(clusterSites)));
 
     if ~isempty(snr_thresh)
         viClu_keep = find(abs(vrSnr_clu) > snr_thresh);
         [trWav_clu, trWav_raw_clu] = multifun_(@(x)x(:,:,viClu_keep), trWav_clu, trWav_raw_clu);
-        [viSite_clu, vrVmin_clu, vrSnr_clu, cviSpk_clu, vnSite_clu, vrVrms_site] = ...
-        multifun_(@(x)x(viClu_keep), viSite_clu, vrVmin_clu, vrSnr_clu, cviSpk_clu, vnSite_clu, vrVrms_site);
+        [clusterSites, vrVmin_clu, vrSnr_clu, cviSpk_clu, vnSite_clu, vrVrms_site] = ...
+        multifun_(@(x)x(viClu_keep), clusterSites, vrVmin_clu, vrSnr_clu, cviSpk_clu, vnSite_clu, vrVrms_site);
         vlSpk_keep = ismember(viClu, viClu_keep);
         [S_gt.viClu, S_gt.viTime] = multifun_(@(x)x(vlSpk_keep), S_gt.viClu, S_gt.viTime);
         viMap = 1:max(viClu_keep);
@@ -103,8 +103,8 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
         viClu_keep = [];
     end
 
-    miSites_clu = P.miSites(:,viSite_clu);
-    S_gt = struct_add_(S_gt, trWav_clu, trWav_raw_clu, viSite_clu, vrVmin_clu, ...
+    miSites_clu = P.miSites(:,clusterSites);
+    S_gt = struct_add_(S_gt, trWav_clu, trWav_raw_clu, clusterSites, vrVmin_clu, ...
     vrSnr_clu, cviSpk_clu, vnSite_clu, vrVrms_site, miSites_clu, viClu_keep);
     fprintf('\n\ttook %0.1fs\n', toc(t1));
 end %func

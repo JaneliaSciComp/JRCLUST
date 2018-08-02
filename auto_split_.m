@@ -12,7 +12,7 @@ function auto_split_(fMulti, S0)
 
     hMsg = msgbox_('Splitting... (this closes automatically)');
     iClu1 = S0.iCluCopy;
-    iSite1 = S_clu.viSite_clu(iClu1);
+    iSite1 = S_clu.clusterSites(iClu1);
     if fMulti
         viSites1 = P.miSites(1:end-P.nSites_ref, iSite1);
     else

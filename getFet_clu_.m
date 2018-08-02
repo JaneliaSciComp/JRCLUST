@@ -7,7 +7,7 @@ function [mrFet1, viSpk1] = getFet_clu_(iClu1, iSite, S0)
     else
         [S_clu, P, viSite_spk] = deal(S0.S_clu, S0.P, S0.viSite_spk);
     end
-    % if nargin<2, viSite = P.miSites(:, S0.S_clu.viSite_clu(iClu1)); end
+    % if nargin<2, viSite = P.miSites(:, S0.S_clu.clusterSites(iClu1)); end
     if isempty(iClu1) % select spikes based on sites
         n_use = 1 + round(P.maxSite);
         viSite_ = P.miSites(1:n_use, iSite);

@@ -8,13 +8,13 @@ function S_clu = split_clu_(iClu1, vlIn)
 
     % create a new cluster (add at the end)
     n2 = sum(vlIn); %number of clusters to split off
-    iClu2 = max(S_clu.viClu) + 1;
+    iClu2 = max(S_clu.spikeClusters) + 1;
 
     % update cluster count and index
     S_clu.nClusters = double(iClu2);
     S_clu.vnSpk_clu(iClu1) = S_clu.vnSpk_clu(iClu1) - n2;
     S_clu.vnSpk_clu(iClu2) = sum(vlIn);
-    viSpk1 = find(S_clu.viClu==iClu1);
+    viSpk1 = find(S_clu.spikeClusters==iClu1);
     viSpk2 = viSpk1(vlIn);
     viSpk1 = viSpk1(~vlIn);
     [iSite1, iSite2] = deal(mode(viSite_spk(viSpk1)), mode(viSite_spk(viSpk2)));
@@ -24,14 +24,14 @@ function S_clu = split_clu_(iClu1, vlIn)
         vlIn = ~vlIn;
     end
     [S_clu.cviSpk_clu{iClu1}, S_clu.cviSpk_clu{iClu2}] = deal(viSpk1, viSpk2);
-    [S_clu.viSite_clu(iClu1), S_clu.viSite_clu(iClu2)] = deal(iSite1, iSite2);
+    [S_clu.clusterSites(iClu1), S_clu.clusterSites(iClu2)] = deal(iSite1, iSite2);
 
     try % erase annotaiton
         S_clu.csNote_clu{iClu1} = '';
         S_clu.csNote_clu{end+1} = ''; %add another entry
     catch
     end
-    S_clu.viClu(viSpk2) = iClu2; %change cluster number
+    S_clu.spikeClusters(viSpk2) = iClu2; %change cluster number
     S_clu = S_clu_update_(S_clu, [iClu1, iClu2], P);
 
     % Bring the new cluster right next to the old one using index swap

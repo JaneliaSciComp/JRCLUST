@@ -5,7 +5,7 @@ function S_cluInfo = get_cluInfo_(iClu)
     if isempty(iClu), S_cluInfo=[]; return; end
     [S0, P, S_clu] = get0_();
 
-    iSite1 = S_clu.viSite_clu(iClu);
+    iSite1 = S_clu.clusterSites(iClu);
     viSite = P.miSites(:, iSite1);
 
     xyPos = [S_clu.vrPosX_clu(iClu), S_clu.vrPosY_clu(iClu)];

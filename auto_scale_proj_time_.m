@@ -18,7 +18,7 @@ function auto_scale_proj_time_(S0, fPlot)
 
     % Update time
     [hFig_time, S_fig_time] = getCachedFig('FigTime');
-    iSite = S0.S_clu.viSite_clu(S0.iCluCopy);
+    iSite = S0.S_clu.clusterSites(S0.iCluCopy);
     % [vrFet0, vrTime0] = getFet_site_(iSite, [], S0);    % plot background
     [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.iCluCopy, S0); % plot iCluCopy
     if isempty(S0.iCluPaste)

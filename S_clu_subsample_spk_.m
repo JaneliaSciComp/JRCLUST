@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function [viSpk_clu1, viSite_clu1, vlSpk_clu1] = S_clu_subsample_spk_(S_clu, iClu, S0)
+function [viSpk_clu1, clusterSites1, vlSpk_clu1] = S_clu_subsample_spk_(S_clu, iClu, S0)
     % subsample spikes from the requested cluster centered at the center site and mid-time range (drift)
 
     fSelect_mid = 0; % TW
@@ -7,13 +7,13 @@ function [viSpk_clu1, viSite_clu1, vlSpk_clu1] = S_clu_subsample_spk_(S_clu, iCl
     if nargin<3, S0 = get(0, 'UserData'); end
 
     % [P, viSite_spk] = get0_('P', 'viSite_spk'); end
-    [viSpk_clu1, viSite_clu1, vlSpk_clu1] = deal([]);
+    [viSpk_clu1, clusterSites1, vlSpk_clu1] = deal([]);
     % Subselect based on the center site
     viSpk_clu1 = S_clu.cviSpk_clu{iClu}; %
     if isempty(viSpk_clu1), return; end
-    iSite_clu1 = S_clu.viSite_clu(iClu);
+    iSite_clu1 = S_clu.clusterSites(iClu);
     vlSpk_clu1 = iSite_clu1 == S0.viSite_spk(viSpk_clu1);
-    viSite_clu1 = S0.P.miSites(:,iSite_clu1);
+    clusterSites1 = S0.P.miSites(:,iSite_clu1);
     viSpk_clu1 = viSpk_clu1(vlSpk_clu1);
     if isempty(viSpk_clu1), return; end
 

@@ -17,7 +17,7 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, viSite
         viSpk0 = viSpk0(viSpk01);
         viTime0 = viTime0(viSpk01);
     end
-    viClu0 = S_clu.viClu(viSpk0);
+    viClu0 = S_clu.spikeClusters(viSpk0);
     viSpk00 = randomSelect_(viSpk0, P.nShow_proj*2);
     viSpk01 = randomSelect_(viSpk0(viClu0 == iClu1), P.nShow_proj);
     if ~isempty(iClu2)

@@ -27,9 +27,9 @@ function S_plot = S_plot_new_(S0)
 
     % Compute cluster stats
     mrMin_clu = uV2bit_(squeeze_(min(S0.S_clu.trWav_spk_clu)));
-    vrSnr_clu = abs(mrMin_clu(1,:))' ./ vrVrms_site(S0.S_clu.viSite_clu);
+    vrSnr_clu = abs(mrMin_clu(1,:))' ./ vrVrms_site(S0.S_clu.clusterSites);
     vrRate_clu = cellfun(@numel, S0.S_clu.cviSpk_clu)' / t_dur;
-    mrThresh_clu = -abs(S0.vrThresh_site(P.miSites(:,S0.S_clu.viSite_clu)));
+    mrThresh_clu = -abs(S0.vrThresh_site(P.miSites(:,S0.S_clu.clusterSites)));
     vnSite_clu = sum(mrMin_clu < mrThresh_clu)';
 
     S_plot = makeStruct_(vrVrms_site, vrRate_site, t_dur, P, ...

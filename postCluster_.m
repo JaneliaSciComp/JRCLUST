@@ -26,7 +26,7 @@ function S_clu = postCluster_(S_clu, P)
     S_clu.P.minClusterSize = P.minClusterSize;
     S_clu.P.log10DeltaCutoff = P.log10DeltaCutoff;
     S_clu.P.log10RhoCutoff = P.log10RhoCutoff;
-    S_clu.viClu = [];
+    S_clu.spikeClusters = [];
     S_clu = assign_clu_count_(S_clu, P); % enforce min count algorithm
 
     % debug output

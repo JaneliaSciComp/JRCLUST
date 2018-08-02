@@ -8,7 +8,7 @@ function [S_clu, nRemoved] = S_clu_refrac_(S_clu, P, iClu1)
     % remove refractory spikes
     if nargin==2
         %     P = varargin{1}; %second input
-        nClu = max(S_clu.viClu);
+        nClu = max(S_clu.spikeClusters);
         P.fShow_refrac = 1;
         nRemoved = 0;
         for iClu=1:nClu
@@ -25,7 +25,7 @@ function [S_clu, nRemoved] = S_clu_refrac_(S_clu, P, iClu1)
         try
             viSpk1 = S_clu.cviSpk_clu{iClu1};
         catch
-            viSpk1 = find(S_clu.viClu == iClu1);
+            viSpk1 = find(S_clu.spikeClusters == iClu1);
         end
         if isempty(viSpk1), return; end
 
@@ -43,7 +43,7 @@ function [S_clu, nRemoved] = S_clu_refrac_(S_clu, P, iClu1)
         end
         nRemoved = sum(~vlKeep1);
         nTotal1 = numel(vlKeep1);
-        S_clu.viClu(viSpk1(~vlKeep1)) = 0;
+        S_clu.spikeClusters(viSpk1(~vlKeep1)) = 0;
 
         S_clu.cviSpk_clu{iClu1} = viSpk1(vlKeep1);
         S_clu.vnSpk_clu(iClu1) = sum(vlKeep1);

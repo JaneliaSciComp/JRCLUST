@@ -7,7 +7,7 @@ function S_fig = plot_tnWav_clu_(S_fig, P)
     trWav_clu = ifeq_(P.fWav_raw_show, S_clu.tmrWav_raw_clu, S_clu.tmrWav_clu);
     [nSamples, nSites, nClu] = size(trWav_clu);
     nChans_show = size(P.miSites, 1);
-    miSites_clu = P.miSites(:, S_clu.viSite_clu);
+    miSites_clu = P.miSites(:, S_clu.clusterSites);
     % nSites = numel(P.chanMap);
 
     % determine x

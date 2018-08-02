@@ -11,8 +11,8 @@ function trFet_spk = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0, S_c
     for iClu = 1:S_clu.nClusters
         [viSpk_o_1, viSpk_o_12, viDelay1] = deal(cviSpk_o_1{iClu}, cviSpk_o_12{iClu}, cviDelay1{iClu});
         if isempty(viSpk_o_1), continue; end
-        [mrWav_clu1, iSite1] = deal(S_clu.trWav_spk_clu(:,:,iClu), S_clu.viSite_clu(iClu));
-        [viSite_clu1, viSite1, viSite12] = deal(P.miSites(:, iSite1), S0.viSite_spk(viSpk_o_1), S0.viSite_spk(viSpk_o_12));
+        [mrWav_clu1, iSite1] = deal(S_clu.trWav_spk_clu(:,:,iClu), S_clu.clusterSites(iClu));
+        [clusterSites1, viSite1, viSite12] = deal(P.miSites(:, iSite1), S0.viSite_spk(viSpk_o_1), S0.viSite_spk(viSpk_o_12));
         trWav1 = trWav_car_(tnWav_spk(:,:,viSpk_o_1), P);
         trWav12 = trWav_car_(tnWav_spk(:,:,viSpk_o_12), P);
         %     [tnWav1, tnWav12] = deal(tnWav_spk(:,:,viSpk_o_1), tnWav_spk(:,:,viSpk_o_12));

@@ -19,7 +19,7 @@ function import_silico_(vcFile_prm, fSort)
     % viClu = int32(cell2mat_(arrayfun(@(n)n*ones(1, vnSpk(n)), 1:numel(vnSpk), 'UniformOutput', 0)));
     % viTime = int32(cell2mat_(S.a) * 20); % Convert to sample # (saved in ms unit & sampling rate =20KHZ)
     if ~isfield(S_gt, 'viSite')
-        S_gt.viSite = S_gt.viSite_clu(S_gt.viClu);
+        S_gt.viSite = S_gt.clusterSites(S_gt.viClu);
     end
     S0 = struct('spikeTimes', S_gt.viTime(:), 'viSite_spk', S_gt.viSite(:), 'P', P, 'S_gt', S_gt);
 

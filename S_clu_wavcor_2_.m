@@ -26,13 +26,13 @@ function mrWavCor = S_clu_wavcor_2_(S_clu, P, viClu_update) % works for only the
     cell_5args = {P, vlClu_update, mrWavCor0, cviShift1, cviShift2};
     try
         parfor iClu2 = 1:nClu %parfor speedup: 4x
-            vrWavCor2 = clu_wavcor_2_(ctmrWav_clu, S_clu.viSite_clu, iClu2, cell_5args);
+            vrWavCor2 = clu_wavcor_2_(ctmrWav_clu, S_clu.clusterSites, iClu2, cell_5args);
             if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
         end
     catch
         fprintf('S_clu_wavcor_: parfor failed. retrying for loop\n');
         for iClu2 = 1:nClu %parfor speedup: 4x
-            vrWavCor2 = clu_wavcor_2_(ctmrWav_clu, S_clu.viSite_clu, iClu2, cell_5args);
+            vrWavCor2 = clu_wavcor_2_(ctmrWav_clu, S_clu.clusterSites, iClu2, cell_5args);
             if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
         end
     end

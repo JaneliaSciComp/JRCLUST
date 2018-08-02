@@ -38,7 +38,7 @@ function csDesc = describe_(vcFile_prm)
         S_clu = S0.S_clu;
         csDesc{end+1} = sprintf('Cluster');
         csDesc{end+1} = sprintf('    #Clusters               %d', S_clu.nClusters);
-        csDesc{end+1} = sprintf('    #Unique events          %d', sum(S_clu.viClu>0));
+        csDesc{end+1} = sprintf('    #Unique events          %d', sum(S_clu.spikeClusters>0));
         csDesc{end+1} = sprintf('    min. spk/clu            %d', P.minClusterSize);
         if isfield(S_clu, 't_runtime')
             csDesc{end+1} = sprintf('    Cluster run-time        %0.1fs', S_clu.t_runtime);

@@ -10,21 +10,21 @@ function S_clu = delete_clu_(S_clu, viClu_delete)
         disp('err');
     end
 
-    iClu_del = min(S_clu.viClu) - 1;
+    iClu_del = min(S_clu.spikeClusters) - 1;
     if iClu_del==0, iClu_del = -1; end
-    vlDelete_spk = ismember(S_clu.viClu, viClu_delete);
-    S_clu.viClu(vlDelete_spk) = iClu_del;
+    vlDelete_spk = ismember(S_clu.spikeClusters, viClu_delete);
+    S_clu.spikeClusters(vlDelete_spk) = iClu_del;
     nClu_new = numel(viClu_keep);
 
-    vlMap = S_clu.viClu > 0;
+    vlMap = S_clu.spikeClusters > 0;
     viMap = zeros(1, nClu_prev);
     viMap(viClu_keep) = 1:nClu_new;
-    S_clu.viClu(vlMap) = viMap(S_clu.viClu(vlMap));
+    S_clu.spikeClusters(vlMap) = viMap(S_clu.spikeClusters(vlMap));
     S_clu.nClusters = nClu_new;
     % update viClu
-    % if viClu_delete < max(S_clu.viClu)
-    %     viUpdate = find(S_clu.viClu>viClu_delete);
-    %     S_clu.viClu(viUpdate) = S_clu.viClu(viUpdate) - 1;
+    % if viClu_delete < max(S_clu.spikeClusters)
+    %     viUpdate = find(S_clu.spikeClusters>viClu_delete);
+    %     S_clu.spikeClusters(viUpdate) = S_clu.spikeClusters(viUpdate) - 1;
     % end
     % for iClu3 = viClu_delete+1:S_clu.nClusters % update cluster chain info
     %     S_clu = S_clu_update_note_(S_clu, iClu3, get_next_clu_(S_clu, iClu3) - 1);

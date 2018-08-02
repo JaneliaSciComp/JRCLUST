@@ -7,15 +7,15 @@ function [S_clu, iClu2] = clu_reorder_(S_clu, iClu1, iClu2)
     if nargin<2,  iClu2 = S_clu.nClusters; end
 
     if nargin < 2
-        iClu1 = find(S_clu.viSite_clu < S_clu.viSite_clu(end), 1, 'last');
+        iClu1 = find(S_clu.clusterSites < S_clu.clusterSites(end), 1, 'last');
         if isempty(iClu1), return; end
     end
     iClu2 = iClu1+1; %move one right to iClu1
     if iClu2 == S_clu.nClusters, return; end %if no change in position return
 
-    vlAdd = S_clu.viClu>iClu1 & S_clu.viClu < S_clu.nClusters;
-    S_clu.viClu(S_clu.viClu == S_clu.nClusters) = iClu2;
-    S_clu.viClu(vlAdd) = S_clu.viClu(vlAdd) + 1;
+    vlAdd = S_clu.spikeClusters>iClu1 & S_clu.spikeClusters < S_clu.nClusters;
+    S_clu.spikeClusters(S_clu.spikeClusters == S_clu.nClusters) = iClu2;
+    S_clu.spikeClusters(vlAdd) = S_clu.spikeClusters(vlAdd) + 1;
 
     viMap_clu = 1:S_clu.nClusters;
     viMap_clu(iClu2) = S_clu.nClusters;

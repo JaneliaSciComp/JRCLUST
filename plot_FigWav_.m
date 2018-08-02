@@ -8,7 +8,7 @@ function S0 = plot_FigWav_(S0)
     % Show number of spikes per clusters
     % hold on; tight_plot(gca, [.04 .04], [.04 .02]);
     P.LineWidth = 1; %plot a thicker line
-    P.viSite_clu = S_clu.viSite_clu;
+    P.clusterSites = S_clu.clusterSites;
     nSites = numel(P.chanMap);
     if isempty(S_fig)
         % initialize

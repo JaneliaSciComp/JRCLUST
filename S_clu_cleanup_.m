@@ -19,7 +19,7 @@ function S_clu = S_clu_cleanup_(S_clu, P)
         vlExcl_clu1 = (vrDist_clu1 > thresh_mad_clu);
         if any(vlExcl_clu1)
             S_clu.cviSpk_clu{iClu} = viSpk_clu1(~vlExcl_clu1);
-            S_clu.viClu(viSpk_clu1(vlExcl_clu1)) = 0; %classify as noise cluster
+            S_clu.spikeClusters(viSpk_clu1(vlExcl_clu1)) = 0; %classify as noise cluster
             S_clu.vnSpk_clu(iClu) = numel(S_clu.cviSpk_clu{iClu});
         end
         fprintf('.');

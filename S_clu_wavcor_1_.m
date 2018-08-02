@@ -43,11 +43,11 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
     end
     nClu = S_clu.nClusters;
     if fUsePeak2
-        [viSite_clu, viSite2_clu, viSite3_clu] = S_clu_peak2_(S_clu);
-        cviSite_clu = {viSite_clu, viSite2_clu, viSite3_clu};
+        [clusterSites, viSite2_clu, viSite3_clu] = S_clu_peak2_(S_clu);
+        cclusterSites = {clusterSites, viSite2_clu, viSite3_clu};
     else
-        viSite_clu = S_clu.viSite_clu;
-        cviSite_clu = {viSite_clu};
+        clusterSites = S_clu.clusterSites;
+        cclusterSites = {clusterSites};
     end
     mrWavCor = gpuArray_(zeros(nClu), P.useGPU);
     nSites_spk = P.maxSite*2+1-P.nSites_ref;
@@ -70,7 +70,7 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
     if fParfor
         try
             parfor iClu2 = 1:nClu %parfor speedup: 4x
-                vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2);
+                vrWavCor2 = clu_wavcor_(ctmrWav_clu, cclusterSites, P, cell_5args, iClu2);
                 if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
             end
         catch
@@ -80,7 +80,7 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
     end
     if ~fParfor
         for iClu2 = 1:nClu %parfor speedup: 4x
-            vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2);
+            vrWavCor2 = clu_wavcor_(ctmrWav_clu, cclusterSites, P, cell_5args, iClu2);
             if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
         end
     end

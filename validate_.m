@@ -31,16 +31,16 @@ function validate_(P)
     S_score = struct(...
     'vrVmin_gt', S_gt.vrVmin_clu, 'vnSite_gt', S_gt.vnSite_clu, ...
     'vrSnr_gt', S_gt.vrSnr_clu, 'vrSnr_min_gt', S_gt.vrSnr_clu, ...
-    'trWav_gt', S_gt.trWav_clu, 'viSite_gt', S_gt.viSite_clu);
+    'trWav_gt', S_gt.trWav_clu, 'viSite_gt', S_gt.clusterSites);
     S_score.cviSpk_gt = S_gt.cviSpk_clu;
 
     % Compare S_clu with S_gt
     nSamples_jitter = round(P.sRateHz / 1000); %1 ms jitter
     fprintf('verifying cluster...\n');
     [mrMiss, mrFp, vnCluGt, miCluMatch, S_score_clu] = ...
-    clusterVerify(S_gt.viClu, S_gt.viTime, S_clu.viClu, S0.spikeTimes, nSamples_jitter); %S_gt.viTime
+    clusterVerify(S_gt.viClu, S_gt.viTime, S_clu.spikeClusters, S0.spikeTimes, nSamples_jitter); %S_gt.viTime
     % viClu_spk = S_score_clu.cviHit_gt
-    if fMergeCheck, compareClustering2_(S_gt.viClu, S_gt.viTime, S_clu.viClu+1, S0.spikeTimes); end
+    if fMergeCheck, compareClustering2_(S_gt.viClu, S_gt.viTime, S_clu.spikeClusters+1, S0.spikeTimes); end
 
     Sgt = S_gt; %backward compatibility
     S_score = struct_add_(S_score, mrMiss, mrFp, vnCluGt, miCluMatch, P, Sgt, S_score_clu);

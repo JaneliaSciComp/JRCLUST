@@ -26,7 +26,7 @@ function plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluP
         xlabel('Time (s)');
         ylabel(ax_(1),'Firing Rate (Hz)');
         ylabel(ax_(2), vcLabel_aux);
-        iSite_ = S_clu.viSite_clu(iClu);
+        iSite_ = S_clu.clusterSites(iClu);
         vcTitle_ = sprintf('Clu %d (Site %d, Chan %d): Corr=%0.3f', ...
         iClu, iSite_, P.chanMap(iSite_), vrCorr_aux_clu(iClu));
         title(vcTitle_);

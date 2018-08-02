@@ -8,7 +8,7 @@ function plot_FigTime_(S0)
 
     %----------------
     % collect info
-    iSite = S_clu.viSite_clu(S0.iCluCopy);
+    iSite = S_clu.clusterSites(S0.iCluCopy);
     [vrFet0, vrTime0] = getFet_site_(iSite, [], S0); % plot background
     [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.iCluCopy, S0); % plot iCluCopy
 

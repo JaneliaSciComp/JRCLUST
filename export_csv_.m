@@ -20,7 +20,7 @@ function export_csv_(varargin)
     % if isfield(Sclu, 'Sclu'), Sclu = Sclu.Sclu; end
 
     if isfield(S0, 'S_clu')
-        viClu = double(S0.S_clu.viClu);
+        viClu = double(S0.S_clu.spikeClusters);
     else
         fprintf(2, 'Cannot find S_clu.\n');
     end

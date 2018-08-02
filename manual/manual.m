@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function manual(P, debugMode, alg)
+function manual(P, debugMode)
     % display manual sorting interface
     global fDebug_ui trFet_spk
 
@@ -7,12 +7,8 @@ function manual(P, debugMode, alg)
         debugMode = 0;
     end
 
-    if nargin < 3
-        alg = 'JRCLUST';
-    end
-
     % set up manual step for JRCLUST
-    if alg == 'JRCLUST'
+    if get_set_(P, 'alg', 'JRCLUST') == 'JRCLUST'
         % Load info
         if ~isSorted(P) % require sorted result
             error(['File must be sorted first (run "jrc spikesort "', P.prmFile, '")']);

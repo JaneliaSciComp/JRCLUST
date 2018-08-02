@@ -17,7 +17,7 @@ function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
     if isfield(S_clu, 'nClu')
         nClu = S_clu.nClusters;
     else
-        nClu = max(S_clu.viClu);
+        nClu = max(S_clu.spikeClusters);
     end
     nSamples = S0.dimm_spk(1);
     nSites = numel(P.chanMap);
@@ -50,9 +50,9 @@ function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
     tnWav_ = get_spkwav_(P, 0);
     for iClu=1:nClu
         if vlClu_update(iClu)
-            [mrWav_clu1, viSite_clu1] = clu_wav_(S_clu, tnWav_, iClu, S0);
+            [mrWav_clu1, clusterSites1] = clu_wav_(S_clu, tnWav_, iClu, S0);
             if isempty(mrWav_clu1), continue; end
-            [tmrWav_spk_clu(:,viSite_clu1,iClu), trWav_spk_clu(:,:,iClu)] = ...
+            [tmrWav_spk_clu(:,clusterSites1,iClu), trWav_spk_clu(:,:,iClu)] = ...
             deal(bit2uV_(mrWav_clu1, P));
         end
         if fVerbose, fprintf('.'); end
@@ -64,12 +64,12 @@ function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
         tnWav_ = get_spkwav_(P, 1);
         for iClu=1:nClu
             if vlClu_update(iClu)
-                [mrWav_clu1, viSite_clu1, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_clu, tnWav_, iClu, S0);
+                [mrWav_clu1, clusterSites1, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_clu, tnWav_, iClu, S0);
                 if isempty(mrWav_clu1), continue; end
-                [tmrWav_raw_clu(:,viSite_clu1,iClu), trWav_raw_clu(:,:,iClu)] = deal(meanSubt_(mrWav_clu1) * P.uV_per_bit);
+                [tmrWav_raw_clu(:,clusterSites1,iClu), trWav_raw_clu(:,:,iClu)] = deal(meanSubt_(mrWav_clu1) * P.uV_per_bit);
                 if isempty(mrWav_lo_clu1) || isempty(mrWav_hi_clu1), continue; end
-                tmrWav_raw_lo_clu(:,viSite_clu1,iClu) = meanSubt_(mrWav_lo_clu1) * P.uV_per_bit;
-                tmrWav_raw_hi_clu(:,viSite_clu1,iClu) = meanSubt_(mrWav_hi_clu1) * P.uV_per_bit;
+                tmrWav_raw_lo_clu(:,clusterSites1,iClu) = meanSubt_(mrWav_lo_clu1) * P.uV_per_bit;
+                tmrWav_raw_hi_clu(:,clusterSites1,iClu) = meanSubt_(mrWav_hi_clu1) * P.uV_per_bit;
             end
             if fVerbose, fprintf('.'); end
         end %clu

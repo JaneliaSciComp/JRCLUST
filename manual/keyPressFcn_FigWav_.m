@@ -60,7 +60,7 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
         case {'d', 'backspace', 'delete'}, S0 = ui_delete_(S0);
         case 'z' %zoom
         iClu = S0.iCluCopy;
-        iSiteClu = S_clu.viSite_clu(S0.iCluCopy);
+        iSiteClu = S_clu.clusterSites(S0.iCluCopy);
         set_axis_(hFig, iClu+[-1,1]*6, iSiteClu+[-1,1]*(P.maxSite*2+1), [0 S_clu.nClusters+1], [0 nSites+1]);
         case 'c', plot_FigCorr_(S0);
         case 'v', plot_FigIsi_(S0);

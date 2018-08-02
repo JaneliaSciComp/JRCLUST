@@ -10,7 +10,7 @@ function plot_FigProj_(S0)
 
     %---------------
     % Compute
-    iSite1 = S_clu.viSite_clu(iClu1);
+    iSite1 = S_clu.clusterSites(iClu1);
     % miSites = P.miSites;
     if ~isfield(P, 'viSites_show')
         P.viSites_show = sort(P.miSites(:, iSite1), 'ascend');
