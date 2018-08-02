@@ -85,7 +85,7 @@ function keyPressFcn_Fig_traces_(hFig, event)
         case 'p' %power spectrum
         iSite_show = inputdlg_num_(sprintf('Site# to show (1-%d, 0 for all)', nSites), 'Site#', 0);
         if isnan(iSite_show), return; end
-        hFig = createFigure('FigPsd', [.5 0 .5 1], P.prmFile, 1, 1); %show to the right
+        hFig = createFigure('FigPsd', [.5 0 .5 1], P.paramFile, 1, 1); %show to the right
         % ask user which channels to plot
         if iSite_show>0
             mrWav2 = mrWav1(:, iSite_show);

@@ -108,7 +108,7 @@ function csHelp = help_(vcCommand)
     '';
     '[Sorting multiple recordings together]';
     '  jrc dir myparam.prm';
-    '    List all recording files to be clustered together (csFile_merge)';
+    '    List all recording files to be clustered together (multiFilenames)';
     '  jrc traces myparam.prm';
     '    List all recording files and select which one to display';
     '  jrc traces myparam.prm File#';

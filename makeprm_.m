@@ -12,16 +12,16 @@ function [vcFile_prm, vcPrompt] = makeprm_(vcFile_bin, vcFile_prb, fAsk, vcFile_
     if fDebug_ui==1, fAsk = 0; end
     [vcFile_prm, vcPrompt] = deal([]);
 
-    if ~exist_file_(vcFile_bin), fprintf(2, '%s does not exist\n', vcFile_bin); return; end
+    if ~fileExists(vcFile_bin), fprintf(2, '%s does not exist\n', vcFile_bin); return; end
 
     set(0, 'UserData', []); %clear memory
     if matchFileExt_(vcFile_prb, '.prm') && isempty(vcFile_template)
         vcFile_template = vcFile_prb;
-        if ~exist_file_(vcFile_template), fprintf(2, '%s does not exist\n', vcFile_template); return; end
+        if ~fileExists(vcFile_template), fprintf(2, '%s does not exist\n', vcFile_template); return; end
         S0 = file2struct_(vcFile_template);
         vcFile_prb = S0.probe_file;
     else
-        if ~exist_file_(find_prb_(vcFile_prb)), fprintf(2, '%s does not exist\n', vcFile_prb); return; end
+        if ~fileExists(find_prb_(vcFile_prb)), fprintf(2, '%s does not exist\n', vcFile_prb); return; end
     end
     [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_template, fAsk);
     if isempty(P)
@@ -29,5 +29,5 @@ function [vcFile_prm, vcPrompt] = makeprm_(vcFile_bin, vcFile_prb, fAsk, vcFile_
         return;
     end
     setUserData(P);
-    vcFile_prm = P.prmFile;
+    vcFile_prm = P.paramFile;
 end

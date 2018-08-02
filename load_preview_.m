@@ -10,10 +10,10 @@ function [mnWav_raw, S_preview] = load_preview_(P)
     sec_per_load_preview = get_set_(P, 'sec_per_load_preview', 1);
 
     % determine files to load
-    if isempty(P.csFile_merge)
+    if isempty(P.multiFilenames)
         csFile_bin = {P.vcFile};
     else
-        csFile_bin = filter_files_(P.csFile_merge);
+        csFile_bin = filter_files_(P.multiFilenames);
     end
     csFile_bin = subsample_(csFile_bin, nLoads_max_preview);
 

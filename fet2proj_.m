@@ -7,7 +7,7 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, viSite
     iClu2 = S0.iCluPaste;
 
     % select subset of spikes
-    viSpk0 = find(ismember(S0.viSite_spk, viSites0));
+    viSpk0 = find(ismember(S0.spikeSites, viSites0));
     viTime0 = S0.spikeTimes(viSpk0);
     %time filter
     if ~isfield(P, 'tlim_proj'), P.tlim_proj = []; end

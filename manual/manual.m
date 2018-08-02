@@ -8,10 +8,10 @@ function manual(P, debugMode)
     end
 
     % set up manual step for JRCLUST
-    if get_set_(P, 'alg', 'JRCLUST') == 'JRCLUST'
+    if get_set_(P, 'algorithm', 'JRCLUST') == 'JRCLUST'
         % Load info
         if ~isSorted(P) % require sorted result
-            error(['File must be sorted first (run "jrc spikesort "', P.prmFile, '")']);
+            error(['File must be sorted first (run "jrc spikesort "', P.paramFile, '")']);
         end
 
         [S0, P] = load_cached_(P);
@@ -75,8 +75,8 @@ function manual(P, debugMode)
         S0 = button_CluWav_simulate_(1, [], S0, 1); %select first clu TW
         auto_scale_proj_time_(S0);
         S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom
-        %S0.cS_log = load_(strrep(P.prmFile, '.prm', '_log.mat'), 'cS_log', 0);
-        S_log = load_(strrep(P.prmFile, '.prm', '_log.mat'), [], 0);
+        %S0.cS_log = load_(strrep(P.paramFile, '.prm', '_log.mat'), 'cS_log', 0);
+        S_log = load_(strrep(P.paramFile, '.prm', '_log.mat'), [], 0);
         if ~isempty(S_log), S0.cS_log = {S_log}; end
         save_log_('start', S0); %crash proof log
 

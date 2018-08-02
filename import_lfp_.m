@@ -6,15 +6,15 @@ function import_lfp_(P)
     %     if ~isempty(strfind(lower(vcFile), '.imec.ap.bin'))
     %         func_ap2lf = @(x)strrep(lower(x), '.imec.ap.bin', '.imec.lf.bin');
     %         vcFile_lf = func_ap2lf(vcFile);
-    %         csFile_merge_lf = cellfun(@(x)func_ap2lf(x), csFile_merge1, 'UniformOutput', 0);
-    %         merge_binfile_(vcFile_lf, csFile_merge_lf);
+    %         multiFilenames_lf = cellfun(@(x)func_ap2lf(x), multiFilenames1, 'UniformOutput', 0);
+    %         merge_binfile_(vcFile_lf, multiFilenames_lf);
     %     end
     % catch
     %     disp('Merge LFP file error for IMEC3.');
     % end
-    P.vcFile_lfp = strrep(P.prmFile, '.prm', '.lfp.jrc');
+    P.vcFile_lfp = strrep(P.paramFile, '.prm', '.lfp.jrc');
     t1 = tic;
-    if isempty(P.csFile_merge)
+    if isempty(P.multiFilenames)
         % single file
         if is_new_imec_(P.vcFile) % don't do anything, just set the file name
             P.vcFile_lfp = strrep(P.vcFile, '.imec.ap.bin', '.imec.lf.bin');
@@ -24,7 +24,7 @@ function import_lfp_(P)
             bin_file_copy_(P.vcFile, P.vcFile_lfp, P);
         end
     else % craete a merged output file
-        csFiles_bin = filter_files_(P.csFile_merge);
+        csFiles_bin = filter_files_(P.multiFilenames);
         fid_lfp = fopen(P.vcFile_lfp, 'w');
         % multiple files merging
         P_ = P;
@@ -39,6 +39,6 @@ function import_lfp_(P)
         fclose(fid_lfp);
     end
     % update the lfp file name in the parameter file
-    edit_prm_file_(P, P.prmFile);
+    edit_prm_file_(P, P.paramFile);
     fprintf('\tLFP file (vcFile_lfp) updated: %s\n\ttook %0.1fs\n', P.vcFile_lfp, toc(t1));
 end %func

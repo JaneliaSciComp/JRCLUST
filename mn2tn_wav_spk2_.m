@@ -1,12 +1,12 @@
 %--------------------------------------------------------------------------
-function tnWav_spk1 = mn2tn_wav_spk2_(mnWav1, viSite_spk, spikeTimes, P)
-    nSpks = numel(viSite_spk);
+function tnWav_spk1 = mn2tn_wav_spk2_(mnWav1, spikeSites, spikeTimes, P)
+    nSpks = numel(spikeSites);
     nSites = numel(P.chanMap);
     spkLim_wav = P.spkLim;
     nSites_spk = (P.maxSite * 2) + 1;
     tnWav_spk1 = zeros(diff(spkLim_wav) + 1, nSites_spk, nSpks, 'like', mnWav1);
     for iSite = 1:nSites
-        viiSpk11 = find(viSite_spk == iSite);
+        viiSpk11 = find(spikeSites == iSite);
         if isempty(viiSpk11), continue; end
         spikeTimes11 = spikeTimes(viiSpk11); %already sorted by time
         viSite11 = P.miSites(:,iSite);

@@ -12,7 +12,7 @@ function trFet_spk = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0, S_c
         [viSpk_o_1, viSpk_o_12, viDelay1] = deal(cviSpk_o_1{iClu}, cviSpk_o_12{iClu}, cviDelay1{iClu});
         if isempty(viSpk_o_1), continue; end
         [mrWav_clu1, iSite1] = deal(S_clu.trWav_spk_clu(:,:,iClu), S_clu.clusterSites(iClu));
-        [clusterSites1, viSite1, viSite12] = deal(P.miSites(:, iSite1), S0.viSite_spk(viSpk_o_1), S0.viSite_spk(viSpk_o_12));
+        [clusterSites1, viSite1, viSite12] = deal(P.miSites(:, iSite1), S0.spikeSites(viSpk_o_1), S0.spikeSites(viSpk_o_12));
         trWav1 = trWav_car_(tnWav_spk(:,:,viSpk_o_1), P);
         trWav12 = trWav_car_(tnWav_spk(:,:,viSpk_o_12), P);
         %     [tnWav1, tnWav12] = deal(tnWav_spk(:,:,viSpk_o_1), tnWav_spk(:,:,viSpk_o_12));
@@ -22,7 +22,7 @@ function trFet_spk = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0, S_c
 
         % calculate private pc. using non-colliding spikes (?). generate basis for the cluster
         %     viSpk_clu1 = S_clu.cviSpk_clu{iClu};
-        %     viSpk_clu1 = subsample_vr_(viSpk_clu1(S0.viSite_spk(viSpk_clu1) == iSite1), 5e3);
+        %     viSpk_clu1 = subsample_vr_(viSpk_clu1(S0.spikeSites(viSpk_clu1) == iSite1), 5e3);
         %     mr_ = reshape(meanSubt_(tnWav_spk(:,:,viSpk_clu1)), [], numel(viSpk_clu1));
         %     [~,mrPv_clu1] = pca(mr_, 'NumComponents', 3); %subsample if must
 

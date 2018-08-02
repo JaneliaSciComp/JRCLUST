@@ -1,56 +1,70 @@
 %--------------------------------------------------------------------------
-function S0 = file2spk_(P, spikeTimes0, viSite_spk0)
-    % function [tnWav_raw, tnWav_spk, trFet_spk, S0] = file2spk_(P, spikeTimes0, viSite_spk0)
+function S0 = file2spk_(P, spikeTimes0, spikeSites0)
+    % function [tnWav_raw, tnWav_spk, trFet_spk, S0] = file2spk_(P, spikeTimes0, spikeSites0)
     % file loading routine. keep spike waveform (tnWav_spk) in memory
     % assume that the file is chan x time format
     % usage:
     % [tnWav_raw, tnWav_spk, S0] = file2spk_(P)
     %
-    % [tnWav_raw, tnWav_spk, S0] = file2spk_(P, spikeTimes, viSite_spk)
+    % [tnWav_raw, tnWav_spk, S0] = file2spk_(P, spikeTimes, spikeSites)
     %   construct spike waveforms from previous time markers
     % 6/29/17 JJJ: Added support for the matched filter
 
-    if nargin<2, spikeTimes0 = []; end
-    if nargin<3, viSite_spk0 = []; end
+    if nargin < 2
+        spikeTimes0 = [];
+    end
+
+    if nargin < 3
+        spikeSites0 = [];
+    end
+
     S0 = [];
-    % [tnWav_raw, tnWav_spk, trFet_spk, S0] = deal([]);
 
     spikeTimes0 = spikeTimes0(:);
-    viSite_spk0 = viSite_spk0(:);
+    spikeSites0 = spikeSites0(:);
 
-    if isempty(P.csFile_merge)
-        if ~exist_file_(P.vcFile), P.vcFile = subsDir_(P.vcFile, P.prmFile); end
-        csFile = {P.vcFile};
+    % regularize list of files to load
+    if isempty(P.multiFilenames)
+        if ~fileExists(P.vcFile)
+            P.vcFile = replaceDir(P.vcFile, P.paramFile);
+        end
+
+        filenames = {P.vcFile};
     else
-        csFile = filter_files_(P.csFile_merge);
-        if isempty(csFile)
-            P.csFile_merge = subsDir_(P.csFile_merge, P.prmFile);
-            csFile = filter_files_(P.csFile_merge);
+        filenames = filter_files_(P.multiFilenames);
+        if isempty(filenames)
+            P.multiFilenames = replaceDir(P.multiFilenames, P.paramFile);
+            filenames = filter_files_(P.multiFilenames);
         end
     end
-    if ~isempty(get_(P, 'vcFile_thresh'))
+
+    % load site-wise thresholds, if applicable
+    if ~isempty(get_(P, 'thresholdFile'))
         try
-            S_thresh = load(P.vcFile_thresh);
-            vnThresh_site = S_thresh.vnThresh_site;
-            setUserData(vnThresh_site);
-            fprintf('Loaded %s\n', P.vcFile_thresh);
+            S_thresh = load(P.thresholdFile);
+            siteThresholds = S_thresh.siteThresholds;
+            setUserData(siteThresholds);
+            fprintf('Loaded %s\n', P.thresholdFile);
         catch
-            disperr_('vcFile_thresh load error');
+            disperr_('thresholdFile load error');
         end
     end
-    if isempty(csFile), error('No binary files found.'); end
-    % [tnWav_raw, tnWav_spk, trFet_spk, miSite_spk, spikeTimes, vrAmp_spk, vnThresh_site] = deal({});
-    [miSite_spk, spikeTimes, vrAmp_spk, vnThresh_site] = deal({});
-    viT_offset_file = zeros(size(csFile));
-    nFiles = numel(csFile);
+
+    if isempty(filenames)
+        error('No binary files found.');
+    end
+
+    [miSite_spk, spikeTimes, vrAmp_spk, siteThresholds] = deal({});
+    viT_offset_file = zeros(size(filenames));
+    nFiles = numel(filenames);
     [nSamples1, nLoads] = deal(0); % initialize the counter
     [vrFilt_spk, mrPv_global] = deal([]); % reset the template
     setUserData(mrPv_global, vrFilt_spk); % reeset mrPv_global and force it to recompute
-    write_spk_(P.prmFile);
+    write_spk_(P.paramFile);
     for iFile=1:nFiles
-        fprintf('File %d/%d: detecting spikes from %s\n', iFile, nFiles, csFile{iFile});
+        fprintf('File %d/%d: detecting spikes from %s\n', iFile, nFiles, filenames{iFile});
         t1 = tic;
-        [fid1, nBytes_file1] = fopen_(csFile{iFile}, 'r');
+        [fid1, nBytes_file1] = fopen_(filenames{iFile}, 'r');
         nBytes_file1 = file_trim_(fid1, nBytes_file1, P);
         [nLoad1, nSamples_load1, nSamples_last1] = plan_load_(nBytes_file1, P);
         %         nSamples1 = 0; %accumulated sample offset
@@ -67,9 +81,9 @@ function S0 = file2spk_(P, spikeTimes0, viSite_spk0)
             else
                 mnWav11_post = [];
             end
-            [spikeTimes11, viSite_spk11] = filter_spikes_(spikeTimes0, viSite_spk0, nSamples1 + [1, nSamples11]);
-            [tnWav_raw_, tnWav_spk_, trFet_spk_, miSite_spk{end+1}, spikeTimes{end+1}, vrAmp_spk{end+1}, vnThresh_site{end+1}, P.useGPU] ...
-            = wav2spk_(mnWav11, vrWav_mean11, P, spikeTimes11, viSite_spk11, mnWav11_pre, mnWav11_post);
+            [spikeTimes11, spikeSites11] = filter_spikes_(spikeTimes0, spikeSites0, nSamples1 + [1, nSamples11]);
+            [tnWav_raw_, tnWav_spk_, trFet_spk_, miSite_spk{end+1}, spikeTimes{end+1}, vrAmp_spk{end+1}, siteThresholds{end+1}, P.useGPU] ...
+                = wav2spk_(mnWav11, vrWav_mean11, P, spikeTimes11, spikeSites11, mnWav11_pre, mnWav11_post);
             write_spk_(tnWav_raw_, tnWav_spk_, trFet_spk_);
             spikeTimes{end} = spikeTimes{end} + nSamples1;
             nSamples1 = nSamples1 + nSamples11;
@@ -86,10 +100,10 @@ function S0 = file2spk_(P, spikeTimes0, viSite_spk0)
     end %for
     write_spk_();
 
-    [miSite_spk, spikeTimes, vrAmp_spk, vnThresh_site] = ...
-    multifun_(@(x)cat(1, x{:}), miSite_spk, spikeTimes, vrAmp_spk, vnThresh_site);
-    vrThresh_site = mean(single(vnThresh_site),1);
-    viSite_spk = miSite_spk(:,1);
+    [miSite_spk, spikeTimes, vrAmp_spk, siteThresholds] = ...
+    multifun_(@(x)cat(1, x{:}), miSite_spk, spikeTimes, vrAmp_spk, siteThresholds);
+    vrThresh_site = mean(single(siteThresholds),1);
+    spikeSites = miSite_spk(:,1);
     if size(miSite_spk,2) >= 2
         viSite2_spk = miSite_spk(:,2);
     else
@@ -112,7 +126,7 @@ function S0 = file2spk_(P, spikeTimes0, viSite_spk0)
         cviSpk3_site = [];
     end
     [mrPv_global, vrD_global] = get0_('mrPv_global', 'vrD_global');
-    S0 = makeStruct_(P, viSite_spk, viSite2_spk, spikeTimes, vrAmp_spk, vrThresh_site, dimm_spk, ...
+    S0 = makeStruct_(P, spikeSites, viSite2_spk, spikeTimes, vrAmp_spk, vrThresh_site, dimm_spk, ...
     cviSpk_site, cviSpk2_site, cviSpk3_site, dimm_raw, viT_offset_file, dimm_fet, nLoads, ...
     mrPv_global, vrFilt_spk, vrD_global);
 end %func

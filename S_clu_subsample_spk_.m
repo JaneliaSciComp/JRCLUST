@@ -6,13 +6,13 @@ function [viSpk_clu1, clusterSites1, vlSpk_clu1] = S_clu_subsample_spk_(S_clu, i
     nSamples_max = 1000;
     if nargin<3, S0 = get(0, 'UserData'); end
 
-    % [P, viSite_spk] = get0_('P', 'viSite_spk'); end
+    % [P, spikeSites] = get0_('P', 'spikeSites'); end
     [viSpk_clu1, clusterSites1, vlSpk_clu1] = deal([]);
     % Subselect based on the center site
     viSpk_clu1 = S_clu.cviSpk_clu{iClu}; %
     if isempty(viSpk_clu1), return; end
     iSite_clu1 = S_clu.clusterSites(iClu);
-    vlSpk_clu1 = iSite_clu1 == S0.viSite_spk(viSpk_clu1);
+    vlSpk_clu1 = iSite_clu1 == S0.spikeSites(viSpk_clu1);
     clusterSites1 = S0.P.miSites(:,iSite_clu1);
     viSpk_clu1 = viSpk_clu1(vlSpk_clu1);
     if isempty(viSpk_clu1), return; end

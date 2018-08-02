@@ -2,7 +2,7 @@
 function S_clu = split_clu_(iClu1, vlIn)
     % split cluster.
     figure_wait_(1); drawnow;
-    [P, S_clu, viSite_spk] = get0_('P', 'S_clu', 'viSite_spk');
+    [P, S_clu, spikeSites] = get0_('P', 'S_clu', 'spikeSites');
     hMsg = msgbox_open_('Splitting...');
     figure(getCachedFig('FigWav'));
 
@@ -17,7 +17,7 @@ function S_clu = split_clu_(iClu1, vlIn)
     viSpk1 = find(S_clu.spikeClusters==iClu1);
     viSpk2 = viSpk1(vlIn);
     viSpk1 = viSpk1(~vlIn);
-    [iSite1, iSite2] = deal(mode(viSite_spk(viSpk1)), mode(viSite_spk(viSpk2)));
+    [iSite1, iSite2] = deal(mode(spikeSites(viSpk1)), mode(spikeSites(viSpk2)));
     if iSite1 > iSite2 % order by the cluster site location
         [iSite2, iSite1] = deal(iSite1, iSite2);
         [viSpk2, viSpk1] = deal(viSpk1, viSpk2);

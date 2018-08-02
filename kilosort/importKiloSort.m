@@ -34,9 +34,9 @@ function importKiloSort(rezFile)
     end
 
     if isfield(rez, 'Wraw')
-        Wraw = gather(rez.Wraw); % nC, nT, nClu
+        unwhitenedTemplates = gather(rez.Wraw); % nChannels, nSamples, nClusters
     else % reconstruct Wraw
-        Wraw = zeros(size(rez.U, 1), size(rez.W, 1), numel(rez.mu));
+        unwhitenedTemplates = zeros(size(rez.U, 1), size(rez.W, 1), numel(rez.mu));
 
         Urot = gather(rez.U);
         W = gather(rez.W);
@@ -44,29 +44,30 @@ function importKiloSort(rezFile)
         mu = gather(rez.mu);
 
         for k = 1:size(Urot, 3)
-            Urot(:, :, k)  = WrotInv' * Urot(:,:,k);
+            Urot(:, :, k)  = WrotInv' * Urot(:, :, k);
         end
 
         for n = 1:size(rez.U, 2)
-            Wraw(:,:,n) = mu(n) * squeeze(Urot(:,n,:)) * squeeze(W(:,n,:))';
+            unwhitenedTemplates(:, :, n) = mu(n) * squeeze(Urot(:, n, :)) * squeeze(W(:, n, :))';
         end
     end
 
-    Wraw = -abs(Wraw);
-    Wraw = permute(Wraw, [2,1,3]);
-    mnMin_clu = squeeze_(min(Wraw, [], 1));
-    [~, clusterSites] = min(mnMin_clu, [], 1); % cluster location
+    unwhitenedTemplates = -abs(unwhitenedTemplates);
+    unwhitenedTemplates = permute(unwhitenedTemplates, [2, 1, 3]);
+    sampleMin = squeeze(min(unwhitenedTemplates, [], 1));
+    [~, clusterSites] = min(sampleMin, [], 1); % cluster location
 
     % construct P from scratch
     P = struct();
+    P.algorithm = 'KiloSort';
     P.chanMap = rez.ops.chanMap;
 
     clusterSites = P.chanMap(clusterSites);
-    viSite_spk = clusterSites(spikeClusters);
+    spikeSites = clusterSites(spikeClusters);
 
     return; % WIP
 
-    S0 = file2spk_(P, int32(spikeTimes), int32(viSite_spk));
+    S0 = file2spk_(P, int32(spikeTimes), int32(spikeSites));
     S0.P = P;
     S0.S_ksort = S_ksort;
     tnWav_raw = load_bin_(strrep(P.rezFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);

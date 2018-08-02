@@ -21,15 +21,15 @@ function import_silico_(vcFile_prm, fSort)
     if ~isfield(S_gt, 'viSite')
         S_gt.viSite = S_gt.clusterSites(S_gt.viClu);
     end
-    S0 = struct('spikeTimes', S_gt.viTime(:), 'viSite_spk', S_gt.viSite(:), 'P', P, 'S_gt', S_gt);
+    S0 = struct('spikeTimes', S_gt.viTime(:), 'spikeSites', S_gt.viSite(:), 'P', P, 'S_gt', S_gt);
 
-    [tnWav_raw, tnWav_spk, trFet_spk, S0] = file2spk_(P, S0.spikeTimes, S0.viSite_spk);
+    [tnWav_raw, tnWav_spk, trFet_spk, S0] = file2spk_(P, S0.spikeTimes, S0.spikeSites);
     set(0, 'UserData', S0);
 
     % Save to file
-    write_bin_(strrep(P.prmFile, '.prm', '_spkraw.jrc'), tnWav_raw);
-    write_bin_(strrep(P.prmFile, '.prm', '_spkwav.jrc'), tnWav_spk);
-    write_bin_(strrep(P.prmFile, '.prm', '_spkfet.jrc'), trFet_spk);
+    write_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), tnWav_raw);
+    write_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), tnWav_spk);
+    write_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), trFet_spk);
 
     % cluster and describe
     S0 = sort_(P);
@@ -39,6 +39,6 @@ function import_silico_(vcFile_prm, fSort)
     set(0, 'UserData', S0);
 
     % Save
-    save0_(strrep(P.prmFile, '.prm', '_jrc.mat'));
+    save0_(strrep(P.paramFile, '.prm', '_jrc.mat'));
     describe_(S0);
 end %func

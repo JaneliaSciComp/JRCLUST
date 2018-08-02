@@ -12,10 +12,10 @@ function [vcVer, vcDate, vcVer_used] = jrcVersion(vcFile_prm)
         if isempty(vcFile_prm)
             P = get0_('P');
             if ~isempty(P)
-                fprintf('\t%s used in %s\n', P.version, P.prmFile);
+                fprintf('\t%s used in %s\n', P.version, P.paramFile);
                 vcVer_used = P.version;
             end
-        elseif exist_file_(vcFile_prm)
+        elseif fileExists(vcFile_prm)
             P = loadParams(vcFile_prm);
             fprintf('\t%s used in %s\n', P.version, vcFile_prm);
             vcVer_used = P.version;

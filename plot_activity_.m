@@ -5,7 +5,7 @@ function plot_activity_(P) % single column only
 
     tbin = 10; %activity every 10 sec
     % plot activity as a function of time
-    % vcFile_evt = subsFileExt(P.prmFile, '_evt.mat');
+    % vcFile_evt = subsFileExt(P.paramFile, '_evt.mat');
     S0 = load_cached_(P, 0); %do not load waveforms
     nSites = numel(P.chanMap);
     % tdur = max(cell2mat_(cellfun(@(x)double(max(x)), Sevt.cviSpk_site, 'UniformOutput', 0))) / P.sRateHz;
@@ -15,7 +15,7 @@ function plot_activity_(P) % single column only
     mrAmp90 = zeros(nTime, nSites);
     lim0 = [1, tbin * P.sRateHz];
     for iSite=1:nSites
-        viSpk1 = find(S0.viSite_spk == iSite);
+        viSpk1 = find(S0.spikeSites == iSite);
         vrAmp_spk1 = S0.vrAmp_spk(viSpk1); % % S0.cvrSpk_site{iSite};  %spike amplitude
         if isempty(vrAmp_spk1), continue; end
         spikeTimes1 = S0.spikeTimes(viSpk1);
@@ -30,7 +30,7 @@ function plot_activity_(P) % single column only
 
     vlSite_left = P.mrSiteXY(:,1) == 0;
     vrSiteY = P.mrSiteXY(:,2);
-    hFig = createFigure('FigActivity', [0 0 .5 1], P.prmFile, 1, 1);
+    hFig = createFigure('FigActivity', [0 0 .5 1], P.paramFile, 1, 1);
     subplot 121; imagesc(mrAmp90(vlSite_left, :), 'XData', (1:nTime) * tbin, 'YData', vrSiteY(vlSite_left)); axis xy; xlabel('Time'); ylabel('Sites'); title('Left edge sites');
     subplot 122; imagesc(mrAmp90(~vlSite_left, :), 'XData', (1:nTime) * tbin, 'YData', vrSiteY(~vlSite_left)); axis xy; xlabel('Time'); ylabel('Sites'); title('Right edge sites');
 

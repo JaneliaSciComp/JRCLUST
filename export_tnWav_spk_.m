@@ -15,7 +15,7 @@ function export_tnWav_spk_(h,e)
     dimm_raw1 = size(tnWav_raw);    dimm_raw1(2) = nSites;
     tnWav_spk1 = zeros(dimm_spk1, 'like', tnWav_spk);
     tnWav_raw1 = zeros(dimm_raw1, 'like', tnWav_raw);
-    miSites_spk1 = P.miSites(:, S0.viSite_spk);
+    miSites_spk1 = P.miSites(:, S0.spikeSites);
     for iSpk = 1:nSpk1
         tnWav_spk1(:, miSites_spk1(:,iSpk), iSpk) = tnWav_spk(:,:,iSpk);
         tnWav_raw1(:, miSites_spk1(:,iSpk), iSpk) = tnWav_raw(:,:,iSpk);

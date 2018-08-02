@@ -16,7 +16,7 @@ function mn = load_bin_paged_(P, viChan, nBytes_page)
     mn = [];
 
     % Determine number of samples
-    if ~exist_file_(P.vcFile) || isempty(viChan), return; end
+    if ~fileExists(P.vcFile) || isempty(viChan), return; end
     nBytes = getBytes_(P.vcFile);
     if isempty(nBytes), return; end
     header_offset = get_(P, 'header_offset', 0);

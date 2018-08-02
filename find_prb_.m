@@ -4,7 +4,7 @@
 function vcFile_prb = find_prb_(vcFile_prb)
     % Find a prb file
     vcFile_prb_ = fullfile(jrcpath_(), 'prb', vcFile_prb);
-    if exist_file_(vcFile_prb_)
+    if fileExists(vcFile_prb_)
         vcFile_prb = vcFile_prb_;
     else
         vcFile_prb = search_file_(vcFile_prb, [jrcpath_(), 'prb', filesep()]);

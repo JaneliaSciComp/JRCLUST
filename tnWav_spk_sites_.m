@@ -16,11 +16,11 @@ function tnWav_spk1 = tnWav_spk_sites_(viSpk1, viSites1, S0, fWav_raw_show)
         return;
     end
 
-    [viSite_spk, P] = deal(S0.viSite_spk, S0.P);
+    [spikeSites, P] = deal(S0.spikeSites, S0.P);
     tnWav = get_spkwav_(P, fWav_raw_show);
     nT_spk = size(tnWav, 1);
     nSpk1 = numel(viSpk1);
-    viSites_spk1 = viSite_spk(viSpk1);
+    viSites_spk1 = spikeSites(viSpk1);
     viSites_spk_unique = unique(viSites_spk1);
     tnWav_spk1 = zeros([nT_spk, numel(viSites1), nSpk1], 'like', tnWav);
     for iSite1 = 1:numel(viSites_spk_unique) %only care about the first site

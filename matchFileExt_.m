@@ -4,7 +4,9 @@ function vl = matchFileExt_(csFiles, vcExt, vlDir)
     % ignore dir
     % matchFileExt_(csFiles, vcExt, vlDir)
     % matchFileExt_(csFiles, csExt, vlDir) %multiple extension check
-    if ischar(csFiles), csFiles={csFiles}; end
+    if ischar(csFiles)
+        csFiles={csFiles};
+    end
     vl = false(size(csFiles));
 
     for i=1:numel(csFiles)

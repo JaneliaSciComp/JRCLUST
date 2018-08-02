@@ -15,7 +15,7 @@ function [vrWav_aux, vrTime_aux] = load_aux_(P)
             return;
         end
     end
-    if ~exist_file_(vcFile_aux), return; end
+    if ~fileExists(vcFile_aux), return; end
 
     [~,~,vcExt_aux] = fileparts(vcFile_aux);
     switch lower(vcExt_aux)

@@ -12,7 +12,7 @@ function mnWav = load_bin_(vcFile, vcDataType, dimm, header)
 
     if ischar(vcFile)
         fid = [];
-        if ~exist_file_(vcFile)
+        if ~fileExists(vcFile)
             fprintf(2, 'File does not exist: %s\n', vcFile);
             return;
         end

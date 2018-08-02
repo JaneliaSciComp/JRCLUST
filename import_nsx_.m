@@ -24,7 +24,7 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     if isempty(vcTemplate_prm)
         vcTemplate_prm = jrcpath_(read_cfg_('default_prm'));
     end
-    dialogAssert(exist_file_(vcTemplate_prm), sprintf('Template file does not exist: %s', vcTemplate_prm));
+    dialogAssert(fileExists(vcTemplate_prm), sprintf('Template file does not exist: %s', vcTemplate_prm));
 
     % Write to a .prm file
     try
@@ -36,11 +36,11 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     end
     P.duration_file = nSamples / P.sRateHz; %assuming int16
     P.version = jrcVersion();
-    P.prmFile = vcFile_prm;
+    P.paramFile = vcFile_prm;
     % P.vcFile = vcFile_bin;
-    copyfile(vcTemplate_prm, P.prmFile, 'f');
-    edit_prm_file_(P, P.prmFile);
-    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.prmFile);
+    copyfile(vcTemplate_prm, P.paramFile, 'f');
+    edit_prm_file_(P, P.paramFile);
+    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.paramFile);
     disp(vcPrompt);
-    edit(P.prmFile);
+    edit(P.paramFile);
 end

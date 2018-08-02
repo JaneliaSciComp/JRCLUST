@@ -1,13 +1,13 @@
 %--------------------------------------------------------------------------
-function [tnWav_spk, vnThresh_site] = wav2spk_gt_(mnWav1, P, spikeTimes, mnWav1_pre, mnWav1_post)
+function [tnWav_spk, siteThresholds] = wav2spk_gt_(mnWav1, P, spikeTimes, mnWav1_pre, mnWav1_post)
     % tnWav_spk: spike waveform. nSamples x nSites x nSpikes
     % trFet_spk: nSites x nSpk x nFet
     % miSite_spk: nSpk x nFet
     % spikes are ordered in time
-    % viSite_spk and spikeTimes is uint32 format, and tnWav_spk: single format
+    % spikeSites and spikeTimes is uint32 format, and tnWav_spk: single format
     % mnWav1: raw waveform (unfiltered)
     % wav2spk_(mnWav1, vrWav_mean1, P)
-    % wav2spk_(mnWav1, vrWav_mean1, P, spikeTimes, viSite_spk)
+    % wav2spk_(mnWav1, vrWav_mean1, P, spikeTimes, spikeSites)
     % 7/5/17 JJJ: accurate spike detection at the overlap region
 
     if nargin<5, mnWav1_pre = []; end
@@ -21,7 +21,7 @@ function [tnWav_spk, vnThresh_site] = wav2spk_gt_(mnWav1, P, spikeTimes, mnWav1_
     [mnWav2, vnWav11] = filt_car_(mnWav1, P); % filter and car
 
     % detect spikes or use the one passed from the input (importing)
-    vnThresh_site = gather_(int16(mr2rms_(mnWav2, 1e5) * P.qqFactor));
+    siteThresholds = gather_(int16(mr2rms_(mnWav2, 1e5) * P.qqFactor));
     nPad_pre = size(mnWav1_pre,1);
     spikeTimes = spikeTimes + nPad_pre;
 

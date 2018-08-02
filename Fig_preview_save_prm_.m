@@ -14,7 +14,7 @@ function Fig_preview_save_prm_(hFig)
 
     % Preview variables in the edit box
     vcUpdate = struct2str_(P_update);
-    csAns = inputdlg_(P.prmFile, 'Update confirmation', 16, {vcUpdate}, struct('Resize', 'on'));
+    csAns = inputdlg_(P.paramFile, 'Update confirmation', 16, {vcUpdate}, struct('Resize', 'on'));
     if isempty(csAns), return; end
     [P_update, vcErr] = str2struct_(csAns{1});
     if isempty(P_update)
@@ -22,8 +22,8 @@ function Fig_preview_save_prm_(hFig)
         return;
     end
     P = get0_('P');
-    edit_prm_file_(P_update, P.prmFile);
+    edit_prm_file_(P_update, P.paramFile);
     % P = mergeStructs(P, P_update);
     % setUserData(P);
-    edit(P.prmFile);
+    edit(P.paramFile);
 end %func

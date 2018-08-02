@@ -22,7 +22,7 @@ function hFig = plot_rd_(P, S0)
 
     % Plot
     vhAx = [];
-    hFig = createFigure('Fig_RD1', [0 0 .5 1], P.prmFile, 1, 1);
+    hFig = createFigure('Fig_RD1', [0 0 .5 1], P.paramFile, 1, 1);
     vhAx(1) = subplot(211); hold on;
     plot(vrX_plot1, vrY_plot, '.', 'Color', repmat(.5,1,3));
     plot(vrX_plot1(S_clu.icl), vrY_plot(S_clu.icl), 'ro');

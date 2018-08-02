@@ -5,11 +5,11 @@ function [tnWav_spk, vrVrms_site] = file2spk_gt_(P, spikeTimes0)
     % usage:
     % [tnWav_raw, tnWav_spk, S0] = file2spk_(P)
     %
-    % [tnWav_raw, tnWav_spk, S0] = file2spk_(P, spikeTimes, viSite_spk)
+    % [tnWav_raw, tnWav_spk, S0] = file2spk_(P, spikeTimes, spikeSites)
     %   construct spike waveforms from previous time markers
     % 6/29/17 JJJ: Added support for the matched filter
     P.fft_thresh = 0; %disable for GT
-    [tnWav_spk, vnThresh_site] = deal({});
+    [tnWav_spk, siteThresholds] = deal({});
     nSamples1 = 0;
     [fid1, nBytes_file1] = fopen_(P.vcFile, 'r');
     nBytes_file1 = file_trim_(fid1, nBytes_file1, P);
@@ -26,7 +26,7 @@ function [tnWav_spk, vrVrms_site] = file2spk_gt_(P, spikeTimes0)
             mnWav11_post = [];
         end
         [spikeTimes11] = filter_spikes_(spikeTimes0, [], nSamples1 + [1, nSamples11]);
-        [tnWav_spk{end+1}, vnThresh_site{end+1}] = wav2spk_gt_(mnWav11, P, spikeTimes11, mnWav11_pre, mnWav11_post);
+        [tnWav_spk{end+1}, siteThresholds{end+1}] = wav2spk_gt_(mnWav11, P, spikeTimes11, mnWav11_pre, mnWav11_post);
         if iLoad1 < nLoad1, mnWav11_pre = mnWav11(end-P.nPad_filt+1:end, :); end
         nSamples1 = nSamples1 + nSamples11;
         clear mnWav11 vrWav_mean11;
@@ -39,7 +39,7 @@ function [tnWav_spk, vrVrms_site] = file2spk_gt_(P, spikeTimes0)
 
     % tnWav_raw = cat(3, tnWav_raw{:});
     tnWav_spk = cat(3, tnWav_spk{:});
-    [vnThresh_site] = multifun_(@(x)cat(1, x{:}), vnThresh_site);
-    vrVrms_site = mean(single(vnThresh_site),1) / P.qqFactor;
+    [siteThresholds] = multifun_(@(x)cat(1, x{:}), siteThresholds);
+    vrVrms_site = mean(single(siteThresholds),1) / P.qqFactor;
 
 end %func

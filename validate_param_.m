@@ -19,8 +19,8 @@ function flag = validate_param_(P)
 
     % nFet = P.
     % Validate format
-    % if isempty(P.vcFile) && isempty(P.csFile_merge)
-    %     csError{end+1} = '''vcFile'' or ''csFile_merge'' must be set.';
+    % if isempty(P.vcFile) && isempty(P.multiFilenames)
+    %     csError{end+1} = '''vcFile'' or ''multiFilenames'' must be set.';
     % elseif ~isempty(P.vcFile)
     %     if ~exist(P.vcFile, 'file')
     %         csError{end+1} = sprintf('vcFile=''%s'' does not exist', P.vcFile);

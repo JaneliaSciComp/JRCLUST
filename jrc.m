@@ -10,6 +10,7 @@ function varargout = jrc(cmd, varargin)
     % Add paths
     [dirname, ~] = fileparts(fullfile(mfilename('fullpath')));
     addpath(fullfile(dirname, 'meta')); % info functions
+    addpath(fullfile(dirname, 'filesystem')); % file-related functions
     addpath(fullfile(dirname, 'utils')); % miscellaneous (but useful) tools
     addpath(fullfile(dirname, 'params')); % parameter-related functions
     addpath(fullfile(dirname, 'gui')); % GUI functions
@@ -52,28 +53,28 @@ function varargout = jrc(cmd, varargin)
             about_();
         case 'clear'
             clear_(arg1);
-        % case 'gui' % TODO: reference 'prmFile' before definition
-        %     gui_(arg1, prmFile);
+        % case 'gui' % TODO: reference 'paramFile' before definition
+        %     gui_(arg1, paramFile);
         case {'import-kilosort', 'import-ksort'}
             importKiloSort(arg1);
         case {'makeprm', 'createprm', 'makeprm-all'}
-            prmFile = makeprm_(arg1, arg2, 1, arg3);
+            paramFile = makeprm_(arg1, arg2, 1, arg3);
             if nargout > 0
-                varargout{1} = prmFile;
+                varargout{1} = paramFile;
             end
 
-            if isempty(prmFile)
+            if isempty(paramFile)
                 return;
             end
 
             if strcmp(cmd, 'makeprm-all')
-                jrc('all', prmFile);
+                jrc('all', paramFile);
             end
         case 'makeprm-f', makeprm_(arg1, arg2, 0, arg3);
         case 'import-tsf', import_tsf_(arg1);
         case 'import-h5', import_h5_(arg1);
-        case 'import-intan', prmFile = import_intan_(arg1, arg2, arg3); return;
-        case {'import-nsx', 'import-ns5'}, prmFile = import_nsx_(arg1, arg2, arg3); return;
+        case 'import-intan', paramFile = import_intan_(arg1, arg2, arg3); return;
+        case {'import-nsx', 'import-ns5'}, paramFile = import_nsx_(arg1, arg2, arg3); return;
         case 'nsx-info', [~, ~, S_file] = nsx_info_(arg1); assignWorkspace_(S_file); return;
         case 'load-nsx', load_nsx_(arg1); return;
         case 'load-bin'
@@ -94,29 +95,29 @@ function varargout = jrc(cmd, varargin)
     %-----
     % Command type B: Requires .prm file
     if nargin >= 2
-        prmFile = getPrmFile(arg1);
+        paramFile = getParamFile(arg1);
     else
-        prmFile = getPrmFile();
-        disp(['Working on ', prmFile])
+        paramFile = getParamFile();
+        disp(['Working on ', paramFile])
     end
 
     doExit = 1;
     switch lower(cmd)
-        case 'probe', probe_(prmFile);
-        case {'make-trial', 'maketrial', 'load-trial', 'loadtrial'}, make_trial_(prmFile, 0);
-        case {'loadtrial-imec', 'load-trial-imec', 'make-trial-imec', 'maketrial-imec'}, make_trial_(prmFile, 1);
-        case 'edit', edit_(prmFile);
+        case 'probe', probe_(paramFile);
+        case {'make-trial', 'maketrial', 'load-trial', 'loadtrial'}, make_trial_(paramFile, 0);
+        case {'loadtrial-imec', 'load-trial-imec', 'make-trial-imec', 'maketrial-imec'}, make_trial_(paramFile, 1);
+        case 'edit', edit_(paramFile);
         case 'batch', batch_(arg1, arg2);
         case {'batch-verify', 'batch-validate'}, batch_verify_(arg1, arg2);
         case {'batch-plot', 'batch-activity'}, batch_plot_(arg1, arg2);
-        case 'describe', describe_(prmFile);
-        case 'import-silico', import_silico_(prmFile, 0);
-        case 'import-silico-sort', import_silico_(prmFile, 1);
-        case 'export-imec-sync', export_imec_sync_(prmFile);
-        case 'export-prm', export_prm_(prmFile, arg2);
+        case 'describe', describe_(paramFile);
+        case 'import-silico', import_silico_(paramFile, 0);
+        case 'import-silico-sort', import_silico_(paramFile, 1);
+        case 'export-imec-sync', export_imec_sync_(paramFile);
+        case 'export-prm', export_prm_(paramFile, arg2);
         case 'dir'
-            if any(prmFile == '*') % handle globs
-                dir_files_(prmFile, arg2, arg3);
+            if any(paramFile == '*') % handle globs
+                dir_files_(paramFile, arg2, arg3);
             else
                 doExit = 0;
             end
@@ -127,9 +128,9 @@ function varargout = jrc(cmd, varargin)
 
     %-----
     % Command type C: Requires P structure (loaded from .prm)
-    if ~matchFileExt_(prmFile, '.prm'), fprintf(2, 'Must provide .prm file\n'); return ;end
-    if ~exist_file_(prmFile), fprintf(2, 'File does not exist: %s\n', prmFile); return ;end
-    P = loadParams(prmFile);
+    if ~matchFileExt_(paramFile, '.prm'), fprintf(2, 'Must provide .prm file\n'); return ;end
+    if ~fileExists(paramFile), fprintf(2, 'File does not exist: %s\n', paramFile); return ;end
+    P = loadParams(paramFile);
     if isempty(P), return; end
     fError = 0;
     switch lower(cmd)
@@ -137,32 +138,32 @@ function varargout = jrc(cmd, varargin)
         case 'preview-test', preview_(P, 1); gui_test_(P, 'Fig_preview');
         case 'traces', traces_(P, 0, arg2);
         case 'traces-lfp', traces_lfp_(P)
-        case 'dir', dir_files_(P.csFile_merge);
+        case 'dir', dir_files_(P.multiFilenames);
         case 'traces-test'
             traces_(P, 1); traces_test_(P);
         case {'full', 'all'}
             fprintf('Performing "jrc detect", "jrc sort", "jrc manual" operations.\n');
             detect_(P);
             sort_(P, 0);
-            describe_(P.prmFile);
+            describe_(P.paramFile);
             manual(P);
             return;
         case {'spikesort', 'detectsort', 'detect-sort', 'spikesort-verify', 'spikesort-validate', 'spikesort-manual', 'detectsort-manual'}
             fprintf('Performing "jrc detect", "jrc sort" operations.\n');
             detect_(P);
             sort_(P, 0);
-            describe_(P.prmFile);
+            describe_(P.paramFile);
         case {'detect', 'spikedetect'}
-            detect_(P); describe_(P.prmFile);
+            detect_(P); describe_(P.paramFile);
         case {'sort', 'cluster', 'clust', 'sort-verify', 'sort-validate', 'sort-manual'}
             if ~is_detected_(P)
                 detect_(P); sort_(P,0);
             else
                 sort_(P);
             end
-            describe_(P.prmFile);
+            describe_(P.paramFile);
         case {'auto', 'auto-verify', 'auto-manual'}
-            auto_(P); describe_(P.prmFile);
+            auto_(P); describe_(P.paramFile);
         case 'manual-test'
             manual(P, 'debug'); manual_test_(P); return;
         case 'manual-test-menu'
@@ -172,11 +173,11 @@ function varargout = jrc(cmd, varargin)
             assignWorkspace_(mnWav);
         case 'export-spk'
             S0 = get(0, 'UserData');
-            trSpkWav = load_bin_(strrep(P.prmFile, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
+            trSpkWav = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
             assignWorkspace_(trSpkWav);
         case 'export-raw'
             S0 = get(0, 'UserData');
-            trWav_raw = load_bin_(strrep(P.prmFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_spk);
+            trWav_raw = load_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_spk);
             assignWorkspace_(trWav_raw);
         case {'export-spkwav', 'spkwav'}, export_spkwav_(P, arg2); % export spike waveforms
         case {'export-chan'}, export_chan_(P, arg2); % export channels

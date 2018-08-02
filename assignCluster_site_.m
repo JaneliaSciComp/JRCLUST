@@ -7,9 +7,9 @@ function viClu = assignCluster_site_(S_clu, S0)
     viClu(S_clu.icl) = 1:numel(S_clu.icl);
     % for iRepeat = 1:nRepeat
     for iSite = 1:nSites
-        viSpk_ = S0.cviSpk_site{iSite}; %find(S0.viSite_spk == iSite);
+        viSpk_ = S0.cviSpk_site{iSite}; %find(S0.spikeSites == iSite);
         if isempty(viSpk_), continue; end
-        %     viSpk_ = viSpk_(S0.viSite_spk(S_clu.nneigh(viSpk_)) == iSite); % in group spikes only
+        %     viSpk_ = viSpk_(S0.spikeSites(S_clu.nneigh(viSpk_)) == iSite); % in group spikes only
         %     viSpk_ = viSpk_(ismember(S_clu.nneigh(viSpk_), viSpk_));
         cl_ = viClu(viSpk_);
         ordrho_ = rankorder_(S_clu.rho(viSpk_), 'descend');

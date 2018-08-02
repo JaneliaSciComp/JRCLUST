@@ -1,11 +1,11 @@
 %--------------------------------------------------------------------------
 function [mrVpp1, mrVpp2] = calc_cov_spk_(viSpk1, viSites1)
 
-    [viSite_spk, P] = get0_('viSite_spk', 'P');
+    [spikeSites, P] = get0_('spikeSites', 'P');
     tnWav_spk = get_spkwav_(P, 0); % get filtered waveform
 
     nSpk1 = numel(viSpk1);
-    viSites_spk1 = viSite_spk(viSpk1);
+    viSites_spk1 = spikeSites(viSpk1);
     tnWav_spk1 = gpuArray_(tnWav_spk(:,:,viSpk1), P.useGPU);
     nSites_spk = 1 + P.maxSite * 2;
     [mrVpp1_, mrVpp2_] = trWav2fet_(tnWav_spk1, P, nSites_spk);

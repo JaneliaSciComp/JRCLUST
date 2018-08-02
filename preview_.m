@@ -21,7 +21,7 @@ function S_fig = preview_(P, fDebug_ui_)
 
     % Create a Figure
     gap = .05;
-    hFig = createFigure('Fig_preview', [0 0 .5 1], P.prmFile, 1, 1); %plot a summary pannel
+    hFig = createFigure('Fig_preview', [0 0 .5 1], P.paramFile, 1, 1); %plot a summary pannel
     hAx_mean = axes('Parent', hFig, 'Position',      [gap        gap         3/4-gap         1/4-gap], 'NextPlot', 'add');
     hAx_traces = axes('Parent', hFig, 'Position',    [gap        1/4+gap     3/4-gap         3/4-gap*2], 'NextPlot', 'add');
     hAx_sites = axes('Parent', hFig, 'Position',     [3/4+gap,   0+gap       1/4-gap*1.5     2/3-gap*2], 'NextPlot', 'add');

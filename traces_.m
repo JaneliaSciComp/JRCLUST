@@ -31,8 +31,8 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
 
     % get file to show
     iFile_show = 1; %files to display for clustered together
-    if ~isempty(P.csFile_merge)
-        csFiles_bin = filter_files_(P.csFile_merge);
+    if ~isempty(P.multiFilenames)
+        csFiles_bin = filter_files_(P.multiFilenames);
         if numel(csFiles_bin)==1
             vcFile_bin = csFiles_bin{1};
         else %show multiple files

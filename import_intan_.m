@@ -43,11 +43,11 @@ function vcFile_prm = import_intan_(vcFile_dat, vcFile_prb, vcArg3)
     end
     P.duration_file = nSamples / P.sRateHz; %assuming int16
     P.version = jrcVersion();
-    P.prmFile = vcFile_prm;
+    P.paramFile = vcFile_prm;
     P.vcFile = vcFile_bin;
-    copyfile(jrcpath_(read_cfg_('default_prm')), P.prmFile, 'f');
-    edit_prm_file_(P, P.prmFile);
-    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.prmFile);
+    copyfile(jrcpath_(read_cfg_('default_prm')), P.paramFile, 'f');
+    edit_prm_file_(P, P.paramFile);
+    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.paramFile);
     disp(vcPrompt);
-    edit(P.prmFile);
+    edit(P.paramFile);
 end

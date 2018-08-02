@@ -19,9 +19,9 @@ function S0 = sort_(P, fLoad)
 
     % measure time
     runtime_sort = toc(runtime_sort);
-    fprintf('Sorting took %0.1fs for %s\n', runtime_sort, P.prmFile);
+    fprintf('Sorting took %0.1fs for %s\n', runtime_sort, P.paramFile);
     S0 = setUserData(runtime_sort, P);
     S0 = clear_log_(S0);
 
-    save0_(strrep(P.prmFile, '.prm', '_jrc.mat'));
+    save0_(strrep(P.paramFile, '.prm', '_jrc.mat'));
 end %func

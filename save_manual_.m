@@ -6,7 +6,7 @@ function fExit = save_manual_(varargin)
     else
         P = get0_('P');
     end
-    vcFile_jrc = subsFileExt_(P.prmFile, '_jrc.mat');
+    vcFile_jrc = subsFileExt_(P.paramFile, '_jrc.mat');
     fExit = 1;
     switch lower(userDialog(['Save to ', vcFile_jrc, ' ?'], 'Confirmation', 'Yes'))
         case 'yes'

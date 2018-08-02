@@ -20,19 +20,19 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     end
 
     if any(vcFile_bin=='*') %wild card provided
-        P.csFile_merge = vcFile_bin;
+        P.multiFilenames = vcFile_bin;
         vcFile_bin = strrep(vcFile_bin, '*', '');
     elseif isTextFile_(vcFile_bin)
-        P.csFile_merge = vcFile_bin;
+        P.multiFilenames = vcFile_bin;
         %     vcFile_bin = subsFileExt_(vcFile_bin, '.bin');
     else
-        if ~exist_file_(vcFile_bin)
+        if ~fileExists(vcFile_bin)
             vcFile_bin_ = jrcpath_(vcFile_bin);
             if exist(vcFile_bin_, 'file') == 2, vcFile_bin = vcFile_bin_; end
         end
-        if exist_file_(vcFile_bin)
+        if fileExists(vcFile_bin)
             P.vcFile = vcFile_bin;
-            P.csFile_merge = {};
+            P.multiFilenames = {};
         else
             vcPrompt = sprintf('%s does not exist.\n', vcFile_bin);
             fprintf(2, '%s\n', vcPrompt);
@@ -41,10 +41,10 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     end
 
     % Load meta file
-    if isempty(P.csFile_merge)
+    if isempty(P.multiFilenames)
         vcFile_meta = subsFileExt_(vcFile_bin, '.meta');
     else
-        csFiles_bin = filter_files_(P.csFile_merge);
+        csFiles_bin = filter_files_(P.multiFilenames);
         if isempty(csFiles_bin)
             vcFile_meta = '';
         else
@@ -76,7 +76,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
 
     % Assign prm file name
     [~,vcPostfix,~] = fileparts(vcFile_prb);
-    P.prmFile = subsFileExt_(vcFile_bin, ['_', vcPostfix, '.prm']);
+    P.paramFile = subsFileExt_(vcFile_bin, ['_', vcPostfix, '.prm']);
     P.probe_file = vcFile_prb;
     try
         S_prb = file2struct_(find_prb_(vcFile_prb));
@@ -87,7 +87,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
         disperr_(sprintf('Error loading the probe file: %s\n', vcFile_prb));
     end
 
-    if exist(P.prmFile, 'file') && fAsk
+    if exist(P.paramFile, 'file') && fAsk
         vcAns = userDialog('File already exists. Overwrite prm file?', 'Warning', 'Yes', 'No', 'No');
         if ~strcmpi(vcAns, 'Yes')
             P = [];
@@ -106,15 +106,15 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     P.duration_file = P.nBytes_file / bytesPerSample_(P.vcDataType) / P.nChans / P.sRateHz; %assuming int16
     P.version = jrcVersion();
     try
-        copyfile(jrcpath_(read_cfg_('default_prm')), P.prmFile, 'f');
+        copyfile(jrcpath_(read_cfg_('default_prm')), P.paramFile, 'f');
     catch
-        fprintf(2, 'Invalid path: %s\n', P.prmFile);
+        fprintf(2, 'Invalid path: %s\n', P.paramFile);
         return;
     end
 
     % Write to prm file
-    edit_prm_file_(P, P.prmFile);
-    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.prmFile);
+    edit_prm_file_(P, P.paramFile);
+    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.paramFile);
     disp(vcPrompt);
-    if fAsk, edit(P.prmFile); end % Show settings file
+    if fAsk, edit(P.paramFile); end % Show settings file
 end %func

@@ -16,7 +16,7 @@ function [S0, P] = load_cached_(P, loadWaveforms)
     fClear_cache = 1;
     if ~isempty(S0)
         if isfield(S0, 'P')
-            if strcmpi(P.prmFile, S0.P.prmFile)
+            if strcmpi(P.paramFile, S0.P.paramFile)
                 fClear_cache = 0;
             end
         end
@@ -34,8 +34,8 @@ function [S0, P] = load_cached_(P, loadWaveforms)
             fLoad0 = 1;
         end
 
-        vcFile_jrc = strrep(P.prmFile, '.prm', '_jrc.mat');
-        if ~exist_file_(vcFile_jrc), S0.P=P; return; end
+        vcFile_jrc = strrep(P.paramFile, '.prm', '_jrc.mat');
+        if ~fileExists(vcFile_jrc), S0.P=P; return; end
         if fLoad0, S0 = load0_(vcFile_jrc); end
         if isempty(S0), S0.P = []; end
         [P0, S0.P] = deal(S0.P, P); %swap
@@ -44,11 +44,11 @@ function [S0, P] = load_cached_(P, loadWaveforms)
             if isempty(S0), return; end %no info
             try
                 if get_set_(P, 'fRamCache', 1)
-                    trFet_spk = load_bin_(strrep(P.prmFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
-                    tnWav_spk = load_bin_(strrep(P.prmFile, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
-                    tnWav_raw = load_bin_(strrep(P.prmFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);
+                    trFet_spk = load_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
+                    tnWav_spk = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
+                    tnWav_raw = load_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);
                 else
-                    trFet_spk = load_bin_(strrep(P.prmFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
+                    trFet_spk = load_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
                 end
             catch
                 disperr_();

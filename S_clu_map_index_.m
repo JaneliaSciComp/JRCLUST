@@ -8,6 +8,6 @@ function S_clu = S_clu_map_index_(S_clu, viMap_clu)
     % S_clu = S_clu_count_(S_clu);
     S_clu.cviSpk_clu = arrayfun(@(iClu)find(S_clu.spikeClusters==iClu), 1:S_clu.nClusters, 'UniformOutput', 0);
     S_clu.vnSpk_clu = cellfun(@numel, S_clu.cviSpk_clu);
-    viSite_spk = get0_('viSite_spk');
-    S_clu.clusterSites = double(arrayfun(@(iClu)mode(viSite_spk(S_clu.cviSpk_clu{iClu})), 1:S_clu.nClusters));
+    spikeSites = get0_('spikeSites');
+    S_clu.clusterSites = double(arrayfun(@(iClu)mode(spikeSites(S_clu.cviSpk_clu{iClu})), 1:S_clu.nClusters));
 end %func

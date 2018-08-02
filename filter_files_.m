@@ -6,7 +6,7 @@ function [csFiles_valid, viValid] = filter_files_(csFiles, fSortMode)
     if isTextFile_(csFiles)
         csFiles = load_batch_(csFiles);
     else
-        if nargin<2
+        if nargin < 2
             P = get0_('P');
             fSortMode = get_set_(P, 'sort_file_merge', 1);
         end
@@ -15,16 +15,22 @@ function [csFiles_valid, viValid] = filter_files_(csFiles, fSortMode)
 
     % filter based on file presence and bytes
     vlValid = false(size(csFiles));
-    for iFile=1:numel(csFiles)
+    for iFile = 1:numel(csFiles)
         S_dir1 = dir(csFiles{iFile});
-        if isempty(S_dir1), continue; end
-        if S_dir1.bytes == 0, continue; end
+        if isempty(S_dir1)
+            continue;
+        end
+        if S_dir1.bytes == 0
+            continue;
+        end
         vlValid(iFile) = 1;
     end
+
     viValid = find(vlValid);
     csFiles_valid = csFiles(viValid);
+
     if ~all(vlValid)
         fprintf('Files not found:\n');
-        cellfun(@(vc)fprintf('\t%s\n', vc), csFiles(~vlValid));
+        cellfun(@(c) fprintf('\t%s\n', c) , csFiles(~vlValid));
     end
 end %func

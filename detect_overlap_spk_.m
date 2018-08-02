@@ -1,15 +1,15 @@
 %--------------------------------------------------------------------------
 % 12/16/17 JJJ: find overlapping spikes. only return spikes more negative than others
-function [viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = detect_overlap_spk_(spikeTimes, viSite_spk, P);
+function [viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = detect_overlap_spk_(spikeTimes, spikeSites, P);
 
     mrDist_site = squareform(pdist(P.mrSiteXY));
     nlimit = int32(diff(P.spkLim));
     maxDist_site_um = P.maxDist_site_um;
     nSpk = numel(spikeTimes);
-    nSites = max(viSite_spk);
-    cviSpk_site = arrayfun(@(iSite)int32(find(viSite_spk==iSite)), (1:nSites)', 'UniformOutput', 0);
+    nSites = max(spikeSites);
+    cviSpk_site = arrayfun(@(iSite)int32(find(spikeSites==iSite)), (1:nSites)', 'UniformOutput', 0);
     spikeTimes = gather_(spikeTimes);
-    [viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = deal(zeros(size(viSite_spk), 'int32'));
+    [viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = deal(zeros(size(spikeSites), 'int32'));
     for iSite = 1:nSites
         viSpk1 = cviSpk_site{iSite};
         if isempty(viSpk1), continue; end

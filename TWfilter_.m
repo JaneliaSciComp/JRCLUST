@@ -4,7 +4,7 @@ function TWfilter_(P, vcMode)
 
 	% Load info
 	if ~isSorted(P)
-		fprintf(2, 'File must to be sorted first (run "jrc spikesort %s")\n', P.prmFile); 
+		fprintf(2, 'File must to be sorted first (run "jrc spikesort %s")\n', P.paramFile); 
 		return; 
 	end
 	[S0, P] = load_cached_(P);
@@ -26,7 +26,7 @@ function TWfilter_(P, vcMode)
 		fprintf('Deleting cluster %d\n', i_clu); 
     end
     set(0, 'UserData', S0);
-	save0_(subsFileExt_(S0.P.prmFile, '_jrc.mat'),1); % 1 will skip figure saving
+	save0_(subsFileExt_(S0.P.paramFile, '_jrc.mat'),1); % 1 will skip figure saving
 
 end %func;
 

@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function flag = delete_file_(vcFile)
     flag = 0;
-    if ~exist_file_(vcFile), return; end
+    if ~fileExists(vcFile), return; end
     try
         delete(vcFile);
     catch

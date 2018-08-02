@@ -1,10 +1,10 @@
 %--------------------------------------------------------------------------
-function selfcorr = S_clu_self_corr__(S_clu, tnWav_spk, iClu1, viSite_spk)
+function selfcorr = S_clu_self_corr__(S_clu, tnWav_spk, iClu1, spikeSites)
     % cluster self-correlation. low means bad. return 1-corr score
     MAX_SAMPLE = 4000;
-    if nargin<4, viSite_spk = get0_('viSite_spk'); end
+    if nargin<4, spikeSites = get0_('spikeSites'); end
 
-    [viSpk_clu1, viiSpk_clu1] = S_clu_viSpk_(S_clu, iClu1, viSite_spk);
+    [viSpk_clu1, viiSpk_clu1] = S_clu_viSpk_(S_clu, iClu1, spikeSites);
 
     viSpk_clu1 = randomSelect_(viSpk_clu1, MAX_SAMPLE);
     % trWav1 = meanSubt_(single(tnWav_spk(:,:,viSpk_clu1)));

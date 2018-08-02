@@ -58,21 +58,21 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
 
     % Apply threshold and perform spike detection
     vrRmsQ_site = mr2rms_(mnWav_filt, 1e5);
-    vnThresh_site = int16(vrRmsQ_site * S_fig.qqFactor);
-    vnThresh_site(S_fig.vlSite_bad) = nan; % shows up as 0 for int16
-    S_fig.mlWav_thresh = bsxfun(@lt, mnWav_filt, -abs(vnThresh_site)); %negative threshold crossing
+    siteThresholds = int16(vrRmsQ_site * S_fig.qqFactor);
+    siteThresholds(S_fig.vlSite_bad) = nan; % shows up as 0 for int16
+    S_fig.mlWav_thresh = bsxfun(@lt, mnWav_filt, -abs(siteThresholds)); %negative threshold crossing
     S_fig.mlWav_thresh(:, S_fig.vlSite_bad) = 0;
-    S_fig.vnThresh_site = vnThresh_site;
+    S_fig.siteThresholds = siteThresholds;
 
     % Spike detection
     % P_.fMerge_spk = 0;
     [vlKeep_ref, S_fig.vrMad_ref] = car_reject_(vrWav_filt_mean, P_);
-    [S_fig.spikeTimes, S_fig.vnAmp_spk, viSite_spk] = detect_spikes_(mnWav_filt, vnThresh_site, vlKeep_ref, P_);
+    [S_fig.spikeTimes, S_fig.vnAmp_spk, spikeSites] = detect_spikes_(mnWav_filt, siteThresholds, vlKeep_ref, P_);
     t_dur = size(mnWav_filt,1) / P.sRateHz;
-    S_fig.vrEventRate_site = hist(viSite_spk, 1:nSites) / t_dur; % event count
-    S_fig.vrEventSnr_site = abs(single(arrayfun(@(i)median(S_fig.vnAmp_spk(viSite_spk==i)), 1:nSites))) ./ vrRmsQ_site;
+    S_fig.vrEventRate_site = hist(spikeSites, 1:nSites) / t_dur; % event count
+    S_fig.vrEventSnr_site = abs(single(arrayfun(@(i)median(S_fig.vnAmp_spk(spikeSites==i)), 1:nSites))) ./ vrRmsQ_site;
     S_fig.vlKeep_ref = vlKeep_ref;
-    S_fig.viSite_spk = viSite_spk;
+    S_fig.spikeSites = spikeSites;
     % Spike stats: such as # sites/event over threshold
 
     % Exit

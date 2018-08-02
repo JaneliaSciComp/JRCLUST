@@ -66,21 +66,21 @@ function Fig_traces_plot_(fAxis_reset)
         spikeTimes = S0.spikeTimes - int32(S0.viT_offset_file(S0.iFile_show));
         if nTime_traces > 1
             viSpk1 = find(in_range_(spikeTimes, cvn_lim_bin));
-            [viSite_spk1, spikeTimes1] = multifun_(@(vr)vr(viSpk1), S0.viSite_spk, spikeTimes);
+            [spikeSites1, spikeTimes1] = multifun_(@(vr)vr(viSpk1), S0.spikeSites, spikeTimes);
             spikeTimes1 = round(reverse_lookup_(spikeTimes1, viRange_bin) / P.nSkip_show);
         else
             viSpk1 = find(spikeTimes >= S_fig.nlim_bin(1) & spikeTimes < S_fig.nlim_bin(end));
-            [viSite_spk1, spikeTimes1] = multifun_(@(vr)vr(viSpk1), S0.viSite_spk, spikeTimes);
+            [spikeSites1, spikeTimes1] = multifun_(@(vr)vr(viSpk1), S0.spikeSites, spikeTimes);
             spikeTimes1 = round((spikeTimes1 - S_fig.nlim_bin(1) + 1) / P.nSkip_show); %time offset
         end
         t_start1 = single(S_fig.nlim_bin(1) - 1) / P.sRateHz;
-        viSite_spk1 = single(viSite_spk1);
+        spikeSites1 = single(spikeSites1);
         % check if clustered
         if isempty(S_clu)
             nSites = size(mrWav1,2);
             chSpk = cell(nSites, 1);
             for iSite=1:nSites %deal with subsample factor
-                viSpk11 = find(viSite_spk1 == iSite);
+                viSpk11 = find(spikeSites1 == iSite);
                 if isempty(viSpk11), continue; end
                 spikeTimes11 = spikeTimes1(viSpk11);
                 [mrY11, mrX11] = vr2mr3_(mrWav1(:,iSite), spikeTimes11, spkLim); %display purpose x2
@@ -101,7 +101,7 @@ function Fig_traces_plot_(fAxis_reset)
             chSpk = cell(nSpk1, 1);
             for iSpk1 = 1:nSpk1
                 iTime_spk11 = spikeTimes1(iSpk1);
-                iSite11 = viSite_spk1(iSpk1);
+                iSite11 = spikeSites1(iSpk1);
                 [mrY11, mrX11] = vr2mr3_(mrWav1(:,iSite11), iTime_spk11, spkLim); %display purpose x2
                 mrT11 = double(mrX11-1) / sRateHz + t_start1;
                 iClu11 = viClu_spk1(iSpk1);
@@ -122,7 +122,7 @@ function Fig_traces_plot_(fAxis_reset)
         S_fig.chSpk = [];
     end
     if fAxis_reset, fig_traces_reset_(S_fig); end
-    set(hFig, 'UserData', S_fig, 'Name', sprintf('%s: filter: %s', P.prmFile, (vcFilter_show)));
+    set(hFig, 'UserData', S_fig, 'Name', sprintf('%s: filter: %s', P.paramFile, (vcFilter_show)));
     figure_wait_(0, hFig);
     tryClose(fWait);
 end %func

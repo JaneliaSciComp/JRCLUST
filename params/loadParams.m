@@ -3,20 +3,20 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     % Load prm file
 
     if nargin<2, fEditFile = 1; end
-    assert(exist_file_(vcFile_prm), sprintf('.prm file does not exist: %s\n', vcFile_prm));
+    assert(fileExists(vcFile_prm), sprintf('.prm file does not exist: %s\n', vcFile_prm));
     P0 = file2struct_(jrcpath_(read_cfg_('default_prm', 0))); %P = defaultParam();
     P = file2struct_(vcFile_prm);
     if ~isfield(P, 'template_file'), P.template_file = ''; end
     if ~isempty(P.template_file)
-        dialogAssert(exist_file_(P.template_file), sprintf('template file does not exist: %s', P.template_file));
+        dialogAssert(fileExists(P.template_file), sprintf('template file does not exist: %s', P.template_file));
         P = mergeStructs(file2struct_(P.template_file), P);
     end
-    P.prmFile = vcFile_prm;
+    P.paramFile = vcFile_prm;
     dialogAssert(isfield(P, 'vcFile'), sprintf('Check "%s" file syntax', vcFile_prm));
 
-    if ~exist_file_(P.vcFile) && isempty(get_(P, 'csFile_merge'))
+    if ~fileExists(P.vcFile) && isempty(get_(P, 'multiFilenames'))
         P.vcFile = replacePath_(P.vcFile, vcFile_prm);
-        if ~exist_file_(P.vcFile)
+        if ~fileExists(P.vcFile)
             fprintf('vcFile not specified. Assuming multi-file format ''csFiles_merge''.\n');
         end
     end
@@ -29,7 +29,7 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
         probe_file_ = find_prb_(P.probe_file);
         if isempty(probe_file_)
             P.probe_file = replacePath_(P.probe_file, vcFile_prm);
-            dialogAssert(exist_file_(P.probe_file), 'prb file does not exist');
+            dialogAssert(fileExists(P.probe_file), 'prb file does not exist');
         else
             P.probe_file = probe_file_;
         end
@@ -51,7 +51,7 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     P = struct_default_(P, 'fWav_raw_show', 0);
     P = struct_default_(P, 'vcFile_prm', subsFileExt_(P.vcFile, '.prm'));
     P = struct_default_(P, 'vcFile_gt', '');
-    if isempty(P.vcFile_gt), P.vcFile_gt = subsFileExt_(P.prmFile, '_gt.mat'); end
+    if isempty(P.vcFile_gt), P.vcFile_gt = subsFileExt_(P.paramFile, '_gt.mat'); end
     P.spkRefrac = round(P.spkRefrac_ms * P.sRateHz / 1000);
     P.spkLim = round(P.spkLim_ms * P.sRateHz / 1000);
     P.spkLim_raw = calc_spkLim_raw_(P);
@@ -93,5 +93,5 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
         P.vcFilter_show = P.vcFilter;
     end
     dialogAssert(validate_param_(P), 'Parameter file contains error.');
-    if fEditFile, edit(P.prmFile); end % Show settings file
+    if fEditFile, edit(P.paramFile); end % Show settings file
 end %func

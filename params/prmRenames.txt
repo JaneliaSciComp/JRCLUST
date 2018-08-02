@@ -1,12 +1,15 @@
+P.csFile_merge=P.multiFilenames
 P.delta1_cut=P.log10DeltaCutoff
 P.min_count=P.minClusterSize
 P.rho_cut=P.log10RhoCutoff
-P.vcFile_prm=P.prmFile
+P.vcFile_prm=P.paramFile
+P.vcFile_thresh=P.thresholdFile
 % P.vcFile=P.recordingFile
 P.viSite2Chan=P.chanMap
 
 S0.csFig=S0.figTags
 S0.cvrFigPos0=S0.figPositions
+S0.viSite_spk=S0.spikeSites
 S0.viTime_spk=S0.spikeTimes
 
 S_clu.icl=S_clu.clusterCenters
@@ -14,3 +17,5 @@ S_clu.viClu_auto=S_clu.spikeClustersAuto
 S_clu.viClu_old=S_clu.spikeClustersOld
 S_clu.viClu=S_clu.spikeClusters
 S_clu.viSite_clu=S_clu.clusterSites
+
+S_thresh.vnThresh_site=S_thresh.siteThresholds

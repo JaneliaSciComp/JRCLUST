@@ -12,7 +12,7 @@ function make_trial_(vcFile_prm, fImec)
     iChan = str2double(csAns{1});
 
     % get output file
-    vcFile_trial = subsFileExt(P.prmFile,  sprintf('_ch%d_trial.mat', iChan));
+    vcFile_trial = subsFileExt(P.paramFile,  sprintf('_ch%d_trial.mat', iChan));
     try
         [FileName,PathName,FilterIndex] = uiputfile(vcFile_trial, 'Save file name');
         if ~FilterIndex, return; end %cancelled
@@ -26,7 +26,7 @@ function make_trial_(vcFile_prm, fImec)
 
     hMsg = msgbox_('Loading... (this closes automatically)');
     vrWav = load_bin_chan_(P, iChan);
-    if isempty(vrWav), fprintf(2, 'File loading error: %s\n', P.prmFile); return; end
+    if isempty(vrWav), fprintf(2, 'File loading error: %s\n', P.paramFile); return; end
     % fid = memmapfile(P.vcFile, 'Offset', 0, 'Format', P.vcDataType, 'Repeat', inf);
     % vrWav = fid.Data(iChan:P.nChans:end);
     % clear fid;

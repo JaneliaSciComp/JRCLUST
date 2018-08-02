@@ -17,7 +17,7 @@ function nFailed = unit_test_(vcArg1, vcArg2, vcArg3)
     if nargin<3, vcArg3 = ''; end
 
     cd(fileparts(mfilename('fullpath'))); % move to jrclust folder
-    if ~exist_file_('sample.bin'), jrc3('download', 'sample'); end
+    if ~fileExists('sample.bin'), jrc3('download', 'sample'); end
 
     nFailed = 0;
     profile('clear'); %reset profile stats

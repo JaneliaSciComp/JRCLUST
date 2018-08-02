@@ -2,7 +2,7 @@
 % 10/8/17 JJJ: Created
 function edit_(vcFile)
     % vcFile0 = vcFile;
-    if ~exist_file_(vcFile)
+    if ~fileExists(vcFile)
         if matchFileExt_(vcFile, '.prb')
             vcFile = find_prb_(vcFile);
         else
