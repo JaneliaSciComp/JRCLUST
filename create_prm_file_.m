@@ -103,7 +103,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     P = mergeStructs(P0, P);
     P = mergeStructs(P, P_meta);
     P = mergeStructs(P, file_info_(vcFile_bin));
-    P.duration_file = P.nBytes_file / bytesPerSample_(P.vcDataType) / P.nChans / P.sRateHz; %assuming int16
+    P.duration_file = P.nBytes_file / bytesPerSample_(P.dataType) / P.nChans / P.sRateHz; %assuming int16
     P.version = jrcVersion();
     try
         copyfile(jrcpath_(read_cfg_('default_prm')), P.paramFile, 'f');

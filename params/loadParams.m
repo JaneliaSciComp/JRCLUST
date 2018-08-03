@@ -77,7 +77,7 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
         P.sRateHz_lfp = get_set_(P, 'sRateHz_lfp', 2500);
         P.nSkip_lfp = round(P.sRateHz / P.sRateHz_lfp);
     end
-    P.bytesPerSample = bytesPerSample_(P.vcDataType);
+    P.bytesPerSample = bytesPerSample_(P.dataType);
     P = struct_default_(P, 'vcFile_prm', subsFileExt_(P.vcFile, '.prm'));
     if ~isempty(get_(P, 'gain_boost')), P.uV_per_bit = P.uV_per_bit / P.gain_boost; end
     P.spkThresh = P.spkThresh_uV / P.uV_per_bit;

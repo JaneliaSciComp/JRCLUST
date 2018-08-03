@@ -11,6 +11,7 @@ function varargout = jrc(cmd, varargin)
     [dirname, ~] = fileparts(fullfile(mfilename('fullpath')));
     addpath(fullfile(dirname, 'meta')); % info functions
     addpath(fullfile(dirname, 'filesystem')); % file-related functions
+    addpath(fullfile(dirname, 'neuroshare')); % NS-related functions
     addpath(fullfile(dirname, 'utils')); % miscellaneous (but useful) tools
     addpath(fullfile(dirname, 'params')); % parameter-related functions
     addpath(fullfile(dirname, 'gui')); % GUI functions

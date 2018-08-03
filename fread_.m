@@ -1,12 +1,12 @@
 %--------------------------------------------------------------------------
-function mnWav1 = fread_(fid_bin, dimm_wav, vcDataType)
+function mnWav1 = fread_(fid_bin, dimm_wav, dataType)
     % Get around fread bug (matlab) where built-in fread resize doesn't work
     try
         if isempty(dimm_wav)
-            mnWav1 = fread(fid_bin, inf, ['*', vcDataType]);
+            mnWav1 = fread(fid_bin, inf, ['*', dataType]);
         else
             if numel(dimm_wav)==1, dimm_wav = [dimm_wav, 1]; end
-            mnWav1 = fread(fid_bin, prod(dimm_wav), ['*', vcDataType]);
+            mnWav1 = fread(fid_bin, prod(dimm_wav), ['*', dataType]);
             if numel(mnWav1) == prod(dimm_wav)
                 mnWav1 = reshape(mnWav1, dimm_wav);
             else

@@ -55,7 +55,7 @@ function keyPressFcn_Fig_traces_(hFig, event)
             if nTime_traces > 1
                 mnWav1 = load_bin_multi_(S_fig.fid_bin, cvn_lim_bin, P)';
             else
-                mnWav1 = load_bin_(S_fig.fid_bin, P.vcDataType, [P.nChans, S_fig.nLoad_bin])';
+                mnWav1 = load_bin_(S_fig.fid_bin, P.dataType, [P.nChans, S_fig.nLoad_bin])';
             end
         else
             mnWav1 = mnWav(viRange_bin, :);

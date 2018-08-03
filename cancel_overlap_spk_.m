@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 % 12/16/17 JJJ: Find overlapping spikes and set superthreshold sample points to zero in the overlapping region
-function [tnWav_spk_out, tnWav_spk2_out] = cancel_overlap_spk_(tnWav_spk, tnWav_spk2, spikeTimes, spikeSites, viSite2_spk, siteThresholds, P)
+function [tnWav_spk_out, tnWav_spk2_out] = cancel_overlap_spk_(tnWav_spk, tnWav_spk2, spikeTimes, spikeSites, spikeSecondarySites, siteThresholds, P)
     % Overlap detection. only return one stronger than other
     useGPU = isGpu_(tnWav_spk);
     [spikeTimes, tnWav_spk, tnWav_spk2] = gather_(spikeTimes, tnWav_spk, tnWav_spk2);
@@ -31,7 +31,7 @@ function [tnWav_spk_out, tnWav_spk2_out] = cancel_overlap_spk_(tnWav_spk, tnWav_
         %     mnWav_b(mlWav_b) = 0; % spike cancelled
 
         if ~isempty(tnWav_spk2)
-            viSite_b = miSites(:,viSite2_spk(iSpk_b));
+            viSite_b = miSites(:,spikeSecondarySites(iSpk_b));
             mnWav_b = tnWav_spk2_out(nDelay_b+1:end,:,iSpk_b);
             mlWav_b = bsxfun(@le, mnWav_b, siteThresholds(viSite_b));
             mnWav_b(mlWav_b) = 0;

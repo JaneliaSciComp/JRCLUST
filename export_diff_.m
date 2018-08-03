@@ -3,10 +3,10 @@ function export_diff_(P)
     % export to _diff.bin, _diff.prb, _diff.prm files
     error('not implemented yet');
     if ~P.fTranspose_bin
-        mnWav1 = reshape(load_bin_(P.vcFile, P.vcDataType), [], P.nChans);
+        mnWav1 = reshape(load_bin_(P.vcFile, P.dataType), [], P.nChans);
         mnWav1 = mnWav1(:,P.chanMap);
     else
-        mnWav1 = reshape(load_bin_(P.vcFile, P.vcDataType), P.nChans, []);
+        mnWav1 = reshape(load_bin_(P.vcFile, P.dataType), P.nChans, []);
         mnWav1 = mnWav1(P.chanMap, :)';
     end
 
@@ -39,7 +39,7 @@ function export_diff_(P)
     write_bin_(P1.vcFile, mnWav2);
     % write to probe file
     % P1.probe_file
-    % mnWav2 = load_bin_(strrep(P.vcFile, '.bin', '_diff.bin'), P.vcDataType); %read back test
+    % mnWav2 = load_bin_(strrep(P.vcFile, '.bin', '_diff.bin'), P.dataType); %read back test
 
 
 end %func

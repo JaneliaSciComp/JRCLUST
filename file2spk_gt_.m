@@ -11,7 +11,7 @@ function [tnWav_spk, vrVrms_site] = file2spk_gt_(P, spikeTimes0)
     P.fft_thresh = 0; %disable for GT
     [tnWav_spk, siteThresholds] = deal({});
     nSamples1 = 0;
-    [fid1, nBytes_file1] = fopen_(P.vcFile, 'r');
+    [fid1, nBytes_file1] = fopenInfo(P.vcFile, 'r');
     nBytes_file1 = file_trim_(fid1, nBytes_file1, P);
     [nLoad1, nSamples_load1, nSamples_last1] = plan_load_(nBytes_file1, P);
     t_dur1 = tic;
@@ -33,7 +33,7 @@ function [tnWav_spk, vrVrms_site] = file2spk_gt_(P, spikeTimes0)
     end %for
     fclose(fid1);
     t_dur1 = toc(t_dur1);
-    t_rec1 = (nBytes_file1 / bytesPerSample_(P.vcDataType) / P.nChans) / P.sRateHz;
+    t_rec1 = (nBytes_file1 / bytesPerSample_(P.dataType) / P.nChans) / P.sRateHz;
     fprintf('took %0.1fs (%0.1f MB, %0.1f MB/s, x%0.1f realtime)\n', ...
     t_dur1, nBytes_file1/1e6, nBytes_file1/t_dur1/1e6, t_rec1/t_dur1);
 

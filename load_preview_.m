@@ -28,14 +28,14 @@ function [mnWav_raw, S_preview] = load_preview_(P)
     for iFile = 1:numel(csFile_bin)
         try
             vcFile_bin_ = csFile_bin{iFile};
-            [fid_bin_, nBytes_bin_, P.header_offset] = fopen_(vcFile_bin_, 'r');
+            [fid_bin_, nBytes_bin_, P.headerOffset] = fopenInfo(vcFile_bin_, 'r');
             setUserData(P);
             if isempty(fid_bin_)
                 fprintf(2, '.bin file does not exist: %s\n', vcFile_bin_);
                 continue;
             end
             fprintf('File %d/%d: %s\n\t', iFile, numel(csFile_bin), vcFile_bin_);
-            nSamples_bin_ = floor(nBytes_bin_ / bytesPerSample_(P.vcDataType) / P.nChans);
+            nSamples_bin_ = floor(nBytes_bin_ / bytesPerSample_(P.dataType) / P.nChans);
             if nSamples_bin_ < nSamples_per_load % load the whole thing
                 nLoads_per_file_ = 1;
                 nSamples_per_load_ = nSamples_bin_;

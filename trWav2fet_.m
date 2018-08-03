@@ -1,13 +1,13 @@
 %--------------------------------------------------------------------------
-function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites_spk, viSite2_spk)
+function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites_spk, spikeSecondarySites)
     % [mrFet1, mrFet2, mrFet3, trWav_spk2] = trWav2fet_(tnWav_spk1, P)
     % mrFet = trWav2fet_(tnWav_spk1, P)
     if nargin<3, nSites_spk = []; end
-    if nargin<4, viSite2_spk = []; end
+    if nargin<4, spikeSecondarySites = []; end
 
     [mrFet1, mrFet2, mrFet3] = deal(single([]));
     trWav2_spk = single(permute(tnWav1_spk, [1,3,2]));
-    trWav2_spk = spkwav_car_(trWav2_spk, P, nSites_spk, viSite2_spk);
+    trWav2_spk = spkwav_car_(trWav2_spk, P, nSites_spk, spikeSecondarySites);
     % if get_set_(P, 'fMeanSubt_fet', 1), trWav2_spk = meanSubt_(trWav2_spk); end % 12/16/17 JJJ experimental
 
     switch lower(P.vcFet) %{'xcor', 'amp', 'slope', 'pca', 'energy', 'vpp', 'diff248', 'spacetime'}

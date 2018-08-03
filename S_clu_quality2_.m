@@ -8,8 +8,8 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
 
     nSamples_2ms = round(P.sRateHz * .002);
     nSamples_20ms = round(P.sRateHz * .02);
-    [spikeTimes, spikeSites, viSite2_spk, cviSpk_site, cviSpk2_site] = ...
-    get0_('spikeTimes', 'spikeSites', 'viSite2_spk', 'cviSpk_site', 'cviSpk2_site');
+    [spikeTimes, spikeSites, spikeSecondarySites, cviSpk_site, cviSpk2_site] = ...
+    get0_('spikeTimes', 'spikeSites', 'spikeSecondarySites', 'cviSpk_site', 'cviSpk2_site');
     if isempty(viClu_update)
         [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = deal(nan(S_clu.nClusters, 1));
         viClu_update = 1:S_clu.nClusters;
@@ -28,7 +28,7 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
         iSite_clu1 = S_clu.clusterSites(iClu);
         % find spikes whose primary or secondary spikes reside there
         viSpk1_local = cviSpk_site{iSite_clu1}; %find(spikeSites == iSite_clu1);
-        viSpk2_local = cviSpk2_site{iSite_clu1}; %find(viSite2_spk == iSite_clu1);
+        viSpk2_local = cviSpk2_site{iSite_clu1}; %find(spikeSecondarySites == iSite_clu1);
         if isempty(viSpk2_local)
             mrFet12_spk = squeeze_(trFet_spk(:,1,viSpk1_local));
             viSpk12_local = viSpk1_local(:);

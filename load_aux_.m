@@ -33,7 +33,7 @@ function [vrWav_aux, vrTime_aux] = load_aux_(P)
         case {'.dat', '.bin'}
         iChan_aux = get_set_(P, 'iChan_aux', []);
         if isempty(iChan_aux), return; end
-        mnWav_aux = load_bin_(vcFile_aux, P.vcDataType);
+        mnWav_aux = load_bin_(vcFile_aux, P.dataType);
         vrWav_aux = single(mnWav_aux(iChan_aux:P.nChans:end)') * P.uV_per_bit * P.vrScale_aux;
         sRateHz_aux = get_set_(P, 'sRateHz_aux', P.sRateHz);
         otherwise

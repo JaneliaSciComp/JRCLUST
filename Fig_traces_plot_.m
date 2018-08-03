@@ -63,7 +63,7 @@ function Fig_traces_plot_(fAxis_reset)
 
     % plot spikes
     if strcmpi(S_fig.vcSpikes, 'on') && isfield(S0, 'spikeTimes')
-        spikeTimes = S0.spikeTimes - int32(S0.viT_offset_file(S0.iFile_show));
+        spikeTimes = S0.spikeTimes - int32(S0.fileSampleOffsets(S0.iFile_show));
         if nTime_traces > 1
             viSpk1 = find(in_range_(spikeTimes, cvn_lim_bin));
             [spikeSites1, spikeTimes1] = multifun_(@(vr)vr(viSpk1), S0.spikeSites, spikeTimes);

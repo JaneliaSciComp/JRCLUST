@@ -6,12 +6,12 @@ function [mnWav1, vrWav_mean1, dimm_wav] = load_file_(fid_bin, nSamples_load1, P
     % vrWav_mean1: average across chan output
     if ischar(fid_bin)
         vcFile = fid_bin;
-        [fid_bin, nBytes_file1] = fopen_(vcFile, 'r');
-        if ~isempty(get_(P, 'header_offset'))
-            nBytes_file1 = nBytes_file1 - P.header_offset;
-            fseek(fid_bin, P.header_offset, 'bof');
+        [fid_bin, nBytes_file1] = fopenInfo(vcFile, 'r');
+        if ~isempty(get_(P, 'headerOffset'))
+            nBytes_file1 = nBytes_file1 - P.headerOffset;
+            fseek(fid_bin, P.headerOffset, 'bof');
         end
-        nSamples_load1 = floor(nBytes_file1 / P.nChans / bytesPerSample_(P.vcDataType));
+        nSamples_load1 = floor(nBytes_file1 / P.nChans / bytesPerSample_(P.dataType));
     else
         vcFile = [];
     end
@@ -21,9 +21,9 @@ function [mnWav1, vrWav_mean1, dimm_wav] = load_file_(fid_bin, nSamples_load1, P
     else %Catalin's format
         dimm_wav = [nSamples_load1, P.nChans];
     end
-    mnWav1 = fread_(fid_bin, dimm_wav, P.vcDataType);
+    mnWav1 = fread_(fid_bin, dimm_wav, P.dataType);
     % [mnWav1, P.useGPU] = gpuArray_(mnWav1, P.useGPU);
-    switch(P.vcDataType)
+    switch(P.dataType)
         case 'uint16', mnWav1 = int16(single(mnWav1)-2^15);
         case {'single', 'double'}, mnWav1 = int16(mnWav1 / P.uV_per_bit);
     end

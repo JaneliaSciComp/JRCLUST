@@ -11,7 +11,7 @@ function mn = load_bin_paged_(P, viChan, nBytes_page)
         S = memory();
         nBytes_page = floor(S.MaxPossibleArrayBytes() / LOAD_FACTOR);
     end
-    bytesPerSample = bytesPerSample_(P.vcDataType);
+    bytesPerSample = bytesPerSample_(P.dataType);
     nSamples_page = floor(nBytes_page / P.nChans / bytesPerSample);
     mn = [];
 
@@ -19,13 +19,13 @@ function mn = load_bin_paged_(P, viChan, nBytes_page)
     if ~fileExists(P.vcFile) || isempty(viChan), return; end
     nBytes = getBytes_(P.vcFile);
     if isempty(nBytes), return; end
-    header_offset = get_(P, 'header_offset', 0);
-    nSamples = floor((nBytes-header_offset) / bytesPerSample / P.nChans);
+    headerOffset = get_(P, 'headerOffset', 0);
+    nSamples = floor((nBytes-headerOffset) / bytesPerSample / P.nChans);
 
     % Loading loop
     fid = fopen(P.vcFile, 'r');
     try
-        if header_offset>0, fseek(fid, header_offset, 'bof'); end
+        if headerOffset>0, fseek(fid, headerOffset, 'bof'); end
         nPages = ceil(nSamples / nSamples_page);
         if viChan(1) == 0
             fMean = 1;
@@ -35,15 +35,15 @@ function mn = load_bin_paged_(P, viChan, nBytes_page)
             fMean = 0;
         end
         if nPages == 1
-            mn = fread(fid, [P.nChans, nSamples], ['*', lower(P.vcDataType)]);
+            mn = fread(fid, [P.nChans, nSamples], ['*', lower(P.dataType)]);
             mn = mn(viChan,:);
-            if fMean, mn = cast(mean(mn), P.vcDataType); end
+            if fMean, mn = cast(mean(mn), P.dataType); end
             mn = mn';
         else
             if fMean
-                mn = zeros([nSamples, 1], P.vcDataType);
+                mn = zeros([nSamples, 1], P.dataType);
             else
-                mn = zeros([nSamples, numel(viChan)], P.vcDataType);
+                mn = zeros([nSamples, numel(viChan)], P.dataType);
             end
             for iPage = 1:nPages
                 if iPage < nPages
@@ -52,9 +52,9 @@ function mn = load_bin_paged_(P, viChan, nBytes_page)
                     nSamples_ = nSamples - nSamples_page * (iPage-1);
                 end
                 vi_ = (1:nSamples_) + (iPage-1) * nSamples_page;
-                mn_ = fread(fid, [P.nChans, nSamples_], ['*', lower(P.vcDataType)]);
+                mn_ = fread(fid, [P.nChans, nSamples_], ['*', lower(P.dataType)]);
                 mn_ = mn_(viChan,:);
-                if fMean, mn_ = cast(mean(mn_), P.vcDataType); end
+                if fMean, mn_ = cast(mean(mn_), P.dataType); end
                 mn(vi_,:) = mn_';
             end
         end

@@ -13,17 +13,17 @@ function vcFile_prm = import_intan_(vcFile_dat, vcFile_prb, vcArg3)
     vcFile_prm = strrep(vcFile_bin, '.bin', sprintf('_%s.prm', vcFile_prb_));
     nChans = numel(csFiles_dat);
     nBytes_file = min(cellfun(@(vc)getBytes_(vc), csFiles_dat));
-    P = struct('vcDataType', 'int16', 'probe_file', vcFile_prb, 'nChans', nChans, ...
+    P = struct('dataType', 'int16', 'probe_file', vcFile_prb, 'nChans', nChans, ...
     'uV_per_bit', .195, 'sRateHz', 30000, 'nBytes_file', nBytes_file);
 
-    nSamples = P.nBytes_file / bytesPerSample_(P.vcDataType);
+    nSamples = P.nBytes_file / bytesPerSample_(P.dataType);
 
     % Read file and output
-    mnWav  = zeros([nSamples, nChans], P.vcDataType);
+    mnWav  = zeros([nSamples, nChans], P.dataType);
     for iFile = 1:numel(csFiles_dat)
         try
             fid_ = fopen(csFiles_dat{iFile}, 'r');
-            mnWav(iFile:nChans:end) = fread(fid_, inf, ['*', P.vcDataType]);
+            mnWav(iFile:nChans:end) = fread(fid_, inf, ['*', P.dataType]);
             fclose(fid_);
             fprintf('Loaded %s\n', csFiles_dat{iFile});
         catch

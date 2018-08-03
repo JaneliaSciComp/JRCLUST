@@ -18,7 +18,7 @@ function S = read_whisper_meta_(vcFname)
     try
         %Read Meta
         S = text2struct_(vcFname);
-        S.vcDataType = 'int16'; %whisper standard
+        S.dataType = 'int16'; %whisper standard
         S.ADC_bits = 16;
         S.vcProbe = '';
 

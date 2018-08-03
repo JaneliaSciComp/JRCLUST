@@ -27,7 +27,7 @@ function make_trial_(vcFile_prm, fImec)
     hMsg = msgbox_('Loading... (this closes automatically)');
     vrWav = load_bin_chan_(P, iChan);
     if isempty(vrWav), fprintf(2, 'File loading error: %s\n', P.paramFile); return; end
-    % fid = memmapfile(P.vcFile, 'Offset', 0, 'Format', P.vcDataType, 'Repeat', inf);
+    % fid = memmapfile(P.vcFile, 'Offset', 0, 'Format', P.dataType, 'Repeat', inf);
     % vrWav = fid.Data(iChan:P.nChans:end);
     % clear fid;
 

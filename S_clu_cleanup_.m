@@ -2,14 +2,14 @@
 function S_clu = S_clu_cleanup_(S_clu, P)
     % 17/7/3: Cluster cleanup routine, Mahal distance based outlier removal
 
-    viSite2_spk = get0_('viSite2_spk');
+    spikeSecondarySites = get0_('spikeSecondarySites');
     thresh_mad_clu = get_set_(P, 'thresh_mad_clu', 7.5);
     if thresh_mad_clu == 0, return; end % aborted
 
     fprintf('Cleaning up clusters\n\t'); t1=tic;
     warning off;
     for iClu = 1:S_clu.nClusters
-        mrFet1_clu1 = S_clu_getFet_(S_clu, iClu, viSite2_spk)';
+        mrFet1_clu1 = S_clu_getFet_(S_clu, iClu, spikeSecondarySites)';
         viSpk_clu1 = S_clu.cviSpk_clu{iClu};
         try
             vrDist_clu1 = madscore_(log(mahal(mrFet1_clu1, mrFet1_clu1)));

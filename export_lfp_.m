@@ -6,7 +6,7 @@ function export_lfp_(P)
     if ~fileExists(P.vcFile_lfp)
         import_lfp_(P)
     end
-    mnLfp = load_bin_(P.vcFile_lfp, P.vcDataType);
+    mnLfp = load_bin_(P.vcFile_lfp, P.dataType);
     nSamples = floor(size(mnLfp,1) / P.nChans);
     mnLfp = reshape(mnLfp(1:P.nChans*nSamples), P.nChans, nSamples)';
 

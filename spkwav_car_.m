@@ -1,9 +1,9 @@
 %--------------------------------------------------------------------------
-function [trWav2, mrWav_ref] = spkwav_car_(trWav2, P, nSites_spk, viSite2_spk)
+function [trWav2, mrWav_ref] = spkwav_car_(trWav2, P, nSites_spk, spikeSecondarySites)
     %function [trWav2, mrWav_ref] = trWav_car_sort_(trWav2, P)
     %  trWav2: nT x nSpk x nSites, single
     if nargin<3, nSites_spk = []; end
-    if nargin<4, viSite2_spk = []; end
+    if nargin<4, spikeSecondarySites = []; end
     vcSpkRef = get_set_(P, 'vcSpkRef', 'nmean');
     if strcmpi(vcSpkRef, 'nmean')
         fSort_car = 1;
@@ -22,7 +22,7 @@ function [trWav2, mrWav_ref] = spkwav_car_(trWav2, P, nSites_spk, viSite2_spk)
     [nT_spk, nSpk] = deal(dimm1(1), dimm1(2));
     switch fSort_car
         case 1 % use n sites having the least SD as reference sites
-        if isempty(viSite2_spk)
+        if isempty(spikeSecondarySites)
             %             viSite_ref_ = 2:nSites_spk;
             %             viSite_ref_ = ceil(nSites_spk/2):nSites_spk;
             viSite_ref_ = ceil(size(trWav2,3)/2):size(trWav2,3);
@@ -30,8 +30,8 @@ function [trWav2, mrWav_ref] = spkwav_car_(trWav2, P, nSites_spk, viSite2_spk)
         else
             trWav3 = trWav2(:,:,1:nSites_spk);
             trWav3(:,:,1) = 0;
-            for iSpk1 = 1:numel(viSite2_spk)
-                trWav3(:,iSpk1,viSite2_spk(iSpk1)) = 0;
+            for iSpk1 = 1:numel(spikeSecondarySites)
+                trWav3(:,iSpk1,spikeSecondarySites(iSpk1)) = 0;
             end
             mrWav_ref = sum(trWav3, 3) / (nSites_spk-2);
         end

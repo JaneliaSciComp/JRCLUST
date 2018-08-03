@@ -2,6 +2,7 @@ P.csFile_merge=P.multiFilenames
 P.delta1_cut=P.log10DeltaCutoff
 P.min_count=P.minClusterSize
 P.rho_cut=P.log10RhoCutoff
+P.vcDataType=P.dataType
 P.vcFile_prm=P.paramFile
 P.vcFile_thresh=P.thresholdFile
 % P.vcFile=P.recordingFile
@@ -10,6 +11,8 @@ P.viSite2Chan=P.chanMap
 S0.csFig=S0.figTags
 S0.cvrFigPos0=S0.figPositions
 S0.viSite_spk=S0.spikeSites
+S0.viSite2_spk=S0.spikeSecondarySites
+S0.viT_offset_file=S0.fileSampleOffsets
 S0.viTime_spk=S0.spikeTimes
 
 S_clu.icl=S_clu.clusterCenters
