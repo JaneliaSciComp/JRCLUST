@@ -1,10 +1,10 @@
 %--------------------------------------------------------------------------
 function detect_(P)
-    global tnWav_raw tnWav_spk trFet_spk;
+    global tnWav_raw tnWav_spk spikeFeatures;
     runtime_detect = tic;
     % Clear memory (S0 is cleared)
     set(0, 'UserData', []);
-    [tnWav_raw, tnWav_spk, trFet_spk] = deal([]);
+    [tnWav_raw, tnWav_spk, spikeFeatures] = deal([]);
 
     S0 = file2spk_(P);
 
@@ -12,8 +12,8 @@ function detect_(P)
         tnWav_raw = load_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);
         tnWav_spk = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
     end
-    trFet_spk = load_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
-    S0.mrPos_spk = spk_pos_(S0, trFet_spk);
+    spikeFeatures = load_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
+    S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
 
     % measure time
     S0.runtime_detect = toc(runtime_detect);

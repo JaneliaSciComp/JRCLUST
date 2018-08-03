@@ -1,3 +1,5 @@
+global.spikeFeatures=global.spikeFeatures
+
 P.csFile_merge=P.multiFilenames
 P.delta1_cut=P.log10DeltaCutoff
 P.min_count=P.minClusterSize

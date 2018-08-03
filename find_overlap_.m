@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 % find overlapping spikes
 function [cviSpk_o_1, cviSpk_o_12, cviDelay1] = find_overlap_(S0, S_clu, P)
-    global trFet_spk
+    global spikeFeatures
 
     snr_thresh_clu = get_set_(P, 'snr_thresh_clu', 7);
 
@@ -9,8 +9,8 @@ function [cviSpk_o_1, cviSpk_o_12, cviDelay1] = find_overlap_(S0, S_clu, P)
     mrDist_site = squareform(pdist(P.mrSiteXY));
     nlimit = diff(P.spkLim);
     [cviDelay1, cviSpk_o_1, cviSpk_o_12] = deal(cell(1, S_clu.nClusters));
-    % [spikeTimes, vrAmp_spk, spikeSites] = multifun_(@gpuArray_, S0.spikeTimes, abs(squeeze(trFet_spk(1,1,:))), S0.spikeSites);
-    [spikeTimes, vrAmp_spk, spikeSites] = deal(S0.spikeTimes, abs(squeeze(trFet_spk(1,1,:))), S0.spikeSites);
+    % [spikeTimes, vrAmp_spk, spikeSites] = multifun_(@gpuArray_, S0.spikeTimes, abs(squeeze(spikeFeatures(1,1,:))), S0.spikeSites);
+    [spikeTimes, vrAmp_spk, spikeSites] = deal(S0.spikeTimes, abs(squeeze(spikeFeatures(1,1,:))), S0.spikeSites);
     [vrSnr_clu, clusterSites, maxDist_site_um] = deal(S_clu.vrSnr_clu, S_clu.clusterSites, P.maxDist_site_um);
     cviSpk_clu = cellfun(@int32, S_clu.cviSpk_clu, 'UniformOutput', 0);
     spikeTimes_bin = int32(round(double(spikeTimes) / double(nlimit)));

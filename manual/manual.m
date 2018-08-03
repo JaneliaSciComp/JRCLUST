@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function manual(P, debugMode)
     % display manual sorting interface
-    global fDebug_ui trFet_spk
+    global fDebug_ui spikeFeatures
 
     if nargin < 2
         debugMode = 0;
@@ -17,7 +17,7 @@ function manual(P, debugMode)
         [S0, P] = load_cached_(P);
 
         if ~isfield(S0, 'mrPos_spk')
-            S0.mrPos_spk = spk_pos_(S0, trFet_spk);
+            S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
             set(0, 'UserData', S0);
         end
 

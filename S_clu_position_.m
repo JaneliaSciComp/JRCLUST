@@ -2,7 +2,7 @@
 function S_clu = S_clu_position_(S_clu, viClu_update)
     % determine cluster position from spike position
     % 6/27/17 JJJ: multiple features supported (single dimension such as energy and Vpp)
-    global trFet_spk
+    global spikeFeatures
     if nargin<2, viClu_update = []; end
     P = get0_('P'); %P = S_clu.P;
     if ~isfield(S_clu, 'vrPosX_clu'), S_clu.vrPosX_clu = []; end
@@ -26,7 +26,7 @@ function S_clu = S_clu_position_(S_clu, viClu_update)
         if isempty(viSpk_clu1), continue; end
 
         viSites_clu1 = viSites_clu1(1:end-P.nSites_ref);
-        mrVp1 = squeeze_(trFet_spk(viSites_fet,1,viSpk_clu1));
+        mrVp1 = squeeze_(spikeFeatures(viSites_fet,1,viSpk_clu1));
         mrSiteXY1 = single(P.mrSiteXY(viSites_clu1,:)); %electrode
 
         vrPosX_clu(iClu) = median(centroid_mr_(mrVp1, mrSiteXY1(:,1), 2));

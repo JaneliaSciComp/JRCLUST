@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function [tnWav_spk, siteThresholds] = wav2spk_gt_(mnWav1, P, spikeTimes, mnWav1_pre, mnWav1_post)
     % tnWav_spk: spike waveform. nSamples x nSites x nSpikes
-    % trFet_spk: nSites x nSpk x nFet
+    % spikeFeatures: nSites x nSpk x nFet
     % spikePrSecSites: nSpk x nFet
     % spikes are ordered in time
     % spikeSites and spikeTimes is uint32 format, and tnWav_spk: single format

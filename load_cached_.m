@@ -10,7 +10,7 @@ function [S0, P] = load_cached_(P, loadWaveforms)
         loadWaveforms = 1;
     end
 
-    global tnWav_spk tnWav_raw trFet_spk %spike waveform (filtered)
+    global tnWav_spk tnWav_raw spikeFeatures %spike waveform (filtered)
     if ischar(P), P = loadParams(P); end
     S0 = get(0, 'UserData');
     fClear_cache = 1;
@@ -22,7 +22,7 @@ function [S0, P] = load_cached_(P, loadWaveforms)
         end
     end
     if fClear_cache
-        S0 = []; tnWav_spk = []; tnWav_raw = []; trFet_spk = []; % clear all
+        S0 = []; tnWav_spk = []; tnWav_raw = []; spikeFeatures = []; % clear all
     end
 
     % Load from disk
@@ -39,16 +39,16 @@ function [S0, P] = load_cached_(P, loadWaveforms)
         if fLoad0, S0 = load0_(vcFile_jrc); end
         if isempty(S0), S0.P = []; end
         [P0, S0.P] = deal(S0.P, P); %swap
-        if isempty(tnWav_spk) || isempty(tnWav_raw) || isempty(trFet_spk)
+        if isempty(tnWav_spk) || isempty(tnWav_raw) || isempty(spikeFeatures)
             if ~loadWaveforms, return; end
             if isempty(S0), return; end %no info
             try
                 if get_set_(P, 'fRamCache', 1)
-                    trFet_spk = load_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
+                    spikeFeatures = load_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
                     tnWav_spk = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
                     tnWav_raw = load_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);
                 else
-                    trFet_spk = load_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
+                    spikeFeatures = load_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
                 end
             catch
                 disperr_();

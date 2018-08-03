@@ -4,7 +4,7 @@ function write_spk_(varargin)
     % [Usage]
     % write_spk_() % close and clear
     % write_spk_(vcFile_prm) %open file
-    % write_spk_(tnWav_raw, tnWav_spk, trFet_spk)
+    % write_spk_(tnWav_raw, tnWav_spk, spikeFeatures)
     persistent fid_raw fid_spk fid_fet
 
     switch nargin

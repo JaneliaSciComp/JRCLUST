@@ -1,10 +1,10 @@
 %--------------------------------------------------------------------------
-function mrPos_spk = spk_pos_(S0, trFet_spk)
-    if nargin<2, trFet_spk = get_spkfet_(S0.P); end
+function mrPos_spk = spk_pos_(S0, spikeFeatures)
+    if nargin<2, spikeFeatures = get_spkfet_(S0.P); end
     P = S0.P;
     nSites_spk = 1 + P.maxSite*2 - P.nSites_ref;
 
-    mrVp = squeeze_(trFet_spk(1:nSites_spk,1,:)) .^ 2;
+    mrVp = squeeze_(spikeFeatures(1:nSites_spk,1,:)) .^ 2;
     vrVp = sum(mrVp);
 
     miSites_spk = single(P.miSites(1:nSites_spk, S0.spikeSites));

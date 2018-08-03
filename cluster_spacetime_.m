@@ -2,7 +2,7 @@
 function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     % this clustering is natively suited for 2D electrode arrays and drifting dataset
     % There is no x,y position in the clustering dataset
-    global trFet_spk
+    global spikeFeatures
     if ~isfield(P, 'CHUNK'), P.CHUNK = 16; end
     if ~isfield(P, 'fTwoStep'), P.fTwoStep = 0; end
     if ~isfield(P, 'mrSiteXY'), P.mrSiteXY = []; end
@@ -26,7 +26,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     cuda_rho_();
     cuda_delta_();
     if get_set_(P, 'fDenoise_fet', 0)
-        trFet_spk = denoise_fet_(trFet_spk, P, vlRedo_spk);
+        spikeFeatures = denoise_fet_(spikeFeatures, P, vlRedo_spk);
     end
 
     %-----
@@ -41,7 +41,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     % Calculate Rho
     fprintf('Calculating Rho\n\t'); t1=tic;
     for iSite = 1:nSites
-        [mrFet12_, viSpk12_, n1_, n2_, viiSpk12_ord_] = fet12_site_(trFet_spk, S0, P, iSite, vlRedo_spk);
+        [mrFet12_, viSpk12_, n1_, n2_, viiSpk12_ord_] = fet12_site_(spikeFeatures, S0, P, iSite, vlRedo_spk);
         if isempty(mrFet12_), continue; end
         [mrFet12_, viiSpk12_ord_] = multifun_(@gpuArray_, mrFet12_, viiSpk12_ord_);
         if isempty(dc2)
@@ -65,7 +65,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     % Calculate Delta
     fprintf('Calculating Delta\n\t'); t2=tic;
     for iSite = 1:nSites
-        [mrFet12_, viSpk12_, n1_, n2_, viiSpk12_ord_] = fet12_site_(trFet_spk, S0, P, iSite, vlRedo_spk);
+        [mrFet12_, viSpk12_, n1_, n2_, viiSpk12_ord_] = fet12_site_(spikeFeatures, S0, P, iSite, vlRedo_spk);
         if isempty(mrFet12_), continue; end
         viiRho12_ord_ = rankorder_(vrRho(viSpk12_), 'descend');
         [mrFet12_, viiRho12_ord_, viiSpk12_ord_] = ...
@@ -103,7 +103,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     %     [vrRho, vrDelta, viNneigh] = multifun_(@gather_, vrRho, vrDelta, viNneigh);
     % end
     t_runtime = toc(t_func);
-    trFet_dim = size(trFet_spk); %[1, size(mrFet1,1), size(mrFet1,2)]; %for postCluster
+    trFet_dim = size(spikeFeatures); %[1, size(mrFet1,1), size(mrFet1,2)]; %for postCluster
     [~, ordrho] = sort(vrRho, 'descend');
     S_clu = struct('rho', vrRho, 'delta', vrDelta, 'ordrho', ordrho, 'nneigh', viNneigh, ...
     'P', P, 't_runtime', t_runtime, 'halo', [], 'viiSpk', [], 'trFet_dim', trFet_dim, 'vrDc2_site', vrDc2_site);

@@ -24,9 +24,9 @@ function plot_drift_(P)
         tnWav_raw = get_spkwav_(P, 1);
         mrVp = single(squeeze_(max(tnWav_raw) - min(tnWav_raw))) .^ 2;
         case 'fet'
-        trFet_spk = get_spkfet_(P);
-        mrVp = squeeze_(trFet_spk(1:nSites_spk,1,:)) .^ 2;
-        %         mrVp = abs(squeeze_(trFet_spk(1:nSites_spk,1,:)));
+        spikeFeatures = get_spkfet_(P);
+        mrVp = squeeze_(spikeFeatures(1:nSites_spk,1,:)) .^ 2;
+        %         mrVp = abs(squeeze_(spikeFeatures(1:nSites_spk,1,:)));
         miSites_spk = miSites_spk(1:nSites_spk,:);
     end
 

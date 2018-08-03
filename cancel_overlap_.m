@@ -1,8 +1,8 @@
 %--------------------------------------------------------------------------
 % 2017/12/15 JJJ: correct overlapping spikes
 % Question: how to best fit? using global spike pca (pick) or cluster-private pca
-function trFet_spk = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0, S_clu, P)
-    global tnWav_spk trFet_spk tnWav_raw
+function spikeFeatures = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0, S_clu, P)
+    global tnWav_spk spikeFeatures tnWav_raw
 
     viSites_ref = ceil(size(tnWav_spk,2)/2):size(tnWav_spk,2);
     nPc_fit = min(get_set_(P, 'nPc_fit_overlap', 5), size(S0.mrPv_global,2));

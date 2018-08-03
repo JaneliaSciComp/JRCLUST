@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 % 2017/12/15 JJJ: Deal with overlapping spikes
-function trFet_spk = sort_overlap_(S0, S_clu, P)
-    global trFet_spk
+function spikeFeatures = sort_overlap_(S0, S_clu, P)
+    global spikeFeatures
 
     % find which spikes it's overlapping with
     % only use larger unit to correct smaller unit
@@ -15,8 +15,8 @@ function trFet_spk = sort_overlap_(S0, S_clu, P)
     %-----
     % Cancel overlap
     % subtract other spike waveforms and features
-    trFet_spk = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0, S_clu, P);
-    % write to trFet_spk
+    spikeFeatures = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0, S_clu, P);
+    % write to spikeFeatures
     % strategy 1. find nearest features and copy cluster identity
     % strategy 2. recluster the whole thing after cancellation
 

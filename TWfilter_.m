@@ -1,6 +1,6 @@
 function TWfilter_(P, vcMode)
 	% display manual sorting interface
-	global fDebug_ui trFet_spk
+	global fDebug_ui spikeFeatures
 
 	% Load info
 	if ~isSorted(P)
@@ -9,7 +9,7 @@ function TWfilter_(P, vcMode)
 	end
 	[S0, P] = load_cached_(P);
 	if ~isfield(S0, 'mrPos_spk')
-		S0.mrPos_spk = spk_pos_(S0, trFet_spk);
+		S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
 		set(0, 'UserData', S0);
 	end
 	

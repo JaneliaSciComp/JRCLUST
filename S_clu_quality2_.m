@@ -2,7 +2,7 @@
 function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, P, viClu_update)
     % 7/5/17 JJJ: Berenyi2013 based
 
-    global trFet_spk;
+    global spikeFeatures;
     if nargin<3, viClu_update = []; end
     warning off;
 
@@ -30,10 +30,10 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
         viSpk1_local = cviSpk_site{iSite_clu1}; %find(spikeSites == iSite_clu1);
         viSpk2_local = cviSpk2_site{iSite_clu1}; %find(spikeSecondarySites == iSite_clu1);
         if isempty(viSpk2_local)
-            mrFet12_spk = squeeze_(trFet_spk(:,1,viSpk1_local));
+            mrFet12_spk = squeeze_(spikeFeatures(:,1,viSpk1_local));
             viSpk12_local = viSpk1_local(:);
         else
-            mrFet12_spk = [squeeze_(trFet_spk(:,1,viSpk1_local)), squeeze_(trFet_spk(:,2,viSpk2_local))]; %squeeze_(cat(3, trFet_spk(:,1,viSpk1_local), trFet_spk(:,2,viSpk2_local)))';
+            mrFet12_spk = [squeeze_(spikeFeatures(:,1,viSpk1_local)), squeeze_(spikeFeatures(:,2,viSpk2_local))]; %squeeze_(cat(3, spikeFeatures(:,1,viSpk1_local), spikeFeatures(:,2,viSpk2_local)))';
             viSpk12_local = [viSpk1_local(:); viSpk2_local(:)];
         end
         vlClu12_local = S_clu.spikeClusters(viSpk12_local) == iClu;

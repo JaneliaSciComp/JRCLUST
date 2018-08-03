@@ -1,18 +1,18 @@
 %--------------------------------------------------------------------------
 function S_clu = S_clu_reclust_(S_clu, S0, P);
-    global trFet_spk
+    global spikeFeatures
     vcMode_divide = 'amp'; % {'amp', 'density', 'fet'}
 
-    trFet_spk0 = trFet_spk;
+    spikeFeatures0 = spikeFeatures;
     nSites_fet = P.maxSite*2+1-P.nSites_ref;
-    nFetPerSite = size(trFet_spk,1) / nSites_fet;
+    nFetPerSite = size(spikeFeatures,1) / nSites_fet;
     switch vcMode_divide
         %     case 'nneigh'
         % %         % nearest neighbor averaging per same ecluster for feature enhancement
-        %         trFet_spk = nneigh_ave_(S_clu, P, trFet_spk);
+        %         spikeFeatures = nneigh_ave_(S_clu, P, spikeFeatures);
         %         P1 = setfield(P, 'nRepeat_fet', 1);
         %         S_clu = postCluster_(cluster_spacetime_(S0, P1), P);
-        %         trFet_spk = trFet_spk0; % undo fet change (undo fet cleanup)
+        %         spikeFeatures = spikeFeatures0; % undo fet change (undo fet cleanup)
 
         %     case 'fet'
         % %         % recompute pca and
@@ -25,7 +25,7 @@ function S_clu = S_clu_reclust_(S_clu, S0, P);
         %         [mrPv, vrD1] = tnWav2pv_(trWav2_spk, P);
         %         dimm1 = size(trWav2_spk);
         %         mrWav_spk1 = reshape(trWav2_spk, dimm1(1), []);
-        %         trFet_spk_ = reshape(mrPv(:,1)' * mrWav_spk1, dimm1(2:3))';
+        %         spikeFeatures_ = reshape(mrPv(:,1)' * mrWav_spk1, dimm1(2:3))';
 
         case 'amp'
         vrSnr_clu = S_clu_snr_(S_clu);
@@ -36,26 +36,26 @@ function S_clu = S_clu_reclust_(S_clu, S0, P);
 
             % reproject the feature
             %         nSpk_ = sum(vlRedo_spk);
-            %         nFets_spk_ = ceil(size(trFet_spk,1)/2);
-            %         trFet_spk_ = pca(reshape(trFet_spk(:,:,vlRedo_spk), size(trFet_spk,1), []), 'NumComponents', nFets_spk_);
-            %         trFet_spk_ = permute(reshape(trFet_spk_, [size(trFet_spk,2), nSpk_, nFets_spk_]), [3,1,2]);
-            %         trFet_spk = trFet_spk(1:nFets_spk_,:,:);
-            %         trFet_spk(:,:,vlRedo_spk) = trFet_spk_;
+            %         nFets_spk_ = ceil(size(spikeFeatures,1)/2);
+            %         spikeFeatures_ = pca(reshape(spikeFeatures(:,:,vlRedo_spk), size(spikeFeatures,1), []), 'NumComponents', nFets_spk_);
+            %         spikeFeatures_ = permute(reshape(spikeFeatures_, [size(spikeFeatures,2), nSpk_, nFets_spk_]), [3,1,2]);
+            %         spikeFeatures = spikeFeatures(1:nFets_spk_,:,:);
+            %         spikeFeatures(:,:,vlRedo_spk) = spikeFeatures_;
 
             mlFet_ = false(nSites_fet, nFetPerSite);
             nSites_fet = ceil(nSites_fet*.5) %*.75
             mlFet_(1:nSites_fet, 1) = 1;
             %             mlFet_(1,:) = 1;
             %             mlFet_(:, 1) = 1;
-            trFet_spk = trFet_spk0(find(mlFet_),:,:);
+            spikeFeatures = spikeFeatures0(find(mlFet_),:,:);
 
-            %             trFet_spk = trFet_spk0(1:1*nSites_fet,:,:);
+            %             spikeFeatures = spikeFeatures0(1:1*nSites_fet,:,:);
             S_clu_B = postCluster_(cluster_spacetime_(S0, P, vlRedo_spk), P);
             S_clu = S_clu_combine_(S_clu, S_clu_B, vlRedo_clu, vlRedo_spk);
         catch
             disperr_();
         end
-        trFet_spk = trFet_spk0; %restore
+        spikeFeatures = spikeFeatures0; %restore
 
         case 'density'
         vlRedo_clu = S_clu.vnSpk_clu > quantile(S_clu.vnSpk_clu, 1/2); %ilnear selection %2^(-iRepeat_clu+1)
