@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites_spk, spikeSecondarySites)
-    % [mrFet1, mrFet2, mrFet3, trWav_spk2] = trWav2fet_(tnWav_spk1, P)
-    % mrFet = trWav2fet_(tnWav_spk1, P)
+    % [mrFet1, mrFet2, mrFet3, trWav_spk2] = trWav2fet_(spikeWaveforms1, P)
+    % mrFet = trWav2fet_(spikeWaveforms1, P)
     if nargin<3, nSites_spk = []; end
     if nargin<4, spikeSecondarySites = []; end
 
@@ -10,7 +10,7 @@ function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites
     trWav2_spk = spkwav_car_(trWav2_spk, P, nSites_spk, spikeSecondarySites);
     % if get_set_(P, 'fMeanSubt_fet', 1), trWav2_spk = meanSubt_(trWav2_spk); end % 12/16/17 JJJ experimental
 
-    switch lower(P.vcFet) %{'xcor', 'amp', 'slope', 'pca', 'energy', 'vpp', 'diff248', 'spacetime'}
+    switch lower(P.feature) %{'xcor', 'amp', 'slope', 'pca', 'energy', 'vpp', 'diff248', 'spacetime'}
         case {'spacetime', 'cov', 'cov2'}
         [mrFet1, mrFet2] = trWav2fet_cov_(trWav2_spk, P);
         case 'cov_prev'
@@ -25,7 +25,7 @@ function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites
 
         case {'vpp', 'vppsqrt'}
         mrFet1 = shiftdim(max(trWav2_spk) - min(trWav2_spk))';
-        if strcmpi(P.vcFet, 'vppsqrt'), mrFet1 = sqrt(mrFet1); end
+        if strcmpi(P.feature, 'vppsqrt'), mrFet1 = sqrt(mrFet1); end
 
         case {'amp', 'vmin'}
         mrFet1 = shiftdim(abs(min(trWav2_spk)))';
@@ -46,12 +46,12 @@ function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites
 
         case {'pca', 'gpca', 'fpca'}
         %  Compute PrinVec, 2D, max channel only
-        if strcmpi(P.vcFet, 'fpca')
+        if strcmpi(P.feature, 'fpca')
             trWav2_spk0 = trWav2_spk;
             trWav2_spk = fft(trWav2_spk);
             trWav2_spk = abs(trWav2_spk(1:end/2,:,:));
         end
-        if strcmpi(P.vcFet, 'pca')
+        if strcmpi(P.feature, 'pca')
             mrPv = tnWav2pv_(trWav2_spk, P);
         else
             %             trWav_spk1 = spkwav_car_(trWav_spk1, viSites_ref);

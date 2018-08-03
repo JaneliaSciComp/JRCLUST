@@ -1,4 +1,4 @@
 %--------------------------------------------------------------------------
-function tr = raw2uV_(tnWav_raw, P)
-    tr = meanSubt_(single(tnWav_raw) * P.uV_per_bit);
+function tr = raw2uV_(spikeTraces, P)
+    tr = meanSubt_(single(spikeTraces) * P.uV_per_bit);
 end %func

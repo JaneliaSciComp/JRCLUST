@@ -28,7 +28,7 @@ function csDesc = describe_(vcFile_prm)
     csDesc{end+1} = sprintf('    #Sites                  %d', nSites);
     csDesc{end+1} = sprintf('Events');
     csDesc{end+1} = sprintf('    #Spikes                 %d', nSpk);
-    csDesc{end+1} = sprintf('    Feature                 %s', P.vcFet);
+    csDesc{end+1} = sprintf('    Feature                 %s', P.feature);
     csDesc{end+1} = sprintf('    #Sites/event            %d', nSitesPerEvent);
     if ~isempty(get_(S0, 'nLoads'))
         csDesc{end+1} = sprintf('    #Loads                  %d', S0.nLoads);

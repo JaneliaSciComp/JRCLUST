@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 function plot_proj_(hPlot, mrMin, mrMax, P, maxAmp)
-    if nargin<5
+    if nargin < 5
         [hFig, S_fig] = getCachedFig('FigProj');
         maxAmp = S_fig.maxAmp;
     end

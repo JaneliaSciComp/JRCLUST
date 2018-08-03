@@ -14,11 +14,11 @@ function rescale_FigTime_(event, S0, P)
     imrect_set_(S_fig.hRect, [], [0, S_fig.maxAmp]);
     iSite = S_clu.clusterSites(S0.iCluCopy);
 
-    % switch lower(P.vcFet_show)
+    % switch lower(P.displayFeature)
     %     case {'vpp', 'vmin'} %voltage feature
-    %         vcYlabel = sprintf('Site %d (\\mu%s)', iSite, P.vcFet_show);
+    %         vcYlabel = sprintf('Site %d (\\mu%s)', iSite, P.displayFeature);
     %     otherwise %other feature options
-    %         vcYlabel = sprintf('Site %d (%s)', iSite, P.vcFet_show);
+    %         vcYlabel = sprintf('Site %d (%s)', iSite, P.displayFeature);
     % end
     % ylabel(S_fig.hAx, vcYlabel);
 

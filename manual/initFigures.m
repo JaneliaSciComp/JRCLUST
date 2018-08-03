@@ -18,7 +18,7 @@ function S0 = initFigures(P) % TODO: create different figures for different algs
     % rho-delta plot; specific to JRC
     if get_set_(P, 'algorithm', 'JRCLUST')
         createFigure('FigRD', [.85 0 .15 .25], ['Cluster rho-delta: ', P.paramFile]);
-        figTags = {figTags, 'FigRD'};
+        figTags = {figTags{:}, 'FigRD'};
     end
 
     figPositions = cellfun(@(c) get(figureByTag(c), 'OuterPosition'), figTags, 'UniformOutput', 0);

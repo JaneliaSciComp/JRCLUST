@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
+function [S_gt, spikeWaveforms, spikeTraces] = gt2spk_(S_gt, P, snr_thresh)
     % convert ground truth to spike waveforms
     fSubtract_nmean = 0;
     % fSubtract_ref = 1;
@@ -23,32 +23,32 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
         [mnWav, vrWav_mean] = load_file_(P.vcFile, [], P);
         mnWav = fft_clean_(mnWav, P);
         if fProcessRaw
-            tnWav_raw = permute(mn2tn_gpu_(mnWav, P.spkLim_raw, spikeTimes), [1,3,2]);
+            spikeTraces = permute(mn2tn_gpu_(mnWav, P.spkLim_raw, spikeTimes), [1,3,2]);
         end
         [mnWav, ~] = filt_car_(mnWav, P);
         %     mnWav = mnWav_filt_(mnWav, P); % Apply filtering in RAM
         if fSubtract_nmean % Apply nmean CAR to ground truth spikes (previous standard)
             P1=P; P1.vcCommonRef = 'nmean'; mnWav = wav_car_(mnWav, P1);
         end
-        tnWav_spk = permute(mn2tn_gpu_(mnWav, P.spkLim, spikeTimes), [1,3,2]);
+        spikeWaveforms = permute(mn2tn_gpu_(mnWav, P.spkLim, spikeTimes), [1,3,2]);
         vrVrms_site = gather_(mr2rms_(mnWav, 1e5));
         clear mnWav;
     else % real ground truth: must block load and filter.
         viClu = viClu(1:nSubsample_clu:end);
         spikeTimes = spikeTimes(1:nSubsample_clu:end);
-        [tnWav_spk, vrVrms_site] = file2spk_gt_(P, spikeTimes);
+        [spikeWaveforms, vrVrms_site] = file2spk_gt_(P, spikeTimes);
         snr_thresh = []; %no SNR threshold
     end
 
     % trim excess spikes
-    % nSpk = size(tnWav_spk,3);
+    % nSpk = size(spikeWaveforms,3);
     % [viClu, spikeTimes, S_gt.viTime, S_gt.viClu] = multifun(@(x)x(1:nSpk), viClu, spikeTimes, S_gt.viTime, S_gt.viClu);
 
     % determine mean spikes
     nClu = max(viClu);
-    trWav_clu = zeros(size(tnWav_spk,1), nSites, nClu, 'single');
+    trWav_clu = zeros(size(spikeWaveforms,1), nSites, nClu, 'single');
     if fProcessRaw
-        trWav_raw_clu = zeros(size(tnWav_raw,1), nSites, nClu, 'single');
+        trWav_raw_clu = zeros(size(spikeTraces,1), nSites, nClu, 'single');
     else
         trWav_raw_clu = [];
     end
@@ -59,13 +59,13 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
         viSpk1 = subsample_vr_(viSpk_clu1, MAX_SAMPLE);
         if isempty(viSpk1), continue; end
         try
-            trWav_clu(:,:,iClu) = mean(tnWav_spk(:,:,viSpk1), 3); %multiply by scaling factor?
+            trWav_clu(:,:,iClu) = mean(spikeWaveforms(:,:,viSpk1), 3); %multiply by scaling factor?
         catch
             ;
         end
-        %     trWav_clu(:,:,iClu) = fft_align_mean_(single(tnWav_spk(:,:,viSpk1)));
+        %     trWav_clu(:,:,iClu) = fft_align_mean_(single(spikeWaveforms(:,:,viSpk1)));
         if fProcessRaw
-            trWav_raw_clu(:,:,iClu) = mean_tnWav_raw_(tnWav_raw(:,:,viSpk1), P);
+            trWav_raw_clu(:,:,iClu) = mean_spikeTraces_(spikeTraces(:,:,viSpk1), P);
         end
         fprintf('.');
     end

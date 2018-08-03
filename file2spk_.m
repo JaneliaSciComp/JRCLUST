@@ -1,12 +1,12 @@
 %--------------------------------------------------------------------------
 function S0 = file2spk_(P, spikeTimes0, spikeSites0)
-    % function [tnWav_raw, tnWav_spk, spikeFeatures, S0] = file2spk_(P, spikeTimes0, spikeSites0)
-    % file loading routine. keep spike waveform (tnWav_spk) in memory
+    % function [spikeTraces, spikeWaveforms, spikeFeatures, S0] = file2spk_(P, spikeTimes0, spikeSites0)
+    % file loading routine. keep spike waveform (spikeWaveforms) in memory
     % assume that the file is chan x time format
     % usage:
-    % [tnWav_raw, tnWav_spk, S0] = file2spk_(P)
+    % [spikeTraces, spikeWaveforms, S0] = file2spk_(P)
     %
-    % [tnWav_raw, tnWav_spk, S0] = file2spk_(P, spikeTimes, spikeSites)
+    % [spikeTraces, spikeWaveforms, S0] = file2spk_(P, spikeTimes, spikeSites)
     %   construct spike waveforms from previous time markers
     % 6/29/17 JJJ: Added support for the matched filter
 
@@ -91,10 +91,10 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
             end
 
             [spikeTimes11, spikeSites11] = filter_spikes_(spikeTimes0, spikeSites0, nSamples1 + [1, nSamples11]);
-            [tnWav_raw_, tnWav_spk_, spikeFeatures_, spikePrSecSites{end+1}, spikeTimes{end+1}, vrAmp_spk{end+1}, siteThresholds{end+1}, P.useGPU] ...
+            [spikeTraces_, spikeWaveforms_, spikeFeatures_, spikePrSecSites{end+1}, spikeTimes{end+1}, vrAmp_spk{end+1}, siteThresholds{end+1}, P.useGPU] ...
                 = wav2spk_(mnWav11, vrWav_mean11, P, spikeTimes11, spikeSites11, mnWav11_pre, mnWav11_post);
 
-            write_spk_(tnWav_raw_, tnWav_spk_, spikeFeatures_);
+            write_spk_(spikeTraces_, spikeWaveforms_, spikeFeatures_);
             spikeTimes{end} = spikeTimes{end} + nSamples1;
             nSamples1 = nSamples1 + nSamples11;
 
@@ -127,8 +127,8 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
     end
 
     % set S0
-    [dimm_raw, dimm_spk, dimm_fet] = deal(size(tnWav_raw_), size(tnWav_spk_), size(spikeFeatures_));
-    [dimm_raw(3), dimm_spk(3), dimm_fet(3)] = deal(numel(spikeTimes));
+    [traceDims, waveformDims, featureDims] = deal(size(spikeTraces_), size(spikeWaveforms_), size(spikeFeatures_));
+    [traceDims(3), waveformDims(3), featureDims(3)] = deal(numel(spikeTimes));
     nSites = numel(P.chanMap);
     cviSpk_site = arrayfun(@(iSite)find(spikePrSecSites(:,1) == iSite), 1:nSites, 'UniformOutput', 0);
     if size(spikePrSecSites, 2) >= 2
@@ -144,7 +144,7 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
     [mrPv_global, vrD_global] = get0_('mrPv_global', 'vrD_global');
 
     % save everything
-    S0 = makeStruct_(P, spikeSites, spikeSecondarySites, spikeTimes, vrAmp_spk, vrThresh_site, dimm_spk, ...
-        cviSpk_site, cviSpk2_site, cviSpk3_site, dimm_raw, fileSampleOffsets, dimm_fet, nLoads, ...
+    S0 = makeStruct_(P, spikeSites, spikeSecondarySites, spikeTimes, vrAmp_spk, vrThresh_site, waveformDims, ...
+        cviSpk_site, cviSpk2_site, cviSpk3_site, traceDims, fileSampleOffsets, featureDims, nLoads, ...
         mrPv_global, vrFilt_spk, vrD_global);
 end %func

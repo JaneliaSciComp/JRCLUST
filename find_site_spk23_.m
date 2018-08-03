@@ -1,17 +1,17 @@
 %--------------------------------------------------------------------------
-function [spikeSites2, spikeSites3] = find_site_spk23_(tnWav_spk, spikeSites, P)
+function [spikeSites2, spikeSites3] = find_site_spk23_(spikeWaveforms, spikeSites, P)
     % find second min, excl local ref sites
     fUse_min = 0;
     imin0 = 1 - P.spkLim(1);
     viSites2 = 2:(2*P.maxSite+1-P.nSites_ref);
     miSites2 = P.miSites(viSites2,spikeSites);
-    %[~,spikeSites2] = min(squeeze_(tnWav_spk(imin0,viSites2,:)));
-    tnWav_spk2 = tnWav_spk(:,viSites2,:);
+    %[~,spikeSites2] = min(squeeze_(spikeWaveforms(imin0,viSites2,:)));
+    spikeWaveforms2 = spikeWaveforms(:,viSites2,:);
     if fUse_min
-        mnMin_spk = squeeze_(min(tnWav_spk2));
+        mnMin_spk = squeeze_(min(spikeWaveforms2));
     else
-        %     mnMin_spk = -squeeze_(std(single(tnWav_spk(:,viSites2,:))));
-        mnMin_spk = squeeze_(min(tnWav_spk2) - max(tnWav_spk2)); % use Vpp to determine second peak site
+        %     mnMin_spk = -squeeze_(std(single(spikeWaveforms(:,viSites2,:))));
+        mnMin_spk = squeeze_(min(spikeWaveforms2) - max(spikeWaveforms2)); % use Vpp to determine second peak site
     end
     if nargout==1
         [~, spikeSites] = min(mnMin_spk);

@@ -1,10 +1,10 @@
 %--------------------------------------------------------------------------
-function [tnWav_spk, siteThresholds] = wav2spk_gt_(mnWav1, P, spikeTimes, mnWav1_pre, mnWav1_post)
-    % tnWav_spk: spike waveform. nSamples x nSites x nSpikes
+function [spikeWaveforms, siteThresholds] = wav2spk_gt_(mnWav1, P, spikeTimes, mnWav1_pre, mnWav1_post)
+    % spikeWaveforms: spike waveform. nSamples x nSites x nSpikes
     % spikeFeatures: nSites x nSpk x nFet
     % spikePrSecSites: nSpk x nFet
     % spikes are ordered in time
-    % spikeSites and spikeTimes is uint32 format, and tnWav_spk: single format
+    % spikeSites and spikeTimes is uint32 format, and spikeWaveforms: single format
     % mnWav1: raw waveform (unfiltered)
     % wav2spk_(mnWav1, vrWav_mean1, P)
     % wav2spk_(mnWav1, vrWav_mean1, P, spikeTimes, spikeSites)
@@ -31,8 +31,8 @@ function [tnWav_spk, siteThresholds] = wav2spk_gt_(mnWav1, P, spikeTimes, mnWav1
         viKeep_spk = find(spikeTimes >= ilim_spk(1) & ilim_spk <= ilim_spk(2));
         spikeTimes = multifun_(@(x)x(viKeep_spk), spikeTimes);
     end %if
-    % [tnWav_spk_raw, tnWav_spk] = mn2tn_wav_(mnWav1, mnWav2, [], spikeTimes, P);
-    tnWav_spk = permute(gather_(mr2tr3_(mnWav2, P.spkLim, spikeTimes)), [1,3,2]);
+    % [spikeWaveforms_raw, spikeWaveforms] = mn2tn_wav_(mnWav1, mnWav2, [], spikeTimes, P);
+    spikeWaveforms = permute(gather_(mr2tr3_(mnWav2, P.spkLim, spikeTimes)), [1,3,2]);
 
     % if nPad_pre > 0, spikeTimes = spikeTimes - nPad_pre; end
 end %func

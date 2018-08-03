@@ -15,7 +15,7 @@ function S0 = sort_(P, fLoad)
         S_clu = sort_overlap_(S0, S_clu, P);
     end
     [S_clu, S0] = S_clu_commit_(S_clu, 'sort_');
-    % S0 = setUserData(P); %, dimm_fet, cvrTime_site, cvrVpp_site, cmrFet_site, P);
+    % S0 = setUserData(P); %, featureDims, cvrTime_site, cvrVpp_site, cmrFet_site, P);
 
     % measure time
     runtime_sort = toc(runtime_sort);

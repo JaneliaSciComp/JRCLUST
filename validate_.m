@@ -1,14 +1,14 @@
 %--------------------------------------------------------------------------
 function validate_(P)
-    persistent S_gt vcFile_prm_ % tnWav_spk tnWav_gt
+    persistent S_gt vcFile_prm_ % spikeWaveforms tnWav_gt
     % S0 = load_cached_(P, 0);
     fMergeCheck = 0; %kilosort-style validation
     % snr_thresh_score = 10;
     snr_thresh_stat = get_set_(P, 'snr_thresh_gt', 7);
 
     S0 = load_(strrep(P.paramFile, '.prm', '_jrc.mat'));
-    % if isempty(tnWav_spk)
-    %     tnWav_spk = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), P.dataType, S0.dimm_spk);
+    % if isempty(spikeWaveforms)
+    %     spikeWaveforms = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), P.dataType, S0.waveformDims);
     % end
     S_clu = S0.S_clu;
 

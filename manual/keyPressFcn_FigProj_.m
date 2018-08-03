@@ -29,7 +29,7 @@ function keyPressFcn_FigProj_(hFig, event)
         if fPlot
             set(hFig, 'UserData', S_fig);
             S0.P.viSites_show = S_fig.viSites_show;
-            plot_FigProj_(S0);
+            plotFigProj(S0);
         end
 
         case 'r' %reset view
@@ -55,20 +55,23 @@ function keyPressFcn_FigProj_(hFig, event)
         ui_merge_(S0);
 
         case 'f'
-        disp('keyPressFcn_FigProj_: ''f'': not implemented yet');
-        %         if strcmpi(P.vcFet_show, 'vpp')
-        %             S0.vcFet_show = P.vcFet;
-        %         else
-        %             S0.vcFet_show = 'vpp';
-        %         end
-        %         set(0, 'UserData', S0);
-        %         plot_FigProj_();
+        % disp('keyPressFcn_FigProj_: ''f'': not implemented yet');
+            if strcmpi(P.displayFeature, 'vpp')
+                P.displayFeature = P.feature;
+            else
+                P.displayFeature = 'vpp';
+            end
+
+            S0.P = P;
+            set(0, 'UserData', S0);
+
+            plotFigProj();
 
         case 'b' %background spikes
-        toggleVisible_(S_fig.hPlot0);
+            toggleVisible_(S_fig.hPlot0);
 
         case 'h' %help
-        msgbox_(S_fig.csHelp, 1);
+            msgbox_(S_fig.csHelp, 1);
     end %switch
     % drawnow;
     figure_wait_(0);

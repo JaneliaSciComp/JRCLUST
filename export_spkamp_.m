@@ -24,7 +24,7 @@ function export_spkamp_(P, vcArg2)
     fprintf('Calculating spike amplitudes from clusters\n\t'); t1=tic;
     if isempty(viClu), viClu = 1:S_clu.nClusters; end
     for iClu = viClu
-        trWav_clu1 = tnWav2uV_(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu}, miSite_clu(:,iClu), S0), P);
+        trWav_clu1 = tnWav2uV_(spikeWaveforms_sites_(S_clu.cviSpk_clu{iClu}, miSite_clu(:,iClu), S0), P);
         cmrVmin_clu{iClu} = shiftdim(min(trWav_clu1));
         cmrVmax_clu{iClu} = shiftdim(max(trWav_clu1));
         cmrVpp_clu{iClu} = cmrVmax_clu{iClu} - cmrVmin_clu{iClu};

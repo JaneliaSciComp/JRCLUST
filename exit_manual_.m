@@ -5,7 +5,6 @@ function exit_manual_(src, event)
         if ~isvalid(src), return; end
         S0 = get(0, 'UserData');
         P = S0.P;
-        %     if ~get_set_([], 'fDebug_ui', 0)
         fExit = save_manual_(P);
         if ~fExit, return; end
         if ~isfield(S0, 'figTags')

@@ -8,7 +8,7 @@ function import_silico_(vcFile_prm, fSort)
     % import_silico_(vcFile_prm, 1): use jrclust sort result
     if nargin<2, fSort = 0; end
 
-    global tnWav_raw tnWav_spk spikeFeatures
+    global spikeTraces spikeWaveforms spikeFeatures
     % convert jrc1 format (_clu and _evt) to jrc format. no overwriting
     % receive spike location, time and cluster number. the rest should be taken care by jrc processing
     P = loadParams(vcFile_prm); %makeParam_kilosort_
@@ -23,12 +23,12 @@ function import_silico_(vcFile_prm, fSort)
     end
     S0 = struct('spikeTimes', S_gt.viTime(:), 'spikeSites', S_gt.viSite(:), 'P', P, 'S_gt', S_gt);
 
-    [tnWav_raw, tnWav_spk, spikeFeatures, S0] = file2spk_(P, S0.spikeTimes, S0.spikeSites);
+    [spikeTraces, spikeWaveforms, spikeFeatures, S0] = file2spk_(P, S0.spikeTimes, S0.spikeSites);
     set(0, 'UserData', S0);
 
     % Save to file
-    write_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), tnWav_raw);
-    write_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), tnWav_spk);
+    write_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), spikeTraces);
+    write_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), spikeWaveforms);
     write_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), spikeFeatures);
 
     % cluster and describe

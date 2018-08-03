@@ -35,7 +35,7 @@ function update_FigTime_()
     S0 = get(0, 'UserData');
     P = S0.P;
     if ~isVisible_(S_fig.hAx), return ;end
-    % P.vcFet_show = S_fig.csFet{S_fig.iFet};
+    % P.displayFeature = S_fig.csFet{S_fig.iFet};
     setUserData(P);
     [vrFet0, vrTime0, vcYlabel] = getFet_site_(S_fig.iSite, [], S0);
     if ~isfield(S_fig, 'fPlot0'), S_fig.fPlot0 = 1; end
@@ -49,7 +49,7 @@ function update_FigTime_()
         hide_plot_(S_fig.hPlot2);
         %     set(S_fig.hPlot2, 'XData', nan, 'YData', nan);
     end
-    % switch lower(P.vcFet_show)
+    % switch lower(P.displayFeature)
     %     case 'vpp'
     ylim_(S_fig.hAx, [0, 1] * S_fig.maxAmp);
     imrect_set_(S_fig.hRect, [], [0, 1] * S_fig.maxAmp);

@@ -12,12 +12,12 @@ function [trWav2, mrWav_ref] = spkwav_car_(trWav2, P, nSites_spk, spikeSecondary
     end
     % fSort_car = get_set_(P, 'fSort_car', 1);
     if isempty(nSites_spk)
-        nSites_spk = 1 + 2 * P.maxSite - P.nSites_ref; % size(tnWav_spk, 2);
+        nSites_spk = 1 + 2 * P.maxSite - P.nSites_ref; % size(spikeWaveforms, 2);
     end
     if nSites_spk==1, mrWav_ref=[]; return; end
 
     % if P.nSites_ref==0, fSort_car = -1; end
-    % nSites_spk = 1 + 2 * P.maxSite; % size(tnWav_spk, 2);
+    % nSites_spk = 1 + 2 * P.maxSite; % size(spikeWaveforms, 2);
     dimm1 = size(trWav2);
     [nT_spk, nSpk] = deal(dimm1(1), dimm1(2));
     switch fSort_car

@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-% 10/10/17 JJJ: moved tnWav_spk and tnWav_raw internally
+% 10/10/17 JJJ: moved spikeWaveforms and spikeTraces internally
 function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
     % average cluster waveforms and determine the center
     % only use the centered spikes
@@ -10,7 +10,7 @@ function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
     % P = get0_('P');
     S0 = get(0, 'UserData');
     P = S0.P;
-    % [dimm_spk, dimm_raw] = get0_('dimm_spk', 'dimm_raw');
+    % [waveformDims, traceDims] = get0_('waveformDims', 'traceDims');
     P.fMeanSubt = 0;
     fVerbose = isempty(viClu_update);
     if fVerbose, fprintf('Calculating cluster mean waveform.\n\t'); t1 = tic; end
@@ -19,16 +19,16 @@ function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
     else
         nClu = max(S_clu.spikeClusters);
     end
-    nSamples = S0.dimm_spk(1);
+    nSamples = S0.waveformDims(1);
     nSites = numel(P.chanMap);
-    nSites_spk = S0.dimm_spk(2); % n sites per event group (maxSite*2+1);
+    nSites_spk = S0.waveformDims(2); % n sites per event group (maxSite*2+1);
 
     % Prepare cluster loop
     trWav_spk_clu = zeros([nSamples, nSites_spk, nClu], 'single');
     % vrFracCenter_clu = zeros(nClu, 1);
     tmrWav_spk_clu = zeros(nSamples, nSites, nClu, 'single');
     if ~fSkipRaw
-        nSamples_raw = S0.dimm_raw(1);
+        nSamples_raw = S0.traceDims(1);
         [trWav_raw_clu] = deal(zeros(nSamples_raw, nSites_spk, nClu, 'single'));
         [tmrWav_raw_clu, tmrWav_raw_lo_clu, tmrWav_raw_hi_clu] = deal(zeros(nSamples_raw, nSites, nClu, 'single'));
     else

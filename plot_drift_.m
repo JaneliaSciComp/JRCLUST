@@ -13,16 +13,16 @@ function plot_drift_(P)
 
     switch lower(vcMode_com)
         case 'filt'
-        tnWav_spk = get_spkwav_(P, 0);
-        %mrVp = squeeze_(single(min(tnWav_spk))) .^ 2;
-        %         tnWav_spk1 = meanSubt_(single(tnWav_spk),2);
-        mrVp = single(squeeze_(max(tnWav_spk) - min(tnWav_spk))) .^ 2;
+        spikeWaveforms = get_spkwav_(P, 0);
+        %mrVp = squeeze_(single(min(spikeWaveforms))) .^ 2;
+        %         spikeWaveforms1 = meanSubt_(single(spikeWaveforms),2);
+        mrVp = single(squeeze_(max(spikeWaveforms) - min(spikeWaveforms))) .^ 2;
         case 'filtstd'
         mrVp = squeeze_(var(single(get_spkwav_(P, 0))));
         case 'rawstd', mrVp = squeeze_(var(single(get_spkwav_(P, 1))));
         case 'raw'
-        tnWav_raw = get_spkwav_(P, 1);
-        mrVp = single(squeeze_(max(tnWav_raw) - min(tnWav_raw))) .^ 2;
+        spikeTraces = get_spkwav_(P, 1);
+        mrVp = single(squeeze_(max(spikeTraces) - min(spikeTraces))) .^ 2;
         case 'fet'
         spikeFeatures = get_spkfet_(P);
         mrVp = squeeze_(spikeFeatures(1:nSites_spk,1,:)) .^ 2;

@@ -75,7 +75,7 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
         case 'numpad2', unit_annotate_([],[], 'multi'); % TW
         case 'w', toggleVisible_(S_fig.hSpkAll); %toggle spike waveforms
         case 't', plot_FigTime_(S0); % time view
-        case 'j', plot_FigProj_(S0); %projection view
+        case 'j', plotFigProj(S0); %projection view
         case 'n'
         fText = get_set_(S_fig, 'fText', get_set_(P, 'fText', 1));
         figWav_clu_count_(S_fig, S_clu, ~fText);

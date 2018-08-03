@@ -174,11 +174,11 @@ function varargout = jrc(cmd, varargin)
             assignWorkspace_(mnWav);
         case 'export-spk'
             S0 = get(0, 'UserData');
-            trSpkWav = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
+            trSpkWav = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), 'int16', S0.waveformDims);
             assignWorkspace_(trSpkWav);
         case 'export-raw'
             S0 = get(0, 'UserData');
-            trWav_raw = load_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_spk);
+            trWav_raw = load_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), 'int16', S0.waveformDims);
             assignWorkspace_(trWav_raw);
         case {'export-spkwav', 'spkwav'}, export_spkwav_(P, arg2); % export spike waveforms
         case {'export-chan'}, export_chan_(P, arg2); % export channels

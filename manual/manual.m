@@ -58,7 +58,7 @@ function manual(P, debugMode)
         % Set fields
         S0 = mergeStructs(S0, ...
             struct('iCluCopy', 1, 'iCluPaste', [], 'hCopy', [], ...
-            'hPaste', [], 'nSites', numel(P.chanMap)));
+                'hPaste', [], 'nSites', numel(P.chanMap)));
         set(0, 'UserData', S0);
 
         % hFigRD
@@ -72,12 +72,17 @@ function manual(P, debugMode)
         % hFigProj, hFigHist, hFigIsi, hFigCorr, hFigPos, hFigMap, hFigTime
         tryClose(figureByTag('FigTrial')); % close previous FigTrial figure
         tryClose(figureByTag('FigTrial_b')); % close previous FigTrial figure
+
         S0 = button_CluWav_simulate_(1, [], S0, 1); %select first clu TW
+
         auto_scale_proj_time_(S0);
+
         S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom
-        %S0.cS_log = load_(strrep(P.paramFile, '.prm', '_log.mat'), 'cS_log', 0);
         S_log = load_(strrep(P.paramFile, '.prm', '_log.mat'), [], 0);
-        if ~isempty(S_log), S0.cS_log = {S_log}; end
+
+        if ~isempty(S_log)
+                S0.cS_log = {S_log};
+        end
         save_log_('start', S0); %crash proof log
 
         % Finish up
