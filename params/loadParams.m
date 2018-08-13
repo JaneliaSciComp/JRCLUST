@@ -52,15 +52,15 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     P = struct_default_(P, 'vcFile_prm', subsFileExt_(P.vcFile, '.prm'));
     P = struct_default_(P, 'groundTruthFile', '');
     if ~isfield(P, 'groundTruthFile') || isempty(P.groundTruthFile), P.groundTruthFile = subsFileExt_(P.paramFile, '_gt.mat'); end
-    P.spkRefrac = round(P.spkRefrac_ms * P.sRateHz / 1000);
-    P.spkLim = round(P.spkLim_ms * P.sRateHz / 1000);
+    P.spkRefrac = round(P.spkRefrac_ms * P.sampleRateHz / 1000);
+    P.spkLim = round(P.spkLim_ms * P.sampleRateHz / 1000);
     P.spkLim_raw = calc_spkLim_raw_(P);
 
     if isempty(get_(P, 'nDiff_filt'))
         if isempty(get_(P, 'nDiff_ms_filt'))
             P.nDiff_filt = 0;
         else
-            P.nDiff_filt = ceil(P.nDiff_ms_filt * P.sRateHz / 1000);
+            P.nDiff_filt = ceil(P.nDiff_ms_filt * P.sampleRateHz / 1000);
         end
     end
     if ~isempty(get_(P, 'viChanZero')) && isempty(P.viSiteZero)
@@ -72,10 +72,10 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     try P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site); catch; end %find closest sites
     % LFP sampling rate
     if ~isempty(get_(P, 'nSkip_lfp'))
-        P.sRateHz_lfp = P.sRateHz / P.nSkip_lfp;
+        P.sampleRateHz_lfp = P.sampleRateHz / P.nSkip_lfp;
     else
-        P.sRateHz_lfp = get_set_(P, 'sRateHz_lfp', 2500);
-        P.nSkip_lfp = round(P.sRateHz / P.sRateHz_lfp);
+        P.sampleRateHz_lfp = get_set_(P, 'sampleRateHz_lfp', 2500);
+        P.nSkip_lfp = round(P.sampleRateHz / P.sampleRateHz_lfp);
     end
     P.bytesPerSample = bytesPerSample_(P.dataType);
     P = struct_default_(P, 'vcFile_prm', subsFileExt_(P.vcFile, '.prm'));

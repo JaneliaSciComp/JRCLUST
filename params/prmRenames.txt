@@ -1,7 +1,6 @@
-filenames:
-    *_spkraw.jrc=*_traces.bin
-    *_spkwav.jrc=*_waveforms.bin
-    *_spkfet.jrc=*_features.bin
+filenames.*_spkraw.jrc=filenames.*_traces.bin
+filenames.*_spkwav.jrc=filenames.*_waveforms.bin
+filenames.*_spkfet.jrc=filenames.*_features.bin
 
 global.tnWav_spk=global.spikeWaveforms
 global.tnWav_raw=global.spikeTraces
@@ -10,7 +9,9 @@ global.trFet_spk=global.spikeFeatures
 P.csFile_merge=P.multiFilenames
 P.delta1_cut=P.log10DeltaCutoff
 P.min_count=P.minClusterSize
+P.nPad_filt=P.nPaddingSamples
 P.rho_cut=P.log10RhoCutoff
+P.sRateHz=P.sampleRateHz
 P.vcDataType=P.dataType
 P.vcFet_show=P.displayFeature
 P.vcFet=P.feature

@@ -15,12 +15,12 @@ function Fig_traces_plot_(fAxis_reset)
     [S0, P, S_clu] = get0_();
     [hFig, S_fig] = getCachedFig('Fig_traces');
     figure_wait_(1, hFig); drawnow;
-    sRateHz = P.sRateHz / P.nSkip_show;
+    sampleRateHz = P.sampleRateHz / P.nSkip_show;
     viSamples1 = 1:P.nSkip_show:size(mnWav1,1);
     spkLim = round(P.spkLim / P.nSkip_show); %show 2x of range
     P.vcFilter = get_filter_(P);
     if strcmpi(S_fig.vcFilter, 'on')
-        P1=P; P1.sRateHz = sRateHz; P1.useGPU = 0;
+        P1=P; P1.sampleRateHz = sampleRateHz; P1.useGPU = 0;
         P1.vcFilter = get_set_(P, 'vcFilter_show', P.vcFilter);
         if P.fft_thresh>0, mnWav1 = fft_clean_(mnWav1, P); end
         mrWav1 = bit2uV_(filt_car_(mnWav1(viSamples1, P.chanMap), P1), P1);
@@ -34,17 +34,17 @@ function Fig_traces_plot_(fAxis_reset)
     % hide bad channels
     nTime_traces = get_(P, 'nTime_traces');
     if isempty(nTime_traces) || nTime_traces==1
-        vrTime_bin = ((S_fig.nlim_bin(1):P.nSkip_show:S_fig.nlim_bin(end))-1) / P.sRateHz;
+        vrTime_bin = ((S_fig.nlim_bin(1):P.nSkip_show:S_fig.nlim_bin(end))-1) / P.sampleRateHz;
         vcXLabel = 'Time (s)';
     else
-        vrTime_bin = (0:(size(mrWav1,1)-1)) / (P.sRateHz / P.nSkip_show) + (S_fig.nlim_bin(1)-1) / P.sRateHz;
+        vrTime_bin = (0:(size(mrWav1,1)-1)) / (P.sampleRateHz / P.nSkip_show) + (S_fig.nlim_bin(1)-1) / P.sampleRateHz;
         [cvn_lim_bin, viRange_bin, viEdges] = sample_skip_(S_fig.nlim_bin, S_fig.nSamples_bin, nTime_traces);
-        tlim_show = (cellfun(@(x)x(1), cvn_lim_bin([1,end]))) / P.sRateHz;
+        tlim_show = (cellfun(@(x)x(1), cvn_lim_bin([1,end]))) / P.sampleRateHz;
         vcXLabel = sprintf('Time (s), %d segments merged (%0.1f ~ %0.1f s, %0.2f s each)', nTime_traces, tlim_show, diff(P.tlim));
         mrX_edges = vrTime_bin(repmat(viEdges(:)', [3,1]));
         mrY_edges = repmat([0;numel(P.chanMap)+1;nan],1,numel(viEdges));
         set(S_fig.hPlot_edges, 'XData', mrX_edges(:), 'YData', mrY_edges(:));
-        csTime_bin = cellfun(@(x)sprintf('%0.1f', x(1)/P.sRateHz), cvn_lim_bin, 'UniformOutput', 0);
+        csTime_bin = cellfun(@(x)sprintf('%0.1f', x(1)/P.sampleRateHz), cvn_lim_bin, 'UniformOutput', 0);
         set(S_fig.hAx, {'XTick', 'XTickLabel'}, {vrTime_bin(viEdges), csTime_bin});
     end
     multiplot(S_fig.hPlot, S_fig.maxAmp, vrTime_bin, mrWav1, viSites);
@@ -73,7 +73,7 @@ function Fig_traces_plot_(fAxis_reset)
             [spikeSites1, spikeTimes1] = multifun_(@(vr)vr(viSpk1), S0.spikeSites, spikeTimes);
             spikeTimes1 = round((spikeTimes1 - S_fig.nlim_bin(1) + 1) / P.nSkip_show); %time offset
         end
-        t_start1 = single(S_fig.nlim_bin(1) - 1) / P.sRateHz;
+        t_start1 = single(S_fig.nlim_bin(1) - 1) / P.sampleRateHz;
         spikeSites1 = single(spikeSites1);
         % check if clustered
         if isempty(S_clu)
@@ -85,7 +85,7 @@ function Fig_traces_plot_(fAxis_reset)
                 spikeTimes11 = spikeTimes1(viSpk11);
                 [mrY11, mrX11] = vr2mr3_(mrWav1(:,iSite), spikeTimes11, spkLim); %display purpose x2
                 %             vr2mr_spk_(mrWav1(:,iSite), spikeTimes11, P);
-                mrT11 = single(mrX11-1) / sRateHz + t_start1;
+                mrT11 = single(mrX11-1) / sampleRateHz + t_start1;
                 chSpk{iSite} = line(nan, nan, 'Color', [1 0 0], 'LineWidth', 1.5, 'Parent', S_fig.hAx);
                 multiplot(chSpk{iSite}, S_fig.maxAmp, mrT11, mrY11, iSite);
             end
@@ -103,7 +103,7 @@ function Fig_traces_plot_(fAxis_reset)
                 iTime_spk11 = spikeTimes1(iSpk1);
                 iSite11 = spikeSites1(iSpk1);
                 [mrY11, mrX11] = vr2mr3_(mrWav1(:,iSite11), iTime_spk11, spkLim); %display purpose x2
-                mrT11 = double(mrX11-1) / sRateHz + t_start1;
+                mrT11 = double(mrX11-1) / sampleRateHz + t_start1;
                 iClu11 = viClu_spk1(iSpk1);
                 if iClu11<=0, continue; end
                 %                 vrColor1 = [0 0 0];

@@ -24,7 +24,7 @@ function [nLoad1, nSamples_load1, nSamples_last1] = plan_load_(nBytes_file, P)
     if ~isfield(P, 'MAX_LOAD_SEC') || isempty(P.MAX_LOAD_SEC)
         nSamples_max = floor(P.MAX_BYTES_LOAD/(P.nChans*bytesPerSample_(P.dataType)));
     else
-        nSamples_max = floor(P.sRateHz * P.MAX_LOAD_SEC);
+        nSamples_max = floor(P.sampleRateHz * P.MAX_LOAD_SEC);
     end
 
     if ~P.fTranspose_bin % load all in one, Catalin's format

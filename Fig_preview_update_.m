@@ -52,8 +52,8 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     % vrWav_filt_mean = mean(mnWav_filt, 2) * P.uV_per_bit; % @TODO: save in MAD unit
 
     % vrPower_psd = abs(mean(fft(S_fig.mnWav_raw(:,~S_fig.vlSite_bad)), 2));
-    [mrPower_psd, S_fig.vrFreq_psd] = psd_(S_fig.mnWav_raw(:,~S_fig.vlSite_bad), P.sRateHz, 4);
-    [mrPower_clean_psd] = psd_(S_fig.mnWav_clean(:,~S_fig.vlSite_bad), P.sRateHz, 4);
+    [mrPower_psd, S_fig.vrFreq_psd] = psd_(S_fig.mnWav_raw(:,~S_fig.vlSite_bad), P.sampleRateHz, 4);
+    [mrPower_clean_psd] = psd_(S_fig.mnWav_clean(:,~S_fig.vlSite_bad), P.sampleRateHz, 4);
     [S_fig.vrPower_psd, S_fig.vrPower_clean_psd] = multifun_(@(x)mean(x,2), mrPower_psd, mrPower_clean_psd);
 
     % Apply threshold and perform spike detection
@@ -68,7 +68,7 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     % P_.fMerge_spk = 0;
     [vlKeep_ref, S_fig.vrMad_ref] = car_reject_(vrWav_filt_mean, P_);
     [S_fig.spikeTimes, S_fig.vnAmp_spk, spikeSites] = detect_spikes_(mnWav_filt, siteThresholds, vlKeep_ref, P_);
-    t_dur = size(mnWav_filt,1) / P.sRateHz;
+    t_dur = size(mnWav_filt,1) / P.sampleRateHz;
     S_fig.vrEventRate_site = hist(spikeSites, 1:nSites) / t_dur; % event count
     S_fig.vrEventSnr_site = abs(single(arrayfun(@(i)median(S_fig.vnAmp_spk(spikeSites==i)), 1:nSites))) ./ vrRmsQ_site;
     S_fig.vlKeep_ref = vlKeep_ref;

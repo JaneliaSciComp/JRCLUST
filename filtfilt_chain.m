@@ -1,9 +1,9 @@
 function mr = filtfilt_chain(mr, varargin)
 
 P = funcDefStr_(funcInStr_(varargin{:}), ...
-    'filtOrder', 3, 'sRateHz', 25000, 'fEllip', 1, ...
+    'filtOrder', 3, 'sampleRateHz', 25000, 'fEllip', 1, ...
     'freqLimStop', [], 'freqLim', [], 'freqLimNotch', [], ...
-    'nPad_filt', 100, 'useGPU_filt', 0, 'gain_boost', 1, 'nDiff_filt', 0);
+    'nPaddingSamples', 100, 'useGPU_filt', 0, 'gain_boost', 1, 'nDiff_filt', 0);
 if isfield(P, 'useGPU')
     P.useGPU_filt = P.useGPU;
 end
@@ -22,9 +22,9 @@ end
 %         [n0, nT, vrFiltA, vrFiltB] = multifun(@gpuArray, n0,nT,vrFiltA,vrFiltB);
 %     end
 % %     f=@()filter((vrFiltA), (vrFiltB), mr); gputimeit(f)
-%     mr = filt_pad_('add', mr, P.nPad_filt); %slow
+%     mr = filt_pad_('add', mr, P.nPaddingSamples); %slow
 %     mr = filter(vrFiltA, vrFiltB, mr);    
-%     mr = filt_pad_('remove', mr, P.nPad_filt); %slow           
+%     mr = filt_pad_('remove', mr, P.nPaddingSamples); %slow           
 %     viB = min(max(n0+2:n0+nT+1, 1), nT);
 %     viA = min(max(n0:n0+nT-1, 1), nT);
 %     mr = mr(viB,:) - mr(viA,:);
@@ -53,7 +53,7 @@ end
 % Run the filter chain
 fInt16 = isa(mr, 'int16');
 if P.useGPU_filt, mr = gpuArray(mr); end
-mr = filt_pad_('add', mr, P.nPad_filt); %slow
+mr = filt_pad_('add', mr, P.nPaddingSamples); %slow
 if fInt16, mr = single(mr); end   %double for long data?
 
 % first pass
@@ -76,7 +76,7 @@ if P.gain_boost ~= 1
     mr = mr * P.gain_boost;
 end
 if fInt16, mr = int16(mr); end
-mr = filt_pad_('remove', mr, P.nPad_filt); %slow    
+mr = filt_pad_('remove', mr, P.nPaddingSamples); %slow    
 %if P.useGPU_filt, mr = gather(mr); end
 end %func
 
@@ -84,7 +84,7 @@ end %func
 %--------------------------------------------------------------------------
 function [vrFiltB, vrFiltA] = makeFilt_(freqLim, vcType, P)
 if nargin<2, vcType = 'bandpass'; end
-freqLim = freqLim / P.sRateHz * 2;
+freqLim = freqLim / P.sampleRateHz * 2;
 if ~strcmpi(vcType, 'notch')
     if P.fEllip  %copied from wave_clus
         if isinf(freqLim(1)) || freqLim(1) <= 0

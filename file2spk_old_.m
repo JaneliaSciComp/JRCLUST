@@ -77,23 +77,23 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
             [mnWav11, vrWav_mean11] = load_file_(fid1, nSamples11, P);
             fprintf('took %0.1fs\n', toc(t_load_));
             if iLoad1 < nLoad1
-                mnWav11_post = load_file_preview_(fid1, P);
+                mnWav11_post = loadFilePreview(fid1, P);
             else
                 mnWav11_post = [];
             end
-            [spikeTimes11, spikeSites11] = getSpikesInInterval(spikeTimes0, spikeSites0, nSamples1 + [1, nSamples11]);
+            [spikeTimes11, spikeSites11] = getIntervalTimesSites(spikeTimes0, spikeSites0, nSamples1 + [1, nSamples11]);
             [tnWav_raw_, tnWav_spk_, trFet_spk_, miSite_spk{end+1}, spikeTimes{end+1}, vrAmp_spk{end+1}, siteThresholds{end+1}, P.useGPU] ...
                 = wav2spk_(mnWav11, vrWav_mean11, P, spikeTimes11, spikeSites11, mnWav11_pre, mnWav11_post);
             write_spk_(tnWav_raw_, tnWav_spk_, trFet_spk_);
             spikeTimes{end} = spikeTimes{end} + nSamples1;
             nSamples1 = nSamples1 + nSamples11;
-            if iLoad1 < nLoad1, mnWav11_pre = mnWav11(end-P.nPad_filt+1:end, :); end
+            if iLoad1 < nLoad1, mnWav11_pre = mnWav11(end-P.nPaddingSamples+1:end, :); end
             clear mnWav11 vrWav_mean11;
             nLoads = nLoads + 1;
         end %for
         fclose(fid1);
         t_dur1 = toc(t1);
-        t_rec1 = (nBytes_file1 / bytesPerSample_(P.dataType) / P.nChans) / P.sRateHz;
+        t_rec1 = (nBytes_file1 / bytesPerSample_(P.dataType) / P.nChans) / P.sampleRateHz;
         fprintf('File %d/%d took %0.1fs (%0.1f MB, %0.1f MB/s, x%0.1f realtime)\n', ...
         iFile, nFiles, ...
         t_dur1, nBytes_file1/1e6, nBytes_file1/t_dur1/1e6, t_rec1/t_dur1);

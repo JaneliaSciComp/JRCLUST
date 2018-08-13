@@ -58,7 +58,7 @@ function S0 = keyPressFcn_Fig_preview_(hFig, event, S0)
 
         case 'r' %reset view
         P = get0_('P');
-        axis_(S_fig.hAx_traces, [S_fig.nlim_bin / P.sRateHz, S_fig.siteLim+[-1,1]]);
+        axis_(S_fig.hAx_traces, [S_fig.nlim_bin / P.sampleRateHz, S_fig.siteLim+[-1,1]]);
 
         case 'e' % export to workspace
         Fig_preview_export_(hFig);

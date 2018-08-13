@@ -8,12 +8,12 @@ function plot_activity_(P) % single column only
     % vcFile_evt = subsFileExt(P.paramFile, '_evt.mat');
     S0 = load_cached_(P, 0); %do not load waveforms
     nSites = numel(P.chanMap);
-    % tdur = max(cell2mat_(cellfun(@(x)double(max(x)), Sevt.cviSpk_site, 'UniformOutput', 0))) / P.sRateHz;
-    tdur = double(max(S0.spikeTimes)) / P.sRateHz; % in sec
+    % tdur = max(cell2mat_(cellfun(@(x)double(max(x)), Sevt.cviSpk_site, 'UniformOutput', 0))) / P.sampleRateHz;
+    tdur = double(max(S0.spikeTimes)) / P.sampleRateHz; % in sec
     nTime = ceil(tdur / tbin);
 
     mrAmp90 = zeros(nTime, nSites);
-    lim0 = [1, tbin * P.sRateHz];
+    lim0 = [1, tbin * P.sampleRateHz];
     for iSite=1:nSites
         viSpk1 = find(S0.spikeSites == iSite);
         vrAmp_spk1 = S0.vrAmp_spk(viSpk1); % % S0.cvrSpk_site{iSite};  %spike amplitude

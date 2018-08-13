@@ -13,7 +13,7 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, sitesO
     %time filter
     if ~isfield(P, 'tlim_proj'), P.tlim_proj = []; end
     if ~isempty(P.tlim_proj)
-        nlim_proj = round(P.tlim_proj * P.sRateHz);
+        nlim_proj = round(P.tlim_proj * P.sampleRateHz);
         windowSpikes = find(siteSpikeTimes >= nlim_proj(1) & siteSpikeTimes <= nlim_proj(end));
         siteSpikes = siteSpikes(windowSpikes);
         siteSpikeTimes = siteSpikeTimes(windowSpikes);

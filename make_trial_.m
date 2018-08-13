@@ -44,11 +44,11 @@ function make_trial_(vcFile_prm, fImec)
     else
         thresh = P.thresh_trial; % load a specific threshold only
     end
-    nRefrac_trial = round(P.tRefrac_trial * P.sRateHz);
+    nRefrac_trial = round(P.tRefrac_trial * P.sampleRateHz);
     viT_rising = remove_refrac(find(vrWav(1:end-1) < thresh & vrWav(2:end) >= thresh) + 1, nRefrac_trial);
     viT_falling = remove_refrac(find(vrWav(1:end-1) > thresh & vrWav(2:end) <= thresh), nRefrac_trial);
     viT = ifeq_(strcmpi(vcAns, 'Rising edge'), viT_rising, viT_falling);
-    vrT = viT / P.sRateHz;
+    vrT = viT / P.sampleRateHz;
 
     % save
     save(trialFile, 'vrT');
@@ -64,7 +64,7 @@ function make_trial_(vcFile_prm, fImec)
     hFig = createFigure('Trial timing', [0 0 .5 1], trialFile, 1, 1); hold on;
     % vlOver = vr_set_(vrWav >= thresh, [viT_rising(:) - 1; viT_falling(:) + 1], 1);
     vlOver = vrWav >= thresh;
-    plot(find(vlOver)/P.sRateHz, vrWav(vlOver), 'b.');
+    plot(find(vlOver)/P.sampleRateHz, vrWav(vlOver), 'b.');
     stem(vrT, vrWav(viT), 'r'); hold on;
     plot(get(gca, 'XLim'), double(thresh) * [1 1], 'm-');
     xylabel_(gca, 'Time (s)', sprintf('Chan %d', iChan), vcTitle);

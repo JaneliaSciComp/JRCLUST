@@ -35,7 +35,7 @@ function validate_(P)
     S_score.cviSpk_gt = S_gt.spikesByCluster;
 
     % Compare S_clu with S_gt
-    nSamples_jitter = round(P.sRateHz / 1000); %1 ms jitter
+    nSamples_jitter = round(P.sampleRateHz / 1000); %1 ms jitter
     fprintf('verifying cluster...\n');
     [mrMiss, mrFp, vnCluGt, miCluMatch, S_score_clu] = ...
     clusterVerify(S_gt.viClu, S_gt.viTime, S_clu.spikeClusters, S0.spikeTimes, nSamples_jitter); %S_gt.viTime

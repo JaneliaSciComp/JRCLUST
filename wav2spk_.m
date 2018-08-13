@@ -1,14 +1,14 @@
 %--------------------------------------------------------------------------
-function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrSecSites, spikeTimes, vnAmp_spk, siteThresholds, useGPU] = ...
-    wav2spk_(mnWav1, vrWav_mean1, P, spikeTimes, spikeSites, mnWav1_pre, mnWav1_post)
+function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrimarySecondarySites, spikeTimes, vnAmp_spk, siteThresholds, useGPU] = ...
+    wav2spk_(rawTraces, channelMeans, P, spikeTimes, spikeSites, prePadding, postPadding)
     % spikeWaveforms: spike waveform. nSamples x nSites x nSpikes
     % spikeFeatures: nSites x nSpk x nFet
-    % spikePrSecSites: nSpk x nFet
+    % spikePrimarySecondarySites: nSpk x nFet
     % spikes are ordered in time
     % spikeSites and spikeTimes is uint32 format, and spikeWaveforms: single format
-    % mnWav1: raw waveform (unfiltered)
-    % wav2spk_(mnWav1, vrWav_mean1, P)
-    % wav2spk_(mnWav1, vrWav_mean1, P, spikeTimes, spikeSites)
+    % rawTraces: raw waveform (unfiltered)
+    % wav2spk_(rawTraces, channelMeans, P)
+    % wav2spk_(rawTraces, channelMeans, P, spikeTimes, spikeSites)
     % 6/27/17 JJJ: accurate spike detection at the overlap region
     % 6/29/17 JJJ: matched filter supported
 
@@ -19,53 +19,51 @@ function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrSecSites, spikeTime
         spikeSites = [];
     end
     if nargin < 6
-        mnWav1_pre = [];
+        prePadding = [];
     end
     if nargin < 7
-        mnWav1_post = [];
+        postPadding = [];
     end
 
-    [spikeTraces, spikeWaveforms, spikeFeatures, spikePrSecSites] = deal([]);
+    [spikeTraces, spikeWaveforms, spikeFeatures, spikePrimarySecondarySites] = deal([]);
     nFet_use = get_set_(P, 'nFet_use', 2);
-    fMerge_spk = 1; %debug purpose
-    fShift_pos = 0; % shift center position based on center of mass
-    % fRecenter_spk = 0;
+
     nSite_use = P.maxSite*2+1 - P.nSites_ref;
     if nSite_use == 1
-        nFet_use=1;
+        nFet_use = 1;
     end
 
     siteThresholds = get0_('siteThresholds');
-    nPad_pre = size(mnWav1_pre,1);
+    nPad_pre = size(prePadding, 1);
 
     %-----
     % Filter
-    fprintf('\tFiltering spikes...'); t_filter = tic;
-    if ~isempty(mnWav1_pre) || ~isempty(mnWav1_post)
-        mnWav1 = [mnWav1_pre; mnWav1; mnWav1_post];
-    end
+    fprintf('\tFiltering spikes...');
+    t_filter = tic;
 
-    mnWav1_ = mnWav1; % keep a copy in CPU
+    rawTraces = [prePadding; rawTraces; postPadding];
+    rawTracesCPU = rawTraces; % keep a copy in CPU
     try
-        [mnWav1, P.useGPU] = gpuArray_(mnWav1, P.useGPU);
+        [rawTraces, P.useGPU] = gpuArray_(rawTraces, P.useGPU);
     catch % GPu failure
         P.useGPU = 0;
-        mnWav1 = mnWav1_;
+        rawTraces = rawTracesCPU;
     end
 
-    if P.fft_thresh > 0
-        mnWav1 = fft_clean_(mnWav1, P);
+    if isfield(P, 'fft_thresh') && P.fft_thresh > 0
+        rawTraces = fft_clean_(rawTraces, P);
     end
 
-    [mnWav2, vnWav11] = filt_car_(mnWav1, P);
-    mnWav1_ = []; %remove from memory
+    [filteredTraces, vnWav11] = filt_car_(rawTraces, P);
+    rawTracesCPU = []; % clear from memory
 
     %-----
     % common mode rejection
     if P.blank_thresh > 0
         if isempty(vnWav11)
-            vnWav11 = mr2ref_(mnWav2, P.vcCommonRef, P.viSiteZero); %vrWav_mean1(:);
+            vnWav11 = mr2ref_(filteredTraces, P.vcCommonRef, P.viSiteZero); %channelMeans(:);
         end
+
         vlKeep_ref = car_reject_(vnWav11(:), P);
         fprintf('Rejecting %0.3f %% of time due to motion\n', (1-mean(vlKeep_ref))*100 );
     else
@@ -75,11 +73,12 @@ function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrSecSites, spikeTime
     fprintf('\ttook %0.1fs\n', toc(t_filter));
 
     switch get_set_(P, 'vcFilter_detect', '')
-        case {'', 'none'}, mnWav3 = mnWav2;
+        case {'', 'none'}
+            mnWav3 = filteredTraces;
         case 'ndist'
-        [mnWav3, nShift_post] = filter_detect_(mnWav1, P); % pass raw trace
+            [mnWav3, nShift_post] = filter_detect_(rawTraces, P); % pass raw trace
         otherwise
-        [mnWav3, nShift_post] = filter_detect_(mnWav2, P); % pass filtered trace
+            [mnWav3, nShift_post] = filter_detect_(filteredTraces, P); % pass filtered trace
     end
 
     %-----
@@ -104,8 +103,8 @@ function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrSecSites, spikeTime
     % if nShift_post~=0, spikeTimes = spikeTimes + nShift_post; end % apply possible shift due to filtering
 
     % reject spikes within the overlap region
-    if ~isempty(mnWav1_pre) || ~isempty(mnWav1_post)
-        ilim_spk = [nPad_pre+1, size(mnWav3,1) - size(mnWav1_post,1)]; %inclusive
+    if ~isempty(prePadding) || ~isempty(postPadding)
+        ilim_spk = [nPad_pre+1, size(mnWav3,1) - size(postPadding,1)]; %inclusive
         viKeep_spk = find(spikeTimes >= ilim_spk(1) & spikeTimes <= ilim_spk(2));
         [spikeTimes, vnAmp_spk, spikeSites] = multifun_(@(x)x(viKeep_spk), spikeTimes, vnAmp_spk, spikeSites);
     end % if
@@ -118,19 +117,19 @@ function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrSecSites, spikeTime
     %-----
     % Extract spike waveforms and build a spike table
     fprintf('\tExtracting features'); t_fet = tic;
-    % mnWav2 = gather_(mnWav2); %do in CPU. 10.2s in GPU, 10.4s in CPU
+    % filteredTraces = gather_(filteredTraces); %do in CPU. 10.2s in GPU, 10.4s in CPU
     % if fRecenter_spk % center site is where the energy is the highest, if disabled min is chosen
-    %     spikeWaveforms = mn2tn_wav_spk2_(mnWav2, spikeSites, spikeTimes, P);
+    %     spikeWaveforms = mn2tn_wav_spk2_(filteredTraces, spikeSites, spikeTimes, P);
     %     %[~, viMaxSite_spk] = max(squeeze_(std(single(spikeWaveforms))));
     %     [~, viMaxSite_spk] = max(squeeze_(max(spikeWaveforms) - min(spikeWaveforms)));
     %     spikeSites = P.miSites(sub2ind(size(P.miSites), viMaxSite_spk(:), spikeSites));
     % end
     spikeSites_ = gpuArray_(spikeSites);
-    [spikeTraces, spikeWaveforms, spikeTimes] = mn2tn_wav_(mnWav1, mnWav2, spikeSites_, spikeTimes, P); fprintf('.');
+    [spikeTraces, spikeWaveforms, spikeTimes] = mn2tn_wav_(rawTraces, filteredTraces, spikeSites_, spikeTimes, P); fprintf('.');
 
     if nFet_use >= 2
         spikeSecondarySites = find_site_spk23_(spikeWaveforms, spikeSites_, P);
-        spikeWaveforms2 = mn2tn_wav_spk2_(mnWav2, spikeSecondarySites, spikeTimes, P);
+        spikeWaveforms2 = mn2tn_wav_spk2_(filteredTraces, spikeSecondarySites, spikeTimes, P);
     else
         [spikeSecondarySites, spikeWaveforms2] = deal([]);
     end
@@ -152,18 +151,18 @@ function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrSecSites, spikeTime
             [spikeSecondarySites, viSite3_spk] = find_site_spk23_(spikeWaveforms, spikeSites_, P); fprintf('.');
             mrFet1 = trWav2fet_(spikeWaveforms, P); fprintf('.');
             mrFet2 = trWav2fet_(spikeWaveforms2, P); fprintf('.');
-            mrFet3 = trWav2fet_(mn2tn_wav_spk2_(mnWav2, viSite3_spk, spikeTimes, P), P); fprintf('.');
+            mrFet3 = trWav2fet_(mn2tn_wav_spk2_(filteredTraces, viSite3_spk, spikeTimes, P), P); fprintf('.');
             spikeFeatures = permute(cat(3, mrFet1, mrFet2, mrFet3), [1,3,2]); %nSite x nFet x nSpk
-            spikePrSecSites = [spikeSites_(:), spikeSecondarySites(:), viSite3_spk(:)]; %nSpk x nFet
+            spikePrimarySecondarySites = [spikeSites_(:), spikeSecondarySites(:), viSite3_spk(:)]; %nSpk x nFet
         case 2
             mrFet1 = trWav2fet_(spikeWaveforms, P); fprintf('.');
             mrFet2 = trWav2fet_(spikeWaveforms2, P); fprintf('.');
             spikeFeatures = permute(cat(3, mrFet1, mrFet2), [1,3,2]); %nSite x nFet x nSpk
-            spikePrSecSites = [spikeSites_(:), spikeSecondarySites(:)]; %nSpk x nFet
+            spikePrimarySecondarySites = [spikeSites_(:), spikeSecondarySites(:)]; %nSpk x nFet
         case 1
             mrFet1 = trWav2fet_(spikeWaveforms, P); fprintf('.');
             spikeFeatures = permute(mrFet1, [1,3,2]); %nSite x nFet x nSpk
-            spikePrSecSites = [spikeSites_(:)];
+            spikePrimarySecondarySites = [spikeSites_(:)];
         otherwise
             error('wav2spk_: nFet_use must be 1, 2 or 3');
     end
@@ -171,8 +170,8 @@ function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrSecSites, spikeTime
     if nPad_pre > 0
         spikeTimes = spikeTimes - nPad_pre;
     end
-    [spikeTimes, spikeFeatures, spikePrSecSites, spikeWaveforms] = ...
-        gather_(spikeTimes, spikeFeatures, spikePrSecSites, spikeWaveforms);
+    [spikeTimes, spikeFeatures, spikePrimarySecondarySites, spikeWaveforms] = ...
+        gather_(spikeTimes, spikeFeatures, spikePrimarySecondarySites, spikeWaveforms);
     useGPU = P.useGPU;
 
     fprintf('\ttook %0.1fs\n', toc(t_fet));

@@ -6,8 +6,8 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
     if nargin<3, viClu_update = []; end
     warning off;
 
-    nSamples_2ms = round(P.sRateHz * .002);
-    nSamples_20ms = round(P.sRateHz * .02);
+    nSamples_2ms = round(P.sampleRateHz * .002);
+    nSamples_20ms = round(P.sampleRateHz * .02);
     [spikeTimes, spikeSites, spikeSecondarySites, cviSpk_site, cviSpk2_site] = ...
     get0_('spikeTimes', 'spikeSites', 'spikeSecondarySites', 'cviSpk_site', 'cviSpk2_site');
     if isempty(viClu_update)

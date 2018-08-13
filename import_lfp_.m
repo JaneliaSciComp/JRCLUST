@@ -19,7 +19,7 @@ function import_lfp_(P)
         if is_new_imec_(P.vcFile) % don't do anything, just set the file name
             P.lfpFile = strrep(P.vcFile, '.imec.ap.bin', '.imec.lf.bin');
             P.nSkip_lfp = 12;
-            P.sRateHz_lfp = 2500;
+            P.sampleRateHz_lfp = 2500;
         else
             bin_file_copy_(P.vcFile, P.lfpFile, P);
         end

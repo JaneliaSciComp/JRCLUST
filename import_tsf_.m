@@ -14,11 +14,11 @@ function import_tsf_(vcFile_tsf)
     vcFile_meta = subsFileExt_(vcFile_tsf, '.meta');
     fid = fopen(vcFile_meta, 'W');
     fprintf(fid, 'niMNGain=200\n');
-    fprintf(fid, 'niSampRate=%d\n', Sfile.sRateHz); %intan hardware default. in Smeta.header
+    fprintf(fid, 'niSampRate=%d\n', Sfile.sampleRateHz); %intan hardware default. in Smeta.header
     fprintf(fid, 'niAiRangeMax=0.6554\n'); %intan hardware default. in Smeta.header
     fprintf(fid, 'niAiRangeMin=-0.6554\n'); %intan hardware default. in Smeta.header
     fprintf(fid, 'nSavedChans=%d\n', Sfile.nChans); %intan hardware default. in Smeta.header
-    fprintf(fid, 'fileTimeSecs=%f\n', Sfile.n_vd_samples/Sfile.sRateHz); %intan hardware default. in Smeta.header
+    fprintf(fid, 'fileTimeSecs=%f\n', Sfile.n_vd_samples/Sfile.sampleRateHz); %intan hardware default. in Smeta.header
     fprintf(fid, 'fileSizeBytes=%d\n', round(Sfile.n_vd_samples*2*Sfile.nChans)); %intan hardware default. in Smeta.header
     fclose(fid);
 

@@ -43,7 +43,7 @@ function keyPressFcn_Fig_traces_(hFig, event)
             vcAns = inputdlg_('Go to time (s)', 'Jump to time', 1, {'0'});
             if isempty(vcAns), return; end
             try
-                nlim_bin = round(str2double(vcAns)*P.sRateHz) + [1, S_fig.nLoad_bin];
+                nlim_bin = round(str2double(vcAns)*P.sampleRateHz) + [1, S_fig.nLoad_bin];
             catch
                 return;
             end
@@ -92,7 +92,7 @@ function keyPressFcn_Fig_traces_(hFig, event)
         else
             mrWav2 = mrWav1;
         end
-        plotMedPower_(mrWav2, 'sRateHz', P.sRateHz/P.nSkip_show, 'viChanExcl', P.viSiteZero);
+        plotMedPower_(mrWav2, 'sampleRateHz', P.sampleRateHz/P.nSkip_show, 'viChanExcl', P.viSiteZero);
 
         case 's' %show/hide spikes
         S_fig.vcSpikes = str_toggle_(S_fig.vcSpikes, 'on', 'off');

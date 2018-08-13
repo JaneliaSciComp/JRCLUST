@@ -7,7 +7,7 @@ function plot_drift_(P)
     % Compute spike position and plot drift profile
     S0 = load_cached_(P); % load cached data or from file if exists
     [S_clu, spikeSecondarySites, vrTime_spk, spikeSites] = get0_('S_clu', 'spikeSecondarySites', 'spikeTimes', 'spikeSites');
-    vrTime_spk = double(vrTime_spk) / P.sRateHz;
+    vrTime_spk = double(vrTime_spk) / P.sampleRateHz;
     nSites_spk = 1 + P.maxSite*2 - P.nSites_ref;
     miSites_spk = P.miSites(:,spikeSites);
 

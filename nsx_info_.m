@@ -7,5 +7,5 @@ function [P, nSamples, hFile] = nsx_info_(vcFile_nsx)
     nSamples = hFile.TimeSpan / hFile.FileInfo.Period;
     % viElecID = double([hFile.Entity.ElectrodeID]);
     P = struct('dataType', 'int16', 'nChans', sum(vlAnalog_chan), ...
-    'uV_per_bit', hFile.Entity(1).Scale, 'sRateHz', 30000 / hFile.FileInfo.Period);
+    'uV_per_bit', hFile.Entity(1).Scale, 'sampleRateHz', 30000 / hFile.FileInfo.Period);
 end %func

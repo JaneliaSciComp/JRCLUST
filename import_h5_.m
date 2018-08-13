@@ -15,12 +15,12 @@ function import_h5_(vcFile_h5)
     S_gt = struct();
     S_gt.probe_layout           = h5readatt(vcFile_h5, '/','probelayout');
     try P.viChanZero           = h5readatt(vcFile_h5, '/','badchannels'); catch, end
-    S_gt.sRateHz_gt = h5readatt(vcFile_h5, '/', 'abfsamplerate');
+    S_gt.sampleRateHz_gt = h5readatt(vcFile_h5, '/', 'abfsamplerate');
     S_gt.patchtype = h5readatt(vcFile_h5, '/', 'patchtype');
     try  S_gt.padmaptextname = h5readatt(vcFile_h5, '/', 'padmaptextname'); catch, end
     try S_gt.padpitch = h5readatt(vcFile_h5, '/', 'padpitch'); catch, end
 
-    P.sRateHz        = h5readatt(vcFile_h5, '/', 'MEAsamplerate');
+    P.sampleRateHz        = h5readatt(vcFile_h5, '/', 'MEAsamplerate');
     P.nChans                = S_gt.probe_layout(1) * S_gt.probe_layout(2);
     % P = h5readatt_(vcFile_h5, {'patchtype', 'padmaptextname', 'patchtype', 'badchannels'});
 
@@ -47,7 +47,7 @@ function import_h5_(vcFile_h5)
 
     % Create GT
     if fileExists(vcFile_spikes)
-        S_gt.viTime_all = ceil(h5read(vcFile_spikes, '/derivspiketimes') * S_gt.sRateHz_gt);
+        S_gt.viTime_all = ceil(h5read(vcFile_spikes, '/derivspiketimes') * S_gt.sampleRateHz_gt);
         S_gt.vrBI_all = h5read(vcFile_spikes, '/burstindex');
         if ~isempty(get_(P, 'max_bursting_index'))
             viTime_gt = S_gt.viTime_all(S_gt.vrBI_all < P.max_bursting_index); % non-bursting only

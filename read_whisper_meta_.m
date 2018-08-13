@@ -26,7 +26,7 @@ function S = read_whisper_meta_(vcFname)
         if isfield(S, 'niSampRate')
             % SpikeGLX
             S.nChans = S.nSavedChans;
-            S.sRateHz = S.niSampRate;
+            S.sampleRateHz = S.niSampRate;
             S.rangeMax = S.niAiRangeMax;
             S.rangeMin = S.niAiRangeMin;
             S.auxGain = S.niMNGain;
@@ -41,7 +41,7 @@ function S = read_whisper_meta_(vcFname)
         elseif isfield(S, 'imSampRate')
             % IMECIII
             S.nChans = S.nSavedChans;
-            S.sRateHz = S.imSampRate;
+            S.sampleRateHz = S.imSampRate;
             S.rangeMax = S.imAiRangeMax;
             S.rangeMin = S.imAiRangeMin;
             S.ADC_bits = 10; %10 bit adc but 16 bit saved
@@ -59,7 +59,7 @@ function S = read_whisper_meta_(vcFname)
             end
         elseif isfield(S, 'sample_rate') %nick steinmetz
             S.nChans = S.n_channels_dat;
-            S.sRateHz = S.sample_rate;
+            S.sampleRateHz = S.sample_rate;
         end
 
         %number of bits of ADC [was 16 in Chongxi original]

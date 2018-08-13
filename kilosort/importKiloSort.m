@@ -24,7 +24,8 @@ function importKiloSort(rezFile)
     end
 
     global spikeTraces spikeWaveforms spikeFeatures
-    % receive spike location, time and cluster number. the rest should be taken care by jrc processing
+
+    % import spike location, time and cluster assignment
     spikeTimes = rez.st3(:, 1);
 
     if size(rez.st3, 2) == 5
@@ -59,24 +60,25 @@ function importKiloSort(rezFile)
 
     % construct P from scratch
     P = struct();
-    P.algorithm = 'KiloSort';
     P.chanMap = rez.ops.chanMap;
     if isfield(rez, 'connected')
         P.chanMap = P.chanMap(rez.connected);
     end
     P.dataType = 'int16'; % KS default
+    P.fImportKilosort = 1;
     P.fTranspose_bin = 1;
     P.feature = 'kilosort';
-    P.maxSite = rez.ops.Nchan; % maybe -- acl
+    P.maxSite = []; % TODO: decide or allow user to set
     P.nChans = rez.ops.Nchan;
     P.nSites_ref = []; % JRC default; TODO: decide or allow user to set
-    P.paramFile = 'imported-kilosort-session.prm';
+    P.paramFile = 'imported-kilosort-session.prm'; % TODO: allow user to set
+    P.sampleRateHz = rez.ops.fs;
     P.vcFile = rez.ops.fbinary;
 
     clusterSites = P.chanMap(clusterSites);
     spikeSites = clusterSites(spikeClusters);
 
-    S0 = file2spk_(P, int32(spikeTimes), int32(spikeSites));
+    S0 = kilosort2jrc_(P, int32(spikeTimes), int32(spikeSites));
     S0.P = P;
 
     return; % WIP

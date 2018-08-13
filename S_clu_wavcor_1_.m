@@ -7,7 +7,7 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
     nInterp_merge = get_set_(P, 'nInterp_merge', 1); % set to 1 to disable
     fDrift_merge = get_set_(P, 'fDrift_merge', 0);
     P.useGPU = 0;
-    nShift = ceil(P.spkRefrac_ms / 1000 * P.sRateHz * nInterp_merge); % +/-n number of samples to compare time shift
+    nShift = ceil(P.spkRefrac_ms / 1000 * P.sampleRateHz * nInterp_merge); % +/-n number of samples to compare time shift
     % nShift = 0;
     fWaveform_raw = 0; % get_set_(P, 'fWavRaw_merge', 1); TW
 

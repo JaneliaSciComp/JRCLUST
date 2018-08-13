@@ -17,7 +17,7 @@ function S_cluInfo = get_cluInfo_(iClu)
     end
     trWav = trWav_clu_(iClu, P.nSpk_show * 1);
     if P.fWav_raw_show
-        trWav = fft_lowpass_(trWav, get_set_(P, 'fc_spkwav_show', []), P.sRateHz);
+        trWav = fft_lowpass_(trWav, get_set_(P, 'fc_spkwav_show', []), P.sampleRateHz);
     end
     S_cluInfo = makeStruct_(xyPos, iClu, mrWav_clu, viSite, vcPos, trWav);
     try

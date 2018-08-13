@@ -14,7 +14,7 @@ function vcFile_prm = import_intan_(vcFile_dat, vcFile_prb, vcArg3)
     nChans = numel(csFiles_dat);
     nBytes_file = min(cellfun(@(vc)getBytes_(vc), csFiles_dat));
     P = struct('dataType', 'int16', 'probe_file', vcFile_prb, 'nChans', nChans, ...
-    'uV_per_bit', .195, 'sRateHz', 30000, 'nBytes_file', nBytes_file);
+    'uV_per_bit', .195, 'sampleRateHz', 30000, 'nBytes_file', nBytes_file);
 
     nSamples = P.nBytes_file / bytesPerSample_(P.dataType);
 
@@ -41,7 +41,7 @@ function vcFile_prm = import_intan_(vcFile_dat, vcFile_prb, vcArg3)
     catch
         disperr_(sprintf('Error loading the probe file: %s\n', vcFile_prb));
     end
-    P.duration_file = nSamples / P.sRateHz; %assuming int16
+    P.duration_file = nSamples / P.sampleRateHz; %assuming int16
     P.version = jrcVersion();
     P.paramFile = vcFile_prm;
     P.vcFile = vcFile_bin;

@@ -13,7 +13,7 @@ function nBytes = file_trim_(fid, nBytes, P)
         nSamples = floor(nBytes / (bytesPerSample * P.nChans));
 
         % Apply limit to the range of samples to load
-        nlim_load = min(max(round(P.tlim_load * P.sRateHz), 1), nSamples);
+        nlim_load = min(max(round(P.tlim_load * P.sampleRateHz), 1), nSamples);
         nSamples_load = diff(nlim_load) + 1;
         nBytes = nSamples_load * bytesPerSample * P.nChans;
         fseek_(fid, nlim_load(1), P);

@@ -18,7 +18,7 @@ function Fig_preview_trange_(hFig, vc_trange, mh)
 
     S_fig = get(hFig, 'UserData');
     P = get0_('P');
-    S_fig.nLoad_bin = round(trange * P.sRateHz);
+    S_fig.nLoad_bin = round(trange * P.sampleRateHz);
     nlim_bin = S_fig.nlim_bin(1) + [0, S_fig.nLoad_bin-1];
     if nlim_bin(1)<1
         nlim_bin = [1, S_fig.nLoad_bin];

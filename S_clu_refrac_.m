@@ -30,7 +30,7 @@ function [S_clu, nRemoved] = S_clu_refrac_(S_clu, P, iClu1)
         if isempty(viSpk1), return; end
 
         viTime1 = spikeTimes(viSpk1);
-        nRefrac = round(P.spkRefrac_ms * P.sRateHz / 1000);
+        nRefrac = round(P.spkRefrac_ms * P.sampleRateHz / 1000);
 
         % removal loop
         vlKeep1 = true(size(viTime1));

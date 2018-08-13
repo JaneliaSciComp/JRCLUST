@@ -9,7 +9,7 @@ function S_plot = S_plot_new_(S0)
 
     vrVrms_site = single(S0.vrThresh_site(:)) / P.qqFactor;
     vrSnr_evt = single(abs(S0.vrAmp_spk(:))) ./ vrVrms_site(S0.spikeSites(:));
-    t_dur = double(max(S0.spikeTimes) - min(S0.spikeTimes)) / P.sRateHz;
+    t_dur = double(max(S0.spikeTimes) - min(S0.spikeTimes)) / P.sampleRateHz;
     vrRate_site = cellfun(@numel, S0.cviSpk_site)' / t_dur;
     % nSites = numel(S0.cviSpk_site);
 

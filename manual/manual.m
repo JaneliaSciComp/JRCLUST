@@ -8,7 +8,7 @@ function manual(P, debugMode)
     end
 
     % set up manual step for JRCLUST
-    if get_set_(P, 'algorithm', 'JRCLUST') == 'JRCLUST'
+    if ~get_set_(P, 'fImportKilosort', 0)
         % Load info
         if ~isSorted(P) % require sorted result
             error(['File must be sorted first (run "jrc spikesort "', P.paramFile, '")']);

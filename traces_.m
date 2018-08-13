@@ -60,9 +60,9 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
     [fid_bin, nBytes_bin] = fopenInfo(vcFile_bin, 'r');
     if isempty(fid_bin), fprintf(2, '.bin file does not exist: %s\n', vcFile_bin); return; end
     nSamples_bin = floor(nBytes_bin / bytesPerSample_(P.dataType) / P.nChans);
-    nLoad_bin = min(round(diff(tlim_bin) * P.sRateHz), nSamples_bin);
+    nLoad_bin = min(round(diff(tlim_bin) * P.sampleRateHz), nSamples_bin);
     if tlim_bin(1)>0
-        iSample_bin = ceil(tlim_bin(1) * P.sRateHz) + 1; %offset sample number
+        iSample_bin = ceil(tlim_bin(1) * P.sampleRateHz) + 1; %offset sample number
     else
         iSample_bin = 1; %sample start location
     end

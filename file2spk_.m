@@ -57,9 +57,9 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
     nFiles = numel(filenames);
 
     % initialize lists and counters
-    [spikePrSecSites, spikeTimes, vrAmp_spk, siteThresholds] = deal({});
+    [spikePrimarySecondarySites, spikeTimes, vrAmp_spk, siteThresholds] = deal({});
     fileSampleOffsets = zeros(size(filenames));
-    [nSamples1, nLoads] = deal(0);
+    [offset, nLoads] = deal(0);
     [vrFilt_spk, mrPv_global] = deal([]);
 
     setUserData(mrPv_global, vrFilt_spk); % reset mrPv_global and force it to recompute
@@ -74,54 +74,60 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
 
         [fid, nBytes] = fopenInfo(filenames{iFile}, 'r');
         nBytes = file_trim_(fid, nBytes, P);
-        [nLoad1, nSamples_load1, nSamples_last1] = plan_load_(nBytes, P);
+        [nFileLoads, nSamples_load1, nSamples_last1] = plan_load_(nBytes, P);
 
-        fileSampleOffsets(iFile) = nSamples1;
-        mnWav11_pre = [];
-        for iLoad1 = 1:nLoad1
-            fprintf('Processing %d/%d of file %d/%d...\n', iLoad1, nLoad1, iFile, nFiles);
-            nSamples11 = ifeq_(iLoad1 == nLoad1, nSamples_last1, nSamples_load1);
+        fileSampleOffsets(iFile) = offset;
+        prePadding = [];
+
+        for iLoad = 1:nFileLoads
+            fprintf('Processing %d/%d of file %d/%d...\n', iLoad, nFileLoads, iFile, nFiles);
+
+            if iLoad < nFileLoads
+                nLoadSamples = nSamples_load1;
+            else
+                nLoadSamples = nSamples_last1;
+            end
+
+            % if given spike times and sites, get the subset of these lying in the interval offset + [1, nLoadSamples]
+            [loadSpikeTimes, loadSpikeSites] = getIntervalTimesSites(spikeTimes0, spikeSites0, offset + [1, nLoadSamples]);
 
             fprintf('\tLoading from file...');
             tLoad = tic;
-            [mnWav11, vrWav_mean11] = load_file_(fid, nSamples11, P);
+            [loadSamples, channelMeans] = load_file_(fid, nLoadSamples, P);
             fprintf('took %0.1fs\n', toc(tLoad));
 
-            if iLoad1 < nLoad1
-                mnWav11_post = load_file_preview_(fid, P);
+            if iLoad < nFileLoads && P.nPaddingSamples > 0
+                postPadding = loadFilePreview(fid, P);
             else
-                mnWav11_post = [];
+                postPadding = [];
             end
 
-            % if given spike times and sites, get the subset of these lying between nSamples1 + 1 and nSamples1 + nSamples11
-            [spikeTimes11, spikeSites11] = getSpikesInInterval(spikeTimes0, spikeSites0, nSamples1 + [1, nSamples11]);
-
-            [spikeTraces_, spikeWaveforms_, spikeFeatures_, spikePrSecSites{end+1}, spikeTimes{end+1}, vrAmp_spk{end+1}, siteThresholds{end+1}, P.useGPU] ...
-                = wav2spk_(mnWav11, vrWav_mean11, P, spikeTimes11, spikeSites11, mnWav11_pre, mnWav11_post);
+            [spikeTraces_, spikeWaveforms_, spikeFeatures_, spikePrimarySecondarySites{end+1}, spikeTimes{end+1}, vrAmp_spk{end+1}, siteThresholds{end+1}, P.useGPU] ...
+                = wav2spk_(loadSamples, channelMeans, P, loadSpikeTimes, loadSpikeSites, prePadding, postPadding);
 
             fwrite_(fidTraces, spikeTraces_);
-            if strcmp(get_set_(P, 'algorithm', 'JRCLUST'), 'JRCLUST')
+            if get_set_(P, 'fImportKilosort', 0)
                 fwrite_(fidWaveforms, spikeWaveforms_);
                 fwrite_(fidFeatures, spikeFeatures_);
             end
 
-            spikeTimes{end} = spikeTimes{end} + nSamples1;
-            nSamples1 = nSamples1 + nSamples11;
+            spikeTimes{end} = spikeTimes{end} + offset;
+            offset = offset + nLoadSamples;
 
-            if iLoad1 < nLoad1
-                mnWav11_pre = mnWav11(end-P.nPad_filt+1:end, :);
+            if iLoad < nFileLoads
+                prePadding = loadSamples(end - P.nPaddingSamples + 1:end, :);
             end
 
-            clear mnWav11 vrWav_mean11;
+            clear loadSamples channelMeans;
             nLoads = nLoads + 1;
         end %for
         fclose(fid);
 
         t_dur1 = toc(tFile);
-        t_rec1 = (nBytes / bytesPerSample_(P.dataType) / P.nChans) / P.sRateHz;
+        t_rec1 = (nBytes / bytesPerSample_(P.dataType) / P.nChans) / P.sampleRateHz;
 
         fprintf('File %d/%d took %0.1fs (%0.1f MB, %0.1f MB/s, x%0.1f realtime)\n', ...
-            iFile, nFiles, t_dur1, nBytes/1e6, nBytes/(t_dur1*1e6), t_rec1/t_dur1);
+            iFile, nFiles, t_dur1, nBytes*1e-6, nBytes/(t_dur1*1e6), t_rec1/t_dur1);
     end %for
 
     % close data files
@@ -129,13 +135,13 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
     fclose(fidWaveforms);
     fclose(fidFeatures)
 
-    [spikePrSecSites, spikeTimes, vrAmp_spk, siteThresholds] = ...
-        multifun_(@(x) cat(1, x{:}), spikePrSecSites, spikeTimes, vrAmp_spk, siteThresholds);
+    [spikePrimarySecondarySites, spikeTimes, vrAmp_spk, siteThresholds] = ...
+        multifun_(@(x) cat(1, x{:}), spikePrimarySecondarySites, spikeTimes, vrAmp_spk, siteThresholds);
     vrThresh_site = mean(single(siteThresholds),1);
 
-    spikeSites = spikePrSecSites(:, 1);
-    if size(spikePrSecSites, 2) >= 2
-        spikeSecondarySites = spikePrSecSites(:,2);
+    spikeSites = spikePrimarySecondarySites(:, 1);
+    if size(spikePrimarySecondarySites, 2) >= 2
+        spikeSecondarySites = spikePrimarySecondarySites(:,2);
     else
         spikeSecondarySites = [];
     end
@@ -144,14 +150,14 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
     [traceDims, waveformDims, featureDims] = deal(size(spikeTraces_), size(spikeWaveforms_), size(spikeFeatures_));
     [traceDims(3), waveformDims(3), featureDims(3)] = deal(numel(spikeTimes));
     nSites = numel(P.chanMap);
-    cviSpk_site = arrayfun(@(iSite)find(spikePrSecSites(:,1) == iSite), 1:nSites, 'UniformOutput', 0);
-    if size(spikePrSecSites, 2) >= 2
-        cviSpk2_site = arrayfun(@(iSite)find(spikePrSecSites(:,2) == iSite), 1:nSites, 'UniformOutput', 0);
+    cviSpk_site = arrayfun(@(iSite)find(spikePrimarySecondarySites(:,1) == iSite), 1:nSites, 'UniformOutput', 0);
+    if size(spikePrimarySecondarySites, 2) >= 2
+        cviSpk2_site = arrayfun(@(iSite)find(spikePrimarySecondarySites(:,2) == iSite), 1:nSites, 'UniformOutput', 0);
     else
         cviSpk2_site = cell(1, nSites);
     end
-    if size(spikePrSecSites,2) >= 3
-        cviSpk3_site = arrayfun(@(iSite)find(spikePrSecSites(:,3) == iSite), 1:nSites, 'UniformOutput', 0);
+    if size(spikePrimarySecondarySites,2) >= 3
+        cviSpk3_site = arrayfun(@(iSite)find(spikePrimarySecondarySites(:,3) == iSite), 1:nSites, 'UniformOutput', 0);
     else
         cviSpk3_site = [];
     end

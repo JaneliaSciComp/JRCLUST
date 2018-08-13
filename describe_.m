@@ -15,7 +15,7 @@ function csDesc = describe_(vcFile_prm)
     P = S0.P;
 
     nSites = numel(P.chanMap);
-    tDur = double(max(S0.spikeTimes) - min(S0.spikeTimes)) / P.sRateHz;
+    tDur = double(max(S0.spikeTimes) - min(S0.spikeTimes)) / P.sampleRateHz;
     nSpk = numel(S0.spikeTimes);
     nSitesPerEvent = P.maxSite*2+1;
 

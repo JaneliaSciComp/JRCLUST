@@ -26,7 +26,7 @@ function S_gt = load_gt_(groundTruthFile, P)
     end
     if ~isempty(get_(P, 'tlim_load'))
         nSamples = double(S_gt.viTime(end));
-        nlim_load = min(max(round(P.tlim_load * P.sRateHz), 1), nSamples);
+        nlim_load = min(max(round(P.tlim_load * P.sampleRateHz), 1), nSamples);
         viKeep = find(S_gt.viTime >= nlim_load(1) & S_gt.viTime <= nlim_load(2));
         [S_gt.viTime, S_gt.viClu] = multifun_(@(x)x(viKeep), S_gt.viTime, S_gt.viClu);
     end

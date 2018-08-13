@@ -9,7 +9,7 @@ function mnWav1 = fftdiff_(mnWav, P)
     nSamples = size(mnWav,1);
     [nLoad1, nSamples_load1, nSamples_last1] = partition_load_(nSamples, round(nSamples/nLoads_gpu));
     mnWav1 = zeros(size(mnWav), 'like', mnWav);
-    freqLim_ = P.freqLim / (P.sRateHz / 2);
+    freqLim_ = P.freqLim / (P.sampleRateHz / 2);
     for iLoad = 1:nLoad1
         iOffset = (iLoad-1) * nSamples_load1;
         if iLoad<nLoad1

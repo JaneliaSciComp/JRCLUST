@@ -21,7 +21,7 @@ function plot_FigTime_(S0)
         vrTime2 = [];
         vcTitle = sprintf('Clu%d (black); %s', S0.iCluCopy, vcTitle);
     end
-    time_lim = double([0, abs(S0.spikeTimes(end))] / P.sRateHz);
+    time_lim = double([0, abs(S0.spikeTimes(end))] / P.sampleRateHz);
 
     %------------
     % draw

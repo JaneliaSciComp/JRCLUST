@@ -34,7 +34,7 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     catch
         disperr_(sprintf('Error loading the probe file: %s\n', vcFile_prb));
     end
-    P.duration_file = nSamples / P.sRateHz; %assuming int16
+    P.duration_file = nSamples / P.sampleRateHz; %assuming int16
     P.version = jrcVersion();
     P.paramFile = vcFile_prm;
     % P.vcFile = vcFile_bin;

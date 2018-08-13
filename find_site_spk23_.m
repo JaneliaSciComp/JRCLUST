@@ -17,8 +17,8 @@ function [spikeSites2, spikeSites3] = find_site_spk23_(spikeWaveforms, spikeSite
         [~, spikeSites] = min(mnMin_spk);
         spikeSites2 = int32(mr2vr_sub2ind_(miSites2, spikeSites, []));
     else
-        [~, spikePrSecSites2] = sort(mnMin_spk, 'ascend');
-        spikeSites2 = int32(mr2vr_sub2ind_(miSites2, spikePrSecSites2(1,:), []));
-        spikeSites3 = int32(mr2vr_sub2ind_(miSites2, spikePrSecSites2(2,:), []));
+        [~, spikePrimarySecondarySites2] = sort(mnMin_spk, 'ascend');
+        spikeSites2 = int32(mr2vr_sub2ind_(miSites2, spikePrimarySecondarySites2(1,:), []));
+        spikeSites3 = int32(mr2vr_sub2ind_(miSites2, spikePrimarySecondarySites2(2,:), []));
     end
 end %func

@@ -19,7 +19,7 @@ function [mnWav_raw, S_preview] = load_preview_(P)
 
     % load files
     nLoads_per_file = floor(nLoads_max_preview / numel(csFile_bin));
-    nSamples_per_load = round(sec_per_load_preview * P.sRateHz);
+    nSamples_per_load = round(sec_per_load_preview * P.sampleRateHz);
 
     % file loading loop
     [mnWav_raw, cviLim_load, csFile_load] = deal({});
