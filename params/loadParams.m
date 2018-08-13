@@ -50,8 +50,8 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     % Compute fields
     P = struct_default_(P, 'fWav_raw_show', 0);
     P = struct_default_(P, 'vcFile_prm', subsFileExt_(P.vcFile, '.prm'));
-    P = struct_default_(P, 'vcFile_gt', '');
-    if ~isfield(P, 'vcFile_gt') || isempty(P.vcFile_gt), P.vcFile_gt = subsFileExt_(P.paramFile, '_gt.mat'); end
+    P = struct_default_(P, 'groundTruthFile', '');
+    if ~isfield(P, 'groundTruthFile') || isempty(P.groundTruthFile), P.groundTruthFile = subsFileExt_(P.paramFile, '_gt.mat'); end
     P.spkRefrac = round(P.spkRefrac_ms * P.sRateHz / 1000);
     P.spkLim = round(P.spkLim_ms * P.sRateHz / 1000);
     P.spkLim_raw = calc_spkLim_raw_(P);

@@ -1,9 +1,9 @@
 %--------------------------------------------------------------------------
-function S_gt = load_gt_(vcFile_gt, P)
+function S_gt = load_gt_(groundTruthFile, P)
     % S_gt contains viTime and viClu
     if nargin<2, P = get0_('P'); end
-    if ~exist(vcFile_gt, 'file'), S_gt=[]; return; end
-    S = load(vcFile_gt);
+    if ~exist(groundTruthFile, 'file'), S_gt=[]; return; end
+    S = load(groundTruthFile);
     if isfield(S, 'S_gt')
         S_gt = S.S_gt;
     elseif isfield(S, 'Sgt')

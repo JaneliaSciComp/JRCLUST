@@ -13,19 +13,19 @@ function validate_(P)
     S_clu = S0.S_clu;
 
     % Load ground truth file
-    if ~exist(P.vcFile_gt, 'file'), P.vcFile_gt = subsFileExt_(P.vcFile, '_gt.mat'); end
+    if ~exist(P.groundTruthFile, 'file'), P.groundTruthFile = subsFileExt_(P.vcFile, '_gt.mat'); end
     if ~strcmpi(vcFile_prm_, P.paramFile), vcFile_prm_=[]; end
     if isempty(vcFile_prm_) || isempty(S_gt) % cache ground truth result
         vcFile_prm_ = P.paramFile;
-        vcFile_gt1 = strrep(P.paramFile, '.prm', '_gt1.mat');
-        if fileExists(vcFile_gt1)
-            S_gt = load(vcFile_gt1);
+        groundTruthFile1 = strrep(P.paramFile, '.prm', '_gt1.mat');
+        if fileExists(groundTruthFile1)
+            S_gt = load(groundTruthFile1);
         else
-            S_gt0 = load_gt_(P.vcFile_gt, P);
+            S_gt0 = load_gt_(P.groundTruthFile, P);
             if isempty(S_gt0), fprintf(2, 'Groundtruth does not exist. Run "jrclust import" to create a groundtruth file.\n'); return; end
             %[S_gt, tnWav_gt] = gt2spk_(S_gt, P, snr_thresh_stat);
             S_gt = gt2spk_(S_gt0, P, snr_thresh_stat);
-            struct_save_(S_gt, vcFile_gt1);
+            struct_save_(S_gt, groundTruthFile1);
         end
     end
     S_score = struct(...

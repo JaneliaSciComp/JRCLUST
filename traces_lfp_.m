@@ -2,7 +2,7 @@
 % Show LFP traces
 function traces_lfp_(P)
     P.sRateHz = P.sRateHz_lfp;
-    P.vcFile = P.vcFile_lfp;
+    P.vcFile = P.lfpFile;
     P.multiFilenames = {};
     P.tlim(2) = P.tlim(1) + diff(P.tlim) * P.nSkip_lfp;
     P.headerOffset = 0;

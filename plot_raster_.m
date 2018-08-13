@@ -13,27 +13,27 @@ function plot_raster_(S0, fNewFig)
     if ~tryIsValid(hFig) && ~fNewFig, return; end
     if nargin<1, S0 = get(0, 'UserData'); end
     [P, S_clu, iCluCopy, iCluPaste] = deal(S0.P, S0.S_clu, S0.iCluCopy, S0.iCluPaste);
-    if isfield(P, 'vcFile_psth'), P.vcFile_trial = P.vcFile_psth; end % old field name
+    if isfield(P, 'vcFile_psth'), P.trialFile = P.vcFile_psth; end % old field name
 
     try
         % begin TW block
-        if ~isfield(P, 'vcFile_trial') || isempty(P.vcFile_trial)
+        if ~isfield(P, 'trialFile') || isempty(P.trialFile)
             if exist(strrep(P.paramFile,".prm",".starts.mat"),'file')
-                P.vcFile_trial=char(strrep(P.paramFile,".prm",".starts.mat"));
+                P.trialFile=char(strrep(P.paramFile,".prm",".starts.mat"));
             elseif exist(strrep(P.paramFile,".prm",".mat"),'file')
-                P.vcFile_trial=char(strrep(P.paramFile,".prm",".mat"));
+                P.trialFile=char(strrep(P.paramFile,".prm",".mat"));
             else
-                msgbox_('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return;
+                msgbox_('''trialFile'' not set. Reload .prm file after setting (under "File menu")'); return;
             end
         end
         % end TW block
 
-        if ~fileExists(P.vcFile_trial), P.vcFile_trial = replaceDir(P.vcFile_trial, P.paramFile); end
-        if ~fileExists(P.vcFile_trial)
-            msgbox_(sprintf('File does not exist: vcFile_trial=%s', P.vcFile_trial), 1);
+        if ~fileExists(P.trialFile), P.trialFile = replaceDir(P.trialFile, P.paramFile); end
+        if ~fileExists(P.trialFile)
+            msgbox_(sprintf('File does not exist: trialFile=%s', P.trialFile), 1);
             return;
         end
-        crTime_trial = loadTrial_(P.vcFile_trial);
+        crTime_trial = loadTrial_(P.trialFile);
     catch
         return;
     end
