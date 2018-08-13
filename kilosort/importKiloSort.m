@@ -68,7 +68,7 @@ function importKiloSort(rezFile)
     P.fTranspose_bin = 1;
     P.feature = 'kilosort';
     P.maxSite = rez.ops.Nchan; % maybe -- acl
-    P.nChans = rez.ops.Nchan
+    P.nChans = rez.ops.Nchan;
     P.nSites_ref = []; % JRC default; TODO: decide or allow user to set
     P.paramFile = 'imported-kilosort-session.prm';
     P.vcFile = rez.ops.fbinary;
