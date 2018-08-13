@@ -83,7 +83,7 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
         case 'e', plot_FigMap_(S0);
         case 'u', update_FigCor_(S0);
         case 'p' %PSTH plot
-        if isempty(P.vcFile_trial), msgbox_('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
+        if ~isfield(P, 'vcFile_trial') || isempty(P.vcFile_trial), msgbox_('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
         plot_raster_(S0, 1);
         otherwise, figure_wait_(0); %stop waiting
     end

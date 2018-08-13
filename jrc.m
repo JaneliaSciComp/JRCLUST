@@ -19,7 +19,7 @@ function varargout = jrc(cmd, varargin)
     addpath(fullfile(dirname, 'kilosort')); % kilosort-related functions
 
     % process arguments
-    arg1 = ''; arg2 = arg1; arg3 = arg2; arg4 = arg3; arg5 = arg4;
+    [arg1, arg2, arg3, arg4, arg5] = deal('');
     switch nargin
         case 2
             arg1 = varargin{1};
@@ -174,11 +174,11 @@ function varargout = jrc(cmd, varargin)
             assignWorkspace_(mnWav);
         case 'export-spk'
             S0 = get(0, 'UserData');
-            trSpkWav = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), 'int16', S0.waveformDims);
+            trSpkWav = load_bin_(strrep(P.paramFile, '.prm', '_waveforms.bin'), 'int16', S0.waveformDims);
             assignWorkspace_(trSpkWav);
         case 'export-raw'
             S0 = get(0, 'UserData');
-            trWav_raw = load_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), 'int16', S0.waveformDims);
+            trWav_raw = load_bin_(strrep(P.paramFile, '.prm', '_traces.bin'), 'int16', S0.waveformDims);
             assignWorkspace_(trWav_raw);
         case {'export-spkwav', 'spkwav'}, export_spkwav_(P, arg2); % export spike waveforms
         case {'export-chan'}, export_chan_(P, arg2); % export channels

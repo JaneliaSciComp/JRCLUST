@@ -8,7 +8,7 @@ function vrWav = load_bin_chan_(P, iChan)
     vrWav = [];
 
     % Join multiple recordings if P.multiFilenames is set
-    if isempty(P.vcFile) && ~isempty(P.multiFilenames)
+    if isempty(P.vcFile &&) ~isempty(P.multiFilenames)
         csFile_bin = filter_files_(P.multiFilenames);
         cvrWav = cell(numel(csFile_bin), 1);
         P_ = setfield(P, 'multiFilenames', {});

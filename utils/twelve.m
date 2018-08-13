@@ -1,4 +1,4 @@
-function [newFilename] = twelve(filename)
+function twelve(filename)
 %TWELVE convert JRCv3-style prm files to JRCv4
 
     % WORK IN PROGRESS
@@ -74,6 +74,28 @@ function [newFilename] = twelve(filename)
     fclose(oldFh);
     fclose(newFh);
     
-    fprintf(1, 'New parameter file written at %s\n', newFilename);
+    fprintf('New parameter file written at %s\n', newFilename);
+
+    % rename _spkraw.jrc, _spkwav.jrc, _spkfet.jrc
+    spkraw = strrep(filename, '.prm', '_spkraw.jrc');
+    tracesBin = strrep(spkraw, 'spkraw.jrc', 'traces.bin');
+    if isfile(spkraw)
+        movefile(spkraw, tracesBin);
+        fprintf('%s renamed to %s\n', spkraw, tracesBin);
+    end
+    
+    spkwav = strrep(filename, '.prm', '_spkwav.jrc');
+    waveformsBin = strrep(spkwav, 'spkwav.jrc', 'waveforms.bin');
+    if isfile(spkwav)
+        movefile(spkwav, waveformsBin);
+        fprintf('%s renamed to %s\n', spkwav, waveformsBin);
+    end
+
+    spkfet = strrep(filename, '.prm', '_spkfet.jrc');
+    featuresBin = strrep(spkfet, 'spkfet.jrc', 'features.bin');
+    if isfile(spkfet)
+        movefile(spkfet, featuresBin);
+        fprintf('%s renamed to %s\n', spkfet, featuresBin);
+    end
 end
 

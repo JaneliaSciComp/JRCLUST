@@ -10,7 +10,7 @@ function [mnWav_raw, S_preview] = load_preview_(P)
     sec_per_load_preview = get_set_(P, 'sec_per_load_preview', 1);
 
     % determine files to load
-    if isempty(P.multiFilenames)
+    if ~isfield(P, 'multiFilenames') || isempty(P.multiFilenames)
         csFile_bin = {P.vcFile};
     else
         csFile_bin = filter_files_(P.multiFilenames);

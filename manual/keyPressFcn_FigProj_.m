@@ -5,57 +5,57 @@ function keyPressFcn_FigProj_(hFig, event)
     [hFig, S_fig] = getCachedFig('FigProj');
     % nSites = numel(P.chanMap);
     S_plot1 = get(S_fig.hPlot1, 'UserData');
-    viSites_show = S_plot1.viSites_show;
-    % nSites = numel(viSites_show);
+    sitesOfInterest = S_plot1.sitesOfInterest;
+    % nSites = numel(sitesOfInterest);
     % set(hObject, 'Pointer', 'watch');
     figure_wait_(1);
     switch lower(event.Key)
         case {'uparrow', 'downarrow'}
-        rescale_FigProj_(event, hFig, S_fig, S0);
+            rescale_FigProj_(event, hFig, S_fig, S0);
 
         case {'leftarrow', 'rightarrow'} % change channels
-        fPlot = 0;
-        if strcmpi(event.Key, 'leftarrow')
-            if min(S_fig.viSites_show)>1
-                S_fig.viSites_show=S_fig.viSites_show-1;
-                fPlot = 1;
+            fPlot = 0;
+            if strcmpi(event.Key, 'leftarrow')
+                if min(S_fig.sitesOfInterest)>1
+                    S_fig.sitesOfInterest=S_fig.sitesOfInterest-1;
+                    fPlot = 1;
+                end
+            else
+                if max(S_fig.sitesOfInterest) < max(P.chanMap)
+                    S_fig.sitesOfInterest=S_fig.sitesOfInterest+1;
+                    fPlot = 1;
+                end
             end
-        else
-            if max(S_fig.viSites_show) < max(P.chanMap)
-                S_fig.viSites_show=S_fig.viSites_show+1;
-                fPlot = 1;
+            if fPlot
+                set(hFig, 'UserData', S_fig);
+                S0.P.sitesOfInterest = S_fig.sitesOfInterest;
+                plotFigProj(S0);
             end
-        end
-        if fPlot
-            set(hFig, 'UserData', S_fig);
-            S0.P.viSites_show = S_fig.viSites_show;
-            plotFigProj(S0);
-        end
 
         case 'r' %reset view
-        axis_([0 numel(viSites_show) 0 numel(viSites_show)]);
+            axis_([0 numel(sitesOfInterest) 0 numel(sitesOfInterest)]);
 
         case 's' %split
-        figure_wait_(0);
-        if ~isempty(S0.iCluPaste)
-            msgbox_('Select one cluster to split'); return;
-        end
-        S_plot1 = select_polygon_(S_fig.hPlot1);
-        if ~isempty(S_plot1)
-            [fSplit, vlIn] = plot_split_(S_plot1);
-            if fSplit
-                S_clu = split_clu_(S0.iCluCopy, vlIn);
-            else
-                update_plot2_proj_();
-                %                 deleteMany(S_plot1.hPoly);
+            figure_wait_(0);
+            if ~isempty(S0.iCluPaste)
+                msgbox_('Select one cluster to split'); return;
             end
-        end
+            S_plot1 = select_polygon_(S_fig.hPlot1);
+            if ~isempty(S_plot1)
+                [fSplit, vlIn] = plot_split_(S_plot1);
+                if fSplit
+                    S_clu = split_clu_(S0.iCluCopy, vlIn);
+                else
+                    update_plot2_proj_();
+                    %                 deleteMany(S_plot1.hPoly);
+                end
+            end
 
         case 'm'
-        ui_merge_(S0);
+            ui_merge_(S0);
 
         case 'f'
-        % disp('keyPressFcn_FigProj_: ''f'': not implemented yet');
+            % disp('keyPressFcn_FigProj_: ''f'': not implemented yet');
             if strcmpi(P.displayFeature, 'vpp')
                 P.displayFeature = P.feature;
             else

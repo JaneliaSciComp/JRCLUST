@@ -9,7 +9,7 @@ function [mrWav_clu1, clusterSites1, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_
     [mrWav_clu1, clusterSites1, mrWav_lo_clu1, mrWav_hi_clu1] = deal([]);
     iSite_clu1 = S_clu.clusterSites(iClu);
     clusterSites1 = S0.P.miSites(:,iSite_clu1);
-    viSpk_clu1 = S_clu.cviSpk_clu{iClu}; %
+    viSpk_clu1 = S_clu.spikesByCluster{iClu}; %
     spikeSites1 = S0.spikeSites(viSpk_clu1);
     vlCentered_spk1 = iSite_clu1 == spikeSites1;
     if fUseCenterSpk

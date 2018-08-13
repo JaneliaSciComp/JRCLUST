@@ -30,7 +30,7 @@ function S_fig = plot_tnWav_clu_(S_fig, P)
         mrY(:,iClu) = mrY1(:);
     end
 
-    % if isempty(P.LineStyle)
+    % if ~isfield(P, 'LineStyle') || isempty(P.LineStyle)
     if isfield(S_fig, 'vhPlot')
         plot_update_(S_fig.vhPlot, mrX, mrY);
     else

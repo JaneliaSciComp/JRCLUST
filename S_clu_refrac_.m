@@ -23,7 +23,7 @@ function [S_clu, nRemoved] = S_clu_refrac_(S_clu, P, iClu1)
         if ~isfield(P, 'nSkip_refrac'), P.nSkip_refrac = 4; end
         if ~isfield(P, 'fShow_refrac'), P.fShow_refrac = 1; end
         try
-            viSpk1 = S_clu.cviSpk_clu{iClu1};
+            viSpk1 = S_clu.spikesByCluster{iClu1};
         catch
             viSpk1 = find(S_clu.spikeClusters == iClu1);
         end
@@ -45,7 +45,7 @@ function [S_clu, nRemoved] = S_clu_refrac_(S_clu, P, iClu1)
         nTotal1 = numel(vlKeep1);
         S_clu.spikeClusters(viSpk1(~vlKeep1)) = 0;
 
-        S_clu.cviSpk_clu{iClu1} = viSpk1(vlKeep1);
+        S_clu.spikesByCluster{iClu1} = viSpk1(vlKeep1);
         S_clu.vnSpk_clu(iClu1) = sum(vlKeep1);
     end
 

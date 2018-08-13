@@ -11,15 +11,15 @@ function S_clu = plotFigRD(S_clu, P)
     %     return;
     % end
 
-    if isempty(P.log10DeltaCutoff)
+    if ~isfield(P, 'log10DeltaCutoff') || isempty(P.log10DeltaCutoff)
         P.log10DeltaCutoff = S_clu.P.log10DeltaCutoff;
     end
 
-    if isempty(P.log10RhoCutoff)
+    if ~isfield(P, 'log10RhoCutoff') || isempty(P.log10RhoCutoff)
         P.log10RhoCutoff = S_clu.P.log10RhoCutoff;
     end
 
-    if isempty(P.minClusterSize)
+    if ~isfield(P, 'minClusterSize') || isempty(P.minClusterSize)
         P.minClusterSize = S_clu.P.minClusterSize;
     end
 

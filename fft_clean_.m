@@ -2,7 +2,7 @@
 % 2017/12/1 JJJ: auto-cast and memory division
 function [mnWav1, useGPU] = fft_clean_(mnWav, P)
     useGPU = get_set_(P, 'useGPU', isGpu_(mnWav));
-    if isempty(P.fft_thresh) || P.fft_thresh==0 || isempty(mnWav), mnWav1=mnWav; return; end
+    if ~isfield(P, 'fft_thresh') || isempty(P.fft_thresh) || P.fft_thresh==0 || isempty(mnWav), mnWav1=mnWav; return; end
     [vcClass, useGPU_mnWav] = class_(mnWav);
     fprintf('Applying FFT cleanup...'); t1=tic;
     if 0

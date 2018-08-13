@@ -28,7 +28,7 @@ function manual(P, debugMode)
         if debugMode
             fDebug_ui = 1;
             S0 = setUserData(fDebug_ui);
-    %         [S_clu, S0] = post_merge_(S0.S_clu, P); % redo the clustering (reset to auto)
+            [S_clu, S0] = post_merge_(S0.S_clu, P); % redo the clustering (reset to auto)
             S0 = setUserData(P);
         else
             if ~isempty(get_set_(S0, 'cS_log', {}))
@@ -46,7 +46,7 @@ function manual(P, debugMode)
         end
 
         % Create figures
-        hMsg = msgbox_('Plotting... (this closes automatically)');
+        % hMsg = msgbox_('Plotting... (this closes automatically)');
         t1 = tic;
 
         set(0, 'UserData', S0);
@@ -81,12 +81,12 @@ function manual(P, debugMode)
         S_log = load_(strrep(P.paramFile, '.prm', '_log.mat'), [], 0);
 
         if ~isempty(S_log)
-                S0.cS_log = {S_log};
+            S0.cS_log = {S_log};
         end
         save_log_('start', S0); %crash proof log
 
         % Finish up
-        tryClose(hMsg);
+        % tryClose(hMsg);
         fprintf('UI creation took %0.1fs\n', toc(t1));
     end
 end %func

@@ -8,8 +8,8 @@ function plot_proj_(hPlot, mrMin, mrMax, P, maxAmp)
 
     % make struct
     maxPair = P.maxSite_show;
-    viSites_show = P.viSites_show;
-    S_plot = makeStruct_(mrMax, mrMin, viSites_show, viPlot, tr_dim, maxPair, maxAmp);
+    sitesOfInterest = P.sitesOfInterest;
+    S_plot = makeStruct_(mrMax, mrMin, sitesOfInterest, viPlot, tr_dim, maxPair, maxAmp);
 
     update_plot_(hPlot, vrX, vrY, S_plot);
 end %func

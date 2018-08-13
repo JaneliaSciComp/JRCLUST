@@ -27,9 +27,9 @@ function import_silico_(vcFile_prm, fSort)
     set(0, 'UserData', S0);
 
     % Save to file
-    write_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), spikeTraces);
-    write_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), spikeWaveforms);
-    write_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), spikeFeatures);
+    write_bin_(strrep(P.paramFile, '.prm', '_traces.bin'), spikeTraces);
+    write_bin_(strrep(P.paramFile, '.prm', '_waveforms.bin'), spikeWaveforms);
+    write_bin_(strrep(P.paramFile, '.prm', '_features.bin'), spikeFeatures);
 
     % cluster and describe
     S0 = sort_(P);

@@ -9,10 +9,10 @@ function detect_(P)
     S0 = file2spk_(P);
 
     if get_set_(P, 'fRamCache', 1)
-        spikeTraces = load_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), 'int16', S0.traceDims);
-        spikeWaveforms = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), 'int16', S0.waveformDims);
+        spikeTraces = load_bin_(strrep(P.paramFile, '.prm', '_traces.bin'), 'int16', S0.traceDims);
+        spikeWaveforms = load_bin_(strrep(P.paramFile, '.prm', '_waveforms.bin'), 'int16', S0.waveformDims);
     end
-    spikeFeatures = load_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), 'single', S0.featureDims);
+    spikeFeatures = load_bin_(strrep(P.paramFile, '.prm', '_features.bin'), 'single', S0.featureDims);
     S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
 
     % measure time

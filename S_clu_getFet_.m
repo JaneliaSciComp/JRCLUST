@@ -3,7 +3,7 @@ function [mrFet1_clu1, iSite_clu1] = S_clu_getFet_(S_clu, iClu, spikeSecondarySi
     global spikeFeatures
     if nargin<3, spikeSecondarySites = get0_('spikeSecondarySites'); end
     iSite_clu1 = S_clu.clusterSites(iClu);
-    viSpk_clu1 = S_clu.cviSpk_clu{iClu};
+    viSpk_clu1 = S_clu.spikesByCluster{iClu};
     if isempty(viSpk_clu1), mrFet1_clu1=[]; return; end
     mrFet1_clu1 = squeeze_(spikeFeatures(:,1,viSpk_clu1));
     if size(spikeFeatures,2) >= 2

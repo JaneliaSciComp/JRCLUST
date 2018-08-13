@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function S_clu = assign_clu_count_(S_clu, P)
     nRepeat_max = 1000;
-    if isempty(P.minClusterSize), P.minClusterSize = 0; end
+    if ~isfield(P, 'minClusterSize') || isempty(P.minClusterSize), P.minClusterSize = 0; end
     if ~isfield(S_clu, 'viClu'), S_clu.spikeClusters = []; end
     if isempty(S_clu.spikeClusters)
         nClu_pre = [];
@@ -21,7 +21,7 @@ function S_clu = assign_clu_count_(S_clu, P)
         %     S_clu.icl(S_clu.rho(S_clu.icl) < min_rho) = [];
         [S_clu.spikeClusters, S_clu.icl] = assignCluster_(S_clu.spikeClusters, S_clu.ordrho, S_clu.nneigh, S_clu.icl);
         %     S_clu.spikeClusters(S_clu.rho < min_rho) = 0; %noise assignment
-        %     if isempty(P.minClusterSize), P.minClusterSize = 0; end
+        %     if ~isfield(P, 'minClusterSize') || isempty(P.minClusterSize), P.minClusterSize = 0; end
         P.minClusterSize = max(get_set_(P, 'minClusterSize', 0), S_clu.trFet_dim(1)*2);
         % http://scikit-learn.org/stable/modules/lda_qda.html
 

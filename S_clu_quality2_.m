@@ -18,7 +18,7 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
         viClu_update = viClu_update(:)';
     end
     for iClu = viClu_update
-        viSpk_clu1 = S_clu.cviSpk_clu{iClu};
+        viSpk_clu1 = S_clu.spikesByCluster{iClu};
         % Compute ISI ratio
         viTime_clu1 = spikeTimes(viSpk_clu1);
         viDTime_clu1 = diff(viTime_clu1);

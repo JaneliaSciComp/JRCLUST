@@ -3,7 +3,7 @@
 function [vrWav_aux, vrTime_aux] = load_aux_(P)
 
     [vrWav_aux, vrTime_aux] = deal([]);
-    if isempty(P.vcFile), msgbox_('Multi-file mode is currently not supported'); return; end
+    if ~isfield(P, 'vcFile') || isempty(P.vcFile), msgbox_('Multi-file mode is currently not supported'); return; end
     [~,~,vcExt] = fileparts(P.vcFile);
     vcFile_aux = get_set_(P, 'vcFile_aux', '');
     if isempty(vcFile_aux)

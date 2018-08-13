@@ -52,9 +52,9 @@ function [S_gt, spikeWaveforms, spikeTraces] = gt2spk_(S_gt, P, snr_thresh)
     else
         trWav_raw_clu = [];
     end
-    cviSpk_clu = arrayfun(@(iClu)int32(find(viClu == iClu)), 1:nClu, 'UniformOutput', 0);
+    spikesByCluster = arrayfun(@(iClu)int32(find(viClu == iClu)), 1:nClu, 'UniformOutput', 0);
     for iClu=1:nClu
-        viSpk_clu1 = cviSpk_clu{iClu};
+        viSpk_clu1 = spikesByCluster{iClu};
         %     viSpk_clu1 = viSpk_clu1(
         viSpk1 = subsample_vr_(viSpk_clu1, MAX_SAMPLE);
         if isempty(viSpk1), continue; end
@@ -92,8 +92,8 @@ function [S_gt, spikeWaveforms, spikeTraces] = gt2spk_(S_gt, P, snr_thresh)
     if ~isempty(snr_thresh)
         viClu_keep = find(abs(vrSnr_clu) > snr_thresh);
         [trWav_clu, trWav_raw_clu] = multifun_(@(x)x(:,:,viClu_keep), trWav_clu, trWav_raw_clu);
-        [clusterSites, vrVmin_clu, vrSnr_clu, cviSpk_clu, vnSite_clu, vrVrms_site] = ...
-        multifun_(@(x)x(viClu_keep), clusterSites, vrVmin_clu, vrSnr_clu, cviSpk_clu, vnSite_clu, vrVrms_site);
+        [clusterSites, vrVmin_clu, vrSnr_clu, spikesByCluster, vnSite_clu, vrVrms_site] = ...
+        multifun_(@(x)x(viClu_keep), clusterSites, vrVmin_clu, vrSnr_clu, spikesByCluster, vnSite_clu, vrVrms_site);
         vlSpk_keep = ismember(viClu, viClu_keep);
         [S_gt.viClu, S_gt.viTime] = multifun_(@(x)x(vlSpk_keep), S_gt.viClu, S_gt.viTime);
         viMap = 1:max(viClu_keep);
@@ -105,6 +105,6 @@ function [S_gt, spikeWaveforms, spikeTraces] = gt2spk_(S_gt, P, snr_thresh)
 
     miSites_clu = P.miSites(:,clusterSites);
     S_gt = struct_add_(S_gt, trWav_clu, trWav_raw_clu, clusterSites, vrVmin_clu, ...
-    vrSnr_clu, cviSpk_clu, vnSite_clu, vrVrms_site, miSites_clu, viClu_keep);
+    vrSnr_clu, spikesByCluster, vnSite_clu, vrVrms_site, miSites_clu, viClu_keep);
     fprintf('\n\ttook %0.1fs\n', toc(t1));
 end %func

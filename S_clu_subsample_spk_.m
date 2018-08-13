@@ -9,7 +9,7 @@ function [viSpk_clu1, clusterSites1, vlSpk_clu1] = S_clu_subsample_spk_(S_clu, i
     % [P, spikeSites] = get0_('P', 'spikeSites'); end
     [viSpk_clu1, clusterSites1, vlSpk_clu1] = deal([]);
     % Subselect based on the center site
-    viSpk_clu1 = S_clu.cviSpk_clu{iClu}; %
+    viSpk_clu1 = S_clu.spikesByCluster{iClu}; %
     if isempty(viSpk_clu1), return; end
     iSite_clu1 = S_clu.clusterSites(iClu);
     vlSpk_clu1 = iSite_clu1 == S0.spikeSites(viSpk_clu1);

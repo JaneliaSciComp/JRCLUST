@@ -8,7 +8,7 @@ function validate_(P)
 
     S0 = load_(strrep(P.paramFile, '.prm', '_jrc.mat'));
     % if isempty(spikeWaveforms)
-    %     spikeWaveforms = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), P.dataType, S0.waveformDims);
+    %     spikeWaveforms = load_bin_(strrep(P.paramFile, '.prm', '_waveforms.bin'), P.dataType, S0.waveformDims);
     % end
     S_clu = S0.S_clu;
 
@@ -32,7 +32,7 @@ function validate_(P)
     'vrVmin_gt', S_gt.vrVmin_clu, 'vnSite_gt', S_gt.vnSite_clu, ...
     'vrSnr_gt', S_gt.vrSnr_clu, 'vrSnr_min_gt', S_gt.vrSnr_clu, ...
     'trWav_gt', S_gt.trWav_clu, 'viSite_gt', S_gt.clusterSites);
-    S_score.cviSpk_gt = S_gt.cviSpk_clu;
+    S_score.cviSpk_gt = S_gt.spikesByCluster;
 
     % Compare S_clu with S_gt
     nSamples_jitter = round(P.sRateHz / 1000); %1 ms jitter
@@ -44,7 +44,7 @@ function validate_(P)
 
     Sgt = S_gt; %backward compatibility
     S_score = struct_add_(S_score, mrMiss, mrFp, vnCluGt, miCluMatch, P, Sgt, S_score_clu);
-    S_score.cviTime_clu = S_clu.cviSpk_clu(S_score_clu.viCluMatch)';
+    S_score.cviTime_clu = S_clu.spikesByCluster(S_score_clu.viCluMatch)';
     S_score.vrVrms_site = single(S0.vrThresh_site) / S0.P.qqFactor;
 
     fprintf('SNR_gt (Vp/Vrms): %s\n', sprintf('%0.1f ', S_score.vrSnr_gt));

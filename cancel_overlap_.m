@@ -21,7 +21,7 @@ function spikeFeatures = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0,
         % fft and use power to fit waveforms using the primary sites only. preserve phase and change power
 
         % calculate private pc. using non-colliding spikes (?). generate basis for the cluster
-        %     viSpk_clu1 = S_clu.cviSpk_clu{iClu};
+        %     viSpk_clu1 = S_clu.spikesByCluster{iClu};
         %     viSpk_clu1 = subsample_vr_(viSpk_clu1(S0.spikeSites(viSpk_clu1) == iSite1), 5e3);
         %     mr_ = reshape(meanSubt_(spikeWaveforms(:,:,viSpk_clu1)), [], numel(viSpk_clu1));
         %     [~,mrPv_clu1] = pca(mr_, 'NumComponents', 3); %subsample if must

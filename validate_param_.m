@@ -17,19 +17,7 @@ function flag = validate_param_(P)
         csError{end+1} = sprintf('# dimensions (%d) exceeds the maximum limit for CUDA code (%d), decrease maxSite', nFet_sort, NDIM_SORT_MAX);
     end
 
-    % nFet = P.
     % Validate format
-    % if isempty(P.vcFile) && isempty(P.multiFilenames)
-    %     csError{end+1} = '''vcFile'' or ''multiFilenames'' must be set.';
-    % elseif ~isempty(P.vcFile)
-    %     if ~exist(P.vcFile, 'file')
-    %         csError{end+1} = sprintf('vcFile=''%s'' does not exist', P.vcFile);
-    %     end
-    % end
-    % if ~exist(P.probe_file, 'file')
-    %     csError{end+1} = sprintf('probe_file=''%s'' does not exist', P.probe_file);
-    % end
-    % if isempty(P.nChans), csError{end+1} = sprintf('''nChans'' must be specified.', P.probe_file); end
 
 
     % Validate display

@@ -3,7 +3,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     % find site
     mrPolyPos = getPosition(S1.hPoly);
     site12_show = floor(mean(mrPolyPos));
-    site12 = S1.viSites_show(site12_show+1);
+    site12 = S1.sitesOfInterest(site12_show+1);
 
     % get amp
     S0 = get(0, 'UserData');
@@ -15,7 +15,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     else
         fWav_raw_show = get_set_(P, 'fWav_raw_show', 0);
     end
-    trWav12 = tnWav2uV_(spikeWaveforms_sites_(S_clu.cviSpk_clu{iClu1}, site12, S0, fWav_raw_show), P);
+    trWav12 = tnWav2uV_(spikeWaveforms_sites_(S_clu.spikesByCluster{iClu1}, site12, S0, fWav_raw_show), P);
     if diff(site12) == 0, trWav12(:,2,:) = trWav12(:,1,:); end
     vxPoly = (mrPolyPos([1:end,1],1) - site12_show(1)) * S1.maxAmp;
     vyPoly = (mrPolyPos([1:end,1],2) - site12_show(2)) * S1.maxAmp;
@@ -35,7 +35,7 @@ function [fSplit, vlIn] = plot_split_(S1)
         end
 
         case {'cov', 'spacetime'}
-        [mrAmin12, mrAmax12] = calc_cov_spk_(S_clu.cviSpk_clu{iClu1}, site12);
+        [mrAmin12, mrAmax12] = calc_cov_spk_(S_clu.spikesByCluster{iClu1}, site12);
         [mrAmin12, mrAmax12] = multifun_(@(x)abs(x'), mrAmin12, mrAmax12);
         vyPlot = mrAmin12(:,2);
         vcYlabel = sprintf('Site %d (cov1)', site12(2));
@@ -50,9 +50,9 @@ function [fSplit, vlIn] = plot_split_(S1)
         case {'pca', 'ppca', 'gpca'}
         if strcmpi(P.displayFeature, 'ppca')
             [mrPv1, mrPv2] = pca_pv_clu_(site12, S0.iCluCopy, S0.iCluPaste);
-            [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.cviSpk_clu{iClu1}, site12, mrPv1, mrPv2);
+            [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.spikesByCluster{iClu1}, site12, mrPv1, mrPv2);
         else
-            [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.cviSpk_clu{iClu1}, site12);
+            [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.spikesByCluster{iClu1}, site12);
         end
         [mrAmin12, mrAmax12] = multifun_(@(x)abs(x'), mrAmin12, mrAmax12);
         vyPlot = mrAmin12(:,2);
@@ -69,7 +69,7 @@ function [fSplit, vlIn] = plot_split_(S1)
         error('plot_split: featureShow: not implemented');
         %         vxPoly = (mrPolyPos([1:end,1],1) - site12_show(1)) * S1.maxAmp;
         %         vyPoly = (mrPolyPos([1:end,1],2) - site12_show(2)) * S1.maxAmp;
-        %         trFet12 = trFet_([], site12, S_clu.cviSpk_clu{iClu1});
+        %         trFet12 = trFet_([], site12, S_clu.spikesByCluster{iClu1});
         %         vyPlot = squeeze_(trFet12(1, 2, :));
         %         vcYlabel = sprintf('Site %d (%s1)', site12(2), P.feature);
         %         if site12(2) > site12(1)
@@ -106,7 +106,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     vlIn = poly_mask_(hPoly, vxPlot, vyPlot);
     set(hPlot, 'XData', vxPlot(vlIn), 'YData',vyPlot(vlIn));
     % if P.fWav_raw_show
-    %     trWav12_raw = tnWav2uV_(spikeWaveforms_sites_(S_clu.cviSpk_clu{iClu1}, site12, 1));
+    %     trWav12_raw = tnWav2uV_(spikeWaveforms_sites_(S_clu.spikesByCluster{iClu1}, site12, 1));
     %     mrWavX = squeeze_(trWav12_raw(:, 1, :));
     %     mrWavY = squeeze_(trWav12_raw(:, 2, :));
     % else

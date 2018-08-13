@@ -9,7 +9,7 @@ function P = calc_maxSite_(P)
     mrDist_site = pdist2(P.mrSiteXY, P.mrSiteXY);
     maxDist_site_um = get_set_(P, 'maxDist_site_um', 50);
     nSites_fet = max(sum(mrDist_site <= maxDist_site_um)); % 11/7/17 JJJ: med to max
-    if isempty(P.nSites_ref)
+    if ~isfield(P, 'nSites_ref') || isempty(P.nSites_ref)
         maxDist_site_spk_um = get_set_(P, 'maxDist_site_spk_um', maxDist_site_um+25);
         nSites_spk = max(sum(mrDist_site <= maxDist_site_spk_um)); % 11/7/17 JJJ: med to max
         maxSite = (nSites_spk-1)/2;
@@ -19,6 +19,6 @@ function P = calc_maxSite_(P)
         maxSite = (nSites_spk-1)/2;
     end
 
-    if isempty(P.maxSite), P.maxSite = maxSite; end
+    if ~isfield(P, 'maxSite') || isempty(P.maxSite), P.maxSite = maxSite; end
     fprintf('Auto-set: maxSite=%0.1f, nSites_ref=%0.1f\n', P.maxSite, P.nSites_ref);
 end %func

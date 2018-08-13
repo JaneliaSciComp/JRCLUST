@@ -4,6 +4,7 @@ function [mrPv1, mrPv2] = pca_pv_spk_(viSpk1, viSites1, spikeWaveforms1)
     nSites = numel(viSites1);
     S0 = get0_();
     mrPv_global = get_(S0, 'mrPv_global');
+
     if ~isempty(mrPv_global)
         % show global pca
         mrPv1 = repmat(mrPv_global(:,1), [1, nSites]);

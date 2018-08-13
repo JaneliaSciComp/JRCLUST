@@ -41,7 +41,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     end
 
     % Load meta file
-    if isempty(P.multiFilenames)
+    if ~isfield(P, 'multiFilenames') || isempty(P.multiFilenames)
         vcFile_meta = subsFileExt_(vcFile_bin, '.meta');
     else
         csFiles_bin = filter_files_(P.multiFilenames);

@@ -24,7 +24,7 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
     spikeSites0 = spikeSites0(:);
 
     % regularize list of files to load
-    if isempty(P.multiFilenames)
+    if ~isfield(P, 'multiFilenames') || isempty(P.multiFilenames)
         if ~fileExists(P.vcFile)
             P.vcFile = replaceDir(P.vcFile, P.paramFile);
         end
@@ -63,7 +63,10 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
     [vrFilt_spk, mrPv_global] = deal([]);
 
     setUserData(mrPv_global, vrFilt_spk); % reset mrPv_global and force it to recompute
-    write_spk_(P.paramFile);
+
+    fidTraces = fopen(strrep(P.paramFile, '.prm', '_traces.bin'), 'W');
+    fidWaveforms = fopen(strrep(P.paramFile, '.prm', '_waveforms.bin'), 'W');
+    fidFeatures = fopen(strrep(P.paramFile, '.prm', '_features.bin'), 'W');
 
     for iFile = 1:nFiles
         fprintf('File %d/%d: detecting spikes from %s\n', iFile, nFiles, filenames{iFile});
@@ -90,11 +93,18 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
                 mnWav11_post = [];
             end
 
-            [spikeTimes11, spikeSites11] = filter_spikes_(spikeTimes0, spikeSites0, nSamples1 + [1, nSamples11]);
+            % if given spike times and sites, get the subset of these lying between nSamples1 + 1 and nSamples1 + nSamples11
+            [spikeTimes11, spikeSites11] = getSpikesInInterval(spikeTimes0, spikeSites0, nSamples1 + [1, nSamples11]);
+
             [spikeTraces_, spikeWaveforms_, spikeFeatures_, spikePrSecSites{end+1}, spikeTimes{end+1}, vrAmp_spk{end+1}, siteThresholds{end+1}, P.useGPU] ...
                 = wav2spk_(mnWav11, vrWav_mean11, P, spikeTimes11, spikeSites11, mnWav11_pre, mnWav11_post);
 
-            write_spk_(spikeTraces_, spikeWaveforms_, spikeFeatures_);
+            fwrite_(fidTraces, spikeTraces_);
+            if strcmp(get_set_(P, 'algorithm', 'JRCLUST'), 'JRCLUST')
+                fwrite_(fidWaveforms, spikeWaveforms_);
+                fwrite_(fidFeatures, spikeFeatures_);
+            end
+
             spikeTimes{end} = spikeTimes{end} + nSamples1;
             nSamples1 = nSamples1 + nSamples11;
 
@@ -113,7 +123,11 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
         fprintf('File %d/%d took %0.1fs (%0.1f MB, %0.1f MB/s, x%0.1f realtime)\n', ...
             iFile, nFiles, t_dur1, nBytes/1e6, nBytes/(t_dur1*1e6), t_rec1/t_dur1);
     end %for
-    write_spk_();
+
+    % close data files
+    fclose(fidTraces);
+    fclose(fidWaveforms);
+    fclose(fidFeatures)
 
     [spikePrSecSites, spikeTimes, vrAmp_spk, siteThresholds] = ...
         multifun_(@(x) cat(1, x{:}), spikePrSecSites, spikeTimes, vrAmp_spk, siteThresholds);

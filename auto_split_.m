@@ -18,18 +18,18 @@ function auto_split_(fMulti, S0)
     else
         viSites1 = iSite1;
     end
-    % mrSpkWav1 = tnWav2uV_(tnWav_sites_(spikeWaveforms, S_clu.cviSpk_clu{iClu1}, viSites1));
-    mrSpkWav1 = tnWav2uV_(spikeWaveforms_sites_(S_clu.cviSpk_clu{iClu1}, viSites1, S0), P);
+    % mrSpkWav1 = tnWav2uV_(tnWav_sites_(spikeWaveforms, S_clu.spikesByCluster{iClu1}, viSites1));
+    mrSpkWav1 = tnWav2uV_(spikeWaveforms_sites_(S_clu.spikesByCluster{iClu1}, viSites1, S0), P);
     mrSpkWav1 = reshape(mrSpkWav1, [], size(mrSpkWav1,3));
 
     [~, temp_S_fig] = getCachedFig('FigTime'); % TW gets the variables in the "time" figure -- needed for getting the highlighted site
     site_to_use = temp_S_fig.iSite; % TW use the highlighted site from "time" figure
     % site_to_use = iSite1; % TW use dominant site for the cluster
-    mrWav_spk1 = squeeze_(tnWav2uV_(spikeWaveforms_sites_(S_clu.cviSpk_clu{iClu1}, site_to_use, S0), P)); % TW calculate amplitudes on the fly
+    mrWav_spk1 = squeeze_(tnWav2uV_(spikeWaveforms_sites_(S_clu.spikesByCluster{iClu1}, site_to_use, S0), P)); % TW calculate amplitudes on the fly
     mrFet1 = max(mrWav_spk1)-min(mrWav_spk1); % TW calculate amplitudes on the fly
 
-    % [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [S0.spikeTimes(S_clu.cviSpk_clu{iClu1}) S0.vrAmp_spk(S_clu.cviSpk_clu{iClu1})], 2); % MNE
-    [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [S0.spikeTimes(S_clu.cviSpk_clu{iClu1}) mrFet1'], 2); %TW
+    % [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [S0.spikeTimes(S_clu.spikesByCluster{iClu1}) S0.vrAmp_spk(S_clu.spikesByCluster{iClu1})], 2); % MNE
+    [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [S0.spikeTimes(S_clu.spikesByCluster{iClu1}) mrFet1'], 2); %TW
 
     hPoly = [];
     hFigTemp = gcf;

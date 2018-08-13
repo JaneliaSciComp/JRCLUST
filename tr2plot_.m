@@ -13,7 +13,7 @@ function [vrY, vrX] = tr2plot_(trWav, iClu, viSite_show, maxAmp, P)
     if nargin<3, viSite_show = []; end
     % P = funcDefStr_(P, 'LineStyle', 'k', 'spkLim', [-10 24], 'maxAmp', 500, 'viSite_show', []);
     % P.LineStyle
-    % if isempty(P.LineStyle), P.LineStyle='k'; end
+    % if ~isfield(P, 'LineStyle') || isempty(P.LineStyle), P.LineStyle='k'; end
     if isempty(viSite_show), viSite_show = 1:size(trWav,2); end
 
     [nSamples, nChans, nSpk] = size(trWav);

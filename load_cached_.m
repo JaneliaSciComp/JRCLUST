@@ -44,11 +44,11 @@ function [S0, P] = load_cached_(P, loadWaveforms)
             if isempty(S0), return; end %no info
             try
                 if get_set_(P, 'fRamCache', 1)
-                    spikeFeatures = load_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), 'single', S0.featureDims);
-                    spikeWaveforms = load_bin_(strrep(P.paramFile, '.prm', '_spkwav.jrc'), 'int16', S0.waveformDims);
-                    spikeTraces = load_bin_(strrep(P.paramFile, '.prm', '_spkraw.jrc'), 'int16', S0.traceDims);
+                    spikeFeatures = load_bin_(strrep(P.paramFile, '.prm', '_features.bin'), 'single', S0.featureDims);
+                    spikeWaveforms = load_bin_(strrep(P.paramFile, '.prm', '_waveforms.bin'), 'int16', S0.waveformDims);
+                    spikeTraces = load_bin_(strrep(P.paramFile, '.prm', '_traces.bin'), 'int16', S0.traceDims);
                 else
-                    spikeFeatures = load_bin_(strrep(P.paramFile, '.prm', '_spkfet.jrc'), 'single', S0.featureDims);
+                    spikeFeatures = load_bin_(strrep(P.paramFile, '.prm', '_features.bin'), 'single', S0.featureDims);
                 end
             catch
                 disperr_();

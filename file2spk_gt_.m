@@ -25,7 +25,7 @@ function [spikeWaveforms, vrVrms_site] = file2spk_gt_(P, spikeTimes0)
         else
             mnWav11_post = [];
         end
-        [spikeTimes11] = filter_spikes_(spikeTimes0, [], nSamples1 + [1, nSamples11]);
+        [spikeTimes11] = getSpikesInInterval(spikeTimes0, [], nSamples1 + [1, nSamples11]);
         [spikeWaveforms{end+1}, siteThresholds{end+1}] = wav2spk_gt_(mnWav11, P, spikeTimes11, mnWav11_pre, mnWav11_post);
         if iLoad1 < nLoad1, mnWav11_pre = mnWav11(end-P.nPad_filt+1:end, :); end
         nSamples1 = nSamples1 + nSamples11;

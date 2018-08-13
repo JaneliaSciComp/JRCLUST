@@ -10,7 +10,7 @@ function S_clu = S_clu_cleanup_(S_clu, P)
     warning off;
     for iClu = 1:S_clu.nClusters
         mrFet1_clu1 = S_clu_getFet_(S_clu, iClu, spikeSecondarySites)';
-        viSpk_clu1 = S_clu.cviSpk_clu{iClu};
+        viSpk_clu1 = S_clu.spikesByCluster{iClu};
         try
             vrDist_clu1 = madscore_(log(mahal(mrFet1_clu1, mrFet1_clu1)));
         catch
@@ -18,9 +18,9 @@ function S_clu = S_clu_cleanup_(S_clu, P)
         end
         vlExcl_clu1 = (vrDist_clu1 > thresh_mad_clu);
         if any(vlExcl_clu1)
-            S_clu.cviSpk_clu{iClu} = viSpk_clu1(~vlExcl_clu1);
+            S_clu.spikesByCluster{iClu} = viSpk_clu1(~vlExcl_clu1);
             S_clu.spikeClusters(viSpk_clu1(vlExcl_clu1)) = 0; %classify as noise cluster
-            S_clu.vnSpk_clu(iClu) = numel(S_clu.cviSpk_clu{iClu});
+            S_clu.vnSpk_clu(iClu) = numel(S_clu.spikesByCluster{iClu});
         end
         fprintf('.');
     end %for

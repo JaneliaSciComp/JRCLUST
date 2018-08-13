@@ -1,3 +1,8 @@
+filenames:
+    *_spkraw.jrc=*_traces.bin
+    *_spkwav.jrc=*_waveforms.bin
+    *_spkfet.jrc=*_features.bin
+
 global.tnWav_spk=global.spikeWaveforms
 global.tnWav_raw=global.spikeTraces
 global.trFet_spk=global.spikeFeatures
@@ -13,6 +18,7 @@ P.vcFile_prm=P.paramFile
 P.vcFile_thresh=P.thresholdFile
 % P.vcFile=P.recordingFile
 P.viSite2Chan=P.chanMap
+P.viSites_show=P.plottedSites
 
 S0.csFig=S0.figTags
 S0.cvrFigPos0=S0.figPositions

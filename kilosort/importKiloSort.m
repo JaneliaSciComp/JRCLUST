@@ -23,7 +23,7 @@ function importKiloSort(rezFile)
         rez = rez.rez;
     end
 
-    global tnWav_raw tnWav_spk trFet_spk
+    global spikeTraces spikeWaveforms spikeFeatures
     % receive spike location, time and cluster number. the rest should be taken care by jrc processing
     spikeTimes = rez.st3(:, 1);
 
@@ -61,19 +61,31 @@ function importKiloSort(rezFile)
     P = struct();
     P.algorithm = 'KiloSort';
     P.chanMap = rez.ops.chanMap;
+    if isfield(rez, 'connected')
+        P.chanMap = P.chanMap(rez.connected);
+    end
+    P.dataType = 'int16'; % KS default
+    P.fTranspose_bin = 1;
+    P.feature = 'kilosort';
+    P.maxSite = rez.ops.Nchan; % maybe -- acl
+    P.nChans = rez.ops.Nchan
+    P.nSites_ref = []; % JRC default; TODO: decide or allow user to set
+    P.paramFile = 'imported-kilosort-session.prm';
+    P.vcFile = rez.ops.fbinary;
 
     clusterSites = P.chanMap(clusterSites);
     spikeSites = clusterSites(spikeClusters);
 
-    return; % WIP
-
     S0 = file2spk_(P, int32(spikeTimes), int32(spikeSites));
     S0.P = P;
-    S0.S_ksort = S_ksort;
-    tnWav_raw = load_bin_(strrep(P.rezFile, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);
-    tnWav_spk = load_bin_(strrep(P.rezFile, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
-    trFet_spk = load_bin_(strrep(P.rezFile, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
-    S0.mrPos_spk = spk_pos_(S0, trFet_spk);
+
+    return; % WIP
+
+    spikeTraces = load_bin_(strrep(P.rezFile, '.prm', '_traces.bin'), 'int16', S0.traceDims);
+    spikeWaveforms = load_bin_(strrep(P.rezFile, '.prm', '_waveforms.bin'), 'int16', S0.waveformDims);
+    spikeFeatures = load_bin_(strrep(P.rezFile, '.prm', '_features.bin'), 'single', S0.featureDims);
+
+    S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
     set(0, 'UserData', S0);
 
     % cluster and describe

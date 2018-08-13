@@ -8,7 +8,7 @@ function export_spikeWaveforms_(h,e)
     spikeTraces = get_spkwav_(P, 1);
     S_clu = S0.S_clu;
     iClu1 = S0.iCluCopy;
-    viSpk1 = S_clu.cviSpk_clu{iClu1};
+    viSpk1 = S_clu.spikesByCluster{iClu1};
     nSpk1 = numel(viSpk1);
     nSites = numel(P.chanMap);
     waveformDims1 = size(spikeWaveforms);    waveformDims1(2) = nSites;

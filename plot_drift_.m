@@ -55,7 +55,7 @@ function plot_drift_(P)
         posX_lim = quantile(S_clu.vrPosX_clu, [.25, .75]);
         posY_lim = quantile(S_clu.vrPosY_clu, [.1, .9]);
         for iClu = 1:S_clu.nClusters
-            viSpk1 = S_clu.cviSpk_clu{iClu};
+            viSpk1 = S_clu.spikesByCluster{iClu};
             viSpk1 = viSpk1(vlSpk_shank(viSpk1));
             vrColor1 = rand(1,3);
             %         vrColor1 = 'r';
@@ -74,7 +74,7 @@ function plot_drift_(P)
                 case 'z'
                 %                 if S_clu.vnSpk_clu(iClu) < nSpk_thresh_clu, continue; end
                 if S_clu.vrSnr_clu(iClu) < snr_thresh_clu, continue; end
-                %                 if vrA_spk(S_clu.cviSpk_clu{iClu})
+                %                 if vrA_spk(S_clu.spikesByCluster{iClu})
                 %                 if S_clu.vrPosX_clu(iClu) < posX_thresh, continue; end
                 posX_clu1 = S_clu.vrPosX_clu(iClu);
                 posY_clu1 = S_clu.vrPosY_clu(iClu);

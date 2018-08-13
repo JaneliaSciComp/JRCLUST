@@ -21,7 +21,7 @@ function S_clu = S_clu_position_(S_clu, viClu_update)
     end
     viSites_fet = 1:(1+P.maxSite*2-P.nSites_ref);
     for iClu = viClu1
-        %     viSpk_clu1 = S_clu.cviSpk_clu{iClu};
+        %     viSpk_clu1 = S_clu.spikesByCluster{iClu};
         [viSpk_clu1, viSites_clu1] = S_clu_subsample_spk_(S_clu, iClu);
         if isempty(viSpk_clu1), continue; end
 

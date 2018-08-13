@@ -12,6 +12,7 @@ function [spikeTraces, spikeWaveforms, spikeTimes] = mn2tn_wav_(mnWav_raw, mnWav
     fRealign_spk = get_set_(P, 'fRealign_spk', 0); %0,1,2
     spikeTimes = gpuArray_(spikeTimes, isGpu_(mnWav_raw));
     spikeSites = gpuArray_(spikeSites, isGpu_(mnWav_raw));
+
     if isempty(spikeSites)
         spikeTraces = permute(mr2tr3_(mnWav_raw, spkLim_raw, spikeTimes), [1,3,2]);
         spikeWaveforms = permute(mr2tr3_(mnWav_spk, spkLim_wav, spikeTimes), [1,3,2]);
@@ -29,6 +30,7 @@ function [spikeTraces, spikeWaveforms, spikeTimes] = mn2tn_wav_(mnWav_raw, mnWav
                 elseif fRealign_spk==2
                     spikeWaveforms1 = spkwav_align_(spikeWaveforms1, P);
                 end
+
                 spikeWaveforms(:,:,viiSpk11) = permute(spikeWaveforms1, [1,3,2]);
                 spikeTraces(:,:,viiSpk11) = permute(mr2tr3_(mnWav_raw, spkLim_raw, spikeTimes11, viSite11), [1,3,2]); %raw
             catch % GPU failure

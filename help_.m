@@ -35,12 +35,12 @@ function csHelp = help_(vcCommand)
     '  jrc clear';
     '    Clear cache';
     '  jrc clear myparam.prm';
-    '    Delete previous results (files: _jrc.mat, _spkwav.jrc, _spkraw.jrc, _spkfet.jrc)';
+    '    Delete previous results (files: _jrc.mat, _waveforms.bin, _traces.bin, _features.bin)';
     '  jrc spikesort myparams.prm';
     '    Run the whole suite (spike detection and clustering) ';
     '  jrc detect myparams.prm';
     '    Run spike detection and extract spike waveforms';
-    '    Output files: _jrc.mat, _spkwav.jrc (filtered spike waveforms), _spkraw.jrc (raw spike waveforms), _spkfet.jrc (features)';
+    '    Output files: _jrc.mat, _waveforms.bin (filtered spike waveforms), _traces.bin (raw spike waveforms), _features.bin (features)';
     '  jrc sort myparams.prm';
     '    Cluster spikes (after spike detection)';
     '    Output files: _jrc.mat';

@@ -16,7 +16,7 @@ function S_clu = S_clu_sort_(S_clu, vcField_sort)
     end
     S_clu.spikeClusters = mapIndex_(S_clu.spikeClusters, viCluSort);
     S_clu = struct_reorder_(S_clu, viCluSort, ...
-    'cviSpk_clu', 'vrPosX_clu', 'vrPosY_clu', 'vnSpk_clu', 'clusterSites', 'cviTime_clu', 'csNote_clu');
+    'spikesByCluster', 'vrPosX_clu', 'vrPosY_clu', 'vnSpk_clu', 'clusterSites', 'cviTime_clu', 'csNote_clu');
     % if isfield(S_clu, 'tmrWav_clu')
     %     S_clu.tmrWav_clu = S_clu.tmrWav_clu(:, :, viCluSort);
     % end

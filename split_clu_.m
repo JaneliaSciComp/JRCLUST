@@ -23,7 +23,7 @@ function S_clu = split_clu_(iClu1, vlIn)
         [viSpk2, viSpk1] = deal(viSpk1, viSpk2);
         vlIn = ~vlIn;
     end
-    [S_clu.cviSpk_clu{iClu1}, S_clu.cviSpk_clu{iClu2}] = deal(viSpk1, viSpk2);
+    [S_clu.spikesByCluster{iClu1}, S_clu.spikesByCluster{iClu2}] = deal(viSpk1, viSpk2);
     [S_clu.clusterSites(iClu1), S_clu.clusterSites(iClu2)] = deal(iSite1, iSite2);
 
     try % erase annotaiton

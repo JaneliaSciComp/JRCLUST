@@ -18,7 +18,7 @@ function [mrFet1, viSpk1] = getFet_clu_(iClu1, iSite, S0)
         end
         viSpk1 = randomSelect_(viSpk1, MAX_SAMPLE);
     else
-        viSpk1 = S_clu.cviSpk_clu{iClu1};
+        viSpk1 = S_clu.spikesByCluster{iClu1};
     end
 
     switch lower(P.displayFeature)

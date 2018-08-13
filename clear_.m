@@ -28,7 +28,7 @@ function clear_(vcFile_prm)
         return;
     end
     for iFile = 1:numel(csFile_prm)
-        csFiles_del = strrep(csFile_prm{iFile}, '.prm', {'_jrc.mat', '_spkraw.jrc', '_spkwav.jrc', '_spkfet.jrc', '_log.mat', '_gt1.mat'});
+        csFiles_del = strrep(csFile_prm{iFile}, '.prm', {'_jrc.mat', '_traces.bin', '_waveforms.bin', '_features.bin', '_log.mat', '_gt1.mat'});
         delete_files_(csFiles_del);
     end
 end %func

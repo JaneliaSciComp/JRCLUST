@@ -14,7 +14,7 @@ function import_lfp_(P)
     % end
     P.vcFile_lfp = strrep(P.paramFile, '.prm', '.lfp.jrc');
     t1 = tic;
-    if isempty(P.multiFilenames)
+    if ~isfield(P, 'multiFilenames') || isempty(P.multiFilenames)
         % single file
         if is_new_imec_(P.vcFile) % don't do anything, just set the file name
             P.vcFile_lfp = strrep(P.vcFile, '.imec.ap.bin', '.imec.lf.bin');
