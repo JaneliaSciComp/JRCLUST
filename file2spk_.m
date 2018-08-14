@@ -74,7 +74,7 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
 
         [fid, nBytes] = fopenInfo(filenames{iFile}, 'r');
         nBytes = file_trim_(fid, nBytes, P);
-        [nFileLoads, nSamples_load1, nSamples_last1] = plan_load_(nBytes, P);
+        [nFileLoads, nSamples_load1, nSamples_last1] = planLoad(nBytes, P);
 
         fileSampleOffsets(iFile) = offset;
         prePadding = [];
@@ -106,10 +106,8 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
                 = wav2spk_(loadSamples, channelMeans, P, loadSpikeTimes, loadSpikeSites, prePadding, postPadding);
 
             fwrite_(fidTraces, spikeTraces_);
-            if get_set_(P, 'fImportKilosort', 0)
-                fwrite_(fidWaveforms, spikeWaveforms_);
-                fwrite_(fidFeatures, spikeFeatures_);
-            end
+            fwrite_(fidWaveforms, spikeWaveforms_);
+            fwrite_(fidFeatures, spikeFeatures_);
 
             spikeTimes{end} = spikeTimes{end} + offset;
             offset = offset + nLoadSamples;
@@ -133,7 +131,7 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
     % close data files
     fclose(fidTraces);
     fclose(fidWaveforms);
-    fclose(fidFeatures)
+    fclose(fidFeatures);
 
     [spikePrimarySecondarySites, spikeTimes, vrAmp_spk, siteThresholds] = ...
         multifun_(@(x) cat(1, x{:}), spikePrimarySecondarySites, spikeTimes, vrAmp_spk, siteThresholds);

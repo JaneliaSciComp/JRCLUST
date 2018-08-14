@@ -106,7 +106,7 @@ function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrimarySecondarySites
     if ~isempty(prePadding) || ~isempty(postPadding)
         ilim_spk = [nPad_pre+1, size(mnWav3,1) - size(postPadding,1)]; %inclusive
         viKeep_spk = find(spikeTimes >= ilim_spk(1) & spikeTimes <= ilim_spk(2));
-        [spikeTimes, vnAmp_spk, spikeSites] = multifun_(@(x)x(viKeep_spk), spikeTimes, vnAmp_spk, spikeSites);
+        [spikeTimes, vnAmp_spk, spikeSites] = multifun_(@(x) x (viKeep_spk), spikeTimes, vnAmp_spk, spikeSites);
     end % if
 
     if isempty(spikeTimes)

@@ -29,7 +29,9 @@ function [cleanedSamplesMatrix, useGPU] = fft_clean_(rawTraces, P)
 
         if useGPU % use GPU
             try
-                if ~useGPU_mnWav, mnWav1_ = gpuArray_(mnWav1_); end
+                if ~useGPU_mnWav
+                    mnWav1_ = gpuArray_(mnWav1_);
+                end
                 cleanedSamplesMatrix(vi1,:) = fft_clean__(mnWav1_, P.fft_thresh);
             catch
                 useGPU = 0;

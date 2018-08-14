@@ -1,15 +1,5 @@
 %--------------------------------------------------------------------------
 function S0 = kilosort2jrc_(P, spikeTimes0, spikeSites0)
-    % function [spikeTraces, spikeWaveforms, spikeFeatures, S0] = file2spk_(P, spikeTimes0, spikeSites0)
-    % file loading routine. keep spike waveform (spikeWaveforms) in memory
-    % assume that the file is chan x time format
-    % usage:
-    % [spikeTraces, spikeWaveforms, S0] = file2spk_(P)
-    %
-    % [spikeTraces, spikeWaveforms, S0] = file2spk_(P, spikeTimes, spikeSites)
-    %   construct spike waveforms from previous time markers
-    % 6/29/17 JJJ: Added support for the matched filter
-
     if nargin < 2
         spikeTimes0 = [];
     end
@@ -29,7 +19,8 @@ function S0 = kilosort2jrc_(P, spikeTimes0, spikeSites0)
     end
 
     % initialize lists and counters
-    [spikePrimarySecondarySites, spikeTimes, vrAmp_spk, siteThresholds] = deal({});
+    spikeTimes = {};
+
     [offset, nLoads] = deal(0);
     [vrFilt_spk, mrPv_global] = deal([]);
 
@@ -37,16 +28,13 @@ function S0 = kilosort2jrc_(P, spikeTimes0, spikeSites0)
 
     fidTraces = fopen(strrep(P.paramFile, '.prm', '_traces.bin'), 'W');
     fidWaveforms = fopen(strrep(P.paramFile, '.prm', '_waveforms.bin'), 'W');
-    fidFeatures = fopen(strrep(P.paramFile, '.prm', '_features.bin'), 'W');
 
-    fprintf('Detecting spikes from %s\n', filename);
+    fprintf('Extracting spikes from %s\n', filename);
     tFile = tic;
 
     [fid, nBytes] = fopenInfo(filename, 'r');
     nBytes = file_trim_(fid, nBytes, P);
-    [nFileLoads, nSamples_load1, nSamples_last1] = plan_load_(nBytes, P);
-
-    prePadding = [];
+    [nFileLoads, nSamples_load1, nSamples_last1] = planLoad(nBytes, P);
 
     for iLoad = 1:nFileLoads
         fprintf('Processing %d/%d of file...\n', iLoad, nFileLoads);
@@ -65,27 +53,32 @@ function S0 = kilosort2jrc_(P, spikeTimes0, spikeSites0)
         [loadSamples, channelMeans] = load_file_(fid, nLoadSamples, P);
         fprintf('took %0.1fs\n', toc(tLoad));
 
-        if iLoad < nFileLoads && P.nPaddingSamples > 0
-            postPadding = loadFilePreview(fid, P);
-        else
-            postPadding = [];
-        end
-
-        [spikeTraces_, spikeWaveforms_, spikeFeatures_, spikePrimarySecondarySites{end+1}, spikeTimes{end+1}, vrAmp_spk{end+1}, siteThresholds{end+1}, P.useGPU] ...
-            = wav2spk_(loadSamples, channelMeans, P, loadSpikeTimes, loadSpikeSites, prePadding, postPadding);
-
+        % extract traces
+        spikeTraces_ = tracesToTensor(loadSamples, loadSpikeSites, loadSpikeTimes, P.spkLim_raw, P);
         fwrite_(fidTraces, spikeTraces_);
-        if get_set_(P, 'fImportKilosort', 0)
-            fwrite_(fidWaveforms, spikeWaveforms_);
-            fwrite_(fidFeatures, spikeFeatures_);
+
+        % filter traces (lifted from wav2spk_)
+        fprintf('\tFiltering spikes...');
+        tFilter = tic;
+
+        loadSamplesCPU = loadSamples; % keep a copy in CPU
+        try
+            [loadSamples, P.useGPU] = gpuArray_(loadSamples, P.useGPU);
+        catch % GPu failure
+            P.useGPU = 0;
+            loadSamples = loadSamplesCPU;
         end
 
-        spikeTimes{end} = spikeTimes{end} + offset;
+        clear loadSamplesCPU;
+
+        [loadFilteredSamples, ~] = filt_car_(loadSamples, P);
+        fprintf('\ttook %0.1fs\n', toc(tFilter));
+
+        spikeWaveforms_ = tracesToTensor(loadFilteredSamples, loadSpikeSites, loadSpikeTimes, P.spkLim, P);
+        fwrite_(fidWaveforms, spikeWaveforms_);
+
+        spikeTimes{end+1} = loadSpikeTimes + offset;
         offset = offset + nLoadSamples;
-
-        if iLoad < nFileLoads
-            prePadding = loadSamples(end - P.nPaddingSamples + 1:end, :);
-        end
 
         clear loadSamples channelMeans;
         nLoads = nLoads + 1;
@@ -93,46 +86,33 @@ function S0 = kilosort2jrc_(P, spikeTimes0, spikeSites0)
 
     fclose(fid);
 
-    t_dur1 = toc(tFile);
-    t_rec1 = (nBytes / bytesPerSample_(P.dataType) / P.nChans) / P.sampleRateHz;
+    tFile = toc(tFile);
+    tRecording = (nBytes / bytesPerSample_(P.dataType) / P.nChans) / P.sampleRateHz;
 
     fprintf('File took %0.1fs (%0.1f MB, %0.1f MB/s, x%0.1f realtime)\n', ...
-        t_dur1, nBytes*1e-6, nBytes/(t_dur1*1e6), t_rec1/t_dur1);
+        tFile, nBytes*1e-6, nBytes*1e-6/tFile, tRecording/tFile);
 
     % close data files
     fclose(fidTraces);
     fclose(fidWaveforms);
-    fclose(fidFeatures)
+    
+    spikeTimes = cat(1, spikeTimes{:});
 
-    [spikePrimarySecondarySites, spikeTimes, vrAmp_spk, siteThresholds] = ...
-        multifun_(@(x) cat(1, x{:}), spikePrimarySecondarySites, spikeTimes, vrAmp_spk, siteThresholds);
-    vrThresh_site = mean(single(siteThresholds),1);
-
-    spikeSites = spikePrimarySecondarySites(:, 1);
-    if size(spikePrimarySecondarySites, 2) >= 2
-        spikeSecondarySites = spikePrimarySecondarySites(:,2);
-    else
-        spikeSecondarySites = [];
-    end
+    spikeSites = spikeSites0;
+    spikeSecondarySites = [];
 
     % set S0
-    [traceDims, waveformDims, featureDims] = deal(size(spikeTraces_), size(spikeWaveforms_), size(spikeFeatures_));
-    [traceDims(3), waveformDims(3), featureDims(3)] = deal(numel(spikeTimes));
+    [traceDims, waveformDims] = deal(size(spikeTraces_), size(spikeWaveforms_));
+    [traceDims(3), waveformDims(3)] = deal(numel(spikeTimes));
     nSites = numel(P.chanMap);
-    cviSpk_site = arrayfun(@(iSite)find(spikePrimarySecondarySites(:,1) == iSite), 1:nSites, 'UniformOutput', 0);
-    if size(spikePrimarySecondarySites, 2) >= 2
-        cviSpk2_site = arrayfun(@(iSite)find(spikePrimarySecondarySites(:,2) == iSite), 1:nSites, 'UniformOutput', 0);
-    else
-        cviSpk2_site = cell(1, nSites);
-    end
-    if size(spikePrimarySecondarySites,2) >= 3
-        cviSpk3_site = arrayfun(@(iSite)find(spikePrimarySecondarySites(:,3) == iSite), 1:nSites, 'UniformOutput', 0);
-    else
-        cviSpk3_site = [];
-    end
+
+    cviSpk_site = arrayfun(@(iSite) find(spikeSites(:, 1) == iSite), 1:nSites, 'UniformOutput', 0);
+    cviSpk2_site = cell(1, nSites);
+    cviSpk3_site = [];
+
     [mrPv_global, vrD_global] = get0_('mrPv_global', 'vrD_global');
 
     % save everything
-    S0 = makeStruct_(P, spikeSites, spikeSecondarySites, spikeTimes, vrAmp_spk, vrThresh_site, waveformDims, ...
-        cviSpk_site, cviSpk2_site, cviSpk3_site, traceDims, featureDims, nLoads, mrPv_global, vrFilt_spk, vrD_global);
+    S0 = makeStruct_(P, spikeSites, spikeSecondarySites, spikeTimes, waveformDims, ... % vrAmp_spk, vrThresh_site
+        cviSpk_site, cviSpk2_site, cviSpk3_site, traceDims, nLoads, mrPv_global, vrFilt_spk, vrD_global);
 end %func

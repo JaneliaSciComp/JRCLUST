@@ -101,6 +101,9 @@ function varargout = jrc(cmd, varargin)
         paramFile = getParamFile();
         disp(['Working on ', paramFile])
     end
+    
+    % stopgap
+    twelve(paramFile);
 
     doExit = 1;
     switch lower(cmd)

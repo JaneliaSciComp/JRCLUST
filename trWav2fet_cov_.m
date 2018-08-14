@@ -8,6 +8,7 @@ function varargout = trWav2fet_cov_(trWav2, P)
     [nT, nSpk, nSites_spk] = size(trWav2);
     [cvi2, cvi1] = shift_range_(nT, [], vnDelay_fet);
     cmrFet = cell(numel(vnDelay_fet), 1);
+
     for iDelay = 1:numel(vnDelay_fet)
         mr1_ = meanSubt_(trWav2(cvi1{iDelay},:,1));
         mr1_ = bsxfun(@rdivide, mr1_, sqrt(mean(mr1_.^2))); %zscore fast

@@ -1,13 +1,11 @@
 function twelve(filename)
-%TWELVE convert JRCv3-style prm files to JRCv4
+    %TWELVE convert JRCv3-style prm files to JRCv4
 
     % WORK IN PROGRESS
 
     if ~endsWith(filename, '.prm')
         error('filename must be a .prm file');
     end
-    
-    newFilename = strrep(filename, '.prm', '-new.prm');
     
     % get the mapping between old and new names
     replaceMe = cell(0, 2);
@@ -32,13 +30,14 @@ function twelve(filename)
     fclose(fh);
     
     % write the new parameter file
-    oldFh = fopen(filename);
-    newFh = fopen(newFilename, 'w');
+    newlines = cell(0);
+    fh = fopen(filename);
+    nChanges = 0;
     
-    tline = fgetl(oldFh);
+    tline = fgetl(fh);
     while ischar(tline)
         if isempty(tline)
-            fprintf(newFh, '\n');
+            newlines{end+1} = '\n';
         else
             tline = strsplit(tline, '=');
 
@@ -58,23 +57,33 @@ function twelve(filename)
                     replacePair = replaceMe(i, :);
 
                     if strcmp(prm, replacePair{1})
+                        nChanges = nChanges + 1;
                         prm = replacePair{2};
                         break;
                     end
                 end
-
-                fprintf(newFh, '%s = %s\n', prm, prmVal);
+                
+                newlines{end+1} = sprintf('%s = %s\n', prm, prmVal);
             else
-                fprintf(newFh, '%s\n', tline{1});
+                newlines{end+1} = sprintf('%s\n', tline{1});
             end
         end
-        tline = fgetl(oldFh);
+        tline = fgetl(fh);
     end
+    fclose(fh);
     
-    fclose(oldFh);
-    fclose(newFh);
-    
-    fprintf('New parameter file written at %s\n', newFilename);
+    if nChanges > 0
+        oldFilename = strrep(filename, '.prm', sprintf('-%s.prm', datestr(now,'yyyymmddTHHMMSS')));
+        copyfile(filename, oldFilename);
+        fprintf('Old parameter file has been saved to %s.\n', oldFilename);
+        
+        fh = fopen(filename, 'w');
+        for iLine = 1:numel(newlines)
+            fprintf(fh, newlines{1});
+        end
+        fclose(fh);
+        fprintf('New parameter file written to %s.\n', filename);
+    end    
 
     % rename _spkraw.jrc, _spkwav.jrc, _spkfet.jrc
     spkraw = strrep(filename, '.prm', '_spkraw.jrc');

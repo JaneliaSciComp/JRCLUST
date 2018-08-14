@@ -42,7 +42,9 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
 
     % check GPU
     P.useGPU = ifeq_(license('test', 'Distrib_Computing_Toolbox'), P.useGPU, 0);
-    if P.useGPU, P.useGPU = ifeq_(gpuDeviceCount()>0, 1, 0); end
+    if P.useGPU
+        P.useGPU = (gpuDeviceCount() > 0);
+    end
 
     % Legacy support
     if isfield(P, 'fTranspose'), P.fTranspose_bin = P.fTranspose; end

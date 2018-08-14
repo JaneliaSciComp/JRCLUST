@@ -59,6 +59,9 @@ function [filteredTraces, vnWav2_mean] = filt_car_(rawTraces, P, prePadding, pos
         filteredTraces = filteredTraces(n_pre + 1:end - n_post, :);
     end
 
-    % global subtraction before
-    [filteredTraces, vnWav2_mean] = wav_car_(filteredTraces, P);
+    if ~get_set_(P, 'fImportKilosort', 0) % global subtraction before
+        [filteredTraces, vnWav2_mean] = wav_car_(filteredTraces, P);
+    else
+        vnWav2_mean = []; % not used when importing KiloSort data
+    end
 end % func

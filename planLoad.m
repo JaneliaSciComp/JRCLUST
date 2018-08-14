@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 % 17/12/1 JJJ: Load size is not limited by FFT cleanup process (fft_thresh>0)
-function [nLoad1, nSamples_load1, nSamples_last1] = plan_load_(nBytes_file, P)
+function [nLoad1, nSamples_load1, nSamples_last1] = planLoad(nBytes_file, P)
     % plan load file size according to the available memory and file size (nBytes_file)
     LOAD_FACTOR = 5; %GPU memory usage factor. 4x means 1/4 of GPU memory can be loaded
 
