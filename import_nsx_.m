@@ -7,7 +7,7 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     if matchFileExt_(vcFile_prb, '.prm')
         vcTemplate_prm = vcFile_prb;
         S_ = file2struct_(vcTemplate_prm);
-        vcFile_prb = S_.probe_file;
+        vcFile_prb = S_.probeFile;
     end
 
     % vcFile_nsx = 'E:\TimBruns\Ichabod Trial 14\exp_9_ichabod0014.ns5';
@@ -16,7 +16,7 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     % [P, nSamples, vcFile_bin] = nsx2bin_(vcFile_nsx, 1);
     % P.fInverse_file = 1;
     % [mnWav, hFile, P] = load_nsx_(vcFile_nsx);
-    P.probe_file = vcFile_prb;
+    P.probeFile = vcFile_prb;
     P.vcFile = vcFile_nsx;
     % mnWav = mnWav * -1; %inverse polarity
     [~, vcFile_prb_] = fileparts(vcFile_prb);
@@ -39,7 +39,7 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     P.paramFile = vcFile_prm;
     % P.vcFile = vcFile_bin;
     copyfile(vcTemplate_prm, P.paramFile, 'f');
-    edit_prm_file_(P, P.paramFile);
+    updateParamFile(P, P.paramFile);
     vcPrompt = sprintf('Created a new parameter file\n\t%s', P.paramFile);
     disp(vcPrompt);
     edit(P.paramFile);

@@ -1,6 +1,9 @@
 %--------------------------------------------------------------------------
-function importKiloSort(rezFile)
-    % importKiloSort(rezFile)
+function importKiloSort(rezFile, sessionName)
+    if nargin < 2
+        sessionName = 'imported-kilosort-session';
+    end
+
     if isstruct(rezFile)
         rez = rezFile;
     else
@@ -53,14 +56,14 @@ function importKiloSort(rezFile)
     for iNN = 1:size(templates,3)
        templates(:,:,iNN) = squeeze(U(:,iNN,:)) * squeeze(W(:,iNN,:))';
     end
-    templates = permute(templates, [3 2 1]); % now it's nTemplates x nSamples x nChannels
+    templates = permute(templates, [3 2 1]); % nTemplates x nSamples x nChannels
 
     sampleMin = squeeze(min(templates, [], 2));
     [~, clusterSites] = min(sampleMin, [], 2); % cluster location
 
     % construct P from scratch
     P = struct();
-    P.paramFile = 'imported-kilosort-session.prm'; % TODO: allow user to set
+    P.paramFile = [sessionName '.prm'];
     P.vcFile = rez.ops.fbinary;
     P.sampleRateHz = rez.ops.fs;
 
@@ -86,7 +89,6 @@ function importKiloSort(rezFile)
     P.fTranspose_bin = 1;
     P.feature = 'kilosort';
     P.maxSite = 6.5; % TODO: allow user to set
-%     P.nSites_ref = []; % JRC default; TODO: decide or allow user to set
 
     P.spkLim = ceil(size(templates, 2)/2) * [-1, 1];
     P.spkLim_raw = P.spkLim; % TODO: address
@@ -97,27 +99,30 @@ function importKiloSort(rezFile)
     spikeSites = clusterSites(spikeTemplates);
 
     S0 = kilosort2jrc_(P, int32(spikeTimes), int32(spikeSites));
-    S0.P = P;
-    
+
     % extract features
     spikeFeatures = permute(rez.cProjPC, [2 3 1]);
-    fidFeatures = fopen(strrep(P.paramFile, '.prm', '_features.bin'), 'W');
+    fidFeatures = fopen([sessionName '_features.bin'], 'w');
     fwrite_(fidFeatures, spikeFeatures);
     fclose(fidFeatures);
-    
+
     featureDims = size(spikeFeatures);
     S0.featureDims = featureDims;
     S0.rez = rez;
 
 %     S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
 %     set(0, 'UserData', S0);
-% 
+%
 %     % cluster and describe
 %     S0.S_clu = cluster_spacetime_(S0, P);
 %     S0.S_clu = S_clu_new_(spikeClusters, S0);
 %     S0.S_clu = S_clu_sort_(S0.S_clu, 'clusterSites');
-    set(0, 'UserData', S0);
 
     % Save
-    save0_(strrep(P.paramFile, '.prm', '_jrc.mat'));
+    P = saveProbe([sessionName '-probe.mat'], P);
+    S0.P = P;
+    set(0, 'UserData', S0);
+    
+    exportParams(P.paramFile, [], 0);
+    save0_([sessionName '_jrc.mat']);
 end %func

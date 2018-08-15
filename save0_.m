@@ -17,7 +17,7 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
 
         struct_save_(S0, vcFile_mat, 1);
         vcFile_prm = S0.P.paramFile;
-        export_prm_(vcFile_prm, strrep(vcFile_prm, '.prm', '_full.prm'), 0);
+        exportParams(vcFile_prm, strrep(vcFile_prm, '.prm', '_full.prm'), 0);
 
         % save the rho-delta plot
         if fSkip_fig, return; end

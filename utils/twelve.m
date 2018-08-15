@@ -2,11 +2,12 @@ function twelve(filename)
     %TWELVE convert JRCv3-style prm files to JRCv4
 
     % WORK IN PROGRESS
+    % TODO: use file2cellstr_, &c. (see updateParamFile.m)
 
     if ~endsWith(filename, '.prm')
         error('filename must be a .prm file');
     end
-    
+
     % get the mapping between old and new names
     replaceMe = cell(0, 2);
 
@@ -28,16 +29,16 @@ function twelve(filename)
         tline = fgetl(fh);
     end
     fclose(fh);
-    
+
     % write the new parameter file
     newlines = cell(0);
     fh = fopen(filename);
     nChanges = 0;
-    
+
     tline = fgetl(fh);
     while ischar(tline)
         if isempty(tline)
-            newlines{end+1} = '\n';
+            newlines{end+1} = '';
         else
             tline = strsplit(tline, '=');
 
@@ -48,7 +49,7 @@ function twelve(filename)
                 end
                 tline = {tline{1}, rhs};
             end
-            
+
             if numel(tline) == 2
                 prm = strtrim(tline{1});
                 prmVal = strtrim(tline{2});
@@ -62,28 +63,28 @@ function twelve(filename)
                         break;
                     end
                 end
-                
-                newlines{end+1} = sprintf('%s = %s\n', prm, prmVal);
+
+                newlines{end+1} = sprintf('%s = %s', prm, prmVal);
             else
-                newlines{end+1} = sprintf('%s\n', tline{1});
+                newlines{end+1} = sprintf('%s', tline{1});
             end
         end
         tline = fgetl(fh);
     end
     fclose(fh);
-    
+
     if nChanges > 0
         oldFilename = strrep(filename, '.prm', sprintf('-%s.prm', datestr(now,'yyyymmddTHHMMSS')));
         copyfile(filename, oldFilename);
         fprintf('Old parameter file has been saved to %s.\n', oldFilename);
-        
+
         fh = fopen(filename, 'w');
         for iLine = 1:numel(newlines)
-            fprintf(fh, newlines{1});
+            fprintf(fh, '%s\n', newlines{iLine});
         end
         fclose(fh);
         fprintf('New parameter file written to %s.\n', filename);
-    end    
+    end
 
     % rename _spkraw.jrc, _spkwav.jrc, _spkfet.jrc
     spkraw = strrep(filename, '.prm', '_spkraw.jrc');
@@ -92,7 +93,7 @@ function twelve(filename)
         movefile(spkraw, tracesBin);
         fprintf('%s renamed to %s\n', spkraw, tracesBin);
     end
-    
+
     spkwav = strrep(filename, '.prm', '_spkwav.jrc');
     waveformsBin = strrep(spkwav, 'spkwav.jrc', 'waveforms.bin');
     if isfile(spkwav)
@@ -107,4 +108,3 @@ function twelve(filename)
         fprintf('%s renamed to %s\n', spkfet, featuresBin);
     end
 end
-

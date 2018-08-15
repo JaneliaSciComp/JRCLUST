@@ -22,7 +22,7 @@ function Fig_preview_save_prm_(hFig)
         return;
     end
     P = get0_('P');
-    edit_prm_file_(P_update, P.paramFile);
+    updateParamFile(P_update, P.paramFile);
     % P = mergeStructs(P, P_update);
     % setUserData(P);
     edit(P.paramFile);

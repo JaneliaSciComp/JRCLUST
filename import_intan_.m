@@ -13,7 +13,7 @@ function vcFile_prm = import_intan_(vcFile_dat, vcFile_prb, vcArg3)
     vcFile_prm = strrep(vcFile_bin, '.bin', sprintf('_%s.prm', vcFile_prb_));
     nChans = numel(csFiles_dat);
     nBytes_file = min(cellfun(@(vc)getBytes_(vc), csFiles_dat));
-    P = struct('dataType', 'int16', 'probe_file', vcFile_prb, 'nChans', nChans, ...
+    P = struct('dataType', 'int16', 'probeFile', vcFile_prb, 'nChans', nChans, ...
     'uV_per_bit', .195, 'sampleRateHz', 30000, 'nBytes_file', nBytes_file);
 
     nSamples = P.nBytes_file / bytesPerSample_(P.dataType);
@@ -46,7 +46,7 @@ function vcFile_prm = import_intan_(vcFile_dat, vcFile_prb, vcArg3)
     P.paramFile = vcFile_prm;
     P.vcFile = vcFile_bin;
     copyfile(jrcpath_(read_cfg_('default_prm')), P.paramFile, 'f');
-    edit_prm_file_(P, P.paramFile);
+    updateParamFile(P, P.paramFile);
     vcPrompt = sprintf('Created a new parameter file\n\t%s', P.paramFile);
     disp(vcPrompt);
     edit(P.paramFile);

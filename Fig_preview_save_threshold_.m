@@ -9,7 +9,7 @@ function Fig_preview_save_threshold_(hFig)
     save(thresholdFile, 'siteThresholds'); % also need to store filter values?
     P.thresholdFile = thresholdFile;
     setUserData(P);
-    edit_prm_file_(P, P.paramFile);
+    updateParamFile(P, P.paramFile);
 
     msgbox_(sprintf('Saved to %s and updated %s (thresholdFile)', ...
     thresholdFile, P.paramFile));

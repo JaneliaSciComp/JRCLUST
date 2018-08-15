@@ -19,7 +19,7 @@ function [vcFile_prm, vcPrompt] = makeprm_(vcFile_bin, vcFile_prb, fAsk, vcFile_
         vcFile_template = vcFile_prb;
         if ~fileExists(vcFile_template), fprintf(2, '%s does not exist\n', vcFile_template); return; end
         S0 = file2struct_(vcFile_template);
-        vcFile_prb = S0.probe_file;
+        vcFile_prb = S0.probeFile;
     else
         if ~fileExists(find_prb_(vcFile_prb)), fprintf(2, '%s does not exist\n', vcFile_prb); return; end
     end

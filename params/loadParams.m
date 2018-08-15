@@ -24,18 +24,18 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
 
     %-----
     % Load prb file
-    if ~isfield(P, 'probe_file'), P.probe_file = P0.probe_file; end
+    if ~isfield(P, 'probeFile'), P.probeFile = P0.probeFile; end
     try
-        probe_file_ = find_prb_(P.probe_file);
-        if isempty(probe_file_)
-            P.probe_file = replacePath_(P.probe_file, vcFile_prm);
-            dialogAssert(fileExists(P.probe_file), 'prb file does not exist');
+        probeFile_ = find_prb_(P.probeFile);
+        if isempty(probeFile_)
+            P.probeFile = replacePath_(P.probeFile, vcFile_prm);
+            dialogAssert(fileExists(P.probeFile), 'prb file does not exist');
         else
-            P.probe_file = probe_file_;
+            P.probeFile = probeFile_;
         end
-        P0 = load_prb_(P.probe_file, P0);
+        P0 = loadProbe(P.probeFile, P0);
     catch
-        fprintf('loadParam: %s not found.\n', P.probe_file);
+        fprintf(2, 'loadParams: %s not found.\n', P.probeFile);
     end
     P = mergeStructs(P0, P);
     P = calc_maxSite_(P);

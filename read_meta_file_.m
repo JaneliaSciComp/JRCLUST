@@ -7,7 +7,7 @@ function P = read_meta_file_(vcFile_meta)
         if exist(vcFile_meta, 'file') == 2
             S_meta = read_whisper_meta_(vcFile_meta);
             P = struct('sampleRateHz', S_meta.sampleRateHz, 'uV_per_bit', S_meta.scale, 'nChans', S_meta.nChans, 'dataType', S_meta.dataType);
-            %'probe_file', [S_meta.vcProbe, '.prb'],
+            %'probeFile', [S_meta.vcProbe, '.prb'],
             P.Smeta = S_meta;
         else
             fprintf('%s is not found. Asking users to fill out the missing info\n', vcFile_meta);

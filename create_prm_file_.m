@@ -77,7 +77,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     % Assign prm file name
     [~,vcPostfix,~] = fileparts(vcFile_prb);
     P.paramFile = subsFileExt_(vcFile_bin, ['_', vcPostfix, '.prm']);
-    P.probe_file = vcFile_prb;
+    P.probeFile = vcFile_prb;
     try
         S_prb = file2struct_(find_prb_(vcFile_prb));
         %     P = mergeStructs(P, S_prb);
@@ -113,7 +113,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     end
 
     % Write to prm file
-    edit_prm_file_(P, P.paramFile);
+    updateParamFile(P, P.paramFile);
     vcPrompt = sprintf('Created a new parameter file\n\t%s', P.paramFile);
     disp(vcPrompt);
     if fAsk, edit(P.paramFile); end % Show settings file

@@ -559,7 +559,7 @@ function btnMakePrm_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 csAns = inputdlg({'raw recording file', 'Probe file', 'Template file'}, 'Recording format', 1, {'', '', 'default.prm'});
 if isempty(csAns), return; end
-% S = struct('vcFile', csAns{1}, 'probe_file', csAns{2}, 'template_file', csAns{3});
+% S = struct('vcFile', csAns{1}, 'probeFile', csAns{2}, 'template_file', csAns{3});
 vcFile_prm = jrc('makeprm', csAns{1}, csAns{2}, csAns{3});
 % guidata_set_(hObject, vcFile_prm);
 load_prm_(hObject, vcFile_prm);

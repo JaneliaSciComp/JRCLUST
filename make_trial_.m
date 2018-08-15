@@ -57,7 +57,7 @@ function make_trial_(vcFile_prm, fImec)
 
     % edit .prm file
     P_trial.trialFile = trialFile;
-    edit_prm_file_(P_trial, vcFile_prm);
+    updateParamFile(P_trial, vcFile_prm);
     fprintf('Parameter file updated: %s\n\ttrialFile = ''%s''\n', vcFile_prm, trialFile);
 
     % plot

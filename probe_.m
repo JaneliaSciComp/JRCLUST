@@ -9,14 +9,14 @@ function probe_(vcFile_prb)
     if matchFileExt_(vcFile_prb, '.prm')
         vcFile_prm = vcFile_prb;
         P = loadParams(vcFile_prm);
-        vcFile_prb = P.probe_file;
+        vcFile_prb = P.probeFile;
         if ~exist(vcFile_prb, 'file')
             vcFile_prb = replacePath_(vcFile_prb, vcFile_prm);
         end
     end
     vcFile_prb = find_prb_(vcFile_prb);
     % S_prb = file2struct_(vcFile_prb);
-    S_prb = load_prb_(vcFile_prb);
+    S_prb = loadProbe(vcFile_prb);
     % if ~isfield(S_prb, 'shank'), S_prb.shank = ones(size(S_prb.channels)); end
 
     % hFig = figure; hold on;

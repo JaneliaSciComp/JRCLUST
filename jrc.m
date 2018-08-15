@@ -11,6 +11,7 @@ function varargout = jrc(cmd, varargin)
     [dirname, ~] = fileparts(fullfile(mfilename('fullpath')));
     addpath(fullfile(dirname, 'meta')); % info functions
     addpath(fullfile(dirname, 'filesystem')); % file-related functions
+    addpath(fullfile(dirname, 'probe')); % probe-related functions
     addpath(fullfile(dirname, 'neuroshare')); % NS-related functions
     addpath(fullfile(dirname, 'utils')); % miscellaneous (but useful) tools
     addpath(fullfile(dirname, 'params')); % parameter-related functions
@@ -57,7 +58,7 @@ function varargout = jrc(cmd, varargin)
         % case 'gui' % TODO: reference 'paramFile' before definition
         %     gui_(arg1, paramFile);
         case {'import-kilosort', 'import-ksort'}
-            importKiloSort(arg1);
+            importKiloSort(arg1, arg2);
         case {'makeprm', 'createprm', 'makeprm-all'}
             paramFile = makeprm_(arg1, arg2, 1, arg3);
             if nargout > 0
@@ -101,7 +102,7 @@ function varargout = jrc(cmd, varargin)
         paramFile = getParamFile();
         disp(['Working on ', paramFile])
     end
-    
+
     % stopgap
     twelve(paramFile);
 
@@ -118,7 +119,7 @@ function varargout = jrc(cmd, varargin)
         case 'import-silico', import_silico_(paramFile, 0);
         case 'import-silico-sort', import_silico_(paramFile, 1);
         case 'export-imec-sync', export_imec_sync_(paramFile);
-        case 'export-prm', export_prm_(paramFile, arg2);
+        case 'export-prm', exportParams(paramFile, arg2);
         case 'dir'
             if any(paramFile == '*') % handle globs
                 dir_files_(paramFile, arg2, arg3);
