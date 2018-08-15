@@ -45,6 +45,20 @@ function importKiloSort(rezFile, sessionName)
         spikeClusters = spikeTemplates; % template/cluster
     end
 
+    clusters = unique(spikeClusters);
+    % consolidate cluster assignments
+    for iCluster = 1:numel(clusters)
+        if clusters(iCluster) ~= iCluster
+            spikeClusters(spikeClusters == clusters(iCluster)) = iCluster;
+        end
+    end
+    
+    % save the old clusters with gaps in them
+    clustersGapped = clusters;
+    clusters = 1:numel(clusters);
+
+    nClusters = clusters(end);
+
     % compute templates
     nt0 = size(rez.W, 1);
     U = rez.U;
@@ -90,9 +104,12 @@ function importKiloSort(rezFile, sessionName)
     P.fTranspose_bin = 1;
     P.feature = 'kilosort';
     P.maxSite = 6.5; % TODO: allow user to set
+    P.nSites_ref = 0; % TODO: address
 
     P.spkLim = ceil(size(templates, 2)/2) * [-1, 1];
     P.spkLim_raw = P.spkLim; % TODO: address
+
+    P.corrLim = [.9 1];
 
     P.viSiteZero = [];
     P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site);
@@ -102,7 +119,7 @@ function importKiloSort(rezFile, sessionName)
     S0 = kilosort2jrc_(P, int32(spikeTimes), int32(spikeSites));
 
     % extract features
-    spikeFeatures = permute(rez.cProjPC, [2 3 1]);
+    spikeFeatures = permute(rez.cProjPC, [3 2 1]);
     fidFeatures = fopen([sessionName '_features.bin'], 'w');
     fwrite_(fidFeatures, spikeFeatures);
     fclose(fidFeatures);
@@ -110,6 +127,22 @@ function importKiloSort(rezFile, sessionName)
     featureDims = size(spikeFeatures);
     S0.featureDims = featureDims;
     S0.rez = rez;
+
+    % construct S_clu from scratch
+    S_clu = struct();
+    % TODO: handle numel(clusters) ~= max(clusters);
+    S_clu.nClusters = nClusters;
+    S_clu.spikeClusters = spikeClusters;
+    S_clu.clustersGapped = clustersGapped;
+    S_clu.spikeClustersAuto = spikeTemplates;
+    S_clu.clusterNotes = cell(nClusters, 1);
+    S_clu.simScore = rez.simScore;
+    S_clu.clusterSites = clusterSites;
+
+    S_clu.spikesByCluster = cell(1, nClusters);
+    for iCluster = 1:nClusters
+        S_clu.spikesByCluster{iCluster} = find(spikeClusters == iCluster);
+    end
 
 %     S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
 %     set(0, 'UserData', S0);
@@ -119,11 +152,13 @@ function importKiloSort(rezFile, sessionName)
 %     S0.S_clu = S_clu_new_(spikeClusters, S0);
 %     S0.S_clu = S_clu_sort_(S0.S_clu, 'clusterSites');
 
+    S0.S_clu = S_clu;
+
     % Save
     P = saveProbe([sessionName '-probe.mat'], P);
     S0.P = P;
     set(0, 'UserData', S0);
-    
+
     exportParams(P.paramFile, [], 0);
     save0_([sessionName '_jrc.mat']);
 end %func
