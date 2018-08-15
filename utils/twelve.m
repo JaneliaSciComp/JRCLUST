@@ -40,12 +40,12 @@ function twelve(filename)
         if isempty(tline)
             newlines{end+1} = '';
         else
-            tline = strsplit(tline, '=');
+            tline = strsplit(tline, ' = ');
 
             if numel(tline) > 2
                 rhs = tline{2};
                 for i=3:numel(tline)
-                    rhs = [rhs '=' tline{i}];
+                    rhs = [rhs ' = ' tline{i}];
                 end
                 tline = {tline{1}, rhs};
             end

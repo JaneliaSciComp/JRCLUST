@@ -1,7 +1,8 @@
 %--------------------------------------------------------------------------
 function importKiloSort(rezFile, sessionName)
-    if nargin < 2
+    if nargin < 2 || ~isLegalFilename(sessionName)
         sessionName = 'imported-kilosort-session';
+        fprintf('data will be saved to files beginning with ''%s''', sessionName);
     end
 
     if isstruct(rezFile)
@@ -13,7 +14,7 @@ function importKiloSort(rezFile, sessionName)
             if startsWith(err.message, 'Unable to read MAT-file')
                 error('rezFile must be a MAT file');
             else
-                throw err;
+                rethrow(err);
             end
         end
 
