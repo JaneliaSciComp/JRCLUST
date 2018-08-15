@@ -19,7 +19,7 @@ function [S_clu, nClu_merged] = S_clu_wavcor_merge_(S_clu, P)
     % viClu_update = setdiff(1:nClu, viClu_same);
 
     % update cluster number
-    try S_clu.icl(viClu_remove) = []; catch, end
+    try S_clu.clusterCenters(viClu_remove) = []; catch, end
     S_clu = S_clu_map_index_(S_clu, viMap_clu); %index mapped
     P.fVerbose = 0;
     S_clu = S_clu_refrac_(S_clu, P); % remove refrac spikes

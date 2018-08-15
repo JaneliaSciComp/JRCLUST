@@ -4,7 +4,7 @@ function viClu = assignCluster_site_(S_clu, S0)
 
     nSites = numel(S0.cviSpk_site);
     viClu = zeros(numel(S_clu.rho), 1, 'int32');
-    viClu(S_clu.icl) = 1:numel(S_clu.icl);
+    viClu(S_clu.clusterCenters) = 1:numel(S_clu.clusterCenters);
     % for iRepeat = 1:nRepeat
     for iSite = 1:nSites
         viSpk_ = S0.cviSpk_site{iSite}; %find(S0.spikeSites == iSite);

@@ -23,7 +23,7 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
         if fSkip_fig, return; end
         if ~isfield(S0, 'S_clu') || ~get_set_(P, 'fSavePlot_RD', 1), return; end
         try
-            if ~isfield(S0, 'icl'), return; end % skip kilosort
+            if ~isfield(S0, 'clusterCenters'), return; end % skip kilosort
             save_fig_(strrep(P.paramFile, '.prm', '_RD.png'), plot_rd_(P, S0), 1);
             fprintf('\tYou can use ''jrc plot-rd'' command to plot this figure.\n');
         catch

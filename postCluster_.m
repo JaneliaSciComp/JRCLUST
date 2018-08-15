@@ -8,15 +8,15 @@ function S_clu = postCluster_(S_clu, P)
 
     switch lower(P.vcDetrend_postclu)
         %         case {'hidehiko', 'hide'}
-        %             S_clu.icl = selec_rho_delta_with_slope(S_clu, P.log10DeltaCutoff);
+        %             S_clu.clusterCenters = selec_rho_delta_with_slope(S_clu, P.log10DeltaCutoff);
         case 'local' %
-            S_clu.icl = detrend_local_(S_clu, P, 1);
+            S_clu.clusterCenters = detrend_local_(S_clu, P, 1);
         case 'none'
-            S_clu.icl = find(S_clu.rho(:) > 10^(P.log10RhoCutoff) & S_clu.delta(:) > 10^(P.log10DeltaCutoff));
+            S_clu.clusterCenters = find(S_clu.rho(:) > 10^(P.log10RhoCutoff) & S_clu.delta(:) > 10^(P.log10DeltaCutoff));
         case 'global'
-            S_clu.icl = detrend_local_(S_clu, P, 0);
+            S_clu.clusterCenters = detrend_local_(S_clu, P, 0);
         case 'logz'
-            S_clu.icl = log_ztran_(S_clu.rho, S_clu.delta, P.log10RhoCutoff, 4+P.log10DeltaCutoff);
+            S_clu.clusterCenters = log_ztran_(S_clu.rho, S_clu.delta, P.log10RhoCutoff, 4+P.log10DeltaCutoff);
         otherwise
             fprintf(2, 'postCluster_: vcDetrend_postclu = ''%s''; not supported.\n', P.vcDetrend_postclu);
     end
@@ -34,7 +34,7 @@ function S_clu = postCluster_(S_clu, P)
         vrXp = log10(S_clu.rho);
         vrYp = log10(S_clu.delta);
         figure; hold on;
-        plot(vrXp, vrYp, 'b.', vrXp(S_clu.icl), vrYp(S_clu.icl), 'ro');
+        plot(vrXp, vrYp, 'b.', vrXp(S_clu.clusterCenters), vrYp(S_clu.clusterCenters), 'ro');
         plot(get(gca, 'XLim'), P.log10DeltaCutoff*[1 1], 'r-');
         plot(P.log10RhoCutoff*[1 1], get(gca, 'YLim'), 'r-');
         xlabel('log10 rho');

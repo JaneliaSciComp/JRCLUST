@@ -9,7 +9,7 @@ function S_clu = assign_clu_count_(S_clu, P)
         nClu_pre = S_clu.nClusters;
     end
     nClu_rm = 0;
-    fprintf('assigning clusters, nClu:%d\n', numel(S_clu.icl)); t1=tic;
+    fprintf('assigning clusters, nClu:%d\n', numel(S_clu.clusterCenters)); t1=tic;
 
     if get_set_(P, 'f_assign_site_clu', 0)
         S_clu.spikeClusters = assignCluster_site_(S_clu, get0_());
@@ -18,8 +18,8 @@ function S_clu = assign_clu_count_(S_clu, P)
     % fReassign = 0;
     % min_rho = -inf;
     for iRepeat=1:nRepeat_max % repeat 1000 times max
-        %     S_clu.icl(S_clu.rho(S_clu.icl) < min_rho) = [];
-        [S_clu.spikeClusters, S_clu.icl] = assignCluster_(S_clu.spikeClusters, S_clu.ordrho, S_clu.nneigh, S_clu.icl);
+        %     S_clu.clusterCenters(S_clu.rho(S_clu.clusterCenters) < min_rho) = [];
+        [S_clu.spikeClusters, S_clu.clusterCenters] = assignCluster_(S_clu.spikeClusters, S_clu.ordrho, S_clu.nneigh, S_clu.clusterCenters);
         %     S_clu.spikeClusters(S_clu.rho < min_rho) = 0; %noise assignment
         %     if ~isfield(P, 'minClusterSize') || isempty(P.minClusterSize), P.minClusterSize = 0; end
         P.minClusterSize = max(get_set_(P, 'minClusterSize', 0), S_clu.trFet_dim(1)*2);
@@ -30,7 +30,7 @@ function S_clu = assign_clu_count_(S_clu, P)
         % remove clusters unused
         viCluKill = find(S_clu.vnSpk_clu <= P.minClusterSize);
         if isempty(viCluKill), break; end
-        S_clu.icl(viCluKill) = [];
+        S_clu.clusterCenters(viCluKill) = [];
         S_clu.spikeClusters=[];
         nClu_rm = nClu_rm + numel(viCluKill);
         if iRepeat==nRepeat_max

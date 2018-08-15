@@ -27,7 +27,7 @@ function S_clu = plotFigRD(S_clu, P)
         P.vcDetrend_postclu = 'none';
     end
 
-    clusterCenters = S_clu.icl;
+    clusterCenters = S_clu.clusterCenters;
 
     switch P.vcDetrend_postclu
         case 'none'
