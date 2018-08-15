@@ -4,8 +4,8 @@ function mrWavCor = S_clu_wavcor_(S_clu, P, viClu_update)
     % version selector
     fUse_old = 1;
 
-    spkLim_raw_factor = get_set_(P, 'spkLim_raw_factor', 2);
-    spkLim_factor_merge = get_set_(P, 'spkLim_factor_merge', 1);
+    spkLim_raw_factor = getOr(P, 'spkLim_raw_factor', 2);
+    spkLim_factor_merge = getOr(P, 'spkLim_factor_merge', 1);
     if nargin<3, viClu_update = []; end
 
     if spkLim_factor_merge < spkLim_raw_factor && ~fUse_old

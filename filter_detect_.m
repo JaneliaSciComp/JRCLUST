@@ -15,7 +15,7 @@ function [mn1, nShift_post] = filter_detect_(mn, P, vcMode)
     nShift_post = 0;
     switch lower(vcMode)
         case 'ndist'
-            mn1 = ndist_filt_(mn, get_set_(P, 'ndist_filt', 5));
+            mn1 = ndist_filt_(mn, getOr(P, 'ndist_filt', 5));
         case 'matched'
             vrFilt_spk = get0_('vrFilt_spk');
             if isempty(vrFilt_spk)

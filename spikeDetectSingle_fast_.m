@@ -21,9 +21,9 @@ function [viSpk1, vrSpk1, thresh1] = spikeDetectSingle_fast_(vrWav1, P, thresh1)
 
     % detect valley turning point. cannot detect bipolar
     % pick spikes crossing at least three samples
-    nneigh_min = get_set_(P, 'nneigh_min_detect', 0);
+    nneigh_min = getOr(P, 'nneigh_min_detect', 0);
     viSpk1 = find_peak_(vrWav1, thresh1, nneigh_min);
-    if get_set_(P, 'fDetectBipolar', 0)
+    if getOr(P, 'fDetectBipolar', 0)
         viSpk1 = [viSpk1; find_peak_(-vrWav1, thresh1, nneigh_min)];
         viSpk1 = sort(viSpk1);
     end
@@ -33,9 +33,9 @@ function [viSpk1, vrSpk1, thresh1] = spikeDetectSingle_fast_(vrWav1, P, thresh1)
     else
         vrSpk1 = vrWav1(viSpk1);
         % Remove spikes too large
-        spkThresh_max_uV = get_set_(P, 'spkThresh_max_uV', []);
+        spkThresh_max_uV = getOr(P, 'spkThresh_max_uV', []);
         if ~isempty(spkThresh_max_uV)
-            thresh_max1 = abs(spkThresh_max_uV) / get_set_(P, 'uV_per_bit', 1);
+            thresh_max1 = abs(spkThresh_max_uV) / getOr(P, 'uV_per_bit', 1);
             thresh_max1 = cast(thresh_max1, 'like', vrSpk1);
             viA1 = find(abs(vrSpk1) < abs(thresh_max1));
             viSpk1 = viSpk1(viA1);

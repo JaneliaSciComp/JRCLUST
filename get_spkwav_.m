@@ -7,7 +7,7 @@ function tnWav_ = get_spkwav_(P, fRaw)
     if isempty(P), P = get0_('P'); end
     if nargin<2, fRaw = P.fWav_raw_show; end
 
-    fRamCache = get_set_(P, 'fRamCache', 1);
+    fRamCache = getOr(P, 'fRamCache', 1);
     if fRaw
         if ~fRamCache, spikeWaveforms = []; end % clear spk
         if isempty(spikeTraces), spikeTraces = load_spkraw_(); end

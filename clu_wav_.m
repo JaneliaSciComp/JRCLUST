@@ -5,7 +5,7 @@ function [mrWav_clu1, clusterSites1, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_
     fUseCenterSpk = 0; % set to zero to use all spikes
     nSamples_max = 1000;
 
-    fDrift_merge = get_set_(S0.P, 'fDrift_merge', 0);
+    fDrift_merge = getOr(S0.P, 'fDrift_merge', 0);
     [mrWav_clu1, clusterSites1, mrWav_lo_clu1, mrWav_hi_clu1] = deal([]);
     iSite_clu1 = S_clu.clusterSites(iClu);
     clusterSites1 = S0.P.miSites(:,iSite_clu1);

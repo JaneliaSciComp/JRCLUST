@@ -6,7 +6,7 @@ function vrWavCor2 = clu_wavcor_2_(ctmrWav_clu, clusterSites, iClu2, cell_5args)
     iSite_clu2 = clusterSites(iClu2);
     if iSite_clu2==0 || isnan(iSite_clu2), vrWavCor2 = []; return; end
     viSite2 = P.miSites(:,iSite_clu2);
-    maxDist_site_um = get_set_(P, 'maxDist_site_merge_um', 35);
+    maxDist_site_um = getOr(P, 'maxDist_site_merge_um', 35);
     viClu1 = find(ismember(clusterSites, findNearSite_(P.mrSiteXY, iSite_clu2, maxDist_site_um)));
 
     vrWavCor2 = zeros(nClu, 1, 'single');

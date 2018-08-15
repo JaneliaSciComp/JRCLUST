@@ -3,7 +3,7 @@
 function [cviSpk_o_1, cviSpk_o_12, cviDelay1] = find_overlap_(S0, S_clu, P)
     global spikeFeatures
 
-    snr_thresh_clu = get_set_(P, 'snr_thresh_clu', 7);
+    snr_thresh_clu = getOr(P, 'snr_thresh_clu', 7);
 
     mrDist_clu = squareform(pdist(P.mrSiteXY(S_clu.clusterSites,:)));
     mrDist_site = squareform(pdist(P.mrSiteXY));

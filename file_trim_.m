@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 % 12/18/17 JJJ: can handle headerOffset
 function nBytes = file_trim_(fid, nBytes, P)
-    headerOffset = get_set_(P, 'headerOffset', 0);
+    headerOffset = getOr(P, 'headerOffset', 0);
     nBytes = nBytes - headerOffset;
 
     if ~isfield(P, 'tlim_load') || isempty(P.tlim_load) || ~P.fTranspose_bin

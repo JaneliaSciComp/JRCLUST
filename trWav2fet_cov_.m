@@ -3,7 +3,7 @@ function varargout = trWav2fet_cov_(trWav2, P)
     % tnWav1: nT x nSites_spk x nSpk
     % subtract ref
     % nSites_spk = 1 + 2 * P.maxSite - P.nSites_ref; % size(spikeWaveforms, 2);
-    vnDelay_fet = get_set_(P, 'vnDelay_fet', [0,3]);
+    vnDelay_fet = getOr(P, 'vnDelay_fet', [0,3]);
 
     [nT, nSpk, nSites_spk] = size(trWav2);
     [cvi2, cvi1] = shift_range_(nT, [], vnDelay_fet);

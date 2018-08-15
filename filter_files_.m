@@ -8,7 +8,7 @@ function [csFiles_valid, viValid] = filter_files_(csFiles, fSortMode)
     else
         if nargin < 2
             P = get0_('P');
-            fSortMode = get_set_(P, 'sort_file_merge', 1);
+            fSortMode = getOr(P, 'sort_file_merge', 1);
         end
         csFiles = list_files_(csFiles, fSortMode);
     end

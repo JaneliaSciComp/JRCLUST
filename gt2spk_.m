@@ -5,7 +5,7 @@ function [S_gt, spikeWaveforms, spikeTraces] = gt2spk_(S_gt, P, snr_thresh)
     % fSubtract_ref = 1;
     % P.useGPU = 0;
     MAX_SAMPLE = 1000; %mean calc
-    nSubsample_clu = get_set_(P, 'nSubsample_clu', 8);
+    nSubsample_clu = getOr(P, 'nSubsample_clu', 8);
 
     if nargin<3, snr_thresh = []; end
 

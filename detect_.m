@@ -8,7 +8,7 @@ function detect_(P)
 
     S0 = file2spk_(P);
 
-    if get_set_(P, 'fRamCache', 1)
+    if getOr(P, 'fRamCache', 1)
         spikeTraces = load_bin_(strrep(P.paramFile, '.prm', '_traces.bin'), 'int16', S0.traceDims);
         spikeWaveforms = load_bin_(strrep(P.paramFile, '.prm', '_waveforms.bin'), 'int16', S0.waveformDims);
     end

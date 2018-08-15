@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 % 2017/12/1 JJJ: auto-cast and memory division
 function [cleanedSamplesMatrix, useGPU] = fft_clean_(rawTraces, P)
-    useGPU = get_set_(P, 'useGPU', isGpu_(rawTraces));
+    useGPU = getOr(P, 'useGPU', isGpu_(rawTraces));
     if ~isfield(P, 'fft_thresh') || isempty(P.fft_thresh) || P.fft_thresh==0 || isempty(rawTraces)
         cleanedSamplesMatrix = rawTraces;
         return;
@@ -11,7 +11,7 @@ function [cleanedSamplesMatrix, useGPU] = fft_clean_(rawTraces, P)
     fprintf('Applying FFT cleanup...');
 
     t1 = tic;
-    nLoads_gpu = get_set_(P, 'nLoads_gpu', 8); % GPU load limit
+    nLoads_gpu = getOr(P, 'nLoads_gpu', 8); % GPU load limit
     nSamples = size(rawTraces,1);
     [nLoads, nSamples_load1, nSamples_last1] = partition_load_(nSamples, round(nSamples/nLoads_gpu));
 

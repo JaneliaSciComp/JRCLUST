@@ -8,7 +8,7 @@ function [S_clu, nClu_merged] = S_clu_wavcor_merge_(S_clu, P)
     % mrWavCor(tril(true(nClu)) | mrWavCor==0) = nan; %ignore bottom half
     mrWavCor(tril(true(nClu))) = 0; %ignore bottom half
     [vrCor_max, viMap_clu] = max(mrWavCor);
-    vlKeep_clu = vrCor_max < get_set_(P, 'maxWavCor', 1); % | isnan(vrCor_max);
+    vlKeep_clu = vrCor_max < getOr(P, 'maxWavCor', 1); % | isnan(vrCor_max);
     if all(vlKeep_clu), nClu_merged=0; return ;end
     min_cor = min(vrCor_max(~vlKeep_clu));
     viClu_same = find(vlKeep_clu);

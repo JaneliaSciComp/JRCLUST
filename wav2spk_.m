@@ -26,7 +26,7 @@ function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrimarySecondarySites
     end
 
     [spikeTraces, spikeWaveforms, spikeFeatures, spikePrimarySecondarySites] = deal([]);
-    nFet_use = get_set_(P, 'nFet_use', 2);
+    nFet_use = getOr(P, 'nFet_use', 2);
 
     nSite_use = P.maxSite*2+1 - P.nSites_ref;
     if nSite_use == 1
@@ -72,7 +72,7 @@ function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrimarySecondarySites
     % setUserData(vlKeep_ref);
     fprintf('\ttook %0.1fs\n', toc(t_filter));
 
-    switch get_set_(P, 'vcFilter_detect', '')
+    switch getOr(P, 'vcFilter_detect', '')
         case {'', 'none'}
             mnWav3 = filteredTraces;
         case 'ndist'
@@ -136,7 +136,7 @@ function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrimarySecondarySites
 
     %-----
     % Cancel overlap
-    if get_set_(P, 'fCancel_overlap', 0)
+    if getOr(P, 'fCancel_overlap', 0)
         try
             [spikeWaveforms, spikeWaveforms2] = cancel_overlap_spk_(spikeWaveforms, spikeWaveforms2, spikeTimes, spikeSites, spikeSecondarySites, siteThresholds, P);
         catch

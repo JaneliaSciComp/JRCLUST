@@ -5,7 +5,7 @@ function [cvi1, cvi2] = calc_shift_range_(P)
     % compute center range for the raw spike waveform
     spkLim_raw = get_(P, 'spkLim_raw');
     nSamples_raw = diff(spkLim_raw) + 1;
-    spkLim_factor_merge = get_set_(P, 'spkLim_factor_merge', 1);
+    spkLim_factor_merge = getOr(P, 'spkLim_factor_merge', 1);
     spkLim_merge = round(P.spkLim * spkLim_factor_merge);
     viRange = (spkLim_merge(1) - spkLim_raw(1) + 1):(nSamples_raw - spkLim_raw(2) + spkLim_merge(2));
 

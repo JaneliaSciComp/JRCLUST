@@ -40,6 +40,6 @@ function plot_activity_(P) % single column only
     vrCentroid = bsxfun(@rdivide, sum(bsxfun(@times, mrAmp90a.^2, vrSiteY(viSiteA))), sum(mrAmp90a.^2));
     hold on; plot((1:nTime) * tbin, vrCentroid, 'r');
 
-    % if get_set_([], 'fDebug_ui', 0), close(hFig); end
+    % if getOr([], 'fDebug_ui', 0), close(hFig); end
     if fDebug_ui==1, close(hFig); end
 end %func

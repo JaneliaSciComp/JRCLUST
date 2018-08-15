@@ -16,7 +16,7 @@ function save_figures_(vcExt)
         if ~ishandle(hFig1), continue; end
         vcFile1 = [vcPrefix, get(hFig1, 'Tag'), vcExt];
         if fDebug_ui==1, continue; end
-        %     if get_set_([], 'fDebug_ui', 0), continue; end %skip saving for debugging
+        %     if getOr([], 'fDebug_ui', 0), continue; end %skip saving for debugging
         switch lower(vcExt)
             case '.fig'
             savefig(hFig1, vcFile1, 'compact');

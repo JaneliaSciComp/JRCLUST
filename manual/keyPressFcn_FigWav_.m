@@ -77,7 +77,7 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
         case 't', plot_FigTime_(S0); % time view
         case 'j', plotFigProj(S0); %projection view
         case 'n'
-        fText = get_set_(S_fig, 'fText', get_set_(P, 'fText', 1));
+        fText = getOr(S_fig, 'fText', getOr(P, 'fText', 1));
         figWav_clu_count_(S_fig, S_clu, ~fText);
         case 'i', plot_FigHist_(S0); %ISI histogram
         case 'e', plot_FigMap_(S0);

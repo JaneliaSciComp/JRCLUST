@@ -4,7 +4,7 @@ function [S_clu, S0] = post_merge_(S_clu, P, fPostCluster)
     % also removes duplicate spikes
     if nargin<3, fPostCluster=1; end
 
-    nRepeat_merge = get_set_(P, 'nRepeat_merge', 10);
+    nRepeat_merge = getOr(P, 'nRepeat_merge', 10);
     % fMerge_pv = 0;
     fClean_clu = 1;
 

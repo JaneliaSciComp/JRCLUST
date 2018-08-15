@@ -3,7 +3,7 @@
 function flag = validate_param_(P)
     % validate P
 
-    NDIM_SORT_MAX = get_set_(P, 'nC_max', 45);
+    NDIM_SORT_MAX = getOr(P, 'nC_max', 45);
 
     csError = {};
 

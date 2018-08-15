@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function [spikeTimes, vrAmp_spk, spikeSites] = detect_spikes_(mnWav3, siteThresholds, vlKeep_ref, P)
     % fMerge_spk = 1;
-    fMerge_spk = get_set_(P, 'fMerge_spk', 1);
+    fMerge_spk = getOr(P, 'fMerge_spk', 1);
 
     [n1, nSites, ~] = size(mnWav3);
     [cviSpk_site, cvrSpk_site] = deal(cell(nSites,1));
@@ -41,7 +41,7 @@ function [spikeTimes, vrAmp_spk, spikeSites] = detect_spikes_(mnWav3, siteThresh
     vrAmp_spk = gather_(vrAmp_spk);
 
     % Group all sites in the same shank
-    if get_set_(P, 'fGroup_shank', 0)
+    if getOr(P, 'fGroup_shank', 0)
         [spikeSites] = group_shank_(spikeSites, P); % change the site location to the shank center
     end
 end %func

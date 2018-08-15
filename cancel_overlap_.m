@@ -5,7 +5,7 @@ function spikeFeatures = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0,
     global spikeWaveforms spikeFeatures spikeTraces
 
     viSites_ref = ceil(size(spikeWaveforms,2)/2):size(spikeWaveforms,2);
-    nPc_fit = min(get_set_(P, 'nPc_fit_overlap', 5), size(S0.mrPv_global,2));
+    nPc_fit = min(getOr(P, 'nPc_fit_overlap', 5), size(S0.mrPv_global,2));
     mrPv = S0.mrPv_global(:,1:nPc_fit) / sqrt(size(S0.mrPv_global,1));
     % fit and cancel overlap using delay and mean clu waveform
     for iClu = 1:S_clu.nClusters

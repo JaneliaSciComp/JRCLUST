@@ -76,7 +76,7 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     if ~isempty(get_(P, 'nSkip_lfp'))
         P.sampleRateHz_lfp = P.sampleRateHz / P.nSkip_lfp;
     else
-        P.sampleRateHz_lfp = get_set_(P, 'sampleRateHz_lfp', 2500);
+        P.sampleRateHz_lfp = getOr(P, 'sampleRateHz_lfp', 2500);
         P.nSkip_lfp = round(P.sampleRateHz / P.sampleRateHz_lfp);
     end
     P.bytesPerSample = bytesPerSample_(P.dataType);

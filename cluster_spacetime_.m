@@ -17,7 +17,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     vrDelta = zeros(nSpk, 1, 'single');
     viNneigh = zeros(nSpk, 1, 'uint32');
     vrDc2_site = zeros(nSites, 1, 'single');
-    nTime_clu = get_set_(P, 'nTime_clu', 1);
+    nTime_clu = getOr(P, 'nTime_clu', 1);
     P.nTime_clu = nTime_clu;
     P.dc_subsample = 1000;
     P.useGPU = 1;
@@ -25,13 +25,13 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     % clear memory
     cuda_rho_();
     cuda_delta_();
-    if get_set_(P, 'fDenoise_fet', 0)
+    if getOr(P, 'fDenoise_fet', 0)
         spikeFeatures = denoise_fet_(spikeFeatures, P, vlRedo_spk);
     end
 
     %-----
     % Calculate dc2 (global)
-    if get_set_(P, 'fDc_global', 0)
+    if getOr(P, 'fDc_global', 0)
         dc2 = calc_dc2_(S0, P, vlRedo_spk);
     else
         dc2 = [];

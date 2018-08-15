@@ -4,15 +4,15 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
     % symmetric matrix and common basis comparison only
 
     fUsePeak2 = 0;
-    nInterp_merge = get_set_(P, 'nInterp_merge', 1); % set to 1 to disable
-    fDrift_merge = get_set_(P, 'fDrift_merge', 0);
+    nInterp_merge = getOr(P, 'nInterp_merge', 1); % set to 1 to disable
+    fDrift_merge = getOr(P, 'fDrift_merge', 0);
     P.useGPU = 0;
     nShift = ceil(P.spkRefrac_ms / 1000 * P.sampleRateHz * nInterp_merge); % +/-n number of samples to compare time shift
     % nShift = 0;
-    fWaveform_raw = 0; % get_set_(P, 'fWavRaw_merge', 1); TW
+    fWaveform_raw = 0; % getOr(P, 'fWavRaw_merge', 1); TW
 
-    fZeroStart_raw = get_set_(P, 'fZeroStart_raw', 0);
-    fRankCorr_merge = get_set_(P, 'fRankCorr_merge', 0);
+    fZeroStart_raw = getOr(P, 'fZeroStart_raw', 0);
+    fRankCorr_merge = getOr(P, 'fRankCorr_merge', 0);
     fMode_cor = 1; %0: pearson, 1:no mean subt pearson
 
     if nargin<3, viClu_update = []; end

@@ -14,7 +14,7 @@ function [mrFet1, mrFet2, mrFet3] = project_interp_(trWav2_spk, mrPv, P);
     end
 
     % find optimal delay by interpolating 2x
-    if ~get_set_(P, 'fInterp_fet', 0), return; end
+    if ~getOr(P, 'fInterp_fet', 0), return; end
     vr1 = mrPv(:,1);
     vi0 = (1:numel(vr1))';
     viShift = [0, -1,-.5,.5,1]; %[0, -.5, .5]

@@ -30,7 +30,7 @@ function manual(P, debugMode)
         [S_clu, S0] = post_merge_(S0.S_clu, P); % redo the clustering (reset to auto)
         S0 = setUserData(P);
     else
-        if ~isempty(get_set_(S0, 'cS_log', {}))
+        if ~isempty(getOr(S0, 'cS_log', {}))
             switch lower(userDialog('Load last saved?', 'Confirmation'))
                 case 'no'
                     [S_clu, S0] = post_merge_(S0.S_clu, P);

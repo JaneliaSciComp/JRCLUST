@@ -19,7 +19,7 @@ function S_fig = plot_spkwav_(S_fig, S0)
             viSpk_show = randomSelect_(S_clu_viSpk_(S_clu, iClu, spikeSites), P.nSpk_show);
             if P.fWav_raw_show
                 trWav1 = raw2uV_(tnWav(:,:,viSpk_show), P);
-                trWav1 = fft_lowpass_(trWav1, get_set_(P, 'fc_spkwav_show', []), P.sampleRateHz);
+                trWav1 = fft_lowpass_(trWav1, getOr(P, 'fc_spkwav_show', []), P.sampleRateHz);
             else
                 trWav1 = tnWav2uV_(tnWav(:,:,viSpk_show), P);
             end

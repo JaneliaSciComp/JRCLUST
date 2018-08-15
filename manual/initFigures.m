@@ -16,7 +16,7 @@ function S0 = initFigures(P) % TODO: create different figures for different algs
     figTags = {'FigPos', 'FigMap', 'FigTime', 'FigWav', 'FigWavCor', 'FigProj', 'FigCorr', 'FigIsi', 'FigHist'};
 
     % rho-delta plot; specific to JRC
-    if ~get_set_(P, 'fImportKilosort', 0)
+    if ~getOr(P, 'fImportKilosort', 0)
         createFigure('FigRD', [.85 0 .15 .25], ['Cluster rho-delta: ', P.paramFile]);
         figTags = {figTags{:}, 'FigRD'};
     end

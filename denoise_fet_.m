@@ -4,7 +4,7 @@ function spikeFeatures_ = denoise_fet_(spikeFeatures, P, vlRedo_spk)
     % denoise_fet_() to reset
     % cluster based averaging fet cleanup
     % set repeat parameter?
-    nRepeat_fet = get_set_(P, 'nRepeat_fet', 0);
+    nRepeat_fet = getOr(P, 'nRepeat_fet', 0);
     if nRepeat_fet==0, spikeFeatures_ = spikeFeatures; return ;end
 
     S0 = get(0, 'UserData');
@@ -12,7 +12,7 @@ function spikeFeatures_ = denoise_fet_(spikeFeatures, P, vlRedo_spk)
     nSites = numel(P.chanMap);
     nC = size(spikeFeatures,1);
     try
-        nC_max = get_set_(P, 'nC_max', 45);
+        nC_max = getOr(P, 'nC_max', 45);
         CK = parallel.gpu.CUDAKernel('jrc_cuda_nneigh.ptx','jrc_cuda_nneigh.cu');
         CK.ThreadBlockSize = [P.nThreads, 1];
         CK.SharedMemorySize = 4 * P.CHUNK * (1 + nC_max + 2 * P.nThreads); % @TODO: update the size

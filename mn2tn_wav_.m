@@ -9,7 +9,7 @@ function [spikeTraces, spikeWaveforms, spikeTimes] = mn2tn_wav_(rawTraces, filte
     spikeWaveforms = zeros(diff(waveformLimits) + 1, nSites_spk, nSpikes, 'like', filteredTraces);
 
     % Realignment parameters
-    fRealign_spk = get_set_(P, 'fRealign_spk', 0); %0,1,2
+    fRealign_spk = getOr(P, 'fRealign_spk', 0); %0,1,2
     spikeTimes = gpuArray_(spikeTimes, isGpu_(rawTraces));
     spikeSites = gpuArray_(spikeSites, isGpu_(rawTraces));
 

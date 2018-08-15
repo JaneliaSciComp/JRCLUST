@@ -6,8 +6,8 @@ function [mnWav_raw, S_preview] = load_preview_(P)
     % S_preview: which file and where it came from
     if ischar(P), P = loadParams(P); end
 
-    nLoads_max_preview = get_set_(P, 'nLoads_max_preview', 30);
-    sec_per_load_preview = get_set_(P, 'sec_per_load_preview', 1);
+    nLoads_max_preview = getOr(P, 'nLoads_max_preview', 30);
+    sec_per_load_preview = getOr(P, 'sec_per_load_preview', 1);
 
     % determine files to load
     if ~isfield(P, 'multiFilenames') || isempty(P.multiFilenames)

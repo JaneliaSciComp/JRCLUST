@@ -11,7 +11,7 @@ function S0 = sort_(P, fLoad)
 
     % Sort and save
     S_clu = fet2clu_(S0, P);
-    if get_set_(P, 'fCorrect_overlap', 0) % correct waveforms and features after correcting clusters
+    if getOr(P, 'fCorrect_overlap', 0) % correct waveforms and features after correcting clusters
         S_clu = sort_overlap_(S0, S_clu, P);
     end
     [S_clu, S0] = S_clu_commit_(S_clu, 'sort_');

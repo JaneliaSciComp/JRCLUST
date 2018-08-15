@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function [vlKeep_ref, vrMad_ref] = car_reject_(vrWav_mean1, P)
-    blank_period_ms = get_set_(P, 'blank_period_ms', 5);
-    blank_thresh = get_set_(P, 'blank_thresh', []);
+    blank_period_ms = getOr(P, 'blank_period_ms', 5);
+    blank_thresh = getOr(P, 'blank_thresh', []);
     [vlKeep_ref, vrMad_ref] = deal([]);
     % if isempty(blank_thresh) || blank_thresh==0, return; end
 

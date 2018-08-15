@@ -9,7 +9,7 @@ function [trWav2, mrWav_ref] = spkwav_car_(trWav2, P, nSites_spk, spikeSecondary
         spikeSecondarySites = [];
     end
 
-    vcSpkRef = get_set_(P, 'vcSpkRef', 'nmean');
+    vcSpkRef = getOr(P, 'vcSpkRef', 'nmean');
     if strcmpi(vcSpkRef, 'nmean')
         fSort_car = 1;
     else

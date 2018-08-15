@@ -6,7 +6,7 @@ function [vrDelta1, viNneigh1] = cuda_delta_(mrFet12, viiSpk12_ord, viiRho12_ord
     if isempty(nC_), nC_ = 0; end
     [nC, n12] = size(mrFet12); %nc is constant with the loop
     dn_max = int32(round((n1+n2) / P.nTime_clu));
-    nC_max = get_set_(P, 'nC_max', 45);
+    nC_max = getOr(P, 'nC_max', 45);
     if P.useGPU
         try
             if (nC_ ~= nC) % create cuda kernel
@@ -18,7 +18,7 @@ function [vrDelta1, viNneigh1] = cuda_delta_(mrFet12, viiSpk12_ord, viiRho12_ord
             CK.GridSize = [ceil(n1 / P.CHUNK / P.CHUNK), P.CHUNK]; %MaxGridSize: [2.1475e+09 65535 65535]
             vrDelta1 = zeros([1, n1], 'single', 'gpuArray');
             viNneigh1 = zeros([1, n1], 'uint32', 'gpuArray');
-            vnConst = int32([n1, n12, nC, dn_max, get_set_(P, 'fDc_spk', 0)]);
+            vnConst = int32([n1, n12, nC, dn_max, getOr(P, 'fDc_spk', 0)]);
             [vrDelta1, viNneigh1] = feval(CK, vrDelta1, viNneigh1, mrFet12, viiSpk12_ord, viiRho12_ord, vnConst, dc2);
             % [vrDelta1_, viNneigh1_] = deal(vrDelta1, viNneigh1);
             return;

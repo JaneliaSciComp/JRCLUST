@@ -9,7 +9,7 @@ function auto_scale_proj_time_(S0, fPlot)
         fPlot = 0;
     end
 
-    autoscale_pct = get_set_(S0.P, 'autoscale_pct', 99.5);
+    autoscale_pct = getOr(S0.P, 'autoscale_pct', 99.5);
     [hFig_proj, S_fig_proj] = getCachedFig('FigProj');
     [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, S_fig_proj.sitesOfInterest);
 

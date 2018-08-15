@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 function auto_(P)
-    if get_set_(P, 'fRepeat_clu', 0)
+    if getOr(P, 'fRepeat_clu', 0)
         sort_(P);
         describe_(P.paramFile);
         return;

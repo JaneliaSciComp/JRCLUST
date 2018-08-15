@@ -19,8 +19,8 @@ function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cclusterSites, P, cell_5args, iClu
         viClu1 = find(clusterSites == iSite_clu2 | viSite2_clu == iSite_clu2 | viSite3_clu == iSite_clu2 | ...
         clusterSites == viSite2_clu(iClu2) | clusterSites == viSite3_clu(iClu2)); %viSite2_clu == viSite2_clu(iClu2)
     else
-        %     maxDist_site_um = get_set_(P, 'maxDist_site_um', 50);
-        maxDist_site_um = get_set_(P, 'maxDist_site_merge_um', 35);
+        %     maxDist_site_um = getOr(P, 'maxDist_site_um', 50);
+        maxDist_site_um = getOr(P, 'maxDist_site_merge_um', 35);
         viClu1 = find(ismember(clusterSites, findNearSite_(P.mrSiteXY, iSite_clu2, maxDist_site_um)));
     end
 

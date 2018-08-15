@@ -11,7 +11,7 @@ function S_clu = assign_clu_count_(S_clu, P)
     nClu_rm = 0;
     fprintf('assigning clusters, nClu:%d\n', numel(S_clu.clusterCenters)); t1=tic;
 
-    if get_set_(P, 'f_assign_site_clu', 0)
+    if getOr(P, 'f_assign_site_clu', 0)
         S_clu.spikeClusters = assignCluster_site_(S_clu, get0_());
     end
 
@@ -22,7 +22,7 @@ function S_clu = assign_clu_count_(S_clu, P)
         [S_clu.spikeClusters, S_clu.clusterCenters] = assignCluster_(S_clu.spikeClusters, S_clu.ordrho, S_clu.nneigh, S_clu.clusterCenters);
         %     S_clu.spikeClusters(S_clu.rho < min_rho) = 0; %noise assignment
         %     if ~isfield(P, 'minClusterSize') || isempty(P.minClusterSize), P.minClusterSize = 0; end
-        P.minClusterSize = max(get_set_(P, 'minClusterSize', 0), S_clu.trFet_dim(1)*2);
+        P.minClusterSize = max(getOr(P, 'minClusterSize', 0), S_clu.trFet_dim(1)*2);
         % http://scikit-learn.org/stable/modules/lda_qda.html
 
         S_clu = S_clu_refresh_(S_clu);

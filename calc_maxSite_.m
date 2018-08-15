@@ -7,10 +7,10 @@ function P = calc_maxSite_(P)
     P.nSites_ref = get_(P, 'nSites_ref');
     if ~isempty(P.maxSite) && ~isempty(P.nSites_ref), return; end
     mrDist_site = pdist2(P.mrSiteXY, P.mrSiteXY);
-    maxDist_site_um = get_set_(P, 'maxDist_site_um', 50);
+    maxDist_site_um = getOr(P, 'maxDist_site_um', 50);
     nSites_fet = max(sum(mrDist_site <= maxDist_site_um)); % 11/7/17 JJJ: med to max
     if ~isfield(P, 'nSites_ref') || isempty(P.nSites_ref)
-        maxDist_site_spk_um = get_set_(P, 'maxDist_site_spk_um', maxDist_site_um+25);
+        maxDist_site_spk_um = getOr(P, 'maxDist_site_spk_um', maxDist_site_um+25);
         nSites_spk = max(sum(mrDist_site <= maxDist_site_spk_um)); % 11/7/17 JJJ: med to max
         maxSite = (nSites_spk-1)/2;
         P.nSites_ref = nSites_spk - nSites_fet;

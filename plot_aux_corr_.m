@@ -7,9 +7,9 @@ function plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluP
     nClu = numel(vrCorr_aux_clu);
     [P, S_clu] = get0_('P', 'S_clu');
     P = loadParams(P.paramFile);
-    nClu_show = min(get_set_(P, 'nClu_show_aux', 4), nClu);
-    vcLabel_aux = get_set_(P, 'vcLabel_aux', 'aux');
-    nSubsample_aux = get_set_(P, 'nSubsample_aux', 100);
+    nClu_show = min(getOr(P, 'nClu_show_aux', 4), nClu);
+    vcLabel_aux = getOr(P, 'vcLabel_aux', 'aux');
+    nSubsample_aux = getOr(P, 'nSubsample_aux', 100);
     if ~isempty(iCluPlot)
         nClu_show = 1;
         viSrt = iCluPlot;

@@ -13,7 +13,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     if ismember(P.displayFeature, {'pca', 'ppca', 'gpca'})
         fWav_raw_show = 0;
     else
-        fWav_raw_show = get_set_(P, 'fWav_raw_show', 0);
+        fWav_raw_show = getOr(P, 'fWav_raw_show', 0);
     end
     trWav12 = tnWav2uV_(spikeWaveforms_sites_(S_clu.spikesByCluster{iClu1}, site12, S0, fWav_raw_show), P);
     if diff(site12) == 0, trWav12(:,2,:) = trWav12(:,1,:); end

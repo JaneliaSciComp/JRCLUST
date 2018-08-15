@@ -1,9 +1,9 @@
 %--------------------------------------------------------------------------
 function plot_drift_(P)
 
-    iShank_show = get_set_(P, 'iShank_show', 1);
-    vcMode_drift = get_set_(P, 'vcMode_drift', 'z'); % {'tay', 'xy', 'xya', 'x', 'y'}
-    vcMode_com = get_set_(P, 'vcMode_com', 'fet'); % {'fet', 'filt', 'raw', 'std'}
+    iShank_show = getOr(P, 'iShank_show', 1);
+    vcMode_drift = getOr(P, 'vcMode_drift', 'z'); % {'tay', 'xy', 'xya', 'x', 'y'}
+    vcMode_com = getOr(P, 'vcMode_com', 'fet'); % {'fet', 'filt', 'raw', 'std'}
     % Compute spike position and plot drift profile
     S0 = load_cached_(P); % load cached data or from file if exists
     [S_clu, spikeSecondarySites, vrTime_spk, spikeSites] = get0_('S_clu', 'spikeSecondarySites', 'spikeTimes', 'spikeSites');
@@ -47,7 +47,7 @@ function plot_drift_(P)
     ax = gca();
     hold on;
     nSpk_thresh_clu = median(S_clu.vnSpk_clu);
-    snr_thresh_clu = get_set_(P, 'snr_thresh_clu', quantile(S_clu.vrSnr_clu, .5));
+    snr_thresh_clu = getOr(P, 'snr_thresh_clu', quantile(S_clu.vrSnr_clu, .5));
     % posX_thresh = median(S_clu.vrPosX_clu);
     % [vrTime_drift, vrDepth_drift] = drift_track_(S_clu, vrPosY_spk, P);
 

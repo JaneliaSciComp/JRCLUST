@@ -37,7 +37,7 @@ function S0 = plot_FigWav_(S0)
 
     % create text
     % S0 = setUserData(mh_info);
-    fText = get_set_(S_fig, 'fText', get_set_(P, 'Text', 1));
+    fText = getOr(S_fig, 'fText', getOr(P, 'Text', 1));
     S_fig = figWav_clu_count_(S_fig, S_clu, fText);
     S_fig.csHelp = { ...
     '[Left-click] Cluter select/unselect (point at blank)', ...

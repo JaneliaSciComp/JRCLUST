@@ -32,7 +32,7 @@ function make_trial_(vcFile_prm, fImec)
     % clear fid;
 
     if fImec % convert to TTL signal
-        dinput_imec = get_set_(P, 'dinput_imec_trial', 1);
+        dinput_imec = getOr(P, 'dinput_imec_trial', 1);
         fprintf('Digital input %d selected (P.dinput_imec_trial: 1-16)\n', dinput_imec);
         codeval = int16(bitshift(1,dinput_imec-1));
         vrWav = single(vrWav == codeval);

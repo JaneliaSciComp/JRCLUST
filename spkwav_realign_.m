@@ -3,7 +3,7 @@
 function [spikeWaveforms1, spikeTimes1] = spkwav_realign_(spikeWaveforms1, mnWav_spk, spkLim_wav, spikeTimes1, viSite1, P)
     % subtract car and temporal shift
     % spikeWaveforms1: nSamples x nSpk x nSites_spk
-    if ~strcmpi(get_set_(P, 'vcSpkRef', 'nmean'), 'nmean'), return; end
+    if ~strcmpi(getOr(P, 'vcSpkRef', 'nmean'), 'nmean'), return; end
 
     % fprintf('\n\tRealigning spikes after LCAR (vcSpkRef=nmean)...'); t1=tic;
     dimm1 = size(spikeWaveforms1);

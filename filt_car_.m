@@ -21,7 +21,7 @@ function [filteredTraces, vnWav2_mean] = filt_car_(rawTraces, P, prePadding, pos
 
     switch lower(P.vcFilter)
         case 'user'
-            vnFilter_user = single(get_set_(P, 'vnFilter_user', []));
+            vnFilter_user = single(getOr(P, 'vnFilter_user', []));
             dialogAssert(~isempty(vnFilter_user), 'Set vnFilter_user to use vcFilter=''user''');
             for i = 1:size(filteredTraces, 2)
                 filteredTraces(:, i) = conv(filteredTraces(:, i), vnFilter_user, 'same');
@@ -47,7 +47,7 @@ function [filteredTraces, vnWav2_mean] = filt_car_(rawTraces, P, prePadding, pos
             end
             filteredTraces = int16(filteredTraces);
         case 'ndist'
-            filteredTraces = ndist_filt_(filteredTraces, get_set_(P, 'ndist_filt', 5));
+            filteredTraces = ndist_filt_(filteredTraces, getOr(P, 'ndist_filt', 5));
         case {'none', 'skip'}
             ; % nothing to do
         otherwise
@@ -59,7 +59,7 @@ function [filteredTraces, vnWav2_mean] = filt_car_(rawTraces, P, prePadding, pos
         filteredTraces = filteredTraces(n_pre + 1:end - n_post, :);
     end
 
-    if ~get_set_(P, 'fImportKilosort', 0) % global subtraction before
+    if ~getOr(P, 'fImportKilosort', 0) % global subtraction before
         [filteredTraces, vnWav2_mean] = wav_car_(filteredTraces, P);
     else
         vnWav2_mean = []; % not used when importing KiloSort data

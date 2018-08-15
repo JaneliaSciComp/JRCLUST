@@ -4,7 +4,7 @@ function validate_(P)
     % S0 = load_cached_(P, 0);
     fMergeCheck = 0; %kilosort-style validation
     % snr_thresh_score = 10;
-    snr_thresh_stat = get_set_(P, 'snr_thresh_gt', 7);
+    snr_thresh_stat = getOr(P, 'snr_thresh_gt', 7);
 
     S0 = load_(strrep(P.paramFile, '.prm', '_jrc.mat'));
     % if isempty(spikeWaveforms)

@@ -1,9 +1,9 @@
 %--------------------------------------------------------------------------
 function [spikeTimes2, vnAmp_spk2, spikeSites2] = spikeMerge_single_(spikeTimes, vnAmp_spk, spikeSites, iSite1, P)
 
-    maxDist_site_um = get_set_(P, 'maxDist_site_um', 50);
-    % maxDist_site_um = get_set_(P, 'maxDist_site_merge_um', 35);
-    % nPad_pre = get_set_(P, 'nPad_pre', 0);
+    maxDist_site_um = getOr(P, 'maxDist_site_um', 50);
+    % maxDist_site_um = getOr(P, 'maxDist_site_merge_um', 35);
+    % nPad_pre = getOr(P, 'nPad_pre', 0);
     nlimit = int32(abs(P.spkRefrac));
     % spkLim = [-nlimit, nlimit];
 

@@ -7,10 +7,10 @@ function mrRate_clu = clu_rate_(S_clu, viClu, nSamples)
     if nargin<3, nSamples = []; end
 
     if isempty(viClu), viClu = 1:S_clu.nClusters; end
-    sampleRateHz_rate = get_set_(P, 'sampleRateHz_rate', 1000);
-    filter_sec_rate = get_set_(P, 'filter_sec_rate', 1);
+    sampleRateHz_rate = getOr(P, 'sampleRateHz_rate', 1000);
+    filter_sec_rate = getOr(P, 'filter_sec_rate', 1);
     nFilt = round(sampleRateHz_rate * filter_sec_rate / 2);
-    filter_shape_rate = lower(get_set_(P, 'filter_shape_rate', 'triangle'));
+    filter_shape_rate = lower(getOr(P, 'filter_shape_rate', 'triangle'));
     switch filter_shape_rate
         case 'triangle'
         vrFilt = ([1:nFilt, nFilt-1:-1:1]'/nFilt*2/filter_sec_rate);

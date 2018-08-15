@@ -6,7 +6,7 @@ function spikeWaveforms1 = spikeWaveforms_sites_(viSpk1, viSites1, S0, fWav_raw_
     % if nargin<3, fWav_raw_show = P.fWav_raw_show; end
     if nargin<3, S0 = []; end
     if isempty(S0), S0 = get(0, 'UserData'); end
-    if nargin<4, fWav_raw_show = get_set_(S0.P, 'fWav_raw_show', 0); end
+    if nargin<4, fWav_raw_show = getOr(S0.P, 'fWav_raw_show', 0); end
 
     % unique exception handling %171201 JJJ
     [viSites1_uniq, ~, viiSites1_uniq] = unique(viSites1);

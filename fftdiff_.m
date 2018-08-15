@@ -2,7 +2,7 @@
 function mnWav1 = fftdiff_(mnWav, P)
 
     useGPU = isGpu_(mnWav);
-    nLoads_gpu = get_set_(P, 'nLoads_gpu', 8); % GPU load limit
+    nLoads_gpu = getOr(P, 'nLoads_gpu', 8); % GPU load limit
 
     % [useGPU, nLoads_gpu] = deal(0, 1); %debug
 
