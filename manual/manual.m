@@ -61,7 +61,9 @@ function manual(P, debugMode)
     set(0, 'UserData', S0);
 
     % hFigRD
-    S0.S_clu = plotFigRD(S0.S_clu, P);
+    if ~getOr(P, 'fImportKilosort', 0)
+        S0.S_clu = plotFigRD(S0.S_clu, P);
+    end
 
     % Set initial amplitudes
     set(0, 'UserData', S0);
