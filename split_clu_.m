@@ -27,8 +27,8 @@ function S_clu = split_clu_(iClu1, vlIn)
     [S_clu.clusterSites(iClu1), S_clu.clusterSites(iClu2)] = deal(iSite1, iSite2);
 
     try % erase annotaiton
-        S_clu.csNote_clu{iClu1} = '';
-        S_clu.csNote_clu{end+1} = ''; %add another entry
+        S_clu.clusterNotes{iClu1} = '';
+        S_clu.clusterNotes{end+1} = ''; %add another entry
     catch
     end
     S_clu.spikeClusters(viSpk2) = iClu2; %change cluster number

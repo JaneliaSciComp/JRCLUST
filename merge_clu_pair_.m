@@ -11,8 +11,8 @@ function Sclu = merge_clu_pair_(Sclu, iClu1, iClu2)
     Sclu.spikesByCluster{iClu1} = find(Sclu.viClu == iClu1);
     Sclu.spikesByCluster{iClu2} = [];
     try
-        Sclu.csNote_clu{iClu1} = '';
-        Sclu.csNote_clu{iClu2} = '';
+        Sclu.clusterNotes{iClu1} = '';
+        Sclu.clusterNotes{iClu2} = '';
     catch
     end
 end %func

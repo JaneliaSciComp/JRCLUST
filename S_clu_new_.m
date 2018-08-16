@@ -18,8 +18,8 @@ function [S_clu, S0] = S_clu_new_(arg1, S0)
     S_clu = S_clu_refresh_(S_clu);
     S_clu = S_clu_update_wav_(S_clu, S0.P);
     S_clu = S_clu_position_(S_clu);
-    if ~isfield(S_clu, 'csNote_clu')
-        S_clu.csNote_clu = cell(S_clu.nClusters, 1); %reset note
+    if ~isfield(S_clu, 'clusterNotes')
+        S_clu.clusterNotes = cell(S_clu.nClusters, 1); %reset note
     end
     S_clu = S_clu_quality_(S_clu, S0.P);
     [S_clu, S0] = S_clu_commit_(S_clu, 'S_clu_new_');

@@ -8,7 +8,7 @@ S0 = get(0, 'UserData');
 % Auto delete
 figure_wait_(1); drawnow;
 
-S_clu = delete_clu_(S_clu, find(strcmp(S_clu.csNote_clu, 'to_delete')));
+S_clu = delete_clu_(S_clu, find(strcmp(S_clu.clusterNotes, 'to_delete')));
 setUserData(S_clu);
 S0 = gui_update_();
 figure_wait_(0);

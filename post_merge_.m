@@ -17,7 +17,7 @@ function [S_clu, S0] = post_merge_(S_clu, P, fPostCluster)
     'vrIsoDist_clu', 'vrLRatio_clu', 'vrIsiRatio_clu');
     S_clu = S_clu_refresh_(S_clu);
     S_clu = S_clu_sort_(S_clu, 'clusterSites');
-    S_clu = rmfield_(S_clu, 'csNote_clu');
+    S_clu = rmfield_(S_clu, 'clusterNotes');
 
     if fClean_clu, S_clu = S_clu_cleanup_(S_clu, P); end
     S_clu = post_merge_wav_(S_clu, nRepeat_merge, P);
@@ -30,7 +30,7 @@ function [S_clu, S0] = post_merge_(S_clu, P, fPostCluster)
     S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, S_clu_self_corr_(S_clu, [], S0));
     S_clu.P = P;
     S_clu = S_clu_position_(S_clu);
-    S_clu.csNote_clu = cell(S_clu.nClusters, 1); %reset note
+    S_clu.clusterNotes = cell(S_clu.nClusters, 1); %reset note
     S_clu = S_clu_quality_(S_clu, P);
     [S_clu, S0] = S_clu_commit_(S_clu, 'post_merge_');
 end %func
