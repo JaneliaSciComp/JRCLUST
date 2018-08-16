@@ -153,7 +153,7 @@ function importKiloSort(rezFile, sessionName)
     S_clu.clustersGapped = clustersGapped;
     S_clu.spikeClustersAuto = spikeTemplates;
     S_clu.clusterNotes = cell(nClusters, 1);
-    S_clu.simScore = rez.simScore;
+    S_clu.simScore = rez.simScore(clusterTemplates, clusterTemplates);
     S_clu.clusterSites = clusterSites;
 
     S_clu.spikesByCluster = cell(1, nClusters);
