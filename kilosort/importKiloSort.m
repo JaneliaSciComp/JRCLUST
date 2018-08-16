@@ -46,11 +46,19 @@ function importKiloSort(rezFile, sessionName)
     end
 
     clusters = unique(spikeClusters);
+    clusterTemplates = zeros('like', clusters);
+
     % consolidate cluster assignments
     for iCluster = 1:numel(clusters)
+        spikeClusterIndices = (spikeClusters == clusters(iCluster));
+
         if clusters(iCluster) ~= iCluster
-            spikeClusters(spikeClusters == clusters(iCluster)) = iCluster;
+            spikeClusters(spikeClusterIndices) = iCluster;
         end
+        
+        % get the mode of templates for this cluster
+        spikeClusterTemplates = spikeTemplates(spikeClusterIndices);
+        clusterTemplates(iCluster) = mode(spikeClusterTemplates);
     end
     
     % save the old clusters with gaps in them
@@ -75,6 +83,7 @@ function importKiloSort(rezFile, sessionName)
 
     sampleMin = squeeze(min(templates, [], 2));
     [~, clusterSites] = min(sampleMin, [], 2); % cluster location
+    clusterSites = clusterSites(clusterTemplates);
 
     % construct P from scratch
     P = struct();
@@ -109,14 +118,20 @@ function importKiloSort(rezFile, sessionName)
     P.spkLim = ceil(size(templates, 2)/2) * [-1, 1];
     P.spkLim_raw = P.spkLim; % TODO: address
 
-    P.corrLim = [.9 1];
+    P.corrLim = [.9 1]; % default
+    P.fDrift_merge = 0; % do not attempt drift correction
+    P.nTime_clu = 1; % spikes detected and clustered over entire time series
+    P.uV_per_bit = 1; % set this to unit scaling and deal with later
+    P. spkRefrac_ms = .25; % default
 
     P.viSiteZero = [];
     P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site);
 
-    spikeSites = clusterSites(spikeTemplates);
+    spikeSites = clusterSites(spikeClusters);
 
     S0 = kilosort2jrc_(P, int32(spikeTimes), int32(spikeSites));
+    P = saveProbe([sessionName '-probe.mat'], P);
+    S0.P = P;
 
     % extract features
     spikeFeatures = permute(rez.cProjPC, [3 2 1]);
@@ -127,6 +142,8 @@ function importKiloSort(rezFile, sessionName)
     featureDims = size(spikeFeatures);
     S0.featureDims = featureDims;
     S0.rez = rez;
+    
+    set(0, 'UserData', S0);
 
     % construct S_clu from scratch
     S_clu = struct();
@@ -155,8 +172,6 @@ function importKiloSort(rezFile, sessionName)
     S0.S_clu = S_clu;
 
     % Save
-    P = saveProbe([sessionName '-probe.mat'], P);
-    S0.P = P;
     set(0, 'UserData', S0);
 
     exportParams(P.paramFile, [], 0);

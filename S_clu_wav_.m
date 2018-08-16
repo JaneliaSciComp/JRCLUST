@@ -53,7 +53,7 @@ function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
             [mrWav_clu1, clusterSites1] = clu_wav_(S_clu, tnWav_, iClu, S0);
             if isempty(mrWav_clu1), continue; end
             [tmrWav_spk_clu(:,clusterSites1,iClu), trWav_spk_clu(:,:,iClu)] = ...
-            deal(bit2uV_(mrWav_clu1, P));
+                deal(bit2uV_(mrWav_clu1, P));
         end
         if fVerbose, fprintf('.'); end
     end %clu
