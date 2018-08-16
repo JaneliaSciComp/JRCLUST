@@ -67,24 +67,24 @@ function manual(P, debugMode)
 
     % Set initial amplitudes
     set(0, 'UserData', S0);
-    plotFigWavCor(S0); % hFigWavCor
-    S0 = plot_FigWav_(S0); % hFigWav % do this after for ordering
+%     plotFigWavCor(S0); % hFigWavCor
+%     S0 = plot_FigWav_(S0); % hFigWav % do this after for ordering
 
     % hFigProj, hFigHist, hFigIsi, hFigCorr, hFigPos, hFigMap, hFigTime
     tryClose(figureByTag('FigTrial')); % close previous FigTrial figure
     tryClose(figureByTag('FigTrial_b')); % close previous FigTrial figure
 
-    S0 = button_CluWav_simulate_(1, [], S0, 1); %select first clu TW
+%     S0 = button_CluWav_simulate_(1, [], S0, 1); %select first clu TW
 
-    auto_scale_proj_time_(S0);
+%     auto_scale_proj_time_(S0);
 
-    S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom
+%     S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom
     S_log = load_(strrep(P.paramFile, '.prm', '_log.mat'), [], 0);
 
     if ~isempty(S_log)
         S0.cS_log = {S_log};
     end
-    save_log_('start', S0); %crash proof log
+%     save_log_('start', S0); %crash proof log
 
     % Finish up
     % tryClose(hMsg);

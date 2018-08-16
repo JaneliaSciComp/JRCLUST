@@ -1,10 +1,10 @@
 %--------------------------------------------------------------------------
 function S0 = initFigures(P) % TODO: create different figures for different algs
-    createFigure('FigPos', [0 0 .15 .5], ['Unit position; ', P.paramFile], 1, 0);
-    createFigure('FigMap', [0 .5 .15 .5], ['Probe map; ', P.paramFile], 1, 0);
-
-    createFigure('FigTime', [.15 0 .7 .2], ['Time vs. Amplitude; (Sft)[Up/Down] channel; [h]elp; [a]uto scale; ', P.vcFile]);
-    createFigure('FigWav', [.15 .2 .35 .8], ['Averaged waveform: ', P.paramFile], 0, 1);
+%     createFigure('FigPos', [0 0 .15 .5], ['Unit position; ', P.paramFile], 1, 0);
+%     createFigure('FigMap', [0 .5 .15 .5], ['Probe map; ', P.paramFile], 1, 0);
+%
+%     createFigure('FigTime', [.15 0 .7 .2], ['Time vs. Amplitude; (Sft)[Up/Down] channel; [h]elp; [a]uto scale; ', P.vcFile]);
+%     createFigure('FigWav', [.15 .2 .35 .8], ['Averaged waveform: ', P.paramFile], 0, 1);
 
     if getOr(P, 'fImportKilosort', 0)
         createFigure('FigSimScore', [.5 .7 .35 .3], ['Template similarity score (click): ', P.paramFile]);
@@ -20,10 +20,10 @@ function S0 = initFigures(P) % TODO: create different figures for different algs
     figTags = {'FigPos', 'FigMap', 'FigTime', 'FigWav', 'FigWavCor', 'FigProj', 'FigCorr', 'FigIsi', 'FigHist'};
 
     % rho-delta plot; specific to JRC
-    if ~getOr(P, 'fImportKilosort', 0)
-        createFigure('FigRD', [.85 0 .15 .25], ['Cluster rho-delta: ', P.paramFile]);
-        figTags = {figTags{:}, 'FigRD'};
-    end
+%     if ~getOr(P, 'fImportKilosort', 0)
+%         createFigure('FigRD', [.85 0 .15 .25], ['Cluster rho-delta: ', P.paramFile]);
+%         figTags = {figTags{:}, 'FigRD'};
+%     end
 
     figPositions = cellfun(@(c) get(figureByTag(c), 'OuterPosition'), figTags, 'UniformOutput', 0);
 
