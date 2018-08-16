@@ -8,7 +8,8 @@ function exit_manual_(src, event)
         fExit = save_manual_(P);
         if ~fExit, return; end
         if ~isfield(S0, 'figTags')
-            S0.figTags = {'FigPos', 'FigMap', 'FigTime', 'FigWav', 'FigWavCor', 'FigProj', 'FigRD', 'FigCorr', 'FigIsi', 'FigHist'};
+            S0.figTags = {'FigPos', 'FigMap', 'FigTime', 'FigWav', 'FigWavCor', ...
+                'FigSimScore', 'FigProj', 'FigRD', 'FigCorr', 'FigIsi', 'FigHist'};
         end
         deleteMany(get_fig_all_(S0.figTags), src);
         tryClose(figureByTag('FigTrial'));

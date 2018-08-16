@@ -6,7 +6,11 @@ function S0 = initFigures(P) % TODO: create different figures for different algs
     createFigure('FigTime', [.15 0 .7 .2], ['Time vs. Amplitude; (Sft)[Up/Down] channel; [h]elp; [a]uto scale; ', P.vcFile]);
     createFigure('FigWav', [.15 .2 .35 .8], ['Averaged waveform: ', P.paramFile], 0, 1);
 
-    createFigure('FigWavCor', [.5 .7 .35 .3], ['Waveform correlation (click): ', P.paramFile]);
+    if getOr(P, 'fImportKilosort', 0)
+        createFigure('FigSimScore', [.5 .7 .35 .3], ['Template similarity score (click): ', P.paramFile]);
+    else
+        createFigure('FigWavCor', [.5 .7 .35 .3], ['Waveform correlation (click): ', P.paramFile]);
+    end
     createFigure('FigProj', [.5 .2 .35 .5], ['Feature projection: ', P.paramFile]);
 
     createFigure('FigCorr', [.85 .25 .15 .25], ['Time correlation: ', P.paramFile]);
