@@ -206,6 +206,10 @@ function importKiloSort(rezFile, sessionName)
         S_clu.spikesByCluster{iCluster} = find(spikeClusters == iCluster);
     end
 
+    S_clu = S_clu_wav_(S_clu);
+    S_clu.mrWavCor = S_clu_wavcor_(S_clu, P);
+    S_clu = S_clu_refresh_(S_clu, 0); % don't remove empty
+
 %     S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
 %     set(0, 'UserData', S0);
 %
