@@ -46,11 +46,11 @@ function importKiloSort(rezFile, sessionName)
     end
 
     clusters = unique(spikeClusters);
-    
+
     nTemplates = size(rez.simScore, 1);
     nClusters = numel(clusters);
     simScore = zeros(nClusters);
-    
+
     clusterTemplates = cell(nClusters, 1);
     for iCluster = 1:nClusters
         cluster = clusters(iCluster);
@@ -63,16 +63,16 @@ function importKiloSort(rezFile, sessionName)
     for iCluster = 1:nClusters
         cluster = clusters(iCluster);
         spikeClusterIndices = (spikeClusters == cluster); % spike indices for this cluster
-        
+
         if clusters(iCluster) ~= iCluster
             spikeClusters(spikeClusterIndices) = iCluster;
         end
-        
+
         iClusterTemplates = clusterTemplates{iCluster}; % template IDs for this cluster
 
         % compute cluster sim score, Phy style
         sims = max(rez.simScore(iClusterTemplates, :), [], 1);
-        
+
         for jCluster=iCluster:nClusters
             jClusterTemplates = clusterTemplates{jCluster};
 %             if clusters(jCluster) <= nTemplates
@@ -83,7 +83,7 @@ function importKiloSort(rezFile, sessionName)
             simScore(jCluster, iCluster) = simScore(iCluster, jCluster);
         end
     end
-    
+
     % save the old clusters with gaps in them
     clustersGapped = clusters;
     clusters = (1:nClusters)';
@@ -116,10 +116,10 @@ function importKiloSort(rezFile, sessionName)
             for iWeight = numel(weights)
                 t = t + weights(iWeight)*squeeze(avgTemplate(iWeight, :, :));
             end
-            
+
             avgTemplate = t;
         end
-        
+
         sampleMin = min(avgTemplate, [], 1);
         [~, clusterSites(iCluster)] = min(sampleMin); % cluster location
     end
@@ -155,8 +155,8 @@ function importKiloSort(rezFile, sessionName)
     P.maxSite = 6.5; % TODO: allow user to set
     P.nSites_ref = 0; % TODO: address
 
-    P.spkLim = ceil(size(templates, 2)/2) * [-1, 1];
-    P.spkLim_raw = P.spkLim; % TODO: address
+    P.spkLim = [-6 19]; % default
+    P.spkLim_raw = ceil(size(templates, 2)/2) * [-1, 1]; % TODO: address
 
     P.corrLim = [.75 1];
     P.fDrift_merge = 0; % do not attempt drift correction
@@ -171,21 +171,23 @@ function importKiloSort(rezFile, sessionName)
     P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site);
     P.useGPU = double(gpuDeviceCount() > 0);
 
+    P.feature = 'gpca'; % default; TODO: address
+
 %     S0 = kilosort2jrc_(P, int32(spikeTimes), int32(spikeSites));
     S0 = file2spk_(P, int32(spikeTimes), int32(spikeSites));
     P = saveProbe([sessionName '-probe.mat'], P);
     S0.P = P;
 
     % extract features
-    spikeFeatures = permute(rez.cProjPC, [3 2 1]);
-    fidFeatures = fopen([sessionName '_features.bin'], 'w');
-    fwrite_(fidFeatures, spikeFeatures);
+    ksFeatures = permute(rez.cProjPC, [3 2 1]);
+    fidFeatures = fopen([sessionName '_ks-features.bin'], 'w');
+    fwrite_(fidFeatures, ksFeatures);
     fclose(fidFeatures);
 
-    featureDims = size(spikeFeatures);
-    S0.featureDims = featureDims;
+    ksFeatureDims = size(ksFeatures);
+    S0.ksFeatureDims = ksFeatureDims;
     S0.rez = rez;
-    
+
     set(0, 'UserData', S0);
 
     % construct S_clu from scratch
