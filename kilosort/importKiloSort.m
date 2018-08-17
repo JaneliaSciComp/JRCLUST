@@ -46,26 +46,47 @@ function importKiloSort(rezFile, sessionName)
     end
 
     clusters = unique(spikeClusters);
-    clusterTemplates = zeros('like', clusters);
+    
+    nTemplates = size(rez.simScore, 1);
+    nClusters = numel(clusters);
+    simScore = zeros(nClusters);
+    
+    clusterTemplates = cell(nClusters, 1);
+    for iCluster = 1:nClusters
+        cluster = clusters(iCluster);
+        spikeClusterIndices = (spikeClusters == cluster); % spike indices for this cluster
+        iClusterTemplates = unique(spikeTemplates(spikeClusterIndices)); % unique template indices for spikes in this cluster
+        clusterTemplates{iCluster} = iClusterTemplates;
+    end
 
     % consolidate cluster assignments
-    for iCluster = 1:numel(clusters)
-        spikeClusterIndices = (spikeClusters == clusters(iCluster));
-
+    for iCluster = 1:nClusters
+        cluster = clusters(iCluster);
+        spikeClusterIndices = (spikeClusters == cluster); % spike indices for this cluster
+        
         if clusters(iCluster) ~= iCluster
             spikeClusters(spikeClusterIndices) = iCluster;
         end
         
-        % get the mode of templates for this cluster
-        spikeClusterTemplates = spikeTemplates(spikeClusterIndices);
-        clusterTemplates(iCluster) = mode(spikeClusterTemplates);
+        iClusterTemplates = clusterTemplates{iCluster}; % template IDs for this cluster
+
+        % compute cluster sim score, Phy style
+        sims = max(rez.simScore(iClusterTemplates, :), [], 1);
+        
+        for jCluster=iCluster:nClusters
+            jClusterTemplates = clusterTemplates{jCluster};
+%             if clusters(jCluster) <= nTemplates
+%                 simScore(iCluster, jCluster) = sims(clusters(jCluster));
+%             else
+                simScore(iCluster, jCluster) = max(sims(jClusterTemplates));
+%             end
+            simScore(jCluster, iCluster) = simScore(iCluster, jCluster);
+        end
     end
     
     % save the old clusters with gaps in them
     clustersGapped = clusters;
-    clusters = (1:numel(clusters))';
-
-    nClusters = clusters(end);
+    clusters = (1:nClusters)';
 
     % compute templates
     nt0 = size(rez.W, 1);
@@ -79,11 +100,29 @@ function importKiloSort(rezFile, sessionName)
     for iNN = 1:size(templates,3)
        templates(:,:,iNN) = squeeze(U(:,iNN,:)) * squeeze(W(:,iNN,:))';
     end
-    templates = permute(templates, [3 2 1]); % nTemplates x nSamples x nChannels
+    templates = -abs(permute(templates, [3 2 1])); % nTemplates x nSamples x nChannels
 
-    sampleMin = squeeze(min(templates, [], 2));
-    [~, clusterSites] = min(sampleMin, [], 2); % cluster location
-    clusterSites = clusterSites(clusterTemplates);
+    % compute the weighted average template for a given cluster and pick
+    % its min site
+    clusterSites = zeros('like', clusters);
+    for iCluster = 1:nClusters
+        iClusterTemplates = clusterTemplates{iCluster}; % templates for this cluster
+
+        avgTemplate = squeeze(templates(iClusterTemplates, :, :));
+        if numel(iClusterTemplates) > 1
+            freqs = histcounts(spikeTemplates(spikeClusters == iCluster), numel(iClusterTemplates));
+            weights = freqs/sum(freqs);
+            t = zeros(size(avgTemplate, 2), size(avgTemplate, 3));
+            for iWeight = numel(weights)
+                t = t + weights(iWeight)*squeeze(avgTemplate(iWeight, :, :));
+            end
+            
+            avgTemplate = t;
+        end
+        
+        sampleMin = min(avgTemplate, [], 1);
+        [~, clusterSites(iCluster)] = min(sampleMin); % cluster location
+    end
     spikeSites = clusterSites(spikeClusters);
 
     % construct P from scratch
@@ -157,9 +196,8 @@ function importKiloSort(rezFile, sessionName)
     S_clu.clustersGapped = clustersGapped;
     S_clu.spikeClustersAuto = spikeTemplates;
     S_clu.clusterNotes = cell(nClusters, 1);
-    S_clu.simScore = rez.simScore(clusterTemplates, clusterTemplates);
-    S_clu.clusterTemplates = clusterTemplates;
     S_clu.clusterSites = clusterSites;
+    S_clu.simScore = simScore;
 
     S_clu.spikesByCluster = cell(1, nClusters);
     for iCluster = 1:nClusters
