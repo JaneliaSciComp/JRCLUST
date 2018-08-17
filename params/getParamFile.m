@@ -4,10 +4,19 @@ function paramFile = getParamFile(filename)
 
     if nargin < 1 % no filename specified
         d = dir('*.prm');
-        if numel(d) ~= 1 % no .prm file or many found (ambiguous)
+        if isempty(d)
             error('Please specify a .prm file.');
         else
-            paramFile = d(1).name;
+            names = cell(numel(d), 1);
+            for i=1:numel(d)
+                names{i} = d(i).name;
+            end
+            notFull = ~endsWith(names, '_full.prm');
+            if sum(notFull) == 1
+                paramFile = names{notFull};
+            else
+                error('Ambiguity in param file; please specify.');
+            end
         end
     else
         d = dir(filename);
