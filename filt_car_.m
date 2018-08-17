@@ -43,7 +43,7 @@ function [filteredTraces, vnWav2_mean] = filt_car_(rawTraces, P, prePadding, pos
                 filteredTraces = filtfilt_chain(single(filteredTraces), P);
             catch
                 fprintf('GPU filtering failed. Trying CPU filtering.\n');
-                filteredTraces = filtfilt_chain(single(filteredTraces), setfield(P, 'useGPU', 0));
+                filteredTraces = filtfilt_chain(single(gather(filteredTraces)), setfield(P, 'useGPU', 0));
             end
             filteredTraces = int16(filteredTraces);
         case 'ndist'
