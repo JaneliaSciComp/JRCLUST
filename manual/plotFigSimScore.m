@@ -16,6 +16,7 @@ function [hFig, figData] = plotFigSimScore(S0)
         figData.hAx = axes_new_(hFig);
         set(figData.hAx, 'Position', [.1 .1 .8 .8], 'XLimMode', 'manual', 'YLimMode', 'manual', 'Layer', 'top');
         set(figData.hAx, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
+        set(figData.hAx, {'XTickLabels', 'YTickLabels'}, {S_clu.clustersGapped, S_clu.clustersGapped});
         axis_(figData.hAx, [0 nClusters 0 nClusters] + .5);
         axis(figData.hAx, 'xy');
         grid(figData.hAx, 'on');
