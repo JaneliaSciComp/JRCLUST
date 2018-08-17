@@ -1,31 +1,34 @@
 %--------------------------------------------------------------------------
-function [vrY, vrX] = tr2plot_(trWav, iClu, viSite_show, maxAmp, P)
-    if nargin<2, iClu=1; end
-    iClu = double(iClu);
-    if nargin<5, P = get0_('P'); end %S0 = get(0, 'UserData'); P = S0.P;
-    % [~, S_fig] = getCachedFig('FigWav');
-    % if isfield(S_fig, 'maxAmp')
-    %     maxAmp = S_fig.maxAmp;
-    % else
-    %     maxAmp = P.maxAmp;
-    % end
+function [vrY, vrX] = tr2plot_(spikeWaveforms, clusterID, sitesToDisplay, maxAmp, P)
+    if nargin < 2
+        clusterID = 1;
+    end
+    
+    clusterID = double(clusterID);
+    if nargin < 5
+        P = get0_('P');
+    end
 
-    if nargin<3, viSite_show = []; end
-    % P = funcDefStr_(P, 'LineStyle', 'k', 'spkLim', [-10 24], 'maxAmp', 500, 'viSite_show', []);
-    % P.LineStyle
-    % if ~isfield(P, 'LineStyle') || isempty(P.LineStyle), P.LineStyle='k'; end
-    if isempty(viSite_show), viSite_show = 1:size(trWav,2); end
+    if nargin < 3
+        sitesToDisplay = [];
+    end
 
-    [nSamples, nChans, nSpk] = size(trWav);
-    nSites_show = numel(viSite_show);
-    trWav = single(trWav) / maxAmp;
-    trWav = trWav + repmat(single(viSite_show(:)'), [size(trWav,1),1,size(trWav,3)]);
-    trWav([1,end],:,:) = nan;
-    vrY = trWav(:);
+    if isempty(sitesToDisplay)
+        sitesToDisplay = 1:size(spikeWaveforms,2);
+    end
+
+    nSpikes = size(spikeWaveforms, 3);
+    nSitesToDisplay = numel(sitesToDisplay);
+    spikeWaveforms = single(spikeWaveforms) / maxAmp;
+    
+    % offset each waveform by its site index
+    spikeWaveforms = spikeWaveforms + repmat(single(sitesToDisplay(:)'), [size(spikeWaveforms,1),1,size(spikeWaveforms,3)]);
+    spikeWaveforms([1, end], :, :) = nan; % why? -- acl
+    vrY = spikeWaveforms(:);
 
     if nargout>=2
-        vrX = wav_clu_x_(iClu, P);
-        vrX = repmat(vrX(:), [1, nSites_show * nSpk]);
+        vrX = wav_clu_x_(clusterID, P);
+        vrX = repmat(vrX(:), [1, nSitesToDisplay * nSpikes]);
         vrX = single(vrX(:));
     end
 end

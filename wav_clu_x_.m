@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function vrX = wav_clu_x_(iClu, P)
+function vrX = wav_clu_x_(clusterID, P)
     % determine x range of a cluster
     if P.fWav_raw_show
         spkLim = P.spkLim_raw;
@@ -8,8 +8,9 @@ function vrX = wav_clu_x_(iClu, P)
     else
         spkLim = P.spkLim;
     end
+
     nSamples = diff(spkLim) + 1;
-    x_offset = spkLim(2) / nSamples + iClu - 1;
+    x_offset = spkLim(2) / nSamples + clusterID - 1;
 
     vrX = (1:nSamples) / nSamples + x_offset;
     vrX([1,end]) = nan;
