@@ -15,10 +15,10 @@ function manual(P, debugMode)
 
     [S0, P] = load_cached_(P);
 
-%     if ~isfield(S0, 'mrPos_spk')
-%         S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
-%         set(0, 'UserData', S0);
-%     end
+    if ~isfield(S0, 'mrPos_spk')
+        S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
+        set(0, 'UserData', S0);
+    end
 
     fDebug_ui = 0;
     P.useGPU = 0; % do not use GPU for manual use
@@ -72,25 +72,25 @@ function manual(P, debugMode)
     else
         plotFigWavCor(S0); % hFigWavCor
     end
-%     S0 = plot_FigWav_(S0); % hFigWav % do this after for ordering
+    S0 = plot_FigWav_(S0); % hFigWav % do this after for ordering
 
     % hFigProj, hFigHist, hFigIsi, hFigCorr, hFigPos, hFigMap, hFigTime
     tryClose(figureByTag('FigTrial')); % close previous FigTrial figure
     tryClose(figureByTag('FigTrial_b')); % close previous FigTrial figure
 
-%     S0 = button_CluWav_simulate_(1, [], S0, 1); %select first clu TW
+    S0 = button_CluWav_simulate_(1, [], S0, 1); %select first clu TW
 
-%     auto_scale_proj_time_(S0);
+    auto_scale_proj_time_(S0);
 
-%     S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom
+    S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom
     S_log = load_(strrep(P.paramFile, '.prm', '_log.mat'), [], 0);
 
     if ~isempty(S_log)
         S0.cS_log = {S_log};
     end
-%     save_log_('start', S0); %crash proof log
+    save_log_('start', S0); %crash proof log
 
     % Finish up
-    % tryClose(hMsg);
+%     tryClose(hMsg);
     fprintf('UI creation took %0.1fs\n', toc(t1));
 end %func
