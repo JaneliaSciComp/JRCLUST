@@ -63,7 +63,7 @@ function importKiloSort(rezFile, sessionName)
     
     % save the old clusters with gaps in them
     clustersGapped = clusters;
-    clusters = 1:numel(clusters);
+    clusters = (1:numel(clusters))';
 
     nClusters = clusters(end);
 
@@ -84,6 +84,7 @@ function importKiloSort(rezFile, sessionName)
     sampleMin = squeeze(min(templates, [], 2));
     [~, clusterSites] = min(sampleMin, [], 2); % cluster location
     clusterSites = clusterSites(clusterTemplates);
+    spikeSites = clusterSites(spikeClusters);
 
     % construct P from scratch
     P = struct();
@@ -118,18 +119,21 @@ function importKiloSort(rezFile, sessionName)
     P.spkLim = ceil(size(templates, 2)/2) * [-1, 1];
     P.spkLim_raw = P.spkLim; % TODO: address
 
-    P.corrLim = [.9 1]; % default
+    P.corrLim = [.75 1];
     P.fDrift_merge = 0; % do not attempt drift correction
+    P.nPaddingSamples = 100; % default
+    P.qqFactor = 5; % default
+    P.nPcPerChan = 1; % default
     P.nTime_clu = 1; % spikes detected and clustered over entire time series
     P.uV_per_bit = 1; % set this to unit scaling and deal with later
-    P. spkRefrac_ms = .25; % default
+    P.spkRefrac_ms = .25; % default
 
     P.viSiteZero = [];
     P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site);
+    P.useGPU = double(gpuDeviceCount() > 0);
 
-    spikeSites = clusterSites(spikeClusters);
-
-    S0 = kilosort2jrc_(P, int32(spikeTimes), int32(spikeSites));
+%     S0 = kilosort2jrc_(P, int32(spikeTimes), int32(spikeSites));
+    S0 = file2spk_(P, int32(spikeTimes), int32(spikeSites));
     P = saveProbe([sessionName '-probe.mat'], P);
     S0.P = P;
 
@@ -154,6 +158,7 @@ function importKiloSort(rezFile, sessionName)
     S_clu.spikeClustersAuto = spikeTemplates;
     S_clu.clusterNotes = cell(nClusters, 1);
     S_clu.simScore = rez.simScore(clusterTemplates, clusterTemplates);
+    S_clu.clusterTemplates = clusterTemplates;
     S_clu.clusterSites = clusterSites;
 
     S_clu.spikesByCluster = cell(1, nClusters);
