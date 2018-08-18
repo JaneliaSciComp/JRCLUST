@@ -5,7 +5,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     global spikeFeatures
 
     if isempty(spikeFeatures)
-        spikeFeatures = get_spkfet_(P);
+        spikeFeatures = getSpikeFeatures(P);
     end
 
     if ~isfield(P, 'CHUNK'), P.CHUNK = 16; end

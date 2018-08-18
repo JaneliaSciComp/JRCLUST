@@ -4,7 +4,7 @@ function spikeFeatures = sort_overlap_(S0, S_clu, P)
     global spikeFeatures
 
     if isempty(spikeFeatures)
-        spikeFeatures = get_spkfet_(P);
+        spikeFeatures = getSpikeFeatures(P);
     end
 
     % find which spikes it's overlapping with

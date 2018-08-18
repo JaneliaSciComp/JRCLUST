@@ -1,20 +1,24 @@
 %--------------------------------------------------------------------------
-function S = struct_reorder_(S, viKeep, varargin)
-    for i=1:numel(varargin)
+function S = struct_reorder_(S, indices, varargin)
+    for i = 1:numel(varargin)
         try
-            vcVar = varargin{i};
-            if ~isfield(S, vcVar), continue; end %ignore if not
-            vr1 = S.(vcVar);
-            if isvector(vr1)
-                vr1 = vr1(viKeep);
-            elseif ismatrix(vr1)
-                vr1 = vr1(viKeep, :);
+            fieldName = varargin{i};
+            if ~isfield(S, fieldName)
+                continue;
+            end % ignore if not present
+
+            fieldValue = S.(fieldName);
+
+            if isvector(fieldValue)
+                fieldValue = fieldValue(indices);
+            elseif ismatrix(fieldValue)
+                fieldValue = fieldValue(indices, :);
             else
-                vr1 = vr1(viKeep, :, :);
+                fieldValue = fieldValue(indices, :, :);
             end
-            S.(vcVar) = vr1;
+
+            S.(fieldName) = fieldValue;
         catch
-            ;
         end
     end
 end %func

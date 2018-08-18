@@ -5,7 +5,7 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
     global spikeFeatures;
 
     if isempty(spikeFeatures)
-        spikeFeatures = get_spkfet_(P);
+        spikeFeatures = getSpikeFeatures(P);
     end
 
     if nargin<3, viClu_update = []; end

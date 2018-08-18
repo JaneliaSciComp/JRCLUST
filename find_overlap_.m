@@ -4,7 +4,7 @@ function [cviSpk_o_1, cviSpk_o_12, cviDelay1] = find_overlap_(S0, S_clu, P)
     global spikeFeatures
 
     if isempty(spikeFeatures)
-        spikeFeatures = get_spkfet_(P);
+        spikeFeatures = getSpikeFeatures(P);
         end
 
     snr_thresh_clu = getOr(P, 'snr_thresh_clu', 7);

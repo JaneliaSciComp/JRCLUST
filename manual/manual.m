@@ -4,7 +4,7 @@ function manual(P, debugMode)
     global fDebug_ui spikeFeatures
 
     if isempty(spikeFeatures)
-        spikeFeatures = get_spkfet_(P);
+        spikeFeatures = getSpikeFeatures(P);
     end
 
     if nargin < 2

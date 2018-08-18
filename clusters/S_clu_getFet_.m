@@ -3,7 +3,7 @@ function [mrFet1_clu1, iSite_clu1] = S_clu_getFet_(S_clu, iClu, spikeSecondarySi
     global spikeFeatures
 
     if isempty(spikeFeatures)
-        spikeFeatures = get_spkfet_(P);
+        spikeFeatures = getSpikeFeatures();
     end
 
     if nargin<3, spikeSecondarySites = get0_('spikeSecondarySites'); end

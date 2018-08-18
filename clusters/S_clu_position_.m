@@ -5,7 +5,7 @@ function S_clu = S_clu_position_(S_clu, viClu_update)
     global spikeFeatures
 
     if isempty(spikeFeatures)
-        spikeFeatures = get_spkfet_(P);
+        spikeFeatures = getSpikeFeatures();
     end
 
     if nargin<2, viClu_update = []; end

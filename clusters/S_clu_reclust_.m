@@ -3,7 +3,7 @@ function S_clu = S_clu_reclust_(S_clu, S0, P);
     global spikeFeatures
 
     if isempty(spikeFeatures)
-        spikeFeatures = get_spkfet_(P);
+        spikeFeatures = getSpikeFeatures(P);
     end
 
     vcMode_divide = 'amp'; % {'amp', 'density', 'fet'}

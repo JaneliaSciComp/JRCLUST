@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 function mrPos_spk = spk_pos_(S0, spikeFeatures)
-    if nargin<2, spikeFeatures = get_spkfet_(S0.P); end
+    if nargin<2, spikeFeatures = getSpikeFeatures(S0.P); end
     P = S0.P;
     nSites_spk = 1 + P.maxSite*2 - P.nSites_ref;
     %nSites_spk = size(spikeFeatures, 1);
