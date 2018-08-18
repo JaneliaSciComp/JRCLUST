@@ -20,7 +20,7 @@ function S0 = plot_FigWav_(S0)
         title_(sprintf(S_fig.vcTitle, S_fig.maxAmp)); %update scale
 
         %     set(gca, 'ButtonDownFcn', @(src,event)button_CluWav_(src,event), 'BusyAction', 'cancel');
-        set(hFig, 'KeyPressFcn', @keyPressFcn_FigWav_, 'CloseRequestFcn', @exit_manual_, 'BusyAction', 'cancel');
+        set(hFig, 'KeyPressFcn', @keyPressFigWav, 'CloseRequestFcn', @exit_manual_, 'BusyAction', 'cancel');
         axis_([0, S_clu.nClusters + 1, 0, nSites + 1]);
         add_menu_(hFig, P);
         mouse_figure(hFig, S_fig.hAx, @button_CluWav_);
