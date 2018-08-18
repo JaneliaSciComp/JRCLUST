@@ -15,6 +15,7 @@ function varargout = jrc(cmd, varargin)
     addpath(fullfile(dirname, 'neuroshare')); % NS-related functions
     addpath(fullfile(dirname, 'utils')); % miscellaneous (but useful) tools
     addpath(fullfile(dirname, 'params')); % parameter-related functions
+    addpath(fullfile(dirname, 'clusters')); % functions for manipulating the cluster struct
     addpath(fullfile(dirname, 'gui')); % GUI functions
     addpath(fullfile(dirname, 'manual')); % manual curation step functions
     addpath(fullfile(dirname, 'kilosort')); % kilosort-related functions
