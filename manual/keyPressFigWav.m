@@ -83,7 +83,8 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
             plot_FigIsi_(S0);
 
         case 'a'
-            update_spikes_(S0); clu_info_(S0);
+            update_spikes_(S0);
+            clu_info_(S0);
 
         case 'f'
             clu_info_(S0);
@@ -131,9 +132,12 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
         case 'u'
             update_FigCor_(S0);
 
-        case 'p' %PSTH plot
-            if ~isfield(P, 'trialFile') || isempty(P.trialFile), msgbox_('''trialFile'' not set. Reload .prm file after setting (under "File menu")'); return; end
-            plot_raster_(S0, 1);
+        case 'p' % PSTH plot
+            if ~isfield(P, 'trialFile') || isempty(P.trialFile)
+                msgbox_('''trialFile'' not set. Reload .prm file after setting (under "File menu")');
+            else
+                plot_raster_(S0, 1);
+            end
 
         otherwise
             figure_wait_(0); %stop waiting
