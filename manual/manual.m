@@ -2,6 +2,10 @@
 function manual(P, debugMode)
     % display manual sorting interface
     global fDebug_ui spikeFeatures
+    
+    if isempty(spikeFeatures)
+        spikeFeatures = get_spkfet_(P);
+    end
 
     if nargin < 2
         debugMode = 0;
