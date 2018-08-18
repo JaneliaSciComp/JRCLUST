@@ -48,12 +48,12 @@ function plot_drift_(P)
     hold on;
     nSpk_thresh_clu = median(S_clu.vnSpk_clu);
     snr_thresh_clu = getOr(P, 'snr_thresh_clu', quantile(S_clu.vrSnr_clu, .5));
-    % posX_thresh = median(S_clu.vrPosX_clu);
+    % posX_thresh = median(S_clu.clusterXPositions);
     % [vrTime_drift, vrDepth_drift] = drift_track_(S_clu, vrPosY_spk, P);
 
     if ~isempty(S_clu)
-        posX_lim = quantile(S_clu.vrPosX_clu, [.25, .75]);
-        posY_lim = quantile(S_clu.vrPosY_clu, [.1, .9]);
+        posX_lim = quantile(S_clu.clusterXPositions, [.25, .75]);
+        posY_lim = quantile(S_clu.clusterYPositions, [.1, .9]);
         for iClu = 1:S_clu.nClusters
             viSpk1 = S_clu.spikesByCluster{iClu};
             viSpk1 = viSpk1(vlSpk_shank(viSpk1));
@@ -75,9 +75,9 @@ function plot_drift_(P)
                 %                 if S_clu.vnSpk_clu(iClu) < nSpk_thresh_clu, continue; end
                 if S_clu.vrSnr_clu(iClu) < snr_thresh_clu, continue; end
                 %                 if vrA_spk(S_clu.spikesByCluster{iClu})
-                %                 if S_clu.vrPosX_clu(iClu) < posX_thresh, continue; end
-                posX_clu1 = S_clu.vrPosX_clu(iClu);
-                posY_clu1 = S_clu.vrPosY_clu(iClu);
+                %                 if S_clu.clusterXPositions(iClu) < posX_thresh, continue; end
+                posX_clu1 = S_clu.clusterXPositions(iClu);
+                posY_clu1 = S_clu.clusterYPositions(iClu);
                 if posX_clu1 < posX_lim(1) || posX_clu1 > posX_lim(2) || posY_clu1 < posY_lim(1) || posY_clu1 > posY_lim(2), continue; end
                 plot(ax, vrTime_spk(viSpk1), vrPosY_spk(viSpk1), '.', 'Color', vrColor1, 'MarkerSize', 5); % - median(vrPosY_spk(viSpk1))
             end %switch

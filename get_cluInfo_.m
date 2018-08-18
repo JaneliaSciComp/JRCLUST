@@ -8,7 +8,7 @@ function S_cluInfo = get_cluInfo_(iClu)
     iSite1 = S_clu.clusterSites(iClu);
     viSite = P.miSites(:, iSite1);
 
-    xyPos = [S_clu.vrPosX_clu(iClu), S_clu.vrPosY_clu(iClu)];
+    xyPos = [S_clu.clusterXPositions(iClu), S_clu.clusterYPositions(iClu)];
     vcPos = sprintf('Unit %d (x,y):(%0.1f, %0.1f)[pix]', iClu, xyPos/P.um_per_pix);
     if P.fWav_raw_show
         mrWav_clu = S_clu.tmrWav_raw_clu(:,viSite,iClu);

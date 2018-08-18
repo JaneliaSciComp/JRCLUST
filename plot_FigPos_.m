@@ -10,8 +10,8 @@ function plot_FigPos_(S_clu1, S_clu2)
         cla(S_fig.hAx); hold(S_fig.hAx, 'on');
     end
     plot_unit_(S_clu1, S_fig.hAx, [0 0 0]);
-    %vrPosXY1 = [S_clu.vrPosX_clu(S_clu1.iClu), S_clu.vrPosY_clu(S_clu1.iClu)] / P.um_per_pix;
-    vrPosXY1 = [S_clu.vrPosX_clu(S_clu1.iClu), S_clu.vrPosY_clu(S_clu1.iClu)];
+    %vrPosXY1 = [S_clu.clusterXPositions(S_clu1.iClu), S_clu.clusterYPositions(S_clu1.iClu)] / P.um_per_pix;
+    vrPosXY1 = [S_clu.clusterXPositions(S_clu1.iClu), S_clu.clusterYPositions(S_clu1.iClu)];
     nSpk1 = S_clu.vnSpk_clu(S_clu1.iClu);
     if isempty(S_clu2)
         vcTitle = sprintf('Unit %d: %d spikes; (X=%0.1f, Y=%0.1f) [um]', S_clu1.iClu, nSpk1, vrPosXY1);
@@ -22,7 +22,7 @@ function plot_FigPos_(S_clu1, S_clu2)
         end
     else
         nSpk2 = S_clu.vnSpk_clu(S_clu2.iClu);
-        vrPosXY2 = [S_clu.vrPosX_clu(S_clu2.iClu), S_clu.vrPosY_clu(S_clu2.iClu)] / P.um_per_pix;
+        vrPosXY2 = [S_clu.clusterXPositions(S_clu2.iClu), S_clu.clusterYPositions(S_clu2.iClu)] / P.um_per_pix;
         plot_unit_(S_clu2, S_fig.hAx, [1 0 0]);
         vcTitle = sprintf('Unit %d(black)/%d(red); (%d/%d) spikes\n(X=%0.1f/%0.1f, Y=%0.1f/%0.1f) [um]', ...
         S_clu1.iClu, S_clu2.iClu, nSpk1, nSpk2, ...
