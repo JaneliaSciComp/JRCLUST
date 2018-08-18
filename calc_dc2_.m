@@ -1,6 +1,11 @@
 %--------------------------------------------------------------------------
 function dc = calc_dc2_(S0, P, vlRedo_spk)
     global spikeFeatures
+
+    if isempty(spikeFeatures)
+        spikeFeatures = get_spkfet_(P);
+    end
+
     if nargin<3, vlRedo_spk=[]; end
     fprintf('Calculating Dc\n\t'); t1=tic;
     nSites = numel(P.chanMap);

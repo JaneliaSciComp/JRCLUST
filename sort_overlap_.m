@@ -3,6 +3,10 @@
 function spikeFeatures = sort_overlap_(S0, S_clu, P)
     global spikeFeatures
 
+    if isempty(spikeFeatures)
+        spikeFeatures = get_spkfet_(P);
+    end
+
     % find which spikes it's overlapping with
     % only use larger unit to correct smaller unit
     % S_overlap = find_overlap_(S0.spikeTimes, S0.spikeSites, S_clu, P);

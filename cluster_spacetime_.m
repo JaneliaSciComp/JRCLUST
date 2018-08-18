@@ -3,6 +3,11 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     % this clustering is natively suited for 2D electrode arrays and drifting dataset
     % There is no x,y position in the clustering dataset
     global spikeFeatures
+
+    if isempty(spikeFeatures)
+        spikeFeatures = get_spkfet_(P);
+    end
+
     if ~isfield(P, 'CHUNK'), P.CHUNK = 16; end
     if ~isfield(P, 'fTwoStep'), P.fTwoStep = 0; end
     if ~isfield(P, 'mrSiteXY'), P.mrSiteXY = []; end

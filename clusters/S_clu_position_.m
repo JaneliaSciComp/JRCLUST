@@ -3,6 +3,11 @@ function S_clu = S_clu_position_(S_clu, viClu_update)
     % determine cluster position from spike position
     % 6/27/17 JJJ: multiple features supported (single dimension such as energy and Vpp)
     global spikeFeatures
+
+    if isempty(spikeFeatures)
+        spikeFeatures = get_spkfet_(P);
+    end
+
     if nargin<2, viClu_update = []; end
     P = get0_('P'); %P = S_clu.P;
     if ~isfield(S_clu, 'clusterXPositions'), S_clu.clusterXPositions = []; end

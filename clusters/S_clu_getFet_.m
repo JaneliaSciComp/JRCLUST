@@ -1,6 +1,11 @@
 %--------------------------------------------------------------------------
 function [mrFet1_clu1, iSite_clu1] = S_clu_getFet_(S_clu, iClu, spikeSecondarySites)
     global spikeFeatures
+
+    if isempty(spikeFeatures)
+        spikeFeatures = get_spkfet_(P);
+    end
+
     if nargin<3, spikeSecondarySites = get0_('spikeSecondarySites'); end
     iSite_clu1 = S_clu.clusterSites(iClu);
     viSpk_clu1 = S_clu.spikesByCluster{iClu};

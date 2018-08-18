@@ -3,6 +3,11 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
     % 7/5/17 JJJ: Berenyi2013 based
 
     global spikeFeatures;
+
+    if isempty(spikeFeatures)
+        spikeFeatures = get_spkfet_(P);
+    end
+
     if nargin<3, viClu_update = []; end
     warning off;
 

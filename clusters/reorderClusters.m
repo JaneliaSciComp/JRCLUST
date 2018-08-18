@@ -20,8 +20,12 @@ function S_clu = reorderClusters(S_clu, criterion)
     end
 
     S_clu.spikeClusters = mapIndex_(S_clu.spikeClusters, viCluSort);
-    S_clu = struct_reorder_(S_clu, viCluSort, 'spikesByCluster', 'clusterXPositions', ...
+    S_clu = struct_reorder_(S_clu, viCluSort, 'spikesByCluster', 'clusterXPositions', 'simScore', ...
         'clusterYPositions', 'vnSpk_clu', 'clusterSites', 'cviTime_clu', 'clusterNotes');
+    % finish the job with simScore by reordering columns as well
+    if isfield(S_clu, 'simScore')
+        S_clu.simScore = S_clu.simScore(:, viCluSort);
+    end
 
     S_clu = S_clu_refresh_(S_clu);
 end %func
