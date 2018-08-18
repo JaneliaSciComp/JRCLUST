@@ -20,6 +20,6 @@ function  S0 = update_cursor_(S0, iClu, fPaste)
         [S0.iCluPaste, S0.hPaste] = plot_tmrWav_clu_(S0, iCluPaste, S0.hPaste, [1 0 0]);
     end
     % set(hFig, 'UserData', S_fig);
-    cursor_FigClusterCor_(S0);
+    cursorFigClusterCor(S0);
     if nargout==0, set(0, 'UserData', S0); end
 end %func

@@ -51,7 +51,7 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
         end
 
         set(hFig, 'KeyPressFcn', @keyPressFigClusterCor);
-        mouse_figure(hFig, figData.hAx, @button_FigClusterCor_);
+        mouse_figure(hFig, figData.hAx, @buttonFigClusterCor);
         figData.hDiag = plotDiag_([0, nClusters, .5], 'Color', [0 0 0], 'LineWidth', 1.5);
     else
         figData.figView = figView;
