@@ -190,6 +190,7 @@ function importKiloSort(rezFile, sessionName)
     S_clu = struct();
     S_clu.nTemplates = nTemplates;
     S_clu.spikeTemplates = spikeTemplates;
+    S_clu.clusterTemplates = clusterTemplates;
     S_clu.templates = templates;
 
     S_clu.nClusters = nClusters;
