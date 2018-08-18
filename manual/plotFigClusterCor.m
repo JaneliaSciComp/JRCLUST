@@ -25,7 +25,6 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
 
         if fImportKilosort
             figData.figView = 'simscore';
-            set(figData.hAx, {'XTickLabels', 'YTickLabels'}, {S_clu.clustersGapped, S_clu.clustersGapped});
         else
             figData.figView = 'wavecor';
         end
