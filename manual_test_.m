@@ -2,7 +2,7 @@
 function manual_test_(P, csCmd)
     drawnow;
     if nargin<2, csCmd = ''; end
-    if isempty(csCmd), csCmd = {'Mouse', 'Menu', 'FigWav', 'FigTime', 'FigWavCor', 'FigProj', 'Exit'}; end
+    if isempty(csCmd), csCmd = {'Mouse', 'Menu', 'FigWav', 'FigTime', 'FigClusterCor', 'FigProj', 'Exit'}; end
     if ischar(csCmd), csCmd = {csCmd}; end
     S0 = get(0, 'UserData');
     S_clu = S0.S_clu;
@@ -63,8 +63,8 @@ function manual_test_(P, csCmd)
             case 'FigTime'
             keyPress_fig_(getCachedFig('FigTime'), get_keyPress_('all'));
 
-            case 'FigWavCor'
-            keyPress_fig_(getCachedFig('FigWavCor'), get_keyPress_('all'));
+            case 'FigClusterCor'
+            keyPress_fig_(getCachedFig('FigClusterCor'), get_keyPress_('all'));
 
             case 'FigProj'
             keyPress_fig_(getCachedFig('FigProj'), get_keyPress_('all'));

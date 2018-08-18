@@ -40,7 +40,7 @@ function S_clu = split_clu_(iClu1, vlIn)
     % update all the other views
     [S_clu, S0] = S_clu_commit_(S_clu, 'split_clu_');
     plot_FigWav_(S0); %redraw plot
-    plotFigWavCor(S0);
+    plotFigClusterCor(S0);
     save_log_(sprintf('split %d', iClu1), S0); %@TODO: specify which cut to use
 
     % select two clusters being split

@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function traces_test_(P)
     drawnow;
-    % csCmd = {'Mouse', 'Menu', 'FigWav', 'FigTime', 'FigWavCor', 'FigProj', 'Exit'};
+    % csCmd = {'Mouse', 'Menu', 'FigWav', 'FigTime', 'FigClusterCor', 'FigProj', 'Exit'};
 
     % for iCmd = 1:numel(csCmd)
     % vcCmd1 = csCmd{iCmd};

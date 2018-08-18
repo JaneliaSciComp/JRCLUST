@@ -74,7 +74,7 @@ function manual(P, debugMode)
     if getOr(P, 'fImportKilosort', 0)
         plotFigSimScore(S0); % hFigSimScore
     else
-        plotFigWavCor(S0); % hFigWavCor
+        plotFigClusterCor(S0); % hFigClusterCor
     end
     S0 = plot_FigWav_(S0); % hFigWav % do this after for ordering
 
