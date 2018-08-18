@@ -2,7 +2,7 @@
 function S0 = gui_update_(S0, S_clu)
     if nargin<1, S0 = get(0, 'UserData'); end
     if nargin<2, S_clu = S0.S_clu; end
-    plot_FigWav_(S0); %redraw plot
+    plotFigWav(S0); %redraw plot
     S0.iCluCopy = min(S0.iCluCopy, S_clu.nClusters);
 
     % S0.iCluCopy = 1;

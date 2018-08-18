@@ -13,7 +13,7 @@ function S0 = ui_delete_(S0)
     % hMsg = msgbox_open_('Deleting...');
     S0.S_clu = delete_clu_(S0.S_clu, S0.iCluCopy);
     set(0, 'UserData', S0);
-    plot_FigWav_(S0); %redraw plot
+    plotFigWav(S0); %redraw plot
     % S0.S_clu.mrWavCor = wavCor_delete_(S0.iCluCopy);
     FigClusterCor_update_(S0);
     S0.iCluCopy = min(S0.iCluCopy, S0.S_clu.nClusters);

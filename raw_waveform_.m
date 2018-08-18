@@ -15,8 +15,9 @@ function raw_waveform_(hMenu)
         S0 = setUserData(P);
     end
     set(hMenu, 'Checked', ifeq_(P.fWav_raw_show, 'on', 'off'));
+
     % redraw windows
-    plot_FigWav_(S0);
+    plotFigWav(S0);
     button_CluWav_simulate_(S0.iCluCopy, S0.iCluPaste, S0);
     figure_wait_(0);
 end %func

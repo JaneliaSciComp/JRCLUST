@@ -23,7 +23,7 @@ function restore_log_(iMenu1)
 
     % update GUI
     S0 = gui_update_(S0, S_clu);
-    % plot_FigWav_(S0); %redraw plot
+    % plotFigWav(S0); %redraw plot
     % S0.iCluCopy = min(S0.iCluCopy, S_clu.nClusters);
     % S0.iCluPaste = [];
     % set(0, 'UserData', S0);

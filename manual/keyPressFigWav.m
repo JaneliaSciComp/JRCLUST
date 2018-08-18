@@ -44,6 +44,7 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
                     S0.iCluPaste = S0.iCluPaste + 1;
                 end
             end
+
             S0 = button_CluWav_simulate_(S0.iCluCopy, S0.iCluPaste, S0); %select first clu
             if strcmpi(event.Key, 'home') || strcmpi(event.Key, 'end') %'z' to recenter
                 S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0);
