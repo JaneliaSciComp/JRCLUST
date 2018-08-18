@@ -207,7 +207,7 @@ function importKiloSort(rezFile, sessionName)
     end
 
     S_clu = S_clu_refresh_(S_clu, 0); % don't remove empty
-    S_clu = S_clu_sort_(S_clu, 'clusterSites');
+    S_clu = reorderClusters(S_clu, 'clusterSites');
     S_clu = S_clu_update_wav_(S_clu);
     S_clu.P = P;
     S_clu = S_clu_position_(S_clu);
