@@ -9,7 +9,7 @@ function exit_manual_(src, event)
         if ~fExit, return; end
         if ~isfield(S0, 'figTags')
             S0.figTags = {'FigPos', 'FigMap', 'FigTime', 'FigWav', 'FigClusterCor', ...
-                'FigSimScore', 'FigProj', 'FigRD', 'FigCorr', 'FigIsi', 'FigHist'};
+                'FigProj', 'FigRD', 'FigCorr', 'FigIsi', 'FigHist'};
         end
         deleteMany(get_fig_all_(S0.figTags), src);
         tryClose(figureByTag('FigTrial'));

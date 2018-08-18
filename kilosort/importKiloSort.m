@@ -75,11 +75,7 @@ function importKiloSort(rezFile, sessionName)
 
         for jCluster=iCluster:nClusters
             jClusterTemplates = clusterTemplates{jCluster};
-%             if clusters(jCluster) <= nTemplates
-%                 simScore(iCluster, jCluster) = sims(clusters(jCluster));
-%             else
-                simScore(iCluster, jCluster) = max(sims(jClusterTemplates));
-%             end
+            simScore(iCluster, jCluster) = max(sims(jClusterTemplates));
             simScore(jCluster, iCluster) = simScore(iCluster, jCluster);
         end
     end
@@ -178,7 +174,7 @@ function importKiloSort(rezFile, sessionName)
     P = saveProbe([sessionName '-probe.mat'], P);
     S0.P = P;
 
-    % extract features
+    % extract KS features
     ksFeatures = permute(rez.cProjPC, [3 2 1]);
     fidFeatures = fopen([sessionName '_ks-features.bin'], 'w');
     fwrite_(fidFeatures, ksFeatures);
@@ -192,11 +188,15 @@ function importKiloSort(rezFile, sessionName)
 
     % construct S_clu from scratch
     S_clu = struct();
-    % TODO: handle numel(clusters) ~= max(clusters);
+    S_clu.nTemplates = nTemplates;
+    S_clu.spikeTemplates = spikeTemplates;
+    S_clu.templates = templates;
+
     S_clu.nClusters = nClusters;
     S_clu.spikeClusters = spikeClusters;
     S_clu.clustersGapped = clustersGapped;
     S_clu.spikeClustersAuto = spikeTemplates;
+
     S_clu.clusterNotes = cell(nClusters, 1);
     S_clu.clusterSites = clusterSites;
     S_clu.simScore = simScore;
@@ -206,9 +206,11 @@ function importKiloSort(rezFile, sessionName)
         S_clu.spikesByCluster{iCluster} = find(spikeClusters == iCluster);
     end
 
-    S_clu = S_clu_wav_(S_clu);
-    S_clu.mrWavCor = S_clu_wavcor_(S_clu, P);
     S_clu = S_clu_refresh_(S_clu, 0); % don't remove empty
+    S_clu = S_clu_sort_(S_clu, 'clusterSites');
+    S_clu = S_clu_update_wav_(S_clu);
+    S_clu.P = P;
+    S_clu = S_clu_position_(S_clu);
 
 %     S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
 %     set(0, 'UserData', S0);

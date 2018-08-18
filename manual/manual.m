@@ -2,7 +2,7 @@
 function manual(P, debugMode)
     % display manual sorting interface
     global fDebug_ui spikeFeatures
-    
+
     if isempty(spikeFeatures)
         spikeFeatures = get_spkfet_(P);
     end
@@ -71,11 +71,7 @@ function manual(P, debugMode)
 
     % Set initial amplitudes
     set(0, 'UserData', S0);
-    if getOr(P, 'fImportKilosort', 0)
-        plotFigSimScore(S0); % hFigSimScore
-    else
-        plotFigClusterCor(S0); % hFigClusterCor
-    end
+    plotFigClusterCor(S0); % hFigClusterCor
     S0 = plot_FigWav_(S0); % hFigWav % do this after for ordering
 
     % hFigProj, hFigHist, hFigIsi, hFigCorr, hFigPos, hFigMap, hFigTime
