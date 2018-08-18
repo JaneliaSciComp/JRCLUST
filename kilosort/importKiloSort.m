@@ -212,14 +212,6 @@ function importKiloSort(rezFile, sessionName)
     S_clu.P = P;
     S_clu = S_clu_position_(S_clu);
 
-%     S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
-%     set(0, 'UserData', S0);
-%
-%     % cluster and describe
-%     S0.S_clu = cluster_spacetime_(S0, P);
-%     S0.S_clu = S_clu_new_(spikeClusters, S0);
-%     S0.S_clu = S_clu_sort_(S0.S_clu, 'clusterSites');
-
     S0.S_clu = S_clu;
 
     % Save
