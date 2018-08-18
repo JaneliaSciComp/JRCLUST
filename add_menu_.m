@@ -36,8 +36,9 @@ function add_menu_(hFig, P)
     uimenu(mh_view,'Label', '[Z]oom selected', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'z'));
     uimenu(mh_view,'Label', '[W]aveform (toggle)', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'w'));
     uimenu(mh_view,'Label', '[N]umbers (toggle)', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'n'));
-    uimenu(mh_view,'Label', 'Show raw waveform', 'Callback', @(h,e)raw_waveform_(h), ...
+    uimenu(mh_view,'Label', 'Show raw waveform', 'Callback', @(h,e) showRawWaveforms(h), ...
         'Checked', ifeq_(get_(P, 'fWav_raw_show'), 'on', 'off'));
+
     %uimenu(mh_view,'Label', 'Threshold by sites', 'Callback', @(h,e)keyPressFcn_thresh_(hFig, 'n'));
     % uimenu(mh_view,'Label', '.prm file', 'Callback', @edit_prm_);
     uimenu(mh_view,'Label', 'Reset window positions', 'Callback', @reset_position_);
