@@ -1,7 +1,15 @@
 %--------------------------------------------------------------------------
-function button_FigClusterCor_(xyPos, vcButton)
+function buttonFigClusterCor(xyPos, vcButton)
     S0 = get(0, 'UserData');
     xyPos = round(xyPos);
+
+    if xyPos(1) < 1
+        xyPos(1) = 1;
+    end
+    if xyPos(2) < 1
+        xyPos(2) = 1;
+    end
+
     switch lower(vcButton)
         case 'normal' %left click
             S0.iCluCopy = xyPos(1);
