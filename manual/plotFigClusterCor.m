@@ -53,8 +53,6 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
         mouse_figure(hFig, figData.hAx, @buttonFigClusterCor);
         figData.hDiag = plotDiag_([0, nClusters, .5], 'Color', [0 0 0], 'LineWidth', 1.5);
     else
-        fSwapView = ~strcmp(figData.figView, figView);
-
         figData.figView = figView;
         if strcmp(figData.figView, 'simscore')
             set(figData.hImClusterCor, 'CData', S_clu.simScore);
@@ -64,10 +62,8 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
             set(hFig, 'Name', ['Waveform correlation (click): ', P.paramFile], 'NumberTitle', 'off', 'Color', 'w');
         end
 
-        if ~fSwapView
-            set(figData.hCursorV, 'xdata', [1 1], 'ydata', [.5 nClusters+.5]);
-            set(figData.hCursorH, 'xdata', .5+[0 nClusters], 'ydata', [1 1]);
-        end
+        % set(figData.hCursorV, 'xdata', [1 1], 'ydata', [.5 nClusters+.5]);
+        % set(figData.hCursorH, 'xdata', .5+[0 nClusters], 'ydata', [1 1]);
     end
 
     % output
