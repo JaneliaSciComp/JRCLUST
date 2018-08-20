@@ -48,7 +48,7 @@ function keyPressFcn_FigTime_(hObject, event, S0)
                 set(hFig, 'UserData', S_fig);
 
         case 't'
-                plot_FigTime_(S0);
+                plotFigTime(S0);
 
                 %     case 'z' % track depth
                 %         disp('FigTime:''z'' not implemented yet');
