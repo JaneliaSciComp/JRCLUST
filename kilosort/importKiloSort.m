@@ -151,7 +151,8 @@ function importKiloSort(rezFile, sessionName)
     P.maxSite = 6.5; % TODO: allow user to set
     P.nSites_ref = 0; % TODO: address
 
-    P.spkLim = [-6 19]; % default
+    P.spkLim_ms = [-.25 .75]; % default
+    P.spkLim = round(P.spkLim_ms/1000*P.sampleRateHz); % default
     P.spkLim_raw = ceil(size(templates, 2)/2) * [-1, 1]; % TODO: address
 
     P.corrLim = [.75 1];

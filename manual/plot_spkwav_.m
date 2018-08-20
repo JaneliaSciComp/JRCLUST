@@ -8,12 +8,14 @@ function S_fig = plot_spkwav_(S_fig, S0)
 
     [cvrX, cvrY, cviSite] = deal(cell(S_clu.nClusters, 1));
     vnSpk = zeros(S_clu.nClusters, 1);
-    miSites_clu = P.miSites(:, S_clu.clusterSites);
+
+    clusterSiteGroups = P.miSites(:, S_clu.clusterSites);
     if isfield(S_fig, 'maxAmp')
         maxAmp = S_fig.maxAmp;
     else
         maxAmp = P.maxAmp;
     end
+
     for iCluster = 1:S_clu.nClusters
         try
             spikesToShow = randomSelect_(S_clu_viSpk_(S_clu, iCluster, spikeSites), P.nSpk_show);
@@ -23,7 +25,7 @@ function S_fig = plot_spkwav_(S_fig, S0)
             else
                 trWav1 = tnWav2uV_(spikeWaveforms(:,:,spikesToShow), P);
             end
-            sitesToShow = miSites_clu(:, iCluster);
+            sitesToShow = clusterSiteGroups(:, iCluster);
             [cvrY{iCluster}, cvrX{iCluster}] = tr2plot_(trWav1, iCluster, sitesToShow, maxAmp, P);
             cviSite{iCluster} = sitesToShow;
             vnSpk(iCluster) = size(trWav1, 3); %subsample
