@@ -44,7 +44,7 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
         colorbar(figData.hAx);
 
         if fImportKilosort
-            figData.vcTitle = '[S]plit; [M]erge; [D]elete; [T]emplate similarity; [W]aveform correlation';
+            figData.vcTitle = '[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr';
         else
             figData.vcTitle = '[S]plit; [M]erge; [D]elete';
         end
