@@ -1,27 +1,27 @@
 %--------------------------------------------------------------------------
 % 10/27/17 JJJ: distance-based neighboring unit selection
-function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2)
+function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cclusterSites, P, cell_5args, iClu2)
 
     [vlClu_update, cviShift1, cviShift2, mrWavCor0, fMode_cor] = deal(cell_5args{:});
-    if numel(cviSite_clu) == 1
-        viSite_clu = cviSite_clu{1};
+    if numel(cclusterSites) == 1
+        clusterSites = cclusterSites{1};
         fUsePeak2 = 0;
     else
-        [viSite_clu, viSite2_clu, viSite3_clu] = deal(cviSite_clu{:});
+        [clusterSites, viSite2_clu, viSite3_clu] = deal(cclusterSites{:});
         fUsePeak2 = 1;
     end
-    nClu = numel(viSite_clu);
-    iSite_clu2 = viSite_clu(iClu2);
+    nClu = numel(clusterSites);
+    iSite_clu2 = clusterSites(iClu2);
     if iSite_clu2==0 || isnan(iSite_clu2), vrWavCor2 = []; return; end
     viSite2 = P.miSites(:,iSite_clu2);
     % if fMaxSite_excl, viSite2 = viSite2(2:end); end
     if fUsePeak2
-        viClu1 = find(viSite_clu == iSite_clu2 | viSite2_clu == iSite_clu2 | viSite3_clu == iSite_clu2 | ...
-        viSite_clu == viSite2_clu(iClu2) | viSite_clu == viSite3_clu(iClu2)); %viSite2_clu == viSite2_clu(iClu2)
+        viClu1 = find(clusterSites == iSite_clu2 | viSite2_clu == iSite_clu2 | viSite3_clu == iSite_clu2 | ...
+        clusterSites == viSite2_clu(iClu2) | clusterSites == viSite3_clu(iClu2)); %viSite2_clu == viSite2_clu(iClu2)
     else
-        %     maxDist_site_um = get_set_(P, 'maxDist_site_um', 50);
-        maxDist_site_um = get_set_(P, 'maxDist_site_merge_um', 35);
-        viClu1 = find(ismember(viSite_clu, findNearSite_(P.mrSiteXY, iSite_clu2, maxDist_site_um)));
+        %     maxDist_site_um = getOr(P, 'maxDist_site_um', 50);
+        maxDist_site_um = getOr(P, 'maxDist_site_merge_um', 35);
+        viClu1 = find(ismember(clusterSites, findNearSite_(P.mrSiteXY, iSite_clu2, maxDist_site_um)));
     end
 
     vrWavCor2 = zeros(nClu, 1, 'single');
@@ -34,7 +34,7 @@ function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2)
         if ~vlClu_update(iClu1) && ~vlClu_update(iClu2)
             vrWavCor2(iClu1) = mrWavCor0(iClu1, iClu2);
         else
-            iSite_clu1 = viSite_clu(iClu1);
+            iSite_clu1 = clusterSites(iClu1);
             if iSite_clu1==0 || isnan(iSite_clu1), continue; end
             if iSite_clu1 == iSite_clu2
                 cmrWav_clu2_ = cmrWav_clu2;

@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
-% 10/10/17 JJJ: load tnWav_spk from disk
-function tnWav_spk = load_spkwav_(S0)
+% 10/10/17 JJJ: load spikeWaveforms from disk
+function spikeWaveforms = load_spkwav_(S0)
     if nargin<1, S0 = get(0, 'UserData'); end
-    tnWav_spk = load_bin_(strrep(S0.P.vcFile_prm, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
+    spikeWaveforms = load_bin_(strrep(S0.P.paramFile, '.prm', '_waveforms.bin'), 'int16', S0.waveformDims);
 end %func

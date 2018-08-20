@@ -7,7 +7,7 @@ function S0 = load0_(vcFile_mat)
     % only set the S0 if it's found
     if isstruct(vcFile_mat)
         P = vcFile_mat;
-        vcFile_mat = strrep(P.vcFile_prm, '.prm', '_jrc.mat');
+        vcFile_mat = strrep(P.paramFile, '.prm', '_jrc.mat');
     end
 
     if ~exist(vcFile_mat, 'file')

@@ -7,13 +7,13 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     if nargin<2, fKeepView = 0; end
     hWait = msgbox_('Plotting...', 0, 1);
     if isempty(P), P = get0_('P'); end
-    [hFig, S_fig] = get_fig_cache_('Fig_preview');
+    [hFig, S_fig] = getCachedFig('Fig_preview');
 
     figure_wait_(1, hFig);
     nSites = size(S_fig.mnWav_filt,2);
     viPlot = S_fig.nlim_bin(1):S_fig.nlim_bin(2);
-    vrTime_sec = viPlot / P.sRateHz;
-    tlim_sec = (S_fig.nlim_bin + [-1 1]) / P.sRateHz;
+    vrTime_sec = viPlot / P.sampleRateHz;
+    tlim_sec = (S_fig.nlim_bin + [-1 1]) / P.sampleRateHz;
 
 
     %-----
@@ -61,21 +61,21 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
         hide_plot_(S_fig.hPlot_traces_bad);
     end
     if S_fig.fShow_spk
-        vlSpk_ = S_fig.viTime_spk >= S_fig.nlim_bin(1) & S_fig.viTime_spk <= S_fig.nlim_bin(end);
-        viTime_spk_ = single(S_fig.viTime_spk(vlSpk_)-S_fig.nlim_bin(1)+1);
-        vrTime_spk_ = single(S_fig.viTime_spk(vlSpk_)) / P.sRateHz;
-        viSite_spk_ = single(S_fig.viSite_spk(vlSpk_));
+        vlSpk_ = S_fig.spikeTimes >= S_fig.nlim_bin(1) & S_fig.spikeTimes <= S_fig.nlim_bin(end);
+        spikeTimes_ = single(S_fig.spikeTimes(vlSpk_)-S_fig.nlim_bin(1)+1);
+        vrTime_spk_ = single(S_fig.spikeTimes(vlSpk_)) / P.sampleRateHz;
+        spikeSites_ = single(S_fig.spikeSites(vlSpk_));
     else
-        viTime_spk_ = [];
+        spikeTimes_ = [];
     end
-    if isempty(viTime_spk_)
+    if isempty(spikeTimes_)
         hide_plot_(S_fig.hPlot_traces_spk1);
         menu_label_('menu_preview_view_spike', 'Show [S]pikes');
     else
-        multiplot(S_fig.hPlot_traces_spk1, S_fig.maxAmp, vrTime_spk_, mr2vr_sub2ind_(mrWav_, viTime_spk_, viSite_spk_), viSite_spk_, 1);
+        multiplot(S_fig.hPlot_traces_spk1, S_fig.maxAmp, vrTime_spk_, mr2vr_sub2ind_(mrWav_, spikeTimes_, spikeSites_), spikeSites_, 1);
         menu_label_('menu_preview_view_spike', 'Hide [S]pikes');
     end
-    vrThresh_site_uV = bit2uV_(-S_fig.vnThresh_site(:), setfield(P, 'vcFilter', S_fig.vcFilter));
+    vrThresh_site_uV = bit2uV_(-S_fig.siteThresholds(:), setfield(P, 'vcFilter', S_fig.vcFilter));
     vrThresh_site_uV(S_fig.viSite_bad) = nan;
     if S_fig.fThresh_spk && S_fig.fFilter
         multiplot(S_fig.hPlot_traces_thresh, S_fig.maxAmp, vrTime_sec([1,end,end])', repmat(vrThresh_site_uV, [1,3])');
@@ -88,7 +88,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     end
     xylabel_(S_fig.hAx_traces, '', 'Site #');
     vcFilter_ = ifeq_(S_fig.fFilter, sprintf('Filter=%s', S_fig.vcFilter), 'Filter off');
-    set(hFig, 'Name', sprintf('%s; %s; CommonRef=%s', P.vcFile_prm, vcFilter_, S_fig.vcCommonRef));
+    set(hFig, 'Name', sprintf('%s; %s; CommonRef=%s', P.paramFile, vcFilter_, S_fig.vcCommonRef));
 
     title_(S_fig.hAx_traces, sprintf('Scale: %0.1f uV', S_fig.maxAmp));
     menu_label_('menu_preview_view_filter', ifeq_(S_fig.fFilter, 'Show raw traces [F]', 'Show [F]iltered traces'));
@@ -107,7 +107,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     end
     switch S_fig.vcSite_view
         case 'Site correlation', vrPlot_site = S_fig.vrCorr_max_site;
-        case 'Spike threshold', vrPlot_site = single(S_fig.vnThresh_site);
+        case 'Spike threshold', vrPlot_site = single(S_fig.siteThresholds);
         case 'Event rate (Hz)', vrPlot_site = S_fig.vrEventRate_site;
         case 'Event SNR (median)', vrPlot_site = S_fig.vrEventSnr_site;
     end
@@ -139,7 +139,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     set(S_fig.hPlot_psd, 'XData', S_fig.vrFreq_psd, 'YData', S_fig.vrPower_psd);
     set(S_fig.hPlot_clean_psd, 'XData', S_fig.vrFreq_psd, 'YData', S_fig.vrPower_clean_psd);
     xylabel_(S_fig.hAx_psd, 'Frequency (Hz)', 'Power [dB]', 'TODO: before and after cleaning');
-    set(S_fig.hAx_psd, 'XLim', [0, P.sRateHz/2]);
+    set(S_fig.hAx_psd, 'XLim', [0, P.sampleRateHz/2]);
     title_(S_fig.hAx_psd, sprintf('fft_thresh=%s', num2str(S_fig.fft_thresh)));
 
     grid_([S_fig.hAx_traces, S_fig.hAx_mean, S_fig.hAx_sites, S_fig.hAx_psd], S_fig.fGrid);
@@ -147,5 +147,5 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     % Exit
     set(hFig, 'UserData', S_fig);
     figure_wait_(0, hFig);
-    close_(hWait);
+    tryClose(hWait);
 end %func

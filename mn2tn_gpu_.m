@@ -19,9 +19,9 @@ function [tr, miRange] = mn2tn_gpu_(mr, spkLim, viTime, viSite)
     end
     if iscolumn(viTime), viTime = viTime'; end
 
-    fGpu = isGpu_(mr);
-    viTime = gpuArray_(viTime, fGpu);
-    spkLim = gpuArray_(spkLim, fGpu);
+    useGPU = isGpu_(mr);
+    viTime = gpuArray_(viTime, useGPU);
+    spkLim = gpuArray_(spkLim, useGPU);
 
     viTime0 = [spkLim(1):spkLim(end)]'; %column
     miRange = bsxfun(@plus, int32(viTime0), int32(viTime));
@@ -30,7 +30,7 @@ function [tr, miRange] = mn2tn_gpu_(mr, spkLim, viTime, viSite)
     tr = zeros([numel(viTime0), numel(viTime), nSites], 'int16');
     dimm_tr = size(tr);
     for iSite = 1:nSites
-        if fGpu
+        if useGPU
             %         vr1 = gpuArray(mr(:,iSite));
             %         tr(:,:,iSite) = gather(vr1(miRange));
             tr(:,:,iSite) = gather_(reshape(mr(miRange, iSite), dimm_tr(1:2)));

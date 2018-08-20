@@ -7,15 +7,15 @@ function vrRho1 = cuda_rho_(mrFet12, viiSpk12_ord, n1, n2, dc2, P)
     if nargin==0, nC_ = 0; return; end
     if isempty(nC_), nC_ = 0; end
     [nC, n12] = size(mrFet12); %nc is constant with the loop
-    % if get_set_(P, 'f_dpclus', 1)
+    % if getOr(P, 'f_dpclus', 1)
     dn_max = int32(round((n1+n2) / P.nTime_clu));
     % else
     %     dn_max = int32(round((n1+n2)));
     % end
-    nC_max = get_set_(P, 'nC_max', 45);
+    nC_max = getOr(P, 'nC_max', 45);
     dc2 = single(dc2);
     FLAG_FIXN = 0; %flag variable number of neighbors (otherwise fixed to 2*dn_max+1)
-    if P.fGpu && FLAG_FIXN == 0
+    if P.useGPU && FLAG_FIXN == 0
         try
             if (nC_ ~= nC) % create cuda kernel
                 nC_ = nC;
@@ -25,7 +25,7 @@ function vrRho1 = cuda_rho_(mrFet12, viiSpk12_ord, n1, n2, dc2, P)
             end
             CK.GridSize = [ceil(n1 / P.CHUNK / P.CHUNK), P.CHUNK]; %MaxGridSize: [2.1475e+09 65535 65535]
             vrRho1 = zeros([1, n1], 'single', 'gpuArray');
-            vnConst = int32([n1, n12, nC, dn_max, get_set_(P, 'fDc_spk', 0)]);
+            vnConst = int32([n1, n12, nC, dn_max, getOr(P, 'fDc_spk', 0)]);
             vrRho1 = feval(CK, vrRho1, mrFet12, viiSpk12_ord, vnConst, dc2);
             return;
         catch

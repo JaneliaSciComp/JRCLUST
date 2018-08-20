@@ -3,7 +3,7 @@ function hRect = imrect_(varargin)
     global fDebug_ui
 
     hRect = []; %skip the test if debugging
-    % if get_set_([], 'fDebug_ui', 0) && nargin < 2
+    % if getOr([], 'fDebug_ui', 0) && nargin < 2
     if fDebug_ui==1 && nargin < 2
         return;
     else

@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 % 17/12/11 JJJ: Created. Apply spatial whitening
 function [mnWav2, mrWhiten] = whiten_(mnWav1, P)
-    nLoads_gpu = get_set_(P, 'nLoads_gpu', 8);
+    nLoads_gpu = getOr(P, 'nLoads_gpu', 8);
     nSamples_max = round(size(mnWav1,1) / nLoads_gpu);
     fprintf('Whitening\n\t'); t1 = tic;
     [mr_sub, vi_sub] = subsample_mr_(mnWav1, nSamples_max, 1);

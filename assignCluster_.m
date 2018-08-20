@@ -1,16 +1,16 @@
 %--------------------------------------------------------------------------
-function [cl, icl] = assignCluster_(cl, ordrho, nneigh, icl)
+function [cl, clusterCenters] = assignCluster_(cl, ordrho, nneigh, clusterCenters)
     ND = numel(ordrho);
-    nClu = numel(icl);
+    nClu = numel(clusterCenters);
 
     if isempty(cl)
         cl = zeros([ND, 1], 'int32');
-        cl(icl) = 1:nClu;
+        cl(clusterCenters) = 1:nClu;
     end
 
-    if numel(icl) == 0 || numel(icl) == 1
+    if numel(clusterCenters) == 0 || numel(clusterCenters) == 1
         cl = ones([ND, 1], 'int32');
-        icl = ordrho(1);
+        clusterCenters = ordrho(1);
     else
         nneigh1 = nneigh(ordrho);
         for i=1:10

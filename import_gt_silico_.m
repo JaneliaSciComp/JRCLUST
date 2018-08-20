@@ -13,6 +13,6 @@ function import_gt_silico_(vcFile_mat)
         viTime = int32(mr(:,2));
     end
     S_gt = makeStruct_(viClu, viTime);
-    vcFile_gt = subsFileExt_(vcFile_mat, '_gt.mat');
-    write_struct_(vcFile_gt, S_gt);
+    groundTruthFile = subsFileExt_(vcFile_mat, '_gt.mat');
+    write_struct_(groundTruthFile, S_gt);
 end %func

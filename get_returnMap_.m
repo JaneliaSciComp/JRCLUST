@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 function [vrX, vrY] = get_returnMap_(iClu, P)
-    vrTime1 = double(clu_time_(iClu)) / P.sRateHz;
+    vrTime1 = double(clu_time_(iClu)) / P.sampleRateHz;
     vrIsi1 = diff(vrTime1 * 1000); % in msec
     vrX = vrIsi1(1:end-1);
     vrY = vrIsi1(2:end);

@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
-function [icl, x, y] = log_ztran_(x, y, x_cut, y_cut)
-    % [icl, x, y] = detrend_ztran_(x, y, x_cut, y_cut)
-    % [icl, x, y] = detrend_ztran_(x, y, n_icl)
+function [clusterCenters, x, y] = log_ztran_(x, y, x_cut, y_cut)
+    % [clusterCenters, x, y] = detrend_ztran_(x, y, x_cut, y_cut)
+    % [clusterCenters, x, y] = detrend_ztran_(x, y, n_icl)
     if nargin == 3
         n_icl = x_cut;
     else
@@ -15,14 +15,14 @@ function [icl, x, y] = log_ztran_(x, y, x_cut, y_cut)
     y(vlValid) = zscore_(y(vlValid));
 
     if isempty(n_icl)
-        icl = find(x>=x_cut & y>=y_cut);
+        clusterCenters = find(x>=x_cut & y>=y_cut);
     else
         [~, ix] = sort(y(vlValid), 'descend');
         viValid = find(vlValid);
-        icl = viValid(ix(1:n_icl));
+        clusterCenters = viValid(ix(1:n_icl));
     end
 
     if nargout==0
-        figure; plot(x,y,'.', x(icl),y(icl),'ro'); grid on;
+        figure; plot(x,y,'.', x(clusterCenters),y(clusterCenters),'ro'); grid on;
     end
 end %func

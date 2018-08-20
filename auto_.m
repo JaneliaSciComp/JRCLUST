@@ -1,8 +1,8 @@
 %--------------------------------------------------------------------------
 function auto_(P)
-    if get_set_(P, 'fRepeat_clu', 0)
+    if getOr(P, 'fRepeat_clu', 0)
         sort_(P);
-        describe_(P.vcFile_prm);
+        describe_(P.paramFile);
         return;
     end
     [S0, P] = load_cached_(P); % load cached data or from file if exists
@@ -15,5 +15,5 @@ function auto_(P)
     end
     [S_clu, S0] = post_merge_(S_clu, P);
     S0 = clear_log_(S0);
-    save0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
-end %func
+    save0_(strrep(P.paramFile, '.prm', '_jrc.mat'));
+end % func

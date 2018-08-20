@@ -5,7 +5,7 @@ function mnWav = load_bin_multi_(fid, cvi_lim_bin, P)
     for i=1:numel(cvi_lim_bin)
         lim1 = cvi_lim_bin{i};
         if i>1, fseek_(fid, lim1(1), P); end
-        mnWav{i} = load_bin_(fid, P.vcDataType, [P.nChans, diff(lim1)+1]);
+        mnWav{i} = load_bin_(fid, P.dataType, [P.nChans, diff(lim1)+1]);
         if i==1, fpos = ftell(fid); end
     end %for
     mnWav = cell2mat_(mnWav);

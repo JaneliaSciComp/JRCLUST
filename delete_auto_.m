@@ -4,7 +4,7 @@ function delete_auto_()
     % Ask SNR
     S0 = get(0, 'UserData');
     [S_clu, P] = get0_('S_clu', 'P');
-    hFig = create_figure_('', [.5 .7 .35 .3], ['Delete Auto: ', P.vcFile]);
+    hFig = createFigure('', [.5 .7 .35 .3], ['Delete Auto: ', P.vcFile]);
 
     % Ask user which clusters to delete
     plot(S_clu.vrSnr_clu(:), S_clu.vnSpk_clu(:), '.'); % show cluster SNR and spike count
@@ -24,12 +24,12 @@ function delete_auto_()
     end
     viClu_delete = find(S_clu.vrSnr_clu(:) < snr_min_thresh | S_clu.vnSpk_clu(:) < count_thresh | S_clu.vrSnr_clu(:) > snr_max_thresh);
     if isempty(viClu_delete), msgbox_('No clusters deleted.'); return; end
-    if numel(viClu_delete) >= S_clu.nClu, msgbox_('Cannot delete all clusters.'); return; end
+    if numel(viClu_delete) >= S_clu.nClusters, msgbox_('Cannot delete all clusters.'); return; end
 
     % Auto delete
     figure_wait_(1); drawnow;
     S_clu = delete_clu_(S_clu, viClu_delete);
-    set0_(S_clu);
+    setUserData(S_clu);
     S0 = gui_update_();
     figure_wait_(0);
 

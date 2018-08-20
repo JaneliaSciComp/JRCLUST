@@ -15,7 +15,7 @@ function add_menu_(hFig, P)
     uimenu(mh_file,'Label', 'Export unit qualities to csv', 'Callback', @(h,e)export_quality_);
     uimenu(mh_file,'Label', 'Export all mean unit waveforms', 'Callback', @export_tmrWav_clu_);
     uimenu(mh_file,'Label', 'Export selected mean unit waveforms', 'Callback', @(h,e)export_mrWav_clu_);
-    uimenu(mh_file,'Label', 'Export all waveforms from the selected unit', 'Callback', @(h,e)export_tnWav_spk_);
+    uimenu(mh_file,'Label', 'Export all waveforms from the selected unit', 'Callback', @(h,e)export_spikeWaveforms_);
     uimenu(mh_file,'Label', 'Export firing rate for all units', 'Callback', @(h,e)export_rate_);
     uimenu(mh_file,'Label', 'Exit', 'Callback', @exit_manual_, 'Separator', 'on', 'Accelerator', 'Q');
 
@@ -36,21 +36,22 @@ function add_menu_(hFig, P)
     uimenu(mh_view,'Label', '[Z]oom selected', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'z'));
     uimenu(mh_view,'Label', '[W]aveform (toggle)', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'w'));
     uimenu(mh_view,'Label', '[N]umbers (toggle)', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'n'));
-    uimenu(mh_view,'Label', 'Show raw waveform', 'Callback', @(h,e)raw_waveform_(h), ...
-    'Checked', ifeq_(get_(P, 'fWav_raw_show'), 'on', 'off'));
+    uimenu(mh_view,'Label', 'Show raw waveform', 'Callback', @(h,e) showRawWaveforms(h), ...
+        'Checked', ifeq_(get_(P, 'fWav_raw_show'), 'on', 'off'));
+
     %uimenu(mh_view,'Label', 'Threshold by sites', 'Callback', @(h,e)keyPressFcn_thresh_(hFig, 'n'));
     % uimenu(mh_view,'Label', '.prm file', 'Callback', @edit_prm_);
     uimenu(mh_view,'Label', 'Reset window positions', 'Callback', @reset_position_);
 
     mh_proj = uimenu(hFig,'Label','Projection');
     uimenu(mh_proj, 'Label', 'vpp', 'Callback', @(h,e)proj_view_(h), ...
-    'Checked', if_on_off_(P.vcFet_show, {'vpp', 'vmin'}));
+    'Checked', if_on_off_(P.displayFeature, {'vpp', 'vmin'}));
     uimenu(mh_proj, 'Label', 'pca', 'Callback', @(h,e)proj_view_(h), ...
-    'Checked', if_on_off_(P.vcFet_show, {'pca'}));
+    'Checked', if_on_off_(P.displayFeature, {'pca'}));
     uimenu(mh_proj, 'Label', 'ppca', 'Callback', @(h,e)proj_view_(h), ...
-    'Checked', if_on_off_(P.vcFet_show, {'ppca', 'private pca'}));
+    'Checked', if_on_off_(P.displayFeature, {'ppca', 'private pca'}));
     % uimenu(mh_proj, 'Label', 'cov', 'Callback', @(h,e)proj_view_(h), ...
-    %     'Checked', if_on_off_(P.vcFet_show, {'cov', 'spacetime'}));
+    %     'Checked', if_on_off_(P.displayFeature, {'cov', 'spacetime'}));
 
     mh_plot = uimenu(hFig,'Label','Plot');
     uimenu(mh_plot, 'Label', 'All unit firing rate vs. aux. input', 'Callback', @(h,e)plot_aux_rate_);

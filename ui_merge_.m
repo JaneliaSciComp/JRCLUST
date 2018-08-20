@@ -14,7 +14,7 @@ function S0 = ui_merge_(S0)
     figure_wait_(1); drawnow;
     S0.S_clu = merge_clu_(S0.S_clu, S0.iCluCopy, S0.iCluPaste, P);
     set(0, 'UserData', S0);
-    plot_FigWav_(S0); %redraw plot
+    plotFigWav(S0); %redraw plot
     S0.iCluCopy = min(S0.iCluCopy, S0.iCluPaste);
     S0.iCluPaste = [];
     set(0, 'UserData', S0);

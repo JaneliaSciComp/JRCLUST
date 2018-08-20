@@ -9,25 +9,25 @@ function export_csv_(varargin)
         [S0, P, S_clu] = get0_();
     elseif nargin==1
         P = varargin{1};
-        vcFile_prm = P.vcFile_prm;
+        vcFile_prm = P.paramFile;
         S0 = load_cached_(P, 0);
         if isempty(S0), fprintf(2, 'Cannot find _jrc.mat.\n'); return; end %exit if file doesn't exist
         P = S0.P;
     end
 
-    % vcFile_clu = subsFileExt(P.vcFile_prm, '_clu.mat');
+    % vcFile_clu = subsFileExt(P.paramFile, '_clu.mat');
     % Sclu = load(vcFile_clu); %load Sclu
     % if isfield(Sclu, 'Sclu'), Sclu = Sclu.Sclu; end
 
     if isfield(S0, 'S_clu')
-        viClu = double(S0.S_clu.viClu);
+        viClu = double(S0.S_clu.spikeClusters);
     else
         fprintf(2, 'Cannot find S_clu.\n');
     end
-    vrTime = double(S0.viTime_spk) / P.sRateHz;
-    viSite = double(S0.viSite_spk) - fZeroIndex; %zero base
+    vrTime = double(S0.spikeTimes) / P.sampleRateHz;
+    viSite = double(S0.spikeSites) - fZeroIndex; %zero base
 
-    vcFile_csv = subsFileExt_(P.vcFile_prm, '.csv');
+    vcFile_csv = subsFileExt_(P.paramFile, '.csv');
     dlmwrite(vcFile_csv, [vrTime(:), viClu(:), viSite(:)], 'precision', 9);
     fprintf('Wrote to %s. Columns:\n', vcFile_csv);
     fprintf('\tColumn 1: Spike time (s)\n');

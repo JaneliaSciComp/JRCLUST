@@ -2,7 +2,7 @@
 function dc2_ = compute_dc2_(mrFet12, viiSpk12_ord, n1_, n2_, P)
     % subsample
     % fSubsample12 = 1;
-    if get_set_(P, 'fDc_spk', 0)
+    if getOr(P, 'fDc_spk', 0)
         dc2_ = (P.dc_percent/100).^2;
         return;
     end % spike-specific dc
@@ -24,7 +24,7 @@ function dc2_ = compute_dc2_(mrFet12, viiSpk12_ord, n1_, n2_, P)
     for iRetry=1:2
         try
             mrDist11_2_ = eucl2_dist_(mrFet12, mrFet1_);
-            % if get_set_(P, 'f_dpclus', 1)
+            % if getOr(P, 'f_dpclus', 1)
             mlKeep11_2_ = abs(bsxfun(@minus, viiSpk12_ord, viiSpk1_ord_')) < (n1_+n2_) / P.nTime_clu;
             mrDist11_2_(~mlKeep11_2_) = nan;
         catch
@@ -32,7 +32,7 @@ function dc2_ = compute_dc2_(mrFet12, viiSpk12_ord, n1_, n2_, P)
         end
     end
     % end
-    if get_set_(P, 'fDc_subsample_mode', 0)
+    if getOr(P, 'fDc_subsample_mode', 0)
         mrDist11_2_(mrDist11_2_<=0) = nan;
         dc2_ = quantile(mrDist11_2_(~isnan(mrDist11_2_)), P.dc_percent/100);
     else

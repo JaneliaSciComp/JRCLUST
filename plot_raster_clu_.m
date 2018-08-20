@@ -9,7 +9,7 @@ function plot_raster_clu_(viTime_clu, vrTime_trial, P, hAx)
     for iTrial = 1:nTrials
         rTime_trial1 = vrTime_trial(iTrial);
         vrTime_lim1 = rTime_trial1 + P.tlim_psth;
-        vrTime_clu1 = double(viTime_clu) / P.sRateHz;
+        vrTime_clu1 = double(viTime_clu) / P.sampleRateHz;
         vrTime_clu1 = vrTime_clu1(vrTime_clu1>=vrTime_lim1(1) & vrTime_clu1<vrTime_lim1(2));
         vrTime_clu1 = (vrTime_clu1 - rTime_trial1 + t0) / trialLength;
         spikeTimes{iTrial} = vrTime_clu1';

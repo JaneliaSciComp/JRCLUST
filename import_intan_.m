@@ -13,17 +13,17 @@ function vcFile_prm = import_intan_(vcFile_dat, vcFile_prb, vcArg3)
     vcFile_prm = strrep(vcFile_bin, '.bin', sprintf('_%s.prm', vcFile_prb_));
     nChans = numel(csFiles_dat);
     nBytes_file = min(cellfun(@(vc)getBytes_(vc), csFiles_dat));
-    P = struct('vcDataType', 'int16', 'probe_file', vcFile_prb, 'nChans', nChans, ...
-    'uV_per_bit', .195, 'sRateHz', 30000, 'nBytes_file', nBytes_file);
+    P = struct('dataType', 'int16', 'probeFile', vcFile_prb, 'nChans', nChans, ...
+    'uV_per_bit', .195, 'sampleRateHz', 30000, 'nBytes_file', nBytes_file);
 
-    nSamples = P.nBytes_file / bytesPerSample_(P.vcDataType);
+    nSamples = P.nBytes_file / bytesPerSample_(P.dataType);
 
     % Read file and output
-    mnWav  = zeros([nSamples, nChans], P.vcDataType);
+    mnWav  = zeros([nSamples, nChans], P.dataType);
     for iFile = 1:numel(csFiles_dat)
         try
             fid_ = fopen(csFiles_dat{iFile}, 'r');
-            mnWav(iFile:nChans:end) = fread(fid_, inf, ['*', P.vcDataType]);
+            mnWav(iFile:nChans:end) = fread(fid_, inf, ['*', P.dataType]);
             fclose(fid_);
             fprintf('Loaded %s\n', csFiles_dat{iFile});
         catch
@@ -41,13 +41,13 @@ function vcFile_prm = import_intan_(vcFile_dat, vcFile_prb, vcArg3)
     catch
         disperr_(sprintf('Error loading the probe file: %s\n', vcFile_prb));
     end
-    P.duration_file = nSamples / P.sRateHz; %assuming int16
-    P.version = jrc_version_();
-    P.vcFile_prm = vcFile_prm;
+    P.duration_file = nSamples / P.sampleRateHz; %assuming int16
+    P.version = jrcVersion();
+    P.paramFile = vcFile_prm;
     P.vcFile = vcFile_bin;
-    copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
-    edit_prm_file_(P, P.vcFile_prm);
-    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.vcFile_prm);
+    copyfile(jrcpath_(read_cfg_('default_prm')), P.paramFile, 'f');
+    updateParamFile(P, P.paramFile);
+    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.paramFile);
     disp(vcPrompt);
-    edit(P.vcFile_prm);
+    edit(P.paramFile);
 end

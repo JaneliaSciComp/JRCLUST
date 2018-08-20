@@ -1,38 +1,38 @@
 %--------------------------------------------------------------------------
 % 8/7/17 JJJ: tested and documented, file creation date
-function [csFile_merge, vcDir] = dir_file_(vcFile_dir, fSortByDate)
-    % function [csFile_merge, vcDir, csFile_merge1] = dir_file_(vcFile_dir, fSortByDate)
+function [multiFilenames, vcDir] = dir_file_(vcFile_dir, fSortByDate)
+    % function [multiFilenames, vcDir, multiFilenames1] = dir_file_(vcFile_dir, fSortByDate)
     % search for files and sort by date
 
     if nargin<2, fSortByDate=1; end
 
     [vcDir, ~, ~] = fileparts(vcFile_dir);
     if isempty(vcDir), vcDir = '.'; end
-    csFile_merge = dir_(vcFile_dir);
+    multiFilenames = dir_(vcFile_dir);
 
     % vsDir = dir(vcFile_dir);
     % vrDatenum = cell2mat_({vsDir.datenum});
-    % csFile_merge = {vsDir.name};
+    % multiFilenames = {vsDir.name};
     switch fSortByDate
         case 0
         ; %no change
         case 1
-        vrDatenum = file_created_meta_(csFile_merge, 'creationTime');
+        vrDatenum = file_created_meta_(multiFilenames, 'creationTime');
         [~,ix] = sort(vrDatenum, 'ascend');
-        csFile_merge = csFile_merge(ix);
+        multiFilenames = multiFilenames(ix);
         case 2
-        vrDatenum = file_created_(csFile_merge, 'creationTime');
+        vrDatenum = file_created_(multiFilenames, 'creationTime');
         [~,ix] = sort(vrDatenum, 'ascend');
-        csFile_merge = csFile_merge(ix);
+        multiFilenames = multiFilenames(ix);
         case 3
-        vrDatenum = file_created_(csFile_merge, 'lastModifiedTime');
+        vrDatenum = file_created_(multiFilenames, 'lastModifiedTime');
         [~,ix] = sort(vrDatenum, 'ascend');
-        csFile_merge = csFile_merge(ix);
+        multiFilenames = multiFilenames(ix);
         case 4
-        [csFile_merge, ix] = sort_nat_(csFile_merge, 'ascend');
+        [multiFilenames, ix] = sort_nat_(multiFilenames, 'ascend');
         otherwise
         fprintf(2, 'dir_file_: Invalid option: %d\n', fSortByDate);
     end
-    % csFile_merge1 = csFile_merge;
-    % csFile_merge = cellfun(@(vc)[vcDir, filesep(), vc], csFile_merge, 'UniformOutput', 0);
+    % multiFilenames1 = multiFilenames;
+    % multiFilenames = cellfun(@(vc)[vcDir, filesep(), vc], multiFilenames, 'UniformOutput', 0);
 end %func

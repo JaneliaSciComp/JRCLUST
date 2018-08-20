@@ -11,20 +11,20 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
         if isfield(S0, 'S0'), S0 = rmfield(S0, 'S0'); end % Remove recursive saving
 
         % update version number
-        S0.P.version = jrc_version_();
+        S0.P.version = jrcVersion();
         P = S0.P;
-        set0_(P);
+        setUserData(P);
 
         struct_save_(S0, vcFile_mat, 1);
-        vcFile_prm = S0.P.vcFile_prm;
-        export_prm_(vcFile_prm, strrep(vcFile_prm, '.prm', '_full.prm'), 0);
+        vcFile_prm = S0.P.paramFile;
+        exportParams(vcFile_prm, strrep(vcFile_prm, '.prm', '_full.prm'), 0);
 
         % save the rho-delta plot
         if fSkip_fig, return; end
-        if ~isfield(S0, 'S_clu') || ~get_set_(P, 'fSavePlot_RD', 1), return; end
+        if ~isfield(S0, 'S_clu') || ~getOr(P, 'fSavePlot_RD', 1), return; end
         try
-            if ~isfield(S0, 'icl'), return; end % skip kilosort
-            save_fig_(strrep(P.vcFile_prm, '.prm', '_RD.png'), plot_rd_(P, S0), 1);
+            if ~isfield(S0, 'clusterCenters'), return; end % skip kilosort
+            save_fig_(strrep(P.paramFile, '.prm', '_RD.png'), plot_rd_(P, S0), 1);
             fprintf('\tYou can use ''jrc plot-rd'' command to plot this figure.\n');
         catch
             fprintf(2, 'Failed to save the rho-delta plot: %s.\n', lasterr());

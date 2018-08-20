@@ -6,10 +6,10 @@ function S_fig = preview_(P, fDebug_ui_)
     global fDebug_ui
     if nargin<2, fDebug_ui_ = 0; end
     fDebug_ui = fDebug_ui_;
-    set0_(fDebug_ui);
-    if ischar(P), P = loadParam_(P); end
+    setUserData(fDebug_ui);
+    if ischar(P), P = loadParams(P); end
     [mnWav_raw, S_preview] = load_preview_(P);
-    set0_(P);
+    setUserData(P);
     nSites = size(mnWav_raw,2);
 
     % process signal, how about common mean?
@@ -21,7 +21,7 @@ function S_fig = preview_(P, fDebug_ui_)
 
     % Create a Figure
     gap = .05;
-    hFig = create_figure_('Fig_preview', [0 0 .5 1], P.vcFile_prm, 1, 1); %plot a summary pannel
+    hFig = createFigure('Fig_preview', [0 0 .5 1], P.paramFile, 1, 1); %plot a summary pannel
     hAx_mean = axes('Parent', hFig, 'Position',      [gap        gap         3/4-gap         1/4-gap], 'NextPlot', 'add');
     hAx_traces = axes('Parent', hFig, 'Position',    [gap        1/4+gap     3/4-gap         3/4-gap*2], 'NextPlot', 'add');
     hAx_sites = axes('Parent', hFig, 'Position',     [3/4+gap,   0+gap       1/4-gap*1.5     2/3-gap*2], 'NextPlot', 'add');
@@ -36,7 +36,7 @@ function S_fig = preview_(P, fDebug_ui_)
     % Build S_fig
     [nLoads, nSamples_bin, maxAmp] = deal(S_preview.nLoads, size(mnWav_raw,1), P.maxAmp);
     % nLoad_bin = S_preview.nSamples_per_load;
-    nLoad_bin = round(P.preview_window * P.sRateHz); % TW
+    nLoad_bin = round(P.preview_window * P.sampleRateHz); % TW
     nlim_bin = [1, nLoad_bin];
     siteLim = [1, nSites];
     [vcFilter, vcCommonRef, thresh_corr_bad_site, fft_thresh, qqFactor, blank_thresh, blank_period_ms, viSiteZero] = ...

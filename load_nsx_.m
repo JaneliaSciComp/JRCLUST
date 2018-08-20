@@ -8,8 +8,8 @@ function [mnWav, hFile, P] = load_nsx_(vcFile_nsx)
     nSamples = hFile.TimeSpan / hFile.FileInfo.Period;
     nChans = sum(vlAnalog_chan);
     % viElecID = double([hFile.Entity.ElectrodeID]);
-    P = struct('vcDataType', 'int16', 'nChans', nChans, ...
-    'uV_per_bit', hFile.Entity(1).Scale, 'sRateHz', 30000 / hFile.FileInfo.Period);
+    P = struct('dataType', 'int16', 'nChans', nChans, ...
+    'uV_per_bit', hFile.Entity(1).Scale, 'sampleRateHz', 30000 / hFile.FileInfo.Period);
 
     fprintf('Loading %s...', vcFile_nsx); t_load = tic;
     fid = hFile.FileInfo.FileID;

@@ -3,11 +3,11 @@ function export_diff_(P)
     % export to _diff.bin, _diff.prb, _diff.prm files
     error('not implemented yet');
     if ~P.fTranspose_bin
-        mnWav1 = reshape(load_bin_(P.vcFile, P.vcDataType), [], P.nChans);
-        mnWav1 = mnWav1(:,P.viSite2Chan);
+        mnWav1 = reshape(load_bin_(P.vcFile, P.dataType), [], P.nChans);
+        mnWav1 = mnWav1(:,P.chanMap);
     else
-        mnWav1 = reshape(load_bin_(P.vcFile, P.vcDataType), P.nChans, []);
-        mnWav1 = mnWav1(P.viSite2Chan, :)';
+        mnWav1 = reshape(load_bin_(P.vcFile, P.dataType), P.nChans, []);
+        mnWav1 = mnWav1(P.chanMap, :)';
     end
 
     % mnWav1: nT x nSites
@@ -15,15 +15,15 @@ function export_diff_(P)
     % fields to update, copy and save
     P1 = P;
     P1.vcFile = strrep(P.vcFile, '.bin', '_diff.bin');
-    P1.vcFile_prm = strrep(P.vcFile_prm, '.prm', '_diff.prm');
-    P1.probe_file = strrep(P.vcFile_prm, '.prm', '_diff.prb');
+    P1.vcFile_prm = strrep(P.paramFile, '.prm', '_diff.prm');
+    P1.probeFile = strrep(P.paramFile, '.prm', '_diff.prb');
     P1.fTranspose_bin = 0;
     P1.vcCommonRef = 'none';
     P1.fDetectBipolar = 1;
     P1.nSites_ref = 0;
 
     % differentiate channels and write to bin file (two column type)
-    nSites = numel(P.viSite2Chan);
+    nSites = numel(P.chanMap);
     viChan_HP = 1:2:nSites;
     viChan_HN = 2:2:nSites;
     viChan_VP = 1:(nSites-4);
@@ -34,12 +34,12 @@ function export_diff_(P)
     P1.nChans = size(mnWav2, 2);
 
     % Output files
-    copyfile(P.vcFile_prm, P1.vcFile_prm, 'f');
-    edit_prm_file_(P1, P1.vcFile_prm);
+    copyfile(P.paramFile, P1.vcFile_prm, 'f');
+    updateParamFile(P1, P1.vcFile_prm);
     write_bin_(P1.vcFile, mnWav2);
     % write to probe file
-    % P1.probe_file
-    % mnWav2 = load_bin_(strrep(P.vcFile, '.bin', '_diff.bin'), P.vcDataType); %read back test
+    % P1.probeFile
+    % mnWav2 = load_bin_(strrep(P.vcFile, '.bin', '_diff.bin'), P.dataType); %read back test
 
 
 end %func

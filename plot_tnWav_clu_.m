@@ -7,8 +7,8 @@ function S_fig = plot_tnWav_clu_(S_fig, P)
     trWav_clu = ifeq_(P.fWav_raw_show, S_clu.tmrWav_raw_clu, S_clu.tmrWav_clu);
     [nSamples, nSites, nClu] = size(trWav_clu);
     nChans_show = size(P.miSites, 1);
-    miSites_clu = P.miSites(:, S_clu.viSite_clu);
-    % nSites = numel(P.viSite2Chan);
+    miSites_clu = P.miSites(:, S_clu.clusterSites);
+    % nSites = numel(P.chanMap);
 
     % determine x
     x_offset = P.spkLim(2) / (diff(P.spkLim)+1); %same for raw and filt
@@ -30,7 +30,7 @@ function S_fig = plot_tnWav_clu_(S_fig, P)
         mrY(:,iClu) = mrY1(:);
     end
 
-    % if isempty(P.LineStyle)
+    % if ~isfield(P, 'LineStyle') || isempty(P.LineStyle)
     if isfield(S_fig, 'vhPlot')
         plot_update_(S_fig.vhPlot, mrX, mrY);
     else

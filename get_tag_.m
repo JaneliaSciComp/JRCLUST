@@ -12,7 +12,7 @@ function hObj = get_tag_(vcTag, vcType)
     else
         if isfield(S_tag_cache_, vcTag)
             hObj = S_tag_cache_.(vcTag);
-            if isvalid_(hObj), return; end
+            if tryIsValid(hObj), return; end
         end
     end
     hObj = findobj('Tag', vcTag, 'Type', vcType);

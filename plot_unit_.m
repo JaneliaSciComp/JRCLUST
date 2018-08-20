@@ -4,7 +4,7 @@ function plot_unit_(S_clu1, hAx, vcColor0)
     if nargin<2, hAx = axes_new_('FigWav'); end
     if nargin<3, vcColor0 = [0 0 0]; end
     [S0, P, S_clu] = get0_();
-    [~, S_figWav] = get_fig_cache_('FigWav');
+    [~, S_figWav] = getCachedFig('FigWav');
     maxAmp = S_figWav.maxAmp;
     % plot individual unit
     nSamples = size(S_clu1.mrWav_clu,1);

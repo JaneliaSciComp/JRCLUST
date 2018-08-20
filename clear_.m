@@ -9,7 +9,7 @@ function clear_(vcFile_prm)
 
     % clear jrc
     clear(mfilename()); % clear persistent variables in the current file. Same as clear jrc
-    clear global tnWav_spk tnWav_raw trFet_spk mnWav1 mrWav1 mnWav S_gt vcFile_prm_
+    clear global spikeWaveforms spikeTraces spikeFeatures mnWav1 mrWav1 mnWav S_gt vcFile_prm_
     clear functions % clear function memory 10/15/17 JJJ
 
     set(0, 'UserData', []);
@@ -28,7 +28,7 @@ function clear_(vcFile_prm)
         return;
     end
     for iFile = 1:numel(csFile_prm)
-        csFiles_del = strrep(csFile_prm{iFile}, '.prm', {'_jrc.mat', '_spkraw.jrc', '_spkwav.jrc', '_spkfet.jrc', '_log.mat', '_gt1.mat'});
+        csFiles_del = strrep(csFile_prm{iFile}, '.prm', {'_jrc.mat', '_traces.bin', '_waveforms.bin', '_features.bin', '_log.mat', '_gt1.mat'});
         delete_files_(csFiles_del);
     end
 end %func

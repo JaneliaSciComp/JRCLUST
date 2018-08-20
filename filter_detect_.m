@@ -15,14 +15,14 @@ function [mn1, nShift_post] = filter_detect_(mn, P, vcMode)
     nShift_post = 0;
     switch lower(vcMode)
         case 'ndist'
-            mn1 = ndist_filt_(mn, get_set_(P, 'ndist_filt', 5));
+            mn1 = ndist_filt_(mn, getOr(P, 'ndist_filt', 5));
         case 'matched'
             vrFilt_spk = get0_('vrFilt_spk');
             if isempty(vrFilt_spk)
                 lim_ = round([3,5]/8 * size(mn,1));
                 mn_ = mn(lim_(1):lim_(2),:);
                 [vrFilt_spk, vrVaf, nShift_post] = calc_matched_filt_(mn_, P); %detect primary
-                set0_(vrFilt_spk, nShift_post);
+                setUserData(vrFilt_spk, nShift_post);
             else
                 nShift_post = get0_('nShift_post');
             end

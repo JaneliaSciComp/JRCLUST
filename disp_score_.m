@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function disp_score_(vrSnr, vrFp, vrFn, vrAccuracy, vnSite, vnSpk, fVerbose)
     P = get0_('P');
-    snr_thresh_gt = get_set_(P, 'snr_thresh_gt', 7);
+    snr_thresh_gt = getOr(P, 'snr_thresh_gt', 7);
     if nargin<6, fVerbose = 1; end
     fSort_snr = 1;
     % if nargin<4, snr_thresh = 7; end %use 10 as a default

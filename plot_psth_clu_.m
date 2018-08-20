@@ -4,7 +4,7 @@ function plot_psth_clu_(viTime_clu, vrTime_trial, P, hAx, vcColor)
     if nargin<5, vcColor = 'k'; end
 
     tbin = P.tbin_psth;
-    nbin = round(tbin * P.sRateHz);
+    nbin = round(tbin * P.sampleRateHz);
     nlim = round(P.tlim_psth/tbin);
     viTime_Trial = round(vrTime_trial / tbin);
 

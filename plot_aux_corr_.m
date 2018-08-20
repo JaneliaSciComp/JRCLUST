@@ -6,16 +6,16 @@ function plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluP
     [vrCorr_srt, viSrt] = sort(vrCorr_aux_clu, 'descend');
     nClu = numel(vrCorr_aux_clu);
     [P, S_clu] = get0_('P', 'S_clu');
-    P = loadParam_(P.vcFile_prm);
-    nClu_show = min(get_set_(P, 'nClu_show_aux', 4), nClu);
-    vcLabel_aux = get_set_(P, 'vcLabel_aux', 'aux');
-    nSubsample_aux = get_set_(P, 'nSubsample_aux', 100);
+    P = loadParams(P.paramFile);
+    nClu_show = min(getOr(P, 'nClu_show_aux', 4), nClu);
+    vcLabel_aux = getOr(P, 'vcLabel_aux', 'aux');
+    nSubsample_aux = getOr(P, 'nSubsample_aux', 100);
     if ~isempty(iCluPlot)
         nClu_show = 1;
         viSrt = iCluPlot;
     end
 
-    hFig = create_figure_('FigAux', [.5 0 .5 1], P.vcFile_prm,1,1);
+    hFig = createFigure('FigAux', [.5 0 .5 1], P.paramFile,1,1);
     hTabGroup = uitabgroup(hFig);
     for iClu1 = 1:nClu_show
         iClu = viSrt(iClu1);
@@ -26,9 +26,9 @@ function plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluP
         xlabel('Time (s)');
         ylabel(ax_(1),'Firing Rate (Hz)');
         ylabel(ax_(2), vcLabel_aux);
-        iSite_ = S_clu.viSite_clu(iClu);
+        iSite_ = S_clu.clusterSites(iClu);
         vcTitle_ = sprintf('Clu %d (Site %d, Chan %d): Corr=%0.3f', ...
-        iClu, iSite_, P.viSite2Chan(iSite_), vrCorr_aux_clu(iClu));
+        iClu, iSite_, P.chanMap(iSite_), vrCorr_aux_clu(iClu));
         title(vcTitle_);
         set(ax_, 'XLim', vrTime_aux([1,end]));
         grid on;

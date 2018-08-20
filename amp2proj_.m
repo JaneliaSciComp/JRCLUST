@@ -2,7 +2,7 @@
 function [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, maxPair, P)
     if nargin<4, maxPair = []; end
     if nargin<5, P = get0_('P'); end
-    % switch lower(P.vcFet_show)
+    % switch lower(P.displayFeature)
     %     case {'vpp', 'vmin', 'vmax'}
     %         mrMax = linmap_(mrMax', [0, maxAmp/2], [0,1], 1);
     %         mrMin = linmap_(mrMin', [0, maxAmp], [0,1], 1);

@@ -4,11 +4,11 @@ function plot_FigTime_(S0)
 
     if nargin<1, S0 = get(0, 'UserData'); end
     S_clu = S0.S_clu; P = S0.P;
-    [hFig, S_fig] = get_fig_cache_('FigTime');
+    [hFig, S_fig] = getCachedFig('FigTime');
 
     %----------------
     % collect info
-    iSite = S_clu.viSite_clu(S0.iCluCopy);
+    iSite = S_clu.clusterSites(S0.iCluCopy);
     [vrFet0, vrTime0] = getFet_site_(iSite, [], S0); % plot background
     [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.iCluCopy, S0); % plot iCluCopy
 
@@ -21,7 +21,7 @@ function plot_FigTime_(S0)
         vrTime2 = [];
         vcTitle = sprintf('Clu%d (black); %s', S0.iCluCopy, vcTitle);
     end
-    time_lim = double([0, abs(S0.viTime_spk(end))] / P.sRateHz);
+    time_lim = double([0, abs(S0.spikeTimes(end))] / P.sampleRateHz);
 
     %------------
     % draw
@@ -74,7 +74,7 @@ function plot_FigTime_(S0)
     title_(S_fig.hAx, vcTitle);
     ylabel(S_fig.hAx, vcYlabel);
 
-    S_fig = struct_merge_(S_fig, makeStruct_(iSite, time_lim, P, vpp_lim, viSpk1));
+    S_fig = mergeStructs(S_fig, makeStruct_(iSite, time_lim, P, vpp_lim, viSpk1));
     S_fig.csHelp = {...
     'Up/Down: change channel', ...
     'Left/Right: Change sites', ...

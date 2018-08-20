@@ -11,7 +11,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     P0 = file2struct_(jrcpath_(read_cfg_('default_prm'))); %P = defaultParam();
     if ~isempty(vcFile_template)
         if exist(vcFile_template, 'file') == 2
-            P0 = struct_merge_(P0, file2struct_(vcFile_template));
+            P0 = mergeStructs(P0, file2struct_(vcFile_template));
         else
             vcPrompt = sprintf('%s does not exist.\n', vcFile_bin);
             fprintf(2, '%s\n', vcPrompt);
@@ -20,19 +20,19 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     end
 
     if any(vcFile_bin=='*') %wild card provided
-        P.csFile_merge = vcFile_bin;
+        P.multiFilenames = vcFile_bin;
         vcFile_bin = strrep(vcFile_bin, '*', '');
     elseif isTextFile_(vcFile_bin)
-        P.csFile_merge = vcFile_bin;
+        P.multiFilenames = vcFile_bin;
         %     vcFile_bin = subsFileExt_(vcFile_bin, '.bin');
     else
-        if ~exist_file_(vcFile_bin)
+        if ~fileExists(vcFile_bin)
             vcFile_bin_ = jrcpath_(vcFile_bin);
             if exist(vcFile_bin_, 'file') == 2, vcFile_bin = vcFile_bin_; end
         end
-        if exist_file_(vcFile_bin)
+        if fileExists(vcFile_bin)
             P.vcFile = vcFile_bin;
-            P.csFile_merge = {};
+            P.multiFilenames = {};
         else
             vcPrompt = sprintf('%s does not exist.\n', vcFile_bin);
             fprintf(2, '%s\n', vcPrompt);
@@ -41,10 +41,10 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     end
 
     % Load meta file
-    if isempty(P.csFile_merge)
+    if ~isfield(P, 'multiFilenames') || isempty(P.multiFilenames)
         vcFile_meta = subsFileExt_(vcFile_bin, '.meta');
     else
-        csFiles_bin = filter_files_(P.csFile_merge);
+        csFiles_bin = filter_files_(P.multiFilenames);
         if isempty(csFiles_bin)
             vcFile_meta = '';
         else
@@ -76,19 +76,19 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
 
     % Assign prm file name
     [~,vcPostfix,~] = fileparts(vcFile_prb);
-    P.vcFile_prm = subsFileExt_(vcFile_bin, ['_', vcPostfix, '.prm']);
-    P.probe_file = vcFile_prb;
+    P.paramFile = subsFileExt_(vcFile_bin, ['_', vcPostfix, '.prm']);
+    P.probeFile = vcFile_prb;
     try
         S_prb = file2struct_(find_prb_(vcFile_prb));
-        %     P = struct_merge_(P, S_prb);
+        %     P = mergeStructs(P, S_prb);
         if isfield(S_prb, 'maxSite'), P.maxSite = S_prb.maxSite; end
         if isfield(S_prb, 'nSites_ref'), P.nSites_ref = S_prb.nSites_ref; end
     catch
         disperr_(sprintf('Error loading the probe file: %s\n', vcFile_prb));
     end
 
-    if exist(P.vcFile_prm, 'file') && fAsk
-        vcAns = questdlg_('File already exists. Overwrite prm file?', 'Warning', 'Yes', 'No', 'No');
+    if exist(P.paramFile, 'file') && fAsk
+        vcAns = userDialog('File already exists. Overwrite prm file?', 'Warning', 'Yes', 'No', 'No');
         if ~strcmpi(vcAns, 'Yes')
             P = [];
             vcPrompt = 'Cancelled by user.';
@@ -98,23 +98,23 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
 
     % Load prb file
     if isfield(P, 'template_file')
-        P = struct_merge_(file2struct_(P.template_file), P);
+        P = mergeStructs(file2struct_(P.template_file), P);
     end
-    P = struct_merge_(P0, P);
-    P = struct_merge_(P, P_meta);
-    P = struct_merge_(P, file_info_(vcFile_bin));
-    P.duration_file = P.nBytes_file / bytesPerSample_(P.vcDataType) / P.nChans / P.sRateHz; %assuming int16
-    P.version = jrc_version_();
+    P = mergeStructs(P0, P);
+    P = mergeStructs(P, P_meta);
+    P = mergeStructs(P, file_info_(vcFile_bin));
+    P.duration_file = P.nBytes_file / bytesPerSample_(P.dataType) / P.nChans / P.sampleRateHz; %assuming int16
+    P.version = jrcVersion();
     try
-        copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
+        copyfile(jrcpath_(read_cfg_('default_prm')), P.paramFile, 'f');
     catch
-        fprintf(2, 'Invalid path: %s\n', P.vcFile_prm);
+        fprintf(2, 'Invalid path: %s\n', P.paramFile);
         return;
     end
 
     % Write to prm file
-    edit_prm_file_(P, P.vcFile_prm);
-    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.vcFile_prm);
+    updateParamFile(P, P.paramFile);
+    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.paramFile);
     disp(vcPrompt);
-    if fAsk, edit(P.vcFile_prm); end % Show settings file
+    if fAsk, edit(P.paramFile); end % Show settings file
 end %func

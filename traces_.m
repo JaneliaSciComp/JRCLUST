@@ -12,7 +12,7 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
     if nargin==0
         P = get0_('P');
     else
-        set0_(P);
+        setUserData(P);
     end
     if nargin<2, fDebug_ui_=0; end
     if nargin<3, vcFileId=''; end
@@ -22,7 +22,7 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
     if ~fPlot_lfp
         S0 = load_cached_(P, 0);
         set(0, 'UserData', S0);
-        set0_(fDebug_ui);
+        setUserData(fDebug_ui);
     else
         S0 = struct('P', P);
         set(0, 'UserData', S0);
@@ -31,15 +31,15 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
 
     % get file to show
     iFile_show = 1; %files to display for clustered together
-    if ~isempty(P.csFile_merge)
-        csFiles_bin = filter_files_(P.csFile_merge);
+    if ~isempty(P.multiFilenames)
+        csFiles_bin = filter_files_(P.multiFilenames);
         if numel(csFiles_bin)==1
             vcFile_bin = csFiles_bin{1};
         else %show multiple files
             if isempty(vcFileId)
                 arrayfun(@(i)fprintf('%d: %s\n', i, csFiles_bin{i}), 1:numel(csFiles_bin), 'UniformOutput', 0);
                 fprintf('---------------------------------------------\n');
-                vcFileId = input('Please specify Fild ID from the list above:', 's');
+                vcFileId = input('Please specify File ID from the list above:', 's');
             end
             if isempty(vcFileId), return; end
             iFile_show = str2num(vcFileId);
@@ -52,17 +52,17 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
     else
         vcFile_bin = P.vcFile; % if multiple files exist, load first
     end
-    set0_(iFile_show);
+    setUserData(iFile_show);
     tlim_bin = P.tlim;
 
     % Open file
     fprintf('Opening %s\n', vcFile_bin);
-    [fid_bin, nBytes_bin] = fopen_(vcFile_bin, 'r');
+    [fid_bin, nBytes_bin] = fopenInfo(vcFile_bin, 'r');
     if isempty(fid_bin), fprintf(2, '.bin file does not exist: %s\n', vcFile_bin); return; end
-    nSamples_bin = floor(nBytes_bin / bytesPerSample_(P.vcDataType) / P.nChans);
-    nLoad_bin = min(round(diff(tlim_bin) * P.sRateHz), nSamples_bin);
+    nSamples_bin = floor(nBytes_bin / bytesPerSample_(P.dataType) / P.nChans);
+    nLoad_bin = min(round(diff(tlim_bin) * P.sampleRateHz), nSamples_bin);
     if tlim_bin(1)>0
-        iSample_bin = ceil(tlim_bin(1) * P.sRateHz) + 1; %offset sample number
+        iSample_bin = ceil(tlim_bin(1) * P.sampleRateHz) + 1; %offset sample number
     else
         iSample_bin = 1; %sample start location
     end
@@ -78,11 +78,11 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
         if nTime_traces > 1
             mnWav1 = load_bin_multi_(fid_bin, cvn_lim_bin, P)';
         else
-            mnWav1 = load_bin_(fid_bin, P.vcDataType, [P.nChans, nLoad_bin])'; %next keypress: update tlim_show
+            mnWav1 = load_bin_(fid_bin, P.dataType, [P.nChans, nLoad_bin])'; %next keypress: update tlim_show
         end
         %     @TODO: load from cvn_lim_bin specifiers. check for end or beginning when keyboard command
     else %load whole thing
-        mnWav = load_bin_(fid_bin, P.vcDataType, [nSamples_bin, P.nChans]); %next keypress: update tlim_show
+        mnWav = load_bin_(fid_bin, P.dataType, [nSamples_bin, P.nChans]); %next keypress: update tlim_show
         fclose(fid_bin);
         fid_bin = [];
         %mnWav1 = mnWav((nlim_bin(1):nlim_bin(2)), :);
@@ -92,7 +92,7 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
     mnWav1 = uint2int_(mnWav1);
 
     % full screen width
-    hFig_traces = create_figure_('Fig_traces', [0 0 .5 1], vcFile_bin, 0, 1); %remove all other figure traces
+    hFig_traces = createFigure('Fig_traces', [0 0 .5 1], vcFile_bin, 0, 1); %remove all other figure traces
     hAx = axes_new_(hFig_traces); % create axis
     hPlot = line(hAx, nan, nan, 'Color', [1 1 1]*.5, 'Parent', hAx, 'LineWidth', .5);
     hPlot_edges = plot(nan, nan, 'Color', [1 0 0]*.5, 'Parent', hAx, 'LineWidth', 1);

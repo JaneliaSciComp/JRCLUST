@@ -7,7 +7,7 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     if matchFileExt_(vcFile_prb, '.prm')
         vcTemplate_prm = vcFile_prb;
         S_ = file2struct_(vcTemplate_prm);
-        vcFile_prb = S_.probe_file;
+        vcFile_prb = S_.probeFile;
     end
 
     % vcFile_nsx = 'E:\TimBruns\Ichabod Trial 14\exp_9_ichabod0014.ns5';
@@ -16,7 +16,7 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     % [P, nSamples, vcFile_bin] = nsx2bin_(vcFile_nsx, 1);
     % P.fInverse_file = 1;
     % [mnWav, hFile, P] = load_nsx_(vcFile_nsx);
-    P.probe_file = vcFile_prb;
+    P.probeFile = vcFile_prb;
     P.vcFile = vcFile_nsx;
     % mnWav = mnWav * -1; %inverse polarity
     [~, vcFile_prb_] = fileparts(vcFile_prb);
@@ -24,7 +24,7 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     if isempty(vcTemplate_prm)
         vcTemplate_prm = jrcpath_(read_cfg_('default_prm'));
     end
-    assert_(exist_file_(vcTemplate_prm), sprintf('Template file does not exist: %s', vcTemplate_prm));
+    dialogAssert(fileExists(vcTemplate_prm), sprintf('Template file does not exist: %s', vcTemplate_prm));
 
     % Write to a .prm file
     try
@@ -34,13 +34,13 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     catch
         disperr_(sprintf('Error loading the probe file: %s\n', vcFile_prb));
     end
-    P.duration_file = nSamples / P.sRateHz; %assuming int16
-    P.version = jrc_version_();
-    P.vcFile_prm = vcFile_prm;
+    P.duration_file = nSamples / P.sampleRateHz; %assuming int16
+    P.version = jrcVersion();
+    P.paramFile = vcFile_prm;
     % P.vcFile = vcFile_bin;
-    copyfile(vcTemplate_prm, P.vcFile_prm, 'f');
-    edit_prm_file_(P, P.vcFile_prm);
-    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.vcFile_prm);
+    copyfile(vcTemplate_prm, P.paramFile, 'f');
+    updateParamFile(P, P.paramFile);
+    vcPrompt = sprintf('Created a new parameter file\n\t%s', P.paramFile);
     disp(vcPrompt);
-    edit(P.vcFile_prm);
+    edit(P.paramFile);
 end

@@ -970,7 +970,7 @@ export text field to csv file
 
 ---------------------------------------------
 
-@TODO: Before clustering determine viSite_spk based on x,y centroid (nearest site)
+@TODO: Before clustering determine spikeSites based on x,y centroid (nearest site)
 @TODO: Depth shift
 @TODO: cut in the position view
 @TODO: Trace view spike in lfp view and hiding spikes

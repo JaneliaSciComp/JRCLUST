@@ -1,12 +1,16 @@
 %--------------------------------------------------------------------------
+% 8/15/18 ACL: Check if is an absolute path before anything else
 % 11/5/17 JJJ: Find .prb file in ./prb/ folder first
 % 9/26/17 JJJ: Find .prb file. Look in ./prb/ folder if doesn't exist
-function vcFile_prb = find_prb_(vcFile_prb)
+function probeFilename = find_prb_(probeFilename)
     % Find a prb file
-    vcFile_prb_ = fullfile(jrcpath_(), 'prb', vcFile_prb);
-    if exist_file_(vcFile_prb_)
-        vcFile_prb = vcFile_prb_;
-    else
-        vcFile_prb = search_file_(vcFile_prb, [jrcpath_(), 'prb', filesep()]);
+    if ~isAbsPath(probeFilename)
+        vcFile_prb_ = fullfile(jrcpath_(), 'prb', probeFilename);
+
+        if fileExists(vcFile_prb_)
+            probeFilename = vcFile_prb_;
+        else
+            probeFilename = search_file_(probeFilename, [jrcpath_(), 'prb', filesep()]);
+        end
     end
 end %func

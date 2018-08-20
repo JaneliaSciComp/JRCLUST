@@ -7,6 +7,6 @@ function S_clu = merge_clu_(S_clu, iClu1, iClu2, P)
     S_clu = S_clu_update_(S_clu, iClu1, P);
     S_clu = delete_clu_(S_clu, iClu2);
     % S_clu = S_clu_remove_empty_(S_clu);
-    assert_(S_clu_valid_(S_clu), 'Cluster number is inconsistent after merging');
+    dialogAssert(S_clu_valid_(S_clu), 'Cluster number is inconsistent after merging');
     fprintf('%s [W] merging Clu %d and %d\n', datestr(now, 'HH:MM:SS'), iClu1, iClu2);
 end %func

@@ -1,20 +1,24 @@
 %--------------------------------------------------------------------------
-function mnWav1 = fread_(fid_bin, dimm_wav, vcDataType)
+function rawTraces = fread_(fidBinary, sampleDims, dataType)
     % Get around fread bug (matlab) where built-in fread resize doesn't work
     try
-        if isempty(dimm_wav)
-            mnWav1 = fread(fid_bin, inf, ['*', vcDataType]);
+        if isempty(sampleDims)
+            rawTraces = fread(fidBinary, inf, ['*', dataType]);
         else
-            if numel(dimm_wav)==1, dimm_wav = [dimm_wav, 1]; end
-            mnWav1 = fread(fid_bin, prod(dimm_wav), ['*', vcDataType]);
-            if numel(mnWav1) == prod(dimm_wav)
-                mnWav1 = reshape(mnWav1, dimm_wav);
+            if numel(sampleDims) == 1
+                sampleDims = [sampleDims, 1];
+            end
+
+            rawTraces = fread(fidBinary, prod(sampleDims), ['*', dataType]);
+
+            if numel(rawTraces) == prod(sampleDims)
+                rawTraces = reshape(rawTraces, sampleDims);
             else
-                dimm2 = floor(numel(mnWav1) / dimm_wav(1));
-                if dimm2 >= 1
-                    mnWav1 = reshape(mnWav1, dimm_wav(1), dimm2);
+                dim2 = floor(numel(rawTraces) / sampleDims(1));
+                if dim2 >= 1
+                    rawTraces = reshape(rawTraces, sampleDims(1), dim2);
                 else
-                    mnWav1 = [];
+                    rawTraces = [];
                 end
             end
         end

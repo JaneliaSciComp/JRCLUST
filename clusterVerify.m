@@ -19,7 +19,7 @@ nClu = max(viClu);
 cviTime = arrayfun(@(iClu)unique(int32(viTime(viClu==iClu)/jitter)), 1:nClu, 'UniformOutput', 0);
 % cviTimeGt = arrayfun(@(iClu)gpuArray(viTimeGt(viCluGt==iClu)/jitter), viCluGt_unique, 'UniformOutput', 0);
 [cviTimeGt, cviHit_gt, cviMiss_gt, cviHit_clu, cviMiss_clu, ...
-    cviSpk_gt_hit, cviSpk_gt_miss, cviSpk_clu_hit, cviSpk_clu_miss] = ...
+    cviSpk_gt_hit, cviSpk_gt_miss, spikesByCluster_hit, spikesByCluster_miss] = ...
     deal(cell(1, nCluGt));
 viTime0 = (int32(viTime/jitter));
 fprintf('Validating cluster\n\t');
@@ -73,13 +73,13 @@ for iCluGt=1:nCluGt
     cviMiss_clu{iCluGt} = viTime_clu1(~vlSpk_clu1);
     cviSpk_gt_hit{iCluGt} = viSpk_gt1(vlSpk_gt1);
     cviSpk_gt_miss{iCluGt} = viSpk_gt1(~vlSpk_gt1);
-    cviSpk_clu_hit{iCluGt} = viSpk_clu1(vlSpk_clu1);
-    cviSpk_clu_miss{iCluGt} = viSpk_clu1(~vlSpk_clu1);  
+    spikesByCluster_hit{iCluGt} = viSpk_clu1(vlSpk_clu1);
+    spikesByCluster_miss{iCluGt} = viSpk_clu1(~vlSpk_clu1);  
 end
 [vrAccuracy, viCluMatch_accuracy] = max(mrAccuracy);
 S_score_clu = makeStruct_(vrScore, vrMiss, vrFp, viCluMatch, cviHit_gt, ...
     cviMiss_gt, cviHit_clu, cviMiss_clu, cviSpk_gt_hit, cviSpk_gt_miss, ...
-    cviSpk_clu_hit, cviSpk_clu_miss, vrAccuracy, viCluMatch_accuracy);
+    spikesByCluster_hit, spikesByCluster_miss, vrAccuracy, viCluMatch_accuracy);
 % viCluMatch1 = viClu_unique(viCluMatch);
 % vrScore = 1-vrMiss-vrFp;
 func1=@(x)quantile(x, [.25,.5,.75])*100;

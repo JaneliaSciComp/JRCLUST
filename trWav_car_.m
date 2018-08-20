@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 % CAR subtraction using outer half of sites
 function tr = trWav_car_(tr, P)
-    vcSpkRef = get_set_(P, 'vcSpkRef', 'nmean');
+    vcSpkRef = getOr(P, 'vcSpkRef', 'nmean');
     if ~strcmpi(P.vcSpkRef, 'nmean'), return; end
     tr = single(permute(tr, [1,3,2]));
     dimm_tr = size(tr);

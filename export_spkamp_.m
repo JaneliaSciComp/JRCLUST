@@ -19,12 +19,12 @@ function export_spkamp_(P, vcArg2)
     S_clu = S0.S_clu;
 
     % Collect waveforms by clusters
-    [cmrVpp_clu, cmrVmin_clu, cmrVmax_clu] = deal(cell(1, S_clu.nClu));
-    miSite_clu = P.miSites(:,S_clu.viSite_clu);
+    [cmrVpp_clu, cmrVmin_clu, cmrVmax_clu] = deal(cell(1, S_clu.nClusters));
+    miSite_clu = P.miSites(:,S_clu.clusterSites);
     fprintf('Calculating spike amplitudes from clusters\n\t'); t1=tic;
-    if isempty(viClu), viClu = 1:S_clu.nClu; end
+    if isempty(viClu), viClu = 1:S_clu.nClusters; end
     for iClu = viClu
-        trWav_clu1 = tnWav2uV_(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu}, miSite_clu(:,iClu), S0), P);
+        trWav_clu1 = tnWav2uV_(spikeWaveforms_sites_(S_clu.spikesByCluster{iClu}, miSite_clu(:,iClu), S0), P);
         cmrVmin_clu{iClu} = shiftdim(min(trWav_clu1));
         cmrVmax_clu{iClu} = shiftdim(max(trWav_clu1));
         cmrVpp_clu{iClu} = cmrVmax_clu{iClu} - cmrVmin_clu{iClu};

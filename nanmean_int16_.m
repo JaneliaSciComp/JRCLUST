@@ -3,7 +3,7 @@ function mrWav_clu1 = nanmean_int16_(tnWav0, dimm_mean, fUseCenterSpk, iSite1, v
     if fUseCenterSpk
         mrWav_clu1 = mean(single(tnWav0), dimm_mean);
     else
-        %     nSites = numel(P.viSite2Chan);
+        %     nSites = numel(P.chanMap);
         viSite1 = P.miSites(:, iSite1);
         trWav = nan([size(tnWav0,1), numel(viSite1), numel(viSite0)], 'single');
         viSites_uniq = unique(viSite0);

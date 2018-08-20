@@ -4,38 +4,38 @@ function [mnWav_raw, S_preview] = load_preview_(P)
     % Load the subsampled dataset
     % Useful for inspecting threshold and so on. filter and
     % S_preview: which file and where it came from
-    if ischar(P), P = loadParam_(P); end
+    if ischar(P), P = loadParams(P); end
 
-    nLoads_max_preview = get_set_(P, 'nLoads_max_preview', 30);
-    sec_per_load_preview = get_set_(P, 'sec_per_load_preview', 1);
+    nLoads_max_preview = getOr(P, 'nLoads_max_preview', 30);
+    sec_per_load_preview = getOr(P, 'sec_per_load_preview', 1);
 
     % determine files to load
-    if isempty(P.csFile_merge)
+    if ~isfield(P, 'multiFilenames') || isempty(P.multiFilenames)
         csFile_bin = {P.vcFile};
     else
-        csFile_bin = filter_files_(P.csFile_merge);
+        csFile_bin = filter_files_(P.multiFilenames);
     end
     csFile_bin = subsample_(csFile_bin, nLoads_max_preview);
 
     % load files
     nLoads_per_file = floor(nLoads_max_preview / numel(csFile_bin));
-    nSamples_per_load = round(sec_per_load_preview * P.sRateHz);
+    nSamples_per_load = round(sec_per_load_preview * P.sampleRateHz);
 
     % file loading loop
     [mnWav_raw, cviLim_load, csFile_load] = deal({});
     % [mnWav_raw, mnWav_filt] = deal({});
-    P.fGpu = 0;
+    P.useGPU = 0;
     for iFile = 1:numel(csFile_bin)
         try
             vcFile_bin_ = csFile_bin{iFile};
-            [fid_bin_, nBytes_bin_, P.header_offset] = fopen_(vcFile_bin_, 'r');
-            set0_(P);
+            [fid_bin_, nBytes_bin_, P.headerOffset] = fopenInfo(vcFile_bin_, 'r');
+            setUserData(P);
             if isempty(fid_bin_)
                 fprintf(2, '.bin file does not exist: %s\n', vcFile_bin_);
                 continue;
             end
             fprintf('File %d/%d: %s\n\t', iFile, numel(csFile_bin), vcFile_bin_);
-            nSamples_bin_ = floor(nBytes_bin_ / bytesPerSample_(P.vcDataType) / P.nChans);
+            nSamples_bin_ = floor(nBytes_bin_ / bytesPerSample_(P.dataType) / P.nChans);
             if nSamples_bin_ < nSamples_per_load % load the whole thing
                 nLoads_per_file_ = 1;
                 nSamples_per_load_ = nSamples_bin_;

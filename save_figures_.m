@@ -8,15 +8,15 @@ function save_figures_(vcExt)
     if isempty(csAns), return; end
     vcPrefix = csAns{1};
 
-    csFig = get0_('csFig');
+    figTags = get0_('figTags');
     fprintf('Saving figures...\n'); t1=tic;
-    for iFig=1:numel(csFig)
+    for iFig=1:numel(figTags)
         %     hFig1 = P.vhFig(iField);
-        hFig1 = get_fig_cache_(csFig{iFig});
+        hFig1 = getCachedFig(figTags{iFig});
         if ~ishandle(hFig1), continue; end
         vcFile1 = [vcPrefix, get(hFig1, 'Tag'), vcExt];
         if fDebug_ui==1, continue; end
-        %     if get_set_([], 'fDebug_ui', 0), continue; end %skip saving for debugging
+        %     if getOr([], 'fDebug_ui', 0), continue; end %skip saving for debugging
         switch lower(vcExt)
             case '.fig'
             savefig(hFig1, vcFile1, 'compact');

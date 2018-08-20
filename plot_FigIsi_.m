@@ -2,7 +2,7 @@
 function plot_FigIsi_(S0)
     if nargin<1, S0 = get(0, 'UserData'); end
     P = S0.P; S_clu = S0.S_clu;
-    [hFig, S_fig] = get_fig_cache_('FigIsi');
+    [hFig, S_fig] = getCachedFig('FigIsi');
 
     [vrX1, vrY1] = get_returnMap_(S0.iCluCopy, P);
     if isempty(S_fig)

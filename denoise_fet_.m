@@ -1,18 +1,18 @@
 %--------------------------------------------------------------------------
 % 10/12/17 JJJ: site by site denoising
-function trFet_spk_ = denoise_fet_(trFet_spk, P, vlRedo_spk)
+function spikeFeatures_ = denoise_fet_(spikeFeatures, P, vlRedo_spk)
     % denoise_fet_() to reset
     % cluster based averaging fet cleanup
     % set repeat parameter?
-    nRepeat_fet = get_set_(P, 'nRepeat_fet', 0);
-    if nRepeat_fet==0, trFet_spk_ = trFet_spk; return ;end
+    nRepeat_fet = getOr(P, 'nRepeat_fet', 0);
+    if nRepeat_fet==0, spikeFeatures_ = spikeFeatures; return ;end
 
     S0 = get(0, 'UserData');
     fprintf('Denoising features using nneigh\n\t'); t1=tic;
-    nSites = numel(P.viSite2Chan);
-    nC = size(trFet_spk,1);
+    nSites = numel(P.chanMap);
+    nC = size(spikeFeatures,1);
     try
-        nC_max = get_set_(P, 'nC_max', 45);
+        nC_max = getOr(P, 'nC_max', 45);
         CK = parallel.gpu.CUDAKernel('jrc_cuda_nneigh.ptx','jrc_cuda_nneigh.cu');
         CK.ThreadBlockSize = [P.nThreads, 1];
         CK.SharedMemorySize = 4 * P.CHUNK * (1 + nC_max + 2 * P.nThreads); % @TODO: update the size
@@ -27,7 +27,7 @@ function trFet_spk_ = denoise_fet_(trFet_spk, P, vlRedo_spk)
                 viSpk1 = viSpk1(vlRedo_spk(viSpk1));
                 if isempty(viSpk1), continue; end
             end
-            trFet12 = permute(trFet_spk(:,:,viSpk1), [1,3,2]);
+            trFet12 = permute(spikeFeatures(:,:,viSpk1), [1,3,2]);
             mrFet1 = gpuArray(trFet12(:,:,1));
             mrFet2 = gpuArray(trFet12(:,:,2));
             viiSpk1_ord = gpuArray(rankorder_(viSpk1, 'ascend'));
@@ -46,8 +46,8 @@ function trFet_spk_ = denoise_fet_(trFet_spk, P, vlRedo_spk)
                 %               [vrDelta2, viNneigh2] = min(mrD11);
             end
 
-            trFet_spk_(:,1,viSpk1) = gather_(mrFet1);
-            trFet_spk_(:,2,viSpk1) = gather_(mrFet2);
+            spikeFeatures_(:,1,viSpk1) = gather_(mrFet1);
+            spikeFeatures_(:,2,viSpk1) = gather_(mrFet2);
             [mrFet1, mrFet2, vrDelta1, viNneigh1] = deal([]);
             fprintf('.');
         end

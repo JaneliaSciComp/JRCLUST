@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 % function P = appendStruct_(P, varargin)
 % % backward compatibility
-% P = struct_merge_(P, varargin{:});
+% P = mergeStructs(P, varargin{:});
 % end
 
 

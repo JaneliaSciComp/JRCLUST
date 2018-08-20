@@ -15,12 +15,12 @@ function import_h5_(vcFile_h5)
     S_gt = struct();
     S_gt.probe_layout           = h5readatt(vcFile_h5, '/','probelayout');
     try P.viChanZero           = h5readatt(vcFile_h5, '/','badchannels'); catch, end
-    S_gt.sRateHz_gt = h5readatt(vcFile_h5, '/', 'abfsamplerate');
+    S_gt.sampleRateHz_gt = h5readatt(vcFile_h5, '/', 'abfsamplerate');
     S_gt.patchtype = h5readatt(vcFile_h5, '/', 'patchtype');
     try  S_gt.padmaptextname = h5readatt(vcFile_h5, '/', 'padmaptextname'); catch, end
     try S_gt.padpitch = h5readatt(vcFile_h5, '/', 'padpitch'); catch, end
 
-    P.sRateHz        = h5readatt(vcFile_h5, '/', 'MEAsamplerate');
+    P.sampleRateHz        = h5readatt(vcFile_h5, '/', 'MEAsamplerate');
     P.nChans                = S_gt.probe_layout(1) * S_gt.probe_layout(2);
     % P = h5readatt_(vcFile_h5, {'patchtype', 'padmaptextname', 'patchtype', 'badchannels'});
 
@@ -32,10 +32,10 @@ function import_h5_(vcFile_h5)
     % photodiode = h5read(vcFile_raw, '/photodiode');
     % syncMEA = h5read(vcFile_raw, '/syncMEA');
     % filteredMEA = h5read(vcFile_filtered, '/filteredMEA');
-    if ~exist_file_(P.vcFile)
-        if exist_file_(vcFile_filtered)
+    if ~fileExists(P.vcFile)
+        if fileExists(vcFile_filtered)
             mrWav = h5read(vcFile_filtered, '/filteredMEA');
-        elseif exist_file_(vcFile_raw)
+        elseif fileExists(vcFile_raw)
             mrWav = h5read(vcFile_raw, '/rawMEA');
         else
             error('no traces found');
@@ -46,8 +46,8 @@ function import_h5_(vcFile_h5)
 
 
     % Create GT
-    if exist_file_(vcFile_spikes)
-        S_gt.viTime_all = ceil(h5read(vcFile_spikes, '/derivspiketimes') * S_gt.sRateHz_gt);
+    if fileExists(vcFile_spikes)
+        S_gt.viTime_all = ceil(h5read(vcFile_spikes, '/derivspiketimes') * S_gt.sampleRateHz_gt);
         S_gt.vrBI_all = h5read(vcFile_spikes, '/burstindex');
         if ~isempty(get_(P, 'max_bursting_index'))
             viTime_gt = S_gt.viTime_all(S_gt.vrBI_all < P.max_bursting_index); % non-bursting only
@@ -55,7 +55,7 @@ function import_h5_(vcFile_h5)
             viTime_gt = S_gt.viTime_all;
         end
         %     rawPipette = h5read(vcFile_filtered, '/rawPipette');
-    elseif exist_file_(vcFile_raw)
+    elseif fileExists(vcFile_raw)
         rawPipette = h5read(vcFile_raw, '/rawPipette');
         rawPipette1 = ndiff_(rawPipette, 2);
         [viTime_gt, vrAmp_gt, thresh_gt] = spikeDetectSingle_fast_(-rawPipette1, struct('qqFactor', 10));
@@ -70,12 +70,12 @@ function import_h5_(vcFile_h5)
 
 
     % Create prm file
-    P.probe_file = sprintf('boyden%d.prb', P.nChans);
-    P.vcFile_prm = [strrep(P.vcFile, '.bin', '_'), strrep(P.probe_file, '.prb', '.prm')];
-    copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
-    edit_prm_file_(P, P.vcFile_prm);
+    P.probeFile = sprintf('boyden%d.prb', P.nChans);
+    P.paramFile = [strrep(P.vcFile, '.bin', '_'), strrep(P.probeFile, '.prb', '.prm')];
+    copyfile(jrcpath_(read_cfg_('default_prm')), P.paramFile, 'f');
+    updateParamFile(P, P.paramFile);
     assignWorkspace_(P, S_gt);
-    fprintf('Created .prm file: %s\n', P.vcFile_prm);
-    edit(P.vcFile_prm);
-    jrc('setprm', P.vcFile_prm); % set the currently working prm file
+    fprintf('Created .prm file: %s\n', P.paramFile);
+    edit(P.paramFile);
+    jrc('setprm', P.paramFile); % set the currently working prm file
 end %func

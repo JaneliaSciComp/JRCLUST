@@ -1,13 +1,13 @@
 %--------------------------------------------------------------------------
 function [vlKeep_ref, vrMad_ref] = car_reject_(vrWav_mean1, P)
-    blank_period_ms = get_set_(P, 'blank_period_ms', 5);
-    blank_thresh = get_set_(P, 'blank_thresh', []);
+    blank_period_ms = getOr(P, 'blank_period_ms', 5);
+    blank_thresh = getOr(P, 'blank_thresh', []);
     [vlKeep_ref, vrMad_ref] = deal([]);
     % if isempty(blank_thresh) || blank_thresh==0, return; end
 
     % tbin_ref = .01; %10 msec bin
     vrWav_mean1 = single(vrWav_mean1);
-    nwin = round(P.sRateHz * blank_period_ms / 1000);
+    nwin = round(P.sampleRateHz * blank_period_ms / 1000);
     if nwin > 0 %nwin <= 1
         if nargout < 2
             vlKeep_ref = thresh_mad_(abs(vrWav_mean1), blank_thresh);

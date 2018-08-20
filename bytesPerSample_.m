@@ -1,9 +1,9 @@
 %--------------------------------------------------------------------------
 % 8/2/17 JJJ: Documentation and test
-function n = bytesPerSample_(vcDataType)
+function n = bytesPerSample_(dataType)
     % Return number of bytes per data type
 
-    switch lower(vcDataType)
+    switch lower(dataType)
         case {'char', 'byte', 'int8', 'uint8'}
         n = 1;
         case {'int16', 'uint16'}
@@ -14,6 +14,6 @@ function n = bytesPerSample_(vcDataType)
         n = 8;
         otherwise
         n = [];
-        fprintf(2, 'Unsupported data type: %s\n', vcDataType);
+        fprintf(2, 'Unsupported data type: %s\n', dataType);
     end
 end %func

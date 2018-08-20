@@ -1,13 +1,13 @@
 %--------------------------------------------------------------------------
-function [tnWav_spk, vnThresh_site] = wav2spk_gt_(mnWav1, P, viTime_spk, mnWav1_pre, mnWav1_post)
-    % tnWav_spk: spike waveform. nSamples x nSites x nSpikes
-    % trFet_spk: nSites x nSpk x nFet
-    % miSite_spk: nSpk x nFet
+function [spikeWaveforms, siteThresholds] = wav2spk_gt_(mnWav1, P, spikeTimes, mnWav1_pre, mnWav1_post)
+    % spikeWaveforms: spike waveform. nSamples x nSites x nSpikes
+    % spikeFeatures: nSites x nSpk x nFet
+    % spikePrimarySecondarySites: nSpk x nFet
     % spikes are ordered in time
-    % viSite_spk and viTime_spk is uint32 format, and tnWav_spk: single format
+    % spikeSites and spikeTimes is uint32 format, and spikeWaveforms: single format
     % mnWav1: raw waveform (unfiltered)
     % wav2spk_(mnWav1, vrWav_mean1, P)
-    % wav2spk_(mnWav1, vrWav_mean1, P, viTime_spk, viSite_spk)
+    % wav2spk_(mnWav1, vrWav_mean1, P, spikeTimes, spikeSites)
     % 7/5/17 JJJ: accurate spike detection at the overlap region
 
     if nargin<5, mnWav1_pre = []; end
@@ -21,18 +21,18 @@ function [tnWav_spk, vnThresh_site] = wav2spk_gt_(mnWav1, P, viTime_spk, mnWav1_
     [mnWav2, vnWav11] = filt_car_(mnWav1, P); % filter and car
 
     % detect spikes or use the one passed from the input (importing)
-    vnThresh_site = gather_(int16(mr2rms_(mnWav2, 1e5) * P.qqFactor));
+    siteThresholds = gather_(int16(mr2rms_(mnWav2, 1e5) * P.qqFactor));
     nPad_pre = size(mnWav1_pre,1);
-    viTime_spk = viTime_spk + nPad_pre;
+    spikeTimes = spikeTimes + nPad_pre;
 
     % reject spikes within the overlap region: problem if viTime prespecified.
     if ~isempty(mnWav1_pre) || ~isempty(mnWav1_post)
         ilim_spk = [nPad_pre+1, size(mnWav2,1) - size(mnWav1_post,1)]; %inclusive
-        viKeep_spk = find(viTime_spk >= ilim_spk(1) & ilim_spk <= ilim_spk(2));
-        viTime_spk = multifun_(@(x)x(viKeep_spk), viTime_spk);
+        viKeep_spk = find(spikeTimes >= ilim_spk(1) & ilim_spk <= ilim_spk(2));
+        spikeTimes = multifun_(@(x)x(viKeep_spk), spikeTimes);
     end %if
-    % [tnWav_spk_raw, tnWav_spk] = mn2tn_wav_(mnWav1, mnWav2, [], viTime_spk, P);
-    tnWav_spk = permute(gather_(mr2tr3_(mnWav2, P.spkLim, viTime_spk)), [1,3,2]);
+    % [spikeWaveforms_raw, spikeWaveforms] = mn2tn_wav_(mnWav1, mnWav2, [], spikeTimes, P);
+    spikeWaveforms = permute(gather_(mr2tr3_(mnWav2, P.spkLim, spikeTimes)), [1,3,2]);
 
-    % if nPad_pre > 0, viTime_spk = viTime_spk - nPad_pre; end
+    % if nPad_pre > 0, spikeTimes = spikeTimes - nPad_pre; end
 end %func

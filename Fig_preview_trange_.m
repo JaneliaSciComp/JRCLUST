@@ -4,7 +4,7 @@ function Fig_preview_trange_(hFig, vc_trange, mh)
 
     if nargin<1, hFig = []; end
     if nargin<2, vc_trange = 'custom'; end
-    if isempty(hFig), hFig = get_fig_cache_('Fig_preview'); end
+    if isempty(hFig), hFig = getCachedFig('Fig_preview'); end
 
     if strcmpi(vc_trange, 'custom') % ask user input box
         vcAns = inputdlg_('Display time range (s)', 'Time range in seconds', 1, {'.2'});
@@ -18,7 +18,7 @@ function Fig_preview_trange_(hFig, vc_trange, mh)
 
     S_fig = get(hFig, 'UserData');
     P = get0_('P');
-    S_fig.nLoad_bin = round(trange * P.sRateHz);
+    S_fig.nLoad_bin = round(trange * P.sampleRateHz);
     nlim_bin = S_fig.nlim_bin(1) + [0, S_fig.nLoad_bin-1];
     if nlim_bin(1)<1
         nlim_bin = [1, S_fig.nLoad_bin];

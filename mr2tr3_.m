@@ -2,8 +2,12 @@
 function [tr, miRange] = mr2tr3_(mr, spkLim, viTime, viSite, fMeanSubt)
     % tr: nSamples x nSpikes x nChans
 
-    if nargin<4, viSite=[]; end %faster indexing
-    if nargin<5, fMeanSubt=0; end
+    if nargin < 4
+        viSite = [];
+    end %faster indexing
+    if nargin < 5
+        fMeanSubt = 0;
+    end
 
     % JJJ 2015 Dec 24
     % vr2mr2: quick version and doesn't kill index out of range

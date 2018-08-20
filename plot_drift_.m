@@ -1,32 +1,32 @@
 %--------------------------------------------------------------------------
 function plot_drift_(P)
 
-    iShank_show = get_set_(P, 'iShank_show', 1);
-    vcMode_drift = get_set_(P, 'vcMode_drift', 'z'); % {'tay', 'xy', 'xya', 'x', 'y'}
-    vcMode_com = get_set_(P, 'vcMode_com', 'fet'); % {'fet', 'filt', 'raw', 'std'}
+    iShank_show = getOr(P, 'iShank_show', 1);
+    vcMode_drift = getOr(P, 'vcMode_drift', 'z'); % {'tay', 'xy', 'xya', 'x', 'y'}
+    vcMode_com = getOr(P, 'vcMode_com', 'fet'); % {'fet', 'filt', 'raw', 'std'}
     % Compute spike position and plot drift profile
     S0 = load_cached_(P); % load cached data or from file if exists
-    [S_clu, viSite2_spk, vrTime_spk, viSite_spk] = get0_('S_clu', 'viSite2_spk', 'viTime_spk', 'viSite_spk');
-    vrTime_spk = double(vrTime_spk) / P.sRateHz;
+    [S_clu, spikeSecondarySites, vrTime_spk, spikeSites] = get0_('S_clu', 'spikeSecondarySites', 'spikeTimes', 'spikeSites');
+    vrTime_spk = double(vrTime_spk) / P.sampleRateHz;
     nSites_spk = 1 + P.maxSite*2 - P.nSites_ref;
-    miSites_spk = P.miSites(:,viSite_spk);
+    miSites_spk = P.miSites(:,spikeSites);
 
     switch lower(vcMode_com)
         case 'filt'
-        tnWav_spk = get_spkwav_(P, 0);
-        %mrVp = squeeze_(single(min(tnWav_spk))) .^ 2;
-        %         tnWav_spk1 = meanSubt_(single(tnWav_spk),2);
-        mrVp = single(squeeze_(max(tnWav_spk) - min(tnWav_spk))) .^ 2;
+        spikeWaveforms = get_spkwav_(P, 0);
+        %mrVp = squeeze_(single(min(spikeWaveforms))) .^ 2;
+        %         spikeWaveforms1 = meanSubt_(single(spikeWaveforms),2);
+        mrVp = single(squeeze_(max(spikeWaveforms) - min(spikeWaveforms))) .^ 2;
         case 'filtstd'
         mrVp = squeeze_(var(single(get_spkwav_(P, 0))));
         case 'rawstd', mrVp = squeeze_(var(single(get_spkwav_(P, 1))));
         case 'raw'
-        tnWav_raw = get_spkwav_(P, 1);
-        mrVp = single(squeeze_(max(tnWav_raw) - min(tnWav_raw))) .^ 2;
+        spikeTraces = get_spkwav_(P, 1);
+        mrVp = single(squeeze_(max(spikeTraces) - min(spikeTraces))) .^ 2;
         case 'fet'
-        trFet_spk = get_spkfet_(P);
-        mrVp = squeeze_(trFet_spk(1:nSites_spk,1,:)) .^ 2;
-        %         mrVp = abs(squeeze_(trFet_spk(1:nSites_spk,1,:)));
+        spikeFeatures = getSpikeFeatures(P);
+        mrVp = squeeze_(spikeFeatures(1:nSites_spk,1,:)) .^ 2;
+        %         mrVp = abs(squeeze_(spikeFeatures(1:nSites_spk,1,:)));
         miSites_spk = miSites_spk(1:nSites_spk,:);
     end
 
@@ -37,25 +37,25 @@ function plot_drift_(P)
     vrA_spk = sum(mrVp);
     assignWorkspace_(vrTime_spk, vrPosX_spk, vrPosY_spk, vrA_spk);
 
-    vlSpk_shank = ismember(P.viShank_site(viSite_spk), iShank_show); %show first shank only
+    vlSpk_shank = ismember(P.viShank_site(spikeSites), iShank_show); %show first shank only
     % vrAmp_spk = 1 ./ sqrt(single(abs(S0.vrAmp_spk)));
     % vrAmp_spk = 1 ./ sqrt(sum(mrVp));
     vrAmp_spk = sqrt(mean(mrVp) ./ std(mrVp)); %spatial icv
-    hFig_drift = create_figure_('', [0 0 .5 1], P.vcFile_prm, 1, 1);
+    hFig_drift = createFigure('', [0 0 .5 1], P.paramFile, 1, 1);
     % hFig_drift = gcf;
     figure(hFig_drift);
     ax = gca();
     hold on;
     nSpk_thresh_clu = median(S_clu.vnSpk_clu);
-    snr_thresh_clu = get_set_(P, 'snr_thresh_clu', quantile(S_clu.vrSnr_clu, .5));
-    % posX_thresh = median(S_clu.vrPosX_clu);
+    snr_thresh_clu = getOr(P, 'snr_thresh_clu', quantile(S_clu.vrSnr_clu, .5));
+    % posX_thresh = median(S_clu.clusterXPositions);
     % [vrTime_drift, vrDepth_drift] = drift_track_(S_clu, vrPosY_spk, P);
 
     if ~isempty(S_clu)
-        posX_lim = quantile(S_clu.vrPosX_clu, [.25, .75]);
-        posY_lim = quantile(S_clu.vrPosY_clu, [.1, .9]);
-        for iClu = 1:S_clu.nClu
-            viSpk1 = S_clu.cviSpk_clu{iClu};
+        posX_lim = quantile(S_clu.clusterXPositions, [.25, .75]);
+        posY_lim = quantile(S_clu.clusterYPositions, [.1, .9]);
+        for iClu = 1:S_clu.nClusters
+            viSpk1 = S_clu.spikesByCluster{iClu};
             viSpk1 = viSpk1(vlSpk_shank(viSpk1));
             vrColor1 = rand(1,3);
             %         vrColor1 = 'r';
@@ -74,10 +74,10 @@ function plot_drift_(P)
                 case 'z'
                 %                 if S_clu.vnSpk_clu(iClu) < nSpk_thresh_clu, continue; end
                 if S_clu.vrSnr_clu(iClu) < snr_thresh_clu, continue; end
-                %                 if vrA_spk(S_clu.cviSpk_clu{iClu})
-                %                 if S_clu.vrPosX_clu(iClu) < posX_thresh, continue; end
-                posX_clu1 = S_clu.vrPosX_clu(iClu);
-                posY_clu1 = S_clu.vrPosY_clu(iClu);
+                %                 if vrA_spk(S_clu.spikesByCluster{iClu})
+                %                 if S_clu.clusterXPositions(iClu) < posX_thresh, continue; end
+                posX_clu1 = S_clu.clusterXPositions(iClu);
+                posY_clu1 = S_clu.clusterYPositions(iClu);
                 if posX_clu1 < posX_lim(1) || posX_clu1 > posX_lim(2) || posY_clu1 < posY_lim(1) || posY_clu1 > posY_lim(2), continue; end
                 plot(ax, vrTime_spk(viSpk1), vrPosY_spk(viSpk1), '.', 'Color', vrColor1, 'MarkerSize', 5); % - median(vrPosY_spk(viSpk1))
             end %switch

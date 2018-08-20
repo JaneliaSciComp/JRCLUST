@@ -6,9 +6,9 @@ function [mrPv, vrD1] = tnWav2pv_(tr, P)
     if nargin<2, P = get0_('P'); end
     % if nargin<3, viSites_ref = []; end
     % if isempty(tr)
-    %     nSpk = size(tnWav_spk,3);
+    %     nSpk = size(spikeWaveforms,3);
     %     viSpk_sub = subsample_vr_(1:nSpk, MAX_SAMPLE);
-    %     tr = permute(tnWav_spk(:,:,viSpk_sub), [1 3 2]);
+    %     tr = permute(spikeWaveforms(:,:,viSpk_sub), [1 3 2]);
     %     tr = single(tr);
     %     tr = spkwav_car_(tr, P);
     %     mrSpkWav1 = tr(:,:,1);

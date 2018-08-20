@@ -3,7 +3,7 @@ function vr_uV = uV2bit_(vn, P)
     % use only for filtered traces
 
     if nargin<2, P = get0_('P'); end
-    if isempty(P.nDiff_filt), P.nDiff_filt = 0; end
+    if ~isfield(P, 'nDiff_filt') || isempty(P.nDiff_filt), P.nDiff_filt = 0; end
     switch P.nDiff_filt
         case 0, norm = 1;
         case 1, norm = 2;

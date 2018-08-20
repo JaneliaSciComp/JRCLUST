@@ -1,25 +1,25 @@
 %--------------------------------------------------------------------------
 function detect_(P)
-    global tnWav_raw tnWav_spk trFet_spk;
+    global spikeTraces spikeWaveforms spikeFeatures;
     runtime_detect = tic;
     % Clear memory (S0 is cleared)
     set(0, 'UserData', []);
-    [tnWav_raw, tnWav_spk, trFet_spk] = deal([]);
+    [spikeTraces, spikeWaveforms, spikeFeatures] = deal([]);
 
     S0 = file2spk_(P);
 
-    if get_set_(P, 'fRamCache', 1)
-        tnWav_raw = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);
-        tnWav_spk = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
+    if getOr(P, 'fRamCache', 1)
+        spikeTraces = load_bin_(strrep(P.paramFile, '.prm', '_traces.bin'), 'int16', S0.traceDims);
+        spikeWaveforms = load_bin_(strrep(P.paramFile, '.prm', '_waveforms.bin'), 'int16', S0.waveformDims);
     end
-    trFet_spk = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
-    S0.mrPos_spk = spk_pos_(S0, trFet_spk);
+    spikeFeatures = load_bin_(strrep(P.paramFile, '.prm', '_features.bin'), 'single', S0.featureDims);
+    S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
 
     % measure time
     S0.runtime_detect = toc(runtime_detect);
-    fprintf('Detection took %0.1fs for %s\n', S0.runtime_detect, P.vcFile_prm);
+    fprintf('Detection took %0.1fs for %s\n', S0.runtime_detect, P.paramFile);
 
     set(0, 'UserData', S0);
-    save0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
-    delete_(strrep(P.vcFile_prm, '.prm', '_log.mat')); %delete log file when detecting
+    save0_(strrep(P.paramFile, '.prm', '_jrc.mat'));
+    delete_(strrep(P.paramFile, '.prm', '_log.mat')); %delete log file when detecting
 end %func

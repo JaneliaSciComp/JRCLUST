@@ -10,10 +10,10 @@ function S0 = save_log_(vcCmd, S0)
 
     if ~isempty(strfind(vcCmd, 'annotate'))
         S_log = cS_log{end};
-        S_log.csNote_clu = S_clu.csNote_clu;
+        S_log.clusterNotes = S_clu.clusterNotes;
         cS_log{end} = S_log;
     else
-        S_log = struct_('vcCmd', vcCmd, 'datenum', now(), 'csNote_clu', S_clu.csNote_clu);
+        S_log = struct_('vcCmd', vcCmd, 'datenum', now(), 'clusterNotes', S_clu.clusterNotes);
         if isempty(cS_log) || ~iscell(cS_log)
             cS_log = {S_log};
         else
@@ -23,13 +23,13 @@ function S0 = save_log_(vcCmd, S0)
 
     % Keep P.MAX_LOG history
     if isempty(miClu_log)
-        miClu_log = zeros([numel(S_clu.viClu), P.MAX_LOG], 'int16');
+        miClu_log = zeros([numel(S_clu.spikeClusters), P.MAX_LOG], 'int16');
     end
     miClu_log(:, 2:end) = miClu_log(:, 1:end-1);
-    miClu_log(:, 1) = int16(S_clu.viClu);
-    %struct_save_(strrep(P.vcFile_prm, '.prm', '_log.mat'), 'cS_log', cS_log);
-    S_log.viClu = int16(S_clu.viClu);
-    struct_save_(S_log, strrep(P.vcFile_prm, '.prm', '_log.mat'), 0);
+    miClu_log(:, 1) = int16(S_clu.spikeClusters);
+    %struct_save_(strrep(P.paramFile, '.prm', '_log.mat'), 'cS_log', cS_log);
+    S_log.viClu = int16(S_clu.spikeClusters);
+    struct_save_(S_log, strrep(P.paramFile, '.prm', '_log.mat'), 0);
     S0.cS_log = cS_log;
     S0.miClu_log = miClu_log;
 

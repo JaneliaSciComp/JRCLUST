@@ -7,11 +7,11 @@ function vrWav = load_bin_chan_(P, iChan)
     if nargin<2, iChan = 0; end
     vrWav = [];
 
-    % Join multiple recordings if P.csFile_merge is set
-    if isempty(P.vcFile) && ~isempty(P.csFile_merge)
-        csFile_bin = filter_files_(P.csFile_merge);
+    % Join multiple recordings if P.multiFilenames is set
+    if isempty(P.vcFile &&) ~isempty(P.multiFilenames)
+        csFile_bin = filter_files_(P.multiFilenames);
         cvrWav = cell(numel(csFile_bin), 1);
-        P_ = setfield(P, 'csFile_merge', {});
+        P_ = setfield(P, 'multiFilenames', {});
         for iFile=1:numel(csFile_bin)
             P_ = setfield(P, 'vcFile', csFile_bin{iFile});
             cvrWav{iFile} = load_bin_chan_(P_, iChan);

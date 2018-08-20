@@ -9,12 +9,12 @@ function plot_FigCorr_(S0)
     P.jitter_ms = jitter_ms;
     P.nLags_ms = nLags_ms;
 
-    [hFig, S_fig] = get_fig_cache_('FigCorr');
+    [hFig, S_fig] = getCachedFig('FigCorr');
     iClu1 = S0.iCluCopy;
     iClu2 = S0.iCluPaste;
     if isempty(iClu2), iClu2 = iClu1; end
 
-    jitter = round(P.sRateHz / 1000 * P.jitter_ms); %0.5 ms
+    jitter = round(P.sampleRateHz / 1000 * P.jitter_ms); %0.5 ms
     nLags = round(P.nLags_ms / P.jitter_ms);
 
     vi1 = int32(double(S_clu_time_(S_clu, iClu1)) /jitter);
