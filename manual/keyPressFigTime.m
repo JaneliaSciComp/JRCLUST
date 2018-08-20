@@ -20,7 +20,7 @@ function keyPressFigTime(hObject, event, S0)
                 S_fig.iSite = max(S_fig.iSite - factor, 1);
             end
             set(hFig, 'UserData', S_fig);
-            update_FigTime_();
+            updateFigTime();
 
         case {'uparrow', 'downarrow'} %change ampl
             if ~isVisible_(S_fig.hAx)
@@ -80,6 +80,19 @@ function keyPressFigTime(hObject, event, S0)
                 P.tlim_proj = tlim_proj;
                 plotFigProj(S0);
 
+        case 'k' % kilosort amplitude scaling factor/spike
+            if getOr(P, 'fImportKilosort', 0)
+                displayFeature = getOr(P, 'displayFeature', 'vpp');
+                if strcmpi(displayFeature, 'vpp')
+                    P.displayFeature = 'kilosort';
+                elseif strcmpi(displayFeature, 'kilosort')
+                    P.displayFeature = 'vpp'; % others not implemented yet
+                end
+
+                setUserData(P);
+                updateFigTime();
+            end
+
                 %     case 'f' % feature display instead of amplitude display
                 %         if strcmpi(P.displayFeature, 'fet')
                 %             P.displayFeature = 'vpp';
@@ -87,7 +100,7 @@ function keyPressFigTime(hObject, event, S0)
                 %             P.displayFeature = 'fet';
                 %         end
                 %         setUserData(P);
-                %         update_FigTime_();
+                %         updateFigTime();
 
         case 'c' % compare pca across channels
                 disp('FigTime: Not implemented yet'); return;
