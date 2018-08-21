@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function S = subsetStructFields(S, fieldNames, indices, dim)
+function S = subsetStructElements(S, fieldNames, indices, dim)
     if isempty(fieldNames)
         return;
     end
@@ -40,7 +40,7 @@ function S = subsetStructFields(S, fieldNames, indices, dim)
                     elseif dim == 2
                         val = val(:, indices);
                     else
-                        error('subsetStructFields: invalid dim');
+                        error('subsetStructElements: invalid dim');
                     end
 
                 case 3
@@ -51,15 +51,15 @@ function S = subsetStructFields(S, fieldNames, indices, dim)
                     elseif dim == 3
                         val = val(:, :, indices);
                     else
-                        error('subsetStructFields: invalid dim');
+                        error('subsetStructElements: invalid dim');
                     end
                 otherwise
-                    error('subsetStructFields: invalid # of dimensions (1-3 supported)');
+                    error('subsetStructElements: invalid # of dimensions (1-3 supported)');
             end % switch
 
             S.(fieldName) = val;
         catch
-            error('subsetStructFields: %s field error', fieldName);
+            error('subsetStructElements: %s field error', fieldName);
         end
     end % for
 end % func

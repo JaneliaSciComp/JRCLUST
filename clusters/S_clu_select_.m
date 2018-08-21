@@ -11,13 +11,13 @@ function S_clu = S_clu_select_(S_clu, viKeep_clu)
     end
 
     viMatch_v = cellfun(@(vi) ~isempty(vi), cellfun(@(cs) regexp(cs, '^v\w*_clu$'), fieldNames, 'UniformOutput', false));
-    S_clu = subsetStructFields(S_clu, fieldNames(viMatch_v), viKeep_clu);
+    S_clu = subsetStructElements(S_clu, fieldNames(viMatch_v), viKeep_clu);
 
     viMatch_t = cellfun(@(vi)~isempty(vi), cellfun(@(cs)regexp(cs, '^t\w*_clu$'), fieldNames, 'UniformOutput', false));
-    S_clu = subsetStructFields(S_clu, fieldNames(viMatch_t), viKeep_clu, 3);
+    S_clu = subsetStructElements(S_clu, fieldNames(viMatch_t), viKeep_clu, 3);
 
     viMatch_c = cellfun(@(vi)~isempty(vi), cellfun(@(cs)regexp(cs, '^c\w*_clu$'), fieldNames, 'UniformOutput', false));
-    S_clu = subsetStructFields(S_clu, fieldNames(viMatch_c), viKeep_clu);
+    S_clu = subsetStructElements(S_clu, fieldNames(viMatch_c), viKeep_clu);
 
     % remap mrWavCor
     if isfield(S_clu, 'mrWavCor')
