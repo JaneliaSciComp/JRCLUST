@@ -20,7 +20,7 @@ function keyPressFigTime(hObject, event, S0)
                 S_fig.iSite = max(S_fig.iSite - factor, 1);
             end
             set(hFig, 'UserData', S_fig);
-            update_FigTime_();
+            updateFigTime();
 
         case {'uparrow', 'downarrow'} %change ampl
             if ~isVisible_(S_fig.hAx)
@@ -87,7 +87,7 @@ function keyPressFigTime(hObject, event, S0)
                 %             P.displayFeature = 'fet';
                 %         end
                 %         setUserData(P);
-                %         update_FigTime_();
+                %         updateFigTime();
 
         case 'c' % compare pca across channels
                 disp('FigTime: Not implemented yet'); return;
