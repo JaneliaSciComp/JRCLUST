@@ -89,21 +89,21 @@ function twelve(filename)
     % rename _spkraw.jrc, _spkwav.jrc, _spkfet.jrc
     spkraw = strrep(filename, '.prm', '_spkraw.jrc');
     tracesBin = strrep(spkraw, 'spkraw.jrc', 'traces.bin');
-    if isfile(spkraw)
+    if exist(spkraw, 'file')
         movefile(spkraw, tracesBin);
         fprintf('%s renamed to %s\n', spkraw, tracesBin);
     end
 
     spkwav = strrep(filename, '.prm', '_spkwav.jrc');
     waveformsBin = strrep(spkwav, 'spkwav.jrc', 'waveforms.bin');
-    if isfile(spkwav)
+    if exist(spkwav, 'file')
         movefile(spkwav, waveformsBin);
         fprintf('%s renamed to %s\n', spkwav, waveformsBin);
     end
 
     spkfet = strrep(filename, '.prm', '_spkfet.jrc');
     featuresBin = strrep(spkfet, 'spkfet.jrc', 'features.bin');
-    if isfile(spkfet)
+    if exist(spkfet, 'file')
         movefile(spkfet, featuresBin);
         fprintf('%s renamed to %s\n', spkfet, featuresBin);
     end

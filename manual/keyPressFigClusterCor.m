@@ -9,7 +9,7 @@ function keyPressFigClusterCor(hObject, event)
             auto_split_(1); %multi
         case {'d', 'backspace', 'delete'} %delete
             ui_delete_(S0);
-        case 't' % KiloSort template similarity view
+        case 'k' % KiloSort template similarity view
             if getOr(S0.P, 'fImportKilosort', 0)
                 plotFigClusterCor(S0, 'simscore');
             end
