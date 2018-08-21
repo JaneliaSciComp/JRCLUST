@@ -165,9 +165,35 @@ function twelve(filename)
             oldFilename = sprintf('%s-%s_jrc.mat', sessionName, timestamp);
             copyfile(matFile, oldFilename);
 
+            save(matFile, '-struct', 'S0');
             fprintf('Old MAT file has been saved to %s.\n', oldFilename);
-            set(0, 'UserData', S0);
-            save0_(matFile);
+        end
+    end
+    
+    % update variable names in the _log.mat file
+    logFile = [sessionName '_log.mat'];
+    if exist(logFile, 'file')
+        nChanges = 0;
+
+        logStruct = load(logFile);
+        % update log file
+        for i = 1:size(replaceMeS_clu, 1)
+            oldField = replaceMeS_clu{i, 1};
+            newField = replaceMeS_clu{i, 2};
+            if isfield(logStruct, oldField)
+                nChanges = nChanges + 1;
+                logStruct.(newField) = logStruct.(oldField);
+                logStruct = rmfield(logStruct, oldField);
+            end
+        end
+
+        if nChanges > 0
+            % backup immediately
+            oldFilename = sprintf('%s-%s_log.mat', sessionName, timestamp);
+            copyfile(logFile, oldFilename);
+
+            save(logFile, '-struct', 'logStruct');
+            fprintf('Old log file has been saved to %s.\n', oldFilename);
         end
     end
 end

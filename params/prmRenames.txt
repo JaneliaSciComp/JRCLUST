@@ -35,7 +35,10 @@ S0.viSite2_spk=S0.spikeSecondarySites
 S0.viT_offset_file=S0.fileSampleOffsets
 S0.viTime_spk=S0.spikeTimes
 
+S_clu.csNote_clu=S_clu.clusterNotes
+S_clu.cviSpk_clu=S_clu.spikesByCluster
 S_clu.icl=S_clu.clusterCenters
+S_clu.nClu=S_clu.nClusters
 S_clu.vrPosX_clu=S_clu.clusterXPositions
 S_clu.vrPosY_clu=S_clu.clusterYPositions
 S_clu.viClu_auto=S_clu.spikeClustersAuto
