@@ -8,8 +8,13 @@ function twelve(filename)
         error('filename must be a .prm file');
     end
 
+    sessionName = strrep(filename, '.prm', '');
+    timestamp = datestr(now,'yyyymmddTHHMMSS');
+
     % get the mapping between old and new names
-    replaceMe = cell(0, 2);
+    replaceMeP = cell(0, 2);
+    replaceMeS0 = cell(0, 2);
+    replaceMeS_clu = cell(0, 2);
 
     base = fileparts(fileparts(fullfile(mfilename('fullpath'))));
     fh = fopen(fullfile(base, 'params', 'prmRenames.txt'));
@@ -22,14 +27,18 @@ function twelve(filename)
             newPrm = strtrim(tline{2});
 
             if startsWith(oldPrm, 'P.')
-                replaceMe(end+1, :) = {oldPrm(3:end), newPrm(3:end)};
+                replaceMeP(end+1, :) = {oldPrm(3:end), newPrm(3:end)};
+            elseif startsWith(oldPrm, 'S0')
+                replaceMeS0(end+1, :) = {oldPrm(4:end), newPrm(4:end)};
+            elseif startsWith(oldPrm, 'S_clu')
+                replaceMeS_clu(end+1, :) = {oldPrm(7:end), newPrm(7:end)};
             end
         end
 
         tline = fgetl(fh);
     end
     fclose(fh);
-
+    
     % write the new parameter file
     newlines = cell(0);
     fh = fopen(filename);
@@ -54,8 +63,8 @@ function twelve(filename)
                 prm = strtrim(tline{1});
                 prmVal = strtrim(tline{2});
 
-                for i=1:size(replaceMe, 1)
-                    replacePair = replaceMe(i, :);
+                for i=1:size(replaceMeP, 1)
+                    replacePair = replaceMeP(i, :);
 
                     if strcmp(prm, replacePair{1})
                         nChanges = nChanges + 1;
@@ -74,7 +83,7 @@ function twelve(filename)
     fclose(fh);
 
     if nChanges > 0
-        oldFilename = strrep(filename, '.prm', sprintf('-%s.prm', datestr(now,'yyyymmddTHHMMSS')));
+        oldFilename = sprintf('%s-%s.prm', sessionName, timestamp);
         copyfile(filename, oldFilename);
         fprintf('Old parameter file has been saved to %s.\n', oldFilename);
 
@@ -87,24 +96,78 @@ function twelve(filename)
     end
 
     % rename _spkraw.jrc, _spkwav.jrc, _spkfet.jrc
-    spkraw = strrep(filename, '.prm', '_spkraw.jrc');
+    spkraw = [sessionName '_spkraw.jrc'];
     tracesBin = strrep(spkraw, 'spkraw.jrc', 'traces.bin');
     if exist(spkraw, 'file')
         movefile(spkraw, tracesBin);
         fprintf('%s renamed to %s\n', spkraw, tracesBin);
     end
 
-    spkwav = strrep(filename, '.prm', '_spkwav.jrc');
+    spkwav = [sessionName '_spkwav.jrc'];
     waveformsBin = strrep(spkwav, 'spkwav.jrc', 'waveforms.bin');
     if exist(spkwav, 'file')
         movefile(spkwav, waveformsBin);
         fprintf('%s renamed to %s\n', spkwav, waveformsBin);
     end
 
-    spkfet = strrep(filename, '.prm', '_spkfet.jrc');
+    spkfet = [sessionName '_spkfet.jrc'];
     featuresBin = strrep(spkfet, 'spkfet.jrc', 'features.bin');
     if exist(spkfet, 'file')
         movefile(spkfet, featuresBin);
         fprintf('%s renamed to %s\n', spkfet, featuresBin);
+    end
+
+    % update variable names in the main .mat file
+    matFile = [sessionName '_jrc.mat'];
+    if exist(matFile, 'file')
+        nChanges = 0;
+
+        S0 = load(matFile, '-mat');
+        % update S0
+        for i = 1:size(replaceMeS0, 1)
+            oldField = replaceMeS0{i, 1};
+            newField = replaceMeS0{i, 2};
+            if isfield(S0, oldField)
+                nChanges = nChanges + 1;
+                S0.(newField) = S0.(oldField);
+                S0 = rmfield(S0, oldField);
+            end
+        end
+        
+        % update P
+        P = S0.P;
+        for i = 1:size(replaceMeP, 1)
+            oldField = replaceMeP{i, 1};
+            newField = replaceMeP{i, 2};
+            if isfield(P, oldField)
+                nChanges = nChanges + 1;
+                P.(newField) = P.(oldField);
+                P = rmfield(P, oldField);
+            end
+        end
+        S0.P = P;
+        
+        % update S_clu
+        S_clu = S0.S_clu;
+        for i = 1:size(replaceMeS_clu, 1)
+            oldField = replaceMeS_clu{i, 1};
+            newField = replaceMeS_clu{i, 2};
+            if isfield(S_clu, oldField)
+                nChanges = nChanges + 1;
+                S_clu.(newField) = S_clu.(oldField);
+                S_clu = rmfield(S_clu, oldField);
+            end
+        end
+        S0.S_clu = S_clu;
+        
+        if nChanges > 0
+            % backup immediately
+            oldFilename = sprintf('%s-%s_jrc.mat', sessionName, timestamp);
+            copyfile(matFile, oldFilename);
+
+            fprintf('Old MAT file has been saved to %s.\n', oldFilename);
+            set(0, 'UserData', S0);
+            save0_(matFile);
+        end
     end
 end
