@@ -18,7 +18,7 @@ function S_fig = plot_spkwav_(S_fig, S0)
 
     for iCluster = 1:S_clu.nClusters
         try
-            spikesToShow = randomSelect_(S_clu_viSpk_(S_clu, iCluster, spikeSites), P.nSpk_show);
+            spikesToShow = randomSelect_(getClusterCenteredSpikes(S_clu, iCluster, spikeSites), P.nSpk_show);
             if P.fWav_raw_show
                 trWav1 = raw2uV_(spikeWaveforms(:,:,spikesToShow), P);
                 trWav1 = fft_lowpass_(trWav1, getOr(P, 'fc_spkwav_show', []), P.sampleRateHz);
