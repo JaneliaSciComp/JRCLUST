@@ -21,7 +21,7 @@ function S0 = plotFigWav(S0)
 
         set(hFig, 'KeyPressFcn', @keyPressFigWav, 'CloseRequestFcn', @exit_manual_, 'BusyAction', 'cancel');
         axis_([0, S_clu.nClusters + 1, 0, nSites + 1]);
-        add_menu_(hFig, P);
+        addMenu(hFig, P);
         mouse_figure(hFig, S_fig.hAx, @button_CluWav_);
         S_fig = plot_spkwav_(S_fig, S0); %plot spikes
         S_fig = plot_tnWav_clu_(S_fig, P); %do this after plotSpk_
