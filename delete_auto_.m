@@ -7,7 +7,7 @@ function delete_auto_()
     hFig = createFigure('', [.5 .7 .35 .3], ['Delete Auto: ', P.vcFile]);
 
     % Ask user which clusters to delete
-    plot(S_clu.vrSnr_clu(:), S_clu.vnSpk_clu(:), '.'); % show cluster SNR and spike count
+    plot(S_clu.vrSnr_clu(:), S_clu.nSpikesPerCluster(:), '.'); % show cluster SNR and spike count
     xlabel('Unit SNR'); ylabel('# spikes/unit'); grid on;
     set(gca,'YScale','log');
     % snr_thresh = inputdlg_num_('SNR threshold: ', 'Auto-deletion based on SNR', 10); % also ask about # spikes/unit (or firing rate) @TODO
@@ -22,7 +22,7 @@ function delete_auto_()
     if any(isnan([snr_min_thresh, snr_max_thresh, count_thresh]))
         msgbox_('Invalid criteria.'); return;
     end
-    viClu_delete = find(S_clu.vrSnr_clu(:) < snr_min_thresh | S_clu.vnSpk_clu(:) < count_thresh | S_clu.vrSnr_clu(:) > snr_max_thresh);
+    viClu_delete = find(S_clu.vrSnr_clu(:) < snr_min_thresh | S_clu.nSpikesPerCluster(:) < count_thresh | S_clu.vrSnr_clu(:) > snr_max_thresh);
     if isempty(viClu_delete), msgbox_('No clusters deleted.'); return; end
     if numel(viClu_delete) >= S_clu.nClusters, msgbox_('Cannot delete all clusters.'); return; end
 

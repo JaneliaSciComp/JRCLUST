@@ -2,11 +2,11 @@
 function S_clu = merge_clu_pair_(S_clu, iClu1, iClu2)
     % if iClu1>iClu2, [iClu1, iClu2] = swap(iClu1, iClu2); end
 
-    % update vnSpk_clu, spikeClusters, clusterSites. move iClu2 to iClu1
-    n1 = S_clu.vnSpk_clu(iClu1);
-    n2 = S_clu.vnSpk_clu(iClu2);
-    S_clu.vnSpk_clu(iClu1) = n1 + n2;
-    S_clu.vnSpk_clu(iClu2) = 0;
+    % update nSpikesPerCluster, spikeClusters, clusterSites. move iClu2 to iClu1
+    n1 = S_clu.nSpikesPerCluster(iClu1);
+    n2 = S_clu.nSpikesPerCluster(iClu2);
+    S_clu.nSpikesPerCluster(iClu1) = n1 + n2;
+    S_clu.nSpikesPerCluster(iClu2) = 0;
     S_clu.spikeClusters(S_clu.spikeClusters == iClu2) = iClu1;
     S_clu.spikesByCluster{iClu1} = find(S_clu.spikeClusters == iClu1);
     S_clu.spikesByCluster{iClu2} = [];

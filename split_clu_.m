@@ -12,8 +12,8 @@ function S_clu = split_clu_(iClu1, vlIn)
 
     % update cluster count and index
     S_clu.nClusters = double(iClu2);
-    S_clu.vnSpk_clu(iClu1) = S_clu.vnSpk_clu(iClu1) - n2;
-    S_clu.vnSpk_clu(iClu2) = sum(vlIn);
+    S_clu.nSpikesPerCluster(iClu1) = S_clu.nSpikesPerCluster(iClu1) - n2;
+    S_clu.nSpikesPerCluster(iClu2) = sum(vlIn);
     viSpk1 = find(S_clu.spikeClusters==iClu1);
     viSpk2 = viSpk1(vlIn);
     viSpk1 = viSpk1(~vlIn);

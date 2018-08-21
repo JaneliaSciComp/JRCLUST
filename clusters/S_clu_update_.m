@@ -10,7 +10,7 @@ function S_clu = S_clu_update_(S_clu, viClu1, P)
         viSpk_clu1 = find(S_clu.spikeClusters == iClu1);
         S_clu.spikesByCluster{iClu1} = viSpk_clu1;
         S_clu.clusterSites(iClu1) = mode(S0.spikeSites(viSpk_clu1));
-        S_clu.vnSpk_clu(iClu1) = numel(viSpk_clu1);
+        S_clu.nSpikesPerCluster(iClu1) = numel(viSpk_clu1);
     end
 
     % update mean waveform

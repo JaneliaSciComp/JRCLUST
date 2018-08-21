@@ -63,7 +63,7 @@ function S_clu = S_clu_reclust_(S_clu, S0, P);
         spikeFeatures = spikeFeatures0; %restore
 
         case 'density'
-        vlRedo_clu = S_clu.vnSpk_clu > quantile(S_clu.vnSpk_clu, 1/2); %ilnear selection %2^(-iRepeat_clu+1)
+        vlRedo_clu = S_clu.nSpikesPerCluster > quantile(S_clu.nSpikesPerCluster, 1/2); %ilnear selection %2^(-iRepeat_clu+1)
         vlRedo_spk = ismember(S_clu.spikeClusters, find(vlRedo_clu));
         S_clu_A = postCluster_(cluster_spacetime_(S0, P, ~vlRedo_spk), P);
         S_clu_B = postCluster_(cluster_spacetime_(S0, P, vlRedo_spk), P);

@@ -2,7 +2,7 @@
 function S_clu = S_clu_select_(S_clu, viKeep_clu)
     % automatically trim clusters
     % 7/20/17 JJJ: auto selecting vectors and matrics
-    % excl vnSpk_clu, clusterSites, clusterXPositions, clusterYPositions
+    % excl nSpikesPerCluster, clusterSites, clusterXPositions, clusterYPositions
 
     % Quality
     fieldNames = fieldnames(S_clu);

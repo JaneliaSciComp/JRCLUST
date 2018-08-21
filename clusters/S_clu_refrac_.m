@@ -46,7 +46,7 @@ function [S_clu, nRemoved] = S_clu_refrac_(S_clu, P, iClu1)
         S_clu.spikeClusters(viSpk1(~vlKeep1)) = 0;
 
         S_clu.spikesByCluster{iClu1} = viSpk1(vlKeep1);
-        S_clu.vnSpk_clu(iClu1) = sum(vlKeep1);
+        S_clu.nSpikesPerCluster(iClu1) = sum(vlKeep1);
     end
 
     if get_(P, 'fVerbose')

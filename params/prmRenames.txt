@@ -39,11 +39,12 @@ S_clu.csNote_clu=S_clu.clusterNotes
 S_clu.cviSpk_clu=S_clu.spikesByCluster
 S_clu.icl=S_clu.clusterCenters
 S_clu.nClu=S_clu.nClusters
-S_clu.vrPosX_clu=S_clu.clusterXPositions
-S_clu.vrPosY_clu=S_clu.clusterYPositions
 S_clu.viClu_auto=S_clu.spikeClustersAuto
 S_clu.viClu_old=S_clu.spikeClustersOld
 S_clu.viClu=S_clu.spikeClusters
 S_clu.viSite_clu=S_clu.clusterSites
+S_clu.vnSpk_clu=S_clu.nSpikesPerCluster
+S_clu.vrPosX_clu=S_clu.clusterXPositions
+S_clu.vrPosY_clu=S_clu.clusterYPositions
 
 S_thresh.vnThresh_site=S_thresh.siteThresholds

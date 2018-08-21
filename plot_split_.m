@@ -90,7 +90,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     line(vxPlot, vyPlot, 'Color', P.mrColor_proj(2,:), 'Marker', 'o', 'MarkerSize', 2, 'LineStyle', 'none');
     hPlot = line(vxPlot(vlIn), vyPlot(vlIn), 'Color', P.mrColor_proj(3,:), 'Marker', 'o', 'MarkerSize', 2, 'LineStyle', 'none');
     % plot(vxPoly, vyPoly, 'b+-'); %boundary
-    title(sprintf('Cluster %d (%d spikes)', iClu1, S_clu.vnSpk_clu(iClu1)));
+    title(sprintf('Cluster %d (%d spikes)', iClu1, S_clu.nSpikesPerCluster(iClu1)));
     xlabel(sprintf('Site %d', site12(1)));
     ylabel(vcYlabel);   xlabel(vcXlabel);
     grid on;
