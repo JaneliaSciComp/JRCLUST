@@ -4,7 +4,7 @@ function selfcorr = S_clu_self_corr__(S_clu, spikeWaveforms, iClu1, spikeSites)
     MAX_SAMPLE = 4000;
     if nargin<4, spikeSites = get0_('spikeSites'); end
 
-    [viSpk_clu1, viiSpk_clu1] = S_clu_viSpk_(S_clu, iClu1, spikeSites);
+    [viSpk_clu1, viiSpk_clu1] = getClusterCenteredSpikes(S_clu, iClu1, spikeSites);
 
     viSpk_clu1 = randomSelect_(viSpk_clu1, MAX_SAMPLE);
     % trWav1 = meanSubt_(single(spikeWaveforms(:,:,viSpk_clu1)));

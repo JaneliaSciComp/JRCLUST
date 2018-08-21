@@ -115,7 +115,7 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
             toggleVisible_(S_fig.hSpkAll); %toggle spike waveforms
 
         case 't'
-            plot_FigTime_(S0); % time view
+            plotFigTime(S0); % time view
 
         case 'j'
             plotFigProj(S0); %projection view
