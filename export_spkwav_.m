@@ -28,7 +28,7 @@ function export_spkwav_(P, vcArg2, fDiff)
     fprintf('Collecting spikes from clusters\n\t'); t1=tic;
     if isempty(viClu), viClu = 1:S_clu.nClusters; end
     for iClu = viClu
-        tnWav_clu1 = spikeWaveforms_sites_(S_clu.spikesByCluster{iClu}, miSite_clu(:,iClu), S0);
+        tnWav_clu1 = getSpikeWaveformsSites(S_clu.spikesByCluster{iClu}, miSite_clu(:,iClu), S0);
         if fDiff
             ctrWav_clu{iClu} = tnWav_clu1;
         else

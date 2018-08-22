@@ -15,7 +15,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     else
         fWav_raw_show = getOr(P, 'fWav_raw_show', 0);
     end
-    trWav12 = tnWav2uV_(spikeWaveforms_sites_(S_clu.spikesByCluster{iClu1}, site12, S0, fWav_raw_show), P);
+    trWav12 = tnWav2uV_(getSpikeWaveformsSites(S_clu.spikesByCluster{iClu1}, site12, S0, fWav_raw_show), P);
     if diff(site12) == 0, trWav12(:,2,:) = trWav12(:,1,:); end
     vxPoly = (mrPolyPos([1:end,1],1) - site12_show(1)) * S1.maxAmp;
     vyPoly = (mrPolyPos([1:end,1],2) - site12_show(2)) * S1.maxAmp;
@@ -106,7 +106,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     vlIn = poly_mask_(hPoly, vxPlot, vyPlot);
     set(hPlot, 'XData', vxPlot(vlIn), 'YData',vyPlot(vlIn));
     % if P.fWav_raw_show
-    %     trWav12_raw = tnWav2uV_(spikeWaveforms_sites_(S_clu.spikesByCluster{iClu1}, site12, 1));
+    %     trWav12_raw = tnWav2uV_(getSpikeWaveformsSites(S_clu.spikesByCluster{iClu1}, site12, 1));
     %     mrWavX = squeeze_(trWav12_raw(:, 1, :));
     %     mrWavY = squeeze_(trWav12_raw(:, 2, :));
     % else
