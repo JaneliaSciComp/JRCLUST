@@ -33,19 +33,19 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
                     S0.primarySelectedCluster = S0.primarySelectedCluster + 1;
                 end
             else
-                if isempty(S0.iCluPaste)
-                    S0.iCluPaste = S0.primarySelectedCluster;
+                if isempty(S0.secondarySelectedCluster)
+                    S0.secondarySelectedCluster = S0.primarySelectedCluster;
                 end
                 if strcmpi(event.Key, 'leftarrow')
-                    if S0.iCluPaste == 1, return; end
-                    S0.iCluPaste = S0.iCluPaste - 1;
+                    if S0.secondarySelectedCluster == 1, return; end
+                    S0.secondarySelectedCluster = S0.secondarySelectedCluster - 1;
                 else
-                    if S0.iCluPaste == S_clu.nClusters, return; end
-                    S0.iCluPaste = S0.iCluPaste + 1;
+                    if S0.secondarySelectedCluster == S_clu.nClusters, return; end
+                    S0.secondarySelectedCluster = S0.secondarySelectedCluster + 1;
                 end
             end
 
-            S0 = button_CluWav_simulate_(S0.primarySelectedCluster, S0.iCluPaste, S0); %select first clu
+            S0 = button_CluWav_simulate_(S0.primarySelectedCluster, S0.secondarySelectedCluster, S0); %select first clu
             if strcmpi(event.Key, 'home') || strcmpi(event.Key, 'end') %'z' to recenter
                 S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0);
             end
@@ -57,9 +57,9 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
             % auto-select nearest cluster for black
             mrWavCor = S_clu.mrWavCor;
             mrWavCor(S0.primarySelectedCluster,S0.primarySelectedCluster) = -inf;
-            [~,S0.iCluPaste] = max(mrWavCor(:,S0.primarySelectedCluster));
+            [~,S0.secondarySelectedCluster] = max(mrWavCor(:,S0.primarySelectedCluster));
             set(0, 'UserData', S0);
-            button_CluWav_simulate_([], S0.iCluPaste);
+            button_CluWav_simulate_([], S0.secondarySelectedCluster);
 
         case 's'
             autoSplit(1, S0);

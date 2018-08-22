@@ -18,8 +18,8 @@ function plot_FigIsi_(S0)
         line(P.spkRefrac_ms*[1 1], get(S_fig.hAx,'YLim'), 'Color', [1 0 0]);
     end
     update_plot_(S_fig.hPlot1, vrX1, vrY1);
-    if ~isempty(S0.iCluPaste)
-        [vrX2, vrY2] = get_returnMap_(S0.iCluPaste, P);
+    if ~isempty(S0.secondarySelectedCluster)
+        [vrX2, vrY2] = get_returnMap_(S0.secondarySelectedCluster, P);
         update_plot_(S_fig.hPlot2, vrX2, vrY2);
     else
         update_plot_(S_fig.hPlot2, nan, nan);

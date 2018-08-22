@@ -4,7 +4,7 @@ function S0 = ui_delete_(S0)
     if nargin<1, S0 = []; end
     if isempty(S0), S0 = get(0, 'UserData'); end
     P = S0.P;
-    if ~isempty(S0.iCluPaste)
+    if ~isempty(S0.secondarySelectedCluster)
         msgbox_('Must select one cluster', 1); return;
     end
     figure_wait_(1);

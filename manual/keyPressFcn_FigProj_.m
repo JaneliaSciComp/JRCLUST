@@ -37,7 +37,7 @@ function keyPressFcn_FigProj_(hFig, event)
 
         case 's' %split
             figure_wait_(0);
-            if ~isempty(S0.iCluPaste)
+            if ~isempty(S0.secondarySelectedCluster)
                 msgbox_('Select one cluster to split'); return;
             end
             S_plot1 = select_polygon_(S_fig.hPlot1);

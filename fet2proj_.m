@@ -4,7 +4,7 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, sitesO
     P = S0.P;
     S_clu = S0.S_clu;
     primaryCluster = S0.primarySelectedCluster;
-    secondaryCluster = S0.iCluPaste;
+    secondaryCluster = S0.secondarySelectedCluster;
 
     % select (indices of) subset of spikes on our sites of interest
     siteSpikes = find(ismember(S0.spikeSites, sitesOfInterest));

@@ -26,10 +26,10 @@ function auto_scale_proj_time_(S0, fPlot)
     iSite = S0.S_clu.clusterSites(S0.primarySelectedCluster);
 
     [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.primarySelectedCluster, S0); % plot primarySelectedCluster
-    if isempty(S0.iCluPaste)
+    if isempty(S0.secondarySelectedCluster)
         cvrFet = {vrFet1};
     else
-        [vrFet2, vrTime2, vcYlabel, viSpk2] = getFet_site_(iSite, S0.iCluPaste, S0); % plot primarySelectedCluster
+        [vrFet2, vrTime2, vcYlabel, viSpk2] = getFet_site_(iSite, S0.secondarySelectedCluster, S0); % plot primarySelectedCluster
         cvrFet = {vrFet1, vrFet2};
     end
 

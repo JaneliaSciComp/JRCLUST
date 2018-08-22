@@ -55,7 +55,7 @@ function keyPressFigTime(hObject, event, S0)
                 %         plot_SpikePos_(S0, event);
 
         case 's' %split. draw a polygon
-                if ~isempty(S0.iCluPaste)
+                if ~isempty(S0.secondarySelectedCluster)
                     msgbox_('Select one cluster'); return;
                 end
                 try
@@ -114,14 +114,14 @@ function keyPressFigTime(hObject, event, S0)
                 %             multiplot(plot(nan,nan,'k'), 1, 1:size(trPv1,1), trPv1);
                 % %             mr2plot(norm_mr_(mrPv1), 'scale', 1, 'LineStyle', 'k');
                 %             vcTitle = sprintf('PCA across chan: Clu %s', sprintf('%d,', viClu_track));
-                %         elseif ~isempty(S0.iCluPaste)
-                %             [mrWav_mean2, viSite1] = mrWav_int_mean_clu_(S0.iCluPaste);
+                %         elseif ~isempty(S0.secondarySelectedCluster)
+                %             [mrWav_mean2, viSite1] = mrWav_int_mean_clu_(S0.secondarySelectedCluster);
                 %             [~, mrPv2] = pca(mrWav_mean2, 'NumComponents', P.nPc_dip);
                 %             mrPv2 = match_mrPv_(mrPv2, mrPv1);
                 % %             mrPv2 = flip_prinvec_(mrPv2, mrPv1);
                 %             mr2plot(norm_mr_(mrPv1), 'scale', 1, 'LineStyle', 'k');
                 %             mr2plot(norm_mr_(mrPv2), 'scale', 1, 'LineStyle', 'r--');
-                %             vcTitle = sprintf('PCA across chan: Clu %d vs %d', S0.primarySelectedCluster, S0.iCluPaste);
+                %             vcTitle = sprintf('PCA across chan: Clu %d vs %d', S0.primarySelectedCluster, S0.secondarySelectedCluster);
                 %         else
                 %             mr2plot(norm_mr_(mrPv1), 'scale', 1, 'LineStyle', 'r');
                 %             vcTitle = sprintf('PCA across chan: Clu %d', S0.primarySelectedCluster);
@@ -129,8 +129,8 @@ function keyPressFigTime(hObject, event, S0)
                 % %         mr2plot(mrPv1, 'scale', 1, 'LineStyle', 'k');
                 %         grid on;
                 %         title_(vcTitle);
-                % %         if ~isempty(S0.iCluPaste)
-                % %             compare_interp_(Sclu, S0.primarySelectedCluster, S0.iCluPaste);
+                % %         if ~isempty(S0.secondarySelectedCluster)
+                % %             compare_interp_(Sclu, S0.primarySelectedCluster, S0.secondarySelectedCluster);
                 % %         end
                 %         try close(hMsg); catch; end
 

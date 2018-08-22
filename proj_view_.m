@@ -9,5 +9,5 @@ function proj_view_(hMenu)
     end
     % auto-scale the view
     S0 = setUserData(P);
-    button_CluWav_simulate_(S0.primarySelectedCluster, S0.iCluPaste, S0);
+    button_CluWav_simulate_(S0.primarySelectedCluster, S0.secondarySelectedCluster, S0);
 end %func

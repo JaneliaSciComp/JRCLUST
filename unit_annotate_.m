@@ -7,8 +7,8 @@ function unit_annotate_(hObject, event, vcLabel)
     if nargin==3
         if isempty(vcLabel), vcLabel='';
         elseif vcLabel(1) == '='
-            if ~isempty(S0.iCluPaste)
-                vcLabel = sprintf('=%d', S0.iCluPaste);
+            if ~isempty(S0.secondarySelectedCluster)
+                vcLabel = sprintf('=%d', S0.secondarySelectedCluster);
             else
                 msgbox_('Right-click another unit to set equal to.');
                 return;

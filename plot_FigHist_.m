@@ -12,7 +12,7 @@ function plot_FigHist_(S0)
     vcTitle = sprintf('Cluster %d', S0.primarySelectedCluster);
 
     % draw
-    if isempty(S_fig) %first time the iCluPaste is always empty
+    if isempty(S_fig) %first time the secondarySelectedCluster is always empty
         S_fig.hAx = axes_new_(hFig);
         S_fig.hPlot1 = stairs(S_fig.hAx, nan, nan, 'k');
         S_fig.hPlot2 = stairs(S_fig.hAx, nan, nan, 'r');
@@ -23,9 +23,9 @@ function plot_FigHist_(S0)
         set(S_fig.hAx, 'XScale', 'log');
     end
     update_plot_(S_fig.hPlot1, vrX, vrY1);
-    if ~isempty(S0.iCluPaste)
-        vrY2 = isi_hist_(S0.iCluPaste, vrX);
-        vcTitle = sprintf('Cluster %d (black) vs %d (red)', S0.primarySelectedCluster, S0.iCluPaste);
+    if ~isempty(S0.secondarySelectedCluster)
+        vrY2 = isi_hist_(S0.secondarySelectedCluster, vrX);
+        vcTitle = sprintf('Cluster %d (black) vs %d (red)', S0.primarySelectedCluster, S0.secondarySelectedCluster);
         update_plot_(S_fig.hPlot2, vrX, vrY2);
     else
         update_plot_(S_fig.hPlot2, nan, nan);

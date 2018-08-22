@@ -13,9 +13,9 @@ function plotFigTime(S0)
     [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.primarySelectedCluster, S0); % plot primarySelectedCluster
 
     vcTitle = '[H]elp; (Sft)[Left/Right]:Sites/Features; (Sft)[Up/Down]:Scale; [B]ackground; [S]plit; [R]eset view; [P]roject; [M]erge; (sft)[Z] pos; [E]xport selected; [C]hannel PCA';
-    if ~isempty(S0.iCluPaste)
-        [vrFet2, vrTime2] = getFet_site_(iSite, S0.iCluPaste, S0);
-        vcTitle = sprintf('Clu%d (black), Clu%d (red); %s', S0.primarySelectedCluster, S0.iCluPaste, vcTitle);
+    if ~isempty(S0.secondarySelectedCluster)
+        [vrFet2, vrTime2] = getFet_site_(iSite, S0.secondarySelectedCluster, S0);
+        vcTitle = sprintf('Clu%d (black), Clu%d (red); %s', S0.primarySelectedCluster, S0.secondarySelectedCluster, vcTitle);
     else
         vrFet2 = [];
         vrTime2 = [];

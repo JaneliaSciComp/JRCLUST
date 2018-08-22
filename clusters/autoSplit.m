@@ -14,7 +14,7 @@ function autoSplit(fMulti, S0)
     P = S0.P;
     S_clu = S0.S_clu;
 
-    if ~isempty(S0.iCluPaste)
+    if ~isempty(S0.secondarySelectedCluster)
         msgbox_('Select one cluster');
         return;
     end
