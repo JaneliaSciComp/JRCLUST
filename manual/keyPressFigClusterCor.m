@@ -6,7 +6,7 @@ function keyPressFigClusterCor(hObject, event)
         case 'm' %merge
             ui_merge_(S0);
         case 's' %split
-            auto_split_(1); %multi
+            autoSplit(1); %multi
         case {'d', 'backspace', 'delete'} %delete
             ui_delete_(S0);
         case 'k' % KiloSort template similarity view

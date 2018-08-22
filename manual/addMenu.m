@@ -26,8 +26,8 @@ function addMenu(hFig, P)
     uimenu(mh_edit,'Label', 'Delete auto', 'Callback', @(h,e)delete_auto_());
     uimenu(mh_edit,'Label', 'Delete annotated', 'Callback', @(h,e)delete_annotate()); % TW
     uimenu(mh_edit,'Label', '[S]plit', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 's'), 'Separator', 'on');
-    uimenu(mh_edit,'Label', 'Auto split max-chan', 'Callback', @(h,e)auto_split_(0));
-    uimenu(mh_edit,'Label', 'Auto split multi-chan', 'Callback', @(h,e)auto_split_(1));
+    uimenu(mh_edit,'Label', 'Auto split max-chan', 'Callback', @(h,e)autoSplit(0));
+    uimenu(mh_edit,'Label', 'Auto split multi-chan', 'Callback', @(h,e)autoSplit(1));
     uimenu(mh_edit,'Label', 'Annotate', 'Callback', @(h,e)unit_annotate_());
 
     mh_view = uimenu(hFig,'Label','View');

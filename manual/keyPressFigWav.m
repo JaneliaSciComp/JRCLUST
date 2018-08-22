@@ -62,7 +62,7 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
             button_CluWav_simulate_([], S0.iCluPaste);
 
         case 's'
-            auto_split_(1, S0);
+            autoSplit(1, S0);
 
         case 'r' %reset view
             figure_wait_(1);
