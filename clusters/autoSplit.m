@@ -91,5 +91,5 @@ function autoSplit(fMulti, S0)
         end % switch
     end
 
-    split_clu_(clusterToSplit, vlSpkIn);
+    splitCluster(clusterToSplit, vlSpkIn);
 end %func

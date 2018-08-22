@@ -67,7 +67,7 @@ function keyPressFigTime(hObject, event, S0)
                     vlIn = inpolygon(vrX1, vrY1, mrPolyPos(:,1), mrPolyPos(:,2));
                     hSplit = line(vrX1(vlIn), vrY1(vlIn), 'Color', [1 0 0], 'Marker', '.', 'LineStyle', 'none');
                     if strcmpi(userDialog('Split?', 'Confirmation', 'Yes'), 'yes')
-                        split_clu_(S0.primarySelectedCluster, vlIn);
+                        splitCluster(S0.primarySelectedCluster, vlIn);
                     end
                     deleteMany(hPoly, hSplit);
                 catch

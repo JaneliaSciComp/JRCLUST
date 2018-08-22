@@ -44,7 +44,7 @@ function keyPressFcn_FigProj_(hFig, event)
             if ~isempty(S_plot1)
                 [fSplit, vlIn] = plot_split_(S_plot1);
                 if fSplit
-                    S_clu = split_clu_(S0.primarySelectedCluster, vlIn);
+                    S_clu = splitCluster(S0.primarySelectedCluster, vlIn);
                 else
                     update_plot2_proj_();
                     %                 deleteMany(S_plot1.hPoly);
