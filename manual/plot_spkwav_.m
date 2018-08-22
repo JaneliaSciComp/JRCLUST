@@ -4,7 +4,7 @@ function S_fig = plot_spkwav_(S_fig, S0)
     if nargin<2, S0 = []; end
     if isempty(S0), S0 = get(0, 'UserData'); end
     [P, spikeSites, S_clu] = deal(S0.P, S0.spikeSites, S0.S_clu);
-    spikeWaveforms = get_spkwav_(P);
+    spikeWaveforms = getSpikeWaveforms(P);
 
     [cvrX, cvrY, cviSite] = deal(cell(S_clu.nClusters, 1));
     vnSpk = zeros(S_clu.nClusters, 1);

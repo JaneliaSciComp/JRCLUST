@@ -13,15 +13,15 @@ function plot_drift_(P)
 
     switch lower(vcMode_com)
         case 'filt'
-        spikeWaveforms = get_spkwav_(P, 0);
+        spikeWaveforms = getSpikeWaveforms(P, 0);
         %mrVp = squeeze_(single(min(spikeWaveforms))) .^ 2;
         %         spikeWaveforms1 = meanSubt_(single(spikeWaveforms),2);
         mrVp = single(squeeze_(max(spikeWaveforms) - min(spikeWaveforms))) .^ 2;
         case 'filtstd'
-        mrVp = squeeze_(var(single(get_spkwav_(P, 0))));
-        case 'rawstd', mrVp = squeeze_(var(single(get_spkwav_(P, 1))));
+        mrVp = squeeze_(var(single(getSpikeWaveforms(P, 0))));
+        case 'rawstd', mrVp = squeeze_(var(single(getSpikeWaveforms(P, 1))));
         case 'raw'
-        spikeTraces = get_spkwav_(P, 1);
+        spikeTraces = getSpikeWaveforms(P, 1);
         mrVp = single(squeeze_(max(spikeTraces) - min(spikeTraces))) .^ 2;
         case 'fet'
         spikeFeatures = getSpikeFeatures(P);

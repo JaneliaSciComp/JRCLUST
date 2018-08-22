@@ -25,7 +25,7 @@ function spikeWaveforms = getSpikeWaveformsSites(spikes, sitesOfInterest, S0, fW
     P = S0.P;
 
     % load raw or filtered traces from disk
-    traces = get_spkwav_(P, fWav_raw_show);
+    traces = getSpikeWaveforms(P, fWav_raw_show);
 
     nSamples = size(traces, 1);
     nSites = numel(sitesOfInterest);

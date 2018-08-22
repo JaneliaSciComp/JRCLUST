@@ -4,8 +4,8 @@ function export_spikeWaveforms_(h,e)
 
     S0 = get(0, 'UserData');
     P = S0.P;
-    spikeWaveforms = get_spkwav_(P, 0);
-    spikeTraces = get_spkwav_(P, 1);
+    spikeWaveforms = getSpikeWaveforms(P, 0);
+    spikeTraces = getSpikeWaveforms(P, 1);
     S_clu = S0.S_clu;
     iClu1 = S0.iCluCopy;
     viSpk1 = S_clu.spikesByCluster{iClu1};

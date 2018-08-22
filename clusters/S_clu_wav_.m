@@ -47,7 +47,7 @@ function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
     end
 
     % Compute spkwav
-    tnWav_ = get_spkwav_(P, 0);
+    tnWav_ = getSpikeWaveforms(P, 0);
     for iClu=1:nClu
         if vlClu_update(iClu)
             [mrWav_clu1, clusterSites1] = clu_wav_(S_clu, tnWav_, iClu, S0);
@@ -61,7 +61,7 @@ function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
     % Compute spkraw
     if ~fSkipRaw
         tnWav_ = []; % clear memory
-        tnWav_ = get_spkwav_(P, 1);
+        tnWav_ = getSpikeWaveforms(P, 1);
         for iClu=1:nClu
             if vlClu_update(iClu)
                 [mrWav_clu1, clusterSites1, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_clu, tnWav_, iClu, S0);
