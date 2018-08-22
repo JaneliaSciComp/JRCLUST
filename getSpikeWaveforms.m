@@ -1,6 +1,9 @@
 %--------------------------------------------------------------------------
 % 10/11/17 JJJ: created
 function traces = getSpikeWaveforms(P, useRaw)
+    % get (raw or filtered) spike waveforms
+    % return value: nSamples x nSites x nSpikes tensor
+
     global spikeWaveforms spikeTraces
 
     if nargin < 1 || isempty(P)
