@@ -1,4 +1,4 @@
-%--------------------------------------------------------------------------
+secondarySelectedCluster%--------------------------------------------------------------------------
 function manual_test_(P, csCmd)
     drawnow;
     if nargin<2, csCmd = ''; end
@@ -17,13 +17,13 @@ function manual_test_(P, csCmd)
             fprintf('\tTesting mouse L/R clicks.\n');
             viClu_test1 = [subsample_vr_(1:nClu, 5), nClu];
             for iClu1=viClu_test1
-                fprintf('\t\tiCluCopy:%d/%d\n', iClu1, numel(viClu_test1));
+                fprintf('\t\tprimarySelectedCluster:%d/%d\n', iClu1, numel(viClu_test1));
                 update_cursor_([], iClu1, 0);
                 keyPressFcn_cell_(getCachedFig('FigWav'), {'c','t','j','i','v','e','f'});
                 drawnow;
                 viClu_test2 = keep_lim_(iClu1 + [-2:2], [1, nClu]);
                 for iClu2=viClu_test2
-                    fprintf('\t\t\tiCluPaste:%d/%d\n', iClu2, numel(viClu_test2));
+                    fprintf('\t\t\tsecondarySelectedCluster:%d/%d\n', iClu2, numel(viClu_test2));
                     update_cursor_([], iClu2, 1);
                     keyPressFcn_cell_(getCachedFig('FigWav'), {'c','t','j','i','v','e','f'});
                     drawnow;
