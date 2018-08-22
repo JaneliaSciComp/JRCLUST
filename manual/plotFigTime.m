@@ -8,18 +8,18 @@ function plotFigTime(S0)
 
     %----------------
     % collect info
-    iSite = S_clu.clusterSites(S0.iCluCopy);
+    iSite = S_clu.clusterSites(S0.primarySelectedCluster);
     [vrFet0, vrTime0] = getFet_site_(iSite, [], S0); % plot background
-    [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.iCluCopy, S0); % plot iCluCopy
+    [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.primarySelectedCluster, S0); % plot primarySelectedCluster
 
     vcTitle = '[H]elp; (Sft)[Left/Right]:Sites/Features; (Sft)[Up/Down]:Scale; [B]ackground; [S]plit; [R]eset view; [P]roject; [M]erge; (sft)[Z] pos; [E]xport selected; [C]hannel PCA';
     if ~isempty(S0.iCluPaste)
         [vrFet2, vrTime2] = getFet_site_(iSite, S0.iCluPaste, S0);
-        vcTitle = sprintf('Clu%d (black), Clu%d (red); %s', S0.iCluCopy, S0.iCluPaste, vcTitle);
+        vcTitle = sprintf('Clu%d (black), Clu%d (red); %s', S0.primarySelectedCluster, S0.iCluPaste, vcTitle);
     else
         vrFet2 = [];
         vrTime2 = [];
-        vcTitle = sprintf('Clu%d (black); %s', S0.iCluCopy, vcTitle);
+        vcTitle = sprintf('Clu%d (black); %s', S0.primarySelectedCluster, vcTitle);
     end
     time_lim = double([0, abs(S0.spikeTimes(end))] / P.sampleRateHz);
 

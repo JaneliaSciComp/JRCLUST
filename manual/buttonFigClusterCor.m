@@ -12,7 +12,7 @@ function buttonFigClusterCor(xyPos, vcButton)
 
     switch lower(vcButton)
         case 'normal' %left click
-            S0.iCluCopy = xyPos(1);
+            S0.primarySelectedCluster = xyPos(1);
 
             if diff(xyPos) == 0
                 S0.iCluPaste = [];
@@ -20,7 +20,7 @@ function buttonFigClusterCor(xyPos, vcButton)
                 S0.iCluPaste = xyPos(2);
             end
 
-            S0 = button_CluWav_simulate_(S0.iCluCopy, S0.iCluPaste, S0);
+            S0 = button_CluWav_simulate_(S0.primarySelectedCluster, S0.iCluPaste, S0);
             S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom
     end %switch
 end %func

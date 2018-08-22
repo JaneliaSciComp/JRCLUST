@@ -9,7 +9,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     S0 = get(0, 'UserData');
     S_clu = S0.S_clu;
     P = S0.P;
-    iClu1 = S0.iCluCopy;
+    iClu1 = S0.primarySelectedCluster;
     if ismember(P.displayFeature, {'pca', 'ppca', 'gpca'})
         fWav_raw_show = 0;
     else
@@ -49,7 +49,7 @@ function [fSplit, vlIn] = plot_split_(S1)
 
         case {'pca', 'ppca', 'gpca'}
         if strcmpi(P.displayFeature, 'ppca')
-            [mrPv1, mrPv2] = pca_pv_clu_(site12, S0.iCluCopy, S0.iCluPaste);
+            [mrPv1, mrPv2] = pca_pv_clu_(site12, S0.primarySelectedCluster, S0.iCluPaste);
             [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.spikesByCluster{iClu1}, site12, mrPv1, mrPv2);
         else
             [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.spikesByCluster{iClu1}, site12);

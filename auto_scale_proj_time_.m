@@ -23,13 +23,13 @@ function auto_scale_proj_time_(S0, fPlot)
 
     % Update time
     [hFig_time, S_fig_time] = getCachedFig('FigTime');
-    iSite = S0.S_clu.clusterSites(S0.iCluCopy);
+    iSite = S0.S_clu.clusterSites(S0.primarySelectedCluster);
 
-    [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.iCluCopy, S0); % plot iCluCopy
+    [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.primarySelectedCluster, S0); % plot primarySelectedCluster
     if isempty(S0.iCluPaste)
         cvrFet = {vrFet1};
     else
-        [vrFet2, vrTime2, vcYlabel, viSpk2] = getFet_site_(iSite, S0.iCluPaste, S0); % plot iCluCopy
+        [vrFet2, vrTime2, vcYlabel, viSpk2] = getFet_site_(iSite, S0.iCluPaste, S0); % plot primarySelectedCluster
         cvrFet = {vrFet1, vrFet2};
     end
 

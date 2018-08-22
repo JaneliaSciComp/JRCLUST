@@ -4,7 +4,7 @@ function plot_FigMap_(S0)
     P = S0.P; S_clu = S0.S_clu;
     [hFig, S_fig] = getCachedFig('FigMap');
 
-    mrWav1 = S_clu.tmrWav_clu(:,:,S0.iCluCopy);
+    mrWav1 = S_clu.tmrWav_clu(:,:,S0.primarySelectedCluster);
     vrVpp = squeeze_(max(mrWav1) - min(mrWav1));
     mrVpp = repmat(vrVpp(:)', [4, 1]);
     if isempty(S_fig)

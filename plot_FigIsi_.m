@@ -4,7 +4,7 @@ function plot_FigIsi_(S0)
     P = S0.P; S_clu = S0.S_clu;
     [hFig, S_fig] = getCachedFig('FigIsi');
 
-    [vrX1, vrY1] = get_returnMap_(S0.iCluCopy, P);
+    [vrX1, vrY1] = get_returnMap_(S0.primarySelectedCluster, P);
     if isempty(S_fig)
         S_fig.hAx = axes_new_(hFig);
         S_fig.hPlot1 = plot(S_fig.hAx, nan, nan, 'ko');

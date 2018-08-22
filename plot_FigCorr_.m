@@ -10,7 +10,7 @@ function plot_FigCorr_(S0)
     P.nLags_ms = nLags_ms;
 
     [hFig, S_fig] = getCachedFig('FigCorr');
-    iClu1 = S0.iCluCopy;
+    iClu1 = S0.primarySelectedCluster;
     iClu2 = S0.iCluPaste;
     if isempty(iClu2), iClu2 = iClu1; end
 

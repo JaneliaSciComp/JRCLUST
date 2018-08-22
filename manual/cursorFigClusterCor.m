@@ -12,10 +12,10 @@ function cursorFigClusterCor(S0)
         [hFig, S_fig] = plotFigClusterCor(S0);
     end
 
-    iClu1 = S0.iCluCopy;
+    iClu1 = S0.primarySelectedCluster;
 
     if isempty(S0.iCluPaste)
-        iClu2 = S0.iCluCopy;
+        iClu2 = S0.primarySelectedCluster;
     else
         iClu2 = S0.iCluPaste;
     end

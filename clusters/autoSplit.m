@@ -18,13 +18,13 @@ function autoSplit(fMulti, S0)
         msgbox_('Select one cluster');
         return;
     end
-    if S_clu.nSpikesPerCluster(S0.iCluCopy) < 2
+    if S_clu.nSpikesPerCluster(S0.primarySelectedCluster) < 2
         msgbox_('At least two spikes required for splitting');
         return;
     end
 
     hMsg = msgbox_('Splitting... (this closes automatically)');
-    clusterToSplit = S0.iCluCopy;
+    clusterToSplit = S0.primarySelectedCluster;
     clusterSite = S_clu.clusterSites(clusterToSplit);
 
     if fMulti

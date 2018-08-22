@@ -67,7 +67,7 @@ function keyPressFigTime(hObject, event, S0)
                     vlIn = inpolygon(vrX1, vrY1, mrPolyPos(:,1), mrPolyPos(:,2));
                     hSplit = line(vrX1(vlIn), vrY1(vlIn), 'Color', [1 0 0], 'Marker', '.', 'LineStyle', 'none');
                     if strcmpi(userDialog('Split?', 'Confirmation', 'Yes'), 'yes')
-                        split_clu_(S0.iCluCopy, vlIn);
+                        split_clu_(S0.primarySelectedCluster, vlIn);
                     end
                     deleteMany(hPoly, hSplit);
                 catch
@@ -93,14 +93,14 @@ function keyPressFigTime(hObject, event, S0)
                 disp('FigTime: Not implemented yet'); return;
                 %         hMsg = msgbox_('Plotting...');
                 %         figure; hold on;
-                %         [mrWav_mean1, viSite1] = mrWav_int_mean_clu_(S0.iCluCopy);
+                %         [mrWav_mean1, viSite1] = mrWav_int_mean_clu_(S0.primarySelectedCluster);
                 %         [~, mrPv1] = pca(mrWav_mean1, 'NumComponents', P.nPc_dip, 'Center', 1);
                 %         mrPv1 = norm_mr_(mrPv1);
                 %
                 %         if keyModifier(event, 'control') %show chain of clusters
                 %             trPv1 = mrPv1;
-                %             iClu_next = get_next_clu_(S_clu, S0.iCluCopy);
-                %             viClu_track = S0.iCluCopy;
+                %             iClu_next = get_next_clu_(S_clu, S0.primarySelectedCluster);
+                %             viClu_track = S0.primarySelectedCluster;
                 %             while ~isempty(iClu_next)
                 %                 [mrWav_mean1, viSite1] = mrWav_int_mean_clu_(iClu_next);
                 %                 [~, mrPv1a] = pca(mrWav_mean1, 'NumComponents', P.nPc_dip, 'Center', 1);
@@ -121,25 +121,25 @@ function keyPressFigTime(hObject, event, S0)
                 % %             mrPv2 = flip_prinvec_(mrPv2, mrPv1);
                 %             mr2plot(norm_mr_(mrPv1), 'scale', 1, 'LineStyle', 'k');
                 %             mr2plot(norm_mr_(mrPv2), 'scale', 1, 'LineStyle', 'r--');
-                %             vcTitle = sprintf('PCA across chan: Clu %d vs %d', S0.iCluCopy, S0.iCluPaste);
+                %             vcTitle = sprintf('PCA across chan: Clu %d vs %d', S0.primarySelectedCluster, S0.iCluPaste);
                 %         else
                 %             mr2plot(norm_mr_(mrPv1), 'scale', 1, 'LineStyle', 'r');
-                %             vcTitle = sprintf('PCA across chan: Clu %d', S0.iCluCopy);
+                %             vcTitle = sprintf('PCA across chan: Clu %d', S0.primarySelectedCluster);
                 %         end
                 % %         mr2plot(mrPv1, 'scale', 1, 'LineStyle', 'k');
                 %         grid on;
                 %         title_(vcTitle);
                 % %         if ~isempty(S0.iCluPaste)
-                % %             compare_interp_(Sclu, S0.iCluCopy, S0.iCluPaste);
+                % %             compare_interp_(Sclu, S0.primarySelectedCluster, S0.iCluPaste);
                 % %         end
                 %         try close(hMsg); catch; end
 
                 %     case 'f' %feature export
-                %         eval(sprintf('mrFet_clu%d = getFet_clu_(S0.iCluCopy);', S0.iCluCopy));
+                %         eval(sprintf('mrFet_clu%d = getFet_clu_(S0.primarySelectedCluster);', S0.primarySelectedCluster));
                 %         mrDist1 = squareform(pdist(mrFet1'));
                 %         vrFet1 = sqrt(sum(mrFet1.^2));
                 %         mrDist1 = bsxfun(@rdivide, mrDist1, vrFet1); %norm
-                %         eval(sprintf('assignWorkspace_(mrFet_clu%d);', S0.iCluCopy));
+                %         eval(sprintf('assignWorkspace_(mrFet_clu%d);', S0.primarySelectedCluster));
 
         case 'e' %export selected to workspace
                 disp('FigTime: ''e'' not implemented yet'); return;

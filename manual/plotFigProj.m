@@ -9,7 +9,7 @@ function plotFigProj(S0)
 
     [hFig, S_fig] = getCachedFig('FigProj');
 
-    primaryCluster = S0.iCluCopy;
+    primaryCluster = S0.primarySelectedCluster;
     secondaryCluster = S0.iCluPaste;
     update_plot2_proj_(); % erase prev objects
 

@@ -30,7 +30,7 @@ function [mrFet1, viSpk1] = getFet_clu_(iClu1, iSite, S0)
         case {'pca', 'gpca'}
         mrFet1 = pca_pc_spk_(viSpk1, iSite);
         case {'ppca', 'private pca'}
-        [mrPv1, mrPv2] = pca_pv_clu_(iSite, S0.iCluCopy);
+        [mrPv1, mrPv2] = pca_pv_clu_(iSite, S0.primarySelectedCluster);
         mrFet1 = pca_pc_spk_(viSpk1, iSite, mrPv1, mrPv2);
         otherwise
         error('not implemented yet');

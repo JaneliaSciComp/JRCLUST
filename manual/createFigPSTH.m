@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function [hFig, hFig_b] = createFigPSTH(hFig, hFig_b, P, nStims)
 
-    % Figure handle for the iCluCopy
+    % Figure handle for the primarySelectedCluster
     [axoffset, axlen] = deal(.08, 1/nStims);
 
     if ~tryIsValid(hFig)

@@ -12,8 +12,8 @@ function S0 = update_FigCor_(S0)
     plotFigClusterCor(S0);
     set(gca, {'XLim', 'YLim'}, xylim);
 
-    set(S_fig.hCursorV, 'XData', S0.iCluCopy*[1 1]);
-    set(S_fig.hCursorH, 'YData', S0.iCluCopy*[1 1]);
+    set(S_fig.hCursorV, 'XData', S0.primarySelectedCluster*[1 1]);
+    set(S_fig.hCursorH, 'YData', S0.primarySelectedCluster*[1 1]);
 
     if nargout==0
         set(0, 'UserData', S0); %update field

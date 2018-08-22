@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function S0 = button_CluWav_simulate_(iCluCopy, iCluPaste, S0, initial_load) % TW
+function S0 = button_CluWav_simulate_(primarySelectedCluster, iCluPaste, S0, initial_load) % TW
     if nargin < 4
         initial_load = 0;
     end
@@ -12,14 +12,14 @@ function S0 = button_CluWav_simulate_(iCluCopy, iCluPaste, S0, initial_load) % T
         iCluPaste = [];
     end
 
-    if iCluCopy == iCluPaste
+    if primarySelectedCluster == iCluPaste
         iCluPaste = [];
     end
 
     hFig = gcf;
     figure_wait_(1, hFig);
 
-    S0 = update_cursor_(S0, iCluCopy, 0);
+    S0 = update_cursor_(S0, primarySelectedCluster, 0);
     S0 = update_cursor_(S0, iCluPaste, 1);
     if initial_load==0
         S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'t','c','i','v','e','f'}, S0); %'z' to recenter 'j', %TW

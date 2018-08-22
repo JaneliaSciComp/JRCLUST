@@ -2,7 +2,7 @@
 function unit_annotate_(hObject, event, vcLabel)
     S0 = get(0, 'UserData');
     S_clu = S0.S_clu;
-    iClu1 = S0.iCluCopy;
+    iClu1 = S0.primarySelectedCluster;
     if ~isfield(S_clu, 'clusterNotes'), S_clu.clusterNotes = cell(S_clu.nClusters, 1); end
     if nargin==3
         if isempty(vcLabel), vcLabel='';

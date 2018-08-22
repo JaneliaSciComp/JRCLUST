@@ -7,7 +7,7 @@ function export_spikeWaveforms_(h,e)
     spikeWaveforms = getSpikeWaveforms(P, 0);
     spikeTraces = getSpikeWaveforms(P, 1);
     S_clu = S0.S_clu;
-    iClu1 = S0.iCluCopy;
+    iClu1 = S0.primarySelectedCluster;
     viSpk1 = S_clu.spikesByCluster{iClu1};
     nSpk1 = numel(viSpk1);
     nSites = numel(P.chanMap);

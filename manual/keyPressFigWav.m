@@ -21,20 +21,20 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
         case {'leftarrow', 'rightarrow', 'home', 'end'}
             % switch the current clu
             if strcmpi(event.Key, 'home')
-                S0.iCluCopy = 1;
+                S0.primarySelectedCluster = 1;
             elseif strcmpi(event.Key, 'end')
-                S0.iCluCopy = S_clu.nClusters;
+                S0.primarySelectedCluster = S_clu.nClusters;
             elseif ~keyModifier(event, 'shift');
                 if strcmpi(event.Key, 'leftarrow')
-                    if S0.iCluCopy == 1, return; end
-                    S0.iCluCopy = S0.iCluCopy - 1;
+                    if S0.primarySelectedCluster == 1, return; end
+                    S0.primarySelectedCluster = S0.primarySelectedCluster - 1;
                 else
-                    if S0.iCluCopy == S_clu.nClusters, return; end
-                    S0.iCluCopy = S0.iCluCopy + 1;
+                    if S0.primarySelectedCluster == S_clu.nClusters, return; end
+                    S0.primarySelectedCluster = S0.primarySelectedCluster + 1;
                 end
             else
                 if isempty(S0.iCluPaste)
-                    S0.iCluPaste = S0.iCluCopy;
+                    S0.iCluPaste = S0.primarySelectedCluster;
                 end
                 if strcmpi(event.Key, 'leftarrow')
                     if S0.iCluPaste == 1, return; end
@@ -45,7 +45,7 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
                 end
             end
 
-            S0 = button_CluWav_simulate_(S0.iCluCopy, S0.iCluPaste, S0); %select first clu
+            S0 = button_CluWav_simulate_(S0.primarySelectedCluster, S0.iCluPaste, S0); %select first clu
             if strcmpi(event.Key, 'home') || strcmpi(event.Key, 'end') %'z' to recenter
                 S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0);
             end
@@ -56,8 +56,8 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
         case 'space'
             % auto-select nearest cluster for black
             mrWavCor = S_clu.mrWavCor;
-            mrWavCor(S0.iCluCopy,S0.iCluCopy) = -inf;
-            [~,S0.iCluPaste] = max(mrWavCor(:,S0.iCluCopy));
+            mrWavCor(S0.primarySelectedCluster,S0.primarySelectedCluster) = -inf;
+            [~,S0.iCluPaste] = max(mrWavCor(:,S0.primarySelectedCluster));
             set(0, 'UserData', S0);
             button_CluWav_simulate_([], S0.iCluPaste);
 
@@ -73,8 +73,8 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
             S0 = ui_delete_(S0);
 
         case 'z' % zoom
-            iClu = S0.iCluCopy;
-            iSiteClu = S_clu.clusterSites(S0.iCluCopy);
+            iClu = S0.primarySelectedCluster;
+            iSiteClu = S_clu.clusterSites(S0.primarySelectedCluster);
             set_axis_(hFig, iClu+[-1,1]*6, iSiteClu+[-1,1]*(P.maxSite*2+1), [0 S_clu.nClusters+1], [0 nSites+1]);
 
         case 'c'
