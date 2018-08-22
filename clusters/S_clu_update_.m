@@ -1,30 +1,30 @@
 %--------------------------------------------------------------------------
-function S_clu = S_clu_update_(S_clu, viClu1, P)
+function S_clu = S_clu_update_(S_clu, clustersToUpdate, P)
     % update cluster waveform and self correlation score
     % mrWav not needed
     S0 = get(0, 'UserData');
 
-    % find clu center
-    for iClu = 1:numel(viClu1)
-        iClu1 = viClu1(iClu);
-        viSpk_clu1 = find(S_clu.spikeClusters == iClu1);
-        S_clu.spikesByCluster{iClu1} = viSpk_clu1;
-        S_clu.clusterSites(iClu1) = mode(S0.spikeSites(viSpk_clu1));
-        S_clu.nSpikesPerCluster(iClu1) = numel(viSpk_clu1);
+    % find cluster center
+    for iClu = 1:numel(clustersToUpdate)
+        cluster = clustersToUpdate(iClu);
+        spikesThisCluster = find(S_clu.spikeClusters == cluster);
+        % why do all this twice? TODO: investigate
+        S_clu.spikesByCluster{cluster} = spikesThisCluster;
+        S_clu.clusterSites(cluster) = mode(S0.spikeSites(spikesThisCluster));
+        S_clu.nSpikesPerCluster(cluster) = numel(spikesThisCluster);
     end
 
     % update mean waveform
-    S_clu = S_clu_wav_(S_clu, viClu1);
-    % [~, S_clu.clusterSites(iClu1)] = min(S_clu.tmrWav_clu(1-P.spkLim(1),:,iClu1));
-    % S_clu.clusterSites(iClu1) = mode(spikeSites(viSpk_clu1));
+    S_clu = S_clu_wav_(S_clu, clustersToUpdate);
+    
     vrSelfCorr_clu = get_diag_(S_clu.mrWavCor);
-    S_clu.mrWavCor = S_clu_wavcor_(S_clu, P, viClu1);
+    S_clu.mrWavCor = S_clu_wavcor_(S_clu, P, clustersToUpdate);
     S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, vrSelfCorr_clu);
-    for iClu = 1:numel(viClu1)
-        iClu1 = viClu1(iClu);
-        S_clu.mrWavCor(iClu1,iClu1) = S_clu_self_corr_(S_clu, iClu1, S0);
+    for iClu = 1:numel(clustersToUpdate)
+        cluster = clustersToUpdate(iClu);
+        S_clu.mrWavCor(cluster,cluster) = S_clu_self_corr_(S_clu, cluster, S0);
     end
-    S_clu = S_clu_position_(S_clu, viClu1);
-    S_clu = S_clu_quality_(S_clu, P, viClu1);
+    S_clu = S_clu_position_(S_clu, clustersToUpdate);
+    S_clu = S_clu_quality_(S_clu, P, clustersToUpdate);
     % [S_clu, S0] = S_clu_commit_(S_clu, 'S_clu_update_');
 end %func

@@ -52,7 +52,20 @@ function S_clu = splitCluster(oldCluster, spikesToSplitOff)
     S_clu = S_clu_update_(S_clu, [oldCluster, newCluster], P);
 
     % Bring the new cluster right next to the old one using index swap
-    [S_clu, newCluster] = clu_reorder_(S_clu, oldCluster);
+    % [S_clu, newCluster] = clu_reorder_(S_clu, oldCluster);
+    newCluster = oldCluster + 1; % set to the cluster immediately after oldCluster
+    if newCluster ~= S_clu.nClusters % old core of clu_reorder_
+        % tag spikes affected by a move of the cluster at nClusters to position oldCluster + 1
+        addOne = S_clu.spikeClusters > oldCluster & S_clu.spikeClusters < S_clu.nClusters;
+        % all spikes assigned to last cluster now assigned to oldCluster + 1
+        S_clu.spikeClusters(S_clu.spikeClusters == S_clu.nClusters) = newCluster;
+        % increment cluster IDs of all tagged spikes
+        S_clu.spikeClusters(addOne) = S_clu.spikeClusters(addOne) + 1;
+
+        % remap data at index nClusters into index newCluster and shift the rest
+        clusterRemap = [1:oldCluster, S_clu.nClusters, oldCluster+1:S_clu.nClusters-1];
+        S_clu = S_clu_select_(S_clu, clusterRemap);
+    end
 
     % update all the other views
     [S_clu, S0] = S_clu_commit_(S_clu, 'splitCluster');
