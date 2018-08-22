@@ -5,7 +5,7 @@ function selfcorr = S_clu_self_corr_(S_clu, iClu1, S0)
     if nargin<3, S0 = []; end
     if isempty(S0), S0 = get(0, 'UserData'); end
     [spikeSites, P] = deal(S0.spikeSites, S0.P);
-    spikeTraces = get_spkwav_(P, getOr(P, 'fWavRaw_merge', 1));
+    spikeTraces = getSpikeWaveforms(P, getOr(P, 'fWavRaw_merge', 1));
 
     if isempty(iClu1)
         fprintf('Computing self correlation\n\t'); t1=tic;

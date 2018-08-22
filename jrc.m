@@ -13,6 +13,7 @@ function varargout = jrc(cmd, varargin)
     addpath(fullfile(dirname, 'filesystem')); % file-related functions
     addpath(fullfile(dirname, 'probe')); % probe-related functions
     addpath(fullfile(dirname, 'neuroshare')); % NS-related functions
+    addpath(fullfile(dirname, 'struct')); % general struct-related functions
     addpath(fullfile(dirname, 'utils')); % miscellaneous (but useful) tools
     addpath(fullfile(dirname, 'params')); % parameter-related functions
     addpath(fullfile(dirname, 'clusters')); % functions for manipulating the cluster struct

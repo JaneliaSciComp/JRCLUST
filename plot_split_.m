@@ -9,13 +9,13 @@ function [fSplit, vlIn] = plot_split_(S1)
     S0 = get(0, 'UserData');
     S_clu = S0.S_clu;
     P = S0.P;
-    iClu1 = S0.iCluCopy;
+    iClu1 = S0.primarySelectedCluster;
     if ismember(P.displayFeature, {'pca', 'ppca', 'gpca'})
         fWav_raw_show = 0;
     else
         fWav_raw_show = getOr(P, 'fWav_raw_show', 0);
     end
-    trWav12 = tnWav2uV_(spikeWaveforms_sites_(S_clu.spikesByCluster{iClu1}, site12, S0, fWav_raw_show), P);
+    trWav12 = tnWav2uV_(getSpikeWaveformsSites(S_clu.spikesByCluster{iClu1}, site12, S0, fWav_raw_show), P);
     if diff(site12) == 0, trWav12(:,2,:) = trWav12(:,1,:); end
     vxPoly = (mrPolyPos([1:end,1],1) - site12_show(1)) * S1.maxAmp;
     vyPoly = (mrPolyPos([1:end,1],2) - site12_show(2)) * S1.maxAmp;
@@ -49,7 +49,7 @@ function [fSplit, vlIn] = plot_split_(S1)
 
         case {'pca', 'ppca', 'gpca'}
         if strcmpi(P.displayFeature, 'ppca')
-            [mrPv1, mrPv2] = pca_pv_clu_(site12, S0.iCluCopy, S0.iCluPaste);
+            [mrPv1, mrPv2] = pca_pv_clu_(site12, S0.primarySelectedCluster, S0.secondarySelectedCluster);
             [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.spikesByCluster{iClu1}, site12, mrPv1, mrPv2);
         else
             [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.spikesByCluster{iClu1}, site12);
@@ -90,7 +90,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     line(vxPlot, vyPlot, 'Color', P.mrColor_proj(2,:), 'Marker', 'o', 'MarkerSize', 2, 'LineStyle', 'none');
     hPlot = line(vxPlot(vlIn), vyPlot(vlIn), 'Color', P.mrColor_proj(3,:), 'Marker', 'o', 'MarkerSize', 2, 'LineStyle', 'none');
     % plot(vxPoly, vyPoly, 'b+-'); %boundary
-    title(sprintf('Cluster %d (%d spikes)', iClu1, S_clu.vnSpk_clu(iClu1)));
+    title(sprintf('Cluster %d (%d spikes)', iClu1, S_clu.nSpikesPerCluster(iClu1)));
     xlabel(sprintf('Site %d', site12(1)));
     ylabel(vcYlabel);   xlabel(vcXlabel);
     grid on;
@@ -106,7 +106,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     vlIn = poly_mask_(hPoly, vxPlot, vyPlot);
     set(hPlot, 'XData', vxPlot(vlIn), 'YData',vyPlot(vlIn));
     % if P.fWav_raw_show
-    %     trWav12_raw = tnWav2uV_(spikeWaveforms_sites_(S_clu.spikesByCluster{iClu1}, site12, 1));
+    %     trWav12_raw = tnWav2uV_(getSpikeWaveformsSites(S_clu.spikesByCluster{iClu1}, site12, 1));
     %     mrWavX = squeeze_(trWav12_raw(:, 1, :));
     %     mrWavY = squeeze_(trWav12_raw(:, 2, :));
     % else

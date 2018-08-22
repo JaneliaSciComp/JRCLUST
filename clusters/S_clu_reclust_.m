@@ -24,7 +24,7 @@ function S_clu = S_clu_reclust_(S_clu, S0, P);
         %         vrSnr_clu = S_clu_snr_(S_clu);
         %         vlRedo_clu = vrSnr_clu < quantile(vrSnr_clu, 1/nFetPerSite);
         %         vlRedo_spk = ismember(S_clu.spikeClusters, find(vlRedo_clu));
-        %         spikeWaveforms = get_spkwav_(P, 0);
+        %         spikeWaveforms = getSpikeWaveforms(P, 0);
         %         trWav2_spk = single(permute(spikeWaveforms(:,:,vlRedo_spk), [1,3,2]));
         %         trWav2_spk = spkwav_car_(trWav2_spk, P);
         %         [mrPv, vrD1] = tnWav2pv_(trWav2_spk, P);
@@ -63,7 +63,7 @@ function S_clu = S_clu_reclust_(S_clu, S0, P);
         spikeFeatures = spikeFeatures0; %restore
 
         case 'density'
-        vlRedo_clu = S_clu.vnSpk_clu > quantile(S_clu.vnSpk_clu, 1/2); %ilnear selection %2^(-iRepeat_clu+1)
+        vlRedo_clu = S_clu.nSpikesPerCluster > quantile(S_clu.nSpikesPerCluster, 1/2); %ilnear selection %2^(-iRepeat_clu+1)
         vlRedo_spk = ismember(S_clu.spikeClusters, find(vlRedo_clu));
         S_clu_A = postCluster_(cluster_spacetime_(S0, P, ~vlRedo_spk), P);
         S_clu_B = postCluster_(cluster_spacetime_(S0, P, vlRedo_spk), P);

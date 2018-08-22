@@ -10,8 +10,8 @@ function plot_FigCorr_(S0)
     P.nLags_ms = nLags_ms;
 
     [hFig, S_fig] = getCachedFig('FigCorr');
-    iClu1 = S0.iCluCopy;
-    iClu2 = S0.iCluPaste;
+    iClu1 = S0.primarySelectedCluster;
+    iClu2 = S0.secondarySelectedCluster;
     if isempty(iClu2), iClu2 = iClu1; end
 
     jitter = round(P.sampleRateHz / 1000 * P.jitter_ms); %0.5 ms

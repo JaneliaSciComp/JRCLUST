@@ -2,13 +2,13 @@
 function unit_annotate_(hObject, event, vcLabel)
     S0 = get(0, 'UserData');
     S_clu = S0.S_clu;
-    iClu1 = S0.iCluCopy;
+    iClu1 = S0.primarySelectedCluster;
     if ~isfield(S_clu, 'clusterNotes'), S_clu.clusterNotes = cell(S_clu.nClusters, 1); end
     if nargin==3
         if isempty(vcLabel), vcLabel='';
         elseif vcLabel(1) == '='
-            if ~isempty(S0.iCluPaste)
-                vcLabel = sprintf('=%d', S0.iCluPaste);
+            if ~isempty(S0.secondarySelectedCluster)
+                vcLabel = sprintf('=%d', S0.secondarySelectedCluster);
             else
                 msgbox_('Right-click another unit to set equal to.');
                 return;

@@ -10,7 +10,7 @@ function [mrMin, mrMax] = getFet_spk_(viSpk1, viSites1, S0)
 
     switch lower(P.displayFeature)
         case {'vmin', 'vpp'}
-            spikeWaveforms1 = tnWav2uV_(spikeWaveforms_sites_(viSpk1, viSites1, S0), P);
+            spikeWaveforms1 = tnWav2uV_(getSpikeWaveformsSites(viSpk1, viSites1, S0), P);
             [mrMin, mrMax] = multifun_(@(x) abs(permute(x, [2, 3, 1])), min(spikeWaveforms1), max(spikeWaveforms1));
         case {'cov', 'spacetime'}
             [mrMin, mrMax] = calc_cov_spk_(viSpk1, viSites1);

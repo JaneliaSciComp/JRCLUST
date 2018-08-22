@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function [hFig, hFig_b] = createFigPSTH(hFig, hFig_b, P, nStims)
 
-    % Figure handle for the iCluCopy
+    % Figure handle for the primarySelectedCluster
     [axoffset, axlen] = deal(.08, 1/nStims);
 
     if ~tryIsValid(hFig)
@@ -16,7 +16,7 @@ function [hFig, hFig_b] = createFigPSTH(hFig, hFig_b, P, nStims)
         set(hFig, 'UserData', makeStruct_(vhAx1, vhAx2, vcColor));
     end
 
-    % Figure handle for the iCluPaste
+    % Figure handle for the secondarySelectedCluster
     if ~tryIsValid(hFig_b)
         hFig_b = createFigure('FigTrial_b', [.5  0 .5 .5], P.trialFile, 0, 0);
         set(hFig_b, 'Visible', 'off');

@@ -28,7 +28,7 @@ function S_clu = assign_clu_count_(S_clu, P)
         S_clu = S_clu_refresh_(S_clu);
 
         % remove clusters unused
-        viCluKill = find(S_clu.vnSpk_clu <= P.minClusterSize);
+        viCluKill = find(S_clu.nSpikesPerCluster <= P.minClusterSize);
         if isempty(viCluKill), break; end
         S_clu.clusterCenters(viCluKill) = [];
         S_clu.spikeClusters=[];

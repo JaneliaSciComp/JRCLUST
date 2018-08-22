@@ -13,15 +13,15 @@ function plot_drift_(P)
 
     switch lower(vcMode_com)
         case 'filt'
-        spikeWaveforms = get_spkwav_(P, 0);
+        spikeWaveforms = getSpikeWaveforms(P, 0);
         %mrVp = squeeze_(single(min(spikeWaveforms))) .^ 2;
         %         spikeWaveforms1 = meanSubt_(single(spikeWaveforms),2);
         mrVp = single(squeeze_(max(spikeWaveforms) - min(spikeWaveforms))) .^ 2;
         case 'filtstd'
-        mrVp = squeeze_(var(single(get_spkwav_(P, 0))));
-        case 'rawstd', mrVp = squeeze_(var(single(get_spkwav_(P, 1))));
+        mrVp = squeeze_(var(single(getSpikeWaveforms(P, 0))));
+        case 'rawstd', mrVp = squeeze_(var(single(getSpikeWaveforms(P, 1))));
         case 'raw'
-        spikeTraces = get_spkwav_(P, 1);
+        spikeTraces = getSpikeWaveforms(P, 1);
         mrVp = single(squeeze_(max(spikeTraces) - min(spikeTraces))) .^ 2;
         case 'fet'
         spikeFeatures = getSpikeFeatures(P);
@@ -46,7 +46,7 @@ function plot_drift_(P)
     figure(hFig_drift);
     ax = gca();
     hold on;
-    nSpk_thresh_clu = median(S_clu.vnSpk_clu);
+    nSpk_thresh_clu = median(S_clu.nSpikesPerCluster);
     snr_thresh_clu = getOr(P, 'snr_thresh_clu', quantile(S_clu.vrSnr_clu, .5));
     % posX_thresh = median(S_clu.clusterXPositions);
     % [vrTime_drift, vrDepth_drift] = drift_track_(S_clu, vrPosY_spk, P);
@@ -72,7 +72,7 @@ function plot_drift_(P)
                 if S_clu.vrSnr_clu(iClu) < snr_thresh_clu, continue; end
                 plot3(ax, vrPosX_spk(viSpk1), vrPosY_spk(viSpk1), vrAmp_spk(viSpk1), '.', 'Color', vrColor1, 'MarkerSize', 5);
                 case 'z'
-                %                 if S_clu.vnSpk_clu(iClu) < nSpk_thresh_clu, continue; end
+                %                 if S_clu.nSpikesPerCluster(iClu) < nSpk_thresh_clu, continue; end
                 if S_clu.vrSnr_clu(iClu) < snr_thresh_clu, continue; end
                 %                 if vrA_spk(S_clu.spikesByCluster{iClu})
                 %                 if S_clu.clusterXPositions(iClu) < posX_thresh, continue; end

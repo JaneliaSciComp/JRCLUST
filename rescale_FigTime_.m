@@ -12,7 +12,7 @@ function rescale_FigTime_(event, S0, P)
     [S_fig, maxAmp_prev] = set_fig_maxAmp_('FigTime', event);
     ylim_(S_fig.hAx, [0, 1] * S_fig.maxAmp);
     imrect_set_(S_fig.hRect, [], [0, S_fig.maxAmp]);
-    iSite = S_clu.clusterSites(S0.iCluCopy);
+    iSite = S_clu.clusterSites(S0.primarySelectedCluster);
 
     % switch lower(P.displayFeature)
     %     case {'vpp', 'vmin'} %voltage feature

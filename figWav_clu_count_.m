@@ -6,7 +6,7 @@ function S_fig = figWav_clu_count_(S_fig, S_clu, fText)
     if isempty(S_clu), S_clu = get0_('S_clu'); end
 
     if fText
-        csText_clu = arrayfun(@(i)sprintf('%d(%d)', i, S_clu.vnSpk_clu(i)), 1:S_clu.nClusters, 'UniformOutput', 0);
+        csText_clu = arrayfun(@(i)sprintf('%d(%d)', i, S_clu.nSpikesPerCluster(i)), 1:S_clu.nClusters, 'UniformOutput', 0);
     else
         csText_clu = arrayfun(@(i)sprintf('%d', i), 1:S_clu.nClusters, 'UniformOutput', 0);
     end

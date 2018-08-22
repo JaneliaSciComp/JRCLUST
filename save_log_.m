@@ -28,7 +28,7 @@ function S0 = save_log_(vcCmd, S0)
     miClu_log(:, 2:end) = miClu_log(:, 1:end-1);
     miClu_log(:, 1) = int16(S_clu.spikeClusters);
     %struct_save_(strrep(P.paramFile, '.prm', '_log.mat'), 'cS_log', cS_log);
-    S_log.viClu = int16(S_clu.spikeClusters);
+    S_log.spikeClusters = int16(S_clu.spikeClusters);
     struct_save_(S_log, strrep(P.paramFile, '.prm', '_log.mat'), 0);
     S0.cS_log = cS_log;
     S0.miClu_log = miClu_log;

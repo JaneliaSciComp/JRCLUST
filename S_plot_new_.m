@@ -5,7 +5,7 @@ function S_plot = S_plot_new_(S0)
 
     if nargin<1, S0 = get(0, 'UserData'); end
     P = S0.P;
-    spikeWaveforms = get_spkwav_(P, 0);
+    spikeWaveforms = getSpikeWaveforms(P, 0);
 
     vrVrms_site = single(S0.vrThresh_site(:)) / P.qqFactor;
     vrSnr_evt = single(abs(S0.vrAmp_spk(:))) ./ vrVrms_site(S0.spikeSites(:));

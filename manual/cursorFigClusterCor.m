@@ -12,12 +12,12 @@ function cursorFigClusterCor(S0)
         [hFig, S_fig] = plotFigClusterCor(S0);
     end
 
-    iClu1 = S0.iCluCopy;
+    iClu1 = S0.primarySelectedCluster;
 
-    if isempty(S0.iCluPaste)
-        iClu2 = S0.iCluCopy;
+    if isempty(S0.secondarySelectedCluster)
+        iClu2 = S0.primarySelectedCluster;
     else
-        iClu2 = S0.iCluPaste;
+        iClu2 = S0.secondarySelectedCluster;
     end
 
     cor12 = S_clu.mrWavCor(iClu1, iClu2);

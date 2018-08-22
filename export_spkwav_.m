@@ -28,7 +28,7 @@ function export_spkwav_(P, vcArg2, fDiff)
     fprintf('Collecting spikes from clusters\n\t'); t1=tic;
     if isempty(viClu), viClu = 1:S_clu.nClusters; end
     for iClu = viClu
-        tnWav_clu1 = spikeWaveforms_sites_(S_clu.spikesByCluster{iClu}, miSite_clu(:,iClu), S0);
+        tnWav_clu1 = getSpikeWaveformsSites(S_clu.spikesByCluster{iClu}, miSite_clu(:,iClu), S0);
         if fDiff
             ctrWav_clu{iClu} = tnWav_clu1;
         else
@@ -43,7 +43,7 @@ function export_spkwav_(P, vcArg2, fDiff)
     if fPlot
         iClu = viClu;
         nT_spk = (diff(P.spkLim)+1);
-        nSpk1 = S_clu.vnSpk_clu(iClu);
+        nSpk1 = S_clu.nSpikesPerCluster(iClu);
         hFig = createFigure(sprintf('Fig_clu%d', iClu), [0 0 .5 1], P.paramFile, 1, 1);
         multiplot([], P.maxAmp, [], ctrWav_clu{iClu}, miSite_clu(:,iClu));
         xlabel('Spike #'); ylabel('Site #');

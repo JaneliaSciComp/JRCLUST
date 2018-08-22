@@ -20,7 +20,7 @@ function S_clu = S_clu_cleanup_(S_clu, P)
         if any(vlExcl_clu1)
             S_clu.spikesByCluster{iClu} = viSpk_clu1(~vlExcl_clu1);
             S_clu.spikeClusters(viSpk_clu1(vlExcl_clu1)) = 0; %classify as noise cluster
-            S_clu.vnSpk_clu(iClu) = numel(S_clu.spikesByCluster{iClu});
+            S_clu.nSpikesPerCluster(iClu) = numel(S_clu.spikesByCluster{iClu});
         end
         fprintf('.');
     end %for

@@ -6,6 +6,8 @@ function twelve(filename)
 
     if ~endsWith(filename, '.prm')
         error('filename must be a .prm file');
+    elseif ~exist(filename, 'file')
+        error('%s not found', filename);
     end
 
     sessionName = strrep(filename, '.prm', '');

@@ -19,7 +19,7 @@ function S_fig = rescale_FigProj_(event, hFig, S_fig, S0)
 
     vhPlot = [S_fig.hPlot0, S_fig.hPlot1, S_fig.hPlot2];
 
-    if isempty(S0.iCluPaste)
+    if isempty(S0.secondarySelectedCluster)
         vhPlot(end) = [];
     end
 

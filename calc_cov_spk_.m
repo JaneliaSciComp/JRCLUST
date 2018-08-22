@@ -2,7 +2,7 @@
 function [mrVpp1, mrVpp2] = calc_cov_spk_(viSpk1, viSites1)
 
     [spikeSites, P] = get0_('spikeSites', 'P');
-    spikeWaveforms = get_spkwav_(P, 0); % get filtered waveform
+    spikeWaveforms = getSpikeWaveforms(P, 0); % get filtered waveform
 
     nSpk1 = numel(viSpk1);
     viSites_spk1 = spikeSites(viSpk1);

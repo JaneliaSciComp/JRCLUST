@@ -11,7 +11,7 @@ function [mrPv1, mrPv2] = pca_pv_spk_(viSpk1, viSites1, spikeWaveforms1)
         mrPv2 = repmat(mrPv_global(:,2), [1, nSites]);
     else
         if nargin<3
-            spikeWaveforms1 = permute(spikeWaveforms_sites_(viSpk1, viSites1, S0, 0), [1,3,2]);
+            spikeWaveforms1 = permute(getSpikeWaveformsSites(viSpk1, viSites1, S0, 0), [1,3,2]);
         end
         nT = size(spikeWaveforms1, 1);
         % show site pca

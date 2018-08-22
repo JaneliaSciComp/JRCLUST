@@ -6,7 +6,7 @@ function [mrPc1, mrPc2, mrPv1, mrPv2] = pca_pc_spk_(viSpk1, viSites1, mrPv1, mrP
     %[mrPc1, mrPc2, mrPv1, mrPv2] = pca_pc_spk_(viSpk1, viSites1)
     %[mrPc1, mrPc2] = pca_pc_spk_(viSpk1, viSites1, mrPv1, mrPv2)
     nSites1 = numel(viSites1);
-    spikeWaveforms1 = permute(spikeWaveforms_sites_(viSpk1, viSites1, [], 0), [1,3,2]);
+    spikeWaveforms1 = permute(getSpikeWaveformsSites(viSpk1, viSites1, [], 0), [1,3,2]);
     if nargin < 3
         [mrPv1, mrPv2] = pca_pv_spk_(viSpk1, viSites1, spikeWaveforms1);
     end

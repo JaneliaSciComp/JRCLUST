@@ -4,21 +4,21 @@ function S0 = ui_delete_(S0)
     if nargin<1, S0 = []; end
     if isempty(S0), S0 = get(0, 'UserData'); end
     P = S0.P;
-    if ~isempty(S0.iCluPaste)
+    if ~isempty(S0.secondarySelectedCluster)
         msgbox_('Must select one cluster', 1); return;
     end
     figure_wait_(1);
 
-    iClu_del = S0.iCluCopy;
+    iClu_del = S0.primarySelectedCluster;
     % hMsg = msgbox_open_('Deleting...');
-    S0.S_clu = delete_clu_(S0.S_clu, S0.iCluCopy);
+    S0.S_clu = delete_clu_(S0.S_clu, S0.primarySelectedCluster);
     set(0, 'UserData', S0);
     plotFigWav(S0); %redraw plot
-    % S0.S_clu.mrWavCor = wavCor_delete_(S0.iCluCopy);
+    % S0.S_clu.mrWavCor = wavCor_delete_(S0.primarySelectedCluster);
     FigClusterCor_update_(S0);
-    S0.iCluCopy = min(S0.iCluCopy, S0.S_clu.nClusters);
+    S0.primarySelectedCluster = min(S0.primarySelectedCluster, S0.S_clu.nClusters);
     % set(0, 'UserData', S0);
-    button_CluWav_simulate_(S0.iCluCopy);
+    button_CluWav_simulate_(S0.primarySelectedCluster);
 
     % tryClose(hMsg);
     figure_wait_(0);

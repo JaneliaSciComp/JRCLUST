@@ -37,14 +37,14 @@ function keyPressFcn_FigProj_(hFig, event)
 
         case 's' %split
             figure_wait_(0);
-            if ~isempty(S0.iCluPaste)
+            if ~isempty(S0.secondarySelectedCluster)
                 msgbox_('Select one cluster to split'); return;
             end
             S_plot1 = select_polygon_(S_fig.hPlot1);
             if ~isempty(S_plot1)
                 [fSplit, vlIn] = plot_split_(S_plot1);
                 if fSplit
-                    S_clu = split_clu_(S0.iCluCopy, vlIn);
+                    S_clu = splitCluster(S0.primarySelectedCluster, vlIn);
                 else
                     update_plot2_proj_();
                     %                 deleteMany(S_plot1.hPoly);

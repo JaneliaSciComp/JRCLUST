@@ -170,7 +170,6 @@ function importKiloSort(rezFile, sessionName)
 
     P.feature = 'gpca'; % default; TODO: address
 
-%     S0 = kilosort2jrc_(P, int32(spikeTimes), int32(spikeSites));
     S0 = file2spk_(P, int32(spikeTimes), int32(spikeSites));
     P = saveProbe([sessionName '-probe.mat'], P);
     S0.P = P;

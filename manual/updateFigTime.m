@@ -12,10 +12,10 @@ function updateFigTime()
     if ~isfield(S_fig, 'fPlot0'), S_fig.fPlot0 = 1; end
     toggleVisible_(S_fig.hPlot0, S_fig.fPlot0);
     update_plot_(S_fig.hPlot0, vrTime0, vrFet0);
-    set(S_fig.hPlot1, 'YData', getFet_site_(S_fig.iSite, S0.iCluCopy, S0));
+    set(S_fig.hPlot1, 'YData', getFet_site_(S_fig.iSite, S0.primarySelectedCluster, S0));
     % set(S_fig.hPlot0, 'XData', vrTime0, 'YData', vrFet0);
-    if ~isempty(S0.iCluPaste)
-        set(S_fig.hPlot2, 'YData', getFet_site_(S_fig.iSite, S0.iCluPaste, S0));
+    if ~isempty(S0.secondarySelectedCluster)
+        set(S_fig.hPlot2, 'YData', getFet_site_(S_fig.iSite, S0.secondarySelectedCluster, S0));
     else
         hide_plot_(S_fig.hPlot2);
         %     set(S_fig.hPlot2, 'XData', nan, 'YData', nan);

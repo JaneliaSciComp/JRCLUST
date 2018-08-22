@@ -5,7 +5,7 @@ function trWav1 = trWav_clu_(iClu1, nSpk_show)
     if nargin<2, nSpk_show=inf; end
     S0 = get(0, 'UserData');
     P = S0.P;
-    tnWav_ = get_spkwav_(P);
+    tnWav_ = getSpikeWaveforms(P);
     [viSpk_clu1, viiSpk_clu1] = getClusterCenteredSpikes(S0.S_clu, iClu1, S0.spikeSites);
     viSpk_clu1 = randomSelect_(viSpk_clu1, nSpk_show);
     if P.fWav_raw_show

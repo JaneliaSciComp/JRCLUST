@@ -12,7 +12,7 @@ function plot_raster_(S0, fNewFig)
     % P = loadParam(vcFile_prm);
     if ~tryIsValid(hFig) && ~fNewFig, return; end
     if nargin<1, S0 = get(0, 'UserData'); end
-    [P, S_clu, iCluCopy, iCluPaste] = deal(S0.P, S0.S_clu, S0.iCluCopy, S0.iCluPaste);
+    [P, S_clu, primarySelectedCluster, secondarySelectedCluster] = deal(S0.P, S0.S_clu, S0.primarySelectedCluster, S0.secondarySelectedCluster);
     if isfield(P, 'vcFile_psth'), P.trialFile = P.vcFile_psth; end % old field name
 
     try
@@ -42,10 +42,10 @@ function plot_raster_(S0, fNewFig)
     if isempty(crTime_trial), msgbox('Trial file does not exist', 'modal'); return; end
 
     [hFig, hFig_b] = createFigPSTH(hFig, hFig_b, P, nstims);
-    plot_figure_psth_(hFig, iCluCopy, crTime_trial, S_clu, P);
-    if ~isempty(iCluPaste)
+    plot_figure_psth_(hFig, primarySelectedCluster, crTime_trial, S_clu, P);
+    if ~isempty(secondarySelectedCluster)
         set(hFig_b, 'Visible', 'on');
-        plot_figure_psth_(hFig_b, iCluPaste, crTime_trial, S_clu, P);
+        plot_figure_psth_(hFig_b, secondarySelectedCluster, crTime_trial, S_clu, P);
     else
         set(hFig_b, 'Visible', 'off');
     end
