@@ -1,7 +1,8 @@
 %--------------------------------------------------------------------------
 % 171201 JJJ: Unique sites handling for diagonal plotting
-function spikeWaveforms = \(spikes, sitesOfInterest, S0, fWav_raw_show)
-    % reorder tnWav1 to viSites1
+function spikeWaveforms = getSpikeWaveformsSites(spikes, sitesOfInterest, S0, fWav_raw_show)
+    % get (raw or filtered) spike waveforms on sites of interest
+    % return value: nSamples x nSitesOfInterest x nSpikes tensor
 
     if nargin < 3
         S0 = [];
