@@ -16,7 +16,7 @@ function [mrFet1, viSpk1] = getFet_clu_(iClu1, iSite, S0)
         catch
             viSpk1 = find(ismember(spikeSites, viSite_));
         end
-        viSpk1 = randomSelect_(viSpk1, MAX_SAMPLE);
+        viSpk1 = randomSubsample(viSpk1, MAX_SAMPLE);
     else
         viSpk1 = S_clu.spikesByCluster{iClu1};
     end

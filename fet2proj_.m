@@ -3,6 +3,7 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, sitesO
     % show spikes excluding the clusters excluding clu1 and 2
     P = S0.P;
     S_clu = S0.S_clu;
+
     primaryCluster = S0.primarySelectedCluster;
     secondaryCluster = S0.secondarySelectedCluster;
 
@@ -10,8 +11,11 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, sitesO
     siteSpikes = find(ismember(S0.spikeSites, sitesOfInterest));
     siteSpikeTimes = S0.spikeTimes(siteSpikes);
 
-    %time filter
-    if ~isfield(P, 'tlim_proj'), P.tlim_proj = []; end
+    % time filter
+    if ~isfield(P, 'tlim_proj')
+        P.tlim_proj = [];
+    end
+
     if ~isempty(P.tlim_proj)
         nlim_proj = round(P.tlim_proj * P.sampleRateHz);
         windowSpikes = find(siteSpikeTimes >= nlim_proj(1) & siteSpikeTimes <= nlim_proj(end));
@@ -20,11 +24,12 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, sitesO
     end
 
     siteClusters = S_clu.spikeClusters(siteSpikes);
-    backgroundSpikes = randomSelect_(siteSpikes, P.nShow_proj*2);
-    foregroundSpikes = randomSelect_(siteSpikes(siteClusters == primaryCluster), P.nShow_proj);
+    % sample twice as many background spikes as foreground spikes
+    backgroundSpikes = randomSubsample(siteSpikes, P.nSpikesFigProj*2);
+    foregroundSpikes = randomSubsample(siteSpikes(siteClusters == primaryCluster), P.nSpikesFigProj);
 
     if ~isempty(secondaryCluster)
-        secondaryForegroundSpikes = randomSelect_(siteSpikes(siteClusters == secondaryCluster), P.nShow_proj);
+        secondaryForegroundSpikes = randomSubsample(siteSpikes(siteClusters == secondaryCluster), P.nSpikesFigProj);
     else
         [mrMin2, mrMax2] = deal([]);
     end
