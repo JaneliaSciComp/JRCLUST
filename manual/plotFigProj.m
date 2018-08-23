@@ -55,7 +55,7 @@ function plotFigProj(S0)
         plotDiag_([0, nSites], '-', 'Color', [0 0 0], 'LineWidth', 1.5); %plot in one scoop
 
         mouse_figure(hFig);
-        set(hFig, 'KeyPressFcn', @keyPressFcn_FigProj_);
+        set(hFig, 'KeyPressFcn', @keyPressFigProj);
         S_fig.cvhHide_mouse = mouse_hide_(hFig, S_fig.hPlot0, S_fig);
         set_fig_(hFig, S_fig);
     end
