@@ -54,11 +54,11 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, sitesO
             end
 
         otherwise % generic
-            [mrMin0, mrMax0] = getFet_spk_(backgroundSpikes, sitesOfInterest, S0); % get all spikes whose center lies in certain range
-            [mrMin1, mrMax1] = getFet_spk_(foregroundSpikes, sitesOfInterest, S0); % get all spikes whose center lies in certain range
+            [mrMin0, mrMax0] = getFeatureForSpikes(backgroundSpikes, sitesOfInterest, S0); % get all spikes whose center lies in certain range
+            [mrMin1, mrMax1] = getFeatureForSpikes(foregroundSpikes, sitesOfInterest, S0); % get all spikes whose center lies in certain range
 
             if ~isempty(secondaryCluster)
-                [mrMin2, mrMax2] = getFet_spk_(secondaryForegroundSpikes, sitesOfInterest, S0);
+                [mrMin2, mrMax2] = getFeatureForSpikes(secondaryForegroundSpikes, sitesOfInterest, S0);
             end
     end % switch
 
