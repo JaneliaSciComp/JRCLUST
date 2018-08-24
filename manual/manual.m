@@ -2,8 +2,10 @@
 function manual(P, debugMode)
     % display manual sorting interface
     global fDebug_ui spikeFeatures
+    
+    [S0, P] = load_cached_(P);
 
-    if isempty(spikeFeatures)
+    if ~all(size(spikeFeatures) == S0.featureDims)
         spikeFeatures = getSpikeFeatures(P);
     end
 
@@ -16,8 +18,6 @@ function manual(P, debugMode)
     if ~isSorted(P) % require sorted result
         error(['File must be sorted first (run "jrc spikesort "', P.paramFile, '")']);
     end
-
-    [S0, P] = load_cached_(P);
 
     if ~isfield(S0, 'mrPos_spk')
         S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
