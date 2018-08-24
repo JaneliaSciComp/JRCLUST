@@ -3,7 +3,7 @@
 function spikeFeatures = sort_overlap_(S0, S_clu, P)
     global spikeFeatures
 
-    if isempty(spikeFeatures)
+    if ~all(size(spikeFeatures) ~= S0.featureDims)
         spikeFeatures = getSpikeFeatures(P);
     end
 

@@ -1,9 +1,11 @@
 %--------------------------------------------------------------------------
 function mrPos_spk = spk_pos_(S0, spikeFeatures)
-    if nargin<2, spikeFeatures = getSpikeFeatures(S0.P); end
+    if nargin < 2 || ~all(size(spikeFeatures) ~= S0.featureDims)
+        spikeFeatures = getSpikeFeatures(S0.P);
+    end
+
     P = S0.P;
     nSites_spk = 1 + P.maxSite*2 - P.nSites_ref;
-    %nSites_spk = size(spikeFeatures, 1);
 
     mrVp = squeeze_(spikeFeatures(1:nSites_spk,1,:)) .^ 2;
     vrVp = sum(mrVp);

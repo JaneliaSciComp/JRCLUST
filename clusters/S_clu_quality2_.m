@@ -4,7 +4,9 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
 
     global spikeFeatures;
 
-    if isempty(spikeFeatures)
+    S0 = get(0, 'UserData');
+
+    if ~all(size(spikeFeatures) ~= S0.featureDims)
         spikeFeatures = getSpikeFeatures(P);
     end
 

@@ -4,7 +4,9 @@ function S_clu = S_clu_position_(S_clu, viClu_update)
     % 6/27/17 JJJ: multiple features supported (single dimension such as energy and Vpp)
     global spikeFeatures
 
-    if isempty(spikeFeatures)
+    S0 = get(0, 'UserData');
+
+    if ~all(size(spikeFeatures) ~= S0.featureDims)
         spikeFeatures = getSpikeFeatures();
     end
 
