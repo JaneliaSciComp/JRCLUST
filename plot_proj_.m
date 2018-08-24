@@ -4,7 +4,8 @@ function plot_proj_(hPlot, mrMin, mrMax, P, maxAmp)
         [hFig, S_fig] = getCachedFig('FigProj');
         maxAmp = S_fig.maxAmp;
     end
-    [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, P.maxSite_show, P);
+
+    [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, P.maxSite_show);
 
     % make struct
     maxPair = P.maxSite_show;

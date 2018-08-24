@@ -10,10 +10,10 @@ function varargout = trWav2fet_cov_(trWav2, P)
     cmrFet = cell(numel(vnDelay_fet), 1);
 
     for iDelay = 1:numel(vnDelay_fet)
-        mr1_ = meanSubt_(trWav2(cvi1{iDelay},:,1));
+        mr1_ = meanSubtract(trWav2(cvi1{iDelay},:,1));
         mr1_ = bsxfun(@rdivide, mr1_, sqrt(mean(mr1_.^2))); %zscore fast
         tr1_ = repmat(mr1_, [1,1,nSites_spk]);
-        tr2_ = meanSubt_(trWav2(cvi2{iDelay},:,:));
+        tr2_ = meanSubtract(trWav2(cvi2{iDelay},:,:));
         cmrFet{iDelay} = permute(mean(tr1_ .* tr2_, 1), [3,2,1]);
     end %for
 

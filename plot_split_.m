@@ -114,8 +114,8 @@ function [fSplit, vlIn] = plot_split_(S1)
     mrWavY = squeeze_(trWav12(:, 2, :));
     % end
     vrT = (P.spkLim(1):P.spkLim(end)) / P.sampleRateHz * 1000;
-    viIn = randomSelect_(find(vlIn), P.nSpk_show);
-    viOut = randomSelect_(find(~vlIn), P.nSpk_show);
+    viIn = randomSubsample(find(vlIn), P.nSpk_show);
+    viOut = randomSubsample(find(~vlIn), P.nSpk_show);
 
     if isempty(viIn) || isempty(viOut)
         fSplit = 0;

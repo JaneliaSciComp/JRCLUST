@@ -15,7 +15,7 @@ function plot_drift_(P)
         case 'filt'
         spikeWaveforms = getSpikeWaveforms(P, 0);
         %mrVp = squeeze_(single(min(spikeWaveforms))) .^ 2;
-        %         spikeWaveforms1 = meanSubt_(single(spikeWaveforms),2);
+        %         spikeWaveforms1 = meanSubtract(single(spikeWaveforms),2);
         mrVp = single(squeeze_(max(spikeWaveforms) - min(spikeWaveforms))) .^ 2;
         case 'filtstd'
         mrVp = squeeze_(var(single(getSpikeWaveforms(P, 0))));

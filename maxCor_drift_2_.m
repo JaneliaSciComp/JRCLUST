@@ -11,8 +11,8 @@ function maxCor = maxCor_drift_2_(cmr1, cmr2, cviShift1, cviShift2)
         nShift = numel(cviShift1);
         vrCor = zeros(1, nShift);
         for iShift = 1:nShift
-            mr1_ = reshape(meanSubt_(tr1(cviShift1{iShift},:,:)), [], nDrift);
-            mr2_ = reshape(meanSubt_(tr2(cviShift2{iShift},:,:)), [], nDrift);
+            mr1_ = reshape(meanSubtract(tr1(cviShift1{iShift},:,:)), [], nDrift);
+            mr2_ = reshape(meanSubtract(tr2(cviShift2{iShift},:,:)), [], nDrift);
 
             mr12_ = (mr1_' * mr2_) ./ sqrt(sum(mr1_.^2)' * sum(mr2_.^2));
             vrCor(iShift) = max(mr12_(:));

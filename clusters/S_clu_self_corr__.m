@@ -6,15 +6,15 @@ function selfcorr = S_clu_self_corr__(S_clu, spikeWaveforms, iClu1, spikeSites)
 
     [viSpk_clu1, viiSpk_clu1] = getClusterCenteredSpikes(S_clu, iClu1, spikeSites);
 
-    viSpk_clu1 = randomSelect_(viSpk_clu1, MAX_SAMPLE);
-    % trWav1 = meanSubt_(single(spikeWaveforms(:,:,viSpk_clu1)));
+    viSpk_clu1 = randomSubsample(viSpk_clu1, MAX_SAMPLE);
+    % trWav1 = meanSubtract(single(spikeWaveforms(:,:,viSpk_clu1)));
     trWav1 = spikeWaveforms(:,:,viSpk_clu1);
     vrVpp = squeeze_(squeeze_(max(trWav1(:,1,:)) - min(trWav1(:,1,:))));
     % vrVpp = sum(squeeze_(max(spikeWaveforms) - min(trWav1)));
     [~, viSrt] = sort(vrVpp);
     imid = round(numel(viSrt)/2);
-    mrWavA = meanSubt_(mean(trWav1(:, :, viSrt(1:imid)), 3));
-    mrWavB = meanSubt_(mean(trWav1(:, :, viSrt(imid+1:end)), 3));
+    mrWavA = meanSubtract(mean(trWav1(:, :, viSrt(1:imid)), 3));
+    mrWavB = meanSubtract(mean(trWav1(:, :, viSrt(imid+1:end)), 3));
     % selfcorr = calc_corr_(mrWavA(:), mrWavB(:));
     % selfcorr = mean(mean(zscore_(mrWavA) .* zscore_(mrWavB)));
     % selfcorr = mean(zscore_(mrWavA(:)) .* zscore_(mrWavB(:)));

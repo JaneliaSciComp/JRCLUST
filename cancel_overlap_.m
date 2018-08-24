@@ -23,7 +23,7 @@ function spikeFeatures = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0,
         % calculate private pc. using non-colliding spikes (?). generate basis for the cluster
         %     viSpk_clu1 = S_clu.spikesByCluster{iClu};
         %     viSpk_clu1 = subsample_vr_(viSpk_clu1(S0.spikeSites(viSpk_clu1) == iSite1), 5e3);
-        %     mr_ = reshape(meanSubt_(spikeWaveforms(:,:,viSpk_clu1)), [], numel(viSpk_clu1));
+        %     mr_ = reshape(meanSubtract(spikeWaveforms(:,:,viSpk_clu1)), [], numel(viSpk_clu1));
         %     [~,mrPv_clu1] = pca(mr_, 'NumComponents', 3); %subsample if must
 
         % fit
@@ -31,11 +31,11 @@ function spikeFeatures = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0,
 
         %     trWav1 = single(tnWav1);
         iSite_fit = 1:14;
-        vrData = toVec(meanSubt_(trWav1(:,iSite_fit,1)));
+        vrData = toVec(meanSubtract(trWav1(:,iSite_fit,1)));
         a = mrPv' * vrData;  % coefficient
         mrWav1_fit = mrPv * a;
         mrWav_err1 = trWav1(:,iSite_fit,1) - mrWav1_fit;
-        myfig; plot(meanSubt_(trWav1(:,iSite_fit,1)), 'k'); plot(mrWav_err1, 'r');
+        myfig; plot(meanSubtract(trWav1(:,iSite_fit,1)), 'k'); plot(mrWav_err1, 'r');
         myfig; plot(mrWav1_fit, 'g'); plot(mrWav_err1, 'r');
         %     spikeTraces1 = spikeTraces(:,:,viSpk_o_1);
         %     spikeTraces12 = spikeTraces(:,:,viSpk_o_12);
