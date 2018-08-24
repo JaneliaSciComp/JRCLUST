@@ -42,8 +42,9 @@ maxAmp = 250;               % Amplitude range in uV (initial setting, changeable
 nShow = 200;                % Maximum number of traces to show [D?# spikes to show]
 corrLim = [.9 1];           % Correlation color plot range
 nSpk_show = 30;             % show spike waveforms for manual clustering
-nShow_proj = 500;           % Max. number of spikes to show in the projection view
-displayFeature = 'vpp';         % Feature to show in time plot {'vpp', 'cov', 'pca'} (*)
+nSpikesFigProj = 500;       % Max. number of spikes to show in the projection view
+displayFeature = 'vpp';     % Feature to show in time plot {'vpp', 'cov', 'pca'} (*)
+nSitesFigProj = 5;          % Number of sites to display in the feature projection plot
 mrColor_proj = [.75 .75 .75; 0 0 0; 1 0 0];     % background, selected, comparison color
 vcFilter_show = '';         % Filter to apply in the "traces" view. Choices: {'', 'bandpass', 'sgdiff'}. '' uses vcFilter setting.
 fText = 1;                  % Show spike count per unit (*, press 'n' to toggle in manual GUI)
@@ -51,7 +52,7 @@ fText = 1;                  % Show spike count per unit (*, press 'n' to toggle 
 % #Pre-processing (run "jrc spikesort" after change)
 tlim_load = [];             % Time range to load in sec (uses all time range if set to empty)
 vcFilter = 'ndiff';         % {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
-nDiff_filt = 2;			    % Differentiation filter for vcFilter='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
+nDiff_filt = 2;			        % Differentiation filter for vcFilter='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
 freqLim = [300, 3000];      % Frequency cut-off limit for vcFilter='bandpass', ignored otherwise.
 filtOrder = 3;              % Bandpass filter order
 fEllip = 1;                 % Use Elliptic filter. set to 0 for Butterworth filter. Only valid for vcFilter='bandpass'.

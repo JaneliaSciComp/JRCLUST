@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function [mrMin, mrMax] = getFeatureForSpikes(viSpk1, viSites1, S0)
+function [featuresMin, featuresMax] = getFeatureForSpikes(spikes, sitesOfInterest, S0)
     % get feature for the spikes of interest
 
     if nargin < 3
@@ -10,14 +10,17 @@ function [mrMin, mrMax] = getFeatureForSpikes(viSpk1, viSites1, S0)
 
     switch lower(P.displayFeature)
         case {'vmin', 'vpp'}
-            spikeWaveforms1 = tnWav2uV_(getSpikeWaveformsSites(viSpk1, viSites1, S0), P);
-            [mrMin, mrMax] = multifun_(@(x) abs(permute(x, [2, 3, 1])), min(spikeWaveforms1), max(spikeWaveforms1));
+            spikeWaveforms = getSpikeWaveformsSites(spikes, sitesOfInterest, S0);
+            spikeWaveforms = tnWav2uV_(spikeWaveforms, P);
+
+            featuresMin = squeeze(abs(min(spikeWaveforms))); % nSites x nSpikes
+            featuresMax = squeeze(abs(max(spikeWaveforms)));
 
         case {'cov', 'spacetime'}
-            [mrMin, mrMax] = calc_cov_spk_(viSpk1, viSites1);
+            [featuresMin, featuresMax] = calc_cov_spk_(spikes, sitesOfInterest);
 
         case 'pca'
-            [mrMin, mrMax] = pca_pc_spk_(viSpk1, viSites1); % getall spikes whose center lies in certain range
+            [featuresMin, featuresMax] = pca_pc_spk_(spikes, sitesOfInterest);
 
         case 'kilosort'
             error('not implemented yet');

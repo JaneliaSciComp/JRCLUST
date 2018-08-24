@@ -1,36 +1,46 @@
 %--------------------------------------------------------------------------
-function [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, maxPair, P)
-    if nargin<4, maxPair = []; end
-    if nargin<5, P = get0_('P'); end
-    % switch lower(P.displayFeature)
-    %     case {'vpp', 'vmin', 'vmax'}
-    %         mrMax = linmap_(mrMax', [0, maxAmp/2], [0,1], 1);
-    %         mrMin = linmap_(mrMin', [0, maxAmp], [0,1], 1);
-    %     otherwise
+function [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, maxPair)
+    if nargin < 4
+        maxPair = [];
+    end
+
     mrMax = linmap_(mrMax', [0, 1] * maxAmp, [0,1], 1);
     mrMin = linmap_(mrMin', [0, 1] * maxAmp, [0,1], 1);
-    % end
-    [nEvt, nChans] = size(mrMin);
-    if isempty(maxPair), maxPair = nChans; end
-    [trX, trY] = deal(nan([nEvt, nChans, nChans], 'single'));
-    for chY = 1:nChans
-        vrY1 = mrMin(:,chY);
-        vlY1 = vrY1>0 & vrY1<1;
-        for chX = 1:nChans
-            if abs(chX-chY) > maxPair, continue; end
-            if chY > chX
-                vrX1 = mrMin(:,chX);
-            else
-                vrX1 = mrMax(:,chX);
+
+    [nSpikes, nSites] = size(mrMin);
+    if isempty(maxPair)
+        maxPair = nSites;
+    end
+
+    [trX, trY] = deal(nan([nSpikes, nSites, nSites], 'single'));
+
+    for jSite = 1:nSites
+        vrY1 = mrMin(:, jSite);
+        yMask = vrY1 > 0 & vrY1 < 1;
+
+        for iSite = 1:nSites
+            if abs(iSite - jSite) > maxPair
+                continue;
             end
-            viPlot1 = find(vrX1>0 & vrX1<1 & vlY1);
-            trX(viPlot1,chY,chX) = vrX1(viPlot1) + chX - 1;
-            trY(viPlot1,chY,chX) = vrY1(viPlot1) + chY - 1;
+
+            if jSite > iSite
+                vrX1 = mrMin(:, iSite);
+            else
+                vrX1 = mrMax(:, iSite);
+            end
+
+            viPlot1 = find(vrX1 > 0 & vrX1 < 1 & yMask);
+            trX(viPlot1,jSite,iSite) = vrX1(viPlot1) + iSite - 1;
+            trY(viPlot1,jSite,iSite) = vrY1(viPlot1) + jSite - 1;
         end
     end
+
     % plot projection
     viPlot = find(~isnan(trX) & ~isnan(trY));
-    vrX = trX(viPlot);  vrX=vrX(:);
-    vrY = trY(viPlot);  vrY=vrY(:);
+    vrX = trX(viPlot);
+    vrX = vrX(:);
+
+    vrY = trY(viPlot);
+    vrY = vrY(:);
     tr_dim = size(trX);
 end %func

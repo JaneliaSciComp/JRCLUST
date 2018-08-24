@@ -17,16 +17,17 @@ function keyPressFigProj(hFig, event)
         case {'leftarrow', 'rightarrow'} % change channels
             fPlot = 0;
             if strcmpi(event.Key, 'leftarrow')
-                if min(S_fig.sitesOfInterest)>1
-                    S_fig.sitesOfInterest=S_fig.sitesOfInterest-1;
+                if min(S_fig.sitesOfInterest) > 1
+                    S_fig.sitesOfInterest = S_fig.sitesOfInterest - 1;
                     fPlot = 1;
                 end
             else
                 if max(S_fig.sitesOfInterest) < max(P.chanMap)
-                    S_fig.sitesOfInterest=S_fig.sitesOfInterest+1;
+                    S_fig.sitesOfInterest = S_fig.sitesOfInterest + 1;
                     fPlot = 1;
                 end
             end
+
             if fPlot
                 set(hFig, 'UserData', S_fig);
                 S0.P.sitesOfInterest = S_fig.sitesOfInterest;
@@ -34,7 +35,8 @@ function keyPressFigProj(hFig, event)
             end
 
         case 'r' % reset view
-            axis_([0 numel(sitesOfInterest) 0 numel(sitesOfInterest)]);
+            nSites = min(getOr(P, 'nSitesFigProj', 5), numel(sitesOfInterest));
+            axis_([0 nSites 0 nSites]);
 
         case 's' % split
             figure_wait_(0);

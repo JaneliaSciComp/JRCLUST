@@ -69,7 +69,7 @@ function plotFigProj(S0)
         S_fig.sitesOfInterest = [];
     end
 
-    if size(S_fig.sitesOfInterest) ~= size(P.sitesOfInterest) || ~all(S_fig.sitesOfInterest == P.sitesOfInterest)
+    if ~all(size(S_fig.sitesOfInterest) == size(P.sitesOfInterest)) || ~all(S_fig.sitesOfInterest(:) == P.sitesOfInterest(:))
         plot_proj_(S_fig.hPlot0, mrMin0, mrMax0, P, S_fig.maxAmp);
     end
 

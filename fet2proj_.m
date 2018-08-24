@@ -37,8 +37,8 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, sitesO
     switch lower(P.displayFeature)
         case {'pca'} % pca_pv_spk_ (not pca_pv_clu_)
             [mrPv1, mrPv2] = pca_pv_spk_(S_clu.spikesByCluster{primaryCluster}, sitesOfInterest);
-            [mrMin0, mrMax0] = pca_pc_spk_(backgroundSpikes, sitesOfInterest, mrPv1, mrPv2); % get all spikes whose center lies in certain range
-            [mrMin1, mrMax1] = pca_pc_spk_(foregroundSpikes, sitesOfInterest, mrPv1, mrPv2); % get all spikes whose center lies in certain range
+            [mrMin0, mrMax0] = pca_pc_spk_(backgroundSpikes, sitesOfInterest, mrPv1, mrPv2);
+            [mrMin1, mrMax1] = pca_pc_spk_(foregroundSpikes, sitesOfInterest, mrPv1, mrPv2);
 
             if ~isempty(secondaryCluster)
                 [mrMin2, mrMax2] = pca_pc_spk_(secondaryForegroundSpikes, sitesOfInterest, mrPv1, mrPv2);
@@ -46,16 +46,16 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, sitesO
 
         case {'ppca', 'private pca'} % pca_pv_clu_ (not pca_pv_spk_)
             [mrPv1, mrPv2] = pca_pv_clu_(sitesOfInterest, primaryCluster, secondaryCluster);
-            [mrMin0, mrMax0] = pca_pc_spk_(backgroundSpikes, sitesOfInterest, mrPv1, mrPv2); % get all spikes whose center lies in certain range
-            [mrMin1, mrMax1] = pca_pc_spk_(foregroundSpikes, sitesOfInterest, mrPv1, mrPv2); % get all spikes whose center lies in certain range
+            [mrMin0, mrMax0] = pca_pc_spk_(backgroundSpikes, sitesOfInterest, mrPv1, mrPv2);
+            [mrMin1, mrMax1] = pca_pc_spk_(foregroundSpikes, sitesOfInterest, mrPv1, mrPv2);
 
             if ~isempty(secondaryCluster)
                 [mrMin2, mrMax2] = pca_pc_spk_(secondaryForegroundSpikes, sitesOfInterest, mrPv1, mrPv2);
             end
 
         otherwise % generic
-            [mrMin0, mrMax0] = getFeatureForSpikes(backgroundSpikes, sitesOfInterest, S0); % get all spikes whose center lies in certain range
-            [mrMin1, mrMax1] = getFeatureForSpikes(foregroundSpikes, sitesOfInterest, S0); % get all spikes whose center lies in certain range
+            [mrMin0, mrMax0] = getFeatureForSpikes(backgroundSpikes, sitesOfInterest, S0);
+            [mrMin1, mrMax1] = getFeatureForSpikes(foregroundSpikes, sitesOfInterest, S0);
 
             if ~isempty(secondaryCluster)
                 [mrMin2, mrMax2] = getFeatureForSpikes(secondaryForegroundSpikes, sitesOfInterest, S0);

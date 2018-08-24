@@ -10,6 +10,7 @@ P.csFile_merge=P.multiFilenames
 P.delta1_cut=P.log10DeltaCutoff
 P.min_count=P.minClusterSize
 P.nPad_filt=P.nPaddingSamples
+P.nShow_proj=P.nSpikesFigProj
 P.probe_file=P.probeFile
 P.rho_cut=P.log10RhoCutoff
 P.sRateHz=P.sampleRateHz
