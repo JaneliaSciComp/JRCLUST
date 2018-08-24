@@ -24,7 +24,7 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
                 S0.primarySelectedCluster = 1;
             elseif strcmpi(event.Key, 'end')
                 S0.primarySelectedCluster = S_clu.nClusters;
-            elseif ~keyModifier(event, 'shift');
+            elseif ~keyModifier(event, 'shift')
                 if strcmpi(event.Key, 'leftarrow')
                     if S0.primarySelectedCluster == 1, return; end
                     S0.primarySelectedCluster = S0.primarySelectedCluster - 1;
