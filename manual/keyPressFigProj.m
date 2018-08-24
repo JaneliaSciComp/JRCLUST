@@ -37,6 +37,7 @@ function keyPressFigProj(hFig, event)
         case 'r' % reset view
             nSites = min(getOr(P, 'nSitesFigProj', 5), numel(sitesOfInterest));
             axis_([0 nSites 0 nSites]);
+            plotFigProj(S0);
 
         case 's' % split
             figure_wait_(0);
@@ -59,7 +60,7 @@ function keyPressFigProj(hFig, event)
             ui_merge_(S0);
 
         case 'f'
-            fprintf('keyPressFigProj: ''f'': not implemented yet');
+            disp('keyPressFigProj: ''f'': not implemented yet');
             % if strcmpi(P.displayFeature, 'vpp')
             %     P.displayFeature = P.feature;
             % else

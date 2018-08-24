@@ -35,7 +35,7 @@ function plotFigProj(S0)
             xLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.displayFeature, P.displayFeature, P.displayFeature);
             yLabel = sprintf('Site # (%%0.0f %s)', P.displayFeature);
     end
-    figTitle = '[H]elp; [S]plit; Toggle [B]ackground; (Shift) [Up/Down]:Scale; [Left/Right]:Sites; [M]erge; [F]eature; [R]eset;';
+    figTitle = '[H]elp; [S]plit; Toggle [B]ackground; (Shift) [Up/Down]:Scale; [Left/Right]:Sites; [M]erge; [F]eature; [R]efresh';
 
     %----------------
     % display
@@ -69,10 +69,9 @@ function plotFigProj(S0)
         S_fig.sitesOfInterest = [];
     end
 
-    if ~all(size(S_fig.sitesOfInterest) == size(P.sitesOfInterest)) || ~all(S_fig.sitesOfInterest(:) == P.sitesOfInterest(:))
-        plot_proj_(S_fig.hPlot0, mrMin0, mrMax0, P, S_fig.maxAmp);
-    end
-
+    % update background spikes
+    plot_proj_(S_fig.hPlot0, mrMin0, mrMax0, P, S_fig.maxAmp);
+    % update foreground spikes
     plot_proj_(S_fig.hPlot1, mrMin1, mrMax1, P, S_fig.maxAmp);
 
     if ~isempty(secondaryCluster)

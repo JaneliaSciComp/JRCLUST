@@ -23,7 +23,7 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, sitesO
         siteSpikeTimes = siteSpikeTimes(windowSpikes);
     end
 
-    siteClusters = S_clu.spikeClusters(siteSpikes);
+    siteClusters = S_clu.spikeClusters(siteSpikes); % clusters occurring on sites
     % sample twice as many background spikes as foreground spikes
     backgroundSpikes = randomSubsample(siteSpikes, P.nSpikesFigProj*2);
     foregroundSpikes = randomSubsample(siteSpikes(siteClusters == primaryCluster), P.nSpikesFigProj);
