@@ -15,15 +15,24 @@ function plotFigProj(S0)
 
     %---------------
     % Compute
-    iSite1 = S_clu.clusterSites(primaryCluster);
-
-    if ~isfield(P, 'sitesOfInterest')
-        P.sitesOfInterest = sort(P.miSites(:, iSite1), 'ascend');
-    end
+    centerSite = S_clu.clusterSites(primaryCluster);
 
     nSitesFigProj = getOr(P, 'nSitesFigProj', 5); % by request
-    nSites = min(nSitesFigProj, numel(P.sitesOfInterest));
-    sitesOfInterest = P.sitesOfInterest(1:nSites);
+    nSites = min(nSitesFigProj, size(P.miSites, 1));
+
+    if ~isfield(P, 'sitesOfInterest')
+        % center sites around cluster center site
+        if nSites < size(P.miSites, 1)
+            P.sitesOfInterest = centerSite:centerSite + nSites - 1;
+            if P.sitesOfInterest(end) > max(P.chanMap) % correct for overshooting
+                P.sitesOfInterest = P.sitesOfInterest - max(P.sitesOfInterest) + max(P.chanMap);
+            end
+        else
+            P.sitesOfInterest = sort(P.miSites(:, centerSite), 'ascend');
+        end
+    end
+
+    sitesOfInterest = P.sitesOfInterest;
 
     cell_plot = {'Marker', 'o', 'MarkerSize', 1, 'LineStyle', 'none'};
 
