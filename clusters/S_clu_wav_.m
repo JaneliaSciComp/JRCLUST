@@ -90,13 +90,13 @@ function S_clu = S_clu_wav_(S_clu, clustersToUpdate, fSkipRaw)
                     continue;
                 end
 
-                [tmrWav_raw_clu(:, clusterSites1, iCluster), trWav_raw_clu(:, :, iCluster)] = deal(meanSubt_(mrWav_clu1) * P.uV_per_bit);
+                [tmrWav_raw_clu(:, clusterSites1, iCluster), trWav_raw_clu(:, :, iCluster)] = deal(meanSubtract(mrWav_clu1) * P.uV_per_bit);
                 if isempty(mrWav_lo_clu1) || isempty(mrWav_hi_clu1)
                     tmrWav_raw_lo_clu(:, clusterSites1, iCluster) = zeros(nSamplesRaw, numel(clusterSites1));
                     tmrWav_raw_hi_clu(:, clusterSites1, iCluster) = zeros(nSamplesRaw, numel(clusterSites1));
                 else
-                    tmrWav_raw_lo_clu(:, clusterSites1, iCluster) = meanSubt_(mrWav_lo_clu1) * P.uV_per_bit;
-                    tmrWav_raw_hi_clu(:, clusterSites1, iCluster) = meanSubt_(mrWav_hi_clu1) * P.uV_per_bit;
+                    tmrWav_raw_lo_clu(:, clusterSites1, iCluster) = meanSubtract(mrWav_lo_clu1) * P.uV_per_bit;
+                    tmrWav_raw_hi_clu(:, clusterSites1, iCluster) = meanSubtract(mrWav_hi_clu1) * P.uV_per_bit;
                 end                
             end
 
@@ -104,7 +104,7 @@ function S_clu = S_clu_wav_(S_clu, clustersToUpdate, fSkipRaw)
         end % cluster
     end
 
-    tmrWav_clu = tmrWav_spk_clu; %meanSubt_ after or before?
+    tmrWav_clu = tmrWav_spk_clu; %meanSubtract after or before?
 
     % measure waveforms
     [vrVmin_clu, viSite_min_clu] = min(permute(min(trWav_spk_clu),[2,3,1]),[],1);

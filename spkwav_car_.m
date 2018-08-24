@@ -73,8 +73,8 @@ function [trWav2, mrWav_ref] = spkwav_car_(trWav2, P, nSites_spk, spikeSecondary
     end
     
     if ~isempty(mrWav_ref)
-        trWav2 = meanSubt_(reshape(bsxfun(@minus, reshape(trWav2,[],dimm2(3)), mrWav_ref(:)), dimm2));
+        trWav2 = meanSubtract(reshape(bsxfun(@minus, reshape(trWav2,[],dimm2(3)), mrWav_ref(:)), dimm2));
     else
-        trWav2 = meanSubt_(trWav2);
+        trWav2 = meanSubtract(trWav2);
     end
 end %func

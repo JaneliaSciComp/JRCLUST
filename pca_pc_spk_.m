@@ -16,7 +16,7 @@ function [mrPc1, mrPc2, mrPv1, mrPv2] = pca_pc_spk_(viSpk1, viSites1, mrPv1, mrP
 
     try
         for iSite1=1:nSites1
-            mrWav_spk1 = meanSubt_(single(spikeWaveforms1(:,:,iSite1)));
+            mrWav_spk1 = meanSubtract(single(spikeWaveforms1(:,:,iSite1)));
             mrPc1(:,iSite1) = (mrPv1(:,iSite1)' * mrWav_spk1)';
             mrPc2(:,iSite1) = (mrPv2(:,iSite1)' * mrWav_spk1)';
         end %for

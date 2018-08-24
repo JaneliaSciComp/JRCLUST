@@ -9,5 +9,5 @@ function tmrWav = trim_spkraw_(tmrWav, P)
 
     lim_merge = [spkLim_merge(1) - spkLim_raw(1) + 1,  nSamples_raw - spkLim_raw(2) + spkLim_merge(2)];
     tmrWav = tmrWav(lim_merge(1):lim_merge(2), :, :);
-    tmrWav = meanSubt_(tmrWav);
+    tmrWav = meanSubtract(tmrWav);
 end %func
