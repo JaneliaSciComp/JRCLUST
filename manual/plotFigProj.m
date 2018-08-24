@@ -21,8 +21,10 @@ function plotFigProj(S0)
         P.sitesOfInterest = sort(P.miSites(:, iSite1), 'ascend');
     end
 
-    sitesOfInterest = P.sitesOfInterest;
-    nSites = numel(P.sitesOfInterest);
+    nSitesFigProj = getOr(P, 'nSitesFigProj', 5); % by request
+    nSites = min(nSitesFigProj, numel(P.sitesOfInterest));
+    sitesOfInterest = P.sitesOfInterest(1:nSites);
+
     cell_plot = {'Marker', 'o', 'MarkerSize', 1, 'LineStyle', 'none'};
 
     switch lower(P.displayFeature)
@@ -33,7 +35,7 @@ function plotFigProj(S0)
             xLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.displayFeature, P.displayFeature, P.displayFeature);
             yLabel = sprintf('Site # (%%0.0f %s)', P.displayFeature);
     end
-    figTitle = '[H]elp; [S]plit; [B]ackground; (Sft)[Up/Down]:Scale; [Left/Right]:Sites; [M]erge; [F]eature';
+    figTitle = '[H]elp; [S]plit; Toggle [B]ackground; (Shift) [Up/Down]:Scale; [Left/Right]:Sites; [M]erge; [F]eature; [R]eset;';
 
     %----------------
     % display
@@ -67,7 +69,7 @@ function plotFigProj(S0)
         S_fig.sitesOfInterest = [];
     end
 
-    if ~equal_vr_(S_fig.sitesOfInterest, P.sitesOfInterest)
+    if size(S_fig.sitesOfInterest) ~= size(P.sitesOfInterest) || ~all(S_fig.sitesOfInterest == P.sitesOfInterest)
         plot_proj_(S_fig.hPlot0, mrMin0, mrMax0, P, S_fig.maxAmp);
     end
 
