@@ -147,7 +147,6 @@ function importKiloSort(rezFile, sessionName)
     P.dataType = 'int16'; % KS default
     P.fImportKilosort = 1;
     P.fTranspose_bin = 1;
-    P.feature = 'kilosort';
     P.maxSite = 6.5; % TODO: allow user to set
     P.nSites_ref = 0; % TODO: address
 
@@ -161,24 +160,25 @@ function importKiloSort(rezFile, sessionName)
     P.qqFactor = 5; % default
     P.nPcPerChan = 1; % default
     P.nTime_clu = 1; % spikes detected and clustered over entire time series
-    P.uV_per_bit = 1; % set this to unit scaling and deal with later
+    P.uV_per_bit = 0.305176; % default; TODO: use inputdlg_
     P.spkRefrac_ms = .25; % default
 
     P.viSiteZero = [];
     P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site);
     P.useGPU = double(gpuDeviceCount() > 0);
 
-    P.feature = 'gpca'; % default; TODO: address
+    P.feature = 'gpca'; % default; TODO: allow user to configure
+    % soon: P.displayFeature = 'kilosort';
 
     S0 = file2spk_(P, int32(spikeTimes), int32(spikeSites));
     P = saveProbe([sessionName '-probe.mat'], P);
     S0.P = P;
-
-    ksFeatureDims = size(ksFeatures);
-    S0.ksFeatureDims = ksFeatureDims;
     S0.rez = rez;
 
     set(0, 'UserData', S0);
+
+    global spikeFeatures
+    spikeFeatures = getSpikeFeatures(P);
 
     % construct S_clu from scratch
     S_clu = struct();

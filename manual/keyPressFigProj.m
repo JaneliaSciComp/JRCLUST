@@ -6,7 +6,7 @@ function keyPressFigProj(hFig, event)
 
     [hFig, S_fig] = getCachedFig('FigProj');
 
-    S_plot1 = get(S_fig.hPlot1, 'UserData');
+    S_plot1 = get(S_fig.hPlotFG, 'UserData');
     sitesOfInterest = S_plot1.sitesOfInterest;
 
     figure_wait_(1);
@@ -45,7 +45,7 @@ function keyPressFigProj(hFig, event)
                 msgbox_('Select one cluster to split'); return;
             end
 
-            S_plot1 = select_polygon_(S_fig.hPlot1);
+            S_plot1 = select_polygon_(S_fig.hPlotFG);
 
             if ~isempty(S_plot1)
                 [fSplit, vlIn] = plot_split_(S_plot1);
@@ -72,8 +72,22 @@ function keyPressFigProj(hFig, event)
             %
             % plotFigProj();
 
+        case 'p' % toggle PCivPCj
+            if getOr(P, 'fImportKilosort')
+                if S0.kspc == [1 2]
+                    S0.kspc = [1 3];
+                elseif S0.kspc == [1 3]
+                    S0.kspc = [2 3];
+                else
+                    S0.kspc = [1 2];
+                end
+                set(0, 'UserData', S0);
+
+                plotFigProj(S0);
+            end
+
         case 'b' %background spikes
-            toggleVisible_(S_fig.hPlot0);
+            toggleVisible_(S_fig.hPlotBG);
 
         case 'h' %help
             msgbox_(S_fig.csHelp, 1);

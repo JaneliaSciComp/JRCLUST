@@ -27,13 +27,13 @@ function plotFigTime(S0)
     % draw
     if isempty(S_fig)
         S_fig.maxAmp = P.maxAmp;
-        S_fig.hAx = axes_new_(hFig);
+        S_fig.hAx = newAxes(hFig);
         set(S_fig.hAx, 'Position', [.05 .2 .9 .7], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
         % first time
-        S_fig.hPlot0 = line(nan, nan, 'Marker', '.', 'Color', P.mrColor_proj(1,:), 'MarkerSize', 5, 'LineStyle', 'none');
-        S_fig.hPlot1 = line(nan, nan, 'Marker', '.', 'Color', P.mrColor_proj(2,:), 'MarkerSize', 5, 'LineStyle', 'none');
-        S_fig.hPlot2 = line(nan, nan, 'Marker', '.', 'Color', P.mrColor_proj(3,:), 'MarkerSize', 5, 'LineStyle', 'none'); %place holder
+        S_fig.hPlotBG = line(nan, nan, 'Marker', '.', 'Color', P.mrColor_proj(1,:), 'MarkerSize', 5, 'LineStyle', 'none');
+        S_fig.hPlotFG = line(nan, nan, 'Marker', '.', 'Color', P.mrColor_proj(2,:), 'MarkerSize', 5, 'LineStyle', 'none');
+        S_fig.hPlotFG2 = line(nan, nan, 'Marker', '.', 'Color', P.mrColor_proj(3,:), 'MarkerSize', 5, 'LineStyle', 'none'); %place holder
         xlabel('Time (s)');
         grid on;
 
@@ -46,7 +46,7 @@ function plotFigTime(S0)
             makeConstrainToRectFcn('imrect',time_lim, [-4000 4000]));
         end
         set(hFig, 'KeyPressFcn', @keyPressFigTime);
-        S_fig.cvhHide_mouse = mouse_hide_(hFig, S_fig.hPlot0, S_fig);
+        S_fig.cvhHide_mouse = mouse_hide_(hFig, S_fig.hPlotBG, S_fig);
         if ~isempty(P.time_tick_show) %tick mark
             set(S_fig.hAx, 'XTick', time_lim(1):P.time_tick_show:time_lim(end));
         end
@@ -55,20 +55,20 @@ function plotFigTime(S0)
     % iFet = S_fig.iFet;
     % iFet = 1;
     if ~isfield(S_fig, 'iSite'), S_fig.iSite = []; end
-    update_plot_(S_fig.hPlot0, vrTime0, vrFet0);
-    update_plot_(S_fig.hPlot1, vrTime1, vrFet1);
-    update_plot_(S_fig.hPlot2, vrTime2, vrFet2);
+    updatePlot(S_fig.hPlotBG, vrTime0, vrFet0);
+    updatePlot(S_fig.hPlotFG, vrTime1, vrFet1);
+    updatePlot(S_fig.hPlotFG2, vrTime2, vrFet2);
     imrect_set_(S_fig.hRect, time_lim, vpp_lim);
     mouse_figure(hFig, S_fig.hAx); % allow zoom using wheel
     % button click function to select individual spikes, all spikes plotted
 
     if isfield(S_fig, 'vhAx_track')
         toggleVisible_({S_fig.vhAx_track, S_fig.hPlot0_track, S_fig.hPlot1_track, S_fig.hPlot2_track}, 0);
-        toggleVisible_({S_fig.hAx, S_fig.hRect, S_fig.hPlot1, S_fig.hPlot2, S_fig.hPlot0}, 1);
+        toggleVisible_({S_fig.hAx, S_fig.hRect, S_fig.hPlotFG, S_fig.hPlotFG2, S_fig.hPlotBG}, 1);
     end
 
     if ~isfield(S_fig, 'fPlot0'), S_fig.fPlot0 = 1; end
-    toggleVisible_(S_fig.hPlot0, S_fig.fPlot0);
+    toggleVisible_(S_fig.hPlotBG, S_fig.fPlot0);
 
     axis_(S_fig.hAx, [time_lim, vpp_lim]);
     title_(S_fig.hAx, vcTitle);

@@ -6,9 +6,9 @@ function plot_FigIsi_(S0)
 
     [vrX1, vrY1] = get_returnMap_(S0.primarySelectedCluster, P);
     if isempty(S_fig)
-        S_fig.hAx = axes_new_(hFig);
-        S_fig.hPlot1 = plot(S_fig.hAx, nan, nan, 'ko');
-        S_fig.hPlot2 = plot(S_fig.hAx, nan, nan, 'ro');
+        S_fig.hAx = newAxes(hFig);
+        S_fig.hPlotFG = plot(S_fig.hAx, nan, nan, 'ko');
+        S_fig.hPlotFG2 = plot(S_fig.hAx, nan, nan, 'ro');
         set(S_fig.hAx, 'XScale','log', 'YScale','log');
         xlabel('ISI_{k} (ms)'); ylabel('ISI_{k+1} (ms)');
         axis_(S_fig.hAx, [1 10000 1 10000]);
@@ -17,12 +17,12 @@ function plot_FigIsi_(S0)
         line(get(S_fig.hAx,'XLim'), P.spkRefrac_ms*[1 1], 'Color', [1 0 0]);
         line(P.spkRefrac_ms*[1 1], get(S_fig.hAx,'YLim'), 'Color', [1 0 0]);
     end
-    update_plot_(S_fig.hPlot1, vrX1, vrY1);
+    updatePlot(S_fig.hPlotFG, vrX1, vrY1);
     if ~isempty(S0.secondarySelectedCluster)
         [vrX2, vrY2] = get_returnMap_(S0.secondarySelectedCluster, P);
-        update_plot_(S_fig.hPlot2, vrX2, vrY2);
+        updatePlot(S_fig.hPlotFG2, vrX2, vrY2);
     else
-        update_plot_(S_fig.hPlot2, nan, nan);
+        updatePlot(S_fig.hPlotFG2, nan, nan);
     end
 
     set(hFig, 'UserData', S_fig);

@@ -15,7 +15,7 @@ function [hFig, figData] = getCachedFig(tag)
         end
     else
         if isempty(figCache) % initialize figure cache
-            hFig = figureByTag(tag);
+            hFig = figuresByTag(tag);
             figCache = struct(tag, hFig);
         else
             if isfield(figCache, tag)
@@ -24,11 +24,11 @@ function [hFig, figData] = getCachedFig(tag)
                 if tryIsValid(hFig) % check cached figure handle still valid
                     hFig = figCache.(tag);
                 else % not valid, recache
-                    hFig = figureByTag(tag);
+                    hFig = figuresByTag(tag);
                     figCache.(tag) = hFig;
                 end
             else
-                hFig = figureByTag(tag);
+                hFig = figuresByTag(tag);
                 figCache.(tag) = hFig;
             end
         end

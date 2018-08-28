@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function plot_unit_(S_clu1, hAx, vcColor0)
     if isempty(S_clu1), return; end
-    if nargin<2, hAx = axes_new_('FigWav'); end
+    if nargin<2, hAx = newAxes('FigWav'); end
     if nargin<3, vcColor0 = [0 0 0]; end
     [S0, P, S_clu] = get0_();
     [~, S_figWav] = getCachedFig('FigWav');

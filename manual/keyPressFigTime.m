@@ -41,7 +41,7 @@ function keyPressFigTime(hObject, event, S0)
 
         case 'b' %background spike toggle
                 if isVisible_(S_fig.hAx)
-                    S_fig.fPlot0 = toggleVisible_(S_fig.hPlot0);
+                    S_fig.fPlot0 = toggleVisible_(S_fig.hPlotBG);
                 else
                     S_fig.fPlot0 = toggleVisible_(S_fig.hPlot0_track);
                 end
@@ -62,8 +62,8 @@ function keyPressFigTime(hObject, event, S0)
                     hPoly = impoly_();
                     if isempty(hPoly); return ;end
                     mrPolyPos = getPosition(hPoly);
-                    vrX1 = double(get(S_fig.hPlot1, 'XData'));
-                    vrY1 = double(get(S_fig.hPlot1, 'YData'));
+                    vrX1 = double(get(S_fig.hPlotFG, 'XData'));
+                    vrY1 = double(get(S_fig.hPlotFG, 'YData'));
                     vlIn = inpolygon(vrX1, vrY1, mrPolyPos(:,1), mrPolyPos(:,2));
                     hSplit = line(vrX1(vlIn), vrY1(vlIn), 'Color', [1 0 0], 'Marker', '.', 'LineStyle', 'none');
                     if strcmpi(userDialog('Split?', 'Confirmation', 'Yes'), 'yes')

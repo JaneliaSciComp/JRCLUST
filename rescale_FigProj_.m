@@ -15,9 +15,9 @@ function S_fig = rescale_FigProj_(event, hFig, S_fig, S0)
         S_fig.maxAmp = event;
     else
         S_fig.maxAmp = change_amp_(event, S_fig.maxAmp);
-    end % hPlot0: background; hPlot1: foreground
+    end % hPlotBG: background; hPlotFG: foreground
 
-    vhPlot = [S_fig.hPlot0, S_fig.hPlot1, S_fig.hPlot2];
+    vhPlot = [S_fig.hPlotBG, S_fig.hPlotFG, S_fig.hPlotFG2];
 
     if isempty(S0.secondarySelectedCluster)
         vhPlot(end) = [];
@@ -29,6 +29,11 @@ function S_fig = rescale_FigProj_(event, hFig, S_fig, S0)
         case {'vpp', 'vmin', 'vmax'}
             S_fig.vcXLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
             S_fig.vcYLabel = 'Site # (%0.0f \\muV_{min})';
+
+        case 'kilosort'
+            S_fig.vcXLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.kspc(1));
+            S_fig.vcYLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.kspc(2));
+
         otherwise
             S_fig.vcXLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.displayFeature, P.displayFeature, P.displayFeature);
             S_fig.vcYLabel = sprintf('Site # (%%0.0f %s)', P.displayFeature);

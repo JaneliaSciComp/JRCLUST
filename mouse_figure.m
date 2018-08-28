@@ -34,7 +34,7 @@ function MainFig = mouse_figure(MainFig, axs, hFunClick)
 % Name       : Rody P.S. Oldenhuis
 % E-mail     : oldenhuis@gmail.com    (personal)
 %              oldenhuis@luxspace.lu  (professional)
-% Affiliation: LuxSpace sàrl
+% Affiliation: LuxSpace sï¿½rl
 % Licence    : BSD
 
 
@@ -249,13 +249,13 @@ try
         vlVisible = false(size(vhPlot));
         % toggle visibility
         for iH=1:numel(vhPlot)
-            hPlot1 = vhPlot(iH);
-            if strcmpi(get(hPlot1, 'Visible'), 'on')
+            hPlotFG = vhPlot(iH);
+            if strcmpi(get(hPlotFG, 'Visible'), 'on')
                 vlVisible(iH) = 0;
-                set(hPlot1, 'Visible', 'off');
+                set(hPlotFG, 'Visible', 'off');
             else
                 vlVisible(iH) = 1;
-                set(hPlot1, 'Visible', 'on');
+                set(hPlotFG, 'Visible', 'on');
             end
         end
     else

@@ -7,7 +7,7 @@ function plotFigProj(S0)
     S_clu = S0.S_clu;
     P = S0.P;
 
-    [hFig, S_fig] = getCachedFig('FigProj');
+    [hFig, figData] = getCachedFig('FigProj');
 
     primaryCluster = S0.primarySelectedCluster;
     secondaryCluster = S0.secondarySelectedCluster;
@@ -34,7 +34,7 @@ function plotFigProj(S0)
 
     sitesOfInterest = P.sitesOfInterest;
 
-    cell_plot = {'Marker', 'o', 'MarkerSize', 1, 'LineStyle', 'none'};
+    plotStyle = {'Marker', 'o', 'MarkerSize', 1, 'LineStyle', 'none'};
 
     % don't try to display kilosort features if this isn't a kilosort session!
     if strcmpi(P.displayFeature, 'kilosort') && ~getOr(P, 'fImportKilosort', 0)
@@ -58,64 +58,67 @@ function plotFigProj(S0)
 
     %----------------
     % display
-    if isempty(S_fig)
-        S_fig.maxAmp = P.maxAmp;
-        S_fig.hAx = axes_new_(hFig);
-        set(S_fig.hAx, 'Position', [.1 .1 .85 .85], 'XLimMode', 'manual', 'YLimMode', 'manual');
+    if isempty(figData)
+        figData.maxAmp = P.maxAmp;
+        figData.hAx = newAxes(hFig);
+        set(figData.hAx, 'Position', [.1 .1 .85 .85], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
-        S_fig.hPlot0 = line(nan, nan, 'Color', P.mrColor_proj(1,:), 'Parent', S_fig.hAx);
-        S_fig.hPlot1 = line(nan, nan, 'Color', P.mrColor_proj(2,:), 'Parent', S_fig.hAx); %place holder
-        S_fig.hPlot2 = line(nan, nan, 'Color', P.mrColor_proj(3,:), 'Parent', S_fig.hAx); %place holder
-        set([S_fig.hPlot0, S_fig.hPlot1, S_fig.hPlot2], cell_plot{:}); % common style
+        figData.hPlotBG = line(nan, nan, 'Color', P.mrColor_proj(1,:), 'Parent', figData.hAx);
+        figData.hPlotFG = line(nan, nan, 'Color', P.mrColor_proj(2,:), 'Parent', figData.hAx); % placeholder
+        figData.hPlotFG2 = line(nan, nan, 'Color', P.mrColor_proj(3,:), 'Parent', figData.hAx); % placeholder
 
-        S_fig.sitesOfInterest = []; % so that it can update
-        S_fig.displayFeature = P.displayFeature;
+        set([figData.hPlotBG, figData.hPlotFG, figData.hPlotFG2], plotStyle{:});
+
+        figData.sitesOfInterest = []; % so that it can update
+        figData.displayFeature = P.displayFeature;
 
         % plot boundary
-        plotTable_([0, nSites], '-', 'Color', [.5 .5 .5]); %plot in one scoop
-        plotDiag_([0, nSites], '-', 'Color', [0 0 0], 'LineWidth', 1.5); %plot in one scoop
+        plotGrid([0, nSites], '-', 'Color', [.5 .5 .5]);
+        plotGridDiagonal([0, nSites], '-', 'Color', [0 0 0], 'LineWidth', 1.5);
 
         mouse_figure(hFig);
         set(hFig, 'KeyPressFcn', @keyPressFigProj);
-        S_fig.cvhHide_mouse = mouse_hide_(hFig, S_fig.hPlot0, S_fig);
-        set_fig_(hFig, S_fig);
+        figData.cvhHide_mouse = mouse_hide_(hFig, figData.hPlotBG, figData);
+        set_fig_(hFig, figData);
     end
 
     % get features for x0, y0, S_plot0 in one go
     [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, P.sitesOfInterest);
 
-    if ~isfield(S_fig, 'sitesOfInterest')
-        S_fig.sitesOfInterest = [];
+    if ~isfield(figData, 'sitesOfInterest')
+        figData.sitesOfInterest = [];
     end
 
     % update background spikes
-    plotFeatureProjections(S_fig.hPlot0, mrMin0, mrMax0, P, S_fig.maxAmp);
+    plotFeatureProjections(figData.hPlotBG, mrMin0, mrMax0, P, figData.maxAmp);
     % update foreground spikes
-    plotFeatureProjections(S_fig.hPlot1, mrMin1, mrMax1, P, S_fig.maxAmp);
+    plotFeatureProjections(figData.hPlotFG, mrMin1, mrMax1, P, figData.maxAmp);
     % update secondary foreground spikes, if applicable
     if ~isempty(secondaryCluster)
-        plotFeatureProjections(S_fig.hPlot2, mrMin2, mrMax2, P, S_fig.maxAmp);
+        plotFeatureProjections(figData.hPlotFG2, mrMin2, mrMax2, P, figData.maxAmp);
         figTitle = sprintf('Clu%d (black), Clu%d (red); %s', primaryCluster, secondaryCluster, figTitle);
     else
-        update_plot_(S_fig.hPlot2, nan, nan);
+        updatePlot(figData.hPlotFG2, nan, nan);
         figTitle = sprintf('Clu%d (black); %s', primaryCluster, figTitle);
     end
 
     % Annotate axes
-    axis_(S_fig.hAx, [0 nSites 0 nSites]);
-    set(S_fig.hAx,'XTick', .5:1:nSites, 'YTick', .5:1:nSites, 'XTickLabel', P.sitesOfInterest, 'YTickLabel', P.sitesOfInterest, 'Box', 'off');
-    xlabel(S_fig.hAx, sprintf(xLabel, S_fig.maxAmp));
-    ylabel(S_fig.hAx, sprintf(yLabel, S_fig.maxAmp));
-    title_(S_fig.hAx, figTitle);
+    axis_(figData.hAx, [0 nSites 0 nSites]);
+    set(figData.hAx,'XTick', .5:1:nSites, 'YTick', .5:1:nSites, 'XTickLabel', P.sitesOfInterest, 'YTickLabel', P.sitesOfInterest, 'Box', 'off');
+    xlabel(figData.hAx, sprintf(xLabel, figData.maxAmp));
+    ylabel(figData.hAx, sprintf(yLabel, figData.maxAmp));
+    title_(figData.hAx, figTitle);
     displayFeature = P.displayFeature;
-    S_fig = mergeStructs(S_fig, ...
+
+    figData = mergeStructs(figData, ...
         makeStruct_(figTitle, primaryCluster, secondaryCluster, sitesOfInterest, xLabel, yLabel, displayFeature));
-    S_fig.csHelp = { ...
+    figData.csHelp = { ...
         '[D]raw polygon', ...
         '[S]plit cluster', ...
         '(shift)+Up/Down: change scale', ...
         '[R]eset scale', ...
         'Zoom: mouse wheel', ...
         'Drag while pressing wheel: pan'};
-    set(hFig, 'UserData', S_fig);
+
+    set(hFig, 'UserData', figData);
 end %func

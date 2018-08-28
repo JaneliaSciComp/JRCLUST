@@ -15,7 +15,7 @@ function plotFeatureProjections(hPlot, mrMin, mrMax, P, maxAmp)
             bounds = [0 maxAmp];
             maxPair = P.maxSite_show;
     end
-    
+
     [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, bounds, maxPair);
 
     % make struct
@@ -23,5 +23,5 @@ function plotFeatureProjections(hPlot, mrMin, mrMax, P, maxAmp)
     sitesOfInterest = P.sitesOfInterest;
     S_plot = makeStruct_(mrMax, mrMin, sitesOfInterest, viPlot, tr_dim, maxPair, maxAmp);
 
-    update_plot_(hPlot, vrX, vrY, S_plot);
+    updatePlot(hPlot, vrX, vrY, S_plot);
 end %func

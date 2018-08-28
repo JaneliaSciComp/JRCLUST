@@ -19,7 +19,7 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
 
     % Plot
     if isempty(figData)
-        figData.hAx = axes_new_(hFig);
+        figData.hAx = newAxes(hFig);
         set(figData.hAx, 'Position', [.1 .1 .8 .8], 'XLimMode', 'manual', 'YLimMode', 'manual', 'Layer', 'top');
         set(figData.hAx, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
 
@@ -51,7 +51,7 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
 
         set(hFig, 'KeyPressFcn', @keyPressFigClusterCor);
         mouse_figure(hFig, figData.hAx, @buttonFigClusterCor);
-        figData.hDiag = plotDiag_([0, nClusters, .5], 'Color', [0 0 0], 'LineWidth', 1.5);
+        figData.hDiag = plotGridDiagonal([0, nClusters, .5], 'Color', [0 0 0], 'LineWidth', 1.5);
     else
         figData.figView = figView;
         if strcmp(figData.figView, 'simscore')

@@ -18,7 +18,7 @@ function S0 = ui_merge_(S0)
     S0.primarySelectedCluster = min(S0.primarySelectedCluster, S0.secondarySelectedCluster);
     S0.secondarySelectedCluster = [];
     set(0, 'UserData', S0);
-    update_plot_(S0.hPaste, nan, nan);
+    updatePlot(S0.hPaste, nan, nan);
     S0 = update_FigCor_(S0);
     S0 = button_CluWav_simulate_(S0.primarySelectedCluster, [], S0);
     S0 = save_log_(sprintf('merge %d %d', S0.primarySelectedCluster, S0.secondarySelectedCluster), S0);

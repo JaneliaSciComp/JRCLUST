@@ -32,8 +32,8 @@ function manual_test_(P, csCmd)
 
             case 'Menu' % run menu items, except for the exit and save (make a black list)
             %             csMenu_skip = {'Show traces', 'Exit'};
-            %             hFigWav = figureByTag('FigWav');
-            menu_test_(figureByTag('FigWav'), {'Show traces', 'Exit'});
+            %             hFigWav = figuresByTag('FigWav');
+            menu_test_(figuresByTag('FigWav'), {'Show traces', 'Exit'});
             %             vMenu0 = findobj('Type', 'uimenu', 'Parent', hFigWav);
             %             cvMenu = cell(size(vMenu0));
             %             for iMenu0 = 1:numel(vMenu0)

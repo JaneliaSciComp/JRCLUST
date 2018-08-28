@@ -3,7 +3,7 @@ function hAx = newAxes(hFig)
     % clear figure and instantiate a new Axes
 
     if ischar(hFig)
-        hFig = figureByTag(hFig);
+        hFig = figuresByTag(hFig);
     end
 
     figure(hFig); % set focus to figure (might be slow)

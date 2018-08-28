@@ -21,7 +21,7 @@ function S0 = initFigures(P) % TODO: create different figures for different algs
         figTags = {figTags{:}, 'FigRD'};
     end
 
-    figPositions = cellfun(@(c) get(figureByTag(c), 'OuterPosition'), figTags, 'UniformOutput', 0);
+    figPositions = cellfun(@(c) get(figuresByTag(c), 'OuterPosition'), figTags, 'UniformOutput', 0);
 
     S0 = setUserData(figPositions, figTags);
 end % func
