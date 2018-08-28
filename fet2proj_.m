@@ -53,6 +53,14 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, sitesO
                 [mrMin2, mrMax2] = pca_pc_spk_(secondaryForegroundSpikes, sitesOfInterest, mrPv1, mrPv2);
             end
 
+        case 'kilosort'
+            [mrMin0, mrMax0] = getPCFeatures(backgroundSpikes, sitesOfInterest, S0);
+            [mrMin1, mrMax1] = getPCFeatures(foregroundSpikes, sitesOfInterest, S0);
+
+            if ~isempty(secondaryCluster)
+                [mrMin2, mrMax2] = getPCFeatures(secondaryForegroundSpikes, sitesOfInterest, S0);
+            end
+
         otherwise % generic
             [mrMin0, mrMax0] = getFeatureForSpikes(backgroundSpikes, sitesOfInterest, S0);
             [mrMin1, mrMax1] = getFeatureForSpikes(foregroundSpikes, sitesOfInterest, S0);
@@ -62,5 +70,7 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, sitesO
             end
     end % switch
 
-    [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = multifun_(@(x) abs(x), mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2);
+    if ~strcmpi(P.displayFeature, 'kilosort')
+        [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = multifun_(@(x) abs(x), mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2);
+    end
 end % func

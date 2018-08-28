@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function [featuresMin, featuresMax] = getFeatureForSpikes(spikes, sitesOfInterest, S0)
+function [featuresMin, featuresMax, sitesOfInterest] = getFeatureForSpikes(spikes, sitesOfInterest, S0)
     % get feature for the spikes of interest
 
     if nargin < 3
@@ -23,7 +23,7 @@ function [featuresMin, featuresMax] = getFeatureForSpikes(spikes, sitesOfInteres
             [featuresMin, featuresMax] = pca_pc_spk_(spikes, sitesOfInterest);
 
         case 'kilosort'
-            error('not implemented yet');
+            [featuresMin, featuresMax, sitesOfInterest] = getPCFeatures(spikes, sitesOfInterest, S0);
 
         otherwise
             error('not implemented yet');
