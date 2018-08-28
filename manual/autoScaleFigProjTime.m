@@ -12,7 +12,7 @@ function autoScaleFigProjTime(S0, fPlot)
     autoscale_pct = getOr(S0.P, 'autoscale_pct', 99.5);
 
     [hFigProj, figProjData] = getCachedFig('FigProj');
-    [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, figProjData.sitesOfInterest);
+    [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = getFigProjFeatures(S0, figProjData.sitesOfInterest);
 
     if isempty(mrMin2) || isempty(mrMax2)
         featureData = {mrMin1, mrMax1};

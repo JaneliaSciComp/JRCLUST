@@ -63,9 +63,9 @@ function plotFigProj(S0)
         figData.hAx = newAxes(hFig);
         set(figData.hAx, 'Position', [.1 .1 .85 .85], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
-        figData.hPlotBG = line(nan, nan, 'Color', P.mrColor_proj(1,:), 'Parent', figData.hAx);
-        figData.hPlotFG = line(nan, nan, 'Color', P.mrColor_proj(2,:), 'Parent', figData.hAx); % placeholder
-        figData.hPlotFG2 = line(nan, nan, 'Color', P.mrColor_proj(3,:), 'Parent', figData.hAx); % placeholder
+        figData.hPlotBG = line(nan, nan, 'Color', P.mrColor_proj(1, :), 'Parent', figData.hAx);
+        figData.hPlotFG = line(nan, nan, 'Color', P.mrColor_proj(2, :), 'Parent', figData.hAx); % placeholder
+        figData.hPlotFG2 = line(nan, nan, 'Color', P.mrColor_proj(3, :), 'Parent', figData.hAx); % placeholder
 
         set([figData.hPlotBG, figData.hPlotFG, figData.hPlotFG2], plotStyle{:});
 
@@ -83,7 +83,7 @@ function plotFigProj(S0)
     end
 
     % get features for x0, y0, S_plot0 in one go
-    [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, P.sitesOfInterest);
+    [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = getFigProjFeatures(S0, P.sitesOfInterest);
 
     if ~isfield(figData, 'sitesOfInterest')
         figData.sitesOfInterest = [];
