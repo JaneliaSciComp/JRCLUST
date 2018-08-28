@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function [featuresMin, featuresMax] = getPCFeatures(spikes, sitesOfInterest, S0)
+function [featuresMin, featuresMax] = getKilosortFeaturesSites(spikes, sitesOfInterest, S0)
     rez = S0.rez;
     S_clu = S0.S_clu;
     

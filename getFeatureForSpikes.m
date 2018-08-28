@@ -23,7 +23,7 @@ function [featuresMin, featuresMax, sitesOfInterest] = getFeatureForSpikes(spike
             [featuresMin, featuresMax] = pca_pc_spk_(spikes, sitesOfInterest);
 
         case 'kilosort'
-            [featuresMin, featuresMax, sitesOfInterest] = getPCFeatures(spikes, sitesOfInterest, S0);
+            [featuresMin, featuresMax, sitesOfInterest] = getKilosortFeaturesSites(spikes, sitesOfInterest, S0);
 
         otherwise
             error('not implemented yet');

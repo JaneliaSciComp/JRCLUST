@@ -37,7 +37,7 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = getFigProjFeatures(S
     end
 
     switch lower(P.displayFeature)
-        case {'pca'} % pca_pv_spk_ (not pca_pv_clu_)
+        case 'pca' % pca_pv_spk_ (not pca_pv_clu_)
             [mrPv1, mrPv2] = pca_pv_spk_(S_clu.spikesByCluster{primaryCluster}, sitesOfInterest);
             [mrMin0, mrMax0] = pca_pc_spk_(backgroundSpikes, sitesOfInterest, mrPv1, mrPv2);
             [mrMin1, mrMax1] = pca_pc_spk_(foregroundSpikes, sitesOfInterest, mrPv1, mrPv2);
@@ -56,11 +56,11 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = getFigProjFeatures(S
             end
 
         case 'kilosort'
-            [mrMin0, mrMax0] = getPCFeatures(backgroundSpikes, sitesOfInterest, S0);
-            [mrMin1, mrMax1] = getPCFeatures(foregroundSpikes, sitesOfInterest, S0);
+            [mrMin0, mrMax0] = getKilosortFeaturesSites(backgroundSpikes, sitesOfInterest, S0);
+            [mrMin1, mrMax1] = getKilosortFeaturesSites(foregroundSpikes, sitesOfInterest, S0);
 
             if ~isempty(secondaryCluster)
-                [mrMin2, mrMax2] = getPCFeatures(secondaryForegroundSpikes, sitesOfInterest, S0);
+                [mrMin2, mrMax2] = getKilosortFeaturesSites(secondaryForegroundSpikes, sitesOfInterest, S0);
             end
 
         otherwise % generic
