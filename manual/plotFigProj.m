@@ -36,10 +36,20 @@ function plotFigProj(S0)
 
     cell_plot = {'Marker', 'o', 'MarkerSize', 1, 'LineStyle', 'none'};
 
+    % don't try to display kilosort features if this isn't a kilosort session!
+    if strcmpi(P.displayFeature, 'kilosort') && ~getOr(P, 'fImportKilosort', 0)
+        P.displayFeature = 'vpp';
+    end
+
     switch lower(P.displayFeature)
         case {'vpp', 'vmin', 'vmax'}
             xLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
             yLabel = 'Site # (%0.0f \\muV_{min})';
+
+        case 'kilosort'
+            xLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.kspc(1));
+            yLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.kspc(2));
+
         otherwise
             xLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.displayFeature, P.displayFeature, P.displayFeature);
             yLabel = sprintf('Site # (%%0.0f %s)', P.displayFeature);
@@ -56,10 +66,10 @@ function plotFigProj(S0)
         S_fig.hPlot0 = line(nan, nan, 'Color', P.mrColor_proj(1,:), 'Parent', S_fig.hAx);
         S_fig.hPlot1 = line(nan, nan, 'Color', P.mrColor_proj(2,:), 'Parent', S_fig.hAx); %place holder
         S_fig.hPlot2 = line(nan, nan, 'Color', P.mrColor_proj(3,:), 'Parent', S_fig.hAx); %place holder
-        set([S_fig.hPlot0, S_fig.hPlot1, S_fig.hPlot2], cell_plot{:}); %common style
+        set([S_fig.hPlot0, S_fig.hPlot1, S_fig.hPlot2], cell_plot{:}); % common style
 
         S_fig.sitesOfInterest = []; % so that it can update
-        S_fig.displayFeature = 'vpp';
+        S_fig.displayFeature = P.displayFeature;
 
         % plot boundary
         plotTable_([0, nSites], '-', 'Color', [.5 .5 .5]); %plot in one scoop
@@ -79,12 +89,12 @@ function plotFigProj(S0)
     end
 
     % update background spikes
-    plot_proj_(S_fig.hPlot0, mrMin0, mrMax0, P, S_fig.maxAmp);
+    plotFeatureProjections(S_fig.hPlot0, mrMin0, mrMax0, P, S_fig.maxAmp);
     % update foreground spikes
-    plot_proj_(S_fig.hPlot1, mrMin1, mrMax1, P, S_fig.maxAmp);
-
+    plotFeatureProjections(S_fig.hPlot1, mrMin1, mrMax1, P, S_fig.maxAmp);
+    % update secondary foreground spikes, if applicable
     if ~isempty(secondaryCluster)
-        plot_proj_(S_fig.hPlot2, mrMin2, mrMax2, P, S_fig.maxAmp);
+        plotFeatureProjections(S_fig.hPlot2, mrMin2, mrMax2, P, S_fig.maxAmp);
         figTitle = sprintf('Clu%d (black), Clu%d (red); %s', primaryCluster, secondaryCluster, figTitle);
     else
         update_plot_(S_fig.hPlot2, nan, nan);
@@ -93,7 +103,7 @@ function plotFigProj(S0)
 
     % Annotate axes
     axis_(S_fig.hAx, [0 nSites 0 nSites]);
-    set(S_fig.hAx,'XTick',.5:1:nSites,'YTick',.5:1:nSites, 'XTickLabel', P.sitesOfInterest, 'YTickLabel', P.sitesOfInterest, 'Box', 'off');
+    set(S_fig.hAx,'XTick', .5:1:nSites, 'YTick', .5:1:nSites, 'XTickLabel', P.sitesOfInterest, 'YTickLabel', P.sitesOfInterest, 'Box', 'off');
     xlabel(S_fig.hAx, sprintf(xLabel, S_fig.maxAmp));
     ylabel(S_fig.hAx, sprintf(yLabel, S_fig.maxAmp));
     title_(S_fig.hAx, figTitle);
