@@ -83,19 +83,19 @@ function plotFigProj(S0)
     end
 
     % get features for x0, y0, S_plot0 in one go
-    [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = getFigProjFeatures(S0, P.sitesOfInterest);
+    [yvalsBG, xvalsBG, yvalsFG, xvalsFG, yvalsFG2, xvalsFG2] = getFigProjFeatures(S0, P.sitesOfInterest);
 
     if ~isfield(figData, 'sitesOfInterest')
         figData.sitesOfInterest = [];
     end
 
     % update background spikes
-    plotFeatureProjections(figData.hPlotBG, mrMax0, mrMin0, P, figData.maxAmp);
+    plotFeatureProjections(figData.hPlotBG, xvalsBG, yvalsBG, P, figData.maxAmp);
     % update foreground spikes
-    plotFeatureProjections(figData.hPlotFG, mrMax1, mrMin1, P, figData.maxAmp);
+    plotFeatureProjections(figData.hPlotFG, xvalsFG, yvalsFG, P, figData.maxAmp);
     % update secondary foreground spikes, if applicable
-    if ~isempty(secondaryCluster)
-        plotFeatureProjections(figData.hPlotFG2, mrMax2, mrMin2, P, figData.maxAmp);
+    if ~isempty(secondaryCluster) && ~isempty(xvalsFG2) && ~isempty(yvalsFG2)
+        plotFeatureProjections(figData.hPlotFG2, xvalsFG2, yvalsFG2, P, figData.maxAmp);
         figTitle = sprintf('Clu%d (black), Clu%d (red); %s', primaryCluster, secondaryCluster, figTitle);
     else
         updatePlot(figData.hPlotFG2, nan, nan);

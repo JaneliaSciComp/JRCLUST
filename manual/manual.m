@@ -85,7 +85,7 @@ function manual(P, debugMode)
 
     S0 = button_CluWav_simulate_(1, [], S0, 1); %select first clu TW
 
-    autoScaleFigProjTime(S0);
+    autoScaleFigProjTime(S0, 1);
 
     S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom
     S_log = load_(strrep(P.paramFile, '.prm', '_log.mat'), [], 0);

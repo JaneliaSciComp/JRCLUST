@@ -12,8 +12,8 @@ function plotFeatureProjections(hPlot, mrMax, mrMin, P, maxAmp)
             vpp = 1;
 
         case 'kilosort'
-            % round to nearest hundred on either side of 0
-            bounds = round(max(abs([mrMin(:) ; mrMax(:)]))/100, 0)*[-100, 100];
+            % round up to nearest 50 on either side of 0
+            bounds = ceil(max(abs([mrMin(:) ; mrMax(:)]))/50)*[-50, 50];
             maxPair = [];
             vpp = 0;
 
