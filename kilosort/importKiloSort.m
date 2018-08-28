@@ -174,12 +174,6 @@ function importKiloSort(rezFile, sessionName)
     P = saveProbe([sessionName '-probe.mat'], P);
     S0.P = P;
 
-    % extract KS features
-    ksFeatures = permute(rez.cProjPC, [3 2 1]);
-    fidFeatures = fopen([sessionName '_ks-features.bin'], 'w');
-    fwrite_(fidFeatures, ksFeatures);
-    fclose(fidFeatures);
-
     ksFeatureDims = size(ksFeatures);
     S0.ksFeatureDims = ksFeatureDims;
     S0.rez = rez;
