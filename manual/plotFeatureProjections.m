@@ -1,27 +1,33 @@
 %--------------------------------------------------------------------------
-function plotFeatureProjections(hPlot, mrMin, mrMax, P, maxAmp)
+function plotFeatureProjections(hPlot, mrMax, mrMin, P, maxAmp)
     if nargin < 5
-        [hFig, S_fig] = getCachedFig('FigProj');
-        maxAmp = S_fig.maxAmp;
+        [~, figProjData] = getCachedFig('FigProj');
+        maxAmp = figProjData.maxAmp;
     end
 
     switch lower(P.displayFeature)
+        case {'vpp', 'vmin', 'vmax'}
+            bounds = [0 maxAmp];
+            maxPair = P.maxSite_show;
+            vpp = 1;
+
         case 'kilosort'
             % round to nearest hundred on either side of 0
             bounds = round(max(abs([mrMin(:) ; mrMax(:)]))/100, 0)*[-100, 100];
             maxPair = [];
+            vpp = 0;
 
-        otherwise % vpp et al.
-            bounds = [0 maxAmp];
-            maxPair = P.maxSite_show;
+        otherwise % not yet implemented
+            error('display feature %s not yet implemented', P.displayFeature);
+
     end
 
-    [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, bounds, maxPair);
+    [xvals, yvals, viPlot, tr_dim] = featuresToSiteGrid(mrMax, mrMin, bounds, maxPair, vpp);
 
     % make struct
     maxPair = P.maxSite_show;
     sitesOfInterest = P.sitesOfInterest;
     S_plot = makeStruct_(mrMax, mrMin, sitesOfInterest, viPlot, tr_dim, maxPair, maxAmp);
 
-    updatePlot(hPlot, vrX, vrY, S_plot);
+    updatePlot(hPlot, xvals, yvals, S_plot);
 end %func

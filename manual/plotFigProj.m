@@ -90,12 +90,12 @@ function plotFigProj(S0)
     end
 
     % update background spikes
-    plotFeatureProjections(figData.hPlotBG, mrMin0, mrMax0, P, figData.maxAmp);
+    plotFeatureProjections(figData.hPlotBG, mrMax0, mrMin0, P, figData.maxAmp);
     % update foreground spikes
-    plotFeatureProjections(figData.hPlotFG, mrMin1, mrMax1, P, figData.maxAmp);
+    plotFeatureProjections(figData.hPlotFG, mrMax1, mrMin1, P, figData.maxAmp);
     % update secondary foreground spikes, if applicable
     if ~isempty(secondaryCluster)
-        plotFeatureProjections(figData.hPlotFG2, mrMin2, mrMax2, P, figData.maxAmp);
+        plotFeatureProjections(figData.hPlotFG2, mrMax2, mrMin2, P, figData.maxAmp);
         figTitle = sprintf('Clu%d (black), Clu%d (red); %s', primaryCluster, secondaryCluster, figTitle);
     else
         updatePlot(figData.hPlotFG2, nan, nan);
