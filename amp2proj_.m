@@ -1,13 +1,14 @@
 %--------------------------------------------------------------------------
-function [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, maxPair)
+function [vrX, vrY, viPlot, tr_dim] = amp2proj_(yvals, xvals, bounds, maxPair)
     if nargin < 4
         maxPair = [];
     end
 
-    mrMax = linmap_(mrMax', [0, 1] * maxAmp, [0,1], 1);
-    mrMin = linmap_(mrMin', [0, 1] * maxAmp, [0,1], 1);
+    % remap yvals and xvals into [0 1]
+    xvals = linmap(xvals', bounds, [0 1], 1);
+    yvals = linmap(yvals', bounds, [0 1], 1);
 
-    [nSpikes, nSites] = size(mrMin);
+    [nSpikes, nSites] = size(yvals);
     if isempty(maxPair)
         maxPair = nSites;
     end
@@ -15,8 +16,8 @@ function [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, maxPair)
     [trX, trY] = deal(nan([nSpikes, nSites, nSites], 'single'));
 
     for jSite = 1:nSites
-        vrY1 = mrMin(:, jSite);
-        yMask = vrY1 > 0 & vrY1 < 1;
+        vrY1 = yvals(:, jSite);
+        yMask = vrY1 > 0 & vrY1 < 1; % get points away from the boundaries
 
         for iSite = 1:nSites
             if abs(iSite - jSite) > maxPair
@@ -24,14 +25,16 @@ function [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, maxPair)
             end
 
             if jSite > iSite
-                vrX1 = mrMin(:, iSite);
+                vrX1 = yvals(:, iSite);
             else
-                vrX1 = mrMax(:, iSite);
+                vrX1 = xvals(:, iSite);
             end
 
-            viPlot1 = find(vrX1 > 0 & vrX1 < 1 & yMask);
-            trX(viPlot1,jSite,iSite) = vrX1(viPlot1) + iSite - 1;
-            trY(viPlot1,jSite,iSite) = vrY1(viPlot1) + jSite - 1;
+            xMask = vrX1 > 0 & vrX1 < 1; % get points away from the boundaries
+
+            xyMask = find(xMask & yMask);
+            trX(xyMask, jSite, iSite) = vrX1(xyMask) + iSite - 1;
+            trY(xyMask, jSite, iSite) = vrY1(xyMask) + jSite - 1;
         end
     end
 
