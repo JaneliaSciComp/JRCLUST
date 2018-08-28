@@ -22,18 +22,21 @@ function [mrFet1, viSpk1] = getFet_clu_(iClu1, iSite, S0)
     end
 
     switch lower(P.displayFeature)
-        case {'vmin', 'vpp'}
-        mrWav_spk1 = squeeze_(tnWav2uV_(getSpikeWaveformsSites(viSpk1, iSite, S0), P));
-        mrFet1 = max(mrWav_spk1)-min(mrWav_spk1);
+        case {'vmin', 'vpp', 'kilosort'}
+            mrWav_spk1 = squeeze_(tnWav2uV_(getSpikeWaveformsSites(viSpk1, iSite, S0), P));
+            mrFet1 = max(mrWav_spk1)-min(mrWav_spk1);
+
         case 'cov'
-        mrFet1 = calc_cov_spk_(viSpk1, iSite);
+            mrFet1 = calc_cov_spk_(viSpk1, iSite);
+
         case {'pca', 'gpca'}
-        mrFet1 = pca_pc_spk_(viSpk1, iSite);
+            mrFet1 = pca_pc_spk_(viSpk1, iSite);
+        
         case {'ppca', 'private pca'}
-        [mrPv1, mrPv2] = pca_pv_clu_(iSite, S0.primarySelectedCluster);
-        mrFet1 = pca_pc_spk_(viSpk1, iSite, mrPv1, mrPv2);
+            [mrPv1, mrPv2] = pca_pv_clu_(iSite, S0.primarySelectedCluster);
+            mrFet1 = pca_pc_spk_(viSpk1, iSite, mrPv1, mrPv2);
         otherwise
-        error('not implemented yet');
+            error('not implemented yet');
     end
     mrFet1 = squeeze_(abs(mrFet1));
 end %func
