@@ -19,7 +19,7 @@ function rescaleProj_(hPlots, maxAmp, P)
         switch lower(P.displayFeature)
             case 'kilosort'
                 % round to nearest hundred on either side of 0
-                bounds = round(max(abs([S_plot1.mrMin(:) ; S_plot1.mrMax(:)]))/100, 0)*[-100, 100];
+                bounds = round(max(abs([S_plot1.mrMin(:) ; S_plot1.mrMax(:)]))/50, 0)*[-50, 50];
                 maxPair = [];
 
             otherwise % vpp et al.

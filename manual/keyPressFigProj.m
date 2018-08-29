@@ -12,7 +12,7 @@ function keyPressFigProj(hFig, event)
     figure_wait_(1);
     switch lower(event.Key)
         case {'uparrow', 'downarrow'}
-            rescale_FigProj_(event, hFig, S_fig, S0);
+            rescaleFigProj(event, hFig, S_fig, S0);
 
         case {'leftarrow', 'rightarrow'} % change channels
             fPlot = 0;

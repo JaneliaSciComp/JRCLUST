@@ -44,7 +44,7 @@ function autoScaleFigProjTime(S0, fPlot)
     if fPlot
         keyPressFcn_cell_(getCachedFig('FigWav'), {'j', 't'}, S0);
     else
-        rescale_FigProj_(figProjData.maxAmp, hFigProj, figProjData, S0);
+        rescaleFigProj(figProjData.maxAmp, hFigProj, figProjData, S0);
         rescale_FigTime_(figTimeData.maxAmp, S0, S0.P);
     end
 end %func
