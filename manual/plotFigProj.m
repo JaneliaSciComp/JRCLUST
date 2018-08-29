@@ -11,7 +11,10 @@ function plotFigProj(S0)
 
     primaryCluster = S0.primarySelectedCluster;
     secondaryCluster = S0.secondarySelectedCluster;
-    update_plot2_proj_(); % erase prev objects
+    if isfield(figData, 'hPlotFG2')
+        clearPlots(figData.hPlotFG2); % replacement for update_plot2_proj_
+    end
+    % update_plot2_proj_(); % erase prev objects
 
     %---------------
     % Compute
@@ -47,8 +50,8 @@ function plotFigProj(S0)
             yLabel = 'Site # (%0.0f \\muV_{min})';
 
         case 'kilosort'
-            xLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.kspc(1));
-            yLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.kspc(2));
+            xLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.pcPair(1));
+            yLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.pcPair(2));
 
         otherwise
             xLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.displayFeature, P.displayFeature, P.displayFeature);

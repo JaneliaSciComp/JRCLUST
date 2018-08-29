@@ -27,9 +27,9 @@ function [pc1, pc2] = getKilosortFeaturesSites(spikes, sitesOfInterest, S0)
         siteIndices = ismember(sitesOfInterest, templateSites);
 
         [~, sortIndices] = sort(templateSites);
-        pc1(siteIndices, spikeIndices) = spikeFeatures(S0.kspc(1), iTemplateSites(sortIndices), spikeIndices);
+        pc1(siteIndices, spikeIndices) = spikeFeatures(S0.pcPair(1), iTemplateSites(sortIndices), spikeIndices);
         pc1(~siteIndices, spikeIndices) = nan; % PCs not occurring on this site get NaN
-        pc2(siteIndices, spikeIndices) = spikeFeatures(S0.kspc(2), iTemplateSites(sortIndices), spikeIndices);
+        pc2(siteIndices, spikeIndices) = spikeFeatures(S0.pcPair(2), iTemplateSites(sortIndices), spikeIndices);
         pc2(~siteIndices, spikeIndices) = nan; % PCs not occurring on this site get NaN
     end
 end % func

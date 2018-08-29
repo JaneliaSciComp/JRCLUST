@@ -25,7 +25,7 @@ function manual(P, debugMode)
     end
 
     if getOr(P, 'fImportKilosort', 0)
-        S0.kspc = [1 2];
+        S0.pcPair = [1 2];
         set(0, 'UserData', S0);
     end
 

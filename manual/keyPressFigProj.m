@@ -4,33 +4,34 @@ function keyPressFigProj(hFig, event)
     P = S0.P;
     S_clu = S0.S_clu;
 
-    [hFig, S_fig] = getCachedFig('FigProj');
+    [hFig, figData] = getCachedFig('FigProj');
 
-    S_plot1 = get(S_fig.hPlotFG, 'UserData');
-    sitesOfInterest = S_plot1.sitesOfInterest;
+    plotDataFG = get(figData.hPlotFG, 'UserData');
+    sitesOfInterest = plotDataFG.sitesOfInterest;
 
     figure_wait_(1);
+
     switch lower(event.Key)
         case {'uparrow', 'downarrow'}
-            rescaleFigProj(event, hFig, S_fig, S0);
+            rescaleFigProj(event, hFig, figData, S0);
 
         case {'leftarrow', 'rightarrow'} % change channels
             fPlot = 0;
             if strcmpi(event.Key, 'leftarrow')
-                if min(S_fig.sitesOfInterest) > 1
-                    S_fig.sitesOfInterest = S_fig.sitesOfInterest - 1;
+                if min(figData.sitesOfInterest) > 1
+                    figData.sitesOfInterest = figData.sitesOfInterest - 1;
                     fPlot = 1;
                 end
             else
-                if max(S_fig.sitesOfInterest) < max(P.chanMap)
-                    S_fig.sitesOfInterest = S_fig.sitesOfInterest + 1;
+                if max(figData.sitesOfInterest) < max(P.chanMap)
+                    figData.sitesOfInterest = figData.sitesOfInterest + 1;
                     fPlot = 1;
                 end
             end
 
             if fPlot
-                set(hFig, 'UserData', S_fig);
-                S0.P.sitesOfInterest = S_fig.sitesOfInterest;
+                set(hFig, 'UserData', figData);
+                S0.P.sitesOfInterest = figData.sitesOfInterest;
                 plotFigProj(S0);
             end
 
@@ -42,17 +43,20 @@ function keyPressFigProj(hFig, event)
         case 's' % split
             figure_wait_(0);
             if ~isempty(S0.secondarySelectedCluster)
-                msgbox_('Select one cluster to split'); return;
+                msgbox_('Select one cluster to split');
+                return;
             end
 
-            S_plot1 = select_polygon_(S_fig.hPlotFG);
+            clearPlots(figData.hPlotFG2); % replacement for update_plot2_proj_ in select_polygon_
+            plotDataFG = select_polygon_(figData.hPlotFG);
 
-            if ~isempty(S_plot1)
-                [fSplit, vlIn] = plot_split_(S_plot1);
+            if ~isempty(plotDataFG)
+                [fSplit, vlIn] = plot_split_(plotDataFG);
                 if fSplit
                     S_clu = splitCluster(S0.primarySelectedCluster, vlIn);
                 else
-                    update_plot2_proj_();
+                    clearPlots(figData.hPlotFG2); % replacement for update_plot2_proj_
+                    % update_plot2_proj_();
                 end
             end
 
@@ -74,12 +78,12 @@ function keyPressFigProj(hFig, event)
 
         case 'p' % toggle PCivPCj
             if getOr(P, 'fImportKilosort')
-                if S0.kspc == [1 2]
-                    S0.kspc = [1 3];
-                elseif S0.kspc == [1 3]
-                    S0.kspc = [2 3];
+                if S0.pcPair == [1 2]
+                    S0.pcPair = [1 3];
+                elseif S0.pcPair == [1 3]
+                    S0.pcPair = [2 3];
                 else
-                    S0.kspc = [1 2];
+                    S0.pcPair = [1 2];
                 end
                 set(0, 'UserData', S0);
 
@@ -87,11 +91,11 @@ function keyPressFigProj(hFig, event)
             end
 
         case 'b' %background spikes
-            toggleVisible_(S_fig.hPlotBG);
+            toggleVisible_(figData.hPlotBG);
 
         case 'h' %help
-            msgbox_(S_fig.csHelp, 1);
-    end %switch
-    % drawnow;
+            msgbox_(figData.csHelp, 1);
+    end % switch
+
     figure_wait_(0);
 end %func
