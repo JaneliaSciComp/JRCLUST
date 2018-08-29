@@ -77,7 +77,7 @@ for iCluGt=1:nCluGt
     spikesByCluster_miss{iCluGt} = viSpk_clu1(~vlSpk_clu1);  
 end
 [vrAccuracy, viCluMatch_accuracy] = max(mrAccuracy);
-S_score_clu = makeStruct_(vrScore, vrMiss, vrFp, viCluMatch, cviHit_gt, ...
+S_score_clu = makeStruct(vrScore, vrMiss, vrFp, viCluMatch, cviHit_gt, ...
     cviMiss_gt, cviHit_clu, cviMiss_clu, cviSpk_gt_hit, cviSpk_gt_miss, ...
     spikesByCluster_hit, spikesByCluster_miss, vrAccuracy, viCluMatch_accuracy);
 % viCluMatch1 = viClu_unique(viCluMatch);
@@ -138,7 +138,7 @@ end % function
 
 
 %--------------------------------------------------------------------------
-function [ S ] = makeStruct_( varargin)
+function [ S ] = makeStruct( varargin)
 %MAKESTRUCT all the inputs must be a variable. 
 %don't pass function of variables. ie: abs(X)
 %instead create a var AbsX an dpass that name

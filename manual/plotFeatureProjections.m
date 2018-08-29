@@ -27,7 +27,7 @@ function plotFeatureProjections(hPlot, mrMax, mrMin, P, maxAmp)
     % make struct
     maxPair = P.maxSite_show;
     sitesOfInterest = P.sitesOfInterest;
-    S_plot = makeStruct_(mrMax, mrMin, sitesOfInterest, viPlot, tr_dim, maxPair, maxAmp);
+    figData = makeStruct(mrMax, mrMin, sitesOfInterest, viPlot, tr_dim, maxPair, maxAmp);
 
-    updatePlot(hPlot, xvals, yvals, S_plot);
+    updatePlot(hPlot, xvals, yvals, figData);
 end % function

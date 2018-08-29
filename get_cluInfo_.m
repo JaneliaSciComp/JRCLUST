@@ -19,7 +19,7 @@ function S_cluInfo = get_cluInfo_(iClu)
     if P.fWav_raw_show
         trWav = fft_lowpass_(trWav, getOr(P, 'fc_spkwav_show', []), P.sampleRateHz);
     end
-    S_cluInfo = makeStruct_(xyPos, iClu, mrWav_clu, viSite, vcPos, trWav);
+    S_cluInfo = makeStruct(xyPos, iClu, mrWav_clu, viSite, vcPos, trWav);
     try
         S_cluInfo.l_ratio = S_clu.vrLRatio_clu(iClu);
         S_cluInfo.isi_ratio = S_clu.vrIsiRatio_clu(iClu);

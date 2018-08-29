@@ -33,7 +33,7 @@ function S_fig = plot_spkwav_(S_fig, S0)
             disperr_();
         end
     end
-    S = makeStruct_(cvrY, cviSite, vnSpk);
+    S = makeStruct(cvrY, cviSite, vnSpk);
     try
         set(S_fig.hSpkAll, 'XData', cell2mat_(cvrX), 'YData', cell2mat_(cvrY), 'UserData', S);
     catch

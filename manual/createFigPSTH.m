@@ -13,7 +13,7 @@ function [hFig, hFig_b] = createFigPSTH(hFig, hFig_b, P, nStims)
             vhAx2(iStim) = axes('Parent', hFig, 'Position',[.08 axoffset_ + axlen*.68 .9 axlen*.2]);
         end
         vcColor = 'k';
-        set(hFig, 'UserData', makeStruct_(vhAx1, vhAx2, vcColor));
+        set(hFig, 'UserData', makeStruct(vhAx1, vhAx2, vcColor));
     end
 
     % Figure handle for the secondarySelectedCluster
@@ -27,6 +27,6 @@ function [hFig, hFig_b] = createFigPSTH(hFig, hFig_b, P, nStims)
             vhAx2(iStim) = axes('Parent', hFig_b, 'Position',[.08 axoffset_ + axlen*.68 .9 axlen*.2]);
         end
         vcColor = 'r';
-        set(hFig_b, 'UserData', makeStruct_(vhAx1, vhAx2, vcColor));
+        set(hFig_b, 'UserData', makeStruct(vhAx1, vhAx2, vcColor));
     end
 end % function

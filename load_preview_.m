@@ -62,7 +62,7 @@ function [mnWav_raw, S_preview] = load_preview_(P)
     mnWav_raw = cell2mat(mnWav_raw');
     % if nargout>=2, mnWav_raw = cell2mat(mnWav_raw'); end
     if nargout>=2
-        S_preview = makeStruct_(nLoads_per_file, nLoads_max_preview, ...
+        S_preview = makeStruct(nLoads_per_file, nLoads_max_preview, ...
         sec_per_load_preview, nSamples_per_load, nLoads, csFile_load, cviLim_load);
     end
 end % function

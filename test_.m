@@ -21,16 +21,16 @@ function S_out = test_(vcFunc, cell_Input, nOutput, fVerbose, fDeleteEmpty)
             S_out = [];
             case 1
             [out1] = feval(vcFunc, cell_Input{:});
-            S_out = makeStruct_(out1);
+            S_out = makeStruct(out1);
             case 2
             [out1, out2] = feval(vcFunc, cell_Input{:});
-            S_out = makeStruct_(out1, out2);
+            S_out = makeStruct(out1, out2);
             case 3
             [out1, out2, out3] = feval(vcFunc, cell_Input{:});
-            S_out = makeStruct_(out1, out2, out3);
+            S_out = makeStruct(out1, out2, out3);
             case 4
             [out1, out2, out3, out4] = feval(vcFunc, cell_Input{:});
-            S_out = makeStruct_(out1, out2, out3, out4);
+            S_out = makeStruct(out1, out2, out3, out4);
         end %switch
         if fVerbose
             if nOutput>=1, fprintf('[%s: out1]\n', vcFunc); disp(S_out.out1); end
