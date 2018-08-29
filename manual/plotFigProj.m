@@ -50,8 +50,8 @@ function plotFigProj(S0)
             yLabel = 'Site # (%0.0f \\muV_{min})';
 
         case 'kilosort'
-            xLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.pcPair(1));
-            yLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.pcPair(2));
+            xLabel = sprintf('Site # (PC %d)', S0.pcPair(1));
+            yLabel = sprintf('Site # (PC %d)', S0.pcPair(2));
 
         otherwise
             xLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.displayFeature, P.displayFeature, P.displayFeature);
@@ -88,6 +88,14 @@ function plotFigProj(S0)
     % get features for x0, y0, S_plot0 in one go
     [yvalsBG, xvalsBG, yvalsFG, xvalsFG, yvalsFG2, xvalsFG2] = getFigProjFeatures(S0, P.sitesOfInterest);
 
+    % set bounds for PC features
+    if strcmpi(P.displayFeature, 'kilosort')
+        autoscale_pct = getOr(S0.P, 'autoscale_pct', 99.5);
+        featureData = abs([xvalsBG yvalsBG xvalsFG yvalsFG xvalsFG2 yvalsFG2]);
+        maxAmp = quantile(featureData(:), autoscale_pct/100);
+        figData.maxAmp = ceil(maxAmp/50) * 50; % round up to nearest hundred
+    end
+
     if ~isfield(figData, 'sitesOfInterest')
         figData.sitesOfInterest = [];
     end
@@ -100,8 +108,8 @@ function plotFigProj(S0)
     if ~isempty(secondaryCluster) && ~isempty(xvalsFG2) && ~isempty(yvalsFG2)
         plotFeatureProjections(figData.hPlotFG2, xvalsFG2, yvalsFG2, P, figData.maxAmp);
         figTitle = sprintf('Clu%d (black), Clu%d (red); %s', primaryCluster, secondaryCluster, figTitle);
-    else
-        updatePlot(figData.hPlotFG2, nan, nan);
+    else % reset hPlotFG2
+        updatePlot(figData.hPlotFG2, nan, nan, struct());
         figTitle = sprintf('Clu%d (black); %s', primaryCluster, figTitle);
     end
 

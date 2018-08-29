@@ -46,16 +46,23 @@ function figData = rescaleFigProj(event, hFig, figData, S0)
 
         switch lower(P.displayFeature)
             case 'kilosort'
-                % round to nearest 50 on either side of 0
-                bounds = round(max(abs([plotData.mrMin(:) ; plotData.mrMax(:)]))/50, 0)*[-50, 50];
+                bounds = maxAmp*[-1 1];
                 maxPair = [];
 
+                plotFeaturesX = plotData.PC1;
+                plotFeaturesY = plotData.PC2;
+                vpp = 0;
+
             otherwise % vpp et al.
-                bounds = [0 maxAmp];
+                bounds = maxAmp*[0 1];
                 maxPair = P.maxSite_show;
+
+                plotFeaturesX = plotData.mrMax;
+                plotFeaturesY = plotData.mrMin;
+                vpp = 1;
         end
 
-        [vrX, vrY, viPlot, ~] = featuresToSiteGrid(plotData.mrMax, plotData.mrMin, bounds, maxPair);
+        [vrX, vrY, viPlot, ~] = featuresToSiteGrid(plotFeaturesX, plotFeaturesY, bounds, maxPair, vpp);
 
         plotData = struct_add_(plotData, viPlot, vrX, vrY, maxAmp);
         updatePlot(hPlot, vrX, vrY, plotData);
@@ -67,8 +74,8 @@ function figData = rescaleFigProj(event, hFig, figData, S0)
             figData.vcYLabel = 'Site # (%0.0f \\muV_{min})';
 
         case 'kilosort'
-            figData.vcXLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.pcPair(1));
-            figData.vcYLabel = sprintf('Site # (%%0.0f KS PC %d)', S0.pcPair(2));
+            figData.vcXLabel = sprintf('Site # (PC %d)', S0.pcPair(1));
+            figData.vcYLabel = sprintf('Site # (PC %d)', S0.pcPair(2));
 
         otherwise
             figData.vcXLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.displayFeature, P.displayFeature, P.displayFeature);

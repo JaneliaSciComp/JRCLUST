@@ -2,7 +2,6 @@
 function keyPressFigProj(hFig, event)
     S0 = get(0, 'UserData');
     P = S0.P;
-    S_clu = S0.S_clu;
 
     [hFig, figData] = getCachedFig('FigProj');
 
@@ -30,6 +29,7 @@ function keyPressFigProj(hFig, event)
             end
 
             if fPlot
+                % need to refresh features for this set of sites
                 set(hFig, 'UserData', figData);
                 S0.P.sitesOfInterest = figData.sitesOfInterest;
                 plotFigProj(S0);

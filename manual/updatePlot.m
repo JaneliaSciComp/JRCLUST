@@ -16,22 +16,21 @@ function updatePlot(hPlot, newX, newY, userData, tol)
     % set XData and YData to NaN (invisible)
     if isempty(newY) || isempty(newX)
         clearPlots(hPlot);
-        return;
-    end
+    else
+        oldX = get(hPlot, 'XData');
+        oldY = get(hPlot, 'YData');
 
-    oldX = get(hPlot, 'XData');
-    oldY = get(hPlot, 'YData');
-
-    doUpdate = 1;
-    if (numel(oldX) == numel(newX)) && (numel(oldY) == numel(newY))
-        % don't update if both sets of values haven't changed
-        if (norm(oldX(:) - newX(:)) < tol) && (norm(oldY(:) - newY(:)) < tol)
-            doUpdate = 0;
+        doUpdate = 1;
+        if (numel(oldX) == numel(newX)) && (numel(oldY) == numel(newY))
+            % don't update if both sets of values haven't changed
+            if (norm(oldX(:) - newX(:)) < tol) && (norm(oldY(:) - newY(:)) < tol)
+                doUpdate = 0;
+            end
         end
-    end
 
-    if doUpdate
-        set(hPlot, 'XData', newX, 'YData', newY);
+        if doUpdate
+            set(hPlot, 'XData', newX, 'YData', newY);
+        end
     end
 
     if ~isempty(userData)
