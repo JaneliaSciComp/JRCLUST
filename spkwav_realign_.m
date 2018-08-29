@@ -15,4 +15,4 @@ function [spikeWaveforms1, spikeTimes1] = spkwav_realign_(spikeWaveforms1, mnWav
     spikeTimes1(viSpk_shift) = viTime_shift;
     spikeWaveforms1(:,viSpk_shift,:) = mr2tr3_(mnWav_spk, spkLim_wav, viTime_shift, viSite1);
     % fprintf('\n\t\ttook %0.1fs\n', toc(t1));
-end %func
+end % function

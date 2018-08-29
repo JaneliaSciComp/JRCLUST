@@ -33,4 +33,4 @@ function plot_FigHist_(S0)
     title_(S_fig.hAx, vcTitle);
 
     set(hFig, 'UserData', S_fig);
-end %func
+end % function

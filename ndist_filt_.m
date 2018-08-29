@@ -12,4 +12,4 @@ function mnWav2 = ndist_filt_(mnWav2, ndist_filt)
         vn_ = median(vn_(1:10:end)) - vn_;
         mnWav2(:,iChan) = vn_;
     end
-end %func
+end % function

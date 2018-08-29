@@ -5,4 +5,4 @@ function export_rate_()
     csMsg = assignWorkspace_(mrRate_clu);
     fprintf(csMsg);
     msgbox_(csMsg, 1);
-end %func
+end % function

@@ -24,7 +24,7 @@ for i=1:nargin
         varargout{i} = [];
     end
 end
-end %func
+end % function
 
 
 %--------------------------------------------------------------------------
@@ -41,4 +41,4 @@ for i=1:numel(varargin)
 end
 vcMsg = cell2mat(vcMsg);
 if nargout==0, fprintf(vcMsg); end
-end %func
+end % function

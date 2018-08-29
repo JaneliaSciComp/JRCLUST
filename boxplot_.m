@@ -46,4 +46,4 @@ function boxplot_(vrY, vrX, xbin, xlim1)
         plot(vrXp, mrYp(:,2), 'k.-', 'LineWidth', 1);
         grid on;
     end
-end %func
+end % function

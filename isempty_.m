@@ -5,4 +5,4 @@ function vl = isempty_(cvr)
     else
         vl = isempty(cvr);
     end
-end %func
+end % function

@@ -21,4 +21,4 @@ function [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, iClu, S0)
         vcYlabel = sprintf('Site %d (%s)', iSite, P.displayFeature);
     end
 
-end %func
+end % function

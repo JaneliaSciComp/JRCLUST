@@ -61,4 +61,4 @@ function mr1 = fft_clean__(mr, thresh, nbins)
     if n < n_pow2, mr1 = mr1(1:n,:); end
     mr1 = bsxfun(@plus, mr1, vrMu); %add mean back
     mr1 = cast(mr1, vcClass); % cast back to the original type
-end %func
+end % function

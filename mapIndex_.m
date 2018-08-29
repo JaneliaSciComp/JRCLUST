@@ -8,4 +8,4 @@ function [vi, nClu, viA] = mapIndex_(vi, viA, viB)
     viAB(viA) = viB; %create a translation table A->B
     vl = vi>0;
     vi(vl) = viAB(vi(vl)); %do not map zeros
-end %func
+end % function

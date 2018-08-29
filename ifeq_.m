@@ -5,4 +5,4 @@ function out = ifeq_(if_, true_, false_)
     else
         out = false_;
     end
-end %func
+end % function

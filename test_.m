@@ -42,4 +42,4 @@ function S_out = test_(vcFunc, cell_Input, nOutput, fVerbose, fDeleteEmpty)
         disperr_();
         S_out = [];
     end
-end %func
+end % function

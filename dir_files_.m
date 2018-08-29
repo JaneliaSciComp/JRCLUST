@@ -24,4 +24,4 @@ function csFiles_bin = dir_files_(multiFilenames, vcFile_txt, file_sort_merge)
         fprintf('%s is created.\n', vcFile_txt);
         edit(vcFile_txt);
     end
-end %func
+end % function

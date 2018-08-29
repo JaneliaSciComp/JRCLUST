@@ -20,4 +20,4 @@ function exit_manual_(src, event)
         close(src);
     end
     set(0, 'UserData', []); % clear previous
-end %func
+end % function

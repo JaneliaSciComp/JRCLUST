@@ -30,4 +30,4 @@ function S_clu = delete_clu_(S_clu, viClu_delete)
     %     S_clu = S_clu_update_note_(S_clu, iClu3, get_next_clu_(S_clu, iClu3) - 1);
     % end
     dialogAssert(S_clu_valid_(S_clu), 'Cluster number is inconsistent after deleting');
-end %func
+end % function

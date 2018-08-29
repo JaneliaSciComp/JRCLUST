@@ -54,4 +54,4 @@ function [viSpk1, vrSpk1, thresh1] = spikeDetectSingle_fast_(vrWav1, P, thresh1)
     % if fSpikeRefrac_site %perform spike refractive period per site (affects exact mode)
     %     [viSpk1, vrSpk1] = spike_refrac_(viSpk1, vrSpk1, [], nRefrac); %same site spikes
     % end
-end %func
+end % function

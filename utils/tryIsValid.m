@@ -9,4 +9,4 @@ function flag = tryIsValid(h)
             flag = 0;
         end
     end
-end % func
+end % function

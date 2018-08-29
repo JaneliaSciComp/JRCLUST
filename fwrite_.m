@@ -7,4 +7,4 @@ function fSuccess = fwrite_(fid, vr)
     catch
         fSuccess = 0; % TW
     end
-end %func
+end % function

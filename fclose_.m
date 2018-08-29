@@ -18,4 +18,4 @@ function fid = fclose_(fid, fVerbose)
     catch
         disperr_();
     end
-end %func
+end % function

@@ -45,4 +45,4 @@ function [mrWav_clu1, clusterSites, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_c
         [viSpk_clu_, clusterSites_] = spk_select_pos_(clusterSpikes, vrPosY_spk1, vrYLim(3:4), nSamples_max, spikeSites1);
         mrWav_hi_clu1 = nanmean_int16_(tnWav_(:,:,viSpk_clu_), 3, fUseCenterSpk, centerSite, clusterSites_, S0.P);
     end
-end %func
+end % function

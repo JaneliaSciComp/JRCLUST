@@ -39,4 +39,4 @@ function [mrFet1, viSpk1] = getFet_clu_(iClu1, iSite, S0)
             error('not implemented yet');
     end
     mrFet1 = squeeze_(abs(mrFet1));
-end %func
+end % function

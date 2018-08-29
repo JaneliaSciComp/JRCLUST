@@ -14,4 +14,4 @@ function P = funcInStr_( varargin )
             P = setfield(P, csNames{iField}, csValues{iField});
         end
     end
-end %func
+end % function

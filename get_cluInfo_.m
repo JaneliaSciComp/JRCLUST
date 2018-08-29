@@ -29,4 +29,4 @@ function S_cluInfo = get_cluInfo_(iClu)
         S_cluInfo.uVpp = S_clu.vrVpp_uv_clu(iClu);
     catch
     end
-end %func
+end % function

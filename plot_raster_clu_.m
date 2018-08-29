@@ -29,4 +29,4 @@ function plot_raster_clu_(viTime_clu, vrTime_trial, P, hAx)
     hold(hAx, 'on');
     plot(hAx, [t0,t0]/trialLength, get(hAx,'YLim'), 'r-');
     xlabel(hAx, 'Time (s)');
-end %func
+end % function

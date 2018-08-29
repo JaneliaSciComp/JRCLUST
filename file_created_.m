@@ -21,4 +21,4 @@ function vrDatenum = file_created_(csFiles, vcDateMode)
         end
     end
     % datestr(datenum1, 'yyyy-mm-dd HH:MM:SS.FFF')
-end %func
+end % function

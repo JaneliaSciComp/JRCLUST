@@ -22,4 +22,4 @@ function [S_clu, vlKeep_clu] = S_clu_remove_empty_(S_clu, fSave_old)
     end
     S_clu.spikeClusters = int32(S_clu.spikeClusters);
     S_clu.nClusters = double(max(S_clu.spikeClusters));
-end %func
+end % function

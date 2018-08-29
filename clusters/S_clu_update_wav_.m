@@ -6,4 +6,4 @@ function S_clu = S_clu_update_wav_(S_clu, P)
     S_clu = S_clu_wav_(S_clu);
     S_clu.mrWavCor = S_clu_wavcor_(S_clu, P);
     S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, S_clu_self_corr_(S_clu));
-end %func
+end % function

@@ -27,4 +27,4 @@ function finalStruct = mergeStructs(originalStruct, structToMerge, fieldsToMerge
             end
         end
     end
-end %func
+end % function

@@ -17,4 +17,4 @@ function mrPos_spk = spk_pos_(S0, spikeFeatures)
     mrPos_spk = zeros(numel(S0.spikeSites), 2, 'single');
     mrPos_spk(:,1) = sum(mrVp .* mrX_spk) ./ vrVp;
     mrPos_spk(:,2) = sum(mrVp .* mrY_spk) ./ vrVp;
-end %func
+end % function

@@ -24,4 +24,4 @@ function hMenu = menu_checkbox_(vcTag, vcLabel, fUncheckRest)
     catch
         disperr_();
     end
-end %func
+end % function

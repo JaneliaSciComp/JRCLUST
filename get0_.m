@@ -23,4 +23,4 @@ function varargout = get0_(varargin)
             varargout{i} = [];
         end
     end
-end %func
+end % function

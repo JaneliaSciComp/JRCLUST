@@ -46,4 +46,4 @@ function dc2_ = compute_dc2_(mrFet12, viiSpk12_ord, n1_, n2_, P)
         end
         if isnan(dc2_), dc2_ = quantile(mrDist_sub(:), P.dc_percent/100); end
     end
-end %func
+end % function

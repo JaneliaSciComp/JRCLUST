@@ -92,4 +92,4 @@ function autoSplit(fMulti, S0)
     end
 
     splitCluster(clusterToSplit, vlSpkIn);
-end %func
+end % function

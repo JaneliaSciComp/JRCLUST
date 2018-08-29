@@ -28,4 +28,4 @@ function merge_auto_(S0)
     nClu_merge = nClu_prev - S_clu.nClusters;
     msgbox_(sprintf('Merged %d clusters >%0.2f maxWavCor.', nClu_merge, maxWavCor));
     save_log_(sprintf('merge-auto <%0.2f maxWavCor', maxWavCor), S0);
-end %func
+end % function

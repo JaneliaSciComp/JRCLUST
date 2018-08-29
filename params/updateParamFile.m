@@ -27,4 +27,4 @@ function updateParamFile(P, filename)
         end
     end
     cellstr2file_(filename, csLines);
-end %func
+end % function

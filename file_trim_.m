@@ -18,4 +18,4 @@ function nBytes = file_trim_(fid, nBytes, P)
         nBytes = nSamples_load * bytesPerSample * P.nChans;
         fseek_(fid, nlim_load(1), P);
     end
-end %func
+end % function

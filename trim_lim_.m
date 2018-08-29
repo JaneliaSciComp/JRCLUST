@@ -7,4 +7,4 @@ function xlim1 = trim_lim_(xlim1, xlim0)
     if xlim1(2)>xlim0(2), xlim1 = xlim0(2) + [-dx, 0]; end
     xlim1(1) = max(xlim1(1), xlim0(1));
     xlim1(2) = min(xlim1(2), xlim0(2));
-end %func
+end % function

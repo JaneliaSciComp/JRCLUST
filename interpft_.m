@@ -9,4 +9,4 @@ function [tr, vi] = interpft_(tr, nInterp)
     else
         tr = tr(1:numel(vi),:);
     end
-end %func
+end % function

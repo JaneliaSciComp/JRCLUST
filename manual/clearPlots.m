@@ -5,4 +5,4 @@ function clearPlots(hPlots)
     for i = 1:numel(hPlots)
         set(hPlots(i), 'XData', nan, 'YData', nan);
     end
-end % func
+end % function

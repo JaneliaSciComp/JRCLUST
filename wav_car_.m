@@ -49,4 +49,4 @@ function [filteredTraces, vnWav1_mean] = wav_car_(filteredTraces, P)
     %     filteredTraces(:, P.viSiteZero) = 0;
     % end
     % fprintf('\n\ttook %0.1fs.\n', toc(t1));
-end %func
+end % function

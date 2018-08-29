@@ -15,4 +15,4 @@ function vcPath = replacePath_(vcPath1, vcPath2)
     else
         vcPath = [vcFname1, vcExt1];
     end
-end %func
+end % function

@@ -214,4 +214,4 @@ function importKiloSort(rezFile, sessionName)
 
     exportParams(P.paramFile, [], 0);
     save0_([sessionName '_jrc.mat']);
-end %func
+end % function

@@ -98,4 +98,4 @@ function manual(P, debugMode)
     % Finish up
 %     tryClose(hMsg);
     fprintf('UI creation took %0.1fs\n', toc(t1));
-end %func
+end % function

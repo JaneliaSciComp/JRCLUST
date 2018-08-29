@@ -72,4 +72,4 @@ function S_fig = preview_(P, fDebug_ui_)
     set(hFig, 'UserData', S_fig);
     drawnow;
     S_fig = Fig_preview_update_(hFig, S_fig, 0);
-end %func
+end % function

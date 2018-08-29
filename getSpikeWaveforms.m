@@ -32,4 +32,4 @@ function traces = getSpikeWaveforms(P, useRaw)
         end
         traces = spikeWaveforms;
     end
-end % func
+end % function

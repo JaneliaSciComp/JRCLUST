@@ -28,4 +28,4 @@ function [featuresMin, featuresMax, sitesOfInterest] = getFeatureForSpikes(spike
         otherwise
             error('not implemented yet');
     end
-end %func
+end % function

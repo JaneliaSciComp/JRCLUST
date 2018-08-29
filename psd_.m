@@ -12,4 +12,4 @@ function [mrPower, vrFreq] = psd_(mr, Fs, nSkip)
     mrPower = pow2db_(abs(mrPower(2:n1+1, :))) / n;
 
     if nargout>=2, vrFreq = Fs*(1:n1)'/n; end
-end %func
+end % function

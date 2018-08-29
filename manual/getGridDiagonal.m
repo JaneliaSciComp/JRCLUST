@@ -11,4 +11,4 @@ function [vrX, vrY] = getGridDiagonal(lim)
         vrX = vrX + lim(3);
         vrY = vrY + lim(3);
     end
-end %func
+end % function

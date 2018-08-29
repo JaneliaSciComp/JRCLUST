@@ -26,4 +26,4 @@ function [mrPc1, mrPc2, mrPv1, mrPv2] = pca_pc_spk_(viSpk1, viSites1, mrPv1, mrP
 
     mrPc1 = (mrPc1') / dimm1(1);
     mrPc2 = (mrPc2') / dimm1(1);
-end %func
+end % function

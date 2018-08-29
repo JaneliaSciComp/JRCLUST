@@ -32,7 +32,6 @@ function figData = rescaleFigProj(event, hFig, figData, S0)
     end
 
     % rescaleProj_(hPlots, figData.maxAmp, S0.P);
-    clearPlots(figData.hPlotFG2); % replacement for update_plot2_proj_
     for iPlot = 1:numel(hPlots)
         hPlot = hPlots(iPlot);
         plotData = get(hPlot, 'UserData');

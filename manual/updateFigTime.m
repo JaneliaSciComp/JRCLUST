@@ -30,4 +30,4 @@ function updateFigTime()
     % end
     grid(S_fig.hAx, 'on');
     ylabel(S_fig.hAx, vcYlabel);
-end %func
+end % function

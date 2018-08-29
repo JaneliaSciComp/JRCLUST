@@ -20,4 +20,4 @@ function vrTime_trial = loadTrial_(trialFile)
     catch
         disperr_();
     end
-end %func
+end % function

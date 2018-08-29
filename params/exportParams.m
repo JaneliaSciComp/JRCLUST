@@ -26,4 +26,4 @@ function exportParams(paramFile, paramFileOut, fShow)
         msgbox_(vcMsg);
         edit(paramFileOut);
     end
-end %func
+end % function

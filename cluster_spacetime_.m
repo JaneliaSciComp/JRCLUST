@@ -114,4 +114,4 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     'P', P, 't_runtime', t_runtime, 'halo', [], 'viiSpk', [], 'trFet_dim', trFet_dim, 'vrDc2_site', vrDc2_site);
 
     % figure; loglog(vrRho, vrDelta, '.');
-end %func
+end % function

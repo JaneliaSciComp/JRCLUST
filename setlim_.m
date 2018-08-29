@@ -3,4 +3,4 @@
 function vr = setlim_(vr, lim_)
     % Set low and high limits
     vr = min(max(vr, lim_(1)), lim_(2));
-end %func
+end % function

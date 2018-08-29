@@ -16,4 +16,4 @@ function S0 = keyPressFcn_cell_(hObject, csKey, S0)
     % drawnow;
     % figure_wait_(0);
     if nargout==0, set(0, 'UserData', S0); end
-end %func
+end % function

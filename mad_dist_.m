@@ -15,4 +15,4 @@ function d12 = mad_dist_(mrFet1, mrFet2)
     mad1 = median(abs(vrFet12_med1' * bsxfun(@minus, mrFet1, vrFet1_med)));
     mad2 = median(abs(vrFet12_med1' * bsxfun(@minus, mrFet2, vrFet2_med)));
     d12 = norm12 / sqrt(mad1.^2 + mad2.^2);
-end %func
+end % function

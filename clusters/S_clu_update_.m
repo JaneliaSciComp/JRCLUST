@@ -27,4 +27,4 @@ function S_clu = S_clu_update_(S_clu, clustersToUpdate, P)
     S_clu = S_clu_position_(S_clu, clustersToUpdate);
     S_clu = S_clu_quality_(S_clu, P, clustersToUpdate);
     % [S_clu, S0] = S_clu_commit_(S_clu, 'S_clu_update_');
-end %func
+end % function

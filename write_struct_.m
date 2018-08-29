@@ -10,4 +10,4 @@ function write_struct_(vcFile, S)
     catch
         fprintf(2, 'Writing struct to file %s failed.\n', vcFile);
     end
-end %func
+end % function

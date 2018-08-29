@@ -7,4 +7,4 @@ function vi = cell2vi_(cvi)
         vi{iSite} = iSite * ones(vn_site(iSite), 1);
     end
     vi = cell2mat_(vi);
-end %func
+end % function

@@ -46,4 +46,4 @@ function plot_FigCorr_(S0)
     title_(S_fig.hAx, sprintf('Clu%d vs Clu%d', iClu1, iClu2));
     xlim_(S_fig.hAx, [-nLags, nLags] * P.jitter_ms);
     set(hFig, 'UserData', S_fig);
-end %func
+end % function

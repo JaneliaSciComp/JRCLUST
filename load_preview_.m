@@ -65,4 +65,4 @@ function [mnWav_raw, S_preview] = load_preview_(P)
         S_preview = makeStruct_(nLoads_per_file, nLoads_max_preview, ...
         sec_per_load_preview, nSamples_per_load, nLoads, csFile_load, cviLim_load);
     end
-end %func
+end % function

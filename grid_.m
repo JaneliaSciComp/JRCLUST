@@ -8,4 +8,4 @@ function grid_(vhAx, fGrid)
             grid(vhAx(iAx), ifeq_(fGrid, 'on', 'off'));
         end
     end
-end %func
+end % function

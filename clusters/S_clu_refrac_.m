@@ -53,4 +53,4 @@ function [S_clu, nRemoved] = S_clu_refrac_(S_clu, P, iClu1)
         fprintf('Clu%d removed %d/%d (%0.1f%%) duplicate spikes\n', ...
         iClu1, nRemoved, nTotal1, nRemoved/nTotal1*100);
     end
-end %func
+end % function

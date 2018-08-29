@@ -34,4 +34,4 @@ function [vlKeep_ref, vrMad_ref] = car_reject_(vrWav_mean1, P)
         vlKeep_ref = expand_vr_(vlKeep_ref, nwin, size(vrWav_mean1));
     end
     % figure; plot(vrMad_ref); hold on; plot(find(~vlKeep_ref), vrMad_ref(~vlKeep_ref), 'r.')
-end %func
+end % function

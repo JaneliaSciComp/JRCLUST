@@ -42,4 +42,4 @@ function [spikeWaveforms, vrVrms_site] = file2spk_gt_(P, spikeTimes0)
     [siteThresholds] = multifun_(@(x)cat(1, x{:}), siteThresholds);
     vrVrms_site = mean(single(siteThresholds),1) / P.qqFactor;
 
-end %func
+end % function

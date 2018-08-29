@@ -11,4 +11,4 @@ function varargout = subsFileExt_(vcFile, varargin)
         vcExt_ = varargin{i};
         varargout{i} = [vcDir_, filesep(), vcFile_, vcExt_];
     end
-end %func
+end % function

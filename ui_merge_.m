@@ -27,4 +27,4 @@ function S0 = ui_merge_(S0)
     % msgbox_close(hMsg);
     figure_wait_(0);
     % S_clu = S0.S_clu;
-end %func
+end % function

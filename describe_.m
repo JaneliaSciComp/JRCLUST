@@ -59,4 +59,4 @@ function csDesc = describe_(vcFile_prm)
         cellfun(@(x)disp(x), csDesc);
     end
 
-end %func
+end % function

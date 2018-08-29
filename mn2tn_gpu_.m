@@ -38,4 +38,4 @@ function [tr, miRange] = mn2tn_gpu_(mr, spkLim, viTime, viSite)
             tr(:,:,iSite) = reshape(mr(miRange, iSite), dimm_tr(1:2));
         end
     end
-end %func
+end % function

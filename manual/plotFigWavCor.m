@@ -37,4 +37,4 @@ function [hFig, figData] = plotFigWavCor(S0)
     % output
     set(hFig, 'UserData', figData);
     figure_wait_(0, hFig);
-end %func
+end % function

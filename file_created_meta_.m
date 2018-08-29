@@ -22,4 +22,4 @@ function vrDatenum = file_created_meta_(csFiles, vcDateMode)
             vrDatenum(iFile) = file_created_(vcFile_, vcDateMode);
         end
     end %for
-end %func
+end % function

@@ -34,4 +34,4 @@ function cursorFigClusterCor(S0)
 
     xlim_(S_fig.hAx, trim_lim_(iClu1 + [-6,6], [.5, S_clu.nClusters+.5]));
     ylim_(S_fig.hAx, trim_lim_(iClu2 + [-6,6], [.5, S_clu.nClusters+.5]));
-end %func
+end % function

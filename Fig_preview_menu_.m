@@ -58,4 +58,4 @@ function Fig_preview_menu_(hFig)
     % menu_checkbox_(mh_view_psd, 'original');
 
     % 'Power', 'Detrended',
-end %func
+end % function

@@ -15,4 +15,4 @@ function z = zscore_(x, flag, dim)
     sigma0(sigma0==0) = 1;
     z = bsxfun(@minus,x, mu);
     z = bsxfun(@rdivide, z, sigma0);
-end %func
+end % function

@@ -20,4 +20,4 @@ function val = getOr(S, fieldName, defaultValue)
     if isempty(val)
         val = defaultValue;
     end
-end %func
+end % function

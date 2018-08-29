@@ -13,4 +13,4 @@ function hTitle = title_(hAx, vc)
     else
         set_(hTitle, 'String', vc, 'Interpreter', 'none', 'FontWeight', 'normal');
     end
-end %func
+end % function

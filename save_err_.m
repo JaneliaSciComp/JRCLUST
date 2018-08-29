@@ -23,4 +23,4 @@ function save_err_(hErr, vcMsg)
         end
     end
     fprintf('Error log updated: %s\n', vcFile_err);
-end %func
+end % function

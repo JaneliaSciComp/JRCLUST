@@ -16,4 +16,4 @@ function [miA, miB, viC] = sgfilt_init_(nData, nFilt, useGPU)
         viC = gpuArray_(int32(-nFilt:nFilt), useGPU);
         [nData_, nFilt_, miA_, miB_, viC_] = deal(nData, nFilt, miA, miB, viC);
     end
-end %func
+end % function

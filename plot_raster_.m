@@ -49,4 +49,4 @@ function plot_raster_(S0, fNewFig)
     else
         set(hFig_b, 'Visible', 'off');
     end
-end %func
+end % function

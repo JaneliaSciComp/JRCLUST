@@ -10,4 +10,4 @@ function S_clu = post_merge_wav_(S_clu, nRepeat_merge, P)
         [S_clu, nMerges_clu] = S_clu_wavcor_merge_(S_clu, P);
         if nMerges_clu < 1, break; end
     end %for
-end %func
+end % function

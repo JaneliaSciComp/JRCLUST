@@ -27,4 +27,4 @@ function vrWav = load_bin_chan_(P, iChan)
         disperr_();
         return;
     end
-end %func
+end % function

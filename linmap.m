@@ -22,4 +22,4 @@ function vals = linmap(vals, oldLimits, newLimits, saturate)
     else
         vals = interp1(oldLimits, newLimits, vals, 'linear', 'extrap');
     end
-end %func
+end % function

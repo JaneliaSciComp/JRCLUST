@@ -26,4 +26,4 @@ function [cl, clusterCenters] = assignCluster_(cl, ordrho, nneigh, clusterCenter
         end
         cl(cl<=0) = 1; %background
     end
-end %func
+end % function

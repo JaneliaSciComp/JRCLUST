@@ -98,4 +98,4 @@ function keyPressFigProj(hFig, event)
     end % switch
 
     figure_wait_(0);
-end %func
+end % function

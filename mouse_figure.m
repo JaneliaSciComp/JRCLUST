@@ -215,7 +215,7 @@ try
 catch
     ;
 end
-end %func
+end % function
 
 
 %--------------------------------------------------------------------------
@@ -228,7 +228,7 @@ try
 catch
     ;
 end
-end %func
+end % function
 
 
 %--------------------------------------------------------------------------
@@ -271,4 +271,4 @@ try
 catch
     return;
 end
-end %func
+end % function

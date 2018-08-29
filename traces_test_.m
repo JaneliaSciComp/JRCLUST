@@ -13,4 +13,4 @@ function traces_test_(P)
         close(figuresByTag('FigPsd'));
     catch
     end
-end %func
+end % function

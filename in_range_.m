@@ -6,4 +6,4 @@ function vl = in_range_(vi, cvi)
         lim1 = cvi{i};
         vl = vl | (vi >= lim1(1) & vi <= lim1(2));
     end
-end %func
+end % function

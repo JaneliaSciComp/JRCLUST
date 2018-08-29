@@ -47,4 +47,4 @@ function autoScaleFigProjTime(S0, fPlot)
         rescaleFigProj(figProjData.maxAmp, hFigProj, figProjData, S0);
         rescale_FigTime_(figTimeData.maxAmp, S0, S0.P);
     end
-end %func
+end % function

@@ -66,4 +66,4 @@ function validate_(P)
     vnSpk_gt = cellfun(@numel, S_score.S_score_clu.cviSpk_gt_hit) + cellfun(@numel, S_score.S_score_clu.cviSpk_gt_miss);
     disp_score_(S_score.vrSnr_min_gt, S_score.S_score_clu.vrFp, S_score.S_score_clu.vrMiss, ...
     S_score.S_score_clu.vrAccuracy, S_score.vnSite_gt, vnSpk_gt, 1);
-end %func
+end % function

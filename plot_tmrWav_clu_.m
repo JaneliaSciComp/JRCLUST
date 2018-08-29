@@ -12,4 +12,4 @@ function [iClu, hPlot] = plot_tmrWav_clu_(S0, iClu, hPlot, vrColor)
     end
     multiplot(hPlot, S_fig.maxAmp, wav_clu_x_(iClu, P), mrWav_clu1);
     uistack_(hPlot, 'top');
-end %func
+end % function

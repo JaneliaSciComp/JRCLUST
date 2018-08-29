@@ -63,4 +63,4 @@ function [vrPow, vrFreq] = plotMedPower_(mrData, varargin)
 
         end
     end
-end %func
+end % function

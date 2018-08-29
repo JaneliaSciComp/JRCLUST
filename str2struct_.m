@@ -29,4 +29,4 @@ function [S, vcErr] = str2struct_(vc)
         end
     end
 
-end %func
+end % function

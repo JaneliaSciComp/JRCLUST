@@ -17,4 +17,4 @@ function [y_, z] = detrend_(x, y, vi, fQuadratic)
     if nargout>=2
         z = (y_ - nanmean(y_(vi))) / nanstd(y_(vi));
     end
-end %func
+end % function

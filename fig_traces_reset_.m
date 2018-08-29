@@ -13,4 +13,4 @@ function fig_traces_reset_(S_fig)
     else
         axis_(S_fig.hAx, [S_fig.nlim_bin / P.sampleRateHz, 0, numel(P.chanMap)+1]);
     end
-end %func
+end % function

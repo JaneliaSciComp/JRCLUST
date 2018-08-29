@@ -26,4 +26,4 @@ function [vrY, vrY2] = centroid_mr_(mrVpp, vrYe, mode1)
         vrY2 = sum(bsxfun(@times, mrVpp, vrYe.^2)) ./  vrVpp_sum;
         vrY2 = sqrt(abs(vrY2 - vrY.^2));
     end
-end %func
+end % function

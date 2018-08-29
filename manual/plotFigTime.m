@@ -90,4 +90,4 @@ function plotFigTime(S0)
     'Drag while pressing wheel: pan'};
 
     set(hFig, 'UserData', S_fig);
-end %func
+end % function

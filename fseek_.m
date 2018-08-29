@@ -8,4 +8,4 @@ function fseek_(fid_bin, iSample_bin, P)
     iOffset = (iSample_bin-1) * P.nChans * bytesPerSample_(P.dataType) + headerOffset;
     if iOffset<0, iOffset = 0; end
     fseek(fid_bin, iOffset, 'bof');
-end %func
+end % function

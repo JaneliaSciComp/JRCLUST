@@ -38,4 +38,4 @@ function [tr, miRange] = mr2tr3_(mr, spkLim, viTime, viSite, fMeanSubt)
         tr = bsxfun(@minus, tr, mean(tr)); %mean subtract
         tr = reshape(tr, dimm1);
     end
-end %func
+end % function

@@ -19,4 +19,4 @@ function selfcorr = S_clu_self_corr__(S_clu, spikeWaveforms, iClu1, spikeSites)
     % selfcorr = mean(mean(zscore_(mrWavA) .* zscore_(mrWavB)));
     % selfcorr = mean(zscore_(mrWavA(:)) .* zscore_(mrWavB(:)));
     selfcorr = corr_(mrWavA(:), mrWavB(:));
-end %func
+end % function

@@ -12,4 +12,4 @@ function cs = first_string_(cs)
         cs1 = cs1{1};
         cs{i} = cs1{1};
     end
-end %func
+end % function

@@ -128,4 +128,4 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
     mouse_figure(hFig_traces);
 
     Fig_traces_plot_(1); % Plot spikes and color clusters
-end %func
+end % function

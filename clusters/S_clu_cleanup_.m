@@ -25,4 +25,4 @@ function S_clu = S_clu_cleanup_(S_clu, P)
         fprintf('.');
     end %for
     fprintf('\n\ttook %0.1fs.\n', toc(t1));
-end %func
+end % function

@@ -32,4 +32,4 @@ function disp_score_(vrSnr, vrFp, vrFn, vrAccuracy, vnSite, vnSpk, fVerbose)
     if fVerbose
         disp(table(viClu_gt, vrSnr, vrScore2, vrFp_pct, vrFn_pct, vrAccuracy_pct, vnSite, vnSpk));
     end
-end %func
+end % function

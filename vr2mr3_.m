@@ -16,4 +16,4 @@ function [mr, miRange] = vr2mr3_(vr, vi, spkLim)
     % build spike table
     nSpks = numel(vi);
     mr = reshape(vr(miRange(:)), [], nSpks);
-end %func
+end % function

@@ -12,4 +12,4 @@ function delete_(csFiles)
             %         disperr_();
         end
     end
-end %func
+end % function

@@ -25,4 +25,4 @@ function S_mat = load_(vcFile, csVar, fVerbose)
     if ~isempty(csVar)
         S_mat = get_(S_mat, csVar{:});
     end
-end %func
+end % function

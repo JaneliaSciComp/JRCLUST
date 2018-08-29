@@ -15,4 +15,4 @@ function axis_(arg1, arg2)
     catch
         disperr_();
     end
-end %func
+end % function

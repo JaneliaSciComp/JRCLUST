@@ -24,4 +24,4 @@ function export_spikeWaveforms_(h,e)
     eval(sprintf('assignWorkspace_(spikeWaveforms_clu%d);', iClu1));
     eval(sprintf('spikeTraces_clu%d = spikeTraces1;', iClu1));
     eval(sprintf('assignWorkspace_(spikeTraces_clu%d);', iClu1));
-end %func
+end % function

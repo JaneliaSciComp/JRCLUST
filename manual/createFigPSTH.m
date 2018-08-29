@@ -29,4 +29,4 @@ function [hFig, hFig_b] = createFigPSTH(hFig, hFig_b, P, nStims)
         vcColor = 'r';
         set(hFig_b, 'UserData', makeStruct_(vhAx1, vhAx2, vcColor));
     end
-end %func
+end % function

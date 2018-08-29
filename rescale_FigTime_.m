@@ -22,4 +22,4 @@ function rescale_FigTime_(event, S0, P)
     % end
     % ylabel(S_fig.hAx, vcYlabel);
 
-end %func
+end % function

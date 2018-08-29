@@ -30,4 +30,4 @@ function plotFeatureProjections(hPlot, mrMax, mrMin, P, maxAmp)
     S_plot = makeStruct_(mrMax, mrMin, sitesOfInterest, viPlot, tr_dim, maxPair, maxAmp);
 
     updatePlot(hPlot, xvals, yvals, S_plot);
-end %func
+end % function

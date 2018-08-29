@@ -21,4 +21,4 @@ function [viSpk_clu1, clusterSites1, vlSpk_clu1] = S_clu_subsample_spk_(S_clu, i
         viSpk_clu1 = spk_select_mid_(viSpk_clu1, S0.spikeTimes, S0.P);
     end
     viSpk_clu1 = subsample_vr_(viSpk_clu1, nSamples_max);
-end %func
+end % function

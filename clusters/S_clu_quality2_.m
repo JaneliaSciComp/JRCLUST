@@ -60,4 +60,4 @@ function [vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu] = S_clu_quality2_(S_clu, 
         sorted12 = sort(vrMahal12_out);
         vrIsoDist_clu(iClu) = sorted12(nSpk_clu1);
     end %for
-end %func
+end % function

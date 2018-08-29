@@ -29,4 +29,4 @@ function unit_annotate_(hObject, event, vcLabel)
     clu_info_(S0); %update label
     save_log_(sprintf('annotate %d %s', iClu1, vcLabel), S0);
     % update cluster
-end %func
+end % function

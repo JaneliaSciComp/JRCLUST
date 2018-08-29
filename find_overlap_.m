@@ -54,4 +54,4 @@ function [cviSpk_o_1, cviSpk_o_12, cviDelay1] = find_overlap_(S0, S_clu, P)
         [viOverlap1, cviDelay1{iClu1}] = multifun_(@(x)gather_(x(vlOverlap1)), viOverlap1, viDelay1);
         [cviSpk_o_1{iClu1}, cviSpk_o_12{iClu1}] = deal(viSpk_clu1(vlOverlap1), viSpk_clu12(viOverlap1));
     end %for
-end %func
+end % function

@@ -28,4 +28,4 @@ function plot_FigMap_(S0)
     caxis(S_fig.hAx, [0, max(vrVpp)]);
 
     set(hFig, 'UserData', S_fig);
-end %func
+end % function

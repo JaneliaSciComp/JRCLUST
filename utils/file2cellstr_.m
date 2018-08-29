@@ -8,4 +8,4 @@ function csLines = file2cellstr_(vcFile)
     while ~feof(fid), csLines{end+1} = fgetl(fid); end
     fclose(fid);
     csLines = csLines';
-end %func
+end % function

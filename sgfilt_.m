@@ -28,4 +28,4 @@ function mnWav1 = sgfilt_(mnWav, nDiff_filt, useGPU)
             mnWav1 = mnWav1 + i * (mnWav(miA(:,i),:,:) - mnWav(miB(:,i),:,:));
         end
     end
-end %func
+end % function

@@ -89,4 +89,4 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
     mrWavCor(mrWavCor==0) = nan;
     mrWavCor = gather_(mrWavCor);
     fprintf('\ttook %0.1fs\n', toc(t1));
-end %func
+end % function

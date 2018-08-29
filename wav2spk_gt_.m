@@ -35,4 +35,4 @@ function [spikeWaveforms, siteThresholds] = wav2spk_gt_(mnWav1, P, spikeTimes, m
     spikeWaveforms = permute(gather_(mr2tr3_(mnWav2, P.spkLim, spikeTimes)), [1,3,2]);
 
     % if nPad_pre > 0, spikeTimes = spikeTimes - nPad_pre; end
-end %func
+end % function

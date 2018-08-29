@@ -14,4 +14,4 @@ function flag = isTextFile_(vcFile_txt, textFileExtensions)
     else
         flag = 0;
     end
-end %func
+end % function

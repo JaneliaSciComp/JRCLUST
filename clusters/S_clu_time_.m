@@ -15,4 +15,4 @@ function [viTime1, viSpk1, viSpk2] = S_clu_time_(S_clu, iClu)
         iSite1 = S_clu.clusterSites(iClu);
         viSpk2 = viSpk1(S0.spikeSites(viSpk1) == iSite1);
     end
-end %func
+end % function

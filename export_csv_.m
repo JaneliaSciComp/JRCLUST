@@ -33,4 +33,4 @@ function export_csv_(varargin)
     fprintf('\tColumn 1: Spike time (s)\n');
     fprintf('\tColumn 2: Unit# (positive #: valid units, 0: noise cluster, negative #: deleted clusters)\n');
     fprintf('\tColumn 3: Site# (starts with 1)\n');
-end %func
+end % function

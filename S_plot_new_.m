@@ -34,4 +34,4 @@ function S_plot = S_plot_new_(S0)
 
     S_plot = makeStruct_(vrVrms_site, vrRate_site, t_dur, P, ...
     vrSnr_evt, vnSite_evt, vrSnr_clu, vrRate_clu, vnSite_clu);
-end %func
+end % function

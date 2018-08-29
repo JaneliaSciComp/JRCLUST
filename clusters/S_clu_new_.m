@@ -23,4 +23,4 @@ function [S_clu, S0] = S_clu_new_(arg1, S0)
     end
     S_clu = S_clu_quality_(S_clu, S0.P);
     [S_clu, S0] = S_clu_commit_(S_clu, 'S_clu_new_');
-end %func
+end % function

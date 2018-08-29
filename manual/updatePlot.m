@@ -37,4 +37,4 @@ function updatePlot(hPlot, newX, newY, userData, tol)
     if ~isempty(userData)
         set(hPlot, 'UserData', userData);
     end
-end %func
+end % function

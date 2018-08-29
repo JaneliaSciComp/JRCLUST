@@ -26,4 +26,4 @@ function import_tsf_(vcFile_tsf)
     assignWorkspace_(Sfile);
     assignWorkspace_(mnWav);
     fprintf('Exported to %s, %s\n', vcFile_bin, vcFile_meta);
-end %func
+end % function

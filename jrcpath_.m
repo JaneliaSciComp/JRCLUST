@@ -19,4 +19,4 @@ function vcFile_full = jrcpath_(vcFile, fConditional)
     % if exist(vcFile_full, 'file') ~= 2
     %     vcFile_full = [];
     % end
-end %func
+end % function

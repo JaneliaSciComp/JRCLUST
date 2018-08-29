@@ -59,4 +59,4 @@ function [spikeWaveforms_out, spikeWaveforms2_out] = cancel_overlap_spk_(spikeWa
     %     nDelay_b = vnDelay_ol_b(iSpk_ol);
 
     % set no overthreshold zone based on the delay, set it to half. only set superthreshold spikes to zero
-end %func
+end % function

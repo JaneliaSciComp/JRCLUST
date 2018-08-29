@@ -20,4 +20,4 @@ function Fig_preview_ref_thresh_(hFig)
     S_fig = set_(S_fig, 'blank_thresh', blank_thresh, 'blank_period_ms', blank_period_ms);
     set(hFig, 'UserData', S_fig);
     S_fig = Fig_preview_update_(hFig, S_fig, 1);
-end %func
+end % function

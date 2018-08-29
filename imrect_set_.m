@@ -10,4 +10,4 @@ function imrect_set_(hRect, xpos, ypos)
         vrPos(4) = abs(diff(ypos));
     end
     setPosition(hRect, vrPos);
-end %func
+end % function

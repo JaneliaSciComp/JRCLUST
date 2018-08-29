@@ -30,4 +30,4 @@ function plot_FigPos_(S_clu1, S_clu2)
     end
     title_(S_fig.hAx, vcTitle);
     set(hFig, 'UserData', S_fig);
-end %func
+end % function

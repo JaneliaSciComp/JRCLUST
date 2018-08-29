@@ -7,4 +7,4 @@ function [vc, useGPU] = class_(vr)
         vc = class(gather_(vr(1)));
     end
     if nargout>=2, useGPU = isGpu_(vr); end
-end %func
+end % function

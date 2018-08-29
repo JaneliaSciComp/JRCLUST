@@ -22,4 +22,4 @@ function  S0 = update_cursor_(S0, iClu, fPaste)
     % set(hFig, 'UserData', S_fig);
     cursorFigClusterCor(S0);
     if nargout==0, set(0, 'UserData', S0); end
-end %func
+end % function

@@ -13,4 +13,4 @@ function gui_test_(P, vcFig, csMenu_skip)
     catch
         ;
     end
-end %func
+end % function

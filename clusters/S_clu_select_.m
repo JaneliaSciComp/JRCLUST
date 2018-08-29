@@ -43,4 +43,4 @@ function S_clu = S_clu_select_(S_clu, viKeep_clu)
     if isfield(S_clu, 'mrWavCor')
         S_clu.mrWavCor = S_clu_wavcor_remap_(S_clu, viKeep_clu);
     end
-end %func
+end % function

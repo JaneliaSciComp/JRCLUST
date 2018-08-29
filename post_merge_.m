@@ -33,4 +33,4 @@ function [S_clu, S0] = post_merge_(S_clu, P, fPostCluster)
     S_clu.clusterNotes = cell(S_clu.nClusters, 1); %reset note
     S_clu = S_clu_quality_(S_clu, P);
     [S_clu, S0] = S_clu_commit_(S_clu, 'post_merge_');
-end %func
+end % function

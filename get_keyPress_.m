@@ -12,4 +12,4 @@ function csKeys = get_keyPress_(vcType)
         case 'misc'
         csKeys = {'home', 'end', 'space', 'esc'};
     end %switch
-end %func
+end % function

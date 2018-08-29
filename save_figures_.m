@@ -26,4 +26,4 @@ function save_figures_(vcExt)
         fprintf('\t%s\n', vcFile1);
     end
     fprintf('\ttook %0.1fs\n', toc(t1));
-end %func
+end % function

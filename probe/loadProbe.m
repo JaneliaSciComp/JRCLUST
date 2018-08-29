@@ -49,4 +49,4 @@ function P = loadProbe(probeFilename, P)
     end
 
     P = mergeStructs(P, S_prb);
-end %func
+end % function

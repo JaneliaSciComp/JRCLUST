@@ -107,4 +107,4 @@ function [S_gt, spikeWaveforms, spikeTraces] = gt2spk_(S_gt, P, snr_thresh)
     S_gt = struct_add_(S_gt, trWav_clu, trWav_raw_clu, clusterSites, vrVmin_clu, ...
     vrSnr_clu, spikesByCluster, vnSite_clu, vrVrms_site, miSites_clu, viClu_keep);
     fprintf('\n\ttook %0.1fs\n', toc(t1));
-end %func
+end % function

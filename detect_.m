@@ -22,4 +22,4 @@ function detect_(P)
     set(0, 'UserData', S0);
     save0_(strrep(P.paramFile, '.prm', '_jrc.mat'));
     delete_(strrep(P.paramFile, '.prm', '_log.mat')); %delete log file when detecting
-end %func
+end % function

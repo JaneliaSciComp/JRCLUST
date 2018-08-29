@@ -23,4 +23,4 @@ function buttonFigClusterCor(xyPos, vcButton)
             S0 = button_CluWav_simulate_(S0.primarySelectedCluster, S0.secondarySelectedCluster, S0);
             S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom
     end %switch
-end %func
+end % function

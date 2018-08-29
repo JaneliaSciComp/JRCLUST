@@ -5,4 +5,4 @@ function plot_cdf_(vrSnr, fNorm)
     vrY = 1:numel(vrSnr);
     if fNorm, vrY=vrY/vrY(end); end
     stairs(vrY, vrX);
-end %func
+end % function

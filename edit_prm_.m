@@ -4,4 +4,4 @@ function edit_prm_(hObject, event)
 
     P = get0_('P');
     edit(P.paramFile);
-end %func
+end % function

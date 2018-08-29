@@ -52,4 +52,4 @@ function [clusterCenters, x, z] = detrend_local_(S_clu, P, fLocal)
         axis_([-5 0 -20 100]);
         title(sprintf('%d clu', numel(clusterCenters)));
     end
-end %func
+end % function

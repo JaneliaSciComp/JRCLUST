@@ -30,4 +30,4 @@ function vc = set_(vc, varargin)
         catch
         end
     end
-end %func
+end % function

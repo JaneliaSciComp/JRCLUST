@@ -10,4 +10,4 @@ function hAx = newAxes(hFig)
     clf(hFig);
     hAx = axes(); % create default axes in current figure (hFig)
     hold(hAx, 'on');
-end % func
+end % function

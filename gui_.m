@@ -14,4 +14,4 @@ function gui_(vcArg1, vcFile_prm_)
     setUserData(S_gui);
     jrc_gui(vcFile_prm);
 
-end %func
+end % function

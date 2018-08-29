@@ -94,4 +94,4 @@ function [cs,index] = sort_nat_(c,mode)
     end
     index = reshape(index,size(c));
     cs = c(index);
-end %func
+end % function

@@ -31,4 +31,4 @@ function [S_clu, nClu_merged] = S_clu_wavcor_merge_(S_clu, P)
 
     nClu_merged = nClu - S_clu.nClusters;
     fprintf('\tnClu: %d->%d (%d merged, min-cor: %0.4f)\n', nClu, S_clu.nClusters, nClu_merged, min_cor);
-end %func
+end % function

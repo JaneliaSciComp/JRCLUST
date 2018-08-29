@@ -6,4 +6,4 @@ function varargout = gather_(varargin)
             varargout{i} = gather(varargin{i});
         end
     end
-end %func
+end % function

@@ -32,4 +32,4 @@ function [pc1, pc2] = getKilosortFeaturesSites(spikes, sitesOfInterest, S0)
         pc2(siteIndices, spikeIndices) = spikeFeatures(S0.pcPair(2), iTemplateSites(sortIndices), spikeIndices);
         pc2(~siteIndices, spikeIndices) = nan; % PCs not occurring on this site get NaN
     end
-end % func
+end % function

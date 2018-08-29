@@ -35,4 +35,4 @@ function fSuccess = compile_cuda_(csFiles_cu)
         fprintf('\tWarning: CUDA could not be compiled but JRCLUST may work fine. If not, install CUDA toolkit v%0.1f and run "jrc install".\n', S_gpu.ToolkitVersion);
     end
     fprintf('\tFinished compiling, took %0.1fs\n', toc(t1));
-end %func
+end % function

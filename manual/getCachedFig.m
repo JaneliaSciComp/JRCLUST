@@ -37,4 +37,4 @@ function [hFig, figData] = getCachedFig(tag)
             figData = get(hFig, 'UserData');
         end
     end
-end %func
+end % function

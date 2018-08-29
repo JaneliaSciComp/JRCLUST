@@ -18,4 +18,4 @@ function keyPressFigClusterCor(hObject, event)
                 plotFigClusterCor(S0, 'wavecor');
             end
     end %switch
-end %func
+end % function

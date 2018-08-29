@@ -16,4 +16,4 @@ function n = bytesPerSample_(dataType)
         n = [];
         fprintf(2, 'Unsupported data type: %s\n', dataType);
     end
-end %func
+end % function

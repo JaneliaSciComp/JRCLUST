@@ -52,4 +52,4 @@ function [mrFet12_, viSpk12_, n1_, n2_, viiSpk12_ord_] = fet12_site_(spikeFeatur
     if getOr(P, 'fLog_fet', 0), mrFet12_ = signlog_(mrFet12_); end
     if getOr(P, 'fSquare_fet', 0), mrFet12_ = (mrFet12_).^2; end
     viiSpk12_ord_ = rankorder_(viSpk12_, 'ascend');
-end %func
+end % function

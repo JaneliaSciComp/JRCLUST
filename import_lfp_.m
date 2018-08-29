@@ -41,4 +41,4 @@ function import_lfp_(P)
     % update the lfp file name in the parameter file
     updateParamFile(P, P.paramFile);
     fprintf('\tLFP file (lfpFile) updated: %s\n\ttook %0.1fs\n', P.lfpFile, toc(t1));
-end %func
+end % function

@@ -39,4 +39,4 @@ function plot_unit_(S_clu1, hAx, vcColor0)
     grid(hAx, 'on');
     xlim_(hAx, [min(mrX1(:)), max(mrX1(:))]);
     ylim_(hAx, [floor(min(mrY1(:))-1), ceil(max(mrY1(:))+1)]);
-end %func
+end % function

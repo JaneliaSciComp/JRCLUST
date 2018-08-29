@@ -6,4 +6,4 @@ function S = remove_struct_(S, varargin)
             S = rmfield(S, varargin{i});
         end
     end
-end %func
+end % function

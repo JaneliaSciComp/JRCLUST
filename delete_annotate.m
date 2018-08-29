@@ -15,4 +15,4 @@ figure_wait_(0);
 
 
 save_log_(sprintf('delete-anotate'), S0);
-end %func
+end % function

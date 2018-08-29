@@ -21,4 +21,4 @@ function P = calc_maxSite_(P)
 
     if ~isfield(P, 'maxSite') || isempty(P.maxSite), P.maxSite = maxSite; end
     fprintf('Auto-set: maxSite=%0.1f, nSites_ref=%0.1f\n', P.maxSite, P.nSites_ref);
-end %func
+end % function

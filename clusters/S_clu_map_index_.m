@@ -10,4 +10,4 @@ function S_clu = S_clu_map_index_(S_clu, viMap_clu)
     S_clu.nSpikesPerCluster = cellfun(@numel, S_clu.spikesByCluster);
     spikeSites = get0_('spikeSites');
     S_clu.clusterSites = double(arrayfun(@(iClu)mode(spikeSites(S_clu.spikesByCluster{iClu})), 1:S_clu.nClusters));
-end %func
+end % function

@@ -50,4 +50,4 @@ function [newX, newY, viPlot, tr_dim] = featuresToSiteGrid(xvals, yvals, bounds,
     newY = transY(viPlot);
     newY = newY(:);
     tr_dim = size(transX);
-end %func
+end % function

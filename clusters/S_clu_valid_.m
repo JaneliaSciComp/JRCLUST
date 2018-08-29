@@ -29,4 +29,4 @@ function flag = S_clu_valid_(S_clu)
         if ~flag_c, fprintf(2, '\t%s\n', cell2vc__(csNames(viMatch_c(vlError_c)))); end
         if ~flag_m, fprintf(2, '\t%s\n', cell2vc__(csNames(viMatch_m(vlError_m)))); end
     end
-end %func
+end % function

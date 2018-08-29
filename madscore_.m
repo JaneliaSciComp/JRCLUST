@@ -5,4 +5,4 @@ function mr = madscore_(mr)
     mr = bsxfun(@minus, mr, median(mr));
     vr = median(abs(mr));
     mr = bsxfun(@rdivide, mr, vr);
-end %func
+end % function

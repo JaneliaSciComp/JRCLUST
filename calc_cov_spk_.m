@@ -22,4 +22,4 @@ function [mrVpp1, mrVpp2] = calc_cov_spk_(viSpk1, viSites1)
         mrVpp1(viiB11(vlA11),viSpk11) = mrVpp1_(vlA11,viSpk11);
         mrVpp2(viiB11(vlA11),viSpk11) = mrVpp2_(vlA11,viSpk11);
     end
-end %func
+end % function

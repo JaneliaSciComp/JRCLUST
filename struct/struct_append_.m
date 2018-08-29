@@ -11,4 +11,4 @@ function S_old = struct_append_(S_old, S_new, varargin)
             ;
         end
     end %for
-end %func
+end % function

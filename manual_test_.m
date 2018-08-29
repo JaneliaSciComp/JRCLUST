@@ -78,4 +78,4 @@ function manual_test_(P, csCmd)
             fprintf(2, 'Unsupported testing mode: %s\n', vcCmd1);
         end %swtich
     end
-end %func
+end % function

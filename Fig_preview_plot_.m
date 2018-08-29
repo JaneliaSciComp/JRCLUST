@@ -148,4 +148,4 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     set(hFig, 'UserData', S_fig);
     figure_wait_(0, hFig);
     tryClose(hWait);
-end %func
+end % function

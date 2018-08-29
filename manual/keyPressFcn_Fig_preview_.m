@@ -64,4 +64,4 @@ function S0 = keyPressFcn_Fig_preview_(hFig, event, S0)
         Fig_preview_export_(hFig);
 
     end %switch
-end %func
+end % function

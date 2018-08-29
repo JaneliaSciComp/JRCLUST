@@ -22,4 +22,4 @@ function csLines = strip_comments_(csLines)
     end
     % csLines = cellfun(@(x)strtrim(x), csLines, 'UniformOutput', 0);
     csLines = csLines(cellfun(@(x)~isempty(x), csLines));
-end %func
+end % function

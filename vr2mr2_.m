@@ -16,4 +16,4 @@ function mr = vr2mr2_(vr, viRow, spkLim, viCol)
     else
         mr = vr(miRange, viCol); %matrix passed to save time
     end
-end %func
+end % function

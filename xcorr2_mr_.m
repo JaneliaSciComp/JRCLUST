@@ -32,4 +32,4 @@ function vrDist12 = xcorr2_mr_(mrWav1, mrWav2, arg1, arg2)
         vrDist12(iDist) = vr1'*vr2 / sqrt(sum(vr1.^2)*sum(vr2.^2));
         %     vrDist12(iDist) = vr1'*vr2 / sqrt(vr1'*vr1*vr2'*vr2);
     end
-end %func
+end % function

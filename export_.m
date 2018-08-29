@@ -22,4 +22,4 @@ function export_(varargin)
             fprintf('assigned ''%s'' to workspace\n', vcVar);
         end
     end
-end %func
+end % function

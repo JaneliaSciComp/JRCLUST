@@ -12,4 +12,4 @@ function varargout = select_vr_(varargin)
             varargout{i} = varargin{i}(viKeep, :);
         end
     end
-end %func
+end % function

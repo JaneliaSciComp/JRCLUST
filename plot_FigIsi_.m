@@ -26,4 +26,4 @@ function plot_FigIsi_(S0)
     end
 
     set(hFig, 'UserData', S_fig);
-end %func
+end % function

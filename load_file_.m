@@ -73,4 +73,4 @@ function [rawTraces, channelMeans, sampleDims] = load_file_(fidBinary, nSamples,
     if ~isempty(filename)
         fclose(fidBinary);
     end
-end %func
+end % function

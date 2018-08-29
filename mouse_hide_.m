@@ -17,4 +17,4 @@ function cvhHide_mouse = mouse_hide_(hFig, hObj_hide, S_fig)
     end
     cvhHide_mouse = S_fig.cvhHide_mouse;
     if nargout==0, set(hFig, 'UserData', S_fig); end
-end %func
+end % function

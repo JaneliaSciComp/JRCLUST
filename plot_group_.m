@@ -12,4 +12,4 @@ function vhPlot = plot_group_(hAx, mrX, mrY, varargin)
         vrY1 = mrY(:, iGroup:nGroups:end);
         vhPlot(iGroup) = plot(hAx, vrX1(:), vrY1(:), varargin{:}, 'Color', mrColor(:,iGroup)');
     end
-end %func
+end % function

@@ -22,4 +22,4 @@ function dimm_mr = write_bin_(vcFile, mr)
     if fVerbose
         fprintf('Writing to %s took %0.1fs\n', vcFile, toc(t1));
     end
-end %func
+end % function

@@ -14,4 +14,4 @@ function delete_files_(csFiles, fVerbose)
             fprintf('\tdeleted %s.\n', csFiles{iFile});
         end
     end
-end %func
+end % function

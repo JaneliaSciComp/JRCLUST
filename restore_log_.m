@@ -33,4 +33,4 @@ function restore_log_(iMenu1)
     % set(0, 'UserData', S0);
     tryClose(hMsg);
     figure_wait_(0);
-end %func
+end % function

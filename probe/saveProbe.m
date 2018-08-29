@@ -29,4 +29,4 @@ function P = saveProbe(probeFilename, P)
                    'shank', P.viShank_site);
 
     struct_save_(S_prb, probeFilename);
-end %func
+end % function

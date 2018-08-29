@@ -38,4 +38,4 @@ function mnWav = load_bin_(vcFile, dataType, dimm, header)
     catch
         disperr_();
     end
-end %func
+end % function

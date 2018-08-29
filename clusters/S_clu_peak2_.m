@@ -14,4 +14,4 @@ function [viSite, viSite2, viSite3] = S_clu_peak2_(S_clu)
         mrMin_clu(sub2ind(size(mrMin_clu), viSite2, 1:numel(viSite2))) = 0;
         [~, viSite3] = min(mrMin_clu);
     end
-end %func
+end % function

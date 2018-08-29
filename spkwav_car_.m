@@ -77,4 +77,4 @@ function [trWav2, mrWav_ref] = spkwav_car_(trWav2, P, nSites_spk, spikeSecondary
     else
         trWav2 = meanSubtract(trWav2);
     end
-end %func
+end % function

@@ -17,4 +17,4 @@ function spikeWaveforms1 = spkwav_align_(spikeWaveforms1, P)
         spikeWaveforms1_left = interpft_(spikeWaveforms1(:,viSpk_left,:), nInterp_spk);
         spikeWaveforms1(2:end,viSpk_left,:) = spikeWaveforms1_left(2:nInterp_spk:end,:,:); %todo for nInterp_spk~=2
     end
-end %func
+end % function

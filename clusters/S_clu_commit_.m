@@ -8,4 +8,4 @@ function [S_clu, S0] = S_clu_commit_(S_clu, vcMsg)
     else
         S0 = setUserData(S_clu);
     end
-end %func
+end % function

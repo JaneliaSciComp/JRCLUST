@@ -10,4 +10,4 @@ function Fig_preview_psd_plot_(hFig, vcMode, hMenu)
         otherwise, disperr_(vcMode);
     end %switch
     menu_checkbox_(hMenu, vcMode);
-end %func
+end % function

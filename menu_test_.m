@@ -26,4 +26,4 @@ function [vlSuccess_menu, csLabel_menu] = menu_test_(hFig, csMenu_skip)
             vlSuccess_menu(iMenu) = 0;
         end
     end
-end %func
+end % function

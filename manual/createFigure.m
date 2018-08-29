@@ -45,4 +45,4 @@ function hFig = createFigure(tag, figPos, figName, hasToolbar, hasMenubar)
     end
 
     clf(hFig);
-end %func
+end % function

@@ -43,4 +43,4 @@ function [cleanedSamplesMatrix, useGPU] = fft_clean_(rawTraces, P)
         end
     end %for
     fprintf(' took %0.1fs', toc(t1));
-end %func
+end % function

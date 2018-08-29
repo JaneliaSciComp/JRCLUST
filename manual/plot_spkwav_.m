@@ -40,4 +40,4 @@ function S_fig = plot_spkwav_(S_fig, S0)
         S_fig.hSpkAll = plot(S_fig.hAx, cell2mat_(cvrX), cell2mat_(cvrY), 'Color', [.5 .5 .5], 'LineWidth', .5); %, P.LineStyle);
         set(S_fig.hSpkAll, 'UserData', S);
     end
-end %func
+end % function

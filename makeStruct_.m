@@ -5,4 +5,4 @@ function S = makeStruct_(varargin)
     %instead create a var AbsX an dpass that name
     S = struct();
     for i=1:nargin, S.(inputname(i)) =  varargin{i}; end
-end %func
+end % function

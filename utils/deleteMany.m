@@ -25,4 +25,4 @@ function deleteMany(varargin)
         catch
         end
     end
-end % func
+end % function

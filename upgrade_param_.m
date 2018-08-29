@@ -34,4 +34,4 @@ function P = upgrade_param_(S0, P0)
         P.nSites_ref = nSites_spk - S0.featureDims(1);
         P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site);
     end
-end %func
+end % function

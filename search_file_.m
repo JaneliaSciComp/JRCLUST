@@ -13,4 +13,4 @@ function vcFile = search_file_(vcFile, csDir)
         end
     end
     vcFile = []; % file not found
-end %func
+end % function

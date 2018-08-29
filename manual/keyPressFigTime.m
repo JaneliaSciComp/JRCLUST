@@ -146,4 +146,4 @@ function keyPressFigTime(hObject, event, S0)
     end %switch
     % drawnow;
     % figure_wait(0);
-end %func
+end % function

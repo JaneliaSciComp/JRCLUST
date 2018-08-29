@@ -48,4 +48,4 @@ function [spikeTimes2, vnAmp_spk2, spikeSites2] = spikeMerge_single_(spikeTimes,
     viiSpk1 = find(vlKeep_spk1); %speed up since used multiple times
     [spikeTimes2, vnAmp_spk2] = deal(spikeTimes1(viiSpk1), vnAmp_spk1(viiSpk1));
     spikeSites2 = repmat(int32(iSite1), size(viiSpk1));
-end %func
+end % function

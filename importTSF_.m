@@ -6,4 +6,4 @@ function [mrWav, S_tsf] = importTSF_(fname, varargin)
     n_electrodes = S_tsf.nChans;
     mrWav = reshape(fread(fid, n_vd_samples * n_electrodes, '*int16'), [n_vd_samples,n_electrodes]);
     fclose(fid);
-end %func
+end % function

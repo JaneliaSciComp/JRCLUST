@@ -43,4 +43,4 @@ function [hFig, figData] = figuresByTag(tag, hFig)
             disperr_();
         end
     end
-end % func
+end % function

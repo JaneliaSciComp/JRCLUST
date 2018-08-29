@@ -38,4 +38,4 @@ function vlVisible = toggleVisible_(vhPlot, fVisible)
     catch
         return;
     end
-end %func
+end % function

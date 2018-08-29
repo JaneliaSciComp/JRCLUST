@@ -13,4 +13,4 @@ function [clusterSpikes, iCenteredSpikes] = getClusterCenteredSpikes(S_clu, clus
     clusterSites = spikeSites(clusterSpikes);
     iCenteredSpikes = find(clusterSites == centerSite);
     clusterSpikes = clusterSpikes(iCenteredSpikes);
-end %func
+end % function

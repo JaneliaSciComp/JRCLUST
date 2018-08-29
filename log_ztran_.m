@@ -25,4 +25,4 @@ function [clusterCenters, x, y] = log_ztran_(x, y, x_cut, y_cut)
     if nargout==0
         figure; plot(x,y,'.', x(clusterCenters),y(clusterCenters),'ro'); grid on;
     end
-end %func
+end % function

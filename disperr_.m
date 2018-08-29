@@ -26,4 +26,4 @@ function disperr_(vcMsg, hErr)
         fprintf(2, '%s:\n', vcMsg);
     end
     try gpuDevice(1); disp('GPU device reset'); catch, end
-end %func
+end % function

@@ -10,4 +10,4 @@ function vnWav1_mean = mean_excl_(mnWav1, P)
         nSites = nSites_all - nSites_excl;
         vnWav1_mean = int16((sum(mnWav1,2) - sum(mnWav1(:,viSiteZero),2)) / nSites); % TW BUGFIX
     end
-end %func
+end % function

@@ -62,4 +62,4 @@ function S = subsetStructElements(S, fieldNames, indices, dim)
             error('subsetStructElements: %s field error', fieldName);
         end
     end % for
-end % func
+end % function

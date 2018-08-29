@@ -145,4 +145,4 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
     end
 
     figure_(hObject); %change the focus back to the current object
-end %func
+end % function

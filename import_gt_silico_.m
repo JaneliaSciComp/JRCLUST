@@ -15,4 +15,4 @@ function import_gt_silico_(vcFile_mat)
     S_gt = makeStruct_(viClu, viTime);
     groundTruthFile = subsFileExt_(vcFile_mat, '_gt.mat');
     write_struct_(groundTruthFile, S_gt);
-end %func
+end % function

@@ -33,4 +33,4 @@ function [csFiles_valid, viValid] = filter_files_(csFiles, fSortMode)
         fprintf('Files not found:\n');
         cellfun(@(c) fprintf('\t%s\n', c) , csFiles(~vlValid));
     end
-end %func
+end % function

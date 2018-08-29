@@ -75,4 +75,4 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = getFigProjFeatures(S
     if ~strcmpi(P.displayFeature, 'kilosort')
         [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = multifun_(@(x) abs(x), mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2);
     end
-end % func
+end % function

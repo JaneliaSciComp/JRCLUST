@@ -28,4 +28,4 @@ function bin_file_copy_(vcFile_r, vcFile_w, P)
     if ischar(vcFile_w)
         fclose(fid_w);
     end
-end %func
+end % function

@@ -45,4 +45,4 @@ function S = imec3_imroTbl_(cSmeta)
     end
     S.mrScale_ap = mrScale_ap;
     S.mrScale_lf = mrScale_lf;
-end %func
+end % function

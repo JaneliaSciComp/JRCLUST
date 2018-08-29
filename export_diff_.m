@@ -42,4 +42,4 @@ function export_diff_(P)
     % mnWav2 = load_bin_(strrep(P.vcFile, '.bin', '_diff.bin'), P.dataType); %read back test
 
 
-end %func
+end % function

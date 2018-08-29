@@ -13,4 +13,4 @@ function S0 = setUserData(varargin)
         end
     end
     set(0, 'UserData', S0);
-end %func
+end % function

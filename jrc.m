@@ -218,4 +218,4 @@ function varargout = jrc(cmd, varargin)
     elseif fError
         help_();
     end
-end %func
+end % function

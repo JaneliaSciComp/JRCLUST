@@ -23,4 +23,4 @@ function P = file2struct__(vcFile_file2struct)
         disp(lasterr());
         P=[];
     end
-end %func
+end % function

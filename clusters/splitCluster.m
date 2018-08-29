@@ -80,4 +80,4 @@ function S_clu = splitCluster(oldCluster, spikesToSplitOff)
 
     fprintf('%s [W] splitted Clu %d\n', datestr(now, 'HH:MM:SS'), oldCluster);
     figure_wait_(0);
-end %func
+end % function

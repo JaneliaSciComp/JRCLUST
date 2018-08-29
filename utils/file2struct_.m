@@ -16,4 +16,4 @@ function P = file2struct_(vcFile_file2struct)
     %         disp(lasterr());
     %     end
     % end
-end %func
+end % function

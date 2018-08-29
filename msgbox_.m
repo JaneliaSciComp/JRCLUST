@@ -15,4 +15,4 @@ function hMsgbox = msgbox_(csMsg, fBlock, fModal)
             ;
         end
     end
-end %func
+end % function

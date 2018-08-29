@@ -6,4 +6,4 @@ function vc = str_toggle_(vc, vc1, vc2)
     else
         vc = vc1;
     end
-end %func
+end % function

@@ -44,4 +44,4 @@ function [spikeTimes, vrAmp_spk, spikeSites] = detect_spikes_(mnWav3, siteThresh
     if getOr(P, 'fGroup_shank', 0)
         [spikeSites] = group_shank_(spikeSites, P); % change the site location to the shank center
     end
-end %func
+end % function

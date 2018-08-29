@@ -5,4 +5,4 @@ function [spikeSites] = group_shank_(spikeSites, P)
     [a,b,c] = unique(P.viShank_site);
     site2site(P.chanMap) = b(c);
     spikeSites = site2site(spikeSites);
-end %func
+end % function

@@ -15,4 +15,4 @@ function S_clu = merge_clu_pair_(S_clu, iClu1, iClu2)
         S_clu.clusterNotes{iClu2} = '';
     catch
     end
-end %func
+end % function

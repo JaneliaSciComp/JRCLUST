@@ -126,4 +126,4 @@ function keyPressFcn_Fig_traces_(hFig, event)
         msgbox_(sprintf('Site: %d/ Chan: %d', iSite, iChan), 1);
         deleteMany(hRect, hLine, hPoint);
     end %return if S_fig didn't change
-end %func
+end % function

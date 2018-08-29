@@ -9,4 +9,4 @@ function [fList, pList] = disp_dependencies_()
         disp('Required files:');
         disp(fList');
     end
-end % func
+end % function

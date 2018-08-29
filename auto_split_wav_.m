@@ -60,4 +60,4 @@ function [vlIn_spk, mrFet, vhAx] = auto_split_wav_(mrSpkWav, mrFet, nSplits)
     plot(vhAx(4), mean(mrSpkWav(viSpk1,vlIn_spk),2),'b');
     plot(vhAx(4), mean(mrSpkWav(viSpk1,vlOut_spk),2),'r');
     ylim_([min_y max_y]);
-end %func
+end % function

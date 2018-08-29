@@ -26,4 +26,4 @@ function S0 = load0_(vcFile_mat)
         disperr_();
     end
     if isfield(S0, 'S0'), S0 = rmfield(S0, 'S0'); end % Remove recursive saving
-end %func
+end % function

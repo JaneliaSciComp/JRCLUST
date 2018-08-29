@@ -25,4 +25,4 @@ function [maxAmp, prevMaxAmp] = change_amp_(event, maxAmp, varargin)
         catch
         end
     end
-end % func
+end % function

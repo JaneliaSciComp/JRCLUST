@@ -124,4 +124,4 @@ function plotFigProj(S0)
         'Drag while pressing wheel: pan'};
 
     set(hFig, 'UserData', figData);
-end %func
+end % function

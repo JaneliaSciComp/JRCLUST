@@ -6,4 +6,4 @@ function out = inputdlg_num_(vcGuide, vcVal, vrVal)
     catch
         out = nan;
     end
-end %func
+end % function

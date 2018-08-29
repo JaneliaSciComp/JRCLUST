@@ -21,4 +21,4 @@ function S = struct_reorder_(S, indices, varargin)
         catch
         end
     end
-end %func
+end % function

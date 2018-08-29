@@ -10,4 +10,4 @@ function FigClusterCor_update_(S0)
     nClu = size(S0.S_clu.mrWavCor, 1);
     [vrX, vrY] = getGridDiagonal([0, nClu, .5]);
     set(S_fig.hDiag, 'XData', vrX, 'YData', vrY);
-end %func
+end % function

@@ -68,4 +68,4 @@ function S0 = plotFigWav(S0)
         % '[O] Overlap average waveforms across sites', ...
     };
     set(hFig, 'UserData', S_fig);
-end %func
+end % function

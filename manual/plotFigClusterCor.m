@@ -69,4 +69,4 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
     % output
     set(hFig, 'UserData', figData);
     figure_wait_(0, hFig);
-end %func
+end % function

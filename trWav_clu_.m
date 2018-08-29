@@ -13,4 +13,4 @@ function trWav1 = trWav_clu_(iClu1, nSpk_show)
     else
         trWav1 = tnWav2uV_(tnWav_(:,:,viSpk_clu1), P);
     end
-end %func
+end % function

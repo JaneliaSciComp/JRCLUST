@@ -32,4 +32,4 @@ function mrRate_clu = clu_rate_(S_clu, viClu, nSamples)
         mrRate_clu(viTime_, iClu1) = 1;
         mrRate_clu(:,iClu1) = conv(mrRate_clu(:,iClu1), vrFilt, 'same');
     end
-end %func
+end % function

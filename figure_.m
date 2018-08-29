@@ -8,4 +8,4 @@ function hFig = figure_(hFig)
             figure(hFig);
         end
     catch; end
-end %func
+end % function

@@ -78,4 +78,4 @@ function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites
                 mrFet1 = cat(1, mrFet1, mrFet2, mrFet3);
         end %switch
     end
-end %func
+end % function

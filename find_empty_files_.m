@@ -9,4 +9,4 @@ function csFiles = find_empty_files_(vcDir)
     viFile = find([vS_dir.bytes] == 0 & ~[vS_dir.isdir]);
     csFiles = {vS_dir(viFile).name};
     csFiles = cellfun(@(vc)[vcDir, filesep(), vc], csFiles, 'UniformOutput', 0);
-end %func
+end % function
