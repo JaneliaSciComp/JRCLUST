@@ -29,5 +29,5 @@ function S_clu = delete_clu_(S_clu, viClu_delete)
     % for iClu3 = viClu_delete+1:S_clu.nClusters % update cluster chain info
     %     S_clu = S_clu_update_note_(S_clu, iClu3, get_next_clu_(S_clu, iClu3) - 1);
     % end
-    dialogAssert(S_clu_valid_(S_clu), 'Cluster number is inconsistent after deleting');
+    dialogAssert(clusterDataConsistent(S_clu), 'Cluster number is inconsistent after deleting');
 end % function
