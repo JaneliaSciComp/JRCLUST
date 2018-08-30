@@ -206,7 +206,9 @@ function importKiloSort(rezFile, sessionName)
     S_clu = S_clu_update_wav_(S_clu);
     S_clu.P = P;
     S_clu = S_clu_position_(S_clu);
+    S_clu = S_clu_update_(S_clu, 1:nClusters, P);
 
+    dialogAssert(clusterDataConsistent(S_clu), 'Import failed: inconsistent clusters.');
     S0.S_clu = S_clu;
 
     % Save

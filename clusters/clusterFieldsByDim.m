@@ -1,12 +1,12 @@
 %--------------------------------------------------------------------------
-function fieldNames = structFieldsByDim(structName, dim)
-    % a registry for the field names of structs, by dimension of their values
+function fieldNames = clusterFieldsByDim(dim)
+    % field names of S_clu storing per-cluster values, by dimension
 
     if dim < 1 || dim > 3
         error('bad dimension: %d', dim);
     end
 
-    fieldNamesS_clu = {
+    clusterFieldNames = {
         {'clusterSites', ... % 1-dimensional fields
          'nSpikesPerCluster', ...
          'clusterXPositions', ...
@@ -23,10 +23,8 @@ function fieldNames = structFieldsByDim(structName, dim)
          'vrVpp_uv_clu', ...
          'vrVmin_uv_clu', ...
          'clusterCenters', ...
-         'spikeClusters', ...
-         'spikeClustersAuto', ...
-         'clusterNotes', ...
-         'spikesByCluster'},
+         'clusterNotes', ... % cell
+         'spikesByCluster'}, % cell
         {'mrWavCor'}, % 2-dimensional fields
         {'trWav_spk_clu', ... % 3-dimensional fields
          'tmrWav_spk_clu', ...
@@ -37,11 +35,5 @@ function fieldNames = structFieldsByDim(structName, dim)
          'tmrWav_raw_hi_clu'}
     };
 
-    switch structName
-        case 'S_clu'
-            fieldNames = fieldNamesS_clu{dim};
-
-        otherwise
-            error('not implemented yet');
-    end
+    fieldNames = clusterFieldNames{dim};
 end

@@ -71,7 +71,7 @@ function autoSplit(fMulti, S0)
                     case 'PC3 vs PC2'
                         [hAx_, iAx1, iAx2] = deal(vhAx(2), 3, 2);
 
-                    case 'PC1 vs PC3',
+                    case 'PC1 vs PC3'
                         [hAx_, iAx1, iAx2] = deal(vhAx(3), 1, 3);
 
                     otherwise

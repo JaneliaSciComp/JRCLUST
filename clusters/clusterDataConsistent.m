@@ -11,12 +11,12 @@ function flag = clusterDataConsistent(S_clu)
         return;
     end
 
-    fieldNames1Dim = structFieldsByDim('S_clu', 1);
-    fieldNames2Dim = structFieldsByDim('S_clu', 2);
-    fieldNames3Dim = structFieldsByDim('S_clu', 3);
+    fieldNames1Dim = clusterFieldsByDim(1);
+    fieldNames2Dim = clusterFieldsByDim(2);
+    fieldNames3Dim = clusterFieldsByDim(3);
 
-    % check that all fields of S_clu have nClusters elements in their respective dimensions
-    errors1Dim = zeros(size(fieldNames1Dim));
+    % check that all relevant fields of S_clu have nClusters elements in their respective dimensions
+    errors1Dim = false(size(fieldNames1Dim));
     for i = 1:numel(fieldNames1Dim)
         fn = fieldNames1Dim{i};
         if isfield(S_clu, fn)
@@ -24,7 +24,7 @@ function flag = clusterDataConsistent(S_clu)
         end
     end
 
-    errors2Dim = zeros(size(fieldNames2Dim));
+    errors2Dim = false(size(fieldNames2Dim));
     for i = 1:numel(fieldNames2Dim)
         fn = fieldNames2Dim{i};
         if isfield(S_clu, fn)
@@ -32,7 +32,7 @@ function flag = clusterDataConsistent(S_clu)
         end
     end
 
-    errors3Dim = zeros(size(fieldNames3Dim));
+    errors3Dim = false(size(fieldNames3Dim));
     for i = 1:numel(fieldNames3Dim)
         fn = fieldNames3Dim{i};
         if isfield(S_clu, fn)
@@ -41,4 +41,24 @@ function flag = clusterDataConsistent(S_clu)
     end
 
     flag = ~any(errors1Dim) && ~any(errors2Dim) && ~any(errors3Dim);
+
+    % report
+    if ~flag
+        fprintf(2, 'The following fields were found to be inconsistent:\n');
+        for iField = 1:numel(fieldNames1Dim)
+            if errors1Dim(iField)
+                fprintf(2, '\t%s\n', fieldNames1Dim{iField});
+            end
+        end
+        for iField = 1:numel(fieldNames2Dim)
+            if errors2Dim(iField)
+                fprintf(2, '\t%s\n', fieldNames2Dim{iField});
+            end
+        end
+        for iField = 1:numel(fieldNames3Dim)
+            if errors3Dim(iField)
+                fprintf(2, '\t%s\n', fieldNames3Dim{iField});
+            end
+        end
+    end
 end % function

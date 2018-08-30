@@ -11,11 +11,11 @@ function S_clu = S_clu_select_(S_clu, viKeep_clu)
     % end
 
     % single-dimension reordering
-    fieldNames1Dim = structFieldsByDim('S_clu', 1);
+    fieldNames1Dim = clusterFieldsByDim(1);
 
     S_clu = subsetStructElements(S_clu, fieldNames1Dim, viKeep_clu);
 
-    fieldNames3Dim = structFieldsByDim('S_clu', 3);
+    fieldNames3Dim = clusterFieldsByDim(3);
     S_clu = subsetStructElements(S_clu, fieldNames3Dim, viKeep_clu, 3);
 
     % remap mrWavCor
