@@ -22,7 +22,7 @@ function [S_clu, nClu_merged] = S_clu_wavcor_merge_(S_clu, P)
     try S_clu.clusterCenters(viClu_remove) = []; catch, end
     S_clu = S_clu_map_index_(S_clu, viMap_clu); %index mapped
     P.fVerbose = 0;
-    S_clu = S_clu_refrac_(S_clu, P); % remove refrac spikes
+    S_clu = removeSpikesInRefracPeriod(S_clu, P); % remove refrac spikes
 
     % update cluster waveforms and distance
     S_clu = S_clu_wav_(S_clu, viClu_update); %update cluster waveforms
