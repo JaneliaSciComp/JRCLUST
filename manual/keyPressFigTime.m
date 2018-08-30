@@ -34,7 +34,7 @@ function keyPressFigTime(hObject, event, S0)
             imrect_set_(S_fig.hRect, S_fig.time_lim, S_fig.vpp_lim);
 
         case 'm' %merge
-            ui_merge_(S0);
+            manualMerge(S0);
 
         case 'h' %help
             msgbox_(S_fig.csHelp, 1);

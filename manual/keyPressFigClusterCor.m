@@ -4,7 +4,7 @@ function keyPressFigClusterCor(hObject, event)
 
     switch lower(event.Key)
         case 'm' %merge
-            ui_merge_(S0);
+            manualMerge(S0);
         case 's' %split
             autoSplit(1); %multi
         case {'d', 'backspace', 'delete'} %delete

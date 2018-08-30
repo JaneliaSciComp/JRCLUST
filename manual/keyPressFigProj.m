@@ -61,7 +61,7 @@ function keyPressFigProj(hFig, event)
             end
 
         case 'm'
-            ui_merge_(S0);
+            manualMerge(S0);
 
         case 'f'
             disp('keyPressFigProj: ''f'': not implemented yet');
