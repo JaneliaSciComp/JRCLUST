@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function FigClusterCor_update_(S0)
+function updateFigClusterCor(S0)
     if nargin < 1
         S0 = get(0, 'UserData');
     end
