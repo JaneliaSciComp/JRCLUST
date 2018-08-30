@@ -35,7 +35,7 @@ function fieldNames = structFieldsByDim(structName, dim)
          'tmrWav_clu', ...
          'tmrWav_raw_lo_clu', ...
          'tmrWav_raw_hi_clu'}
-    }
+    };
 
     switch structName
         case 'S_clu'
