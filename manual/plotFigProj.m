@@ -57,7 +57,7 @@ function plotFigProj(S0)
             xLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.displayFeature, P.displayFeature, P.displayFeature);
             yLabel = sprintf('Site # (%%0.0f %s)', P.displayFeature);
     end
-    figTitle = '[H]elp; [S]plit; Toggle [B]ackground; (Shift) [Up/Down]:Scale; [Left/Right]:Sites; [M]erge; [F]eature; [R]efresh';
+    figTitle = '[H]elp; [S]plit; Toggle [B]ackground; (Shift) [Up/Down]:Scale; [Left/Right]:Sites; [M]erge; [F]eature; [R]eset';
 
     %----------------
     % display

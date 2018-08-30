@@ -1,24 +1,28 @@
 %--------------------------------------------------------------------------
 function keyPressFigTime(hObject, event, S0)
 
-    if nargin<3, S0 = get(0, 'UserData'); end
+    if nargin < 3
+        S0 = get(0, 'UserData');
+    end
     [P, S_clu, hFig] = deal(S0.P, S0.S_clu, hObject);
     S_fig = get(hFig, 'UserData');
 
     nSites = numel(P.chanMap);
-    % set(hObject, 'Pointer', 'watch');
-    % figure_wait(1);
+
     switch lower(event.Key)
         case {'leftarrow', 'rightarrow'}
             if ~isVisible_(S_fig.hAx)
-                msgbox_('Channel switching is disabled in the position view'); return;
+                msgbox_('Channel switching is disabled in the position view');
+                return;
             end
+
             factor = keyModifier(event, 'shift')*3 + 1;
             if strcmpi(event.Key, 'rightarrow')
                 S_fig.iSite = min(S_fig.iSite + factor, nSites);
             else
                 S_fig.iSite = max(S_fig.iSite - factor, 1);
             end
+
             set(hFig, 'UserData', S_fig);
             updateFigTime();
 
@@ -29,7 +33,9 @@ function keyPressFigTime(hObject, event, S0)
             rescale_FigTime_(event, S0, P);
 
         case 'r' %reset view
-            if ~isVisible_(S_fig.hAx), return; end
+            if ~isVisible_(S_fig.hAx)
+                return;
+            end
             axis_(S_fig.hAx, [S_fig.time_lim, S_fig.vpp_lim]);
             imrect_set_(S_fig.hRect, S_fig.time_lim, S_fig.vpp_lim);
 

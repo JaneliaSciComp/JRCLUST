@@ -64,23 +64,27 @@ function keyPressFigProj(hFig, event)
             manualMerge(S0);
 
         case 'f'
-            disp('keyPressFigProj: ''f'': not implemented yet');
-            % if strcmpi(P.displayFeature, 'vpp')
-            %     P.displayFeature = P.feature;
-            % else
-            %     P.displayFeature = 'vpp';
-            % end
-            %
-            % S0.P = P;
-            % set(0, 'UserData', S0);
-            %
-            % plotFigProj();
+            if getOr(P, 'fImportKilosort')
+                if strcmpi(P.displayFeature, 'vpp')
+                    P.displayFeature = 'kilosort';
+                else
+                    P.displayFeature = 'vpp';
+                    figData.maxAmp = P.maxAmp;
+                    set(hFig, 'UserData', figData);
+                end
+                S0.P = P;
+                set(0, 'UserData', S0);
+
+                plotFigProj(S0);
+            else
+                disp('keyPressFigProj: ''f'': not implemented yet');
+            end
 
         case 'p' % toggle PCivPCj
-            if getOr(P, 'fImportKilosort')
-                if S0.pcPair == [1 2]
+            if getOr(P, 'fImportKilosort') && strcmpi(P.displayFeature, 'kilosort')
+                if all(S0.pcPair == [1 2])
                     S0.pcPair = [1 3];
-                elseif S0.pcPair == [1 3]
+                elseif all(S0.pcPair == [1 3])
                     S0.pcPair = [2 3];
                 else
                     S0.pcPair = [1 2];
