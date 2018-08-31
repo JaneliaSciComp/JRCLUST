@@ -62,8 +62,11 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
             set(hFig, 'Name', ['Waveform correlation (click): ', P.paramFile], 'NumberTitle', 'off', 'Color', 'w');
         end
 
-        % set(figData.hCursorV, 'xdata', [1 1], 'ydata', [.5 nClusters+.5]);
-        % set(figData.hCursorH, 'xdata', .5+[0 nClusters], 'ydata', [1 1]);
+        set(figData.hCursorV, 'XData', [1 1], 'YData', [.5 nClusters+.5]);
+        set(figData.hCursorH, 'XData', .5+[0 nClusters], 'YData', [1 1]);
+        set(figData.hAx, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
+        [diagX, diagY] = getGridDiagonal([0, nClusters, .5]);
+        set(figData.hDiag, 'XData', diagX, 'YData', diagY);
     end
 
     % output

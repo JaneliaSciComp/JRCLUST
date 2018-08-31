@@ -68,16 +68,16 @@ function importKiloSort(rezFile, sessionName)
             spikeClusters(spikeClusterIndices) = iCluster;
         end
 
-        iClusterTemplates = clusterTemplates{iCluster}; % template IDs for this cluster
-
-        % compute cluster sim score, Phy style
-        sims = max(rez.simScore(iClusterTemplates, :), [], 1);
-
-        for jCluster=iCluster:nClusters
-            jClusterTemplates = clusterTemplates{jCluster};
-            simScore(iCluster, jCluster) = max(sims(jClusterTemplates));
-            simScore(jCluster, iCluster) = simScore(iCluster, jCluster);
-        end
+        % iClusterTemplates = clusterTemplates{iCluster}; % template IDs for this cluster
+        %
+        % % compute cluster sim score, Phy style
+        % sims = max(rez.simScore(iClusterTemplates, :), [], 1);
+        %
+        % for jCluster=iCluster:nClusters
+        %     jClusterTemplates = clusterTemplates{jCluster};
+        %     simScore(iCluster, jCluster) = max(sims(jClusterTemplates));
+        %     simScore(jCluster, iCluster) = simScore(iCluster, jCluster);
+        % end
     end
 
     % save the old clusters with gaps in them
@@ -207,6 +207,7 @@ function importKiloSort(rezFile, sessionName)
     S_clu.P = P;
     S_clu = S_clu_position_(S_clu);
     S_clu = S_clu_update_(S_clu, 1:nClusters, P);
+    S_clu = updateSimScore(S_clu);
 
     dialogAssert(clusterDataConsistent(S_clu), 'Import failed: inconsistent clusters.');
     S0.S_clu = S_clu;

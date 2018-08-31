@@ -28,4 +28,5 @@ function S_clu = mergePair(S_clu, P, cluster1, cluster2)
     S_clu = S_clu_update_(S_clu, cluster1, P);
     S_clu = delete_clu_(S_clu, cluster2);
     S_clu = S_clu_remove_empty_(S_clu);
+    S_clu = updateSimScore(S_clu);
 end
