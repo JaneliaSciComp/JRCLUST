@@ -19,7 +19,7 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
 
     % Plot
     if isempty(figData)
-        figData.hAx = axes_new_(hFig);
+        figData.hAx = newAxes(hFig);
         set(figData.hAx, 'Position', [.1 .1 .8 .8], 'XLimMode', 'manual', 'YLimMode', 'manual', 'Layer', 'top');
         set(figData.hAx, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
 
@@ -51,7 +51,7 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
 
         set(hFig, 'KeyPressFcn', @keyPressFigClusterCor);
         mouse_figure(hFig, figData.hAx, @buttonFigClusterCor);
-        figData.hDiag = plotDiag_([0, nClusters, .5], 'Color', [0 0 0], 'LineWidth', 1.5);
+        figData.hDiag = plotGridDiagonal([0, nClusters, .5], 'Color', [0 0 0], 'LineWidth', 1.5);
     else
         figData.figView = figView;
         if strcmp(figData.figView, 'simscore')
@@ -62,11 +62,14 @@ function [hFig, figData] = plotFigClusterCor(S0, figView)
             set(hFig, 'Name', ['Waveform correlation (click): ', P.paramFile], 'NumberTitle', 'off', 'Color', 'w');
         end
 
-        % set(figData.hCursorV, 'xdata', [1 1], 'ydata', [.5 nClusters+.5]);
-        % set(figData.hCursorH, 'xdata', .5+[0 nClusters], 'ydata', [1 1]);
+        set(figData.hCursorV, 'XData', [1 1], 'YData', [.5 nClusters+.5]);
+        set(figData.hCursorH, 'XData', .5+[0 nClusters], 'YData', [1 1]);
+        set(figData.hAx, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
+        [diagX, diagY] = getGridDiagonal([0, nClusters, .5]);
+        set(figData.hDiag, 'XData', diagX, 'YData', diagY);
     end
 
     % output
     set(hFig, 'UserData', figData);
     figure_wait_(0, hFig);
-end %func
+end % function

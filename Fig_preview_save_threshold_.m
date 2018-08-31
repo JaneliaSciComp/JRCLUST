@@ -13,4 +13,4 @@ function Fig_preview_save_threshold_(hFig)
 
     msgbox_(sprintf('Saved to %s and updated %s (thresholdFile)', ...
     thresholdFile, P.paramFile));
-end %func
+end % function

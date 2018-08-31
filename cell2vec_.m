@@ -8,4 +8,4 @@ function vr = cell2vec_(cvr)
         cvr{i} = vr_(:);
     end
     vr = cell2mat(cvr);
-end %func
+end % function

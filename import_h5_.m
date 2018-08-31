@@ -78,4 +78,4 @@ function import_h5_(vcFile_h5)
     fprintf('Created .prm file: %s\n', P.paramFile);
     edit(P.paramFile);
     jrc('setprm', P.paramFile); % set the currently working prm file
-end %func
+end % function

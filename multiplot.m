@@ -58,7 +58,7 @@ else %rescale
     handle_fun_(@rescale_plot_, hPlot, scale);
     viY = [];
 end
-end %func
+end % function
 
 
 function rescale_plot_(hPlot, scale)
@@ -112,4 +112,4 @@ else %matrix
         hFun(handles(i), varargin{:});
     end                
 end
-end %func
+end % function

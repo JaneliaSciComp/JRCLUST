@@ -22,4 +22,4 @@ function varargout = trWav2fet_cov_(trWav2, P)
     else
         varargout = cmrFet;
     end
-end %func
+end % function

@@ -6,4 +6,4 @@ function flag = keyModifier(event, vcKey)
     catch
         flag = 0;
     end
-end %func
+end % function

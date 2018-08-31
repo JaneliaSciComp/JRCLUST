@@ -64,4 +64,4 @@ function [filteredTraces, vnWav2_mean] = filt_car_(rawTraces, P, prePadding, pos
     else
         vnWav2_mean = []; % not used when importing KiloSort data
     end
-end % func
+end % function

@@ -42,4 +42,4 @@ function [vrFilt_spk, vrVaf, nShift_post] = calc_matched_filt_(mnWav1, P) %detec
     %     vrFilt_spk = vrFilt_spk(1:end-nShift_post);
     % end
     % nShift_post = 0;
-end %func
+end % function

@@ -52,4 +52,4 @@ function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cclusterSites, P, cell_5args, iClu
             vrWavCor2(iClu1) = maxCor_drift_(cmrWav_clu2_, cmrWav_clu1_, cviShift1, cviShift2, fMode_cor);
         end
     end %iClu2 loop
-end %func
+end % function

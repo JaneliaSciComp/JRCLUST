@@ -21,4 +21,4 @@ function [mr, vi_shuffle] = shuffle_static_(mr, dimm)
             mr = mr(:, randperm(size(mr,2)));
         end
     end
-end %func
+end % function

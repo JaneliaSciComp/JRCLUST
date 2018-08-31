@@ -8,4 +8,4 @@ function figure_wait_(fWait, vhFig)
     else
         set_(vhFig, 'Pointer', 'arrow');
     end
-end %func
+end % function

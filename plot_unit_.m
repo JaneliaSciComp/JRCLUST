@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function plot_unit_(S_clu1, hAx, vcColor0)
     if isempty(S_clu1), return; end
-    if nargin<2, hAx = axes_new_('FigWav'); end
+    if nargin<2, hAx = newAxes('FigWav'); end
     if nargin<3, vcColor0 = [0 0 0]; end
     [S0, P, S_clu] = get0_();
     [~, S_figWav] = getCachedFig('FigWav');
@@ -39,4 +39,4 @@ function plot_unit_(S_clu1, hAx, vcColor0)
     grid(hAx, 'on');
     xlim_(hAx, [min(mrX1(:)), max(mrX1(:))]);
     ylim_(hAx, [floor(min(mrY1(:))-1), ceil(max(mrY1(:))+1)]);
-end %func
+end % function

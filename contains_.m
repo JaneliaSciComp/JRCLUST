@@ -9,4 +9,4 @@ function flag = contains_(vc, cs)
             break;
         end
     end
-end %func
+end % function

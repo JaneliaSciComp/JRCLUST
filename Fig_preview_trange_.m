@@ -28,4 +28,4 @@ function Fig_preview_trange_(hFig, vc_trange, mh)
     S_fig.nlim_bin = nlim_bin;
     set(hFig, 'UserData', S_fig);
     Fig_preview_plot_(P);
-end %func
+end % function

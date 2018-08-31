@@ -32,4 +32,4 @@ function [nLoad1, nSamples_load1, nSamples_last1] = planLoad(nBytes_file, P)
     else
         [nLoad1, nSamples_load1, nSamples_last1] = partition_load_(nSamples1, nSamples_max);
     end
-end %func
+end % function

@@ -15,7 +15,7 @@ function S0 = ui_delete_(S0)
     set(0, 'UserData', S0);
     plotFigWav(S0); %redraw plot
     % S0.S_clu.mrWavCor = wavCor_delete_(S0.primarySelectedCluster);
-    FigClusterCor_update_(S0);
+    updateFigClusterCor(S0);
     S0.primarySelectedCluster = min(S0.primarySelectedCluster, S0.S_clu.nClusters);
     % set(0, 'UserData', S0);
     button_CluWav_simulate_(S0.primarySelectedCluster);

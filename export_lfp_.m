@@ -15,4 +15,4 @@ function export_lfp_(P)
     assignWorkspace_(mnLfp, mrSiteXY);
     fprintf('\tmnLfp has nSamples x nSites dimension, sites are ordered from the bottom to top, left to right\n');
     fprintf('\tmrSiteXY (site positions) has nSites x 2 dimension; col.1: x-coord, col.2: y-coord (um)\n');
-end %func
+end % function

@@ -41,4 +41,4 @@ function import_silico_(vcFile_prm, fSort)
     % Save
     save0_(strrep(P.paramFile, '.prm', '_jrc.mat'));
     describe_(S0);
-end %func
+end % function

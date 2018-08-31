@@ -23,4 +23,4 @@ function [cvi1, cvi2] = calc_shift_range_(P)
         cvi1{iShift_} = viRange1(vl12);
         cvi2{iShift_} = viRange2(vl12);
     end
-end %func
+end % function

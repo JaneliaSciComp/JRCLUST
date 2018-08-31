@@ -149,4 +149,4 @@ function plot_drift_(P)
 
     mouse_figure(hFig_drift);
     % linkaxes([ax_x, ax_y], 'x');
-end %func
+end % function

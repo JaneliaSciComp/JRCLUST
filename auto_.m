@@ -16,4 +16,4 @@ function auto_(P)
     [S_clu, S0] = post_merge_(S_clu, P);
     S0 = clear_log_(S0);
     save0_(strrep(P.paramFile, '.prm', '_jrc.mat'));
-end % func
+end % function

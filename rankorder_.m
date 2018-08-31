@@ -11,4 +11,4 @@ function [vi, viSort] = rankorder_(vr, vcOrder)
         vi=zeros(n,1,'int32');
         vi(viSort) = 1:n;
     end
-end %func
+end % function

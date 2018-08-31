@@ -27,4 +27,4 @@ function spikeFeatures = sort_overlap_(S0, S_clu, P)
     %-----
     % recluster
     S_clu = fet2clu_(S0, P);
-end %func
+end % function

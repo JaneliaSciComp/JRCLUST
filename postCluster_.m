@@ -40,4 +40,4 @@ function S_clu = postCluster_(S_clu, P)
         xlabel('log10 rho');
         ylabel('log10 delta');
     end
-end %func
+end % function

@@ -36,4 +36,4 @@ function S0 = save_log_(vcCmd, S0)
     ui_update_log_(cS_log, S0); % update revert to list
 
     if nargout<1, set(0, 'UserData', S0); end
-end %func
+end % function

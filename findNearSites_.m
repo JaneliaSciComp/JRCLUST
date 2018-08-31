@@ -22,4 +22,4 @@ function [miSites, mrDist] = findNearSites_(mrSiteXY, maxSite, viSiteZero, viSha
         miSites(:,iSite) = viSrt(viNearSites);
         mrDist(:,iSite) = vrSiteDist(viNearSites);
     end
-end %func
+end % function

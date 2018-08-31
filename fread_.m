@@ -25,4 +25,4 @@ function rawTraces = fread_(fidBinary, sampleDims, dataType)
     catch
         disperr_();
     end
-end %func
+end % function

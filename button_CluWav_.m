@@ -25,4 +25,4 @@ function button_CluWav_(xyPos, vcButton)
     set(0, 'UserData', S0);
     plot_raster_(S0);
     figure_wait_(0);
-end %func
+end % function

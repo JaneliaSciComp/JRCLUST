@@ -11,13 +11,13 @@ function exit_manual_(src, event)
             S0.figTags = {'FigPos', 'FigMap', 'FigTime', 'FigWav', 'FigClusterCor', ...
                 'FigProj', 'FigRD', 'FigCorr', 'FigIsi', 'FigHist'};
         end
-        deleteMany(get_fig_all_(S0.figTags), src);
-        tryClose(figureByTag('FigTrial'));
-        tryClose(figureByTag('FigTrial_b'));
-        tryClose(figureByTag('FigAux'));
+        deleteMany(figuresByTag(S0.figTags), src);
+        tryClose(figuresByTag('FigTrial'));
+        tryClose(figuresByTag('FigTrial_b'));
+        tryClose(figuresByTag('FigAux'));
     catch
         disperr_();
         close(src);
     end
     set(0, 'UserData', []); % clear previous
-end %func
+end % function

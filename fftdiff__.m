@@ -15,4 +15,4 @@ function mnWav1 = fftdiff__(mnWav, freqLim_)
     w = single(pi*1i) * single([linspace(0, 1, n1), linspace(1, -1, npow2-2*n1), linspace(-1, 0, n1)]');
     mnWav1 = real(ifft(bsxfun(@times, fft(single(mnWav), npow2), w), 'symmetric'));
     mnWav1 = cast(mnWav1(1:n,:), class_(mnWav));
-end %func
+end % function

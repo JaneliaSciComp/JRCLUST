@@ -12,4 +12,4 @@ function hMenu = menu_label_(vcTag, vcLabel)
     catch
         disperr_();
     end
-end %func
+end % function

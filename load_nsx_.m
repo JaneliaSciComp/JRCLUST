@@ -23,4 +23,4 @@ function [mnWav, hFile, P] = load_nsx_(vcFile_nsx)
     fprintf('took %0.1fs\n', toc(t_load));
 
     if nargout==0, assignWorkspace_(mnWav, hFile); end
-end % func
+end % function

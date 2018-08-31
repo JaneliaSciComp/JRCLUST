@@ -35,4 +35,4 @@ function mnWav = ndiff_(mnWav, nDiff_filt)
             disperr_('ndiff');
         end
     end
-end %func
+end % function

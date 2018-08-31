@@ -11,4 +11,4 @@ function edit_(vcFile)
     end
     fprintf('Editing %s\n', vcFile);
     edit(vcFile);
-end %func
+end % function

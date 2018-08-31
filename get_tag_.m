@@ -17,4 +17,4 @@ function hObj = get_tag_(vcTag, vcType)
     end
     hObj = findobj('Tag', vcTag, 'Type', vcType);
     S_tag_cache_.(vcTag) = hObj;
-end %func
+end % function

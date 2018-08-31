@@ -8,4 +8,4 @@ function traces = tnWav2uV_(traces, P)
 
     traces = bit2uV_(traces, P);
     traces = meanSubtract(traces);
-end % func
+end % function

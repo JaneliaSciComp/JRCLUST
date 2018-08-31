@@ -42,4 +42,4 @@ function vcStr = field2str_(val)
         end
         vcStr = [vcStr, ']'];
     end
-end %func
+end % function

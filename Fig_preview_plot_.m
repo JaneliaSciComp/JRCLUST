@@ -36,7 +36,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     if fThresh_ref
         set(S_fig.hPlot_mean_thresh, 'XData', vrTime_sec([1,end]), 'YData', repmat(S_fig.blank_thresh, [1,2]));
     else
-        hide_plot_(S_fig.hPlot_mean_thresh);
+        clearPlots(S_fig.hPlot_mean_thresh);
     end
 
     %-----
@@ -58,7 +58,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     if ~isempty(S_fig.viSite_bad)
         multiplot(S_fig.hPlot_traces_bad, S_fig.maxAmp, vrTime_sec, mrWav_(:,S_fig.viSite_bad), S_fig.viSite_bad);
     else
-        hide_plot_(S_fig.hPlot_traces_bad);
+        clearPlots(S_fig.hPlot_traces_bad);
     end
     if S_fig.fShow_spk
         vlSpk_ = S_fig.spikeTimes >= S_fig.nlim_bin(1) & S_fig.spikeTimes <= S_fig.nlim_bin(end);
@@ -69,7 +69,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
         spikeTimes_ = [];
     end
     if isempty(spikeTimes_)
-        hide_plot_(S_fig.hPlot_traces_spk1);
+        clearPlots(S_fig.hPlot_traces_spk1);
         menu_label_('menu_preview_view_spike', 'Show [S]pikes');
     else
         multiplot(S_fig.hPlot_traces_spk1, S_fig.maxAmp, vrTime_spk_, mr2vr_sub2ind_(mrWav_, spikeTimes_, spikeSites_), spikeSites_, 1);
@@ -83,7 +83,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
         mr_set_(mrWav_, ~S_fig.mlWav_thresh(viPlot,:), nan)); %show spikes
         menu_label_('menu_preview_view_threshold', 'Hide spike [T]threshold');
     else
-        hide_plot_([S_fig.hPlot_traces_thresh, S_fig.hPlot_traces_spk]);
+        clearPlots([S_fig.hPlot_traces_thresh, S_fig.hPlot_traces_spk]);
         menu_label_('menu_preview_view_threshold', 'Show spike [T]hreshold');
     end
     xylabel_(S_fig.hAx_traces, '', 'Site #');
@@ -115,7 +115,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     xylabel_(S_fig.hAx_sites, S_fig.vcSite_view, 'Site #');
     set(S_fig.hAx_sites, 'YLim', S_fig.siteLim + [-1,1]);
     if isempty(S_fig.thresh_corr_bad_site) || ~strcmpi(S_fig.vcSite_view, 'Site correlation')
-        hide_plot_(S_fig.hPlot_site_thresh);
+        clearPlots(S_fig.hPlot_site_thresh);
     else
         set(S_fig.hPlot_site_thresh, 'XData', S_fig.thresh_corr_bad_site *[1,1], 'YData', [0, nSites+1]);
     end
@@ -124,7 +124,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
         vrPlot_site_bad(~S_fig.vlSite_bad) = 0;
         set(S_fig.hPlot_site_bad, 'XData', 1:nSites, 'YData', vrPlot_site_bad); %switch statement
     else
-        hide_plot_(S_fig.hPlot_site_bad);
+        clearPlots(S_fig.hPlot_site_bad);
     end
     title_(S_fig.hAx_sites, sprintf('thresh_corr_bad_site=%0.4f', S_fig.thresh_corr_bad_site));
 
@@ -148,4 +148,4 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     set(hFig, 'UserData', S_fig);
     figure_wait_(0, hFig);
     tryClose(hWait);
-end %func
+end % function

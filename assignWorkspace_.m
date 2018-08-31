@@ -12,4 +12,4 @@ function vcMsg = assignWorkspace_(varargin)
     end
     vcMsg = cell2mat(vcMsg);
     if nargout==0, fprintf(vcMsg); end
-end %func
+end % function

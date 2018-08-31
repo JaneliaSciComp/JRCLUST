@@ -14,4 +14,4 @@ function [vl, vr] = thresh_mad_(vr, thresh_mad)
     if nargout>=2
         vr = vr / factor; %MAD unit
     end
-end %func
+end % function

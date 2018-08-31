@@ -6,4 +6,4 @@ function Fig_preview_view_ref_(hFig, vcMode, hMenu)
     menu_checkbox_(hMenu, vcMode);
     set(hFig, 'UserData', S_fig);
     Fig_preview_plot_([], 1);
-end %func
+end % function

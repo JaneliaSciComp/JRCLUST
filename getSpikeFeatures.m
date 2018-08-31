@@ -6,4 +6,4 @@ function spikeFeatures = getSpikeFeatures(P)
     end
 
     spikeFeatures = load_bin_(strrep(P.paramFile, '.prm', '_features.bin'), 'single', get0_('featureDims'));
-end %func
+end % function

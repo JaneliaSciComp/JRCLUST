@@ -42,4 +42,4 @@ function spikeWaveforms = getSpikeWaveformsSites(spikes, sitesOfInterest, S0, fW
         [Lia, Locb] = ismember(neighborsThisSite, sitesOfInterest);
         spikeWaveforms(:, Locb(Lia), iThisSite) = traces(:, Lia, spikes(iThisSite));
     end
-end %func
+end % function

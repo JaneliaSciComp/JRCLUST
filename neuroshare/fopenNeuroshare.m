@@ -15,4 +15,4 @@ function [fid, nBytes, headerOffset] = fopenNeuroshare(vcFile_nsx)
         headerOffset = hFile.FileInfo.BytesHeaders;
     end
     fseek(fid, headerOffset, -1);
-end %func
+end % function

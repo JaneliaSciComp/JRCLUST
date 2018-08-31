@@ -12,4 +12,4 @@ function mr12 = pdist2_(mr1, mr2)
         vr1 = sum(mr1'.^2);
         mr12 = sqrt(bsxfun(@plus, vr1, bsxfun(@minus, vr1', 2*mr1*mr1')));
     end
-end %func
+end % function

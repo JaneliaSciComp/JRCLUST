@@ -28,4 +28,4 @@ function val = read_cfg_(vcName, fVerbose)
             end
         end
     end
-end %func
+end % function

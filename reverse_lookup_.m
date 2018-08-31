@@ -10,4 +10,4 @@ function [viA, vl] = reverse_lookup_(viB, viA2B)
     % vl = ismember(viB, viA2B);
     % dialogAssert(all(vl), 'reverse_lookup_: all viB must belong to viA2B');
     % viA = arrayfun(@(i)find(viA2B==i), viB(vl), 'UniformOutput', 1);
-end %func
+end % function

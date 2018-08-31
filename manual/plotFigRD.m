@@ -73,4 +73,4 @@ function S_clu = plotFigRD(S_clu, P)
     title_(sprintf('rho-cut: %f, delta-cut: %f', P.log10RhoCutoff, P.log10DeltaCutoff));
 
     drawnow;
-end %func
+end % function

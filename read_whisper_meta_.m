@@ -75,4 +75,4 @@ function S = read_whisper_meta_(vcFname)
     catch
         disp(lasterr);
     end
-end %func
+end % function

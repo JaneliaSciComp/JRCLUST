@@ -40,4 +40,4 @@ function hFig = plot_rd_(P, S0)
     axis_([-4, -.5, -.5, 2]); grid on;
 
     linkaxes(vhAx, 'x');
-end %func
+end % function

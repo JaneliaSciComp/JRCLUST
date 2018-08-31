@@ -14,4 +14,4 @@ function mrWavCor_new = S_clu_wavcor_remap_(S_clu, viKeep_clu)
     viOld2New(viKeep_clu) = 1:nClu_new;
     viNew = sub2ind([nClu_new, nClu_new], viOld2New(viCol), viOld2New(viRow));
     mrWavCor_new(viNew) = S_clu.mrWavCor(viOld);
-end %func
+end % function

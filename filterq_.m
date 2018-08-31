@@ -9,4 +9,4 @@ function mr = filterq_(vrA, vrB, mr, dimm)
     %JJJ 2015 09 16
     % mr = filter(vrA, vrB, mr, [], dimm);
     mr = circshift(filter(vrA, vrB, mr, [], dimm), -ceil(numel(vrA)/2), dimm);
-end %func
+end % function

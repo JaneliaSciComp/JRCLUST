@@ -6,4 +6,4 @@ function vcComment = getCommentExpr_(vcExpr)
     iStart = strfind(vcExpr, '%');
     if isempty(iStart), vcComment = ''; return; end
     vcComment = vcExpr(iStart(1):end);
-end %func
+end % function

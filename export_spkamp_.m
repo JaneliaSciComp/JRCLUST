@@ -43,4 +43,4 @@ function export_spkamp_(P, vcArg2)
     else
         assignWorkspace_(cmrVpp_clu, cmrVmax_clu, cmrVmin_clu, miSite_clu);
     end
-end %func
+end % function

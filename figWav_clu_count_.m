@@ -25,4 +25,4 @@ function S_fig = figWav_clu_count_(S_fig, S_clu, fText)
         hFig = getCachedFig('FigWav');
         set(hFig, 'UserData', S_fig);
     end
-end %func
+end % function

@@ -42,4 +42,4 @@ function plot_activity_(P) % single column only
 
     % if getOr([], 'fDebug_ui', 0), close(hFig); end
     if fDebug_ui==1, close(hFig); end
-end %func
+end % function

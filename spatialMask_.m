@@ -9,4 +9,4 @@ function [vrWeight_site1, vrDist_site1] = spatialMask_(P, iSite, nSites_spk, dec
     vrWeight_site1 = 2.^(-vrDist_site1 / decayDist_um); %P.maxDist_site_merge_um);
     vrWeight_site1 = vrWeight_site1(:);
     vrDist_site1 = vrDist_site1(:);
-end %func
+end % function

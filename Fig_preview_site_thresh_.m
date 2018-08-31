@@ -22,4 +22,4 @@ function Fig_preview_site_thresh_(hFig)
     set(hFig, 'UserData', S_fig);
     Fig_preview_update_(hFig, S_fig, 1);
 
-end %func
+end % function

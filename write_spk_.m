@@ -24,4 +24,4 @@ function write_spk_(varargin) % DEPRECATED
         otherwise
                 disperr_('write_spk_: invalid nargin');
     end %switch
-end %func
+end % function

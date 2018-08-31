@@ -10,4 +10,4 @@ function update_spikes_(varargin)
     tryClose(hMsg);
     figure_wait_(0);
     figure(fig_prev);
-end %func
+end % function

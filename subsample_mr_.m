@@ -26,4 +26,4 @@ function [mr, vi] = subsample_mr_(mr, nMax, dimm)
             vi = 1:n;
         end
     end
-end %func
+end % function

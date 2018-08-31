@@ -130,4 +130,4 @@ function csHelp = help_(vcCommand)
     '';
     };
     if nargout==0, disp_cs_(csHelp); end
-end %func
+end % function

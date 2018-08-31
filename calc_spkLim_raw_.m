@@ -9,4 +9,4 @@ function spkLim_raw = calc_spkLim_raw_(P)
     else
         spkLim_raw = round(P.spkLim_raw_ms * P.sampleRateHz / 1000);
     end
-end %func
+end % function

@@ -20,4 +20,4 @@ function [mrPv1, mrPv2] = pca_pv_spk_(viSpk1, viSites1, spikeWaveforms1)
             [mrPv1(:,iSite1), mrPv2(:,iSite1)] = pca_pv_(spikeWaveforms1(:,:,iSite1));
         end %for
     end
-end %func
+end % function

@@ -29,4 +29,4 @@ function P = file2struct_1_(vcFile_file2struct)
             fprintf(2, lasterr);
         end
     end %for
-end %func
+end % function

@@ -139,4 +139,4 @@ function [fSplit, vlIn] = plot_split_(S1)
         fSplit = 0;
     end
     tryClose(hFig);
-end %func
+end % function

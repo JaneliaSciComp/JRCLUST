@@ -5,4 +5,4 @@ function reload_prm_(hObject, event)
     [S0, P] = get0_();
     S0.P = loadParams(P.paramFile);
     set(0, 'UserData', S0);
-end %func
+end % function

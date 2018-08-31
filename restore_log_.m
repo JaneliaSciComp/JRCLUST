@@ -27,10 +27,10 @@ function restore_log_(iMenu1)
     % S0.primarySelectedCluster = min(S0.primarySelectedCluster, S_clu.nClusters);
     % S0.secondarySelectedCluster = [];
     % set(0, 'UserData', S0);
-    % update_plot_(S0.hPaste, nan, nan); %remove paste cursor
+    % updatePlot(S0.hPaste, nan, nan); %remove paste cursor
     % S0 = update_FigCor_(S0);
     % S0 = button_CluWav_simulate_(S0.primarySelectedCluster, [], S0);
     % set(0, 'UserData', S0);
     tryClose(hMsg);
     figure_wait_(0);
-end %func
+end % function

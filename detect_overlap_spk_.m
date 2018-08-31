@@ -36,4 +36,4 @@ function [viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = detect_overlap_spk_(sp
             vnCount_ol_spk(viSpk12_) = vnCount_ol_spk(viSpk12_) + 1; % 13% spikes collide
         end
     end
-end %func
+end % function

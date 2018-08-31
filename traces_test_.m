@@ -6,11 +6,11 @@ function traces_test_(P)
     % for iCmd = 1:numel(csCmd)
     % vcCmd1 = csCmd{iCmd};
     % fprintf('\tTesting manual-mode %d/%d: %s\n', iCmd, numel(csCmd), vcCmd1);
-    hFig = figureByTag('Fig_traces');
+    hFig = figuresByTag('Fig_traces');
     keyPress_fig_(hFig, get_keyPress_('all'));
     try
         close(hFig); %close traces figure. other figures may remain
-        close(figureByTag('FigPsd'));
+        close(figuresByTag('FigPsd'));
     catch
     end
-end %func
+end % function

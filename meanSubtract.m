@@ -22,4 +22,4 @@ function traces = meanSubtract(traces, dim, hFunc)
     if numel(traceDims) > 2
         traces = reshape(traces, traceDims);
     end
-end %func
+end % function

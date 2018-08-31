@@ -41,4 +41,4 @@ function flag = validate_param_(P)
         cellfun(@(vc_)fprintf(2, '%s\n', vc_), csError);
         flag = false;
     end
-end %func
+end % function

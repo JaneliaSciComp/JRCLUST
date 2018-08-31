@@ -27,5 +27,5 @@ function paramFile = getParamFile(filename)
         end
     end
 
-end % func
+end % function
 

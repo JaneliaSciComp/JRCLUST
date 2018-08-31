@@ -16,4 +16,4 @@ function Fig_preview_fft_thresh_(hFig)
 
     S_fig.fft_thresh = fft_thresh;
     S_fig = Fig_preview_update_(hFig, S_fig, 1);
-end %func
+end % function

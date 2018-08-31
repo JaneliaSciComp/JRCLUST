@@ -13,4 +13,4 @@ function plot_aux_rate_(fSelectedUnit)
     plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, primarySelectedCluster);
     vcMsg = assignWorkspace_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux);
     % msgbox_(vcMsg);
-end %func
+end % function

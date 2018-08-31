@@ -8,4 +8,4 @@ function cellstr2file_(vcFile, csLines)
         fprintf(fid, '%s\n', csLines{i});
     end
     fclose(fid);
-end %func
+end % function

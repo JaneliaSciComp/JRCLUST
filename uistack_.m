@@ -4,4 +4,4 @@ function uistack_(h, vc)
         uistack(h, vc);
     catch
     end
-end %func
+end % function

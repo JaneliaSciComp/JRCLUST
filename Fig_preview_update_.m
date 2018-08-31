@@ -78,4 +78,4 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     % Exit
     set(hFig, 'UserData', S_fig);
     [hFig, S_fig] = Fig_preview_plot_(P, fKeepView);
-end %func
+end % function

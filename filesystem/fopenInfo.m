@@ -17,4 +17,4 @@ function [fid, nBytes, headerOffset] = fopenInfo(filename, permission)
         fid = [];
         nBytes = [];
     end
-end %func
+end % function

@@ -23,4 +23,4 @@ function ui_update_log_(cS_log, S0)
         'Enable', ifeq_(fEnable, 'on', 'off'));
     end
     % update undo/redo menu
-end %func
+end % function

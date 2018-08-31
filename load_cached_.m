@@ -61,4 +61,4 @@ function [S0, P] = load_cached_(P, loadWaveforms)
     end
     % S0.P = P; % force S0 to take the latest values from the prm file
     % set(0, 'UserData', S0);
-end %func
+end % function

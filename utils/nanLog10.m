@@ -2,4 +2,4 @@
 function y = nanLog10(y)
     y(y <= 0) = nan;
     y = log10(y);
-end % func
+end % function

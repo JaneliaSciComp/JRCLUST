@@ -7,4 +7,4 @@ function samplesPreview = loadFilePreview(fidBinary, P)
     else
         samplesPreview = [];
     end
-end %func
+end % function

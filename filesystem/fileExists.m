@@ -7,4 +7,4 @@ function flag = fileExists(filename)
     else
         flag = ~isempty(dir(filename));
     end
-end %func
+end % function

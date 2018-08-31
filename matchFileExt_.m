@@ -16,4 +16,4 @@ function vl = matchFileExt_(csFiles, vcExt, vlDir)
     if nargin >= 3
         vl = vl | vlDir; %matches if it's directory
     end
-end %func
+end % function

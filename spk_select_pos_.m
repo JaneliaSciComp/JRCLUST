@@ -10,4 +10,4 @@ function [viSpk_clu2, clusterSites2] = spk_select_pos_(viSpk_clu1, vrPosY_spk1, 
     if nargout>=2
         clusterSites2 = subsample_vr_(clusterSites1(vlSpk2), nSamples_max);
     end
-end %func
+end % function

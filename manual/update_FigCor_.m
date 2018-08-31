@@ -18,4 +18,4 @@ function S0 = update_FigCor_(S0)
     if nargout==0
         set(0, 'UserData', S0); %update field
     end
-end %func
+end % function

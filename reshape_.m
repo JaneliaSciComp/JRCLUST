@@ -8,4 +8,4 @@ function mr = reshape_(vr, n1)
     else
         mr = reshape(vr(1:(n1*n2)), n1, n2);
     end
-end %func
+end % function

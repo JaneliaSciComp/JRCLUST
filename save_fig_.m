@@ -16,4 +16,4 @@ function save_fig_(vcFile_png, hFig, fClose);
     catch
         fprintf(2, 'Failed to save a figure to %s.\n', vcFile_png);
     end
-end %func
+end % function

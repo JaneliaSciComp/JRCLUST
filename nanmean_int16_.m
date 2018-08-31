@@ -20,4 +20,4 @@ function mrWav_clu1 = nanmean_int16_(tnWav0, dimm_mean, fUseCenterSpk, iSite1, v
         %     mrWav_clu1 = nanmean(trWav(:,P.miSites(:, iSite1),:), dimm_mean);
     end
     mrWav_clu1 = meanSubtract(mrWav_clu1); %122717 JJJ
-end %func
+end % function

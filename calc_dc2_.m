@@ -18,4 +18,4 @@ function dc = calc_dc2_(S0, P, vlRedo_spk)
     end
     dc = sqrt(abs(quantile(vrDc2_site, .5)));
     fprintf('\n\ttook %0.1fs\n', toc(t1));
-end %func
+end % function

@@ -76,4 +76,4 @@ function addMenu(hFig, P)
 
     drawnow;
     set(hFig, 'OuterPosition', posvec);
-end %func
+end % function

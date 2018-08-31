@@ -15,4 +15,4 @@ function [spikeTimes11, spikeSites11] = getIntervalTimesSites(spikeTimes0, spike
     else
         spikeSites11 = [];
     end
-end %func
+end % function

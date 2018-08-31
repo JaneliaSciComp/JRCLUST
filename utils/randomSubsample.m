@@ -8,4 +8,4 @@ function population = randomSubsample(population, n)
     if numel(population) > n
         population = population(ceil(numel(population) .* rand(n, 1))); % TW
     end
-end % func
+end % function

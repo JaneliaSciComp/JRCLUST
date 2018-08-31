@@ -23,4 +23,4 @@ function S = text2struct_(vcFname)
             fprintf('%s = %s error\n', csName{i}, csValue{i});
         end
     end
-end %func
+end % function

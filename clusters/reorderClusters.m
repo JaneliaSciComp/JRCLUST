@@ -29,4 +29,4 @@ function S_clu = reorderClusters(S_clu, criterion)
     end
 
     S_clu = S_clu_refresh_(S_clu);
-end %func
+end % function

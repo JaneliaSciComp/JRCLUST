@@ -21,4 +21,4 @@ function [spikeSites2, spikeSites3] = find_site_spk23_(spikeWaveforms, spikeSite
         spikeSites2 = int32(mr2vr_sub2ind_(miSites2, spikePrimarySecondarySites2(1,:), []));
         spikeSites3 = int32(mr2vr_sub2ind_(miSites2, spikePrimarySecondarySites2(2,:), []));
     end
-end %func
+end % function

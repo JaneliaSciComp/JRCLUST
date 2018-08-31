@@ -22,4 +22,4 @@ function [viSpk_shift, viShift] = spkwav_shift_(trWav, shift_max, P)
     %         trWav(iShift+1:end,viSpk1,:) = trWav(1:end-iShift,viSpk1,:);
     %     end
     % end
-end %func
+end % function

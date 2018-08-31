@@ -10,4 +10,4 @@ function mnWav = load_bin_multi_(fid, cvi_lim_bin, P)
     end %for
     mnWav = cell2mat_(mnWav);
     fseek(fid, fpos, 'bof'); % restore the file position
-end %func
+end % function

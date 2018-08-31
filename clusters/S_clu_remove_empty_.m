@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function [S_clu, vlKeep_clu] = S_clu_remove_empty_(S_clu, fSave_old)
+function [S_clu, vlKeep_clu] = S_clu_remove_empty_(S_clu)
 
     if nargin < 2, fSave_old = 0; end
 
@@ -8,10 +8,6 @@ function [S_clu, vlKeep_clu] = S_clu_remove_empty_(S_clu, fSave_old)
 
     % waveform
     S_clu = S_clu_select_(S_clu, vlKeep_clu);
-
-    if fSave_old
-        S_clu.spikeClustersOld = S_clu.spikeClusters; % save old 
-    end
 
     if min(S_clu.spikeClusters) < 1
         S_clu.spikeClusters(S_clu.spikeClusters<1) = 0;
@@ -22,4 +18,4 @@ function [S_clu, vlKeep_clu] = S_clu_remove_empty_(S_clu, fSave_old)
     end
     S_clu.spikeClusters = int32(S_clu.spikeClusters);
     S_clu.nClusters = double(max(S_clu.spikeClusters));
-end %func
+end % function

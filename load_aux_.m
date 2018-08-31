@@ -41,4 +41,4 @@ function [vrWav_aux, vrTime_aux] = load_aux_(P)
         return;
     end %switch
     if nargout>=2, vrTime_aux = single(1:numel(vrWav_aux))' / sampleRateHz_aux; end
-end %func
+end % function

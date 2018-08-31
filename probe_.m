@@ -36,4 +36,4 @@ function probe_(vcFile_prb)
     % set(hFig, 'Name', vcFile_prb, 'NumberTitle', 'off');
     edit(vcFile_prb); %show probe file
     figure(hFig);
-end %func
+end % function

@@ -25,4 +25,4 @@ function P = read_meta_file_(vcFile_meta)
     catch
         disperr_('read_meta_file_');
     end
-end %func
+end % function

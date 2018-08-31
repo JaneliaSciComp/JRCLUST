@@ -121,4 +121,4 @@ function [allScores, allFPs, allMisses, allMerges] = compareClustering2_(cluGT, 
     fprintf('\t%d / %d good cells, score > 0.8 (post-merge) \n', sum(cellfun(@(x) x(end), allScores)>.8), numel(allScores))
     fprintf('\tMean merges per good cell %2.2f \n', mean(nMerges(finalScores>.8)))
     fprintf('\ttook %0.1fs\n', toc(t1));
-end %func
+end % function

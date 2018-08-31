@@ -12,4 +12,4 @@ function P = struct_default_(P, csName, def_val)
             P.(vcName) = def_val;
         end
     end
-end %func
+end % function

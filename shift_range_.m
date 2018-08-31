@@ -20,4 +20,4 @@ function [cvi1, cvi2] = shift_range_(nT, nShift, viShift)
         cvi1{iShift_} = viRange1(vl12);
         cvi2{iShift_} = viRange2(vl12);
     end
-end %func
+end % function

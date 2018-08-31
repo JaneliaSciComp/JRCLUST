@@ -11,4 +11,4 @@ function flag = delete_file_(vcFile)
     % vcCmd = ifeq_(ispc(), 'del', 'rm');
     % eval(sprintf('system(''%s "%s"'');', vcCmd, vcFile));
     flag = 1;
-end %func
+end % function

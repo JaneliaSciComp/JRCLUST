@@ -13,7 +13,7 @@ function [hFig, figData] = plotFigWavCor(S0)
 
     % Plot
     if isempty(figData)
-        figData.hAx = axes_new_(hFig);
+        figData.hAx = newAxes(hFig);
         set(figData.hAx, 'Position', [.1 .1 .8 .8], 'XLimMode', 'manual', 'YLimMode', 'manual', 'Layer', 'top');
         set(figData.hAx, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
         axis_(figData.hAx, [0 nClusters 0 nClusters] + .5);
@@ -28,7 +28,7 @@ function [hFig, figData] = plotFigWavCor(S0)
         figData.vcTitle = '[S]plit; [M]erge; [D]elete';
         set(hFig, 'KeyPressFcn', @keyPressFcn_FigWavCor_);
         mouse_figure(hFig, figData.hAx, @button_FigWavCor_);
-        figData.hDiag = plotDiag_([0, nClusters, .5], 'Color', [0 0 0], 'LineWidth', 1.5);
+        figData.hDiag = plotGridDiagonal([0, nClusters, .5], 'Color', [0 0 0], 'LineWidth', 1.5);
     else
         set(figData.hImWavCor, 'CData', S_clu.mrWavCor);
         set(figData.hCursorV, 'xdata', [1 1], 'ydata', [.5 nClusters+.5]);
@@ -37,4 +37,4 @@ function [hFig, figData] = plotFigWavCor(S0)
     % output
     set(hFig, 'UserData', figData);
     figure_wait_(0, hFig);
-end %func
+end % function

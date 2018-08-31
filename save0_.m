@@ -32,4 +32,4 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
     catch
         disperr_();
     end
-end %func
+end % function

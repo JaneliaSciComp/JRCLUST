@@ -62,4 +62,4 @@ function mn = load_bin_paged_(P, viChan, nBytes_page)
         disperr_();
     end
     fclose_(fid);
-end %func
+end % function

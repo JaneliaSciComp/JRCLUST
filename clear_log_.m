@@ -4,4 +4,4 @@ function S0 = clear_log_(S0)
     S0.miClu_log = [];
     set(0, 'UserData', S0);
     delete_files_(strrep(S0.P.paramFile, '.prm', '_log.mat'), 0);
-end %func
+end % function

@@ -126,7 +126,7 @@ function S0 = file2spk_(P, spikeTimes0, spikeSites0)
         cviSpk3_site = [];
     end
     [mrPv_global, vrD_global] = get0_('mrPv_global', 'vrD_global');
-    S0 = makeStruct_(P, spikeSites, viSite2_spk, spikeTimes, vrAmp_spk, vrThresh_site, dimm_spk, ...
+    S0 = makeStruct(P, spikeSites, viSite2_spk, spikeTimes, vrAmp_spk, vrThresh_site, dimm_spk, ...
     cviSpk_site, cviSpk2_site, cviSpk3_site, dimm_raw, viT_offset_file, dimm_fet, nLoads, ...
     mrPv_global, vrFilt_spk, vrD_global);
-end %func
+end % function

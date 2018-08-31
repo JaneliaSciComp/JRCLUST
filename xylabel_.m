@@ -4,4 +4,4 @@ function xylabel_(hAx, vcXLabel, vcYLabel, vcTitle)
     xlabel(hAx, vcXLabel);
     ylabel(hAx, vcYLabel);
     if nargin>=4, title_(hAx, vcTitle); end
-end %func
+end % function

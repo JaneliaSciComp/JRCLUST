@@ -5,4 +5,4 @@ function vcFile_new = replaceDir(filename, newDirname)
     [newDirname, ~, ~] = fileparts(newDirname);
     [vcDir, filename, vcExt] = fileparts(filename);
     vcFile_new = fullfile(newDirname, [filename, vcExt]);
-end % func
+end % function

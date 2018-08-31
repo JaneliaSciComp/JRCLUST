@@ -38,4 +38,4 @@ function batch_plot_(vcFile_batch, vcCommand)
     % plot cS_plot_file
     S_plot_show(cS_plot_file); % save to _batch.mat (?)
 
-end %func
+end % function

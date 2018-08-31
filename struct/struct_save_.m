@@ -32,4 +32,4 @@ function struct_save_(S, vcFile, fVerbose)
     if fVerbose
         fprintf('\ttook %0.1fs.\n', toc(t1));
     end
-end %func
+end % function

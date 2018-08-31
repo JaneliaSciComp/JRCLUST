@@ -34,4 +34,4 @@ function S_gt = load_gt_(groundTruthFile, P)
     if max(S_gt.viClu) > numel(viClu_unique)
         S_gt.viClu = viClu;
     end
-end %func
+end % function

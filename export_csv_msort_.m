@@ -31,4 +31,4 @@ function export_csv_msort_(varargin)
     dlmwrite(vcFile_csv, [vrTime(:), viClu(:)], 'precision', 9);
     fprintf('wrote to %s\n', vcFile_csv);
     fprintf('\ttime\tclu# (starts with 1)\n');
-end %func
+end % function

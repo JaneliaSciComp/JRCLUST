@@ -39,4 +39,4 @@ function plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluP
         ylabel('Firing Rate (Hz)');
         grid on;
     end %for
-end %func
+end % function

@@ -35,4 +35,4 @@ function export_chan_(P, vcArg1)
             write_bin_(vcFile_out, vn_);
         end %for
     end
-end %func
+end % function

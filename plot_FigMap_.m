@@ -8,7 +8,7 @@ function plot_FigMap_(S0)
     vrVpp = squeeze_(max(mrWav1) - min(mrWav1));
     mrVpp = repmat(vrVpp(:)', [4, 1]);
     if isempty(S_fig)
-        S_fig.hAx = axes_new_(hFig);
+        S_fig.hAx = newAxes(hFig);
         [S_fig.mrPatchX, S_fig.mrPatchY] = probe_map_(P);
         S_fig.hPatch = patch(S_fig.mrPatchX, S_fig.mrPatchY, mrVpp, ...
         'EdgeColor', 'k', 'FaceColor', 'flat');
@@ -28,4 +28,4 @@ function plot_FigMap_(S0)
     caxis(S_fig.hAx, [0, max(vrVpp)]);
 
     set(hFig, 'UserData', S_fig);
-end %func
+end % function

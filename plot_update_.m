@@ -6,4 +6,4 @@ function plot_update_(vhPlot, mrX, mrY)
         vrY1 = mrY(:, iPlot:nPlots:end);
         set(vhPlot(iPlot), 'XData', vrX1(:), 'YData', vrY1(:));
     end
-end %func
+end % function

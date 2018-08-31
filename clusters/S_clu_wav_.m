@@ -118,4 +118,4 @@ function S_clu = S_clu_wav_(S_clu, clustersToUpdate, fSkipRaw)
     if fVerbose
         fprintf('\n\ttook %0.1fs\n', toc(t1));
     end
-end %func
+end % function

@@ -39,4 +39,4 @@ function viSpk1 = find_peak_(vrWav1, thresh1, nneigh_min)
         viSpk1 = viSpk1(vl1(viSpk1-1) & vl1(viSpk1+1));
         %         viSpk1 = viSpk1(vrWav1(viSpk1-1) < -thresh1 & vrWav1(viSpk1+1) < -thresh1);
     end
-end %func
+end % function

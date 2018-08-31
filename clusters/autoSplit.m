@@ -37,8 +37,8 @@ function autoSplit(fMulti, S0)
     mrSpkWav1 = tnWav2uV_(tmp, P);
     mrSpkWav1 = reshape(mrSpkWav1, [], size(mrSpkWav1,3));
 
-    [~, temp_S_fig] = getCachedFig('FigTime'); % TW gets the variables in the "time" figure -- needed for getting the highlighted site
-    siteToUse = temp_S_fig.iSite; % TW use the highlighted site from "time" figure
+    [~, figData] = getCachedFig('FigTime'); % TW gets the variables in the "time" figure -- needed for getting the highlighted site
+    siteToUse = figData.primarySite; % TW use the highlighted site from "time" figure
     % siteToUse = clusterSite; % TW use dominant site for the cluster
 
     % TW calculate amplitudes on the fly
@@ -71,7 +71,7 @@ function autoSplit(fMulti, S0)
                     case 'PC3 vs PC2'
                         [hAx_, iAx1, iAx2] = deal(vhAx(2), 3, 2);
 
-                    case 'PC1 vs PC3',
+                    case 'PC1 vs PC3'
                         [hAx_, iAx1, iAx2] = deal(vhAx(3), 1, 3);
 
                     otherwise
@@ -92,4 +92,4 @@ function autoSplit(fMulti, S0)
     end
 
     splitCluster(clusterToSplit, vlSpkIn);
-end %func
+end % function

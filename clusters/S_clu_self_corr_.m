@@ -18,4 +18,4 @@ function selfcorr = S_clu_self_corr_(S_clu, iClu1, S0)
     else
         selfcorr = S_clu_self_corr__(S_clu, spikeTraces, iClu1, spikeSites);
     end
-end %func
+end % function

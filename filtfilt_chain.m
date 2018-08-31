@@ -78,7 +78,7 @@ end
 if fInt16, mr = int16(mr); end
 mr = filt_pad_('remove', mr, P.nPaddingSamples); %slow    
 %if P.useGPU_filt, mr = gather(mr); end
-end %func
+end % function
 
 
 %--------------------------------------------------------------------------
@@ -112,7 +112,7 @@ if P.useGPU_filt
     vrFiltB = gpuArray(vrFiltB);
     vrFiltA = gpuArray(vrFiltA);
 end
-end %func
+end % function
 
 
 %--------------------------------------------------------------------------
@@ -129,7 +129,7 @@ switch lower(vcMode)
     case 'remove'
         mrWav = mrWav(nPad+1:end-nPad,:);
 end %switch
-end %func
+end % function
     
 
 %--------------------------------------------------------------------------
@@ -148,7 +148,7 @@ gain = 1/(1+beta);
 
 num  = gain*[1 -2*cos(Wo) 1];
 den  = [1 -2*gain*cos(Wo) (2*gain-1)];
-end %func
+end % function
 
 
 %--------------------------------------------------------------------------
@@ -161,7 +161,7 @@ for iField=1:numel(csNames)
         P = setfield(P, csNames{iField}, csValues{iField});
     end
 end
-end %func
+end % function
 
 
 %--------------------------------------------------------------------------
@@ -180,4 +180,4 @@ for iField=1:numel(csNames)
         P = setfield(P, csNames{iField}, csValues{iField});
     end
 end
-end %func
+end % function

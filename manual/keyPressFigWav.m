@@ -51,7 +51,7 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
             end
 
         case 'm'
-            S0 = ui_merge_(S0); % merge clusters
+            S0 = manualMerge(S0); % merge clusters
 
         case 'space'
             % auto-select nearest cluster for black
@@ -145,4 +145,4 @@ function S0 = keyPressFigWav(hObject, event, S0) %amp dist
     end
 
     figure_(hObject); %change the focus back to the current object
-end %func
+end % function

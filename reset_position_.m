@@ -10,4 +10,4 @@ function reset_position_(hObject, event)
             figure(hFig1); %bring it to foreground
         end
     end
-end %func
+end % function

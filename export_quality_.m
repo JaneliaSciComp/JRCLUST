@@ -39,4 +39,4 @@ function export_quality_(varargin)
 
     cellfun(@(x)fprintf('%s\n',x), csMsg);
     if fGui, msgbox_(csMsg); end
-end %func
+end % function

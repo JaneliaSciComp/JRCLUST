@@ -73,4 +73,4 @@ function S_clu = S_clu_reclust_(S_clu, S0, P);
         otherwise
         return;
     end
-end %func
+end % function

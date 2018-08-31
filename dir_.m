@@ -13,4 +13,4 @@ function [csFiles_full, csFiles] = dir_(vcFilter_dir, csExcl)
     [vcDir, ~, ~] = fileparts(vcFilter_dir);
     if isempty(vcDir), vcDir='.'; end
     csFiles_full = cellfun(@(vc)[vcDir, filesep(), vc], csFiles, 'UniformOutput', 0);
-end %func
+end % function

@@ -7,4 +7,4 @@ function varargout = getfield_(S, varargin)
             varargout{iField} = [];
         end
     end
-end %func
+end % function

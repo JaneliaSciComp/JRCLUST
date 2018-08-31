@@ -10,4 +10,4 @@ function varargout = multifun_(hFun, varargin)
             varargout{i} = varargin{i};
         end
     end
-end %func
+end % function

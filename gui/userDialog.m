@@ -8,4 +8,4 @@ function answer = userDialog(varargin)
     else
         answer = questdlg(varargin{:});
     end
-end % func
+end % function

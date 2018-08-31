@@ -12,4 +12,4 @@ function spikeWaveforms1 = mn2tn_wav_spk2_(mnWav1, spikeSites, spikeTimes, P)
         viSite11 = P.miSites(:,iSite);
         spikeWaveforms1(:,:,viiSpk11) = permute(gather_(mr2tr3_(mnWav1, spkLim_wav, spikeTimes11, viSite11)), [1,3,2]); %raw
     end
-end %func
+end % function

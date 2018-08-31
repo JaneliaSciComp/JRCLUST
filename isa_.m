@@ -12,4 +12,4 @@ function flag = isa_(vr, vcClass)
         disperr_();
         flag = 0;
     end
-end %func
+end % function

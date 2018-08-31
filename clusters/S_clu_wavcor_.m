@@ -13,4 +13,4 @@ function mrWavCor = S_clu_wavcor_(S_clu, P, viClu_update)
     else
         mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update); % older format
     end
-end %func
+end % function

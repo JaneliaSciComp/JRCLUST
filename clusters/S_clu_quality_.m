@@ -44,4 +44,4 @@ function S_clu = S_clu_quality_(S_clu, P, viClu_update)
     S_clu = struct_add_(S_clu, vrVpp_clu, vrSnr_clu, vrVrms_site, vnSite_clu, ...
     vrIsoDist_clu, vrLRatio_clu, vrIsiRatio_clu, vrVpp_uv_clu, vrVmin_uv_clu);
     fprintf('\ttook %0.1fs\n', toc(t1));
-end %func
+end % function

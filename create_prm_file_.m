@@ -117,4 +117,4 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     vcPrompt = sprintf('Created a new parameter file\n\t%s', P.paramFile);
     disp(vcPrompt);
     if fAsk, edit(P.paramFile); end % Show settings file
-end %func
+end % function

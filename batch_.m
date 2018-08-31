@@ -48,4 +48,4 @@ function batch_(vcFile_batch, vcCommand)
         fprintf('All %d files processed successfully\n', numel(csFiles_prm));
     end
     edit(vcFile_batch);
-end %func
+end % function

@@ -15,4 +15,4 @@ function vrX = wav_clu_x_(clusterID, P)
     vrX = (1:nSamples) / nSamples + x_offset;
     vrX([1,end]) = nan;
     vrX = single(vrX(:));
-end %func
+end % function

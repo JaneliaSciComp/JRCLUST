@@ -22,4 +22,4 @@ function keyPress_fig_(hFig, csKey)
     end
     % drawnow;
     figure_wait_(0);
-end %func
+end % function

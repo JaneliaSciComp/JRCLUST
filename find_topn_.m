@@ -5,4 +5,4 @@ function  [viTop, vrTop] = find_topn_(vr, nMax, vi)
     [~, viSrt] = sort(vr(vi), 'descend');
     viTop = vi(viSrt(1:nMax));
     vrTop= vr(viTop);
-end %func
+end % function

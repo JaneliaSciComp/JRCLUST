@@ -10,4 +10,4 @@ function close_hFig_traces_(hFig, event)
         disperr_();
         close(hFig);
     end
-end %func
+end % function

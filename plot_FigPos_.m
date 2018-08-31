@@ -5,7 +5,7 @@ function plot_FigPos_(S_clu1, S_clu2)
 
     % plot waveform in space
     if isempty(S_fig)
-        S_fig.hAx = axes_new_(hFig);
+        S_fig.hAx = newAxes(hFig);
     else
         cla(S_fig.hAx); hold(S_fig.hAx, 'on');
     end
@@ -30,4 +30,4 @@ function plot_FigPos_(S_clu1, S_clu2)
     end
     title_(S_fig.hAx, vcTitle);
     set(hFig, 'UserData', S_fig);
-end %func
+end % function

@@ -61,4 +61,4 @@ function export_spkwav_(P, vcArg2, fDiff)
     else
         assignWorkspace_(ctrWav_clu, miSite_clu);
     end
-end %func
+end % function

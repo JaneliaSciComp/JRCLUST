@@ -14,4 +14,4 @@ function export_mrWav_clu_(h,e)
         eval(sprintf('mrWav_clu%d = mrWav_clu2;', S0.secondarySelectedCluster));
         eval(sprintf('assignWorkspace_(mrWav_clu%d);', S0.secondarySelectedCluster));
     end
-end %func
+end % function

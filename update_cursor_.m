@@ -11,7 +11,7 @@ function  S0 = update_cursor_(S0, iClu, fPaste)
     if ~fPaste
         primarySelectedCluster = iClu;
         if primarySelectedCluster <1 || primarySelectedCluster > S_clu.nClusters, return; end
-        update_plot_(S0.hPaste, nan, nan); %hide paste
+        updatePlot(S0.hPaste, nan, nan); %hide paste
         S0.secondarySelectedCluster = [];
         [S0.primarySelectedCluster, S0.hCopy] = plot_tmrWav_clu_(S0, primarySelectedCluster, S0.hCopy, [0 0 0]);
     else
@@ -22,4 +22,4 @@ function  S0 = update_cursor_(S0, iClu, fPaste)
     % set(hFig, 'UserData', S_fig);
     cursorFigClusterCor(S0);
     if nargout==0, set(0, 'UserData', S0); end
-end %func
+end % function

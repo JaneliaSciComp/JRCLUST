@@ -24,4 +24,4 @@ function S0 = sort_(P, fLoad)
     S0 = clear_log_(S0);
 
     save0_(strrep(P.paramFile, '.prm', '_jrc.mat'));
-end %func
+end % function

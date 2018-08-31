@@ -114,4 +114,4 @@ function nFailed = unit_test_(vcArg1, vcArg2, vcArg3)
     end
     fDebug_ui = [];
     setUserData(fDebug_ui);
-end %func
+end % function

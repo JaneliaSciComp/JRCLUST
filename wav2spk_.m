@@ -175,4 +175,4 @@ function [spikeTraces, spikeWaveforms, spikeFeatures, spikePrimarySecondarySites
     useGPU = P.useGPU;
 
     fprintf('\ttook %0.1fs\n', toc(t_fet));
-end %func
+end % function

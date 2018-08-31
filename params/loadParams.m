@@ -96,4 +96,4 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     end
     dialogAssert(validate_param_(P), 'Parameter file contains error.');
     if fEditFile, edit(P.paramFile); end % Show settings file
-end %func
+end % function

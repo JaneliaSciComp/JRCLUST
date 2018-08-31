@@ -41,4 +41,4 @@ function S_clu = S_clu_position_(S_clu, viClu_update)
     end
     S_clu.clusterXPositions = clusterXPositions;
     S_clu.clusterYPositions = clusterYPositions;
-end %func
+end % function

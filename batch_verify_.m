@@ -75,4 +75,4 @@ function batch_verify_(vcFile_batch, vcCommand)
     ylim_([0, .2]); xlim_([0 40]);
     set(gcf,'Color','w');
     ylim_([0, 16]);
-end %func
+end % function

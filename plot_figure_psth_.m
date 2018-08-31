@@ -19,4 +19,4 @@ function plot_figure_psth_(hFig, iClu, crTime_trial, S_clu, P)
             xlabel(ax, '')
         end
     end % end
-end %func
+end % function

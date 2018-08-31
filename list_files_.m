@@ -15,4 +15,4 @@ function csFiles = list_files_(csFiles, fSortMode)
         csFiles = cellfun(@(vc)dir_file_(vc, fSortMode), csFiles, 'UniformOutput', 0);
         csFiles = [csFiles{:}];
     end
-end %func
+end % function

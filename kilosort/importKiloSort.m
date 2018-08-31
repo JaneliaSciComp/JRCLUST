@@ -68,16 +68,16 @@ function importKiloSort(rezFile, sessionName)
             spikeClusters(spikeClusterIndices) = iCluster;
         end
 
-        iClusterTemplates = clusterTemplates{iCluster}; % template IDs for this cluster
-
-        % compute cluster sim score, Phy style
-        sims = max(rez.simScore(iClusterTemplates, :), [], 1);
-
-        for jCluster=iCluster:nClusters
-            jClusterTemplates = clusterTemplates{jCluster};
-            simScore(iCluster, jCluster) = max(sims(jClusterTemplates));
-            simScore(jCluster, iCluster) = simScore(iCluster, jCluster);
-        end
+        % iClusterTemplates = clusterTemplates{iCluster}; % template IDs for this cluster
+        %
+        % % compute cluster sim score, Phy style
+        % sims = max(rez.simScore(iClusterTemplates, :), [], 1);
+        %
+        % for jCluster=iCluster:nClusters
+        %     jClusterTemplates = clusterTemplates{jCluster};
+        %     simScore(iCluster, jCluster) = max(sims(jClusterTemplates));
+        %     simScore(jCluster, iCluster) = simScore(iCluster, jCluster);
+        % end
     end
 
     % save the old clusters with gaps in them
@@ -147,7 +147,6 @@ function importKiloSort(rezFile, sessionName)
     P.dataType = 'int16'; % KS default
     P.fImportKilosort = 1;
     P.fTranspose_bin = 1;
-    P.feature = 'kilosort';
     P.maxSite = 6.5; % TODO: allow user to set
     P.nSites_ref = 0; % TODO: address
 
@@ -161,30 +160,25 @@ function importKiloSort(rezFile, sessionName)
     P.qqFactor = 5; % default
     P.nPcPerChan = 1; % default
     P.nTime_clu = 1; % spikes detected and clustered over entire time series
-    P.uV_per_bit = 1; % set this to unit scaling and deal with later
+    P.uV_per_bit = 0.305176; % default; TODO: use inputdlg_
     P.spkRefrac_ms = .25; % default
 
     P.viSiteZero = [];
     P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site);
     P.useGPU = double(gpuDeviceCount() > 0);
 
-    P.feature = 'gpca'; % default; TODO: address
+    P.feature = 'gpca'; % default; TODO: allow user to configure
+    % soon: P.displayFeature = 'kilosort';
 
     S0 = file2spk_(P, int32(spikeTimes), int32(spikeSites));
     P = saveProbe([sessionName '-probe.mat'], P);
     S0.P = P;
-
-    % extract KS features
-    ksFeatures = permute(rez.cProjPC, [3 2 1]);
-    fidFeatures = fopen([sessionName '_ks-features.bin'], 'w');
-    fwrite_(fidFeatures, ksFeatures);
-    fclose(fidFeatures);
-
-    ksFeatureDims = size(ksFeatures);
-    S0.ksFeatureDims = ksFeatureDims;
     S0.rez = rez;
 
     set(0, 'UserData', S0);
+
+    global spikeFeatures
+    spikeFeatures = getSpikeFeatures(P);
 
     % construct S_clu from scratch
     S_clu = struct();
@@ -212,7 +206,10 @@ function importKiloSort(rezFile, sessionName)
     S_clu = S_clu_update_wav_(S_clu);
     S_clu.P = P;
     S_clu = S_clu_position_(S_clu);
+    S_clu = S_clu_update_(S_clu, 1:nClusters, P);
+    S_clu = updateSimScore(S_clu);
 
+    dialogAssert(clusterDataConsistent(S_clu), 'Import failed: inconsistent clusters.');
     S0.S_clu = S_clu;
 
     % Save
@@ -220,4 +217,4 @@ function importKiloSort(rezFile, sessionName)
 
     exportParams(P.paramFile, [], 0);
     save0_([sessionName '_jrc.mat']);
-end %func
+end % function

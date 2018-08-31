@@ -14,4 +14,4 @@ function C = corr_(A, B, fMeanSubt)
         B = bsxfun(@times,B,1./sqrt(sum(B.^2))); %% L2-normalization
         C = A' * B;
     end
-end %func
+end % function

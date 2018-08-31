@@ -52,4 +52,4 @@ function A = readmda_(fname)
     end
     A = reshape(A, S);
     fclose(F);
-end %func
+end % function

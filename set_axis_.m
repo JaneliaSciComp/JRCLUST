@@ -26,4 +26,4 @@ function set_axis_(hFig, xlim1, ylim1, xlim0, ylim0)
     axis_([xlim1, ylim1]);
 
     figure(hFig_prev);
-end %func
+end % function

@@ -44,4 +44,4 @@ function spikeFeatures = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0,
         %     trWav_car12 = trWav_car_(trWav12, P);
 
     end
-end %func
+end % function

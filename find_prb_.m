@@ -13,4 +13,4 @@ function probeFilename = find_prb_(probeFilename)
             probeFilename = search_file_(probeFilename, [jrcpath_(), 'prb', filesep()]);
         end
     end
-end %func
+end % function

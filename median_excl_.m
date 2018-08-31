@@ -11,4 +11,4 @@ function vnWav1_med = median_excl_(mnWav1, P)
         vnWav1_med = median(mnWav1(:,viSites),2);
     end
     vnWav1_med = gpuArray_(vnWav1_med, useGPU);
-end %func
+end % function

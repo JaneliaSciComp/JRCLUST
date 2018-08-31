@@ -17,4 +17,4 @@ function clu_info_(S0)
         set(mh_info, 'Label', vcLabel);
     end
     plot_FigPos_(S_clu1, S_clu2);
-end %func
+end % function

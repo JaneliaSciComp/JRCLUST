@@ -32,4 +32,4 @@ function [mrFet1, mrFet2, mrFet3] = project_interp_(trWav2_spk, mrPv, P);
         mrWav_spk2 = reshape(trWav2_spk(:,viSpk2,:), dimm1(1), []);
         mrFet1(:,viSpk2) = reshape(mrPv1(:,iShift)' * mrWav_spk2, [], dimm1(3))';
     end %for
-end %func
+end % function

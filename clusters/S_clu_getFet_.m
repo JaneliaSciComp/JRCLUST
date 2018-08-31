@@ -18,4 +18,4 @@ function [mrFet1_clu1, iSite_clu1] = S_clu_getFet_(S_clu, iClu, spikeSecondarySi
         viSpk_clu1_site2 = find(spikeSecondarySites(viSpk_clu1) == iSite_clu1);
         mrFet1_clu1(:,viSpk_clu1_site2) = mrFet2_clu1(:,viSpk_clu1_site2);
     end
-end %func
+end % function

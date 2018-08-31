@@ -10,4 +10,4 @@ function [vrPv1, vrPv2] = pca_pv_(mr1)
     % iMid = 1-P.spkLim(1);
     % vrPv1 = ifeq_(vrPv1(iMid)>0, -vrPv1, vrPv1);
     % vrPv2 = ifeq_(vrPv2(iMid)>0, -vrPv2, vrPv2);
-end %func
+end % function

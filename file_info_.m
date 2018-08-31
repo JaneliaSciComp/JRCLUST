@@ -9,4 +9,4 @@ function P = file_info_(vcFile)
     else
         P = [];
     end
-end %func
+end % function

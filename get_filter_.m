@@ -10,4 +10,4 @@ function vcFilter = get_filter_(P)
             vcFilter = 'bandpass';
         end
     end
-end %func
+end % function

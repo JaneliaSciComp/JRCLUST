@@ -22,4 +22,4 @@ function showRawWaveforms(hMenu)
     plotFigWav(S0);
     button_CluWav_simulate_(S0.primarySelectedCluster, S0.secondarySelectedCluster, S0);
     figure_wait_(0);
-end %func
+end % function

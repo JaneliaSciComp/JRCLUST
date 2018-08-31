@@ -30,4 +30,4 @@ function [cvnlim_bin, viRange, viEdges] = sample_skip_(nlim_bin, nSamples_bin, n
         viEdges = [1, viEdges(1:end-1)];
         %     viEdges = sort([viEdges, viEdges+1], 'ascend'); %two sample gaps
     end
-end %func
+end % function

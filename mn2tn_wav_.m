@@ -42,4 +42,4 @@ function [spikeTraces, spikeWaveforms, spikeTimes] = mn2tn_wav_(rawTraces, filte
             end
         end
     end
-end %func
+end % function

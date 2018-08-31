@@ -25,4 +25,4 @@ function [mrPv1, mrPv2] = pca_pv_clu_(viSites, iClu1, iClu2)
             mrPv2(:,iSite1) = pca_pv_(spikeWaveforms2(:,:,iSite1));
         end %for
     end
-end %func
+end % function

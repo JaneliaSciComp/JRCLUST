@@ -18,4 +18,4 @@ function varargout = get_(varargin)
         end
     end
 
-end %func
+end % function

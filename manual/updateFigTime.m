@@ -1,33 +1,38 @@
 %--------------------------------------------------------------------------
-function updateFigTime()
-    % display features in a new site
+function updateFigTime(S0)
 
-    [hFig, S_fig] = getCachedFig('FigTime');
-    S0 = get(0, 'UserData');
-    P = S0.P;
-    if ~isVisible_(S_fig.hAx), return ;end
-    % P.displayFeature = S_fig.csFet{S_fig.iFet};
-    setUserData(P);
-    [vrFet0, vrTime0, vcYlabel] = getFet_site_(S_fig.iSite, [], S0);
-    if ~isfield(S_fig, 'fPlot0'), S_fig.fPlot0 = 1; end
-    toggleVisible_(S_fig.hPlot0, S_fig.fPlot0);
-    update_plot_(S_fig.hPlot0, vrTime0, vrFet0);
-    set(S_fig.hPlot1, 'YData', getFet_site_(S_fig.iSite, S0.primarySelectedCluster, S0));
-    % set(S_fig.hPlot0, 'XData', vrTime0, 'YData', vrFet0);
-    if ~isempty(S0.secondarySelectedCluster)
-        set(S_fig.hPlot2, 'YData', getFet_site_(S_fig.iSite, S0.secondarySelectedCluster, S0));
-    else
-        hide_plot_(S_fig.hPlot2);
-        %     set(S_fig.hPlot2, 'XData', nan, 'YData', nan);
+    if nargin < 1
+        S0 = get(0, 'UserData');
     end
-    % switch lower(P.displayFeature)
-    %     case 'vpp'
-    ylim_(S_fig.hAx, [0, 1] * S_fig.maxAmp);
-    imrect_set_(S_fig.hRect, [], [0, 1] * S_fig.maxAmp);
-    %     otherwise
-    %         ylim_(S_fig.hAx, [0, 1] * P.maxAmp);
-    %         imrect_set_(S_fig.hRect, [], [0, 1] * P.maxAmp);
-    % end
-    grid(S_fig.hAx, 'on');
-    ylabel(S_fig.hAx, vcYlabel);
-end %func
+
+    [hFig, figData] = getCachedFig('FigTime');
+    
+    if ~isVisible_(figData.hAx)
+        return;
+    end
+
+    [vrFet0, vrTime0, vcYlabel] = getFigTimeFeatures(figData.primarySite, [], S0);
+    if ~isfield(figData, 'fPlot0')
+        figData.fPlot0 = 1;
+    end
+    toggleVisible_(figData.hPlotBG, figData.fPlot0);
+    updatePlot(figData.hPlotBG, vrTime0, vrFet0);
+
+    set(figData.hPlotFG, 'YData', getFigTimeFeatures(figData.primarySite, S0.primarySelectedCluster, S0));
+
+    if ~isempty(S0.secondarySelectedCluster)
+        set(figData.hPlotFG2, 'YData', getFigTimeFeatures(figData.primarySite, S0.secondarySelectedCluster, S0));
+    else
+        clearPlots(figData.hPlotFG2);
+    end
+
+    autoscale_pct = getOr(S0.P, 'autoscale_pct', 99.5);
+    limits = [0 1.5] * quantile([figData.hPlotFG.YData figData.hPlotFG2.YData], autoscale_pct/100);
+    figData.maxAmp = limits(2);
+    set(hFig, 'UserData', figData);
+    ylim_(figData.hAx, limits);
+    imrect_set_(figData.hRect, [], limits);
+
+    grid(figData.hAx, 'on');
+    ylabel(figData.hAx, vcYlabel);
+end % function

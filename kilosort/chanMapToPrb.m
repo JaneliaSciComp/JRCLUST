@@ -22,4 +22,4 @@ function viSiteZero = chanMapToPrb(chanMap, prbFilename)
     end
     
     fclose(fid);    
-end %func
+end % function

@@ -64,4 +64,4 @@ function [mn1, nShift_post] = filter_detect_(mn, P, vcMode)
     end %switch
     fprintf('\n\ttook %0.1fs\n', toc(t1));
     % mn1 = -int16(sqrt(mn1 / size(P.miSites,1)));
-end %func
+end % function

@@ -28,4 +28,4 @@ function [versionStr, dateStr, versionUsed] = jrcVersion(paramFile)
     catch
         ;
     end
-end %func
+end % function

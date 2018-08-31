@@ -41,4 +41,4 @@ function mrWavCor = S_clu_wavcor_2_(S_clu, P, viClu_update) % works for only the
     mrWavCor(mrWavCor==0) = nan;
     mrWavCor = gather_(mrWavCor);
     fprintf('\ttook %0.1fs\n', toc(t1));
-end %func
+end % function

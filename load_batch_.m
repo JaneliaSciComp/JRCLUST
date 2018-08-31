@@ -16,4 +16,4 @@ function csLines = load_batch_(vcFile_batch)
     % func_comment = @(vc)vc(1) == '%';
     % viComment = cellfun(@(vc)func_comment(strtrim(vc)), csFiles_prm);
     % csFiles_prm(viComment) = [];
-end %func
+end % function

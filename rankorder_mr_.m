@@ -34,4 +34,4 @@ function mi = rankorder_mr_(mr, val0)
     % end
 
     if numel(dimm1)==3, mi = reshape(mi, dimm1); end
-end %func
+end % function

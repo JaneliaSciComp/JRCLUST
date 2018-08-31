@@ -18,4 +18,4 @@ function vr1 = expand_vr_(vr, nwin, dimm1);
     else
         vr1 = vr;
     end
-end %func
+end % function

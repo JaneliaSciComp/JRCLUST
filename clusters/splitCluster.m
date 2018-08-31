@@ -68,6 +68,7 @@ function S_clu = splitCluster(oldCluster, spikesToSplitOff)
     end
 
     % update all the other views
+    S_clu = updateSimScore(S_clu);
     [S_clu, S0] = S_clu_commit_(S_clu, 'splitCluster');
     plotFigWav(S0); % redraw plot
     plotFigClusterCor(S0);
@@ -80,4 +81,4 @@ function S_clu = splitCluster(oldCluster, spikesToSplitOff)
 
     fprintf('%s [W] splitted Clu %d\n', datestr(now, 'HH:MM:SS'), oldCluster);
     figure_wait_(0);
-end %func
+end % function

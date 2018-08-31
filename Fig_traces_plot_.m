@@ -125,4 +125,4 @@ function Fig_traces_plot_(fAxis_reset)
     set(hFig, 'UserData', S_fig, 'Name', sprintf('%s: filter: %s', P.paramFile, (vcFilter_show)));
     figure_wait_(0, hFig);
     tryClose(fWait);
-end %func
+end % function

@@ -38,4 +38,4 @@ function [viSpk, vrSpk, viSite] = spikeMerge_(cviSpk, cvrSpk, P)
     [viSpk, viSrt] = sort(viSpk); %sort by time
     vrSpk = gather_(vrSpk(viSrt));
     viSite = viSite(viSrt);
-end %func
+end % function

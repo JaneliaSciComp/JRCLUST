@@ -29,4 +29,4 @@ function [mnWav2, mrWhiten] = whiten_(mnWav1, P)
         fprintf('.');
     end %for
     fprintf('\n\ttook %0.1fs\n', toc(t1));
-end %func
+end % function

@@ -15,4 +15,4 @@ function [nLoad1, nSamples_load1, nSamples_last1] = partition_load_(nSamples1, n
             nSamples_last1 = nSamples_last1 + nSamples_load1;
         end
     end
-end %func
+end % function

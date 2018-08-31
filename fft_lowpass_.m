@@ -8,4 +8,4 @@ function tr1 = fft_lowpass_(tr, fc, sampleRateHz)
     vlUse = abs(vrFreq) <= fc/sampleRateHz/2;
     mr(~vlUse,:) = 0;
     tr1 = real(reshape(ifft(mr), dimm));
-end %func
+end % function

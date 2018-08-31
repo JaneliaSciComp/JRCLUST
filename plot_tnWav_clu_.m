@@ -40,4 +40,4 @@ function S_fig = plot_tnWav_clu_(S_fig, P)
     %     S_fig.vhPlot = plot_group_(S_fig.hAx, mrX, mrY, P.LineStyle, 'LineWidth', P.LineWidth);
     % end
     set(S_fig.hAx, 'YTick', 1:nSites, 'XTick', 1:nClu);
-end %func
+end % function

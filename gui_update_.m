@@ -8,9 +8,9 @@ function S0 = gui_update_(S0, S_clu)
     % S0.primarySelectedCluster = 1;
     S0.secondarySelectedCluster = [];
     set(0, 'UserData', S0);
-    update_plot_(S0.hPaste, nan, nan); %remove paste cursor
+    updatePlot(S0.hPaste, nan, nan); %remove paste cursor
     S0 = update_FigCor_(S0);
     S0 = button_CluWav_simulate_(S0.primarySelectedCluster, [], S0);
     keyPressFcn_cell_(getCachedFig('FigWav'), 'z');
     set(0, 'UserData', S0);
-end %func
+end % function

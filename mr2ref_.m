@@ -11,4 +11,4 @@ function vrRef = mr2ref_(mnWav_filt, vcCommonRef, viSite_bad)
     else
         vrRef = mean(mnWav_filt, 2);
     end
-end %func
+end % function

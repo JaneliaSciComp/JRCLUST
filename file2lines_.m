@@ -13,4 +13,4 @@ function csLines = file2lines_(vcFile_file2struct)
     fclose(fid);
 
     csLines = csLines{1};
-end %func
+end % function

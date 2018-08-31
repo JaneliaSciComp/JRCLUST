@@ -2,7 +2,7 @@
 function manual(P, debugMode)
     % display manual sorting interface
     global fDebug_ui spikeFeatures
-    
+
     [S0, P] = load_cached_(P);
 
     if ~all(size(spikeFeatures) == S0.featureDims)
@@ -16,11 +16,16 @@ function manual(P, debugMode)
     % set up manual step for JRCLUST
     % Load info
     if ~isSorted(P) % require sorted result
-        error(['File must be sorted first (run "jrc spikesort "', P.paramFile, '")']);
+        error(['File must be sorted first (run "jrc spikesort ', P.paramFile, '")']);
     end
 
     if ~isfield(S0, 'mrPos_spk')
         S0.mrPos_spk = spk_pos_(S0, spikeFeatures);
+        set(0, 'UserData', S0);
+    end
+
+    if getOr(P, 'fImportKilosort', 0)
+        S0.pcPair = [1 2];
         set(0, 'UserData', S0);
     end
 
@@ -49,7 +54,6 @@ function manual(P, debugMode)
     end
 
     % Create figures
-    % hMsg = msgbox_('Plotting... (this closes automatically)');
     t1 = tic;
 
     set(0, 'UserData', S0);
@@ -75,12 +79,12 @@ function manual(P, debugMode)
     S0 = plotFigWav(S0); % hFigWav % do this after for ordering
 
     % hFigProj, hFigHist, hFigIsi, hFigCorr, hFigPos, hFigMap, hFigTime
-    tryClose(figureByTag('FigTrial')); % close previous FigTrial figure
-    tryClose(figureByTag('FigTrial_b')); % close previous FigTrial figure
+    tryClose(figuresByTag('FigTrial')); % close previous FigTrial figure
+    tryClose(figuresByTag('FigTrial_b')); % close previous FigTrial figure
 
     S0 = button_CluWav_simulate_(1, [], S0, 1); %select first clu TW
 
-    auto_scale_proj_time_(S0);
+    autoScaleFigProjTime(S0, 1);
 
     S0 = keyPressFcn_cell_(getCachedFig('FigWav'), {'z'}, S0); %zoom
     S_log = load_(strrep(P.paramFile, '.prm', '_log.mat'), [], 0);
@@ -91,6 +95,5 @@ function manual(P, debugMode)
     save_log_('start', S0); %crash proof log
 
     % Finish up
-%     tryClose(hMsg);
     fprintf('UI creation took %0.1fs\n', toc(t1));
-end %func
+end % function

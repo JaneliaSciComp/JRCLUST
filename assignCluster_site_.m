@@ -26,4 +26,4 @@ function viClu = assignCluster_site_(S_clu, S0)
         viClu(viSpk_) = cl_;
     end %for
     %     fprintf('%d: %f\n', iRepeat, mean(viClu>0));
-end %func
+end % function

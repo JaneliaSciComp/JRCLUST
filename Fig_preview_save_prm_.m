@@ -10,7 +10,7 @@ function Fig_preview_save_prm_(hFig)
     [fft_thresh, qqFactor, vlSite_bad, vcFilter, vcCommonRef, blank_thresh, blank_period_ms] = ...
     get_(S_fig, 'fft_thresh', 'qqFactor', 'vlSite_bad', 'vcFilter', 'vcCommonRef', 'blank_thresh', 'blank_period_ms');
     viSiteZero = find(vlSite_bad);
-    P_update = makeStruct_(fft_thresh, viSiteZero, qqFactor, vcFilter, vcCommonRef, blank_thresh, blank_period_ms);
+    P_update = makeStruct(fft_thresh, viSiteZero, qqFactor, vcFilter, vcCommonRef, blank_thresh, blank_period_ms);
 
     % Preview variables in the edit box
     vcUpdate = struct2str_(P_update);
@@ -26,4 +26,4 @@ function Fig_preview_save_prm_(hFig)
     % P = mergeStructs(P, P_update);
     % setUserData(P);
     edit(P.paramFile);
-end %func
+end % function

@@ -35,4 +35,4 @@ function [multiFilenames, vcDir] = dir_file_(vcFile_dir, fSortByDate)
     end
     % multiFilenames1 = multiFilenames;
     % multiFilenames = cellfun(@(vc)[vcDir, filesep(), vc], multiFilenames, 'UniformOutput', 0);
-end %func
+end % function

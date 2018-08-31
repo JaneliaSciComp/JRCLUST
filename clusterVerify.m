@@ -77,7 +77,7 @@ for iCluGt=1:nCluGt
     spikesByCluster_miss{iCluGt} = viSpk_clu1(~vlSpk_clu1);  
 end
 [vrAccuracy, viCluMatch_accuracy] = max(mrAccuracy);
-S_score_clu = makeStruct_(vrScore, vrMiss, vrFp, viCluMatch, cviHit_gt, ...
+S_score_clu = makeStruct(vrScore, vrMiss, vrFp, viCluMatch, cviHit_gt, ...
     cviMiss_gt, cviHit_clu, cviMiss_clu, cviSpk_gt_hit, cviSpk_gt_miss, ...
     spikesByCluster_hit, spikesByCluster_miss, vrAccuracy, viCluMatch_accuracy);
 % viCluMatch1 = viClu_unique(viCluMatch);
@@ -96,14 +96,14 @@ fprintf('\tScore (<%0.1f%%> %0.1f %0.1f %0.1f): %s\n', ...
     nanmean(vrScore)*100, func1(vrScore), sprintf('%0.1f ', vrScore*100));
 fprintf('\tCluster-size: %s\n', sprintf('%d, ', vnCluGt));
 fprintf('\tMatching clu: %s\n', sprintf('%d, ', viCluMatch));
-end %func
+end % function
 
 
 %--------------------------------------------------------------------------
 function nOverlap = count_overlap_(viGt, viTest)
 nGt = numel(viGt);
 nOverlap = nGt - numel(setdiff(setdiff(setdiff(viGt, viTest), viTest+1), viTest-1));
-end %func
+end % function
 
 
 %--------------------------------------------------------------------------
@@ -134,11 +134,11 @@ for iA=1:numel(viA1)
     [~, viB1(iA)] = min(abs(viB - viA11(iA)));
 end
 vlB(viB1) = 1;
-end %func
+end % function
 
 
 %--------------------------------------------------------------------------
-function [ S ] = makeStruct_( varargin)
+function [ S ] = makeStruct( varargin)
 %MAKESTRUCT all the inputs must be a variable. 
 %don't pass function of variables. ie: abs(X)
 %instead create a var AbsX an dpass that name
@@ -147,7 +147,7 @@ S=[];
 for i=1:nargin
     S = setfield(S, inputname(i), varargin{i});
 end
-end %func
+end % function
 
 
 %--------------------------------------------------------------------------
@@ -162,4 +162,4 @@ for i=1:nargout
         varargout{i} = varargin{i};
     end
 end
-end %func
+end % function
