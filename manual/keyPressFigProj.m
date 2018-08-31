@@ -77,6 +77,8 @@ function keyPressFigProj(hFig, event)
                 set(0, 'UserData', S0);
 
                 plotFigProj(S0);
+                % also plot FigTime
+                updateFigTime();
             else
                 disp('keyPressFigProj: ''f'': not implemented yet');
             end

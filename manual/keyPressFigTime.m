@@ -24,7 +24,7 @@ function keyPressFigTime(hObject, event, S0)
             end
 
             set(hFig, 'UserData', figData);
-            updateFigTime(hFig, figData);
+            updateFigTime();
 
         case {'uparrow', 'downarrow'} %change ampl
             if ~isVisible_(figData.hAx)
@@ -80,15 +80,11 @@ function keyPressFigTime(hObject, event, S0)
                 disp(lasterror());
             end
 
-        case 'p' % update projection view
-%             vrPos = getPosition(figData.hRect);
-%             tlim_proj = [vrPos(1), sum(vrPos([1,3]))];
-%             P.tlim_proj = tlim_proj;
-%             plotFigProj(S0);
+        case 'p' % update PC projection
             if strcmpi(P.displayFeature, 'kilosort')
-                S0.pcTime = mod(S0.pcTime, 3) + 1;
+                S0.pcTime = mod(S0.pcTime, 3) + 1; % 1 => 2, 2 => 3, 3 => 1
                 set(0, 'UserData', S0);
-                updateFigTime(hFig, figData);
+                updateFigTime();
             end
 
 
@@ -103,7 +99,9 @@ function keyPressFigTime(hObject, event, S0)
                 S0.P = P;
                 set(0, 'UserData', S0);
 
-                updateFigTime(hFig, figData);
+                updateFigTime();
+                % also update FigProj
+                plotFigProj(S0);
             else
                 disp('keyPressFigProj: ''f'': not implemented yet');
             end

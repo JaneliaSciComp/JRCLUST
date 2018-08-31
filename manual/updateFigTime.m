@@ -1,7 +1,12 @@
 %--------------------------------------------------------------------------
-function updateFigTime(hFig, figData)
+function updateFigTime(S0)
 
-    S0 = get(0, 'UserData');
+    if nargin < 1
+        S0 = get(0, 'UserData');
+    end
+
+    [hFig, figData] = getCachedFig('FigTime');
+    
     if ~isVisible_(figData.hAx)
         return;
     end

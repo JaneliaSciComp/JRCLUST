@@ -88,13 +88,11 @@ function plotFigProj(S0)
     % get features for x0, y0, S_plot0 in one go
     [yvalsBG, xvalsBG, yvalsFG, xvalsFG, yvalsFG2, xvalsFG2] = getFigProjFeatures(S0, P.sitesOfInterest);
 
-    % set bounds for PC features
-    if strcmpi(P.displayFeature, 'kilosort')
-        autoscale_pct = getOr(S0.P, 'autoscale_pct', 99.5);
-        featureData = abs([xvalsBG yvalsBG xvalsFG yvalsFG xvalsFG2 yvalsFG2]);
-        maxAmp = quantile(featureData(:), autoscale_pct/100);
-        figData.maxAmp = ceil(maxAmp/50) * 50; % round up to nearest hundred
-    end
+    % set bounds here
+    autoscale_pct = getOr(S0.P, 'autoscale_pct', 99.5);
+    featureData = abs([xvalsBG yvalsBG xvalsFG yvalsFG xvalsFG2 yvalsFG2]);
+    maxAmp = quantile(featureData(:), autoscale_pct/100);
+    figData.maxAmp = ceil(maxAmp/50) * 50; % round up to nearest hundred
 
     if ~isfield(figData, 'sitesOfInterest')
         figData.sitesOfInterest = [];
