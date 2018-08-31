@@ -28,11 +28,11 @@ function autoScaleFigProjTime(S0, fPlot)
     [hFigTime, figTimeData] = getCachedFig('FigTime');
     primaryClusterSite = S0.S_clu.clusterSites(S0.primarySelectedCluster);
 
-    [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(primaryClusterSite, S0.primarySelectedCluster, S0); % plot primarySelectedCluster
+    [vrFet1, vrTime1, vcYlabel, viSpk1] = getFigTimeFeatures(primaryClusterSite, S0.primarySelectedCluster, S0); % plot primarySelectedCluster
     if isempty(S0.secondarySelectedCluster)
         cvrFet = {vrFet1};
     else
-        [vrFet2, vrTime2, vcYlabel, viSpk2] = getFet_site_(primaryClusterSite, S0.secondarySelectedCluster, S0); % plot primarySelectedCluster
+        [vrFet2, vrTime2, vcYlabel, viSpk2] = getFigTimeFeatures(primaryClusterSite, S0.secondarySelectedCluster, S0); % plot primarySelectedCluster
         cvrFet = {vrFet1, vrFet2};
     end
 

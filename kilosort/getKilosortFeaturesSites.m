@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function [pc1, pc2] = getKilosortFeaturesSites(spikes, sitesOfInterest, S0)
+function [pc1, pc2, pc3] = getKilosortFeaturesSites(spikes, sitesOfInterest, S0, pcToUse)
     % return 1st and 2nd (or 1st and 3rd, or 2nd and 3rd) principal components
     % for each spike on sites of interest
 
@@ -10,7 +10,17 @@ function [pc1, pc2] = getKilosortFeaturesSites(spikes, sitesOfInterest, S0)
     nSpikes = numel(spikes);
 
     pc1 = zeros(nSites, nSpikes);
-    pc2 = zeros(nSites, nSpikes);
+
+    if numel(pcToUse) > 1 && nargout > 1
+        pc2 = zeros(nSites, nSpikes);
+    else
+        pc2 = [];
+    end
+    if numel(pcToUse) > 2 && nargout > 2
+        pc3 = zeros(nSites, nSpikes);
+    else
+        pc3 = [];
+    end
 
     pcFeatureIndices = rez.iNeighPC;
     spikeFeatures = permute(rez.cProjPC(spikes, :, :), [2 3 1]); % nPCs x nSites x nSpikes
@@ -27,9 +37,18 @@ function [pc1, pc2] = getKilosortFeaturesSites(spikes, sitesOfInterest, S0)
         siteIndices = ismember(sitesOfInterest, templateSites);
 
         [~, sortIndices] = sort(templateSites);
-        pc1(siteIndices, spikeIndices) = spikeFeatures(S0.pcPair(1), iTemplateSites(sortIndices), spikeIndices);
+
+        pc1(siteIndices, spikeIndices) = spikeFeatures(pcToUse(1), iTemplateSites(sortIndices), spikeIndices);
         pc1(~siteIndices, spikeIndices) = nan; % PCs not occurring on this site get NaN
-        pc2(siteIndices, spikeIndices) = spikeFeatures(S0.pcPair(2), iTemplateSites(sortIndices), spikeIndices);
-        pc2(~siteIndices, spikeIndices) = nan; % PCs not occurring on this site get NaN
+
+        if numel(pcToUse) > 1  && nargout > 1
+            pc2(siteIndices, spikeIndices) = spikeFeatures(pcToUse(2), iTemplateSites(sortIndices), spikeIndices);
+            pc2(~siteIndices, spikeIndices) = nan; % PCs not occurring on this site get NaN
+        end
+
+        if numel(pcToUse) > 2  && nargout > 2
+            pc3(siteIndices, spikeIndices) = spikeFeatures(pcToUse(3), iTemplateSites(sortIndices), spikeIndices);
+            pc3(~siteIndices, spikeIndices) = nan; % PCs not occurring on this site get NaN
+        end
     end
 end % function

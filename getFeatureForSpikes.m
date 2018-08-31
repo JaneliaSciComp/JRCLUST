@@ -1,6 +1,7 @@
 %--------------------------------------------------------------------------
-function [featuresMin, featuresMax, sitesOfInterest] = getFeatureForSpikes(spikes, sitesOfInterest, S0)
-    % get feature for the spikes of interest
+function [featuresMin, featuresMax] = getFeatureForSpikes(spikes, sitesOfInterest, S0)
+    % get feature for the spikes of interest (TODO: this is duplicated
+    % effort; delete)
 
     if nargin < 3
         S0 = get(0, 'UserData');
@@ -23,7 +24,7 @@ function [featuresMin, featuresMax, sitesOfInterest] = getFeatureForSpikes(spike
             [featuresMin, featuresMax] = pca_pc_spk_(spikes, sitesOfInterest);
 
         case 'kilosort'
-            [featuresMin, featuresMax, sitesOfInterest] = getKilosortFeaturesSites(spikes, sitesOfInterest, S0);
+            [featuresMin, featuresMax] = getKilosortFeaturesSites(spikes, sitesOfInterest, S0, S0.pcPair);
 
         otherwise
             error('not implemented yet');

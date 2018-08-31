@@ -3,7 +3,8 @@ function keyPressFigProj(hFig, event)
     S0 = get(0, 'UserData');
     P = S0.P;
 
-    [hFig, figData] = getCachedFig('FigProj');
+%     [hFig, figData] = getCachedFig('FigProj');
+    figData = get(hFig, 'UserData');
 
     plotDataFG = get(figData.hPlotFG, 'UserData');
     sitesOfInterest = plotDataFG.sitesOfInterest;

@@ -56,11 +56,11 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = getFigProjFeatures(S
             end
 
         case 'kilosort'
-            [mrMin0, mrMax0] = getKilosortFeaturesSites(backgroundSpikes, sitesOfInterest, S0);
-            [mrMin1, mrMax1] = getKilosortFeaturesSites(foregroundSpikes, sitesOfInterest, S0);
+            [mrMin0, mrMax0] = getKilosortFeaturesSites(backgroundSpikes, sitesOfInterest, S0, S0.pcPair);
+            [mrMin1, mrMax1] = getKilosortFeaturesSites(foregroundSpikes, sitesOfInterest, S0, S0.pcPair);
 
             if ~isempty(secondaryCluster)
-                [mrMin2, mrMax2] = getKilosortFeaturesSites(secondaryForegroundSpikes, sitesOfInterest, S0);
+                [mrMin2, mrMax2] = getKilosortFeaturesSites(secondaryForegroundSpikes, sitesOfInterest, S0, S0.pcPair);
             end
 
         otherwise % generic

@@ -54,7 +54,6 @@ function manual(P, debugMode)
     end
 
     % Create figures
-    % hMsg = msgbox_('Plotting... (this closes automatically)');
     t1 = tic;
 
     set(0, 'UserData', S0);
@@ -96,6 +95,5 @@ function manual(P, debugMode)
     save_log_('start', S0); %crash proof log
 
     % Finish up
-%     tryClose(hMsg);
     fprintf('UI creation took %0.1fs\n', toc(t1));
 end % function
