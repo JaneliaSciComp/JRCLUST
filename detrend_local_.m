@@ -4,7 +4,7 @@
 function [clusterCenters, x, z] = detrend_local_(S_clu, P, fLocal)
     if nargin<3, fLocal = 1; end
     maxCluPerSite = getOr(P, 'maxCluPerSite', 20); % get 10 clu per site max
-    S0 = get0();
+    S0 = get0_();
     % cvi_rho_rank_site = cellfun(@(vi)rankorder_(S_clu.rho(vi), 'ascend'), S0.cviSpk_site, 'UniformOutput', 0);
     % cvi_delta_rank_site = cellfun(@(vi)rankorder_(S_clu.delta(vi), 'ascend'), S0.cviSpk_site, 'UniformOutput', 0);
 
