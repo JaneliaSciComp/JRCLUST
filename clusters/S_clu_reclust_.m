@@ -67,8 +67,8 @@ function S_clu = S_clu_reclust_(S_clu, S0, P);
         vlRedo_spk = ismember(S_clu.spikeClusters, find(vlRedo_clu));
         S_clu_A = postCluster_(cluster_spacetime_(S0, P, ~vlRedo_spk), P);
         S_clu_B = postCluster_(cluster_spacetime_(S0, P, vlRedo_spk), P);
-        S_clu.spikeClusters(~vlRedo_spk) = S_clu_A.viClu;
-        S_clu.spikeClusters(vlRedo_spk) = S_clu_B.viClu + max(S_clu_A.viClu);
+        S_clu.spikeClusters(~vlRedo_spk) = S_clu_A.spikeClusters;
+        S_clu.spikeClusters(vlRedo_spk) = S_clu_B.spikeClusters + max(S_clu_A.spikeClusters);
 
         otherwise
         return;
