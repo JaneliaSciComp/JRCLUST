@@ -23,7 +23,7 @@ function [nLoad1, nSamples_load1, nSamples_last1] = planLoad(nBytes_file, P)
 
     if ~isfield(P, 'MAX_LOAD_SEC') || isempty(P.MAX_LOAD_SEC)
         bps = max(4, bytesPerSample_(P.dataType)); % conversion to single in filtering sets floor at 4
-        nSamples_max = floor(P.MAX_BYTES_LOAD/(P.nChans*bps);
+        nSamples_max = floor(P.MAX_BYTES_LOAD/(P.nChans*bps));
     else
         nSamples_max = floor(P.sampleRateHz * P.MAX_LOAD_SEC);
     end
