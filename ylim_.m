@@ -8,7 +8,11 @@ function ylim_(arg1, arg2)
     else
         [hAx_, lim_] = deal(arg1, arg2);
     end
-    if any(isnan(lim_)), return; end
+
+    if any(isnan(lim_)) || lim_(1) >= lim_(2)
+        return
+    end
+
     try
         ylim(hAx_, sort(lim_));
     catch
