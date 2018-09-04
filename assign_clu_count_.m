@@ -2,7 +2,9 @@
 function S_clu = assign_clu_count_(S_clu, P)
     nRepeat_max = 1000;
     if ~isfield(P, 'minClusterSize') || isempty(P.minClusterSize), P.minClusterSize = 0; end
-    if ~isfield(S_clu, 'viClu'), S_clu.spikeClusters = []; end
+    if ~isfield(S_clu, 'spikeClusters')
+        S_clu.spikeClusters = [];
+    end
     if isempty(S_clu.spikeClusters)
         nClu_pre = [];
     else

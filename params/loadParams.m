@@ -1,21 +1,21 @@
 %--------------------------------------------------------------------------
-function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
+function [P, paramFile] = loadParams(paramFile, fEditFile)
     % Load prm file
 
     if nargin<2, fEditFile = 1; end
-    assert(fileExists(vcFile_prm), sprintf('.prm file does not exist: %s\n', vcFile_prm));
+    assert(fileExists(paramFile), sprintf('.prm file does not exist: %s\n', paramFile));
     P0 = file2struct_(jrcpath_(read_cfg_('default_prm', 0))); %P = defaultParam();
-    P = file2struct_(vcFile_prm);
+    P = file2struct_(paramFile);
     if ~isfield(P, 'template_file'), P.template_file = ''; end
     if ~isempty(P.template_file)
         dialogAssert(fileExists(P.template_file), sprintf('template file does not exist: %s', P.template_file));
         P = mergeStructs(file2struct_(P.template_file), P);
     end
-    P.paramFile = vcFile_prm;
-    dialogAssert(isfield(P, 'vcFile'), sprintf('Check "%s" file syntax', vcFile_prm));
+    P.paramFile = paramFile;
+    dialogAssert(isfield(P, 'vcFile'), sprintf('Check "%s" file syntax', paramFile));
 
     if ~fileExists(P.vcFile) && isempty(get_(P, 'multiFilenames'))
-        P.vcFile = replacePath_(P.vcFile, vcFile_prm);
+        P.vcFile = replacePath_(P.vcFile, paramFile);
         if ~fileExists(P.vcFile)
             fprintf('vcFile not specified. Assuming multi-file format ''csFiles_merge''.\n');
         end
@@ -28,7 +28,7 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
     try
         probeFile_ = find_prb_(P.probeFile);
         if isempty(probeFile_)
-            P.probeFile = replacePath_(P.probeFile, vcFile_prm);
+            P.probeFile = replacePath_(P.probeFile, paramFile);
             dialogAssert(fileExists(P.probeFile), 'prb file does not exist');
         else
             P.probeFile = probeFile_;
@@ -51,7 +51,7 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
 
     % Compute fields
     P = struct_default_(P, 'fWav_raw_show', 0);
-    P = struct_default_(P, 'vcFile_prm', subsFileExt_(P.vcFile, '.prm'));
+    P = struct_default_(P, 'paramFile', subsFileExt_(P.vcFile, '.prm'));
     P = struct_default_(P, 'groundTruthFile', '');
     if ~isfield(P, 'groundTruthFile') || isempty(P.groundTruthFile), P.groundTruthFile = subsFileExt_(P.paramFile, '_gt.mat'); end
     P.spkRefrac = round(P.spkRefrac_ms * P.sampleRateHz / 1000);
@@ -80,7 +80,7 @@ function [P, vcFile_prm] = loadParams(vcFile_prm, fEditFile)
         P.nSkip_lfp = round(P.sampleRateHz / P.sampleRateHz_lfp);
     end
     P.bytesPerSample = bytesPerSample_(P.dataType);
-    P = struct_default_(P, 'vcFile_prm', subsFileExt_(P.vcFile, '.prm'));
+    P = struct_default_(P, 'paramFile', subsFileExt_(P.vcFile, '.prm'));
     if ~isempty(get_(P, 'gain_boost')), P.uV_per_bit = P.uV_per_bit / P.gain_boost; end
     P.spkThresh = P.spkThresh_uV / P.uV_per_bit;
     P = struct_default_(P, 'cvrDepth_drift', {});

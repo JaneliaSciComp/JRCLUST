@@ -15,7 +15,7 @@ function export_diff_(P)
     % fields to update, copy and save
     P1 = P;
     P1.vcFile = strrep(P.vcFile, '.bin', '_diff.bin');
-    P1.vcFile_prm = strrep(P.paramFile, '.prm', '_diff.prm');
+    P1.paramFile = strrep(P.paramFile, '.prm', '_diff.prm');
     P1.probeFile = strrep(P.paramFile, '.prm', '_diff.prb');
     P1.fTranspose_bin = 0;
     P1.vcCommonRef = 'none';
@@ -34,8 +34,8 @@ function export_diff_(P)
     P1.nChans = size(mnWav2, 2);
 
     % Output files
-    copyfile(P.paramFile, P1.vcFile_prm, 'f');
-    updateParamFile(P1, P1.vcFile_prm);
+    copyfile(P.paramFile, P1.paramFile, 'f');
+    updateParamFile(P1, P1.paramFile);
     write_bin_(P1.vcFile, mnWav2);
     % write to probe file
     % P1.probeFile

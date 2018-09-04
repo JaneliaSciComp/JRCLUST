@@ -1,8 +1,8 @@
 %--------------------------------------------------------------------------
 function S_clu = postCluster_(S_clu, P)
     % fSortClu = 0; %debug
-    if isfield(S_clu, 'viClu')
-        S_clu = rmfield(S_clu, 'viClu');
+    if isfield(S_clu, 'spikeClusters')
+        S_clu = rmfield(S_clu, 'spikeClusters');
     end
     if isempty(S_clu), return; end
 
