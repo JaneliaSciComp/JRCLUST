@@ -9,7 +9,7 @@ function xlim_(arg1, arg2)
         [hAx_, lim_] = deal(arg1, arg2);
     end
 
-    if any(isnan(lim_)) || lim_(1) >= lim_(2)
+    if any(isnan(lim_)) || numel(lim_) ~= 2 || lim_(1) >= lim_(2)
         return
     end
 
