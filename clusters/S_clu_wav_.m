@@ -149,7 +149,7 @@ function [mrWav_clu1, clusterSites, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_c
     end
 
     if ~fDrift_merge
-        viSpk_clu2 = spk_select_mid_(clusterSpikes, S0.spikeTimes, S0.P);
+        viSpk_clu2 = spikesNearMidpoint(clusterSpikes, S0.spikeTimes, 1/S0.P.nTime_clu);
         mrWav_clu1 = mean(single(traces(:,:,viSpk_clu2)), 3);
         mrWav_clu1 = meanSubtract(mrWav_clu1); %122717 JJJ
 

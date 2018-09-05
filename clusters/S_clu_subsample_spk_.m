@@ -18,7 +18,7 @@ function [viSpk_clu1, clusterSites1, vlSpk_clu1] = S_clu_subsample_spk_(S_clu, i
     if isempty(viSpk_clu1), return; end
 
     if fSelect_mid
-        viSpk_clu1 = spk_select_mid_(viSpk_clu1, S0.spikeTimes, S0.P);
+        viSpk_clu1 = spikesNearMidpoint(viSpk_clu1, S0.spikeTimes, 1/S0.P.nTime_clu);
     end
     viSpk_clu1 = subsample_vr_(viSpk_clu1, nSamples_max);
 end % function
