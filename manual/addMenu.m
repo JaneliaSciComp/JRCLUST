@@ -21,7 +21,7 @@ function addMenu(hFig, P)
 
     mh_edit = uimenu(hFig,'Label','Edit');
     uimenu(mh_edit,'Label', '[M]erge', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'm'));
-    uimenu(mh_edit,'Label', 'Merge auto', 'Callback', @(h,e)merge_auto_());
+    uimenu(mh_edit,'Label', 'Merge auto', 'Callback', @(h,e) autoMerge());
     uimenu(mh_edit,'Label', '[D]elete', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'd'), 'Separator', 'on');
     uimenu(mh_edit,'Label', 'Delete auto', 'Callback', @(h,e)delete_auto_());
     uimenu(mh_edit,'Label', 'Delete annotated', 'Callback', @(h,e)delete_annotate()); % TW
