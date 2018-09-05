@@ -103,7 +103,7 @@ function keyPressFigTime(hObject, event, S0)
                 % also update FigProj
                 plotFigProj(S0);
             else
-                disp('keyPressFigProj: ''f'': not implemented yet');
+                disp('keyPressFigTime: ''f'': not implemented yet');
             end
 
         case 'c' % compare pca across channels
