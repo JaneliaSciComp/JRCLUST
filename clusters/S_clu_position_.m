@@ -6,7 +6,7 @@ function S_clu = S_clu_position_(S_clu, viClu_update)
 
     S0 = get(0, 'UserData');
 
-    if ~all(size(spikeFeatures) ~= S0.featureDims)
+    if ~allDimsEqual(spikeFeatures, S0.featureDims)
         spikeFeatures = getSpikeFeatures();
     end
 

@@ -4,7 +4,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     % There is no x,y position in the clustering dataset
     global spikeFeatures
 
-    if ~all(size(spikeFeatures) ~= S0.featureDims)
+    if ~allDimsEqual(spikeFeatures, S0.featureDims)
         spikeFeatures = getSpikeFeatures(P);
     end
 

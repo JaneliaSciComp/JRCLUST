@@ -5,7 +5,7 @@ function manual(P, debugMode)
 
     [S0, P] = load_cached_(P);
 
-    if ~all(size(spikeFeatures) == S0.featureDims)
+    if ~allDimsEqual(spikeFeatures, S0.featureDims)
         spikeFeatures = getSpikeFeatures(P);
     end
 

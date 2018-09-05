@@ -3,7 +3,7 @@
 function [cviSpk_o_1, cviSpk_o_12, cviDelay1] = find_overlap_(S0, S_clu, P)
     global spikeFeatures
 
-    if ~all(size(spikeFeatures) ~= S0.featureDims)
+    if ~allDimsEqual(spikeFeatures, S0.featureDims)
         spikeFeatures = getSpikeFeatures(P);
     end
 

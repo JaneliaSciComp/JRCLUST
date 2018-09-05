@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 function mrPos_spk = spk_pos_(S0, spikeFeatures)
-    if nargin < 2 || ~all(size(spikeFeatures) ~= S0.featureDims)
+    if nargin < 2 || ~allDimsEqual(spikeFeatures, S0.featureDims)
         spikeFeatures = getSpikeFeatures(S0.P);
     end
 

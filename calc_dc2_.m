@@ -2,7 +2,7 @@
 function dc = calc_dc2_(S0, P, vlRedo_spk)
     global spikeFeatures
 
-    if ~all(size(spikeFeatures) ~= S0.featureDims)
+    if ~allDimsEqual(spikeFeatures, S0.featureDims)
         spikeFeatures = getSpikeFeatures(P);
     end
 

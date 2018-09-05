@@ -2,7 +2,7 @@
 function S_clu = S_clu_reclust_(S_clu, S0, P);
     global spikeFeatures
 
-    if ~all(size(spikeFeatures) ~= S0.featureDims)
+    if ~allDimsEqual(spikeFeatures, S0.featureDims)
         spikeFeatures = getSpikeFeatures(P);
     end
 

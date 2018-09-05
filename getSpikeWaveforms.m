@@ -6,6 +6,8 @@ function traces = getSpikeWaveforms(P, useRaw)
 
     global spikeWaveforms spikeTraces
 
+    S0 = get(0, 'UserData');
+
     if nargin < 1 || isempty(P)
         P = get0_('P');
     end
@@ -19,7 +21,7 @@ function traces = getSpikeWaveforms(P, useRaw)
         if ~useRamCache % clear filtered waveforms
             spikeWaveforms = [];
         end
-        if isempty(spikeTraces)
+        if ~allDimsEqual(spikeTraces, S0.traceDims)
             spikeTraces = load_spkraw_();
         end
         traces = spikeTraces;
@@ -27,7 +29,7 @@ function traces = getSpikeWaveforms(P, useRaw)
         if ~useRamCache % clear raw traces
             spikeTraces = [];
         end
-        if isempty(spikeWaveforms)
+        if ~allDimsEqual(spikeWaveforms, S0.waveformDims)
             spikeWaveforms = load_spkwav_();
         end
         traces = spikeWaveforms;

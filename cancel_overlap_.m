@@ -4,6 +4,16 @@
 function spikeFeatures = cancel_overlap_(cviSpk_o_1, cviSpk_o_12, cviDelay1, S0, S_clu, P)
     global spikeWaveforms spikeFeatures spikeTraces
 
+    if ~allDimsEqual(spikeWaveforms, S0.waveformDims)
+        spikeWaveforms = getSpikeWaveforms(P, 0);
+    end
+    if ~allDimsEqual(spikeFeatures, S0.featureDims)
+        spikeFeatures = getSpikeFeatures(P);
+    end
+    if ~allDimsEqual(spikeTraces, S0.traceDims)
+        spikeTraces = getSpikeWaveforms(P, 1);
+    end
+
     viSites_ref = ceil(size(spikeWaveforms,2)/2):size(spikeWaveforms,2);
     nPc_fit = min(getOr(P, 'nPc_fit_overlap', 5), size(S0.mrPv_global,2));
     mrPv = S0.mrPv_global(:,1:nPc_fit) / sqrt(size(S0.mrPv_global,1));

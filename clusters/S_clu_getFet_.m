@@ -4,7 +4,7 @@ function [mrFet1_clu1, iSite_clu1] = S_clu_getFet_(S_clu, iClu, spikeSecondarySi
 
     S0 = get(0, 'UserData');
 
-    if ~all(size(spikeFeatures) ~= S0.featureDims)
+    if ~allDimsEqual(spikeFeatures, S0.featureDims)
         spikeFeatures = getSpikeFeatures();
     end
 
