@@ -25,7 +25,7 @@ function [S_clu, nClu_merged] = S_clu_wavcor_merge_(S_clu, P)
     S_clu = removeSpikesInRefracPeriod(S_clu, P); % remove refrac spikes
 
     % update cluster waveforms and distance
-    S_clu = S_clu_wav_(S_clu, viClu_update); %update cluster waveforms
+    S_clu = clusterMeanWaveforms(S_clu, viClu_update); %update cluster waveforms
     S_clu.mrWavCor = S_clu_wavcor_(S_clu, P, viClu_update);
     S_clu = S_clu_remove_empty_(S_clu);
 

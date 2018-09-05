@@ -15,7 +15,7 @@ function S_clu = S_clu_update_(S_clu, clustersToUpdate, P)
     end
 
     % update mean waveform
-    S_clu = S_clu_wav_(S_clu, clustersToUpdate);
+    S_clu = clusterMeanWaveforms(S_clu, clustersToUpdate);
     vrSelfCorr_clu = get_diag_(S_clu.mrWavCor);
     S_clu.mrWavCor = S_clu_wavcor_(S_clu, P, clustersToUpdate);
     S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, vrSelfCorr_clu);

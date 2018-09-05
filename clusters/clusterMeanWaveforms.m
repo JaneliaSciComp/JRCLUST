@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 % 10/10/17 JJJ: moved spikeWaveforms and spikeTraces internally
-function S_clu = S_clu_wav_(S_clu, clustersToUpdate, fSkipRaw)
+function S_clu = clusterMeanWaveforms(S_clu, clustersToUpdate, fSkipRaw)
     % average cluster waveforms and determine the center
     % only use the centered spikes
     % viClu_copy: waveforms not changing
@@ -38,15 +38,24 @@ function S_clu = S_clu_wav_(S_clu, clustersToUpdate, fSkipRaw)
     tmrWav_spk_clu = zeros(nSamples, nSitesProbe, nClusters, 'single');
 
     if ~fSkipRaw
+        rawTraces = []; % clear memory
+        rawTraces = getSpikeWaveforms(P, 1);
+
         nSamplesRaw = S0.traceDims(1);
         trWav_raw_clu = zeros(nSamplesRaw, nSitesSpike, nClusters, 'single');
-        [tmrWav_raw_clu, tmrWav_raw_lo_clu, tmrWav_raw_hi_clu] = deal(zeros(nSamplesRaw, nSitesProbe, nClusters, 'single'));
+
+        tmrWav_raw_clu = zeros(nSamplesRaw, nSitesProbe, nClusters, 'single');
+        tmrWav_raw_lo_clu = zeros(nSamplesRaw, nSitesProbe, nClusters, 'single');
+        tmrWav_raw_hi_clu = zeros(nSamplesRaw, nSitesProbe, nClusters, 'single');
     else
-        [trWav_raw_clu, tmrWav_raw_clu, tmrWav_raw_lo_clu, tmrWav_raw_hi_clu] = deal([]);
+        trWav_raw_clu = [];
+        tmrWav_raw_clu = [];
+        tmrWav_raw_lo_clu = [];
+        tmrWav_raw_hi_clu = [];
     end
 
     if ~isempty(clustersToUpdate) % specific clusters we want to update
-        updateCluster = ismember(1:nClusters, clustersToUpdate)';
+        updateCluster = ismember(1:nClusters, clustersToUpdate)'; % clusters
         nClustersPrevious = size(S_clu.trWav_spk_clu, 3);
         updateCluster((1:nClusters) > nClustersPrevious) = 1;
 
@@ -63,53 +72,51 @@ function S_clu = S_clu_wav_(S_clu, clustersToUpdate, fSkipRaw)
         updateCluster = true(nClusters, 1);
     end
 
-    % Compute spkwav
     filteredTraces = getSpikeWaveforms(P, 0);
+
     for iCluster = 1:nClusters
-        if updateCluster(iCluster)
-            [mrWav_clu1, clusterSites1] = clu_wav_(S_clu, filteredTraces, iCluster, S0);
-            if isempty(mrWav_clu1)
+        if updateCluster(iCluster) % compute mean filtered waveforms
+            [meanTraces, iClusterSites] = meanWaveforms(S_clu, filteredTraces, iCluster, S0);
+            if isempty(meanTraces)
                 continue;
             end
 
-            [tmrWav_spk_clu(:, clusterSites1, iCluster), trWav_spk_clu(:, :, iCluster)] = ...
-                deal(bit2uV_(mrWav_clu1, P));
-        end
-        if fVerbose, fprintf('.'); end
-    end % cluster
+            % cluster-mean filtered waveforms just in the neighborhood of the center site
+            trWav_spk_clu(:, :, iCluster) = bit2uV_(meanTraces, P)
+            % cluster-mean filtered waveforms across all sites (0 outside neighborhood)
+            tmrWav_spk_clu(:, iClusterSites, iCluster) = trWav_spk_clu(:, :, iCluster);
 
-    % Compute spkraw
-    if ~fSkipRaw
-        rawTraces = []; % clear memory
-        rawTraces = getSpikeWaveforms(P, 1);
-
-        for iCluster = 1:nClusters
-            if updateCluster(iCluster)
-                [mrWav_clu1, clusterSites1, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_clu, rawTraces, iCluster, S0);
-                if isempty(mrWav_clu1)
+            if ~fSkipRaw % also compute mean raw waveforms
+                [meanTraces, iClusterSites, mrWav_lo_clu1, mrWav_hi_clu1] = meanWaveforms(S_clu, rawTraces, iCluster, S0);
+                if isempty(meanTraces)
                     continue;
                 end
 
-                [tmrWav_raw_clu(:, clusterSites1, iCluster), trWav_raw_clu(:, :, iCluster)] = deal(meanSubtract(mrWav_clu1) * P.uV_per_bit);
+                % cluster-mean raw traces just in the neighborhood of the center site
+                trWav_raw_clu(:, :, iCluster) = meanTraces*P.uV_per_bit;
+                % cluster-mean raw traces across all sites (0 outside neighborhood)
+                tmrWav_raw_clu(:, iClusterSites, iCluster) = trWav_raw_clu(:, :, iCluster);
+
                 if isempty(mrWav_lo_clu1) || isempty(mrWav_hi_clu1)
-                    tmrWav_raw_lo_clu(:, clusterSites1, iCluster) = zeros(nSamplesRaw, numel(clusterSites1));
-                    tmrWav_raw_hi_clu(:, clusterSites1, iCluster) = zeros(nSamplesRaw, numel(clusterSites1));
+                    tmrWav_raw_lo_clu(:, iClusterSites, iCluster) = zeros(nSamplesRaw, numel(iClusterSites));
+                    tmrWav_raw_hi_clu(:, iClusterSites, iCluster) = zeros(nSamplesRaw, numel(iClusterSites));
                 else
-                    tmrWav_raw_lo_clu(:, clusterSites1, iCluster) = meanSubtract(mrWav_lo_clu1) * P.uV_per_bit;
-                    tmrWav_raw_hi_clu(:, clusterSites1, iCluster) = meanSubtract(mrWav_hi_clu1) * P.uV_per_bit;
+                    tmrWav_raw_lo_clu(:, iClusterSites, iCluster) = mrWav_lo_clu1*P.uV_per_bit;
+                    tmrWav_raw_hi_clu(:, iClusterSites, iCluster) = mrWav_hi_clu1*P.uV_per_bit;
                 end
             end
+        end
+        if fVerbose
+            fprintf('.');
+        end
+    end % cluster
 
-            if fVerbose, fprintf('.'); end
-        end % cluster
-    end
+    tmrWav_clu = tmrWav_spk_clu;
 
-    tmrWav_clu = tmrWav_spk_clu; %meanSubtract after or before?
-
-    % measure waveforms
-    [vrVmin_clu, viSite_min_clu] = min(permute(min(trWav_spk_clu),[2,3,1]),[],1);
-    vrVmin_clu = abs(vrVmin_clu(:));
-    viSite_min_clu = viSite_min_clu(:);
+    % get min waveform values per cluster and on which site they occur
+    [vrVmin_clu, viSite_min_clu] = min(squeeze(min(trWav_spk_clu)), [], 1);
+    vrVmin_clu = abs(vrVmin_clu(:)); % min waveform values per cluster
+    viSite_min_clu = viSite_min_clu(:); % site on which min occurs
 
     S_clu = struct_add_(S_clu, vrVmin_clu, viSite_min_clu, ...
         trWav_spk_clu, tmrWav_spk_clu, trWav_raw_clu, tmrWav_raw_clu, tmrWav_clu, ...
@@ -122,16 +129,20 @@ end % function
 
 %--------------------------------------------------------------------------
 % 10/22/17 JJJ
-function [mrWav_clu1, clusterSites, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_clu, traces, cluster, S0)
+function [meanTraces, clusterSites, mrWav_lo_clu1, mrWav_hi_clu1] = meanWaveforms(S_clu, traces, cluster, S0)
+    % compute the mean-subtracted average waveform of CLUSTER
+
     if nargin < 4
         S0 = get(0, 'UserData');
     end
 
-    fUseCenterSpk = 0; % set to zero to use all spikes
     nSamples_max = 1000;
+    fUseCenterSpk = getOr(S0.P, 'fUseCenterSpk', 0); % set to zero to use all spikes
     fDrift_merge = getOr(S0.P, 'fDrift_merge', 0);
 
-    [mrWav_clu1, mrWav_lo_clu1, mrWav_hi_clu1] = deal([]);
+    meanTraces = [];
+    mrWav_lo_clu1 = [];
+    mrWav_hi_clu1 = [];
 
     centerSite = S_clu.clusterSites(cluster);
     clusterSites = S0.P.miSites(:, centerSite); % neighborhood of cluster center site
@@ -149,17 +160,21 @@ function [mrWav_clu1, clusterSites, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_c
     end
 
     if ~fDrift_merge
-        viSpk_clu2 = spikesNearMidpoint(clusterSpikes, S0.spikeTimes, 1/S0.P.nTime_clu);
-        mrWav_clu1 = mean(single(traces(:,:,viSpk_clu2)), 3);
-        mrWav_clu1 = meanSubtract(mrWav_clu1); %122717 JJJ
+        spikes = spikesNearMidpoint(clusterSpikes, S0.spikeTimes, 1/S0.P.nTime_clu);
+        meanTraces = mean(single(traces(:, :, spikes)), 3);
+        meanTraces = meanSubtract(meanTraces); %122717 JJJ
 
         return;
     end
 
-    vrPosY_spk1 = S0.mrPos_spk(clusterSpikes,2); %position based quantile
+    % TODO: pick up here -- acl
+    if ~isfield(S0, 'mrPos_spk')
+        S0.mrPos_spk = spk_pos_(S0);
+    end
+    vrPosY_spk1 = S0.mrPos_spk(clusterSpikes, 2); % position based quantile
     vrYLim = quantile(vrPosY_spk1, [0,1,2,3]/3);
     [viSpk_clu_, clusterSites_] = spk_select_pos_(clusterSpikes, vrPosY_spk1, vrYLim(2:3), nSamples_max, clusterSpikeSites);
-    mrWav_clu1 = nanmean_int16_(traces(:,:,viSpk_clu_), 3, fUseCenterSpk, centerSite, clusterSites_, S0.P); % * S0.P.uV_per_bit;
+    meanTraces = nanmean_int16_(traces(:,:,viSpk_clu_), 3, fUseCenterSpk, centerSite, clusterSites_, S0.P); % * S0.P.uV_per_bit;
 
     if nargout > 2
         [viSpk_clu_, clusterSites_] = spk_select_pos_(clusterSpikes, vrPosY_spk1, vrYLim(1:2), nSamples_max, clusterSpikeSites);

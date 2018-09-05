@@ -11,7 +11,7 @@ function showRawWaveforms(hMenu)
     end
 
     if isempty(get_(S_clu, 'tmrWav_raw_clu'))
-        S_clu = S_clu_wav_(S_clu);
+        S_clu = clusterMeanWaveforms(S_clu);
         S0 = setUserData(P, S_clu);
     else
         S0 = setUserData(P);
