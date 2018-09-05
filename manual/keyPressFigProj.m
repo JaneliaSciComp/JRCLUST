@@ -65,7 +65,7 @@ function keyPressFigProj(hFig, event)
             manualMerge(S0);
 
         case 'f'
-            if getOr(P, 'fImportKilosort')
+            if getOr(P, 'fImportKilosort', 0)
                 if strcmpi(P.displayFeature, 'vpp')
                     P.displayFeature = 'kilosort';
                 else
@@ -84,7 +84,7 @@ function keyPressFigProj(hFig, event)
             end
 
         case 'p' % toggle PCivPCj
-            if getOr(P, 'fImportKilosort') && strcmpi(P.displayFeature, 'kilosort')
+            if getOr(P, 'fImportKilosort', 0) && strcmpi(P.displayFeature, 'kilosort')
                 if all(S0.pcPair == [1 2])
                     S0.pcPair = [1 3];
                 elseif all(S0.pcPair == [1 3])

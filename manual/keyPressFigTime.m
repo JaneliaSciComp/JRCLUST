@@ -89,7 +89,7 @@ function keyPressFigTime(hObject, event, S0)
 
 
         case 'f' % feature display instead of amplitude display
-            if getOr(P, 'fImportKilosort')
+            if getOr(P, 'fImportKilosort', 0)
                 if strcmpi(P.displayFeature, 'vpp')
                     P.displayFeature = 'kilosort';
                 else
