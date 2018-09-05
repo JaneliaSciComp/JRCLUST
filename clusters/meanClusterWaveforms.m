@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 % 10/10/17 JJJ: moved spikeWaveforms and spikeTraces internally
-function S_clu = clusterMeanWaveforms(S_clu, clustersToUpdate, fSkipRaw)
+function S_clu = meanClusterWaveforms(S_clu, clustersToUpdate, fSkipRaw)
     % average cluster waveforms and determine the center
     % only use the centered spikes
     % viClu_copy: waveforms not changing
@@ -82,7 +82,7 @@ function S_clu = clusterMeanWaveforms(S_clu, clustersToUpdate, fSkipRaw)
             end
 
             % cluster-mean filtered waveforms just in the neighborhood of the center site
-            trWav_spk_clu(:, :, iCluster) = bit2uV_(meanTraces, P)
+            trWav_spk_clu(:, :, iCluster) = bit2uV_(meanTraces, P);
             % cluster-mean filtered waveforms across all sites (0 outside neighborhood)
             tmrWav_spk_clu(:, iClusterSites, iCluster) = trWav_spk_clu(:, :, iCluster);
 
