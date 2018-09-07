@@ -45,44 +45,17 @@ function importKiloSort(rezFile, sessionName)
         spikeClusters = spikeTemplates; % template/cluster
     end
 
-    clusters = unique(spikeClusters);
+    [clusters, ~, indices] = unique(spikeClusters);
+    % separate out the good ones from the junk ones
+    goodClusters = clusters(clusters > 0);
+    junkClusters = setdiff(clusters, goodClusters);
+    newClusters = [junkClusters' 1:numel(goodClusters)]';
+    spikeClusters = newClusters(indices);
 
     nTemplates = size(rez.simScore, 1);
-    nClusters = numel(clusters);
-    simScore = zeros(nClusters);
+    nClusters = numel(goodClusters);
 
-    clusterTemplates = cell(nClusters, 1);
-    for iCluster = 1:nClusters
-        cluster = clusters(iCluster);
-        spikeClusterIndices = (spikeClusters == cluster); % spike indices for this cluster
-        iClusterTemplates = unique(spikeTemplates(spikeClusterIndices)); % unique template indices for spikes in this cluster
-        clusterTemplates{iCluster} = iClusterTemplates;
-    end
-
-    % consolidate cluster assignments
-    for iCluster = 1:nClusters
-        cluster = clusters(iCluster);
-        spikeClusterIndices = (spikeClusters == cluster); % spike indices for this cluster
-
-        if clusters(iCluster) ~= iCluster
-            spikeClusters(spikeClusterIndices) = iCluster;
-        end
-
-        % iClusterTemplates = clusterTemplates{iCluster}; % template IDs for this cluster
-        %
-        % % compute cluster sim score, Phy style
-        % sims = max(rez.simScore(iClusterTemplates, :), [], 1);
-        %
-        % for jCluster=iCluster:nClusters
-        %     jClusterTemplates = clusterTemplates{jCluster};
-        %     simScore(iCluster, jCluster) = max(sims(jClusterTemplates));
-        %     simScore(jCluster, iCluster) = simScore(iCluster, jCluster);
-        % end
-    end
-
-    % save the old clusters with gaps in them
-    clustersGapped = clusters;
-    clusters = (1:nClusters)';
+    clusterTemplates = arrayfun(@(iCluster) unique(spikeTemplates(spikeClusters == iCluster)), 1:nClusters, 'UniformOutput', 0);
 
     % compute templates
     nt0 = size(rez.W, 1);
@@ -98,8 +71,7 @@ function importKiloSort(rezFile, sessionName)
     end
     templates = -abs(permute(templates, [3 2 1])); % nTemplates x nSamples x nChannels
 
-    % compute the weighted average template for a given cluster and pick
-    % its min site
+    % compute the weighted average template for a given cluster and pick its min site
     clusterSites = zeros('like', clusters);
     for iCluster = 1:nClusters
         iClusterTemplates = clusterTemplates{iCluster}; % templates for this cluster
@@ -189,17 +161,12 @@ function importKiloSort(rezFile, sessionName)
 
     S_clu.nClusters = nClusters;
     S_clu.spikeClusters = spikeClusters;
-    S_clu.clustersGapped = clustersGapped;
     S_clu.spikeClustersAuto = spikeTemplates;
 
     S_clu.clusterNotes = cell(nClusters, 1);
     S_clu.clusterSites = clusterSites;
-    S_clu.simScore = simScore;
 
-    S_clu.spikesByCluster = cell(1, nClusters);
-    for iCluster = 1:nClusters
-        S_clu.spikesByCluster{iCluster} = find(spikeClusters == iCluster);
-    end
+    S_clu.spikesByCluster = arrayfun(@(iCluster) find(spikeClusters == iCluster), 1:nClusters, 'UniformOutput', 0);
 
     S_clu = S_clu_refresh_(S_clu, 0); % don't remove empty
     S_clu = reorderClusters(S_clu, 'clusterSites');
