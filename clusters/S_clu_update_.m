@@ -12,6 +12,9 @@ function S_clu = S_clu_update_(S_clu, clustersToUpdate, P)
         S_clu.spikesByCluster{cluster} = spikes;
         S_clu.clusterSites(cluster) = mode(S0.spikeSites(spikes));
         S_clu.nSpikesPerCluster(cluster) = numel(spikes);
+        if isfield(S_clu, 'clusterCenters')
+            S_clu.clusterCenters(cluster) = S_clu.ordrho(find(ismember(S_clu.ordrho, spikes), 1));
+        end
     end
 
     % update mean waveform
