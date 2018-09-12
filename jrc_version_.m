@@ -2,7 +2,7 @@
 % 9/29/17 JJJ: Displaying the version number of the program and what's used. #Tested
 function [vcVer, vcDate, vcVer_used] = jrc_version_(vcFile_prm)
     if nargin<1, vcFile_prm = ''; end
-    vcVer = 'v3.2.6';
+    vcVer = 'v3.3.0';
     vcDate = '9/12/2018';
     vcVer_used = '';
     if nargout==0
