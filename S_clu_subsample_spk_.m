@@ -2,7 +2,7 @@
 function [viSpk_clu1, viSite_clu1, vlSpk_clu1] = S_clu_subsample_spk_(S_clu, iClu, S0)
     % subsample spikes from the requested cluster centered at the center site and mid-time range (drift)
 
-    fSelect_mid = 1;
+    fSelect_mid = 0; % TW
     nSamples_max = 1000;
     if nargin<3, S0 = get(0, 'UserData'); end
 
