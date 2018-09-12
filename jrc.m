@@ -25,7 +25,10 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
     switch lower(vcCmd)
         % deprecated commands
         case {'git-pull', 'issue', 'wiki', 'wiki-download'}, dep_warn_(vcCmd);
-        case {'compile-ksort'}, dep_warn_(vcCmd);
+        case {'compile-ksort', 'kilosort', 'ksort', 'import-kilosort-sort', 'import-ksort-sort', 'kilosort-verify', 'ksort-verify'}
+            dep_warn_(vcCmd);
+        case {'import-kilosort', 'import-ksort'}
+            dep_warn_(vcCmd, 'This functionality is available (but experimental) in a feature branch.');
 
         % No arguments
         case {'setprm' 'set', 'set-prm'}, vcFile_prm_ = vcArg1; return;
@@ -89,9 +92,6 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'describe', describe_(vcFile_prm);
         case 'import-silico', import_silico_(vcFile_prm, 0);
         case 'import-silico-sort', import_silico_(vcFile_prm, 1);
-        case {'import-kilosort', 'import-ksort'}, import_ksort_(vcFile_prm, 0);
-        case {'import-kilosort-sort', 'import-ksort-sort'}, import_ksort_(vcFile_prm, 1);
-        case {'kilosort', 'ksort'}, kilosort_(vcFile_prm); import_ksort_(vcFile_prm, 0);
         case 'export-imec-sync', export_imec_sync_(vcFile_prm);
         case 'export-prm', export_prm_(vcFile_prm, vcArg2);
         case 'dir',
@@ -142,8 +142,6 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         manual_(P, 'debug'); manual_test_(P); return;
         case 'manual-test-menu'
         manual_(P, 'debug'); manual_test_(P, 'Menu'); return;
-        case {'kilosort-verify', 'ksort-verify'}
-        kilosort_(P); import_ksort_(P); describe_(P.vcFile_prm);
         case {'export-wav', 'wav'} % load raw and assign workspace
         mnWav = load_file_(P.vcFile, [], P);
         assignWorkspace_(mnWav);

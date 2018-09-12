@@ -23,7 +23,7 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
         if fSkip_fig, return; end
         if ~isfield(S0, 'S_clu') || ~get_set_(P, 'fSavePlot_RD', 1), return; end
         try
-            if isempty(get_(S0.S_clu, 'delta')), return; end % skip kilosort
+            if isempty(get_(S0.S_clu, 'delta')), return; end
             save_fig_(strrep(P.vcFile_prm, '.prm', '_RD.png'), plot_rd_(P, S0), 1);
             fprintf('\tYou can use ''jrc plot-rd'' command to plot this figure.\n');
         catch

@@ -7,7 +7,7 @@ Written by J. James Jun, Apr 5, 2017
 [Requirements]
 1. Matlab (R2014b or newer) and toolboxes: Parallel computing, Signal processing, Statistics and Machine Learning, Image processing toolbox.
 2. RAM size should be greater than 1/4 or the recording file size.
-3. NVidia GPU cards (Compute version 3.5 or higher, which includes Kepler, Maxwell, Pascal-based GPUs). 
+3. NVidia GPU cards (Compute version 3.5 or higher, which includes Kepler, Maxwell, Pascal-based GPUs).
   Note that Pascal-based GPU is only supported by CUDA 8.0 or higher, which requires Matlab 2017a or higher.
 4. NVIDIA CUDA toolkit (Install a correct version supported by your Matlab version)
   R2017a: CUDA 8.0, R2016b: CUDA 7.5, R2016a: CUDA 7.5, R2015b: CUDA 7.0, R2015a: CUDA 6.5, R2014b: CUDA 6.0
@@ -23,22 +23,21 @@ Written by J. James Jun, Apr 5, 2017
   for Visual studio 2012, "cl.exe" path is "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\amd64"
   Visual studio 2013 is recommend for matlab version R2016a or newer.
   Visual studio 2012 is recommend for matlab version R2015b or older.
-3. Add "C:\Windows\System32" to the system path (required for Kilosort extension).
-4. Install a correct version of NVIDIA CUDA toolkit that is supported by Matlab.
+3. Install a correct version of NVIDIA CUDA toolkit that is supported by Matlab.
   To check the CUDA version supprted by Matlab, run "gpuDevice" in Matlab and check "ToolkitVersion".
   R2017a: CUDA 8.0, R2016b: CUDA 7.5, R2016a: CUDA 7.5, R2015b: CUDA 7.0, R2015a: CUDA 6.5, R2014b: CUDA 6.0
-  The below is the known relationship between Matlab and CUDA versions (links provided below)  
+  The below is the known relationship between Matlab and CUDA versions (links provided below)
   CUDA 8.0 (current) link: https://developer.nvidia.com/cuda-downloads
   CUDA 7.5 link: https://developer.nvidia.com/cuda-75-downloads-archive
   CUDA 7.0 link: https://developer.nvidia.com/cuda-toolkit-70
   CUDA 6.5 link: https://developer.nvidia.com/cuda-toolkit-65
   CUDA 6.0 link: https://developer.nvidia.com/cuda-toolkit-60
-5. Add NVidia C-compiler (nvcc.exe) to the system path.
+4. Add NVidia C-compiler (nvcc.exe) to the system path.
   For CUDA 8.0, the path is "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\bin"
   For CUDA 7.5, the path is "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.5\bin"
   For CUDA 7.0, the path is "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\bin"
   For CUDA 6.5, the path is "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin"
-6. Run Nsight Monitor > Nsight Monitor options (bottom right) > set "WDDM TDR enabled" to false.  
+5. Run Nsight Monitor > Nsight Monitor options (bottom right) > set "WDDM TDR enabled" to false.
 
 [Installation from Dropbox, for Janelia researchers and collaborators only]
 1. Copy jrclust folder in the Dropbox folder (e.g. "C:\Dropbox\jrclust") to another location (e.g. "C:\jrclust_user").
@@ -58,7 +57,7 @@ Written by J. James Jun, Apr 5, 2017
   >jrc download sample
 2. Create a new parameter file
   >jrc makeprm sample.bin sample.prb
-  This creates "sample_sample.prm" file. 
+  This creates "sample_sample.prm" file.
 3. Display the raw traces
   >jrc traces sample_sample.prm
   or you can also run
