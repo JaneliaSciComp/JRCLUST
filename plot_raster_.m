@@ -16,6 +16,18 @@ function plot_raster_(S0, fNewFig)
     if isfield(P, 'vcFile_psth'), P.vcFile_trial = P.vcFile_psth; end % old field name
 
     try
+        % begin TW block
+        if isempty(P.vcFile_trial)
+            if exist(strrep(P.vcFile_prm,".prm",".starts.mat"),'file')
+                P.vcFile_trial=char(strrep(P.vcFile_prm,".prm",".starts.mat"));
+            elseif exist(strrep(P.vcFile_prm,".prm",".mat"),'file')
+                P.vcFile_trial=char(strrep(P.vcFile_prm,".prm",".mat"));
+            else
+                msgbox_('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return;
+            end
+        end
+        % end TW block
+
         if ~exist_file_(P.vcFile_trial), P.vcFile_trial = subsDir_(P.vcFile_trial, P.vcFile_prm); end
         if ~exist_file_(P.vcFile_trial)
             msgbox_(sprintf('File does not exist: vcFile_trial=%s', P.vcFile_trial), 1);
