@@ -7,8 +7,15 @@ function [vlIn_spk, mrFet, vhAx] = auto_split_wav_(mrSpkWav, mrFet, nSplits)
     if nargin<2, mrFet = []; end
     if nargin<3, nSplits = 2; end
     if isempty(mrFet)
-        [~,mrFet,vrD] = pca(double(mrSpkWav'), 'Centered', 1, 'NumComponents', 3);
+        [~,pcaFet,vrD] = pca(double(mrSpkWav'), 'Centered', 1, 'NumComponents', 3);
+        mrFet = pcaFet;
+    else
+        [~,pcaFet,vrD] = pca(double(mrSpkWav'), 'Centered', 1, 'NumComponents', 3);
+        mrFet = double([mrFet pcaFet]);
     end
+
+    inClust = MikeSplit(mrSpkWav, mrFet, nSplits);
+    mrFet = pcaFet;
     nSpks = size(mrSpkWav,2);
     % nSplit = preview_split_(mrSpkWav1);
     % if isnan(nSplit), return; end
@@ -18,9 +25,9 @@ function [vlIn_spk, mrFet, vhAx] = auto_split_wav_(mrSpkWav, mrFet, nSplits)
     for iAx=1:numel(vhAx)
         vhAx(iAx) = subplot(2,2,iAx); hold on;
     end
-    plot(vhAx(1), mrFet(:,1), mrFet(:,2), '.'); xylabel_(vhAx(1), 'PC1', 'PC2', 'PC1 vs PC2');
-    plot(vhAx(2), mrFet(:,3), mrFet(:,2), '.'); xylabel_(vhAx(2), 'PC3', 'PC2', 'PC3 vs PC2');
-    plot(vhAx(3), mrFet(:,1), mrFet(:,3), '.'); xylabel_(vhAx(3), 'PC1', 'PC3', 'PC1 vs PC3');
+    % plot(vhAx(1), mrFet(:,1), mrFet(:,2), '.'); xylabel_(vhAx(1), 'PC1', 'PC2', 'PC1 vs PC2');
+    % plot(vhAx(2), mrFet(:,3), mrFet(:,2), '.'); xylabel_(vhAx(2), 'PC3', 'PC2', 'PC3 vs PC2');
+    % plot(vhAx(3), mrFet(:,1), mrFet(:,3), '.'); xylabel_(vhAx(3), 'PC1', 'PC3', 'PC1 vs PC3');
     drawnow;
 
     % Ask how many clusters there are
@@ -29,8 +36,9 @@ function [vlIn_spk, mrFet, vhAx] = auto_split_wav_(mrSpkWav, mrFet, nSplits)
         idx = kmeans(mrFet, nSplits);
         d12 = mad_dist_(mrFet(idx==1,:)', mrFet(idx==2,:)');
         fprintf('mad_dist: %f\n', d12);
-        %     idx = kmeans([pca_1,pca_2], NUM_SPLIT);
-        vlIn_spk = logical(idx-1);
+        % idx = kmeans([pca_1,pca_2], NUM_SPLIT);
+        % vlIn_spk = logical(idx-1);
+        vlIn_spk = inClust;
     catch
         %         msgbox('Too few spikes to auto-split');
         vlIn_spk = false(nSpks,1);
