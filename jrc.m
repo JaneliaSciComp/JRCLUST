@@ -18,7 +18,7 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
     if nargin==0, vcCmd = 'help'; end
     setpath_();
     warning off;
-    
+
     %-----
     % Command type A: supporting functions
     fExit = 1;
@@ -32,7 +32,7 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'doc', doc_('JRCLUST manual.pdf');
         case 'doc-edit', doc_('JRCLUST manual.docx');
         case 'update', update_(vcArg1);
-        case 'git-pull', git_pull_(vcArg1);
+        case 'git-pull', dep_warn_(vcCmd);
         case 'install', install_();
         case 'wiki', wiki_(vcArg1);
         case 'wiki-download', wiki_download_();
