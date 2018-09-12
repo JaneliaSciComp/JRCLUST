@@ -24,15 +24,16 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
     fExit = 1;
     switch lower(vcCmd)
         % deprecated commands
-        case {'git-pull', 'issue', 'wiki', 'wiki-download', 'which'}, dep_warn_(vcCmd);
-        case {'compile-ksort', 'kilosort', 'ksort', 'import-kilosort-sort', 'import-ksort-sort', 'kilosort-verify', 'ksort-verify'}
+        case {'git-pull', 'issue', 'wiki', 'wiki-download', 'which', 'download'}
+            dep_warn_(vcCmd);
+        case {'compile-ksort', 'kilosort', 'ksort', 'import-kilosort-sort', 'import-ksort-sort', 'kilosort-verify', 'ksort-verify', }
             dep_warn_(vcCmd);
         case {'import-kilosort', 'import-ksort'}
-            dep_warn_(vcCmd, 'This functionality is available (but experimental) in a feature branch.');
+            dep_warn_(vcCmd, 'This functionality is available (but experimental) in a feature branch');
         case {'doc', 'doc-edit'}
             dep_warn_(vcCmd, 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki');
         case 'install'
-            dep_warn_(vcCmd, 'You might be looking for `compile` instead.');
+            dep_warn_(vcCmd, 'You might be looking for `compile` instead');
         case 'update'
             dep_warn_(vcCmd, 'Please check the repository at https://github.com/JaneliaSciComp/JRCLUST for updates');
 
@@ -43,7 +44,6 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'about', about_();
         case 'clear', clear_(vcArg1);
         case 'gui', gui_(vcArg1, vcFile_prm_);
-        case 'download', download_(vcArg1);
         case {'makeprm', 'createprm', 'makeprm-all'}
         vcFile_prm_ = makeprm_(vcArg1, vcArg2, 1, vcArg3);
         if nargout>0, varargout{1} = vcFile_prm_; end

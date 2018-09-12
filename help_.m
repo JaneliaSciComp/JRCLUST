@@ -35,8 +35,6 @@ function csHelp = help_(vcCommand)
     '    Output files: _jrc.mat';
     '  jrc auto myparams.prm';
     '    Recluster spikes after updating post-clustering paramters';
-    '  jrc download sample';
-    '    Download sample data from Neuropix phase 2 probe';
     '  jrc probe {myprobe.prb, myparams.prm}';
     '    Plot probe layout';
     '  jrc makeprm myrecording.bin myprobe.prb';
