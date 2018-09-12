@@ -40,7 +40,7 @@ function validate_(P)
     [mrMiss, mrFp, vnCluGt, miCluMatch, S_score_clu] = ...
     clusterVerify(S_gt.viClu, S_gt.viTime, S_clu.viClu, S0.viTime_spk, nSamples_jitter); %S_gt.viTime
     % viClu_spk = S_score_clu.cviHit_gt
-    if fMergeCheck, compareClustering2_(S_gt.viClu, S_gt.viTime, S_clu.viClu+1, S0.viTime_spk); end
+    % if fMergeCheck, compareClustering2_(S_gt.viClu, S_gt.viTime, S_clu.viClu+1, S0.viTime_spk); end
 
     Sgt = S_gt; %backward compatibility
     S_score = struct_add_(S_score, mrMiss, mrFp, vnCluGt, miCluMatch, P, Sgt, S_score_clu);
