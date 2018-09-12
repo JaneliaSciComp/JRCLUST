@@ -24,7 +24,7 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
     fExit = 1;
     switch lower(vcCmd)
         % deprecated commands
-        case {'git-pull', 'issue', 'wiki', 'wiki-download'}, dep_warn_(vcCmd);
+        case {'git-pull', 'issue', 'wiki', 'wiki-download', 'which'}, dep_warn_(vcCmd);
         case {'compile-ksort', 'kilosort', 'ksort', 'import-kilosort-sort', 'import-ksort-sort', 'kilosort-verify', 'ksort-verify'}
             dep_warn_(vcCmd);
         case {'import-kilosort', 'import-ksort'}
@@ -41,7 +41,6 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'update', update_(vcArg1);
         case 'install', install_();
         case 'gui', gui_(vcArg1, vcFile_prm_);
-        case 'which', return;
         case 'download', download_(vcArg1);
         case {'makeprm', 'createprm', 'makeprm-all'}
         vcFile_prm_ = makeprm_(vcArg1, vcArg2, 1, vcArg3);
