@@ -3,8 +3,8 @@
 function fSuccess = fwrite_(fid, vr)
     try
         fwrite(fid, vr, class(vr));
-        fSucces = 1;
+        fSuccess = 1;
     catch
-        fSucces = 0;
+        fSuccess = 0;
     end
 end %func
