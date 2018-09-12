@@ -25,6 +25,7 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
     switch lower(vcCmd)
         % deprecated commands
         case {'git-pull', 'issue', 'wiki', 'wiki-download'}, dep_warn_(vcCmd);
+        case {'compile-ksort'}, dep_warn_(vcCmd);
 
         % No arguments
         case {'setprm' 'set', 'set-prm'}, vcFile_prm_ = vcArg1; return;
@@ -57,7 +58,6 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'import-gt', import_gt_silico_(vcArg1);
         case 'unit-test', unit_test_(vcArg1, vcArg2, vcArg3);
         case 'compile', compile_cuda_(vcArg1);
-        case 'compile-ksort', compile_ksort_();
         case 'test', varargout{1} = test_(vcArg1, vcArg2, vcArg3, vcArg4, vcArg5);
         case 'call', varargout{1} = call_(vcArg1, vcArg2, vcArg3);
         case 'export', export_(vcArg1, vcArg2, vcArg3);

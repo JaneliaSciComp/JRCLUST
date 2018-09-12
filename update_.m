@@ -2,7 +2,6 @@
 function update_(vcFile)
     % update_(vcFile) %update specific files
     % update_() %update files in default.cfg\sync_list
-    fCompile_ksort = 0;
 
     S_cfg = read_cfg_();
     vcSource = S_cfg.path_dropbox;
@@ -25,17 +24,6 @@ function update_(vcFile)
         if fCompile, compile_cuda_(); end
     catch
         fprintf(2, 'CUDA code compilation error.\n');
-    end
-
-    % Copy kilosort and compile code
-    if fCompile_ksort
-        try
-            mkdir_('./kilosort');
-            try_eval_(sprintf('copyfile ''%s\\kilosort\\*'' .\\kilosort\\ f;', vcSource), 0);
-            if fCompile, compile_ksort_(); end
-        catch
-            disperr_();
-        end
     end
 
     fprintf('Updated, took %0.1fs.', toc(t1));

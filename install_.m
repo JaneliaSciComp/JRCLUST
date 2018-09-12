@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-% Install JRCLUST 1) create user.cfg 2) compile cuda 3) compile kilosort
+% Install JRCLUST 1) create user.cfg 2) compile cuda
 % 7/26/17 Code cleanup and test
 function install_()
     % create user.cfg
@@ -13,5 +13,4 @@ function install_()
     end
 
     compile_cuda_();
-    compile_ksort_();
 end %func
