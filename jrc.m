@@ -180,6 +180,8 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         validate_(P);
     elseif contains_(lower(vcCmd), {'manual',' gui', 'ui'})
         manual_(P);
+    elseif contains_(lower(vcCmd), {'filter'})
+        TWfilter_(P);
     elseif fError
         help_();
     end
