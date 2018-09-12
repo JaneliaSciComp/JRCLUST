@@ -69,7 +69,6 @@ function add_menu_(hFig, P)
     mh_help = uimenu(hFig,'Label','Help');
     uimenu(mh_help, 'Label', '[H]elp', 'Callback', @help_FigWav_);
     uimenu(mh_help, 'Label', 'Wiki on GitHub', 'Callback', @(h,e)wiki_());
-    uimenu(mh_help, 'Label', 'About', 'Callback', @(h,e)msgbox_(about_()));
     uimenu(mh_help, 'Label', 'Post an issue on GitHub', 'Callback', @(h,e)issue_('search'));
     uimenu(mh_help, 'Label', 'Search issues on GitHub', 'Callback', @(h,e)issue_('post'));
 
