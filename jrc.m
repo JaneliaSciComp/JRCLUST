@@ -32,12 +32,11 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'doc', doc_('JRCLUST manual.pdf');
         case 'doc-edit', doc_('JRCLUST manual.docx');
         case 'update', update_(vcArg1);
-        case 'git-pull', dep_warn_(vcCmd);
+        case {'git-pull', 'issue'}, dep_warn_(vcCmd);
         case 'install', install_();
         case 'wiki', wiki_(vcArg1);
         case 'wiki-download', wiki_download_();
         case 'gui', gui_(vcArg1, vcFile_prm_);
-        case 'issue', issue_('post');
         case 'which', return;
         case 'download', download_(vcArg1);
         case {'makeprm', 'createprm', 'makeprm-all'}
