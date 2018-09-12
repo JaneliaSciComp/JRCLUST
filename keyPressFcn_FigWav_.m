@@ -67,6 +67,12 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
         case 'a', update_spikes_(S0); clu_info_(S0);
         case 'f', clu_info_(S0);
         case 'h', msgbox_(S_fig.csHelp, 1);
+        case '0', unit_annotate_([],[], 'to_delete'); % TW
+        case '1', unit_annotate_([],[], 'single'); % TW
+        case '2', unit_annotate_([],[], 'multi'); % TW
+        case 'numpad0', unit_annotate_([],[], 'to_delete'); % TW
+        case 'numpad1', unit_annotate_([],[], 'single'); % TW
+        case 'numpad2', unit_annotate_([],[], 'multi'); % TW
         case 'w', toggleVisible_(S_fig.hSpkAll); %toggle spike waveforms
         case 't', plot_FigTime_(S0); % time view
         case 'j', plot_FigProj_(S0); %projection view
