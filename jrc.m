@@ -29,6 +29,8 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
             dep_warn_(vcCmd);
         case {'import-kilosort', 'import-ksort'}
             dep_warn_(vcCmd, 'This functionality is available (but experimental) in a feature branch.');
+        case {'doc', 'doc-edit'}
+            dep_warn_(vcCmd, 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki');
 
         % No arguments
         case {'setprm' 'set', 'set-prm'}, vcFile_prm_ = vcArg1; return;
@@ -36,8 +38,6 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case {'help', '-h', '?', '--help'}, help_(vcArg1); about_();
         case 'about', about_();
         case 'clear', clear_(vcArg1);
-        case 'doc', doc_('JRCLUST manual.pdf');
-        case 'doc-edit', doc_('JRCLUST manual.docx');
         case 'update', update_(vcArg1);
         case 'install', install_();
         case 'gui', gui_(vcArg1, vcFile_prm_);
