@@ -16,7 +16,7 @@ function S0 = plot_FigWav_(S0)
         S_fig.hAx = axes_new_(hFig);
         set(gca, 'Position', [.05 .05 .9 .9], 'XLimMode', 'manual', 'YLimMode', 'manual');
         xlabel('Cluster #');    ylabel('Site #');   grid on;
-        S_fig.vcTitle = 'Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar';
+        S_fig.vcTitle = 'Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi'; % TW
         title_(sprintf(S_fig.vcTitle, S_fig.maxAmp)); %update scale
 
         %     set(gca, 'ButtonDownFcn', @(src,event)button_CluWav_(src,event), 'BusyAction', 'cancel');
@@ -70,5 +70,4 @@ function S0 = plot_FigWav_(S0)
     '[O] Overlap average waveforms across sites', ...
     };
     set(hFig, 'UserData', S_fig);
-    xlabel('Clu #'); ylabel('Site #');
 end %func
