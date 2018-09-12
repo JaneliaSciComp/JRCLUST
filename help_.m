@@ -20,12 +20,6 @@ function csHelp = help_(vcCommand)
     '    Display about information';
     '  jrc which';
     '    Display the file path for the jrclust code called';
-    '  jrc wiki';
-    '    Open a JRCLUST Wiki on GitHub';
-    '  jrc wiki-download';
-    '    Download the JRCLUST Wiki on GitHub to ./wiki/';
-    '  jrc issue';
-    '    Post an issue at GitHub (log-in with your GitHub account)';
     '';
     '[Main commands]';
     '  jrc edit (myparam.prm)';
@@ -117,10 +111,6 @@ function csHelp = help_(vcCommand)
     '[Deployment]';
     '  jrc update';
     '    Update code by copying from the dropbox location (specified in user.cfg or default.cfg)';
-    ' jrc git-pull';
-    '    Update to the latest version from GitHub (valid only if installed by "git checkout" command)';
-    ' jrc git-pull version_tag';
-    '    Revert to a specific release version ("version_tag") from GitHub (valid only if installed by "git checkout" command)';
     '  jrc unit-test';
     '    Run a suite of unit teste.';
     '  jrc install';
