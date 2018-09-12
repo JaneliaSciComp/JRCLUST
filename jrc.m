@@ -31,6 +31,8 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
             dep_warn_(vcCmd, 'This functionality is available (but experimental) in a feature branch.');
         case {'doc', 'doc-edit'}
             dep_warn_(vcCmd, 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki');
+        case 'install'
+            dep_warn_(vcCmd, 'You might be looking for `compile` instead.');
 
         % No arguments
         case {'setprm' 'set', 'set-prm'}, vcFile_prm_ = vcArg1; return;
@@ -39,7 +41,6 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'about', about_();
         case 'clear', clear_(vcArg1);
         case 'update', update_(vcArg1);
-        case 'install', install_();
         case 'gui', gui_(vcArg1, vcFile_prm_);
         case 'download', download_(vcArg1);
         case {'makeprm', 'createprm', 'makeprm-all'}
