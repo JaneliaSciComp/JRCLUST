@@ -11,14 +11,10 @@ function csHelp = help_(vcCommand)
     '[Documentation and help]';
     '  jrc help';
     '    Display a help menu';
-    '  jrc doc';
-    '    Open a help document (pdf)';
     '  jrc version';
     '    Display the version number and the updated date';
     '  jrc about';
     '    Display about information';
-    '  jrc which';
-    '    Display the file path for the jrclust code called';
     '';
     '[Main commands]';
     '  jrc edit (myparam.prm)';
@@ -108,12 +104,8 @@ function csHelp = help_(vcCommand)
     '    Direcly specify the file number to display';
     '';
     '[Deployment]';
-    '  jrc update';
-    '    Update code by copying from the dropbox location (specified in user.cfg or default.cfg)';
     '  jrc unit-test';
-    '    Run a suite of unit teste.';
-    '  jrc install';
-    '    Install jrc by compiling codes';
+    '    Run a suite of unit tests.';
     '  jrc compile';
     '    Recompile CUDA code (GPU codes, *.cu)';
     '';

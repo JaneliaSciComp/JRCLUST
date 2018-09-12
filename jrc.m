@@ -33,6 +33,8 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
             dep_warn_(vcCmd, 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki');
         case 'install'
             dep_warn_(vcCmd, 'You might be looking for `compile` instead.');
+        case 'update'
+            dep_warn_(vcCmd, 'Please check the repository at https://github.com/JaneliaSciComp/JRCLUST for updates');
 
         % No arguments
         case {'setprm' 'set', 'set-prm'}, vcFile_prm_ = vcArg1; return;
@@ -40,7 +42,6 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case {'help', '-h', '?', '--help'}, help_(vcArg1); about_();
         case 'about', about_();
         case 'clear', clear_(vcArg1);
-        case 'update', update_(vcArg1);
         case 'gui', gui_(vcArg1, vcFile_prm_);
         case 'download', download_(vcArg1);
         case {'makeprm', 'createprm', 'makeprm-all'}
