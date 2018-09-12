@@ -1,7 +1,6 @@
 %--------------------------------------------------------------------------
 function csHelp = help_(vcCommand)
     if nargin<1, vcCommand = ''; end
-    if ~isempty(vcCommand), wiki_(vcCommand); return; end
 
     csHelp = {...
     '';
