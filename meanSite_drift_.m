@@ -33,3 +33,28 @@ function [mnWav2, cviSite_mean] = meanSite_drift_(mnWav1, P, viSite_repair)
         mnWav2(:, iSite) = mean(mnWav1(:, viSite_mean1), 2);
     end
 end %func
+
+%% local functions
+function flag = isSingleShank_(P)
+    viShank_site = get_(P, 'viShank_site');
+    if isempty(viShank_site)
+        flag = 1;
+    else
+        flag = numel(unique(viShank_site)) == 1;
+    end
+end
+
+function nCols = nColumns_probe_(P)
+    % Checkerboard four-column is considered as two column probe since
+    % two sites per vertical step
+    viShank_site = get_(P, 'viShank_site');
+    if ~isempty(viShank_site)
+        viSites = find(P.viShank_site == P.viShank_site(1));
+        vrSiteY = P.mrSiteXY(viSites,2);
+    else
+        vrSiteY = P.mrSiteXY(:,2);
+    end
+    vrSiteY_unique = unique(vrSiteY);
+    vnSites_group = hist(vrSiteY, vrSiteY_unique);
+    nCols = median(vnSites_group);
+end %func
