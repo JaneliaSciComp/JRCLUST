@@ -9,6 +9,10 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
 
     persistent vcFile_prm_ % remember the currently working prm file
 
+    % Add paths
+    [dirname, ~] = fileparts(fullfile(mfilename('fullpath')));
+    addpath(fullfile(dirname, 'compat')); % compatibility functions
+
     % input parse
     if nargin<2, vcArg1=''; end
     if nargin<3, vcArg2=''; end
