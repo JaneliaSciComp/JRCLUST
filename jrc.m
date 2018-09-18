@@ -198,6 +198,9 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'describe'
             describe_(vcFile_prm);
 
+        case {'import-kilosort', 'import-ksort'}
+            import_ksort_(vcFile_prm);
+
         case 'import-silico'
             import_silico_(vcFile_prm, 0);
 
