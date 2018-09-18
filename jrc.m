@@ -186,9 +186,6 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'batch'
             batch_(vcArg1, vcArg2);
 
-        %case 'batch-mat'
-            batch_mat_(vcArg1, vcArg2); %text file containing binary files and template file
-
         case {'batch-verify', 'batch-validate'}
             batch_verify_(vcArg1, vcArg2);
 
