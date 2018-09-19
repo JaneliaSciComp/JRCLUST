@@ -12,6 +12,7 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
     % Add paths
     [dirname, ~] = fileparts(fullfile(mfilename('fullpath')));
     addpath(fullfile(dirname, 'compat')); % compatibility functions
+    addpath(fullfile(dirname, 'manual')); % plotting functions
 
     % input parse
     if nargin < 2
