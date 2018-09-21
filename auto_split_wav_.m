@@ -4,6 +4,8 @@ function [vlIn_spk, mrFet, vhAx] = auto_split_wav_(mrSpkWav, mrFet, nSplits)
     %Make automatic split of clusters using PCA + kmeans clustering
     %  input Sclu, trSpkWav and cluster_id of the cluster you want to cut
 
+    P = get0_('P');
+
     if nargin<2, mrFet = []; end
     if nargin<3, nSplits = 2; end
     if isempty(mrFet)
@@ -14,7 +16,9 @@ function [vlIn_spk, mrFet, vhAx] = auto_split_wav_(mrSpkWav, mrFet, nSplits)
         mrFet = double([mrFet pcaFet]);
     end
 
-    inClust = MikeSplit(mrSpkWav, mrFet, nSplits);
+    if get_set_(P, 'fUseMikeSplit', 0)
+        inClust = MikeSplit(mrSpkWav, mrFet, nSplits);
+    end
     mrFet = pcaFet;
     nSpks = size(mrSpkWav,2);
     % nSplit = preview_split_(mrSpkWav1);
@@ -37,8 +41,11 @@ function [vlIn_spk, mrFet, vhAx] = auto_split_wav_(mrSpkWav, mrFet, nSplits)
         d12 = mad_dist_(mrFet(idx==1,:)', mrFet(idx==2,:)');
         fprintf('mad_dist: %f\n', d12);
         % idx = kmeans([pca_1,pca_2], NUM_SPLIT);
-        % vlIn_spk = logical(idx-1);
-        vlIn_spk = inClust;
+        if get_set_(P, 'fUseMikeSplit', 0)
+            vlIn_spk = inClust;
+        else
+            vlIn_spk = logical(idx-1);
+        end
     catch
         %         msgbox('Too few spikes to auto-split');
         vlIn_spk = false(nSpks,1);
