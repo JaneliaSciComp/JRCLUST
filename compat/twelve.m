@@ -1,8 +1,13 @@
-function twelve(filename)
-    %TWELVE convert JRCv3-style prm files to JRCv4
+function twelve(filename, back)
+    % TWELVE convert JRCv3-style prm files (and save data) to JRCv4
+    % optionally set BACK to 1 to convert JRCv4-style params to JRCv3
 
     % WORK IN PROGRESS
     % TODO: use file2cellstr_, &c. (see updateParamFile.m)
+
+    if nargin < 2
+        back = 0;
+    end
 
     if ~endsWith(filename, '.prm')
         error('filename must be a .prm file');
@@ -19,14 +24,19 @@ function twelve(filename)
     replaceMeS_clu = cell(0, 2);
 
     base = fileparts(fileparts(fullfile(mfilename('fullpath'))));
-    fh = fopen(fullfile(base, 'params', 'prmRenames.txt'));
+    fh = fopen(fullfile(base, 'compat', 'prmRenames.txt'));
 
     tline = fgetl(fh);
     while ischar(tline)
         if ~isempty(tline)
             tline = strsplit(tline, '=');
-            oldPrm = strtrim(tline{1});
-            newPrm = strtrim(tline{2});
+            if back
+                oldPrm = strtrim(tline{2});
+                newPrm = strtrim(tline{1});
+            else
+                oldPrm = strtrim(tline{1});
+                newPrm = strtrim(tline{2});
+            end
 
             if startsWith(oldPrm, 'P.')
                 replaceMeP(end+1, :) = {oldPrm(3:end), newPrm(3:end)};
@@ -40,7 +50,7 @@ function twelve(filename)
         tline = fgetl(fh);
     end
     fclose(fh);
-    
+
     % write the new parameter file
     newlines = cell(0);
     fh = fopen(filename);
@@ -100,23 +110,32 @@ function twelve(filename)
     % rename _spkraw.jrc, _spkwav.jrc, _spkfet.jrc
     spkraw = [sessionName '_spkraw.jrc'];
     tracesBin = strrep(spkraw, 'spkraw.jrc', 'traces.bin');
-    if exist(spkraw, 'file')
+    if ~back && exist(spkraw, 'file')
         movefile(spkraw, tracesBin);
         fprintf('%s renamed to %s\n', spkraw, tracesBin);
+    elseif back && exist(tracesBin, 'file')
+        movefile(tracesBin, spkraw);
+        fprintf('%s renamed to %s\n', tracesBin, spkraw);
     end
 
     spkwav = [sessionName '_spkwav.jrc'];
     waveformsBin = strrep(spkwav, 'spkwav.jrc', 'waveforms.bin');
-    if exist(spkwav, 'file')
+    if ~back && exist(spkwav, 'file')
         movefile(spkwav, waveformsBin);
         fprintf('%s renamed to %s\n', spkwav, waveformsBin);
+    elseif back && exist(waveformsBin, 'file')
+        movefile(waveformsBin, spkwav);
+        fprintf('%s renamed to %s\n', waveformsBin, spkwav);
     end
 
     spkfet = [sessionName '_spkfet.jrc'];
     featuresBin = strrep(spkfet, 'spkfet.jrc', 'features.bin');
-    if exist(spkfet, 'file')
+    if ~back && exist(spkfet, 'file')
         movefile(spkfet, featuresBin);
         fprintf('%s renamed to %s\n', spkfet, featuresBin);
+    elseif back && exist(featuresBin, 'file')
+        movefile(featuresBin, spkfet);
+        fprintf('%s renamed to %s\n', featuresBin, spkfet);
     end
 
     % update variable names in the main .mat file
@@ -135,7 +154,7 @@ function twelve(filename)
                 S0 = rmfield(S0, oldField);
             end
         end
-        
+
         % update P
         P = S0.P;
         for i = 1:size(replaceMeP, 1)
@@ -148,7 +167,7 @@ function twelve(filename)
             end
         end
         S0.P = P;
-        
+
         % update S_clu
         S_clu = S0.S_clu;
         for i = 1:size(replaceMeS_clu, 1)
@@ -161,7 +180,7 @@ function twelve(filename)
             end
         end
         S0.S_clu = S_clu;
-        
+
         if nChanges > 0
             % backup immediately
             oldFilename = sprintf('%s-%s_jrc.mat', sessionName, timestamp);
@@ -171,7 +190,7 @@ function twelve(filename)
             fprintf('Old MAT file has been saved to %s.\n', oldFilename);
         end
     end
-    
+
     % update variable names in the _log.mat file
     logFile = [sessionName '_log.mat'];
     if exist(logFile, 'file')
