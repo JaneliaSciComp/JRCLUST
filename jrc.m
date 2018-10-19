@@ -41,7 +41,7 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
     fExit = 1;
     switch lower(vcCmd)
         % deprecated commands
-        case {'git-pull', 'issue', 'wiki', 'wiki-download', 'which', 'download'}
+        case {'git-pull', 'issue', 'wiki', 'wiki-download', 'which'}
             dep_warn_(vcCmd);
 
         case {'compile-ksort', 'kilosort', 'ksort', 'import-kilosort-sort', 'import-ksort-sort', 'kilosort-verify', 'ksort-verify', }

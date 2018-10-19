@@ -55,20 +55,14 @@ function keyPressFcn_FigProj_(hFig, event)
         ui_merge_(S0);
 
         case 'f'
-        % disp('keyPressFcn_FigProj_: ''f'': not implemented yet');
-            if strcmpi(P.vcFet_show, 'vpp')
-                switch P.vcFet
-                    case 'gpca' % don't let on that this is actually gpca in the x/y labels
-                        P.vcFet_show = 'pca';
-
-                    otherwise
-                        P.vcFet_show = P.vcFet;
-                end
-            else
-                P.vcFet_show = 'vpp';
-            end
-            set0_(P);
-            plot_FigProj_();
+        disp('keyPressFcn_FigProj_: ''f'': not implemented yet');
+        %         if strcmpi(P.vcFet_show, 'vpp')
+        %             S0.vcFet_show = P.vcFet;
+        %         else
+        %             S0.vcFet_show = 'vpp';
+        %         end
+        %         set(0, 'UserData', S0);
+        %         plot_FigProj_();
 
         case 'b' %background spikes
         toggleVisible_(S_fig.hPlot0);
