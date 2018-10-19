@@ -7,7 +7,7 @@ function export_prm_(vcFile_prm, vcFile_out_prm, fShow)
     if nargin<3, fShow = 1; end
 
     if isempty(vcFile_out_prm), vcFile_out_prm = vcFile_prm; end
-    copyfile(jrcpath_(read_cfg_('default_prm')), vcFile_out_prm, 'f');
+    copyfile(default_prm_path_(), vcFile_out_prm, 'f');
     P = get0_('P');
     if isempty(P), P = file2struct_(vcFile_prm); end
     edit_prm_file_(P, vcFile_out_prm);

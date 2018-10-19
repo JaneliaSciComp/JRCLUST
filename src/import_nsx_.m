@@ -22,7 +22,7 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     [~, vcFile_prb_] = fileparts(vcFile_prb);
     vcFile_prm = subsFileExt_(P.vcFile, sprintf('_%s.prm', vcFile_prb_));
     if isempty(vcTemplate_prm)
-        vcTemplate_prm = jrcpath_(read_cfg_('default_prm'));
+        vcTemplate_prm = default_prm_path_();
     end
     assert_(exist_file_(vcTemplate_prm), sprintf('Template file does not exist: %s', vcTemplate_prm));
 

@@ -15,7 +15,7 @@ function vcFile_full = jrcpath_(vcFile, fConditional)
             return;
         end
     end
-    vcFile_full = [jrcpath, filesep(), vcFile];
+    vcFile_full = fullfile(jrcpath, vcFile);
     % if exist(vcFile_full, 'file') ~= 2
     %     vcFile_full = [];
     % end

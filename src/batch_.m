@@ -11,7 +11,7 @@ function batch_(vcFile_batch, vcCommand)
         vcFile_template = vcCommand;
         vcCommand = 'spikesort';
     else
-        vcFile_template = jrcpath_(read_cfg_('default_prm'));
+        vcFile_template = default_prm_path_();
     end
 
     csFiles_prm = load_batch_(vcFile_batch);

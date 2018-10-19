@@ -11,7 +11,7 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
 
     % Add paths
     [dirname, ~] = fileparts(fullfile(mfilename('fullpath')));
-    addpath(genpath(fullfile(dirname, 'src'))); % .m, .cu, .ptx files
+    addpath(genpath(fullfile(dirname, 'src'))); % MATLAB and CUDA source files
 
     % input parse
     if nargin < 2
@@ -128,7 +128,7 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
             import_gt_silico_(vcArg1);
 
         case 'unit-test'
-            unit_test_(vcArg1, vcArg2, vcArg3);
+            unit_test_(vcArg1);
 
         case 'compile'
             compile_cuda_(vcArg1);

@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function nFailed = unit_test_(vcArg1, vcArg2, vcArg3)
+function nFailed = unit_test_(vcArg)
     % 2017/2/24. James Jun. built-in unit test suite (request from Karel Svoboda)
     % run unit test
     %[Usage]
@@ -12,12 +12,16 @@ function nFailed = unit_test_(vcArg1, vcArg2, vcArg3)
     % @TODO: test using multiple datasets and parameters.
     global fDebug_ui;
 
-    if nargin<1, vcArg1 = ''; end
-    if nargin<2, vcArg2 = ''; end
-    if nargin<3, vcArg3 = ''; end
+    if nargin < 1
+        vcArg = '';
+    end
 
-    cd(fileparts(mfilename('fullpath'))); % move to jrclust folder
-    if ~exist_file_('sample.bin')
+    basedir = fileparts(fileparts(mfilename('fullpath')));
+    cd(fullfile(basedir, 'test'));
+
+    if ~exist_file_('sample.bin') || ~exist_file_('sample.meta')
+        fprintf(2, 'test data missing');
+        fprintf(2, 'find test data at https://drive.google.com/drive/folders/1-UTasZWB0TwFFFV49jSrpRPHmtve34O0?usp=sharing');
         nFailed = 0;
         return;
     end
@@ -57,19 +61,22 @@ function nFailed = unit_test_(vcArg1, vcArg2, vcArg3)
     'jrc manual-test sample_sample.prm', ...
     }; %last one should be the manual test
 
-    if ~isempty(vcArg1)
-        switch lower(vcArg1)
+    if ~isempty(vcArg)
+        switch lower(vcArg)
             case {'show', 'info', 'list', 'help'}
-            arrayfun(@(i)fprintf('%d: %s\n', i, csCmd{i}), 1:numel(csCmd));
-            return;
+                arrayfun(@(i)fprintf('%d: %s\n', i, csCmd{i}), 1:numel(csCmd));
+                return;
+
             case {'manual', 'ui', 'ui-manual'}
-            iTest = numel(csCmd); % + [-1,0];
+                iTest = numel(csCmd); % + [-1,0];
+
             case {'traces', 'ui-traces'}
-            iTest = numel(csCmd)-2; % second last
+                iTest = numel(csCmd)-2; % second last
+
             otherwise
-            iTest = str2num(vcArg1);
+                iTest = str2num(vcArg);
         end
-        fprintf('Running test %s: %s\n', vcArg1, csCmd{iTest});
+        fprintf('Running test %s: %s\n', vcArg, csCmd{iTest});
         csCmd = csCmd(iTest);
     end
 

@@ -3,7 +3,7 @@
 % 10/5/17 JJJ: Error messages converted to warning
 % 7/26/17 JJJ: Code cleanup and testing
 function fSuccess = compile_cuda_(csFiles_cu)
-    if nargin<1 || isempty(csFiles_cu)
+    if nargin < 1 || isempty(csFiles_cu)
         S_cfg = read_cfg_();
         csFiles_cu = S_cfg.csFiles_cu3; %version 3 cuda
     elseif ischar(csFiles_cu)
@@ -19,16 +19,17 @@ function fSuccess = compile_cuda_(csFiles_cu)
         vcPath_nvcc = '/usr/local/cuda/bin/nvcc';
     end
 
-    % C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.5\bin
     for i=1:numel(csFiles_cu)
-        vcFile_ = jrcpath_(csFiles_cu{i});
-        vcCmd1 = sprintf('%s -ptx -m 64 -arch sm_35 "%s"', vcPath_nvcc, vcFile_);
+        vcFileCu_ = which(csFiles_cu{i});
+        vcFilePtx_ = fullfile(fileparts(vcFileCu_), strrep(csFiles_cu{i}, '.cu', '.ptx'));
+        vcCmd1 = sprintf('%s -ptx -m 64 -arch sm_35 "%s" --output-file "%s"', ...
+                         vcPath_nvcc, vcFileCu_, vcFilePtx_);
         fprintf('\t%s\n\t', vcCmd1);
         try
             status = system(vcCmd1);
             fSuccess = fSuccess && (status==0);
         catch
-            fprintf('\tWarning: CUDA could not be compiled: %s\n', vcFile_);
+            fprintf('\tWarning: CUDA could not be compiled: %s\n', vcFileCu_);
         end
     end
     if ~fSuccess

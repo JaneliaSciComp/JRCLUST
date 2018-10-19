@@ -72,7 +72,7 @@ function import_h5_(vcFile_h5)
     % Create prm file
     P.probe_file = sprintf('boyden%d.prb', P.nChans);
     P.vcFile_prm = [strrep(P.vcFile, '.bin', '_'), strrep(P.probe_file, '.prb', '.prm')];
-    copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
+    copyfile(default_prm_path_(), P.vcFile_prm, 'f');
     edit_prm_file_(P, P.vcFile_prm);
     assignWorkspace_(P, S_gt);
     fprintf('Created .prm file: %s\n', P.vcFile_prm);

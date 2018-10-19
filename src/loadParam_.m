@@ -2,9 +2,12 @@
 function [P, vcFile_prm] = loadParam_(vcFile_prm, fEditFile)
     % Load prm file
 
-    if nargin<2, fEditFile = 1; end
+    if nargin < 2
+        fEditFile = 1;
+    end
     assert(exist_file_(vcFile_prm), sprintf('.prm file does not exist: %s\n', vcFile_prm));
-    P0 = file2struct_(jrcpath_(read_cfg_('default_prm', 0))); %P = defaultParam();
+
+    P0 = file2struct_(default_prm_path_()); %P = defaultParam();
     P = file2struct_(vcFile_prm);
     if ~isfield(P, 'template_file'), P.template_file = ''; end
     if ~isempty(P.template_file)

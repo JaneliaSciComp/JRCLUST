@@ -12,7 +12,7 @@ function save_err_(hErr, vcMsg)
     eval(sprintf('%s = S_err;', vcVar_err));
 
     % save to a file
-    vcFile_err = fullfile(jrcpath_(), 'jrc_log_error.mat');
+    vcFile_err = fullfile(fileparts(jrcpath_()), 'jrc_log_error.mat');
     if ~exist_file_(vcFile_err)
         save(vcFile_err, vcVar_err, '-v7.3');
     else

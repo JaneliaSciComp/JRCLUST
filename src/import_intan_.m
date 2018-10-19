@@ -45,7 +45,7 @@ function vcFile_prm = import_intan_(vcFile_dat, vcFile_prb, vcArg3)
     P.version = jrc_version_();
     P.vcFile_prm = vcFile_prm;
     P.vcFile = vcFile_bin;
-    copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
+    copyfile(default_prm_path_(), P.vcFile_prm, 'f');
     edit_prm_file_(P, P.vcFile_prm);
     vcPrompt = sprintf('Created a new parameter file\n\t%s', P.vcFile_prm);
     disp(vcPrompt);

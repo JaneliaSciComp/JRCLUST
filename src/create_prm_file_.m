@@ -6,9 +6,11 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     if nargin<2, vcFile_prb = ''; end
     if nargin<3, vcFile_template = ''; end
     if nargin<4, fAsk = 1; end
+    
+    basedir = fileparts(jrcpath_());
 
     [P, vcPrompt] = deal([]);
-    P0 = file2struct_(jrcpath_(read_cfg_('default_prm'))); %P = defaultParam();
+    P0 = file2struct_(fullfile(basedir, read_cfg_('default_prm'))); %P = defaultParam();
     if ~isempty(vcFile_template)
         if exist(vcFile_template, 'file') == 2
             P0 = struct_merge_(P0, file2struct_(vcFile_template));
@@ -19,7 +21,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
         end
     end
 
-    if any(vcFile_bin=='*') %wild card provided
+    if any(vcFile_bin == '*') %wild card provided
         P.csFile_merge = vcFile_bin;
         vcFile_bin = strrep(vcFile_bin, '*', '');
     elseif isTextFile_(vcFile_bin)
@@ -27,8 +29,10 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
         %     vcFile_bin = subsFileExt_(vcFile_bin, '.bin');
     else
         if ~exist_file_(vcFile_bin)
-            vcFile_bin_ = jrcpath_(vcFile_bin);
-            if exist(vcFile_bin_, 'file') == 2, vcFile_bin = vcFile_bin_; end
+            vcFile_bin_ = fullfile(basedir, vcFile_bin);
+            if exist(vcFile_bin_, 'file') == 2
+                vcFile_bin = vcFile_bin_;
+            end
         end
         if exist_file_(vcFile_bin)
             P.vcFile = vcFile_bin;
@@ -51,9 +55,23 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
             vcFile_meta = subsFileExt_(csFiles_bin{1}, '.meta');
         end
     end
-    vcFile_meta = jrcpath_(vcFile_meta, 1);
+    
+    if ~exist(vcFile_meta, 'file') == 2
+        vcFile_meta = fullfile(basedir, vcFile_meta);
+    end
+    if ~exist_file_(vcFile_meta)
+        vcFile_meta_ = fullfile(basedir, vcFile_meta);
+        if exist(vcFile_meta_, 'file') == 2
+            vcFile_meta = vcFile_meta_;
+        end
+    end
+
     P_meta = read_meta_file_(vcFile_meta);
-    if isempty(P_meta), P=[]; return; end
+
+    if isempty(P_meta)
+        P = [];
+        return;
+    end
 
     % Get the probe file if missing
     if isempty(vcFile_prb)
@@ -105,11 +123,12 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
     P = struct_merge_(P, file_info_(vcFile_bin));
     P.duration_file = P.nBytes_file / bytesPerSample_(P.vcDataType) / P.nChans / P.sRateHz; %assuming int16
     P.version = jrc_version_();
+
     try
-        copyfile(jrcpath_(read_cfg_('default_prm')), P.vcFile_prm, 'f');
+        defaultPrm = fullfile(basedir, read_cfg_('default_prm'));
+        copyfile(defaultPrm, P.vcFile_prm, 'f');
     catch
-        fprintf(2, 'Invalid path: %s\n', P.vcFile_prm);
-        return;
+        error('Failed to copy %s to %s\n', defaultPrm, P.vcFile_prm);
     end
 
     % Write to prm file
