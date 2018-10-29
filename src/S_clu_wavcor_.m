@@ -27,7 +27,7 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
     P.fGpu = 0;
     nShift = ceil(P.spkRefrac_ms / 1000 * P.sRateHz * nInterp_merge); % +/-n number of samples to compare time shift
     % nShift = 0;
-    fWaveform_raw = get_set_(P, 'fWavRaw_merge', 0); % get_set_(P, 'fWavRaw_merge', 1); TW
+    fWaveform_raw = get_set_(P, 'fWavRaw_merge', 1); % revert TW: get_set_(P, 'fWavRaw_merge', 0);
 
     fZeroStart_raw = get_set_(P, 'fZeroStart_raw', 0);
     fRankCorr_merge = get_set_(P, 'fRankCorr_merge', 0);
