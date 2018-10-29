@@ -17,7 +17,7 @@ header_offset = 0;          % File header offset (set to 0 for files containing 
 
 % #Execution parameters
 version = 'v3.2.5';         % JRCLUST version. Updated on Jan 8, 2018
-fVerbose = 0;               % Verbose flag, set to 0 to suppress displaying extra information 
+fVerbose = 0;               % Verbose flag, set to 0 to suppress displaying extra information
 fParfor = 1;                % Use Multiple CPU cores (if parallel processing toolbox is installed)
 fGpu = 1;                   % Use GPU if parallel processing toolbox is installed
 iGpu = 1;                   % Use specific GPU ID (run 'gpuDevice()' to retrieve the list of GPUs)
@@ -34,7 +34,7 @@ fRamCache = 1;              % Cache both raw and filtered spike waveforms in RAM
 fSavePlot_RD = 1;           % Save the Rho-Delta plot as .png file (prefix: '_RD.png' at the end of the .prm file name)
 
 % #Display parameters (Affects display only, (*):Can be modified in the manual GUI)
-tlim = [0, .2];             % Time range to display 
+tlim = [0, .2];             % Time range to display
 nTime_traces = 1;           % Number of time segments to display. Set to 1 to show one continuous time segment
 nSkip_show = 1;             % Show 1 in n samples when plotting traces
 fSpike_show = 1;            % show spikes in the trace view (*)
@@ -52,7 +52,7 @@ fText = 1;                  % Show spike count per unit (*, press 'n' to toggle 
 tlim_load = [];             % Time range to load in sec (uses all time range if set to empty)
 vcFilter = 'ndiff';         % {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
 nDiff_filt = 2;			    % Differentiation filter for vcFilter='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
-freqLim = [300, 3000];      % Frequency cut-off limit for vcFilter='bandpass', ignored otherwise. 
+freqLim = [300, 3000];      % Frequency cut-off limit for vcFilter='bandpass', ignored otherwise.
 filtOrder = 3;              % Bandpass filter order
 fEllip = 1;                 % Use Elliptic filter. set to 0 for Butterworth filter. Only valid for vcFilter='bandpass'.
 vnFilter_user = [];         % User-specified filter kernel. Used if vcFilter='user' is set.
@@ -104,7 +104,8 @@ min_sites_mask = 5;         % Minimum number of sites to have to apply spatial m
 % #Post-cluster auto-merging parameters (run "jrc auto" after change)
 delta1_cut = .6;            % RL cluster: delta cut-off. Increasing this will produce less clusters.
 rho_cut = -2.5;             % RL cluster: rho cut-off. Decreasing (more negative) this will produce more clusters.
-maxWavCor = .98;            % merge if waveform correlation is greater than maxWavCor.
+maxWavCor = .98;            % merge if waveform autoMergeCriterion is greater than maxWavCor.
+autoMergeCriterion = 'xcorr'; % 'xcorr' (Pearson correlation coefficient), 'dist' (1 - normalized distance between mean waveforms)
 min_count = 30;             % Minimum cluster size (min_count will be set to 2*#features if lower).
 nRepeat_merge = 10;         % # of repeats for average unit raw waveform based merging
 vcDetrend_postclu = 'global'; % 'none', 'hidehiko', 'global', 'local', 'logz'
@@ -135,7 +136,7 @@ filter_shape_rate = 'triangle';     % {'triangle', 'rectangle'} kernel shape for
 % #Aux channel (used for correlating with the unit firing rates)
 vcFile_aux = '';            % Aux channel file
 sRateHz_aux = [];           % sampling rate for aux file
-iChan_aux = [];             % Aux channel # to correlate with the unit firing rate    
+iChan_aux = [];             % Aux channel # to correlate with the unit firing rate
 vcLabel_aux = '';           % Label for the aux channel
 vrScale_aux = 1;            % Scale factor for the aux input
 nClu_show_aux = 10;         % Max # clusters to show for aux vs. firing rate correlation
@@ -173,7 +174,7 @@ thresh_corr_track = [];         % Deprecated. correlation drop-off
 viDepth_track = [];             % Range of sites to track. set to empty to ignore
 fUseCache_track = 0;            % Use pre-stored result
 maxSite_track = 2:8;              % maximum distance for a site pair
-nw_lcm_track = 1;               % number of windows for local center of mass 
+nw_lcm_track = 1;               % number of windows for local center of mass
 max_shift_track = [];            % maximum shift distance per bin
 fSingleColumn_track = 1;        % Disable by default
 viSite_bad_track = [];          % Sites to ignore
@@ -247,7 +248,7 @@ dc_frac = [];
 dc_factor = 1;              % higher: merge more, lower: split more
 tlim_clu = [];              % time range to cluster, referenced from tlim_load in sec
 vcCluDist = 'eucldist';    % Distance: {'neucldist_offset', 'nmaxdist_offset', 'nmaxdist', 'corrdist', 'neucldist', 'eucldist'};
-fMeanSiteRef = 0;           % Subtract by mean 
+fMeanSiteRef = 0;           % Subtract by mean
 maxSite_sort = [];          % max site distance to compare cluster membership
 maxSite_merge = [];        % Number of sites (2n+1) to merge based on waveform similarity
 vcDc_clu = 'distr';         % use noise distribution to determine cutoff {noise, distr, entropy, otsu}
