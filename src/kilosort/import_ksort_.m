@@ -109,8 +109,8 @@ function import_ksort_(vcFile_prm)
 
     % construct P from scratch
     P.fImportKsort = 1;
-    P.vcFile = rez.ops.fbinary;
-    P.csFile_merge = '';
+    P.vcFile = get_set_(P, 'vcFile', rez.ops.fbinary);
+    P.csFile_merge = ''; % kilosort takes concatenated files
     P.sRateHz = rez.ops.fs;
 
     % probe
@@ -142,24 +142,24 @@ function import_ksort_(vcFile_prm)
     P.maxSite = get_set_(P, 'maxSite', 6.5); % TODO: allow user to set
     P.nSites_ref = get_set_(P, 'nSites_ref', 0); % TODO: address
 
-    P.spkLim_ms = get_set_(P, 'spkLim_ms', [-.25 .75]); % default
-    P.spkLim = get_set_(P, 'spkLim', round(P.spkLim_ms/1000*P.sRateHz)); % default
+    P.spkLim_ms = get_set_(P, 'spkLim_ms', [-.25 .75]); % JRC default
+    P.spkLim = get_set_(P, 'spkLim', round(P.spkLim_ms/1000*P.sRateHz)); % JRC default
     P.spkLim_raw = get_set_(P, 'spkLim_raw', ceil(size(trTemplates, 2)/2) * [-1, 1]); % TODO: address
 
     P.corrLim = get_set_(P, 'corrLim', [.75 1]);
     P.fDrift_merge = get_set_(P, 'fDrift_merge', 0); % do not attempt drift correction
-    P.nPaddingSamples = get_set_(P, 'nPaddingSamples', 100); % default
-    P.qqFactor = get_set_(P, 'qqFactor', 5); % default
-    P.nPcPerChan = get_set_(P, 'nPcPerChan', 1); % default
+    P.nPaddingSamples = get_set_(P, 'nPaddingSamples', 100); % JRC default
+    P.qqFactor = get_set_(P, 'qqFactor', 5); % JRC default
+    P.nPcPerChan = get_set_(P, 'nPcPerChan', 1); % JRC default
     P.nTime_clu = get_set_(P, 'nTime_clu', 1); % spikes detected and clustered over entire time series
-    P.uV_per_bit = get_set_(P, 'uV_per_bit', 0.305176); % default TODO: use inputdlg_
-    P.spkRefrac_ms = get_set_(P, 'spkRefrac_ms', .25); % default
+    P.uV_per_bit = get_set_(P, 'uV_per_bit', 0.305176); % JRC default
+    P.spkRefrac_ms = get_set_(P, 'spkRefrac_ms', .25); % JRC default
 
     P.viSiteZero = get_set_(P, 'viSiteZero', []);
     P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site);
     P.fGPU = double(gpuDeviceCount() > 0);
 
-    P.vcFet = 'gpca'; % default; TODO: allow user to configure
+    P.vcFet = get_set_(P, 'vcFet', 'gpca'); % JRC default
 
     S0 = file2spk_(P, int32(viTime_spk), int32(viSite_spk));
     P = save_prb_([vcName_session '-probe.mat'], P);
