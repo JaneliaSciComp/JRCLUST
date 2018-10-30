@@ -21,6 +21,11 @@ function S_clu = delete_clu_(S_clu, viClu_delete)
     viMap(viClu_keep) = 1:nClu_new;
     S_clu.viClu(vlMap) = viMap(S_clu.viClu(vlMap));
     S_clu.nClu = nClu_new;
+
+    % recompute similarity scores
+    if isfield(S_clu, 'mrSim_clu')
+        S_clu = sim_score_(S_clu);
+    end
     % update viClu
     % if viClu_delete < max(S_clu.viClu)
     %     viUpdate = find(S_clu.viClu>viClu_delete);
