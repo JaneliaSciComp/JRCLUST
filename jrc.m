@@ -49,9 +49,6 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
         case 'download'
             dep_warn_(vcCmd, 'You can find sample.bin and sample.meta at https://drive.google.com/drive/folders/1-UTasZWB0TwFFFV49jSrpRPHmtve34O0?usp=sharing');
 
-        case {'import-kilosort', 'import-ksort'}
-            dep_warn_(vcCmd, 'This functionality is available (but experimental) in a feature branch');
-
         case {'doc', 'doc-edit'}
             dep_warn_(vcCmd, 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki');
 
