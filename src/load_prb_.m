@@ -11,9 +11,14 @@ function P = load_prb_(vcFile_prb, P)
         error(['Probe file does not exist: ', vcFile_prb]);
     end
 
-    P.probe_file = vcFile_prb;
-    %     [P.viSite2Chan, P.mrSiteXY, P.vrSiteHW, P.cviShank] = read_prb_file(vcFile_prb);
-    S_prb = file2struct_(vcFile_prb);
+    % allow user to specify a MAT file for a probe
+    try
+        S_prb = load(vcFile_prb, '-mat');
+    catch
+        P.probe_file = vcFile_prb;
+        S_prb = file2struct_(vcFile_prb);
+    end
+
     P.viSite2Chan = S_prb.channels;
     P.mrSiteXY = S_prb.geometry;
     P.vrSiteHW = S_prb.pad;
@@ -29,7 +34,7 @@ function P = load_prb_(vcFile_prb, P)
         P.viShank_site = S_prb.shank;
     end
     S_prb = remove_struct_(S_prb, 'channels', 'geometry', 'pad', 'ref_sites', ...
-    'viHalf', 'i', 'vcFile_file2struct', 'shank', 'cviShank');
+                           'viHalf', 'i', 'vcFile_file2struct', 'shank', 'cviShank');
 
     % P = copyStruct_(P, S_prb, {'cviShank', 'maxSite', 'um_per_pix'});
     if isfield(P, 'nChans')
