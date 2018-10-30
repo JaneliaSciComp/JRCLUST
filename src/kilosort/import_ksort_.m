@@ -180,7 +180,7 @@ function import_ksort_(vcFile_prm)
 
     S_clu.nClu = nClu;
     S_clu.viClu = viClu;
-    S_clu.viCluAuto = viTemplate_spk;
+    S_clu.viClu_auto = viTemplate_spk;
 
     S_clu.csNote_clu = cell(nClu, 1);
     S_clu.viSite_clu = viSite_clu;
