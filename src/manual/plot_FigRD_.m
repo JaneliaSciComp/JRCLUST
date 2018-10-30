@@ -6,6 +6,10 @@ function S_clu = plot_FigRD_(S_clu, P)
     % P.y_max = 1;
     % P.fAskUser = 1;
 
+    if get_set_(P, 'fImportKsort', 0)
+        return;
+    end
+
     [hFig, S_fig] = get_fig_cache_('FigRD');
     figure(hFig); clf;
 
