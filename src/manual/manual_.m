@@ -3,11 +3,13 @@ function manual_(P, vcMode)
     % display manual sorting interface
     global fDebug_ui trFet_spk
 
-    if nargin<2, vcMode = 'normal'; end %{'normal', 'debug'}
+    if nargin < 2
+        vcMode = 'normal';
+    end %{'normal', 'debug'}
 
     % Load info
     if ~is_sorted_(P)
-        fprintf(2, 'File must to be sorted first (run "jrc spikesort %s")\n', P.vcFile_prm);
+        fprintf(2, 'File must be sorted first (run "jrc spikesort %s")\n', P.vcFile_prm);
         return;
     end
     [S0, P] = load_cached_(P);
@@ -18,27 +20,25 @@ function manual_(P, vcMode)
     fDebug_ui = 0;
     P.fGpu = 0; %do not use GPU for manual use
     set0_(fDebug_ui, P);
-    switch lower(vcMode)
-        case 'normal'
+    if strcmpi(vcMode, 'normal')
         if ~isempty(get_set_(S0, 'cS_log', {}))
             switch lower(questdlg_('Load last saved?', 'Confirmation'))
                 case 'no'
-                [S_clu, S0] = post_merge_(S0.S_clu, P);
-                S0 = clear_log_(S0);
+                    [S_clu, S0] = post_merge_(S0.S_clu, P);
+                    S0 = clear_log_(S0);
                 case 'cancel'
-                return;
+                    return;
                 case 'yes'
-                S0 = set0_(P); %update the P structure
-                S0.S_clu = S_clu_update_wav_(S0.S_clu, P);
+                    S0 = set0_(P); %update the P structure
+                    S0.S_clu = S_clu_update_wav_(S0.S_clu, P);
             end
         end
-
-        case 'debug'
+    elseif strcmpi(vcMode, 'debug')
         fDebug_ui = 1;
         S0 = set0_(fDebug_ui);
         [S_clu, S0] = post_merge_(S0.S_clu, P); %redo the clustering (reset to auto)
         S0 = set0_(P);
-    end
+    end % if
 
     % Create figures
     hMsg = msgbox_('Plotting... (this closes automatically)'); t1=tic;
