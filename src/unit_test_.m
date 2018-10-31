@@ -20,7 +20,7 @@ function nFailed = unit_test_(vcArg)
     cd(fullfile(basedir, 'test'));
 
     if ~exist_file_('sample.bin') || ~exist_file_('sample.meta')
-        fprintf(2, 'test data missing');
+        fprintf(2, 'test data missing\n');
         fprintf(2, 'find test data at https://drive.google.com/drive/folders/1-UTasZWB0TwFFFV49jSrpRPHmtve34O0?usp=sharing');
         nFailed = 0;
         return;

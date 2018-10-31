@@ -33,6 +33,11 @@ function S_clu = split_clu_(iClu1, vlIn)
     end
     S_clu.viClu(viSpk2) = iClu2; %change cluster number
     S_clu = S_clu_update_(S_clu, [iClu1, iClu2], P);
+    
+    % recompute sim scores
+    if isfield(S_clu, 'mrSim_clu')
+        S_clu = sim_score_(S_clu);
+    end
 
     % Bring the new cluster right next to the old one using index swap
     [S_clu, iClu2] = clu_reorder_(S_clu, iClu1);
@@ -46,6 +51,6 @@ function S_clu = split_clu_(iClu1, vlIn)
     % select two clusters being split
     button_CluWav_simulate_(iClu1, iClu2);
     close_(hMsg);
-    fprintf('%s [W] splited Clu %d\n', datestr(now, 'HH:MM:SS'), iClu1);
+    fprintf('%s [W] splitted Clu %d\n', datestr(now, 'HH:MM:SS'), iClu1);
     figure_wait_(0);
 end %func

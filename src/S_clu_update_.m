@@ -26,5 +26,6 @@ function S_clu = S_clu_update_(S_clu, viClu1, P)
     end
     S_clu = S_clu_position_(S_clu, viClu1);
     S_clu = S_clu_quality_(S_clu, P, viClu1);
+
     % [S_clu, S0] = S_clu_commit_(S_clu, 'S_clu_update_');
 end %func

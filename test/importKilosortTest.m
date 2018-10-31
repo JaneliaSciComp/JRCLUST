@@ -1,15 +1,12 @@
 function tests = importKilosortTest
 %IMPORTKILOSORTTEST tests for import_ksort_
-if isempty(getenv('JRCTESTDATA'))
-    assert(0 == 1);
-else
-    tests = functiontests(localfunctions);
-end
+tests = functiontests(localfunctions);
 end % function
 
 % SETUP
 function setupOnce(testCase)  % do not change function name
 dataDir = getenv('JRCTESTDATA');
+fatalAssertNotEmpty(testCase, dataDir);
 dataSources = fullfile(fileparts(dataDir), 'data_sources');
 testDir = fullfile(dataDir, 'importKilosort', 'eMouse');
 
@@ -55,6 +52,7 @@ jrc('clear', prmFile);
 
 % clean up files
 delete(fullfile(testDir, 'test.prm'));
+delete(fullfile(testDir, 'test_full.prm'));
 delete(fullfile(testDir, 'test_spkfet.jrc'));
 delete(fullfile(testDir, 'test_spkraw.jrc'));
 delete(fullfile(testDir, 'test_spkwav.jrc'));

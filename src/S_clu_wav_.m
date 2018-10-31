@@ -67,9 +67,13 @@ function S_clu = S_clu_wav_(S_clu, viClu_update, fSkipRaw)
                 [mrWav_clu1, viSite_clu1, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_clu, tnWav_, iClu, S0);
                 if isempty(mrWav_clu1), continue; end
                 [tmrWav_raw_clu(:,viSite_clu1,iClu), trWav_raw_clu(:,:,iClu)] = deal(meanSubt_(mrWav_clu1) * P.uV_per_bit);
-                if isempty(mrWav_lo_clu1) || isempty(mrWav_hi_clu1), continue; end
-                tmrWav_raw_lo_clu(:,viSite_clu1,iClu) = meanSubt_(mrWav_lo_clu1) * P.uV_per_bit;
-                tmrWav_raw_hi_clu(:,viSite_clu1,iClu) = meanSubt_(mrWav_hi_clu1) * P.uV_per_bit;
+                if isempty(mrWav_lo_clu1) || isempty(mrWav_hi_clu1)
+                    tmrWav_raw_lo_clu(:,viSite_clu1,iClu) = zeros(nSamples_raw, numel(viSite_clu1));
+                    tmrWav_raw_hi_clu(:,viSite_clu1,iClu) = zeros(nSamples_raw, numel(viSite_clu1));
+                else
+                    tmrWav_raw_lo_clu(:,viSite_clu1,iClu) = meanSubt_(mrWav_lo_clu1) * P.uV_per_bit;
+                    tmrWav_raw_hi_clu(:,viSite_clu1,iClu) = meanSubt_(mrWav_hi_clu1) * P.uV_per_bit;
+                end
             end
             if fVerbose, fprintf('.'); end
         end %clu
