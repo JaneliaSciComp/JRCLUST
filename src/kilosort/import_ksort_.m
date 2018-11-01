@@ -109,6 +109,7 @@ function import_ksort_(vcFile_prm)
 
     % construct P from scratch
     P.fImportKsort = 1;
+    P.vcFet_show = 'kilosort';
     P.vcFile = get_set_(P, 'vcFile', rez.ops.fbinary);
     P.csFile_merge = ''; % kilosort takes concatenated files
     P.sRateHz = rez.ops.fs;
