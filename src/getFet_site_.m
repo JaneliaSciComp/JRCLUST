@@ -16,9 +16,10 @@ function [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, iClu, S0)
     % label
     switch lower(P.vcFet_show)
         case {'vpp', 'vmin'} %voltage feature
-        vcYlabel = sprintf('Site %d (\\mu%s)', iSite, P.vcFet_show);
+            vcYlabel = sprintf('Site %d (\\mu%s)', iSite, P.vcFet_show);
+
         otherwise %other feature options
-        vcYlabel = sprintf('Site %d (%s)', iSite, P.vcFet_show);
+            vcYlabel = sprintf('Site %d (%s)', iSite, P.vcFet_show);
     end
 
 end %func

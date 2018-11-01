@@ -1,7 +1,12 @@
 %--------------------------------------------------------------------------
 function plot_FigProj_(S0)
-    if nargin<1, S0 = get(0, 'UserData'); end
-    S_clu = S0.S_clu; P = S0.P;
+    if nargin < 1
+        S0 = get(0, 'UserData');
+    end
+
+    S_clu = S0.S_clu;
+    P = S0.P;
+
     [hFig, S_fig] = get_fig_cache_('FigProj');
 
     iClu1 = S0.iCluCopy;
@@ -20,11 +25,12 @@ function plot_FigProj_(S0)
     cell_plot = {'Marker', 'o', 'MarkerSize', 1, 'LineStyle', 'none'};
     switch lower(P.vcFet_show)
         case {'vpp', 'vmin', 'vmax'}
-        vcXLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
-        vcYLabel = 'Site # (%0.0f \\muV_{min})';
+            vcXLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
+            vcYLabel = 'Site # (%0.0f \\muV_{min})';
+
         otherwise
-        vcXLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.vcFet_show, P.vcFet_show, P.vcFet_show);
-        vcYLabel = sprintf('Site # (%%0.0f %s)', P.vcFet_show);
+            vcXLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.vcFet_show, P.vcFet_show, P.vcFet_show);
+            vcYLabel = sprintf('Site # (%%0.0f %s)', P.vcFet_show);
     end
     vcTitle = '[H]elp; [S]plit; [B]ackground; (Sft)[Up/Down]:Scale; [Left/Right]:Sites; [M]erge; [F]eature';
 
