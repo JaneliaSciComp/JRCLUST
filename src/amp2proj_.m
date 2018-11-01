@@ -17,8 +17,10 @@ function [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, maxPair, P
         vrY1 = mrMin(:,chY);
         vlY1 = vrY1>0 & vrY1<1;
         for chX = 1:nChans
-            if abs(chX-chY) > maxPair, continue; end
-            if chY > chX
+            if abs(chX-chY) > maxPair
+                continue;
+            end
+            if strcmpi(P.vcFet_show, 'vpp') && chY > chX
                 vrX1 = mrMin(:,chX);
             else
                 vrX1 = mrMax(:,chX);
