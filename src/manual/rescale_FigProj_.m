@@ -37,6 +37,12 @@ function S_fig = rescale_FigProj_(event, hFig, S_fig, S0)
         case {'vpp', 'vmin', 'vmax'}
             S_fig.vcXLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
             S_fig.vcYLabel = 'Site # (%0.0f \\muV_{min})';
+            
+        case {'kilosort', 'pca', 'gpca', 'ppca'}
+            S0.pcPair = get_set_(S0, 'pcPair', [1 2]);
+
+            S_fig.vcXLabel = sprintf('Site # (PC %d)', S0.pcPair(1));
+            S_fig.vcYLabel = sprintf('Site # (PC %d)', S0.pcPair(2));
 
         otherwise
             S_fig.vcXLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.vcFet_show, P.vcFet_show, P.vcFet_show);
@@ -59,9 +65,22 @@ function rescaleProj_(vhPlot1, maxAmp, P)
     for iPlot = 1:numel(vhPlot1)
         hPlot1 = vhPlot1(iPlot);
         S_plot1 = get(hPlot1, 'UserData');
+        if isempty(S_plot1)
+            continue;
+        end
         update_plot2_proj_();
         S_plot1 = struct_delete_(S_plot1, 'hPoly'); %, 'hPlot_split'
-        [vrX, vrY, viPlot] = amp2proj_(S_plot1.mrMin, S_plot1.mrMax, maxAmp, P.maxSite_show, P);
+        
+        switch lower(P.vcFet_show)
+            case {'vpp', 'vmin', 'vmax'}
+                bounds = maxAmp*[0 1];
+                
+            otherwise
+                bounds = maxAmp*[-1 1];
+                
+        end % switch
+
+        [vrX, vrY, viPlot] = amp2proj_(S_plot1.mrMin, S_plot1.mrMax, bounds, P.maxSite_show, P);
         S_plot1 = struct_add_(S_plot1, viPlot, vrX, vrY, maxAmp);
         set(hPlot1, 'XData', vrX, 'YData', vrY, 'UserData', S_plot1);
     end

@@ -16,17 +16,38 @@ function plot_FigProj_(S0)
     %---------------
     % Compute
     iSite1 = S_clu.viSite_clu(iClu1);
-    % miSites = P.miSites;
+    
+    nSitesFigProj = get_set_(P, 'nSitesFigProj', 5); % by request
+    nSites = min(nSitesFigProj, size(P.miSites, 1));
+
     if ~isfield(P, 'viSites_show')
-        P.viSites_show = sort(P.miSites(:, iSite1), 'ascend');
+        % P.viSites_show = sort(P.miSites(:, iSite1), 'ascend');
+
+        % center sites around cluster center site
+        if nSites < size(P.miSites, 1)
+            P.viSites_show = iSite1:iSite1 + nSites - 1;
+            if P.viSites_show(end) > max(P.viSite2Chan) % correct for overshooting
+                P.viSites_show = P.viSites_show - max(P.viSites_show) + max(P.viSite2Chan);
+            end
+        else
+            P.sitesOfInterest = sort(P.miSites(:, iSite1), 'ascend');
+        end
     end
+
     viSites_show = P.viSites_show;
-    nSites = numel(P.viSites_show);
+
     cell_plot = {'Marker', 'o', 'MarkerSize', 1, 'LineStyle', 'none'};
+
     switch lower(P.vcFet_show)
         case {'vpp', 'vmin', 'vmax'}
             vcXLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
             vcYLabel = 'Site # (%0.0f \\muV_{min})';
+            
+        case {'kilosort', 'pca', 'gpca', 'ppca'}
+            S0.pcPair = get_set_(S0, 'pcPair', [1 2]);
+
+            vcXLabel = sprintf('Site # (PC %d)', S0.pcPair(1));
+            vcYLabel = sprintf('Site # (PC %d)', S0.pcPair(2));
 
         otherwise
             vcXLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', P.vcFet_show, P.vcFet_show, P.vcFet_show);
@@ -54,11 +75,14 @@ function plot_FigProj_(S0)
         S_fig.cvhHide_mouse = mouse_hide_(hFig, S_fig.hPlot0, S_fig);
         set_fig_(hFig, S_fig);
     end
+
     % get features for x0,y0,S_plot0 in one go
-    %[mrMin, mrMax, vi0, vi1, vi2] = fet2proj_(S0, P.viSites_show);
     [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, P.viSites_show);
-    % S_fig.maxAmp %debug
-    if ~isfield(S_fig, 'viSites_show'), S_fig.viSites_show = []; end
+
+    if ~isfield(S_fig, 'viSites_show')
+        S_fig.viSites_show = [];
+    end
+
     if ~equal_vr_(S_fig.viSites_show, P.viSites_show) || ...
         ~equal_vr_(S_fig.vcFet_show, P.viSites_show)
         plot_proj_(S_fig.hPlot0, mrMin0, mrMax0, P, S_fig.maxAmp);
@@ -78,27 +102,39 @@ function plot_FigProj_(S0)
     set(S_fig.hAx,'XTick',.5:1:nSites,'YTick',.5:1:nSites, 'XTickLabel', P.viSites_show, 'YTickLabel', P.viSites_show, 'Box', 'off');
     xlabel(S_fig.hAx, sprintf(vcXLabel, S_fig.maxAmp));
     ylabel(S_fig.hAx, sprintf(vcYLabel, S_fig.maxAmp));
+
+    % set fig data
     title_(S_fig.hAx, vcTitle);
+
     vcFet_show = P.vcFet_show;
-    S_fig = struct_merge_(S_fig, ...
-    makeStruct_(vcTitle, iClu1, iClu2, viSites_show, vcXLabel, vcYLabel, vcFet_show));
-    S_fig.csHelp = { ...
-    '[D]raw polygon', ...
-    '[S]plit cluster', ...
-    '(shift)+Up/Down: change scale', ...
-    '[R]eset scale', ...
-    'Zoom: mouse wheel', ...
-    'Drag while pressing wheel: pan'};
+
+    S_fig = struct_merge_(S_fig, makeStruct_(vcTitle, iClu1, iClu2, viSites_show, vcXLabel, vcYLabel, vcFet_show));
+    S_fig.csHelp = {'[D]raw polygon', ...
+                    '[S]plit cluster', ...
+                    '(shift)+Up/Down: change scale', ...
+                    '[R]eset scale', ...
+                    'Zoom: mouse wheel', ...
+                    'Drag while pressing wheel: pan'};
     set(hFig, 'UserData', S_fig);
 end %func
 
 %% local functions
 function plot_proj_(hPlot, mrMin, mrMax, P, maxAmp)
-    if nargin<5
+    if nargin < 5
         [~, S_fig] = get_fig_cache_('FigProj');
         maxAmp = S_fig.maxAmp;
     end
-    [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, P.maxSite_show, P);
+
+    switch lower(P.vcFet_show)
+        case {'vpp', 'vmin', 'vmax'}
+            bounds = maxAmp*[0 1];
+
+        otherwise
+            % round up to nearest 50 on either side of 0
+            bounds = maxAmp*[-1 1];
+    end
+
+    [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, bounds, P.maxSite_show, P);
 
     % make struct
     maxPair = P.maxSite_show;

@@ -1,57 +1,74 @@
 %--------------------------------------------------------------------------
-function [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, maxAmp, maxPair, P)
-    if nargin<4, maxPair = []; end
-    if nargin<5, P = get0_('P'); end
-    % switch lower(P.vcFet_show)
-    %     case {'vpp', 'vmin', 'vmax'}
-    %         mrMax = linmap_(mrMax', [0, maxAmp/2], [0,1], 1);
-    %         mrMin = linmap_(mrMin', [0, maxAmp], [0,1], 1);
-    %     otherwise
-    mrMax = linmap_(mrMax', [0, 1] * maxAmp, [0,1], 1);
-    mrMin = linmap_(mrMin', [0, 1] * maxAmp, [0,1], 1);
-    % end
-    [nEvt, nChans] = size(mrMin);
-    if isempty(maxPair), maxPair = nChans; end
-    [trX, trY] = deal(nan([nEvt, nChans, nChans], 'single'));
-    for chY = 1:nChans
-        vrY1 = mrMin(:,chY);
-        vlY1 = vrY1>0 & vrY1<1;
-        for chX = 1:nChans
-            if abs(chX-chY) > maxPair
+function [xvals, yvals, viPlot, tr_dim] = amp2proj_(yvals, xvals, bounds, maxPair, P)
+    if nargin < 4
+        maxPair = [];
+    end
+    if nargin < 5
+        P = get0_('P');
+    end
+
+    xvals = linmap_(xvals', bounds, [0,1], 1);
+    yvals = linmap_(yvals', bounds, [0,1], 1);
+
+    [nSpikes, nChans] = size(yvals);
+    if isempty(maxPair)
+        maxPair = nChans;
+    end
+
+    % spike features translated into site-site boxes
+    [transX, transY] = deal(nan([nSpikes, nChans, nChans], 'single'));
+
+    for jChan = 1:nChans
+        jsiteY = yvals(:, jChan);
+        ymask = jsiteY > 0  & jsiteY < 1; % get points away from the boundaries
+        for iChan = 1:nChans
+            if abs(iChan - jChan) > maxPair
                 continue;
             end
-            if strcmpi(P.vcFet_show, 'vpp') && chY > chX
-                vrX1 = mrMin(:,chX);
-            else
-                vrX1 = mrMax(:,chX);
+            
+            % vpp only:
+            % min on site j vs. min on site i above the diagonal
+            if strcmpi(P.vcFet_show, 'vpp') && jChan > iChan
+                isiteX = yvals(:, iChan);
+            else % diagonal and below: min vs. max
+                isiteX = xvals(:, iChan);
             end
-            viPlot1 = find(vrX1>0 & vrX1<1 & vlY1);
-            trX(viPlot1,chY,chX) = vrX1(viPlot1) + chX - 1;
-            trY(viPlot1,chY,chX) = vrY1(viPlot1) + chY - 1;
+
+            xymask = (isiteX > 0 & isiteX < 1) & ymask;
+
+            transX(xymask, jChan, iChan) = isiteX(xymask) + iChan - 1;
+            transY(xymask, jChan, iChan) = jsiteY(xymask) + jChan - 1;
         end
     end
+
     % plot projection
-    viPlot = find(~isnan(trX) & ~isnan(trY));
-    vrX = trX(viPlot);  vrX=vrX(:);
-    vrY = trY(viPlot);  vrY=vrY(:);
-    tr_dim = size(trX);
+    viPlot = find(~isnan(transX) & ~isnan(transY));
+    xvals = transX(viPlot); xvals = xvals(:);
+    yvals = transY(viPlot); yvals = yvals(:);
+    tr_dim = size(transX);
 end %func
 
 %% local functions
-function vr = linmap_(vr, lim1, lim2, fSat)
-    if nargin< 4
-        fSat = 0;
+function vals = linmap_(vals, prevLim, newLim, saturate)
+    if nargin < 4
+        saturate = 0;
     end
-    if numel(lim1) == 1, lim1 = [-abs(lim1), abs(lim1)]; end
-    if numel(lim2) == 1, lim2 = [-abs(lim2), abs(lim2)]; end
 
-    if fSat
-        vr(vr>lim1(2)) = lim1(2);
-        vr(vr<lim1(1)) = lim1(1);
+    if numel(prevLim) == 1
+        prevLim = abs(prevLim)*[-1, 1];
     end
-    if lim1(1)==lim1(2)
-        vr = vr / lim1(1);
+    if numel(newLim) == 1
+        newLim = abs(newLim)*[-1, 1];
+    end
+
+    if saturate
+        vals(vals > prevLim(2)) = prevLim(2);
+        vals(vals < prevLim(1)) = prevLim(1);
+    end
+
+    if prevLim(1) == prevLim(2) % % ignore newLim and just rescale 
+        vals = vals / prevLim(1);
     else
-        vr = interp1(lim1, lim2, vr, 'linear', 'extrap');
+        vals = interp1(prevLim, newLim, vals, 'linear', 'extrap');
     end
 end %func

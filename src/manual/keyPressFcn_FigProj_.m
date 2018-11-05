@@ -71,6 +71,23 @@ function keyPressFcn_FigProj_(hFig, event)
                 set0_(P);
                 plot_FigProj_();
             end
+            
+        case 'p' % toggle PCi v. PCj
+            if get_set_(P, 'fImportKsort', 0) && strcmpi(P.vcFet_show, 'kilosort')
+                pcPair = get_set_(S0, 'pcPair', [1 2]);
+
+                if all(pcPair == [1 2])
+                    S0.pcPair = [1 3];
+                elseif all(pcPair == [1 3])
+                    S0.pcPair = [2 3];
+                else
+                    S0.pcPair = [1 2];
+                end
+
+                set(0, 'UserData', S0);
+                
+                plot_FigProj_(S0);
+            end
 
         case 'b' % background spikes
             toggleVisible_(S_fig.hPlot0);

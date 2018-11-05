@@ -47,10 +47,40 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, viSite
 
         case 'kilosort'
             % import features from Kilosort
-            [mrMin0, mrMax0] = ks_fet_spk_(viSpk00, viSites0, S0);
-            [mrMin1, mrMax1] = ks_fet_spk_(viSpk01, viSites0, S0);
+            [bgpc1, bgpc2, bgpc3] = ks_fet_spk_(viSpk00, viSites0, S0);
+            [fgpc1, fgpc2, fgpc3] = ks_fet_spk_(viSpk01, viSites0, S0);
+            
+            pcPair = get_set_(S0, 'pcPair', [1 2]);
+
+            if pcPair(1) == 1
+                mrMin0 = bgpc1;
+                mrMin1 = fgpc1;
+            else % 1st PC is either 1 or 2
+                mrMin0 = bgpc2;
+                mrMin1 = fgpc2;
+            end
+            
+            if pcPair(2) == 2
+                mrMax0 = bgpc2;
+                mrMax1 = fgpc2;
+            else % second PC is either 2 or 3
+                mrMax0 = bgpc3;
+                mrMax1 = fgpc3;
+            end
+
             if ~isempty(iClu2)
-                [mrMin2, mrMax2] = ks_fet_spk_(viSpk02, viSites0, S0);
+                [sfgpc1, sfgpc2, sfgpc3] = ks_fet_spk_(viSpk02, viSites0, S0);
+                if pcPair(1) == 1
+                    mrMin2 = sfgpc1;
+                else % 1st PC is either 1 or 2
+                    mrMin2 = sfgpc2;
+                end
+                
+                if pcPair(2) == 2
+                    mrMax2 = sfgpc2;
+                else % 2nd PC is either 2 or 3
+                    mrMax2 = sfgpc3;
+                end
             end
 
         otherwise % generic

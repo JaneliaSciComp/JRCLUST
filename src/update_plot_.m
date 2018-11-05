@@ -1,9 +1,14 @@
 %--------------------------------------------------------------------------
 function update_plot_(hPlot, vrX, vrY, S_plot)
     % update the plot with new x and y
+    if isempty(hPlot)
+        return;
+    end
 
-    if nargin<4, S_plot = []; end
-    if isempty(hPlot), return; end
+    if nargin < 4
+        S_plot = [];
+    end
+
     % selective plot to speed up plotting speed
     if isempty(vrY) || isempty(vrX)
         hide_plot_(hPlot);
@@ -20,6 +25,11 @@ function update_plot_(hPlot, vrX, vrY, S_plot)
             fUpdate = 0;
         end
     end
-    if fUpdate, set(hPlot, 'xdata', vrX, 'ydata', vrY); end
-    if ~isempty(S_plot), set(hPlot, 'UserData', S_plot); end
+
+    if fUpdate
+        set(hPlot, 'xdata', vrX, 'ydata', vrY);
+    end
+    if ~isempty(S_plot)
+        set(hPlot, 'UserData', S_plot);
+    end
 end %func
