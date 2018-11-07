@@ -9,7 +9,7 @@ function hJRC_ = jrc(varargin)
     end
 
     % support legacy commands, arguments
-    if nargin < 1 || strcmpi(varargin{1}, 'help')
+    if nargin < 1
         jrclust.commands.help(varargin{2:end});
         return;
     end
@@ -57,14 +57,6 @@ function hJRC_ = jrc(varargin)
     % Command type A: supporting functions
     fExit = 1;
     switch lower(vcCmd)
-
-        % No arguments
-        case 'version'
-            jrc_version_(vcArg1);
-
-        case 'about'
-            about_();
-
         case 'clear'
             clear_(vcArg1);
 

@@ -3,10 +3,16 @@
         "James Jun",
         "Alan Liddell"
     ],
+    "changeDate": "7 Nov, 2018",
+    "program": "JRCLUST",
     "contributors": [
         "Mike Economo",
         "Hidehiko Inagaki",
         "Tim Wang"
     ],
-    "version": 4.0
+    "version": {
+        "major": 4,
+        "minor": 0,
+        "release": 0
+    }
 }

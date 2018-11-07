@@ -61,6 +61,19 @@ classdef JRC < handle & dynamicprops
                     imsg = 'Use `hJRC.config = myconfig` instead';
                     jrclust.utils.depWarn(cmd, imsg);
                     return;
+                    
+                % info commands
+                case 'help'
+                    disp(jrclust.utils.help());
+                    return;
+                    
+                case 'version'
+                    disp(jrclust.utils.version());
+                    return;
+                    
+                case 'about'
+                    disp(jrclust.utils.about());
+                    return;
             end
         end
     end
