@@ -5,7 +5,7 @@ function manual_(P, vcMode)
 
     if nargin < 2
         vcMode = 'normal';
-    end %{'normal', 'debug'}
+    end % {'normal', 'debug'}
 
     % Load info
     if ~is_sorted_(P)
@@ -37,6 +37,8 @@ function manual_(P, vcMode)
                     S0 = set0_(P); %update the P structure
                     S0.S_clu = S_clu_update_wav_(S0.S_clu, P);
             end
+        else
+            S_clu = S0.S_clu;
         end
     elseif strcmpi(vcMode, 'debug')
         fDebug_ui = 1;
@@ -49,15 +51,22 @@ function manual_(P, vcMode)
     hMsg = msgbox_('Plotting... (this closes automatically)'); t1=tic;
     set(0, 'UserData', S0);
     S0 = figures_manual_(P); %create figures for manual interface
-    clear mouse_figure;
+
+%     clear mouse_figure;
     clear get_fig_cache_ get_tag_ %clear persistent figure handles
 
     % Set fields
-    S0 = struct_merge_(S0, ...
-    struct('iCluCopy', 1, 'iCluPaste', [], 'hCopy', [], 'hPaste', [], 'nSites', numel(P.viSite2Chan)));
+    S0 = struct_merge_(S0, struct('iCluCopy', 1, 'iCluPaste', [], 'hCopy', [], 'hPaste', [], 'nSites', numel(P.viSite2Chan)));
     set(0, 'UserData', S0);
+    
+    if ~isfield(S0, 'P')
+        S0.P = P;
+    end
+    if ~isfield(S0, 'S_clu')
+        S0.S_clu = S_clu;
+    end
 
-    % hFigRD
+    S0 = plot_FigRD_(S0);
     S0.S_clu = plot_FigRD_(S0.S_clu, P); % ask user before doing so
 
     % Set initial amplitudes

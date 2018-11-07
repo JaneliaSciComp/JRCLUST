@@ -1,11 +1,29 @@
-%--------------------------------------------------------------------------
-% JRCLUST v3
-% James Jun
+% JRCLUST v4
+% Alan Liddell, Vidrio Technologies
+% Originally written by James Jun
 
-function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
-    % Memory-efficient version
-    % P is static and loaded from file
-    % Dynamic variables are set in S0=get(0,'UserData')
+function hJRC_ = jrc(varargin)
+
+    if nargout > 0
+        hJRC_ = [];
+    end
+
+    % support legacy commands, arguments
+    if nargin < 1 || strcmpi(varargin{1}, 'help')
+        jrclust.commands.help(varargin{2:end});
+        return;
+    end
+    
+    try
+        hJRC = jrclust.JRC(varargin{:});
+    catch
+    end
+    
+    if nargout > 0
+        hJRC_ = hJRC;
+    end
+
+    return;
 
     persistent vcFile_prm_ % remember the currently working prm file
 
@@ -26,7 +44,7 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
     if nargin < 5
         vcArg4 = '';
     end
-    if nargin < 6
+    if nargin < 6   
         vcArg5 = '';
     end
     if nargin == 0
@@ -39,36 +57,10 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
     % Command type A: supporting functions
     fExit = 1;
     switch lower(vcCmd)
-        % deprecated commands
-        case {'git-pull', 'issue', 'wiki', 'wiki-download', 'which'}
-            dep_warn_(vcCmd);
-
-        case {'compile-ksort', 'kilosort', 'ksort', 'import-kilosort-sort', 'import-ksort-sort', 'kilosort-verify', 'ksort-verify', }
-            dep_warn_(vcCmd);
-
-        case 'download'
-            dep_warn_(vcCmd, 'You can find sample.bin and sample.meta at https://drive.google.com/drive/folders/1-UTasZWB0TwFFFV49jSrpRPHmtve34O0?usp=sharing');
-
-        case {'doc', 'doc-edit'}
-            dep_warn_(vcCmd, 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki');
-
-        case 'install'
-            dep_warn_(vcCmd, 'You might be looking for `compile` instead');
-
-        case 'update'
-            dep_warn_(vcCmd, 'Please check the repository at https://github.com/JaneliaSciComp/JRCLUST for updates');
 
         % No arguments
-        case {'setprm' 'set', 'set-prm'}
-            vcFile_prm_ = vcArg1;
-            return;
-
         case 'version'
             jrc_version_(vcArg1);
-
-        case {'help', '-h', '?', '--help'}
-            help_(vcArg1);
-            about_();
 
         case 'about'
             about_();

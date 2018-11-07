@@ -66,13 +66,13 @@ function [spikeTimes, spikeClusters] = jrcToPhy(S0, savePath)
             uT = V(:, indices(1:3));
             pcFeatures(siteSpikes, :, jSite) = siteWaveforms'*uT;
         end
-        
+
         % vpp (min/max) features
         tnWav_spk1 = tnWav2uV_(tnWav_spk_sites_(find(siteSpikes), siteNeighbors, S0), P);
         [mins, maxes] = multifun_(@(x) squeeze(x), min(tnWav_spk1), max(tnWav_spk1));
         vppFeatures(siteSpikes, 1, :) = mins';
         vppFeatures(siteSpikes, 2, :) = maxes';
-        
+
         spikeChannels(siteSpikes, :) = repmat(P.viSite2Chan(siteNeighbors)' - 1, size(swCentered, 2), 1);
     end
     fprintf('done\n');    
@@ -93,25 +93,24 @@ function [spikeTimes, spikeClusters] = jrcToPhy(S0, savePath)
         
         if ~isempty(P.vcFile)
             [~, fname, ext] = fileparts(P.vcFile);
-            fprintf(fid, 'dat_path = ''%s%s''\n', fname, ext);
+            fprintf(fid, 'dat_path = r''%s%s''\n', fname, ext);
         elseif ischar(P.csFile_merge)
             [~, fname, ext] = fileparts(P.csFile_merge);
-            fprintf(fid, 'dat_path = ''%s%s''\n', fname, ext);
+            fprintf(fid, 'dat_path = r''%s%s''\n', fname, ext);
         else
             fprintf(fid, 'dat_path = [');
             for i=1:numel(P.csFile_merge) - 1
                 fn = P.csFile_merge{i};
-                [~, fname, ext] = fileparts(fn);
-                fprintf(fid, '''%s%s'',\n             ', fname, ext);
+                fprintf(fid, 'r''%s'',\n             ', fn);
             end
             fn = P.csFile_merge{end};
-            [~, fname, ext] = fileparts(fn);
-            fprintf(fid, '''%s%s'']', fname, ext);
+            fprintf(fid, 'r''%s'']', fn);
         end
         
         fprintf(fid, 'n_channels_dat = %i\n', P.nChans);
         fprintf(fid, 'n_samples_raw = %i\n', S0.dimm_raw(1));
-        fprintf(fid, 'dtype = ''%s''\n', P.vcDataType);
+        fprintf(fid, 'jrc_feature = r''$s''\n', P.vcFet);
+        fprintf(fid, 'dtype = r''%s''\n', P.vcDataType);
         fprintf(fid, 'offset = %i\n', P.header_offset);
         fprintf(fid, 'sample_rate = %i\n', P.sRateHz);
         fprintf(fid,'hp_filtered = False');
