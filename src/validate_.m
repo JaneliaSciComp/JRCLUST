@@ -8,7 +8,7 @@ function validate_(P)
 
     S0 = load_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
     % if isempty(tnWav_spk)
-    %     tnWav_spk = load_bin_(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), P.vcDataType, S0.dimm_spk);
+    %     tnWav_spk = jrclust.utils.readBin(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), P.vcDataType, S0.dimm_spk);
     % end
     S_clu = S0.S_clu;
 

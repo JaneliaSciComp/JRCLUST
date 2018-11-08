@@ -6,7 +6,7 @@ function export_lfp_(P)
     if ~exist_file_(P.vcFile_lfp)
         import_lfp_(P)
     end
-    mnLfp = load_bin_(P.vcFile_lfp, P.vcDataType);
+    mnLfp = jrclust.utils.readBin(P.vcFile_lfp, P.vcDataType);
     nSamples = floor(size(mnLfp,1) / P.nChans);
     mnLfp = reshape(mnLfp(1:P.nChans*nSamples), P.nChans, nSamples)';
 

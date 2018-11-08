@@ -1,6 +1,6 @@
 function helpstr = help(varargin)
     %HELP Get a help string
-    disp(strjoin({'JRC legacy help:';
+    helpstr = strjoin({'JRC legacy help:';
                   'Usage: jrc command arg1 arg2 ...';
                   '  jrc calls the latest jrclust version (currently jrc.m)';
                   '  You can also run "jrc command ..." to explicitly specify the version number.';
@@ -103,5 +103,5 @@ function helpstr = help(varargin)
                   '    Run a suite of unit tests.';
                   '  jrc compile';
                   '    Recompile CUDA code (GPU codes, *.cu)';
-                  '';}, '\n'));
+                  '';}, '\n');
 end

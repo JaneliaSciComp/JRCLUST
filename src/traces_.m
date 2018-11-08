@@ -78,11 +78,11 @@ function traces_(P, fDebug_ui_, vcFileId, fPlot_lfp)
         if nTime_traces > 1
             mnWav1 = load_bin_multi_(fid_bin, cvn_lim_bin, P)';
         else
-            mnWav1 = load_bin_(fid_bin, P.vcDataType, [P.nChans, nLoad_bin])'; %next keypress: update tlim_show
+            mnWav1 = jrclust.utils.readBin(fid_bin, P.vcDataType, [P.nChans, nLoad_bin])'; %next keypress: update tlim_show
         end
         %     @TODO: load from cvn_lim_bin specifiers. check for end or beginning when keyboard command
     else %load whole thing
-        mnWav = load_bin_(fid_bin, P.vcDataType, [nSamples_bin, P.nChans]); %next keypress: update tlim_show
+        mnWav = jrclust.utils.readBin(fid_bin, P.vcDataType, [nSamples_bin, P.nChans]); %next keypress: update tlim_show
         fclose(fid_bin);
         fid_bin = [];
         %mnWav1 = mnWav((nlim_bin(1):nlim_bin(2)), :);

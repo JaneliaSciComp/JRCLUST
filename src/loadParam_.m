@@ -1,11 +1,6 @@
 %--------------------------------------------------------------------------
-function [P, vcFile_prm] = loadParam_(vcFile_prm, fEditFile)
+function [P, vcFile_prm] = loadParam_(vcFile_prm)
     % Load prm file
-
-    if nargin < 2
-        fEditFile = 1;
-    end
-    assert(exist_file_(vcFile_prm), sprintf('.prm file does not exist: %s\n', vcFile_prm));
 
     P0 = file2struct_(default_prm_path_()); %P = defaultParam();
     P = file2struct_(vcFile_prm);
@@ -96,5 +91,4 @@ function [P, vcFile_prm] = loadParam_(vcFile_prm, fEditFile)
         P.vcFilter_show = P.vcFilter;
     end
     assert_(validate_param_(P), 'Parameter file contains error.');
-    if fEditFile, edit(P.vcFile_prm); end % Show settings file
 end %func

@@ -2,8 +2,10 @@ function depWarn(cmd, infoStr)
     %DEPWARN warn user of deprecated functionality
     % optionally, print a helpful message
 
-    fprintf(2, '`%s` has been deprecated\n', cmd);
+    wmsg = sprintf('`%s` has been deprecated', cmd);
     if nargin > 1 && ~isempty(infoStr)
-        fprintf(2, '%s\n', infoStr);
+        wmsg = sprintf('%s\n\n%s', wmsg, infoStr);
     end
+    
+    warndlg(wmsg, 'Deprecation warning');
 end

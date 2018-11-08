@@ -11,7 +11,7 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
         if isfield(S0, 'S0'), S0 = rmfield(S0, 'S0'); end % Remove recursive saving
 
         % update version number
-        S0.P.version = jrc_version_();
+        S0.P.version = jrclust.utils.version();
         P = S0.P;
         set0_(P);
 

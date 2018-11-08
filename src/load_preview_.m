@@ -47,8 +47,13 @@ function [mnWav_raw, S_preview] = load_preview_(P)
             for iLoad_ = 1:nLoads_per_file_
                 fprintf('.');
                 ilim_bin_ = cvi_lim_bin{iLoad_};
-                fseek_(fid_bin_, ilim_bin_(1), P);
-                mnWav_raw{end+1} = load_file_(fid_bin_, diff(ilim_bin_) + 1, P);
+
+                % fseek_(fid_bin_, ilim_bin_(1), P);
+                dshape_ = [P.nChans, diff(ilim_bin_) + 1];
+                offset_ = max(0, (iSample_bin-1) * P.nChans * bytesPerSample_(P.vcDataType) + get_set_(P, 'header_offset', 0));
+
+                % mnWav_raw{end+1} = load_file_(fid_bin_, diff(ilim_bin_) + 1, P);
+                mnWav_raw{end+1} = jrclust.utils.readRecording(fid_bin_, P.vcDataType, dshape_, offset_, P);
                 cviLim_load{end+1} = ilim_bin_;
                 csFile_load{end+1} = vcFile_bin_;
             end

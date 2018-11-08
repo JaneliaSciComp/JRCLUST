@@ -9,7 +9,7 @@ function bin_file_copy_(vcFile_r, vcFile_w, P)
         fid_w = vcFile_w;
     end
     try
-        vn = load_bin_(vcFile_r, P.vcDataType, [], P.header_offset);
+        vn = jrclust.utils.readBin(vcFile_r, P.vcDataType, [], P.header_offset);
         if P.nSkip_lfp > 1
             nSkip_lfp = round(P.nSkip_lfp);
             vn = reshape_(vn, P.nChans)'; % return nTime x nChans
