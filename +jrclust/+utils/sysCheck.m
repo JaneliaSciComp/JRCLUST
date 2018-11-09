@@ -1,12 +1,17 @@
 function ok = sysCheck()
     %SYSCHECK Check for required toolboxes
     ok = true;
-    boxen = {'Signal', 'Image', 'Distrib_Computing', 'Statistics'};
+    boxen = {'Signal', 'Image', 'Statistics'};
     reqs = cellfun(@(b) logical(license('test', [b '_Toolbox'])), boxen);
 
     if ~all(reqs)
-        emsg = ['You are missing the following toolboxes: ', strjoin(boxen(~reqs), ', ')]; 
-        errordlg(emsg, 'Missing system requirements');
+        errmsg = ['You are missing the following toolboxes: ', strjoin(boxen(~reqs), ', ')]; 
+        errordlg(errmsg, 'Missing system requirements');
         ok = false;
+    end
+    
+    if ~license('test', 'Distrib_Computing_Toolbox')
+        wmsg = 'Could not find Parallel Toolbox (cannot use GPU)';
+        warndlg(wmsg, 'Missing system requirements');
     end
 end

@@ -7,8 +7,7 @@ function [mnWav1, vnWav1_mean] = wav_car_(mnWav1, P)
     switch lower(P.vcCommonRef)
         case {'tmean', 'nmean'}
         trimLim = [.25, .75];
-        maxSite_ref = (P.nSites_ref + P.nSites_excl_ref - 1)/2;
-        miSite_ref = findNearSites_(P.mrSiteXY, maxSite_ref, P.viSiteZero, P.viShank_site);
+        miSite_ref = jrclust.utils.findSiteNeighbors(P.mrSiteXY, P.nSites_ref + P.nSites_excl_ref, P.viSiteZero, P.viShank_site);
         miSite_ref = miSite_ref(P.nSites_excl_ref+1:end, :); %excl three nearest sites
         viChan_keep = round(trimLim * size(miSite_ref,1));
         viChan_keep = (viChan_keep(1)+1):viChan_keep(2);

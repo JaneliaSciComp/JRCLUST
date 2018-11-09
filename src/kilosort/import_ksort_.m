@@ -157,7 +157,7 @@ function import_ksort_(vcFile_prm)
     P.spkRefrac_ms = get_set_(P, 'spkRefrac_ms', .25); % JRC default
 
     P.viSiteZero = get_set_(P, 'viSiteZero', []);
-    P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site);
+    P.miSites = jrclust.utils.findSiteNeighbors(P.mrSiteXY, 2*P.maxSite+1, P.viSiteZero, P.viShank_site);
     P.fGPU = double(gpuDeviceCount() > 0);
 
     P.vcFet = get_set_(P, 'vcFet', 'gpca'); % JRC default

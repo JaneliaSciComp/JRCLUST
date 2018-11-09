@@ -32,6 +32,6 @@ function P = upgrade_param_(S0, P0)
     if nSites_spk_P ~= nSites_spk
         P.maxSite = (nSites_spk-1)/2;
         P.nSites_ref = nSites_spk - S0.dimm_fet(1);
-        P.miSites = findNearSites_(P.mrSiteXY, P.maxSite, P.viSiteZero, P.viShank_site);
+        P.miSites = jrclust.utils.findSiteNeighbors(P.mrSiteXY, 2*P.maxSite+1, P.viSiteZero, P.viShank_site);
     end
 end %func

@@ -134,10 +134,10 @@ function plot_proj_(hPlot, mrMin, mrMax, P, maxAmp)
             bounds = maxAmp*[-1 1];
     end
 
-    [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, bounds, P.maxSite_show, P);
+    [vrX, vrY, viPlot, tr_dim] = amp2proj_(mrMin, mrMax, bounds, P.maxSite, P);
 
     % make struct
-    maxPair = P.maxSite_show;
+    maxPair = P.maxSite;
     viSites_show = P.viSites_show;
     S_plot = makeStruct_(mrMax, mrMin, viSites_show, viPlot, tr_dim, maxPair, maxAmp);
 

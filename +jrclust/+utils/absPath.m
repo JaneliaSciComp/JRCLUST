@@ -18,7 +18,7 @@ function ap = absPath(filename, basedir)
             ap = filename;
         elseif isfile(filename) % basedir is relative
             ap = which(filename);
-        end % can't find it, you're on your own
+        end % otherwise, can't find it, you're on your own
     end
 end
 

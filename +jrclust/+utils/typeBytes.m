@@ -1,6 +1,5 @@
 function n = typeBytes(dtype)
-%TYPEBYTES Get number of bytes in dtype
-%   Detailed explanation goes here
+    %TYPEBYTES Get number of bytes in dtype
     switch dtype
         case {'char', 'byte', 'int8', 'uint8'}
             n = 1;

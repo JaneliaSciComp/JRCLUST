@@ -22,7 +22,7 @@ classdef JRC < handle & dynamicprops
             obj.isError = false;
             obj.isManualCuration = false;
             obj.isSorting = false;
-            
+
             if ~jrclust.utils.sysCheck()
                 obj.isError = true;
             elseif nargin > 0
