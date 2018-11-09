@@ -8,7 +8,7 @@ classdef JRC < handle & dynamicprops
         isSorting;
     end
 
-    properties (SetObservable)
+    properties (SetObservable, SetAccess=private)
         args;
         hCfg;
     end
@@ -125,7 +125,9 @@ classdef JRC < handle & dynamicprops
 
             % load parameter file
             configFile = obj.args{2};
-            obj.hCfg = jrclust.config.Config(configFile);
+            obj.hCfg = jrclust.Config(configFile);
+
+            
         end
     end
     

@@ -18,7 +18,7 @@ classdef Config < handle & dynamicprops
         % maxSite_pix;              % doesn't appear to be used (was 4.5)
         % maxSite_show;             % appears to be synonymous with nSiteDir/maxSite
         % maxSite_sort;             % doesn't appear to be used (was [])
-        % rejectSpk_mean_thresh;    % appears to be synonymous with blank_thresh
+        % rejectSpk_mean_thresh;    % appears to be synonymous with blankThresh/blank_thresh
         blank_thresh;               % => blankThresh
         csFile_merge;               % => multiRaw
         fGpu;                       % => useGPU
