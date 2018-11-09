@@ -1,6 +1,6 @@
-classdef JRCFigure < handle
-    %JRCFIGURE handle for JRCLUST manual figure
-    %   Base class for specific figures
+classdef Figure < handle
+    %FIGURE handle for JRCLUST manual figure
+    %   Base class for specific figure types
 
     properties (SetObservable, SetAccess=private, Hidden)
         hFig;
@@ -24,8 +24,8 @@ classdef JRCFigure < handle
 
     % life cycle
     methods
-        function obj = JRCFigure(figTag, figPos, figName, figToolbar, figMenubar)
-            %JRCFIGURE Construct an instance of this class
+        function obj = Figure(figTag, figPos, figName, figToolbar, figMenubar)
+            %FIGURE Construct an instance of this class
             obj.hFig = figure();
 
             obj.figTag = figTag;

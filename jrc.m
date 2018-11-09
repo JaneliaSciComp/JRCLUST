@@ -12,21 +12,21 @@ function hJRC_ = jrc(varargin)
         disp(jrclust.utils.help); % later: GUI
         return;
     end
-    
+
     try
         hJRC = jrclust.JRC(varargin{:});
     catch
         return;
     end
-    
+
     if nargout > 0
         hJRC_ = hJRC;
     end
 
     return;
-    
+
 end
-    
+
 %%
 
 %     persistent vcFile_prm_ % remember the currently working prm file

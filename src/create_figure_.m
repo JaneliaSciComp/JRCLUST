@@ -38,5 +38,5 @@ function hFig = create_figure_(figTag, figPos, figName, figToolbar, figMenubar)
 %     if ~isempty(vrPos), resize_figure_(hFig, vrPos); end
 %     clf(hFig);
 
-    hFig = JRCFigure(figTag, figPos, figName, figToolbar, figMenubar);
+    hFig = jrclust.guis.Figure(figTag, figPos, figName, figToolbar, figMenubar);
 end %func
