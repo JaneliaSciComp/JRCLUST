@@ -26,7 +26,6 @@ classdef Config < handle & dynamicprops
         maxDist_site_um             % => evtMergeRad
         maxDist_site_spk_um;        % => evtDetectRad
         maxSite;                    % => nSiteDir
-        miSites;                    % => siteNeighbors
         mrSiteXY;                   % => siteLoc
         nSites_ref;                 % => nSitesExcl
         nSkip_lfp;                  % => lfpDsFactor
@@ -69,7 +68,7 @@ classdef Config < handle & dynamicprops
         refracIntSamp;              % spike refractory interval, in samples
     end
 
-    % new-style params
+    % new-style params, settable from outside
     properties (SetObservable)
         % computation params
         useGPU = true;              % use GPU in computation if true
@@ -90,7 +89,6 @@ classdef Config < handle & dynamicprops
         singleRaw;                  % raw recording file path (empty if multiple files are sorted together)
         siteLoc;                    % x-y locations of channels on the probe, in microns
         siteMap;                    % channel mapping; row i in the data corresponds to channel `siteMap(i)`
-        siteNeighbors;              % indices of neighbors for each site
 
         % preprocessing params
         loadTimeLimits = [];        % time range of recording to load, in s (use whole range if empty)
@@ -245,7 +243,6 @@ classdef Config < handle & dynamicprops
         sRateHz_rate = 1000;
         sec_per_load_preview = 1;
         slopeLim_ms = [0.05 0.35];
-        sort_file_merge = 1;
         spkLim_factor_merge = 1;
         spkLim_ms_fet = [-0.25 0.75];
         spkThresh_max_uV = [];
@@ -295,6 +292,16 @@ classdef Config < handle & dynamicprops
         vrScale_aux = 1;
         xtick_psth = 0.2;
         ybin_drift = 2;
+    end
+
+    % private params, old-style
+    properties (Dependent, SetAccess=private)
+        miSites;                    % => siteNeighbors
+    end
+
+    % private params, new-style
+    properties (SetAccess=private)
+        siteNeighbors;              % indices of neighbors for each site
     end
 
     % lifecycle
@@ -890,6 +897,9 @@ classdef Config < handle & dynamicprops
                     error(errmsg);
                 end
             end
+
+            % natsort filenames
+            obj.multiRaw = jrclust.utils.sortNat(obj.multiRaw);
         end
         function mr = get.csFile_merge(obj)
             obj.logOldP('csFile_merge');

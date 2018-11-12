@@ -1,5 +1,5 @@
 function S = mToStruct(filename)
-    %MTOSTRUCT read a .m script and convert assignments therein to a struct
+    %MTOSTRUCT read and evaluate a .m script, convert workspace to struct
     lines = jrclust.utils.readLines(filename);
     lines = stripComments(lines);
     
@@ -20,7 +20,6 @@ function S = mToStruct(filename)
     catch
         S = [];
     end
-
 end
 
 %% local functions

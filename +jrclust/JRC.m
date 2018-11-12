@@ -111,7 +111,7 @@ classdef JRC < handle & dynamicprops
                 obj.isError = true;
                 return;
             end
-            
+
             % load from saved
             % TODO (much much later)
 
