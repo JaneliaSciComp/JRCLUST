@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function [cs,index] = sort_nat_(c,mode)
+function [cs,index] = sortNat(c,mode)
     %sort_nat: Natural order sort of cell array of strings.
     % usage:  [S,INDEX] = sort_nat(C)
     %

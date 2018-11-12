@@ -34,7 +34,7 @@ function [csFile_merge, vcDir] = dir_file_(vcFile_dir, fSortByDate)
             [~,ix] = sort(vrDatenum, 'ascend');
             csFile_merge = csFile_merge(ix);
         case 4
-            [csFile_merge, ix] = sort_nat_(csFile_merge, 'ascend');
+            [csFile_merge, ix] = jrclust.utils.sortNat(csFile_merge, 'ascend');
         otherwise
             fprintf(2, 'dir_file_: Invalid option: %d\n', fSortByDate);
     end
