@@ -40,7 +40,7 @@ function [cs,index] = sort_nat_(c,mode)
     is_descend = modes(2);
     if ~any(modes)
         error('sort_nat:sortDirection',...
-        'sorting direction must be ''ascend'' or ''descend''.')
+            'sorting direction must be ''ascend'' or ''descend''.')
     end
 
     % Replace runs of digits with '0'.
