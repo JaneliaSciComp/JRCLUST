@@ -65,9 +65,10 @@ classdef DetectionController
                     samplesRaw = rec.readROI(obj.hCfg.siteMap, sampOffset:sampOffset+nSamples-1);
                     sampOffset = sampOffset + nSamples;
 
-                    [mnWav11, vrWav_mean11] = obj.load_file_(samplesRaw);
+                    % convert samples to int16 and get channel means
+                    [samplesRaw, channelMeans] = obj.regularize(samplesRaw);
+                    fprintf('done (%0.2f s)\n', toc(t1));
 
-                    fprintf('took %0.1fs\n', toc(t1));
                     if iLoad < nLoads
                         mnWav11_post = load_file_preview_(fid1, obj.hCfg);
                     else
@@ -77,11 +78,11 @@ classdef DetectionController
                     [viTime_spk11, viSite_spk11] = filter_spikes_(viTime_spk0, viSite_spk0, nSamples1 + [1, nSamples]);
 
                     [tnWav_raw_, tnWav_spk_, trFet_spk_, miSite_spk{end+1}, viTime_spk{end+1}, vrAmp_spk{end+1}, vnThresh_site{end+1}, obj.hCfg.fGpu] ...
-                        = wav2spk_(mnWav11, vrWav_mean11, obj.hCfg, viTime_spk11, viSite_spk11, mnWav11_pre, mnWav11_post);
+                        = wav2spk_(samplesRaw, channelMeans, obj.hCfg, viTime_spk11, viSite_spk11, mnWav11_pre, mnWav11_post);
                     write_spk_(tnWav_raw_, tnWav_spk_, trFet_spk_);
                     viTime_spk{end} = viTime_spk{end} + nSamples1;
                     nSamples1 = nSamples1 + nSamples;
-                    if iLoad < nLoads, mnWav11_pre = mnWav11(end-obj.hCfg.nPad_filt+1:end, :); end
+                    if iLoad < nLoads, mnWav11_pre = samplesRaw(end-obj.hCfg.nPad_filt+1:end, :); end
                     clear mnWav11 vrWav_mean11;
                     nLoads = nLoads + 1;
                 end
@@ -129,47 +130,36 @@ classdef DetectionController
             end
         end
 
-        function [mnWav1, vrWav_mean1, dimm_wav] = load_file_(obj, samplesRaw)
-            fSingle = 0; % output single
-            if obj.hCfg.fTranspose_bin
-                dimm_wav = [obj.hCfg.nChans, nSamples_load1];
-            else % Catalin's format
-                dimm_wav = [nSamples_load1, obj.hCfg.nChans];
-            end
-%             mnWav1 = fread_(fid_bin, dimm_wav, obj.hCfg.dtype);
+        function [samplesRaw, channelMeans] = regularize(obj, samplesRaw)
+            %REGULARIZE Convert samplesRaw to int16 and compute channel means
             switch(obj.hCfg.dtype)
                 case 'uint16'
-                    mnWav1 = int16(single(samplesRaw)-2^15);
+                    samplesRaw = int16(single(samplesRaw) - 2^15);
 
                 case {'single', 'double'}
-                    mnWav1 = int16(samplesRaw / obj.hCfg.bitScaling);
+                    samplesRaw = int16(samplesRaw / obj.hCfg.bitScaling);
             end
 
             % flip the polarity
             if obj.hCfg.fInverse_file
-                mnWav1 = -mnWav1;
+                samplesRaw = -samplesRaw;
             end
 
-            % extract channels
+            % extract channel means
             if obj.hCfg.fTranspose_bin
-                vrWav_mean1 = single(mean(mnWav1, 1)); %6x faster to transpose in dimm1
-                mnWav1 = mnWav1';
-            else %Catalin's format. time x nChans
-                if ~isempty(obj.hCfg.viSite2Chan), mnWav1 = mnWav1(:,obj.hCfg.viSite2Chan); end
-                if ~isempty(obj.hCfg.tlim_load)
-                    nSamples = size(mnWav1,1);
-                    nlim_load = min(max(round(obj.hCfg.tlim_load * obj.hCfg.sRateHz), 1), nSamples);
-                    mnWav1 = mnWav1(nlim_load(1):nlim_load(end), :);
+                channelMeans = single(mean(samplesRaw, 1));
+                samplesRaw = samplesRaw';
+            else % Catalin's format (samples x channels)
+                if ~isempty(obj.hCfg.loadTimeLimits)
+                    nSamples = size(samplesRaw, 1);
+                    lims = min(max(round(obj.hCfg.loadTimeLimits * obj.hCfg.sampleRate), 1), nSamples);
+
+                    samplesRaw = samplesRaw(lims(1):lims(end), :);
                 end
-                vrWav_mean1 = single(mean(mnWav1, 2)');
-                if fSingle
-                    mnWav1 = single(mnWav1) * obj.hCfg.bitScaling;
-                end
+
+                channelMeans = single(mean(samplesRaw, 2)');
             end
-            if ~isempty(vcFile)
-                fclose(fid_bin);
-            end
-        end %func
+        end
 
 
     end
