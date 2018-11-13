@@ -7,7 +7,7 @@ function mnWav1 = fftdiff_(mnWav, P)
     % [fGpu, nLoads_gpu] = deal(0, 1); %debug
 
     nSamples = size(mnWav,1);
-    [nLoad1, nSamples_load1, nSamples_last1] = partition_load_(nSamples, round(nSamples/nLoads_gpu));
+    [nLoad1, nSamples_load1, nSamples_last1] = jrclust.utils.partitionLoad(nSamples, round(nSamples/nLoads_gpu));
     mnWav1 = zeros(size(mnWav), 'like', mnWav);
     freqLim_ = P.freqLim / (P.sRateHz / 2);
     for iLoad = 1:nLoad1

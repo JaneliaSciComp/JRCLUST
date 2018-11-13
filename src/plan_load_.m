@@ -17,6 +17,6 @@ function [nLoad1, nSamples_load1, nSamples_last1] = plan_load_(nBytes_file, P)
     if ~P.fTranspose_bin %load all in one, Catalin's format
         [nLoad1, nSamples_load1, nSamples_last1] = deal(1, nSamples1, nSamples1);
     else
-        [nLoad1, nSamples_load1, nSamples_last1] = partition_load_(nSamples1, nSamples_max);
+        [nLoad1, nSamples_load1, nSamples_last1] = jrclust.utils.partitionLoad(nSamples1, nSamples_max);
     end
 end %func

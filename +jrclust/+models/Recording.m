@@ -1,6 +1,7 @@
 classdef Recording < handle
     %RECORDING Model of a single recording
     properties (SetAccess=private, SetObservable, Hidden, Transient)
+        errMsg;
         isError;        
         isOpen;
     end
@@ -8,6 +9,11 @@ classdef Recording < handle
     properties (SetAccess=private, SetObservable, Transient)
         rawData;
         filteredData;
+    end
+
+    properties (SetObservable, Dependent, Transient)
+        nChans;       % number of channels (rows) in the recording
+        nSamples;     % number of samples per channel (columns) in the recording
     end
 
     properties (SetAccess=private, SetObservable)
@@ -19,6 +25,7 @@ classdef Recording < handle
 
         dtype;        % data type contained in file
         dshape;       % shape of data (rows x columns), in samples
+        fSizeBytes;   % size of the file, in bytes
         headerOffset; % number of bytes at the beginning of the file to skip
     end
 
@@ -29,7 +36,7 @@ classdef Recording < handle
 
     % LIFECYCLE
     methods
-        function obj = Recording(filename, dtype, dshape, headerOffset)
+        function obj = Recording(filename, dtype, nChans, headerOffset)
             %RECORDING Construct an instance of this class
             % check filename exists
             obj.binpath = jrclust.utils.absPath(filename); % returns empty if not found
@@ -41,33 +48,40 @@ classdef Recording < handle
             % set object data type
             legalTypes = {'int16', 'uint16', 'int32', 'uint32', 'single', 'double'};
             if ~sum(strcmp(dtype, legalTypes)) == 1
+                obj.errMsg = sprintf('dtype must be one of %s', strjoin(legalTypes, ', '));
                 obj.isError = true;
                 return;
             end
             obj.dtype = dtype;
 
             % set headerOffset
-            assert(jrclust.utils.isscalarnum(headerOffset) && headerOffset >= 0, 'headerOffset must be nonnegative scalar');
-            obj.headerOffset = headerOffset;
-
-            % set object data shape
-            d = dir(obj.binpath);
-            sizePred = jrclust.utils.ismatrixnum(dshape) && ~isempty(dshape) ...
-                && all(size(dshape) == [1 2]) && all(dshape > 0) ...
-                && prod(dshape)*jrclust.utils.typeBytes(obj.dtype) == d.bytes - obj.headerOffset;
-            
-            if ~sizePred
+            if ~(jrclust.utils.isscalarnum(headerOffset) && headerOffset >= 0)
+                obj.errMsg = 'headerOffset must be nonnegative scalar';
                 obj.isError = true;
                 return;
             end
-            obj.dshape = dshape;
+            obj.headerOffset = headerOffset;
+
+            % set object data shape
+            if ~(jrclust.utils.isscalarnum(nChans) && nChans > 0)
+                obj.errMsg = 'nChans must be a positive scalar';
+                obj.isError = true;
+                return;
+            end
+            d = dir(obj.binpath);
+            obj.fSizeBytes = d.bytes;
+
+            nSamples = ceil((d.bytes - obj.headerOffset) / nChans / jrclust.utils.typeBytes(obj.dtype));
+            obj.dshape = [nChans nSamples];
 
             % load start and end times
             obj.metapath = jrclust.utils.absPath(strrep(filename, '.bin', '.meta'));
             if ~isempty(obj.metapath)
                 md = jrclust.utils.metaToStruct(obj.metapath);
-                obj.startTime = md.firstSample;
-                obj.endTime = md.firstSample + obj.dshape(2);
+                if isfield(md, 'firstSample')
+                    obj.startTime = md.firstSample;
+                    obj.endTime = md.firstSample + obj.dshape(2);
+                end
             end
 
             obj.isOpen = false;
@@ -134,30 +148,40 @@ classdef Recording < handle
     end
 
     % UTILITY METHODS
-    methods (Access=protected, Hidden)
-        function nBytes_load = file_trim_(obj, nBytes_load, P) % loadTimeLimits) % TODO: pass loadTimeLimits into this, in samples, from DetectionController
-            nSamples = obj.dshape(2);
+    methods (Hidden)
+        function nBytesLoad = subsetBytes(obj, loadTimeLimits)
+            %SUBSETBYTES Get number of bytes to load from file, given time limits
+            nBytesLoad = obj.fSizeBytes - obj.headerOffset;
 
-            % Apply limit to the range of samples to load
-            nlim_load = min(max(round(P.tlim_load * P.sRateHz), 1), nSamples);
-            nSamples_load = diff(nlim_load) + 1;
+            if isempty(loadTimeLimits)
+                return;
+            end
 
-            nBytes_load = nSamples_load * bytesPerSample * P.nChans;
-            % if nlim_load(1)>1,
-            fseek_(fid, nlim_load(1), P);
-            % end
-        end %func
-
+            loadLimits = min(max(loadTimeLimits, 1), obj.nSamples);
+            nSamplesLoad = diff(loadLimits) + 1;
+            nBytesLoad = nSamplesLoad * jrclust.utils.typeBytes(obj.dtype) * obj.nChans;
+        end
     end
 
     % GETTERS/SETTERS
     methods
-        function data = get.rawData(obj)
+        % rawData
+        function rd = get.rawData(obj)
             if obj.isOpen
-                data = obj.rawData.Data.Data;
+                rd = obj.rawData.Data.Data;
             else
-                data = [];
-            end 
+                rd = [];
+            end
+        end
+
+        % nChans
+        function nc = get.nChans(obj)
+            nc = obj.dshape(1);
+        end
+
+        % nSamples
+        function nc = get.nSamples(obj)
+            nc = obj.dshape(2);
         end
     end
 end

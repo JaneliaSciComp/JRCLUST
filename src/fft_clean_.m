@@ -14,7 +14,7 @@ function [mnWav1, fGpu] = fft_clean_(mnWav, P)
     else
         nLoads_gpu = get_set_(P, 'nLoads_gpu', 8); % GPU load limit
         nSamples = size(mnWav,1);
-        [nLoad1, nSamples_load1, nSamples_last1] = partition_load_(nSamples, round(nSamples/nLoads_gpu));
+        [nLoad1, nSamples_load1, nSamples_last1] = jrclust.utils.partitionLoad(nSamples, round(nSamples/nLoads_gpu));
         mnWav1 = zeros(size(mnWav), 'like', mnWav);
         for iLoad = 1:nLoad1
             iOffset = (iLoad-1) * nSamples_load1;

@@ -10,8 +10,12 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
     %   construct spike waveforms from previous time markers
     % 6/29/17 JJJ: Added support for the matched filter
 
-    if nargin<2, viTime_spk0 = []; end
-    if nargin<3, viSite_spk0 = []; end
+    if nargin < 2
+        viTime_spk0 = [];
+    end
+    if nargin < 3
+        viSite_spk0 = [];
+    end
     S0 = [];
     % [tnWav_raw, tnWav_spk, trFet_spk, S0] = deal([]);
 

@@ -24,6 +24,8 @@ classdef Config < handle & dynamicprops
         fGpu;                       % => useGPU
         gain_boost;                 % => gainBoost
         header_offset;              % => headerOffset
+        MAX_BYTES_LOAD;             % => maxBytesLoad
+        MAX_LOAD_SEC;               % => maxSecLoad
         maxDist_site_um             % => evtMergeRad
         maxDist_site_spk_um;        % => evtDetectRad
         maxSite;                    % => nSiteDir
@@ -97,7 +99,10 @@ classdef Config < handle & dynamicprops
         siteMap;                    % channel mapping; row i in the data corresponds to channel `siteMap(i)`
 
         % preprocessing params
+        gpuLoadFactor = 5;          % GPU memory usage factor (4x means 1/4 of GPU memory can be loaded)
         loadTimeLimits = [];        % time range of recording to load, in s (use whole range if empty)
+        maxBytesLoad = [];          % default memory loading block size (bytes)
+        maxSecLoad = [];            % maximum loading duration (seconds) (overrides 'maxBytesLoad')
         filterType = 'ndiff';       % filter to use {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
 
         % spike detection params
@@ -126,8 +131,6 @@ classdef Config < handle & dynamicprops
 
         % to get to, eventually
         LineStyle = '';
-        MAX_BYTES_LOAD = [];
-        MAX_LOAD_SEC = [];
         MAX_LOG = 5;
         S_imec3 = [];
         autoMergeCriterion = 'xcorr';
@@ -871,6 +874,34 @@ classdef Config < handle & dynamicprops
         function set.rho_cut(obj, rc)
             obj.logOldP('rho_cut');
             obj.log10RhoCut = rc;
+        end
+
+        % maxBytesLoad/MAX_BYTES_LOAD
+        function set.maxBytesLoad(obj, mb)
+            assert(jrclust.utils.isscalarnum(mb) && mb > 0, 'maxBytesLoad must be a positive scalar');
+            obj.maxBytesLoad = mb;
+        end
+        function mb = get.MAX_BYTES_LOAD(obj)
+            obj.logOldP('MAX_BYTES_LOAD');
+            mb = obj.maxBytesLoad;
+        end
+        function set.MAX_BYTES_LOAD(obj, mb)
+            obj.logOldP('MAX_BYTES_LOAD');
+            obj.maxBytesLoad = mb;
+        end
+
+        % maxSecLoad/MAX_LOAD_SEC
+        function set.maxSecLoad(obj, ms)
+            assert(jrclust.utils.isscalarnum(ms) && ms > 0, 'maxSecLoad must be a positive scalar');
+            obj.maxSecLoad = ms;
+        end
+        function ms = get.MAX_LOAD_SEC(obj)
+            obj.logOldP('MAX_LOAD_SEC');
+            ms = obj.maxSecLoad;
+        end
+        function set.MAX_LOAD_SEC(obj, ms)
+            obj.logOldP('MAX_LOAD_SEC');
+            obj.maxSecLoad = ms;
         end
 
         % multiRaw/csFile_merge
