@@ -22,7 +22,8 @@ classdef Config < handle & dynamicprops
         blank_thresh;               % => blankThresh
         csFile_merge;               % => multiRaw
         fGpu;                       % => useGPU
-        gain_boost;                 % => gainBoost;
+        gain_boost;                 % => gainBoost
+        header_offset;              % => headerOffset
         maxDist_site_um             % => evtMergeRad
         maxDist_site_spk_um;        % => evtDetectRad
         maxSite;                    % => nSiteDir
@@ -68,6 +69,11 @@ classdef Config < handle & dynamicprops
         refracIntSamp;              % spike refractory interval, in samples
     end
 
+    properties (Access=private, Hidden, SetObservable)
+        multiRaw;                   % list of recording files to merge (empty if single file is used)
+        singleRaw;                  % raw recording file path (empty if multiple files are sorted together)
+    end
+
     % new-style params, settable from outside
     properties (SetObservable)
         % computation params
@@ -80,13 +86,13 @@ classdef Config < handle & dynamicprops
         dtype = 'int16';            % raw data binary format
         gainBoost = 1;              % multiply the raw recording by this gain to boost uV/bit
         gtFile= '';                 % ground truth file (default: SESSION_NAME_gt.mat) (TODO: specify format)
+        headerOffset = 0;           % file header offset, in bytes
         lfpSampleRate = 2500;       % sample rate of the LFP recording, in Hz
-        multiRaw;                   % list of recording files to merge (empty if single file is used)
         probeFile;                  % probe file to use (.prb, .mat)
         probePad;                   %
+        rawRecordings;              % unified interface to singleRaw and multiRaw
         sampleRate = 30000;         % sample rate of the recording, in Hz
         shankMap;                   % index of shank to which a site belongs
-        singleRaw;                  % raw recording file path (empty if multiple files are sorted together)
         siteLoc;                    % x-y locations of channels on the probe, in microns
         siteMap;                    % channel mapping; row i in the data corresponds to channel `siteMap(i)`
 
@@ -190,7 +196,6 @@ classdef Config < handle & dynamicprops
         freqLim_excl_track = [58 62];
         freqLim_lfp = [];
         freqLim_track = [15 150];
-        header_offset = 0;
         iChan_aux = [];
         iChan_vid = [];
         iClu_show = [];
@@ -796,9 +801,23 @@ classdef Config < handle & dynamicprops
             obj.gtFile = gf;
         end
 
+        % headerOffset/header_offset
+        function set.headerOffset(obj, ho)
+            assert(jrclust.utils.isscalarnum(ho) && ho > 0, 'invalid headerOffset');
+            obj.headerOffset = ho;
+        end
+        function ho = get.header_offset(obj)
+            obj.logOldP('header_offset');
+            ho = obj.headerOffset;
+        end
+        function set.header_offset(obj, ho)
+            obj.logOldP('header_offset');
+            obj.headerOffset = ho;
+        end
+
         % ignoreSites/viSiteZero
         function set.ignoreSites(obj, ig)
-            assert(ismatrix(ig) && all(ig > 0), 'degenerate ignoreSites');
+            assert(jrclust.utils.ismatrixnum(ig) && all(ig > 0), 'degenerate ignoreSites');
             % don't manually ignore sites that are automatically ignored
             obj.ignoreSites = ig(ig > numel(obj.siteMap));
         end
@@ -940,7 +959,12 @@ classdef Config < handle & dynamicprops
 
         % probeFile/probe_file
         function set.probeFile(obj, pf)
-            pf_ = jrclust.utils.absPath(pf, fullfile(jrclust.utils.basedir, 'probes'));
+            % first check where the config file is located
+            pf_ = jrclust.utils.absPath(pf, fileparts(obj.configFile));
+            % if we can't find it there, try the standard location
+            if isempty(pf_)
+                pf_ = jrclust.utils.absPath(pf, fullfile(jrclust.utils.basedir, 'probes'));
+            end
             assert(isfile(pf_), 'could not find probe file ''%s''', pf);
             obj.probeFile = pf_;
         end
@@ -965,6 +989,15 @@ classdef Config < handle & dynamicprops
         function set.vrSiteHW(obj, pp)
             obj.logOldP('vrSiteHW');
             obj.probePad = pp;
+        end
+
+        % rawRecordings
+        function rr = get.rawRecordings(obj)
+            if isempty(obj.multiRaw)
+                rr = {obj.singleRaw};
+            else
+                rr = obj.multiRaw;
+            end
         end
 
         % refracIntms/spkRefrac_ms

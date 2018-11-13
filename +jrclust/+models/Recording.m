@@ -1,6 +1,5 @@
 classdef Recording < handle
     %RECORDING Model of a single recording
-
     properties (SetAccess=private, SetObservable, Hidden, Transient)
         isError;        
         isOpen;
@@ -15,12 +14,17 @@ classdef Recording < handle
         binpath;      % absolute path to binary file
         metapath;     % absolute path to meta file, if there is one
 
-        startTime;    % beginning of recording, in seconds
-        endTime;      % end of recording, in seconds
+        startTime;    % beginning of recording, in samples
+        endTime;      % end of recording, in samples
 
         dtype;        % data type contained in file
         dshape;       % shape of data (rows x columns), in samples
         headerOffset; % number of bytes at the beginning of the file to skip
+    end
+
+    properties
+        spikeTimes;   % times of detected spikes in this file, in samples
+        spikeSites;   % sites of detected spikes in this file, in samples
     end
 
     % LIFECYCLE
@@ -33,9 +37,6 @@ classdef Recording < handle
             if obj.isError
                 return;
             end
-
-            % TODO: if meta file exists, load up metadata about it
-            obj.metapath = jrclust.utils.absPath(strrep(filename, '.bin', '.meta'));
 
             % set object data type
             legalTypes = {'int16', 'uint16', 'int32', 'uint32', 'single', 'double'};
@@ -61,6 +62,14 @@ classdef Recording < handle
             end
             obj.dshape = dshape;
 
+            % load start and end times
+            obj.metapath = jrclust.utils.absPath(strrep(filename, '.bin', '.meta'));
+            if ~isempty(obj.metapath)
+                md = jrclust.utils.metaToStruct(obj.metapath);
+                obj.startTime = md.firstSample;
+                obj.endTime = md.firstSample + obj.dshape(2);
+            end
+
             obj.isOpen = false;
         end
     end
@@ -80,6 +89,7 @@ classdef Recording < handle
         end
 
         function close(obj)
+            %CLOSE Close the file, clear its data
             if ~obj.isOpen
                 return;
             end
@@ -87,25 +97,26 @@ classdef Recording < handle
             obj.isOpen = false;
         end
 
-        function roi = readROI(obj, rowBounds, colBounds)
-            if jrclust.utils.isscalarnum(rowBounds)
-                rowBounds = rowBounds*[1 1];
+        function roi = readROI(obj, rows, cols)
+            %READROI get a region of interest by rows/cols
+            if jrclust.utils.isscalarnum(rows)
+                rows = rows*[1 1];
             end
 
-            if jrclust.utils.isscalarnum(colBounds)
-                colBounds = colBounds*[1 1];
+            if jrclust.utils.isscalarnum(cols)
+                cols = cols*[1 1];
             end
 
-            rowPred = jrclust.utils.ismatrixnum(rowBounds) && ~isempty(rowBounds) ...
-                && all(size(rowBounds) == [1 2]) && all(rowBounds > 0) ...
-                && rowBounds(2) <= obj.dshape(1);
+            rowPred = jrclust.utils.ismatrixnum(rows) && ~isempty(rows) ...
+                && all(rows > 0) && issorted(rows) ...
+                && rows(end) <= obj.dshape(1);
             
-            colPred = jrclust.utils.ismatrixnum(colBounds) && ~isempty(colBounds) ...
-                && all(size(colBounds) == [1 2]) && all(colBounds > 0) ...
-                && colBounds(2) <= obj.dshape(2);
+            colPred = jrclust.utils.ismatrixnum(cols) && ~isempty(cols) ...
+                && all(cols > 0) && issorted(cols) ...
+                && cols(end) <= obj.dshape(2);
 
-            assert(rowPred, 'malformed rowBounds');
-            assert(colPred, 'malformed colBounds');
+            assert(rowPred, 'malformed rows');
+            assert(colPred, 'malformed cols');
 
             if obj.isOpen % already open, don't close after read
                 doClose = false;
@@ -114,18 +125,39 @@ classdef Recording < handle
                 doClose = true;
             end
 
-            roi = obj.rawData(rowBounds(1):rowBounds(2), colBounds(1):colBounds(2));
-            
+            roi = obj.rawData(rows, cols);
+
             if doClose
                 obj.close();
             end
         end
     end
 
+    % UTILITY METHODS
+    methods (Access=protected, Hidden)
+        function nBytes_load = file_trim_(obj, nBytes_load, P) % loadTimeLimits) % TODO: pass loadTimeLimits into this, in samples, from DetectionController
+            nSamples = obj.dshape(2);
+
+            % Apply limit to the range of samples to load
+            nlim_load = min(max(round(P.tlim_load * P.sRateHz), 1), nSamples);
+            nSamples_load = diff(nlim_load) + 1;
+
+            nBytes_load = nSamples_load * bytesPerSample * P.nChans;
+            % if nlim_load(1)>1,
+            fseek_(fid, nlim_load(1), P);
+            % end
+        end %func
+
+    end
+
     % GETTERS/SETTERS
     methods
         function data = get.rawData(obj)
-            data = obj.rawData.Data.Data;
+            if obj.isOpen
+                data = obj.rawData.Data.Data;
+            else
+                data = [];
+            end 
         end
     end
 end

@@ -51,7 +51,9 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
         fprintf('File %d/%d: detecting spikes from %s\n', iFile, nFiles, csFile{iFile});
         t1 = tic;
         [fid1, nBytes_file1] = fopen_(csFile{iFile}, 'r');
+
         nBytes_file1 = file_trim_(fid1, nBytes_file1, P);
+
         [nLoad1, nSamples_load1, nSamples_last1] = plan_load_(nBytes_file1, P);
         %         nSamples1 = 0; %accumulated sample offset
         viT_offset_file(iFile) = nSamples1;

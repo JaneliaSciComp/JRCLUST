@@ -19,6 +19,11 @@ function hJRC_ = jrc(varargin)
         return;
     end
 
+    if hJRC.inProgress()
+        hJRC.hCfg.fVerbose = true;
+        hJRC.run();
+    end 
+
     if nargout > 0
         hJRC_ = hJRC;
     end

@@ -2,87 +2,122 @@ classdef JRC < handle & dynamicprops
     %JRC
 
     properties (SetObservable, SetAccess=private, Hidden)
+        errMsg;
         isCompleted;
         isError;
-        isManualCuration;
+        isDetection;
         isSorting;
+        isCuration;
     end
 
     properties (SetObservable, SetAccess=private)
         args;
+        cmd;
         hCfg;
+        hDetect;
+        hSort;
+        hCurate;
     end
 
-    % lifecycle
+    % LIFECYCLE
     methods
         function obj = JRC(varargin)
             %JRC Construct an instance of this class
             obj.args = varargin;
             obj.isCompleted = false;
             obj.isError = false;
-            obj.isManualCuration = false;
+            obj.isDetection = false;
             obj.isSorting = false;
+            obj.isCuration = false;
 
             if ~jrclust.utils.sysCheck()
+                obj.errMsg = 'system requirements not met';
                 obj.isError = true;
             elseif nargin > 0
                 % handle arguments (legacy mode)
                 obj.processArgs();
             end
         end
+    end
 
+    methods (Access=protected)
         function processArgs(obj)
-            nArgs = numel(obj.args);
+            nargs = numel(obj.args);
 
-            if nArgs == 0
+            if nargs == 0
                 return;
             end
 
-            cmd = obj.args{1};
-            switch lower(cmd)
+            obj.cmd = lower(obj.args{1});
+            obj.args = obj.args(2:end);
+            nargs = nargs - 1;
+
+            switch obj.cmd
                 % deprecated commands; may be removed in a future release
                 case {'compile-ksort', 'edit', 'git-pull', 'issue', 'import-kilosort-sort', ...
                       'import-ksort-sort', 'kilosort', 'kilosort-verify', 'ksort', 'ksort-verify' ...
                       'which', 'wiki', 'wiki-download'}
-                    jrclust.utils.depWarn(cmd);
+                    jrclust.utils.depWarn(obj.cmd);
                     obj.isCompleted = true;
                     return;
                     
                 case {'doc', 'doc-edit'}
                     imsg = 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki';
-                    jrclust.utils.depWarn(cmd, imsg);
+                    jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.isCompleted = true;
                     return;
 
                 case 'download'
                     imsg = 'You can find sample.bin and sample.meta at https://drive.google.com/drive/folders/1-UTasZWB0TwFFFV49jSrpRPHmtve34O0?usp=sharing';
-                    jrclust.utils.depWarn(cmd, imsg);
+                    jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.isCompleted = true;
                     return;
                     
                 case 'gui'
                     imsg = 'GUI is not implemented yet, but eventually you can just use `jrc`';
-                    jrclust.utils.depWarn(cmd, imsg);
+                    jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.isCompleted = true;
                     return;
 
                 case 'install'
                     imsg = 'You might be looking for `compile` instead';
-                    jrclust.utils.depWarn(cmd, imsg);
+                    jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.isCompleted = true;
                     return;
-                    
+
                 case {'set', 'setprm', 'set-prm'}
                     imsg = 'Use `hJRC.hCfg = myconfig;` instead';
-                    jrclust.utils.depWarn(cmd, imsg);
+                    jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.isCompleted = true;
                     return;
 
                 case 'update'
                     imsg = 'Please check the repository at https://github.com/JaneliaSciComp/JRCLUST for updates';
-                    jrclust.utils.depWarn(cmd, imsg);
+                    jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.isCompleted = true;
                     return;
+
+                % deprecated synonyms, warn but proceed
+                case 'spikedetect'
+                    imsg = 'Please use ''detect'' in the future';
+                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    obj.cmd = 'detect';
+
+                case {'cluster', 'clust', 'sort-verify', 'sort-validate', 'sort-manual'}
+                    imsg = 'Please use ''sort'' in the future';
+                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    obj.cmd = 'sort';
+
+                case {'detectsort', 'detect-sort', 'spikesort-verify', ...
+                      'spikesort-validate', 'spikesort-manual', 'detectsort-manual'}
+                    imsg = 'Please use ''spikesort'' in the future';
+                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    obj.cmd = 'spikesort';
+
+                case 'all'
+                    imsg = 'Please use ''full'' in the future';
+                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    obj.cmd = 'full';
 
                 % info commands
                 case 'about'
@@ -100,39 +135,53 @@ classdef JRC < handle & dynamicprops
                     fprintf('%s %s\n', md.program, jrclust.utils.version());
                     obj.isCompleted = true;
                     return;
-                    
             end
 
             % command sentinel
-            legalCmds = {'sort'};
-            if ~any(strcmpi(cmd, legalCmds))
-                emsg = sprintf('Command `%s` not recognized', cmd);
-                errordlg(emsg, 'Unrecognized command');
+            legalCmds = {'detect', 'full', 'manual', 'sort', 'spikesort'};
+            if ~any(strcmpi(obj.cmd, legalCmds))
+                obj.errMsg = sprintf('Command `%s` not recognized', obj.cmd);
+                errordlg(obj.errMsg, 'Unrecognized command');
                 obj.isError = true;
                 return;
+            end
+
+            % determine which commands in the pipeline to run
+            detectCmds = {'detect', 'sort', 'spikesort', 'full'};
+            sortCmds   = {'sort', 'spikesort', 'full'};
+            curateCmds = {'full', 'manual'};
+
+            if any(strcmp(obj.cmd, detectCmds))
+                obj.isDetection = true;
+            end
+            if any(strcmp(obj.cmd, sortCmds))
+                obj.isSorting = true;
+            end
+            if any(strcmp(obj.cmd, curateCmds))
+                obj.isCuration = true;
             end
 
             % load from saved
             % TODO (much much later)
 
             % commands from here on out require a parameter file
-            if nArgs < 2
-                emsg = sprintf('Command `%s` requires a parameter file', cmd);
-                errordlg(emsg, 'Missing parameter file');
+            if nargs < 1
+                obj.errMsg = sprintf('Command `%s` requires a parameter file', obj.cmd);
+                errordlg(obj.errMsg, 'Missing parameter file');
                 obj.isError = true;
                 return;
             end
 
             % load parameter file
-            configFile = obj.args{2};
+            configFile = obj.args{1};
             obj.hCfg = jrclust.Config(configFile);
-
-            
         end
     end
-    
-    methods % introspection
+
+    % USER METHODS
+    methods
         function ip = inProgress(obj)
+            %INPROGRESS 
             ip = ~(obj.isCompleted || obj.isError);
         end
 
@@ -141,15 +190,35 @@ classdef JRC < handle & dynamicprops
                 it = 'error';
             elseif obj.isSorting
                 it = 'sorting';
-            elseif obj.isManualCuration
+            elseif obj.isCuration
                 it = 'manual';
-            else % ~(obj.isManualCuration || obj.isSorting)
+            else % ~(obj.isCuration || obj.isSorting)
                 it = 'info';
             end
         end
+
+        function run(obj)
+            if obj.isError
+                error(obj.errMsg);
+            elseif obj.isCompleted
+                warning('command %s completed successfully; to rerun, use rerun()');
+                return;
+            end
+
+            if obj.isDetection
+                obj.hDetect = jrclust.controllers.DetectionController(obj.hCfg);
+                dRes = obj.hDetect.detect();
+                if obj.hCfg.fVerbose
+                    fprintf('detection completed in %0.2f seconds', dRes.runtime);
+                end
+            end
+
+            obj.isCompleted = true;
+        end
     end
 
-    methods % getters/setters
+    % GETTERS/SETTERS
+    methods
         % args
         function args = get.args(obj)
             args = obj.args;
@@ -164,6 +233,11 @@ classdef JRC < handle & dynamicprops
         end
         function set.hCfg(obj, hCfg)
             obj.hCfg = hCfg;
+        end
+
+        % isError
+        function ie = get.isError(obj)
+            ie = obj.isError || obj.hCfg.isError;
         end
     end
 end
