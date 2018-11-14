@@ -8,7 +8,7 @@ classdef Config < handle & dynamicprops
         oldPcount;
     end
 
-    % old-style params, will be deprecated after a grace period,
+    % old-style params, will be deprecated after a grace period
     properties (SetObservable, Dependent, Hidden, Transient)
         % cvrDepth_drift;           % doesn't appear to be used (was {})
         % maxSite_detect;           % doesn't appear to be used (was 1.5)
@@ -21,6 +21,7 @@ classdef Config < handle & dynamicprops
         % rejectSpk_mean_thresh;    % appears to be synonymous with blankThresh/blank_thresh
         blank_thresh;               % => blankThresh
         csFile_merge;               % => multiRaw
+        fEllip;                     % => useElliptic
         fGpu;                       % => useGPU
         gain_boost;                 % => gainBoost
         header_offset;              % => headerOffset
@@ -51,6 +52,7 @@ classdef Config < handle & dynamicprops
         tlim;                       % => dispTimeLimits
         tlim_load;                  % => loadTimeLimits
         uV_per_bit;                 % => bitScaling
+        vcCommonRef;                % => carMode
         vcDataType;                 % => dtype
         vcFile;                     % => singleRaw
         vcFile_gt;                  % => gtFile
@@ -60,6 +62,7 @@ classdef Config < handle & dynamicprops
         vcFilter_show;              % => dispFilter
         viChan_aux;                 % => auxSites
         viShank_site;               % => shankMap
+        vnFilter_user;              % => userFiltKernel
         vrSiteHW;                   % => probePad
         viSite2Chan;                % => siteMap
         viSiteZero;                 % => ignoreSites
@@ -104,12 +107,19 @@ classdef Config < handle & dynamicprops
         siteMap;                    % channel mapping; row i in the data corresponds to channel `siteMap(i)`
 
         % preprocessing params
+        useElliptic = true;         % use elliptic filter if true (and only if filterType='bandpass')
+        filtOrder = 3;              % bandpass filter order
         filterType = 'ndiff';       % filter to use {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
+        freqLim = [300 3000];       % frequency cut-off limit for filterType='bandpass' (ignored otherwise)
+        freqLimNotch = [];
+        freqLimStop = [];
         loadTimeLimits = [];        % time range of recording to load, in s (use whole range if empty)
         maxBytesLoad = [];          % default memory loading block size (bytes)
         maxSecLoad = [];            % maximum loading duration (seconds) (overrides 'maxBytesLoad')
+        ndist_filt = 5;             % undocumented
         nSamplesPad = 100;          % number of samples to overlap between multiple loading (filter edge safe)
         userFiltKernel = [];        % custom filter kernel (optional unless filterType='user')
+        carMode = 'mean';           % common average referencing mode (one of 'none', 'mean', 'median', or 'whiten')
 
         % spike detection params
         blankThresh = [];           % reject spikes exceeding the channel mean after filtering (MAD unit), ignored if [] or 0
@@ -158,7 +168,6 @@ classdef Config < handle & dynamicprops
         fDetectBipolar = false;
         fDiscard_count = true;
         fDrift_merge = true;
-        fEllip = true;
         fGroup_shank = false;
         fInterp_fet = true;
         fInverse_file = false;
@@ -196,12 +205,9 @@ classdef Config < handle & dynamicprops
         fWav_raw_show = false;
         fWhiten_traces = false;
         fft_thresh = 0;
-        filtOrder = 3;
         filter_sec_rate = 2;
         filter_shape_rate = 'triangle';
         flim_vid = [];
-        freqLim = [300 3000];
-        freqLimNotch = [];
         freqLimNotch_lfp = [];
         freqLim_corr = [15 150];
         freqLim_excl_track = [58 62];
@@ -280,7 +286,6 @@ classdef Config < handle & dynamicprops
         um_per_pix = 20;
         vcCluDist = 'eucldist';
         vcCluWavMode = 'mean';
-        vcCommonRef = 'mean';
         vcDate_file = '';
         vcDc_clu = 'distr';
         vcDetrend_postclu = 'global';
@@ -573,6 +578,21 @@ classdef Config < handle & dynamicprops
             bp = jrclust.utils.typeBytes(obj.dtype);
         end
 
+        % carMode/vcCommonRef
+        function set.carMode(obj, cm)
+            legalTypes = {'mean', 'median', 'whiten', 'none'};
+            assert(sum(strcmp(cm, legalTypes) == 1), 'legal carModes are %s', strjoin(legalTypes, ', '));
+            obj.carMode = cm;
+        end
+        function cm = get.vcCommonRef(obj)
+            obj.logOldP('vcCommonRef');
+            cm = obj.carMode;
+        end
+        function set.vcCommonRef(obj, cm)
+            obj.logOldP('vcCommonRef');
+            obj.carMode = cm;
+        end
+
         % configFile/vcFile_prm
         function set.configFile(obj, cf)
             cf_ = jrclust.utils.absPath(cf);
@@ -761,6 +781,12 @@ classdef Config < handle & dynamicprops
             obj.evtWindowSamp = ew;
         end
 
+        % filtOrder
+        function set.filtOrder(obj, fo)
+            assert(jrclust.utils.isscalarnum(fo) && fo > 0, 'bad filtOrder');
+            obj.filtOrder = fo;
+        end
+
         % filterType/vcFilter
         function set.filterType(obj, ft)
             legalTypes = {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'};
@@ -774,6 +800,12 @@ classdef Config < handle & dynamicprops
         function set.vcFilter(obj, ft)
             obj.logOldP('vcFilter');
             obj.filterType = ft;
+        end
+
+        % freqLim
+        function set.freqLim(obj, fl)
+            assert(jrclust.utils.ismatrixnum(fl) && all(size(fl) == [1 2]) && all(fl >= 0), 'bad freqLim');
+            obj.freqLim = fl;
         end
 
         % gainBoost/gain_boost
@@ -1204,6 +1236,21 @@ classdef Config < handle & dynamicprops
             obj.threshFile = gf;
         end
 
+        % useElliptic/fEllip
+        function set.useElliptic(obj, ue)
+            assert(isscalar(ue));
+            ue = logical(ue);
+            obj.useElliptic = ue;
+        end
+        function ue = get.fEllip(obj)
+            obj.logOldP('fEllip');
+            ue = obj.useElliptic;
+        end
+        function set.fEllip(obj, ue)
+            obj.logOldP('fEllip');
+            obj.useElliptic = ue;
+        end
+
         % useGPU/fGpu
         function set.useGPU(obj, ug)
             % use GPU if and only if present, accessible, and asked for
@@ -1219,8 +1266,18 @@ classdef Config < handle & dynamicprops
             obj.useGPU = ug;
         end
 
+        % userFiltKernel/vnFilter_user
         function set.userFiltKernel(obj, uf)
-            assert
+            assert(jrclust.utils.ismatrixnum(uf));
+            obj.userFiltKernel = uf;
+        end
+        function uf = get.vnFilter_user(obj)
+            obj.logOldP('vnFilter_user');
+            uf = obj.userFiltKernel;
+        end
+        function set.vnFilter_user(obj, uf)
+            obj.logOldP('vnFilter_user');
+            obj.userFiltKernel = uf;
         end
     end
 end
