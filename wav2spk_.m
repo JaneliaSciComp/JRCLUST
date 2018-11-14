@@ -17,6 +17,7 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
     if nargin<6, mnWav1_pre = []; end
     if nargin<7, mnWav1_post = []; end
     [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk] = deal([]);
+    fGpu = P.fGpu;
     nFet_use = get_set_(P, 'nFet_use', 2);
     fMerge_spk = 1; %debug purpose
     fShift_pos = 0; % shift center position based on center of mass
@@ -153,6 +154,5 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
     if nPad_pre > 0, viTime_spk = viTime_spk - nPad_pre; end
     [viTime_spk, trFet_spk, miSite_spk, tnWav_spk] = ...
     gather_(viTime_spk, trFet_spk, miSite_spk, tnWav_spk);
-    fGpu = P.fGpu;
     fprintf('\ttook %0.1fs\n', toc(t_fet));
 end %func
