@@ -34,7 +34,7 @@ function batch_verify_(vcFile_batch, vcCommand)
             P = loadParam_(vcFile_prm_);
             set0_(P);
             S_ = S_score1.S_score_clu;
-            cvrSnr{iFile} = gather_(S_score1.vrSnr_min_gt');
+            cvrSnr{iFile} = jrclust.utils.tryGather(S_score1.vrSnr_min_gt');
             [cvrFp{iFile}, cvrFn{iFile}, cvrAccuracy{iFile}] = deal(S_.vrFp, S_.vrMiss, S_.vrAccuracy);
             cvnSpk{iFile} = cellfun(@numel, S_.cviSpk_gt_hit) + cellfun(@numel, S_.cviSpk_gt_miss);
             cvnSite{iFile} = S_score1.vnSite_gt;

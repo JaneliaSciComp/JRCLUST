@@ -20,8 +20,8 @@ function [tr, miRange] = mn2tn_gpu_(mr, spkLim, viTime, viSite)
     if iscolumn(viTime), viTime = viTime'; end
 
     fGpu = isGpu_(mr);
-    viTime = gpuArray_(viTime, fGpu);
-    spkLim = gpuArray_(spkLim, fGpu);
+    viTime = jrclust.utils.tryGpuArray(viTime, fGpu);
+    spkLim = jrclust.utils.tryGpuArray(spkLim, fGpu);
 
     viTime0 = [spkLim(1):spkLim(end)]'; %column
     miRange = bsxfun(@plus, int32(viTime0), int32(viTime));
@@ -33,7 +33,7 @@ function [tr, miRange] = mn2tn_gpu_(mr, spkLim, viTime, viSite)
         if fGpu
             %         vr1 = gpuArray(mr(:,iSite));
             %         tr(:,:,iSite) = gather(vr1(miRange));
-            tr(:,:,iSite) = gather_(reshape(mr(miRange, iSite), dimm_tr(1:2)));
+            tr(:,:,iSite) = jrclust.utils.tryGather(reshape(mr(miRange, iSite), dimm_tr(1:2)));
         else
             tr(:,:,iSite) = reshape(mr(miRange, iSite), dimm_tr(1:2));
         end

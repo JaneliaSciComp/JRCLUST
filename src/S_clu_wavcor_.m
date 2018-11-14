@@ -42,7 +42,7 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
         tmrWav_clu = S_clu.tmrWav_spk_clu;
     end
     % tmrWav_clu = ifeq_(fWaveform_raw, S_clu.tmrWav_raw_clu, S_clu.tmrWav_spk_clu);
-    % tmrWav_clu = gpuArray_(tmrWav_clu, P.fGpu);
+    % tmrWav_clu = jrclust.utils.tryGpuArray(tmrWav_clu, P.fGpu);
     if fDrift_merge && fWaveform_raw % only works on raw
         tmrWav_lo_clu = trim_spkraw_(S_clu.tmrWav_raw_lo_clu, P);
         tmrWav_hi_clu = trim_spkraw_(S_clu.tmrWav_raw_hi_clu, P);
@@ -67,10 +67,10 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
         viSite_clu = S_clu.viSite_clu;
         cviSite_clu = {viSite_clu};
     end
-    mrWavCor = gpuArray_(zeros(nClu), P.fGpu);
+    mrWavCor = jrclust.utils.tryGpuArray(zeros(nClu), P.fGpu);
     nSites_spk = P.maxSite*2+1-P.nSites_ref;
     nT = size(tmrWav_clu, 1);
-    [cviShift1, cviShift2] = shift_range_(gpuArray_(int32(nT), P.fGpu), nShift);
+    [cviShift1, cviShift2] = shift_range_(jrclust.utils.tryGpuArray(int32(nT), P.fGpu), nShift);
     % viLags = 1:numel(cviShift1);
     if isempty(viClu_update)
         vlClu_update = true(nClu, 1);
@@ -105,7 +105,7 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
 
     mrWavCor = max(mrWavCor, mrWavCor'); %make it symmetric
     mrWavCor(mrWavCor==0) = nan;
-    mrWavCor = gather_(mrWavCor);
+    mrWavCor = jrclust.utils.tryGather(mrWavCor);
     fprintf('\ttook %0.1fs\n', toc(t1));
 end %func
 
@@ -250,7 +250,7 @@ function mrWavCor = S_clu_wavcor_2_(S_clu, P, viClu_update) % works for only the
     ctmrWav_clu = {S_clu.tmrWav_raw_clu, S_clu.tmrWav_raw_lo_clu, S_clu.tmrWav_raw_hi_clu};
 
     nClu = S_clu.nClu;
-    mrWavCor = gpuArray_(zeros(nClu), P.fGpu);
+    mrWavCor = jrclust.utils.tryGpuArray(zeros(nClu), P.fGpu);
     if isempty(viClu_update)
         vlClu_update = true(nClu, 1);
         mrWavCor0 = [];
@@ -278,7 +278,7 @@ function mrWavCor = S_clu_wavcor_2_(S_clu, P, viClu_update) % works for only the
 
     mrWavCor = max(mrWavCor, mrWavCor'); %make it symmetric
     mrWavCor(mrWavCor==0) = nan;
-    mrWavCor = gather_(mrWavCor);
+    mrWavCor = jrclust.utils.tryGather(mrWavCor);
     fprintf('\ttook %0.1fs\n', toc(t1));
 end %func
 

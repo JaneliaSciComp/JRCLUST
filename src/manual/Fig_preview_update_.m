@@ -14,7 +14,7 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     figure_wait_(1, hFig); drawnow;
     fft_thresh = S_fig.fft_thresh;
     if fft_thresh > 0
-        S_fig.mnWav_clean = fft_clean_(S_fig.mnWav_raw, struct_add_(P, fft_thresh)); % fft filter
+        S_fig.mnWav_clean = jrclust.utils.fftClean(S_fig.mnWav_raw, struct_add_(P, fft_thresh)); % fft filter
     else
         S_fig.mnWav_clean = S_fig.mnWav_raw;
     end
@@ -36,7 +36,7 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     % Perform filter fft_thresh
     P_ = set_(P, 'vcCommonRef', 'none', 'fGpu', 0, 'vcFilter', S_fig.vcFilter, ...
     'blank_period_ms', S_fig.blank_period_ms, 'blank_thresh', S_fig.blank_thresh, 'fParfor', 0);
-    mnWav_filt = filt_car_(S_fig.mnWav_clean, P_);
+    mnWav_filt = jrclust.utils.filtCar(S_fig.mnWav_clean, P_);
     % if strcmpi(S_fig.vcCommonRef, 'median')
     %     vrWav_filt_mean = median(mnWav_filt(:,~S_fig.vlSite_bad), 2);
     % else

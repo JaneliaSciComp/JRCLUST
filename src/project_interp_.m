@@ -4,7 +4,7 @@ function [mrFet1, mrFet2, mrFet3] = project_interp_(trWav2_spk, mrPv, P);
     dimm1 = size(trWav2_spk);
     if ismatrix(trWav2_spk), dimm1(end+1) = 1; end
     mrWav_spk1 = reshape(trWav2_spk, dimm1(1), []);
-    mrPv = gather_(mrPv);
+    mrPv = jrclust.utils.tryGather(mrPv);
     mrFet1 = reshape(mrPv(:,1)' * mrWav_spk1, dimm1(2:3))';
     if P.nPcPerChan >= 2
         mrFet2 = reshape(mrPv(:,2)' * mrWav_spk1, dimm1(2:3))';
@@ -24,7 +24,7 @@ function [mrFet1, mrFet2, mrFet3] = project_interp_(trWav2_spk, mrPv, P);
     for iShift = 2:numel(viShift)
         mrPv1(:,iShift) = zscore(interp1(vi0, vr1, vi0+viShift(iShift), 'pchip', 'extrap'));
     end
-    mrPv1 = gpuArray_(mrPv1, isGpu_(trWav2_spk));
+    mrPv1 = jrclust.utils.tryGpuArray(mrPv1, isGpu_(trWav2_spk));
     [~, viMax_spk] = max(abs(mrPv1' * trWav2_spk(:,:,1)));
     for iShift=2:numel(viShift)
         viSpk2 = find(viMax_spk == iShift);

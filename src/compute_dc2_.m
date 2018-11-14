@@ -28,7 +28,7 @@ function dc2_ = compute_dc2_(mrFet12, viiSpk12_ord, n1_, n2_, P)
             mlKeep11_2_ = abs(bsxfun(@minus, viiSpk12_ord, viiSpk1_ord_')) < (n1_+n2_) / P.nTime_clu;
             mrDist11_2_(~mlKeep11_2_) = nan;
         catch
-            mrFet12 = gather_(mrFet12);
+            mrFet12 = jrclust.utils.tryGather(mrFet12);
         end
     end
     % end
@@ -37,7 +37,7 @@ function dc2_ = compute_dc2_(mrFet12, viiSpk12_ord, n1_, n2_, P)
         dc2_ = quantile(mrDist11_2_(~isnan(mrDist11_2_)), P.dc_percent/100);
     else
         %     mrDist_sub = subsample_mr_(mrDist11_2_, P.dc_subsample, 2);
-        mrDist_sub = gather_(mrDist11_2_);
+        mrDist_sub = jrclust.utils.tryGather(mrDist11_2_);
         mrDist_sub(mrDist_sub<=0) = nan;
         if 1
             dc2_ = nanmedian(quantile(mrDist_sub, P.dc_percent/100));

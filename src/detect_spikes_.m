@@ -21,7 +21,7 @@ function [viTime_spk, vrAmp_spk, viSite_spk] = detect_spikes_(mnWav3, vnThresh_s
             [cviSpk_site{iSite}, cvrSpk_site{iSite}] = select_vr_(viSpk11, vrSpk11, find(vlKeep_ref(viSpk11)));
         end
     end
-    vnThresh_site = gather_(vnThresh_site);
+    vnThresh_site = jrclust.utils.tryGather(vnThresh_site);
     nSpks1 = sum(cellfun(@numel, cviSpk_site));
     fprintf('\n\t\tDetected %d spikes from %d sites; took %0.1fs.\n', nSpks1, nSites, toc(t1));
 
@@ -38,7 +38,7 @@ function [viTime_spk, vrAmp_spk, viSite_spk] = detect_spikes_(mnWav3, vnThresh_s
         [viTime_spk, viSrt] = sort(viTime_spk, 'ascend');
         [vrAmp_spk, viSite_spk] = multifun_(@(x)x(viSrt), vrAmp_spk, viSite_spk);
     end
-    vrAmp_spk = gather_(vrAmp_spk);
+    vrAmp_spk = jrclust.utils.tryGather(vrAmp_spk);
 
     % Group all sites in the same shank
     if get_set_(P, 'fGroup_shank', 0)

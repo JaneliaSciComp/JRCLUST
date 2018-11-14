@@ -18,7 +18,7 @@ function vrDist12 = xcorr2_mr_(mrWav1, mrWav2, arg1, arg2)
     %     mrWav1 = mrWav1 .^ 2;
     %     mrWav2 = mrWav2 .^ 2;
     % end
-    % vrDist12 = gpuArray_(zeros(size(cvi1)), isGpu_(mrWav1));
+    % vrDist12 = jrclust.utils.tryGpuArray(zeros(size(cvi1)), isGpu_(mrWav1));
     vrDist12 = zeros(size(cvi1));
     for iDist = 1:numel(vrDist12)
         vr1 = mrWav1(cvi1{iDist},:);

@@ -10,8 +10,8 @@ function [tnWav_raw, tnWav_spk, viTime_spk] = mn2tn_wav_(mnWav_raw, mnWav_spk, v
 
     % Realignment parameters
     fRealign_spk = get_set_(P, 'fRealign_spk', 0); %0,1,2
-    viTime_spk = gpuArray_(viTime_spk, isGpu_(mnWav_raw));
-    viSite_spk = gpuArray_(viSite_spk, isGpu_(mnWav_raw));
+    viTime_spk = jrclust.utils.tryGpuArray(viTime_spk, isGpu_(mnWav_raw));
+    viSite_spk = jrclust.utils.tryGpuArray(viSite_spk, isGpu_(mnWav_raw));
     if isempty(viSite_spk)
         tnWav_raw = permute(mr2tr3_(mnWav_raw, spkLim_raw, viTime_spk), [1,3,2]);
         tnWav_spk = permute(mr2tr3_(mnWav_spk, spkLim_wav, viTime_spk), [1,3,2]);

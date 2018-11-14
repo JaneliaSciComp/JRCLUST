@@ -26,7 +26,7 @@ function mnWav1 = fftdiff_(mnWav, P)
             end
         end
         if ~fGpu % use CPU
-            mnWav1(vi1,:) = fftdiff__(gather_(mnWav1_), freqLim_);
+            mnWav1(vi1,:) = fftdiff__(jrclust.utils.tryGather(mnWav1_), freqLim_);
         end
     end %for
 end %func

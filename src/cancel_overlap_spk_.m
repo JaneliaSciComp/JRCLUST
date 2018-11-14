@@ -3,14 +3,14 @@
 function [tnWav_spk_out, tnWav_spk2_out] = cancel_overlap_spk_(tnWav_spk, tnWav_spk2, viTime_spk, viSite_spk, viSite2_spk, vnThresh_site, P)
     % Overlap detection. only return one stronger than other
     fGpu = isGpu_(tnWav_spk);
-    [viTime_spk, tnWav_spk, tnWav_spk2] = gather_(viTime_spk, tnWav_spk, tnWav_spk2);
+    [viTime_spk, tnWav_spk, tnWav_spk2] = jrclust.utils.tryGather(viTime_spk, tnWav_spk, tnWav_spk2);
     [viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = detect_overlap_spk_(viTime_spk, viSite_spk, P);
     [tnWav_spk_out, tnWav_spk2_out] = deal(tnWav_spk, tnWav_spk2);
     % find spike index that are larger and fit and deploy
     viSpk_ol_a = find(viSpk_ol_spk>0); % later occuring
     [viSpk_ol_b, vnDelay_ol_b] = deal(viSpk_ol_spk(viSpk_ol_a), vnDelay_ol_spk(viSpk_ol_a)); % first occuring
     viTime_spk0 = int32(P.spkLim(1):P.spkLim(2));
-    vnThresh_site = gather_(-abs(vnThresh_site(:))');
+    vnThresh_site = jrclust.utils.tryGather(-abs(vnThresh_site(:))');
     % for each pair identify time range where threshold crossing occurs and set to zero
     % correct only first occuring (b)
     miSites = P.miSites;
@@ -38,7 +38,7 @@ function [tnWav_spk_out, tnWav_spk2_out] = cancel_overlap_spk_(tnWav_spk, tnWav_
             tnWav_spk2_out(nDelay_b+1:end,:,iSpk_b) = mnWav_b;
         end
     end %for
-    % tnWav_spk = gpuArray_(tnWav_spk, fGpu);
+    % tnWav_spk = jrclust.utils.tryGpuArray(tnWav_spk, fGpu);
     %     [iSite_a, iSite_b] = deal(viSite_spk(iSpk_a), viSite_spk(iSpk_b));
     %     [viSite_a, viSite_b] = deal(miSites(:,iSite_a), miSites(:,iSite_b));
     %     [viSite_ab, via_, vib_] = intersect(viSite_a, viSite_b);

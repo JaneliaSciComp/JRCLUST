@@ -46,14 +46,14 @@ function trFet_spk_ = denoise_fet_(trFet_spk, P, vlRedo_spk)
                 %               [vrDelta2, viNneigh2] = min(mrD11);
             end
 
-            trFet_spk_(:,1,viSpk1) = gather_(mrFet1);
-            trFet_spk_(:,2,viSpk1) = gather_(mrFet2);
+            trFet_spk_(:,1,viSpk1) = jrclust.utils.tryGather(mrFet1);
+            trFet_spk_(:,2,viSpk1) = jrclust.utils.tryGather(mrFet2);
             [mrFet1, mrFet2, vrDelta1, viNneigh1] = deal([]);
             fprintf('.');
         end
     catch
         disperr_('denoise_fet_: CUDA init error');
     end
-    % [vrRho, vrDc2_site] = gather_(vrRho, vrDc2_site);
+    % [vrRho, vrDc2_site] = jrclust.utils.tryGather(vrRho, vrDc2_site);
     fprintf('\n\ttook %0.1fs\n', toc(t1));
 end

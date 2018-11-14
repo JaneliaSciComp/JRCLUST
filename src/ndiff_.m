@@ -28,7 +28,7 @@ function mnWav = ndiff_(mnWav, nDiff_filt)
     end
     % catch
     %     if isGpu_(mnWav)
-    %         mnWav = ndiff_(gather_(mnWav), nDiff_filt);
+    %         mnWav = ndiff_(jrclust.utils.tryGather(mnWav), nDiff_filt);
     %     else
     %         disperr_('ndiff');
     %     end

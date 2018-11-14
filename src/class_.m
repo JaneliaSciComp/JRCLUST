@@ -2,9 +2,11 @@
 function [vc, fGpu] = class_(vr)
     % Return the class for GPU or CPU arrays
     if isempty(vr)
-        vc = class(gather_(vr));
+        vc = class(jrclust.utils.tryGather(vr));
     else
-        vc = class(gather_(vr(1)));
+        vc = class(jrclust.utils.tryGather(vr(1)));
     end
-    if nargout>=2, fGpu = isGpu_(vr); end
+    if nargout >=2
+        fGpu = isGpu_(vr);
+    end
 end %func

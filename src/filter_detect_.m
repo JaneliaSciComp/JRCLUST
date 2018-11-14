@@ -10,8 +10,8 @@ function [mn1, nShift_post] = filter_detect_(mn, P, vcMode)
     viSites_use = 1:(1+2*P.maxSite - P.nSites_ref);
     viSites_ref = (1+2*P.maxSite - P.nSites_ref+1):(1+2*P.maxSite);
     fprintf('filter_detect\n\t'); t1= tic;
-    miSites = gpuArray_(P.miSites(viSites_use, :));
-    miSites_ref = gpuArray_(P.miSites(viSites_ref, :));
+    miSites = jrclust.utils.tryGpuArray(P.miSites(viSites_use, :));
+    miSites_ref = jrclust.utils.tryGpuArray(P.miSites(viSites_ref, :));
     nShift_post = 0;
     switch lower(vcMode)
         case 'ndist'
@@ -29,7 +29,7 @@ function [mn1, nShift_post] = filter_detect_(mn, P, vcMode)
             nShift_post = get0_('nShift_post');
         end
         %         nShift_post = nShift_post_;
-        mn1 = int16(conv2(single(gather_(mn)), vrFilt_spk(:), 'same'));
+        mn1 = int16(conv2(single(jrclust.utils.tryGather(mn)), vrFilt_spk(:), 'same'));
         %         mn1 = shift_mr_(mn1, nShift_post); % or do it later in the spike detection phase
         %         figure; plot(xcorr(mn(:,41), mn1(:,41), 10));
         %         nShift_post = P.spkLim(1)-1;

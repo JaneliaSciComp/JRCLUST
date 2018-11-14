@@ -36,6 +36,6 @@ function [viSpk, vrSpk, viSite] = spikeMerge_(cviSpk, cvrSpk, P)
     vrSpk = cell2mat_(cvrSpkA);
     viSite = cell2mat_(cviSiteA);
     [viSpk, viSrt] = sort(viSpk); %sort by time
-    vrSpk = gather_(vrSpk(viSrt));
+    vrSpk = jrclust.utils.tryGather(vrSpk(viSrt));
     viSite = viSite(viSrt);
 end %func

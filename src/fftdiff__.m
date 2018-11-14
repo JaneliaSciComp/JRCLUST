@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function mnWav1 = fftdiff__(mnWav, freqLim_)
     % apply fft to diffrentiate
-    % mnWav = gather_(mnWav);
+    % mnWav = jrclust.utils.tryGather(mnWav);
 
     n = size(mnWav,1);
     % n1 = round(n/2*freqLim_(1));

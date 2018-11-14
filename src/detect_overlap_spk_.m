@@ -8,7 +8,7 @@ function [viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = detect_overlap_spk_(vi
     nSpk = numel(viTime_spk);
     nSites = max(viSite_spk);
     cviSpk_site = arrayfun(@(iSite)int32(find(viSite_spk==iSite)), (1:nSites)', 'UniformOutput', 0);
-    viTime_spk = gather_(viTime_spk);
+    viTime_spk = jrclust.utils.tryGather(viTime_spk);
     [viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = deal(zeros(size(viSite_spk), 'int32'));
     for iSite = 1:nSites
         viSpk1 = cviSpk_site{iSite};

@@ -30,6 +30,8 @@ classdef Config < handle & dynamicprops
         maxDist_site_spk_um;        % => evtDetectRad
         maxSite;                    % => nSiteDir
         mrSiteXY;                   % => siteLoc
+        nLoads_gpu;                 % => ramToGPUFactor
+        nPad_filt;                  % => nSamplesPad
         nSites_ref;                 % => nSitesExcl
         nSkip_lfp;                  % => lfpDsFactor
         probe_file;                 % => probeFile
@@ -53,6 +55,7 @@ classdef Config < handle & dynamicprops
         vcFile;                     % => singleRaw
         vcFile_gt;                  % => gtFile
         vcFile_prm;                 % => configFile
+        vcFile_thresh;              % => threshFile
         vcFilter;                   % => filterType
         vcFilter_show;              % => dispFilter
         viChan_aux;                 % => auxSites
@@ -78,7 +81,9 @@ classdef Config < handle & dynamicprops
 
     % new-style params, settable from outside
     properties (SetObservable)
-        % computation params
+        % GPU params
+        gpuLoadFactor = 5;          % GPU memory usage factor (4x means 1/4 of GPU memory can be loaded)
+        ramToGPUFactor = 8;         % ratio: RAM / (GPU memory) (increase this number if GPU memory error)
         useGPU = true;              % use GPU in computation if true
 
         % recording params
@@ -99,11 +104,12 @@ classdef Config < handle & dynamicprops
         siteMap;                    % channel mapping; row i in the data corresponds to channel `siteMap(i)`
 
         % preprocessing params
-        gpuLoadFactor = 5;          % GPU memory usage factor (4x means 1/4 of GPU memory can be loaded)
+        filterType = 'ndiff';       % filter to use {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
         loadTimeLimits = [];        % time range of recording to load, in s (use whole range if empty)
         maxBytesLoad = [];          % default memory loading block size (bytes)
         maxSecLoad = [];            % maximum loading duration (seconds) (overrides 'maxBytesLoad')
-        filterType = 'ndiff';       % filter to use {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
+        nSamplesPad = 100;          % number of samples to overlap between multiple loading (filter edge safe)
+        userFiltKernel = [];        % custom filter kernel (optional unless filterType='user')
 
         % spike detection params
         blankThresh = [];           % reject spikes exceeding the channel mean after filtering (MAD unit), ignored if [] or 0
@@ -119,8 +125,10 @@ classdef Config < handle & dynamicprops
         nSitesExcl;                 % number of sites to exclude from the spike waveform group
         refracIntms = 0.25;         % spike refractory interval, in ms
         siteCorrThresh = 0;         % reject bad sites based on max correlation with neighboring sites, using raw waveforms; ignored if 0
+        threshFile = '';            % path to .mat file storing spike detection thresholds (created by 'preview' GUI)
 
         % feature extraction params
+        nFet_use = 2;               % undocumented
 
         % clustering params
         log10RhoCut = -2.5;         % the base-10 log of the rho cutoff value
@@ -220,10 +228,8 @@ classdef Config < handle & dynamicprops
         nChans = 120;
         nClu_show_aux = 10;
         nInterp_merge = 1;
-        nLoads_gpu = 8;
         nLoads_max_preview = 30;
         nMinAmp_ms = 0;
-        nPad_filt = 100;
         nPcPerChan = 1;
         nPc_dip = 3;
         nRepeat_merge = 10;
@@ -283,7 +289,6 @@ classdef Config < handle & dynamicprops
         vcFile_aux = '';
         vcFile_bonsai = '';
         vcFile_lfp = '';
-        vcFile_thresh = '';
         vcFile_trial = '';
         vcFile_vid = '';
         vcFilter_detect = '';
@@ -296,7 +301,6 @@ classdef Config < handle & dynamicprops
         viDepth_excl_track = [];
         viDepth_track = [];
         viSite_bad_track = [];
-        vnFilter_user = [];
         vrScale_aux = 1;
         xtick_psth = 0.2;
         ybin_drift = 2;
@@ -586,11 +590,8 @@ classdef Config < handle & dynamicprops
 
         % dispFilter/vcFilter_show
         function set.dispFilter(obj, ft)
-            legalTypes = {'', 'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'};
-            assert(sum(strcmp(ft, legalTypes)) == 1, 'legal filterTypes are: %s', strjoin(legalTypes, ', '));
-            if isempty(ft)
-                ft = obj.filterType;
-            end
+            legalTypes = {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'};
+            assert((ischar(ft) && isempty(ft)) || sum(strcmp(ft, legalTypes)) == 1, 'legal filterTypes are: %s or ''''', strjoin(legalTypes, ', '));
             obj.dispFilter = ft;
         end
         function ft = get.vcFilter_show(obj)
@@ -792,7 +793,7 @@ classdef Config < handle & dynamicprops
         % gtFile/vcFile_gt
         function set.gtFile(obj, gf)
             gf_ = jrclust.utils.absPath(gf, fileparts(obj.configFile));
-            assert(isfile(gf_), 'could not find recording file ''%s''', gf);
+            assert(isfile(gf_), 'could not find ground-truth file ''%s''', gf);
             obj.gtFile = gf_;
         end
         function gf = get.vcFile_gt(obj)
@@ -960,6 +961,20 @@ classdef Config < handle & dynamicprops
             obj.multiRaw = mr;
         end
 
+        % nSamplesPad/nPad_filt
+        function set.nSamplesPad(obj, ns)
+            assert(jrclust.utils.isscalarnum(ns) && ns >= 0, 'nSamplesPad must be a nonnegative scalar');
+            obj.nSamplesPad = ns;
+        end
+        function ns = get.nPad_filt(obj)
+            obj.logOldP('nPad_filt');
+            ns = obj.nSamplesPad;
+        end
+        function set.nPad_filt(obj, ns)
+            obj.logOldP('nPad_filt');
+            obj.nSamplesPad = ns;
+        end
+
         % nSiteDir/maxSite
         function set.nSiteDir(obj, ns)
             assert(jrclust.utils.ismatrixnum(ns) && (isempty(ns) || (jrclust.utils.isscalarnum(ns) && ns >= 0)), 'invalid value for nSiteDir');
@@ -1020,6 +1035,20 @@ classdef Config < handle & dynamicprops
         function set.vrSiteHW(obj, pp)
             obj.logOldP('vrSiteHW');
             obj.probePad = pp;
+        end
+
+        % ramToGPUFactor/nLoads_gpu
+        function set.ramToGPUFactor(obj, rg)
+            assert(jrclust.utils.isscalarnum(rg) && rg > 0, 'ramToGPUFactor must be a positive scalar');
+            obj.ramToGPUFactor = rg;
+        end
+        function rg = get.nLoads_gpu(obj)
+            obj.logOldP('nLoads_gpu');
+            rg = obj.ramToGPUFactor;
+        end
+        function set.nLoads_gpu(obj, rg)
+            obj.logOldP('nLoads_gpu');
+            obj.ramToGPUFactor = rg;
         end
 
         % rawRecordings
@@ -1160,6 +1189,21 @@ classdef Config < handle & dynamicprops
             obj.siteNeighbors = sn;
         end
 
+        % threshFile/vcFile_thresh
+        function set.threshFile(obj, tf)
+            tf_ = jrclust.utils.absPath(tf, fileparts(obj.configFile));
+            assert(isfile(tf_), 'could not find threshold file ''%s''', tf);
+            obj.threshFile = tf_;
+        end
+        function gf = get.vcFile_thresh(obj)
+            obj.logOldP('vcFile_thresh');
+            gf = obj.threshFile;
+        end
+        function set.vcFile_thresh(obj, gf)
+            obj.logOldP('vcFile_thresh');
+            obj.threshFile = gf;
+        end
+
         % useGPU/fGpu
         function set.useGPU(obj, ug)
             % use GPU if and only if present, accessible, and asked for
@@ -1173,6 +1217,10 @@ classdef Config < handle & dynamicprops
         function set.fGpu(obj, ug)
             obj.logOldP('fGpu');
             obj.useGPU = ug;
+        end
+
+        function set.userFiltKernel(obj, uf)
+            assert
         end
     end
 end

@@ -43,7 +43,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     for iSite = 1:nSites
         [mrFet12_, viSpk12_, n1_, n2_, viiSpk12_ord_] = fet12_site_(trFet_spk, S0, P, iSite, vlRedo_spk);
         if isempty(mrFet12_), continue; end
-        [mrFet12_, viiSpk12_ord_] = multifun_(@gpuArray_, mrFet12_, viiSpk12_ord_);
+        [mrFet12_, viiSpk12_ord_] = multifun_(@jrclust.utils.tryGpuArray, mrFet12_, viiSpk12_ord_);
         if isempty(dc2)
             dc2_ = compute_dc2_(mrFet12_, viiSpk12_ord_, n1_, n2_, P); % Compute DC in CPU
         else
@@ -52,13 +52,13 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
         vrRho_ = cuda_rho_(mrFet12_, viiSpk12_ord_, n1_, n2_, dc2_, P);
         viSpk_site_ = S0.cviSpk_site{iSite};
         if ~isempty(vlRedo_spk), viSpk_site_ = viSpk_site_(vlRedo_spk(viSpk_site_)); end
-        vrRho(viSpk_site_) = gather_(vrRho_);
-        vrDc2_site(iSite) = gather_(dc2_);
+        vrRho(viSpk_site_) = jrclust.utils.tryGather(vrRho_);
+        vrDc2_site(iSite) = jrclust.utils.tryGather(dc2_);
         [mrFet12_, viiSpk12_ord_, vrRho_] = deal([]);
         fprintf('.');
     end
 
-    % [vrRho, vrDc2_site] = gather_(vrRho, vrDc2_site);
+    % [vrRho, vrDc2_site] = jrclust.utils.tryGather(vrRho, vrDc2_site);
     fprintf('\n\ttook %0.1fs\n', toc(t1));
 
     %-----
@@ -69,10 +69,10 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
         if isempty(mrFet12_), continue; end
         viiRho12_ord_ = rankorder_(vrRho(viSpk12_), 'descend');
         [mrFet12_, viiRho12_ord_, viiSpk12_ord_] = ...
-        multifun_(@gpuArray_, mrFet12_, viiRho12_ord_, viiSpk12_ord_);
+        multifun_(@jrclust.utils.tryGpuArray, mrFet12_, viiRho12_ord_, viiSpk12_ord_);
         try
             [vrDelta_, viNneigh_] = cuda_delta_(mrFet12_, viiSpk12_ord_, viiRho12_ord_, n1_, n2_, vrDc2_site(iSite), P);
-            [vrDelta_, viNneigh_] = gather_(vrDelta_, viNneigh_);
+            [vrDelta_, viNneigh_] = jrclust.utils.tryGather(vrDelta_, viNneigh_);
         catch
             disperr_(sprintf('error at site# %d', iSite));
         end
@@ -88,7 +88,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     if ~isempty(viNan_delta)
         vrDelta(viNan_delta) = max(vrDelta);
     end
-    % [vrDelta, viNneigh] = multifun_(@gather_, vrDelta, viNneigh);
+    % [vrDelta, viNneigh] = multifun_(@jrclust.utils.tryGather, vrDelta, viNneigh);
     fprintf('\n\ttook %0.1fs\n', toc(t2));
 
     if ~isempty(vlRedo_spk)
@@ -100,7 +100,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     %-----
     % package
     % if P.fGpu
-    %     [vrRho, vrDelta, viNneigh] = multifun_(@gather_, vrRho, vrDelta, viNneigh);
+    %     [vrRho, vrDelta, viNneigh] = multifun_(@jrclust.utils.tryGather, vrRho, vrDelta, viNneigh);
     % end
     t_runtime = toc(t_func);
     trFet_dim = size(trFet_spk); %[1, size(mrFet1,1), size(mrFet1,2)]; %for postCluster

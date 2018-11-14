@@ -35,14 +35,14 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
     % [mnWav2, vnWav11, mnWav1, P.fGpu] = wav_preproces_(mnWav1, P);
     mnWav1_ = mnWav1; % keep a copy in CPU
     try
-        [mnWav1, P.fGpu] = gpuArray_(mnWav1, P.fGpu);
-        if P.fft_thresh>0, mnWav1 = fft_clean_(mnWav1, P); end
-        [mnWav2, vnWav11] = filt_car_(mnWav1, P);
+        [mnWav1, P.fGpu] = jrclust.utils.tryGpuArray(mnWav1, P.fGpu);
+        if P.fft_thresh>0, mnWav1 = jrclust.utils.fftClean(mnWav1, P); end
+        [mnWav2, vnWav11] = jrclust.utils.filtCar(mnWav1, P);
     catch % GPu failure
         P.fGpu = 0;
         mnWav1 = mnWav1_;
-        if P.fft_thresh>0, mnWav1 = fft_clean_(mnWav1, P); end
-        [mnWav2, vnWav11] = filt_car_(mnWav1, P);
+        if P.fft_thresh>0, mnWav1 = jrclust.utils.fftClean(mnWav1, P); end
+        [mnWav2, vnWav11] = jrclust.utils.filtCar(mnWav1, P);
     end
     mnWav1_ = []; %remove from memory
 
@@ -73,9 +73,9 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
     % detect spikes or use the one passed from the input (importing)
     if isempty(vnThresh_site)
         try
-            vnThresh_site = gather_(int16(mr2rms_(mnWav3, 1e5) * P.qqFactor));
+            vnThresh_site = jrclust.utils.tryGather(int16(mr2rms_(mnWav3, 1e5) * P.qqFactor));
         catch
-            vnThresh_site = int16(mr2rms_(gather_(mnWav3), 1e5) * P.qqFactor);
+            vnThresh_site = int16(mr2rms_(jrclust.utils.tryGather(mnWav3), 1e5) * P.qqFactor);
             P.fGpu = 0;
         end
     end
@@ -86,7 +86,7 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
         viTime_spk = viTime_spk + nPad_pre;
         vnAmp_spk = mnWav3(sub2ind(size(mnWav3), viTime_spk, viSite_spk)); % @TODO read spikes at the site and time
     end
-    vnAmp_spk = gather_(vnAmp_spk);
+    vnAmp_spk = jrclust.utils.tryGather(vnAmp_spk);
     % if nShift_post~=0, viTime_spk = viTime_spk + nShift_post; end % apply possible shift due to filtering
 
     % reject spikes within the overlap region
@@ -101,14 +101,14 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
     %-----
     % Extract spike waveforms and build a spike table
     fprintf('\tExtracting features'); t_fet = tic;
-    % mnWav2 = gather_(mnWav2); %do in CPU. 10.2s in GPU, 10.4s in CPU
+    % mnWav2 = jrclust.utils.tryGather(mnWav2); %do in CPU. 10.2s in GPU, 10.4s in CPU
     % if fRecenter_spk % center site is where the energy is the highest, if disabled min is chosen
     %     tnWav_spk = mn2tn_wav_spk2_(mnWav2, viSite_spk, viTime_spk, P);
     %     %[~, viMaxSite_spk] = max(squeeze_(std(single(tnWav_spk))));
     %     [~, viMaxSite_spk] = max(squeeze_(max(tnWav_spk) - min(tnWav_spk)));
     %     viSite_spk = P.miSites(sub2ind(size(P.miSites), viMaxSite_spk(:), viSite_spk));
     % end
-    viSite_spk_ = gpuArray_(viSite_spk);
+    viSite_spk_ = jrclust.utils.tryGpuArray(viSite_spk);
     [tnWav_spk_raw, tnWav_spk, viTime_spk] = mn2tn_wav_(mnWav1, mnWav2, viSite_spk_, viTime_spk, P); fprintf('.');
     if nFet_use >= 2
         viSite2_spk = find_site_spk23_(tnWav_spk, viSite_spk_, P);
@@ -127,7 +127,7 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
         end
     end
 
-    tnWav_spk_raw = gather_(tnWav_spk_raw);
+    tnWav_spk_raw = jrclust.utils.tryGather(tnWav_spk_raw);
     assert_(nSite_use >0, 'nSites_use = maxSite*2+1 - nSites_ref must be greater than 0');
     switch nFet_use
         case 3
@@ -152,7 +152,7 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
 
     if nPad_pre > 0, viTime_spk = viTime_spk - nPad_pre; end
     [viTime_spk, trFet_spk, miSite_spk, tnWav_spk] = ...
-    gather_(viTime_spk, trFet_spk, miSite_spk, tnWav_spk);
+    jrclust.utils.tryGather(viTime_spk, trFet_spk, miSite_spk, tnWav_spk);
     fGpu = P.fGpu;
     fprintf('\ttook %0.1fs\n', toc(t_fet));
 end %func
