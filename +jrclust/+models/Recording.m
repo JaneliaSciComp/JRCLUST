@@ -75,7 +75,7 @@ classdef Recording < handle
             obj.dshape = [nChans nSamples];
 
             % load start and end times
-            obj.metapath = jrclust.utils.absPath(strrep(filename, '.bin', '.meta'));
+            obj.metapath = jrclust.utils.findMeta(filename);
             if ~isempty(obj.metapath)
                 md = jrclust.utils.metaToStruct(obj.metapath);
                 if isfield(md, 'firstSample')

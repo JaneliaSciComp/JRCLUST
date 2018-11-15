@@ -7,6 +7,10 @@ classdef DetectionController
         hRecs;
         nRecs;
     end
+
+    properties
+        siteThresh;
+    end
     
     % LIFECYCLE
     methods
