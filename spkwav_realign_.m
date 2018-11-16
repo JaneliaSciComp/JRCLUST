@@ -8,6 +8,13 @@ function [tnWav_spk1, viTime_spk1] = spkwav_realign_(tnWav_spk1, mnWav_spk, spkL
     % fprintf('\n\tRealigning spikes after LCAR (vcSpkRef=nmean)...'); t1=tic;
     dimm1 = size(tnWav_spk1);
     trWav_spk2 = spkwav_car_(single(tnWav_spk1), P); % apply car
+    
+    shift_max = get_set_(S0.P, 'spkRefrac', []);
+    if isempty(shift_max)
+        shift_max = round(get_set_(S0.P, 'spkRefrac_ms', 0.25)*P.sRateHz/1000);
+    end    
+    [viSpk_shift, viShift] = spkwav_shift_(trWav_spk2, shift_max, P);
+    
     [viSpk_shift, viShift] = spkwav_shift_(trWav_spk2, 1, P);
     if isempty(viSpk_shift), return; end
 

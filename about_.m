@@ -11,6 +11,7 @@ function csAbout = about_(varargin)
     '  With contributions from:';
     '    Mike Economo';
     '    Hidehiko Inagaki';
+    '    Thomas Luo';
     '    Tim Wang';
     '';
     'Hardware Requirements';
