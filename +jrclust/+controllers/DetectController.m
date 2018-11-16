@@ -133,7 +133,8 @@ classdef DetectController < handle
 
                     % denoise and filter samples
                     [samplesFilt, keepMe] = obj.filterSamples(samplesRaw, windowPre, windowPost);
-                    % switch obj.hCfg.vcFilter_detect (DEPRECATED?)
+                    % vcFilter_detect: DEPRECATED?
+                    % switch obj.hCfg.vcFilter_detect
                     %     case {'', 'none'}
                     %         mnWav3 = samplesFilt;
 
@@ -360,7 +361,7 @@ classdef DetectController < handle
                 inBounds = spTimes >= bounds(1) & spTimes <= bounds(2);
 
                 spTimes = spTimes(inBounds);
-                spAmps = spAmps(inBounds);
+                spAmps  = spAmps(inBounds);
                 spSites = spSites(inBounds);
             end
             

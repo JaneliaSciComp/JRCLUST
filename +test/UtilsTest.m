@@ -1,16 +1,16 @@
 classdef UtilsTest < matlab.unittest.TestCase
     %UTILSTEST Test that various utilities run as expected
-    
+
     properties
         testFile;
         testText;
     end
-    
-    methods(TestMethodSetup)
+
+    methods (TestClassSetup)
         function createTextFile(testCase)
             testCase.testFile = [tempname '.txt'];
         end
-        
+
         function lipsum(testCase)
             % https://tunaipsum.com/
             testCase.testText = {'Pacific herring, "driftfish cownose ray." Whalefish giant wels toadfish; eel pencilsmelt barred danio pilot fish elephant fish yellowbelly tail catfish', ...
@@ -29,25 +29,24 @@ classdef UtilsTest < matlab.unittest.TestCase
             fclose(fid);
         end
     end
- 
-    methods(TestMethodTeardown)
+
+    methods (TestClassTeardown)
         function baleetTextFile(testCase)
             delete(testCase.testFile);
         end
     end
 
-    
     methods (Test)
         function about(testCase)
             aboutstr = jrclust.utils.about();
             testCase.assertSubstring(aboutstr, 'Nvidia GPU (Compute Capability 3.5+: Kepler, Maxwell or Pascal)');
         end
-        
+
         function basedir(testCase)
             bd = jrclust.utils.basedir();
             testCase.assertEqual(bd, fileparts(fileparts(mfilename('fullpath'))));
         end
-        
+
         function readLines(testCase)
             lines = jrclust.utils.readLines(testCase.testFile);
             testCase.fatalAssertEqual(numel(lines), numel(testCase.testText));

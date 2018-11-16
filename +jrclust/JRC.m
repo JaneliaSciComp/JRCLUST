@@ -13,7 +13,7 @@ classdef JRC < handle & dynamicprops
     properties (SetObservable, SetAccess=private)
         args;
         cmd;
-        dRes;
+        dRes; % TODO: this is temporary, fields should be accessible directly
         hCfg;
         hDet;
         hSort;

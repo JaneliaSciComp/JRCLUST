@@ -1,6 +1,6 @@
 classdef DeprecationTest < matlab.unittest.TestCase
     %DEPRECATIONTESTS Test that deprecated commands are indeed deprecated
-    
+
     methods (Test)
         function compileKsort(testCase)
             hJRC = jrc('compile-ksort');
@@ -61,7 +61,7 @@ classdef DeprecationTest < matlab.unittest.TestCase
             hJRC = jrc('kilosort-verify');
             testCase.assertMatches(hJRC.invocationType(), '^info$');
         end
-        
+
         function ksort(testCase)
             hJRC = jrc('ksort');
             testCase.assertMatches(hJRC.invocationType(), '^info$');

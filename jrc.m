@@ -19,10 +19,12 @@ function hJRC_ = jrc(varargin)
         return;
     end
 
+    addpath(fullfile(fileparts(which('jrc')), 'src'));
+
     if hJRC.inProgress()
         hJRC.hCfg.fVerbose = true;
         hJRC.run();
-    end 
+    end
 
     if nargout > 0
         hJRC_ = hJRC;
