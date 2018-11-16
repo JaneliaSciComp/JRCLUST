@@ -313,7 +313,7 @@ classdef Config < handle & dynamicprops
     end
 
     % private params, old-style
-    properties (Dependent, SetAccess=private)
+    properties (Dependent, SetAccess=private, Hidden)
         miSites;                    % => siteNeighbors
     end
 
@@ -351,7 +351,7 @@ classdef Config < handle & dynamicprops
             obj.oldPcount = containers.Map();
 
             s = jrclust.utils.mToStruct(obj.configFile);
-            if ~isempty(s.template_file)
+            if isfield(s, 'template_file') && ~isempty(s.template_file)
                 try
                     t = jrclust.utils.mToStruct(jrclust.utils.absPath(s.template_file));
                     fns = fieldnames(s);
@@ -367,6 +367,7 @@ classdef Config < handle & dynamicprops
 
             fns = fieldnames(s);
             unusedProps = cell(numel(fns), 1);
+            errorProps = cell(numel(fns), 2);
 
             % loop through all user-defined parameters
             for i = 1:numel(fns)
@@ -377,10 +378,16 @@ classdef Config < handle & dynamicprops
 
                 % empty values in the param file take on their defaults
                 if ~isempty(s.(fns{i}))
+                    if ~isprop(obj, fns{i})
+                        unusedProps{i} = fns{i};
+                        continue;
+                    end
+
                     try
                         obj.(fns{i}) = s.(fns{i});
                     catch ME % error or not a property we support
-                        unusedProps{i} = fns{i};
+                        errorProps{i, 1} = fns{i};
+                        errorProps{i, 2} = ME.message;
                     end
                 end
             end
@@ -391,6 +398,13 @@ classdef Config < handle & dynamicprops
                 warnmsg = sprintf('The following properties were not recognized (possibly deprecated) and will be ignored:\n    %s', ...
                                   strjoin(unusedProps(uu), '\n    '));
                 warndlg(warnmsg, 'Unrecognized properties');
+            end
+
+            ee = cellfun(@(e) ~isempty(e), errorProps(:, 1));
+            if any(ee)
+                emsgs = arrayfun(@(i) strjoin(errorProps(i, :), ': '), find(ee), 'UniformOutput', false);
+                warnmsg = sprintf('These properties were not set due to errors:\n* %s', strjoin(emsgs, '\n\n * '));
+                warndlg(warnmsg, 'Unset properties');
             end
 
             % check that exactly one of singleRaw and multiRaw is nonempty
@@ -854,7 +868,7 @@ classdef Config < handle & dynamicprops
 
         % headerOffset/header_offset
         function set.headerOffset(obj, ho)
-            assert(jrclust.utils.isscalarnum(ho) && ho > 0, 'invalid headerOffset');
+            assert(jrclust.utils.isscalarnum(ho) && ho >= 0, 'invalid headerOffset');
             obj.headerOffset = ho;
         end
         function ho = get.header_offset(obj)

@@ -27,7 +27,7 @@ classdef Recording < handle
         dshape;       % shape of data (rows x columns), in samples
         fSizeBytes;   % size of the file, in bytes
         headerOffset; % number of bytes at the beginning of the file to skip
-    end
+        end
 
     properties
         spikeTimes;   % times of detected spikes in this file, in samples
@@ -71,7 +71,12 @@ classdef Recording < handle
             d = dir(obj.binpath);
             obj.fSizeBytes = d.bytes;
 
-            nSamples = ceil((d.bytes - obj.headerOffset) / nChans / jrclust.utils.typeBytes(obj.dtype));
+            nSamples = (d.bytes - obj.headerOffset) / nChans / jrclust.utils.typeBytes(obj.dtype);
+            if ceil(nSamples) ~= nSamples % must be an integer or we don't have a complete recording
+                obj.errMsg = 'incomplete recording';
+                obj.isError = true;
+                return;
+            end
             obj.dshape = [nChans nSamples];
 
             % load start and end times
