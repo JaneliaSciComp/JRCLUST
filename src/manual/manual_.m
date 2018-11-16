@@ -15,7 +15,7 @@ function manual_(P, vcMode)
 
     [S0, P] = load_cached_(P);
     if ~isfield(S0, 'mrPos_spk')
-        S0.mrPos_spk = spk_pos_(S0, trFet_spk);
+        S0.mrPos_spk = jrclust.utils.spikePos(S0.viSite_spk, trFet_spk, P);
         set(0, 'UserData', S0);
     end
 

@@ -9,10 +9,10 @@ function TWfilter_(P, vcMode)
 	end
 	[S0, P] = load_cached_(P);
 	if ~isfield(S0, 'mrPos_spk')
-		S0.mrPos_spk = spk_pos_(S0, trFet_spk);
+		S0.mrPos_spk = jrclust.utils.spikePos(S0.viSite_spk, trFet_spk, P);
 		set(0, 'UserData', S0);
 	end
-	
+
 	fDebug_ui = 0;
 	P.fGpu = 0; %do not use GPU for manual use
 	set0_(fDebug_ui, P);
@@ -20,7 +20,7 @@ function TWfilter_(P, vcMode)
 	S0 = set0_(P); %update the P structure
 	S0.S_clu = S_clu_update_wav_(S0.S_clu, P);                
 	set(0, 'UserData', S0);
-    
+
     for i_clu = sort(find(S0.S_clu.viSite_clu>P.max_real_site),'descend')
     	S0.S_clu = delete_clu_(S0.S_clu, i_clu);
 		fprintf('Deleting cluster %d\n', i_clu); 

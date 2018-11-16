@@ -13,7 +13,7 @@ function detect_(P)
         tnWav_spk = jrclust.utils.readBin(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
     end
     trFet_spk = jrclust.utils.readBin(strrep(P.vcFile_prm, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
-    S0.mrPos_spk = spk_pos_(S0, trFet_spk);
+    S0.mrPos_spk = jrclust.utils.spikePos(S0.viSite_spk, trFet_spk, P);
 
     % measure time
     S0.runtime_detect = toc(runtime_detect);

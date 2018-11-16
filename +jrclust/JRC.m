@@ -13,8 +13,9 @@ classdef JRC < handle & dynamicprops
     properties (SetObservable, SetAccess=private)
         args;
         cmd;
+        dRes;
         hCfg;
-        hDetect;
+        hDet;
         hSort;
         hCurate;
     end
@@ -60,7 +61,7 @@ classdef JRC < handle & dynamicprops
                     jrclust.utils.depWarn(obj.cmd);
                     obj.isCompleted = true;
                     return;
-                    
+
                 case {'doc', 'doc-edit'}
                     imsg = 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki';
                     jrclust.utils.depWarn(obj.cmd, imsg);
@@ -72,7 +73,7 @@ classdef JRC < handle & dynamicprops
                     jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.isCompleted = true;
                     return;
-                    
+
                 case 'gui'
                     imsg = 'GUI is not implemented yet, but eventually you can just use `jrc`';
                     jrclust.utils.depWarn(obj.cmd, imsg);
@@ -206,14 +207,23 @@ classdef JRC < handle & dynamicprops
             end
 
             if obj.isDetection
-                obj.hDetect = jrclust.controllers.DetectionController(obj.hCfg);
-                dRes = obj.hDetect.detect();
+                obj.hDet = jrclust.controllers.DetectController(obj.hCfg);
+                obj.dRes = obj.hDet.detect();
                 if obj.hCfg.fVerbose
-                    fprintf('detection completed in %0.2f seconds', dRes.runtime);
+                    fprintf('detection completed in %0.2f seconds', obj.dRes.runtime);
                 end
             end
 
             obj.isCompleted = true;
+        end
+
+        function rerun(obj)
+            if obj.isError
+                error(obj.errMsg);
+            else
+                obj.isCompleted = false;
+                obj.run();
+            end
         end
     end
 
@@ -226,7 +236,7 @@ classdef JRC < handle & dynamicprops
         function set.args(obj, args)
             obj.args = args;
         end
-        
+
         % hCfg
         function hCfg = get.hCfg(obj)
             hCfg = obj.hCfg;

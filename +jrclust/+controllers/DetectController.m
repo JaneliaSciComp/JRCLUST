@@ -1,4 +1,4 @@
-classdef DetectionController < handle
+classdef DetectController < handle
     %DETECTIONCONTROLLER Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -8,24 +8,24 @@ classdef DetectionController < handle
         isError;
     end
 
-    properties
+    properties (Access=private)
         knownTimes; % spike times already known
         knownSites; % spike center sites already known
 
-        siteThresh; % site-wise detection thresholds
-        spikeTimes; % detected spike times
-        spikeAmps;  % detected spike amplitudes
-        spikeSites; % detected spike center sites
+        siteThresh;
+        spikeTimes;
+        spikeAmps;
+        spikeSites;
+        centerSites;
 
-        spikesRaw;  % raw waveform tensor, nSamples x nChannels x nSpikes
-        spikesFilt; % filtered waveform tensor, nSamples x nChannels x nSpikes
-        spikeFeatures; % spike features tensor
-        miSite_spk; % 
+        spikesRaw;
+        spikesFilt;
+        spikeFeatures;
     end
 
     % LIFECYCLE
     methods
-        function obj = DetectionController(hCfg, knownTimes, knownSites)
+        function obj = DetectController(hCfg, knownTimes, knownSites)
             obj.hCfg = hCfg;
             obj.hRecs = jrclust.models.Recording.empty;
             if nargin < 2
@@ -42,7 +42,7 @@ classdef DetectionController < handle
             obj.spikeTimes = {};
             obj.spikeAmps = {};
             obj.spikeSites = {};
-            obj.miSite_spk = {};
+            obj.centerSites = {};
             obj.spikesRaw = {};
             obj.spikesFilt = {};
             obj.spikeFeatures = {};
@@ -165,13 +165,45 @@ classdef DetectionController < handle
                 tr = (nBytesFile/jrclust.utils.typeBytes(obj.hCfg.dtype)/obj.hCfg.nChans)/obj.hCfg.sampleRate;
                 fprintf('File %d/%d took %0.1fs (%0.1f MB, %0.1f MB/s, x%0.1f realtime)\n', ...
                     iRec, nRecs, t1, nBytesFile/1e6, nBytesFile/t1/1e6, tr/t1);
+            end % for
+
+            res.spikeTimes = cat(1, obj.spikeTimes{:});
+            res.spikeAmps = cat(1, obj.spikeAmps{:});
+            res.siteThresh = mean(single(cat(1, obj.siteThresh{:})), 1);
+
+            % spike sites
+            obj.centerSites = cat(1, obj.centerSites{:});
+            res.spikeSites = obj.centerSites(:, 1);
+            if size(obj.centerSites, 2) > 1
+                res.spikeSites2 = obj.centerSites(:, 2);
+            else
+                res.spikeSites2 = [];
             end
 
+            % spikes by site
+            nSites = numel(obj.hCfg.siteMap);
+            res.spikesBySite = arrayfun(@(iSite) find(obj.centerSites(:, 1) == iSite), 1:nSites, 'UniformOutput', 0);
+            if size(obj.centerSites, 2) >= 2
+                res.spikesBySite2 = arrayfun(@(iSite) find(obj.centerSites(:, 2) == iSite), 1:nSites, 'UniformOutput', 0);
+            else
+                res.spikesBySite2 = cell(1, nSites);
+            end
+            if size(obj.centerSites, 2) == 3
+                res.spikesBySite3 = arrayfun(@(iSite) find(obj.centerSites(:, 3) == iSite), 1:nSites, 'UniformOutput', 0);
+            else
+                res.spikesBySite3 = [];
+            end
+
+            % detected spikes (raw and filtered), features
+            res.spikesRaw = cat(3, obj.spikesRaw{:});
+            res.spikesFilt = cat(3, obj.spikesFilt{:});
+            res.spikeFeatures = cat(3, obj.spikeFeatures{:});
+
+            % spike positions
+            res.spikePositions = jrclust.utils.spikePos(res.spikeSites, res.spikeFeatures, obj.hCfg);
+
+            % summarize
             res.runtime = toc(t0);
-            obj.miSite_spk = cat(1, obj.miSite_spk{:});
-            obj.spikeTimes = cat(1, obj.spikeTimes{:});
-            obj.spikeAmps = cat(1, obj.spikeAmps{:});
-            obj.siteThresh = cat(1, obj.siteThresh{:});
         end
     end
 
@@ -298,7 +330,7 @@ classdef DetectionController < handle
             fprintf('\tdone (%0.2f) s\n', toc(tFilt));
         end
 
-        function findSpikes(obj, samplesIn, keepMe, spTimes, spSites, siteThresh_ nPadPre, nPadPost)
+        function findSpikes(obj, samplesIn, keepMe, spTimes, spSites, siteThresh_, nPadPre, nPadPost)
             %FINDSPIKES detect spikes or use the one passed from the input (importing)
             if isempty(siteThresh_)
                 try
@@ -370,7 +402,7 @@ classdef DetectionController < handle
 
             obj.spikesRaw{end+1} = jrclust.utils.tryGather(spRaw);
             assert_(obj.hCfg.maxSite*2+1 - obj.hCfg.nSites_ref > 0, 'maxSite*2+1 - nSites_ref must be greater than 0');
-            
+
             if obj.hCfg.nFet_use == 1
                 mrFet1 = trWav2fet_(spFilt, obj.hCfg);
                 fprintf('.');
@@ -410,7 +442,7 @@ classdef DetectionController < handle
             obj.spikeTimes{end} = jrclust.utils.tryGather(spTimes);
             obj.spikesFilt{end+1} = jrclust.utils.tryGather(spFilt);
             obj.spikeFeatures{end+1} = jrclust.utils.tryGather(spFeatures);
-            obj.miSite_spk{end+1} = jrclust.utils.tryGather(miSites);
+            obj.centerSites{end+1} = jrclust.utils.tryGather(miSites);
             fprintf('done (%0.2f s)\n', toc(tf));
         end
 
