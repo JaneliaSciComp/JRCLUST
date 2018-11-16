@@ -1,7 +1,7 @@
 classdef DetectController < handle
     %DETECTIONCONTROLLER Summary of this class goes here
     %   Detailed explanation goes here
-    
+
     properties (SetAccess=private)
         hCfg;
         hRecs;
@@ -77,6 +77,8 @@ classdef DetectController < handle
 
             nRecs = numel(obj.hCfg.rawRecordings);
 
+            recOffset = 0;
+
             % load from files
             for iRec = 1:nRecs
                 t1 = tic;
@@ -151,7 +153,7 @@ classdef DetectController < handle
                     % extract features
                     obj.extractFeatures(samplesRaw, samplesFilt, size(windowPre, 1));
 
-                    obj.spikeTimes{end} = obj.spikeTimes{end} + sampOffset - 1;
+                    obj.spikeTimes{end} = obj.spikeTimes{end} + recOffset + sampOffset - 1;
 
                     % increment sample offset
                     sampOffset = sampOffset + nSamples;
@@ -162,10 +164,13 @@ classdef DetectController < handle
 
                     clear samplesRaw channelMeans;
                 end
+
                 t1 = toc(t1);
                 tr = (nBytesFile/jrclust.utils.typeBytes(obj.hCfg.dtype)/obj.hCfg.nChans)/obj.hCfg.sampleRate;
                 fprintf('File %d/%d took %0.1fs (%0.1f MB, %0.1f MB/s, x%0.1f realtime)\n', ...
                     iRec, nRecs, t1, nBytesFile/1e6, nBytesFile/t1/1e6, tr/t1);
+
+                recOffset = recOffset + (nLoads - 1) * nSamplesLoad + nSamplesFinal;
             end % for
 
             res.spikeTimes = cat(1, obj.spikeTimes{:});
@@ -364,7 +369,7 @@ classdef DetectController < handle
                 spAmps  = spAmps(inBounds);
                 spSites = spSites(inBounds);
             end
-            
+
             obj.siteThresh{end+1} = siteThresh_;
             obj.spikeTimes{end+1} = spTimes;
             obj.spikeAmps{end+1} = jrclust.utils.tryGather(spAmps);

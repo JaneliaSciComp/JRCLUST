@@ -974,11 +974,11 @@ classdef Config < handle & dynamicprops
                     dmrDir = {dmr{1}.folder};
                     dmrName = {dmr{1}.name};
                     obj.multiRaw = arrayfun(@(i) fullfile(dmrDir{i}, dmrName{i}), 1:numel(dmr{1}), 'UniformOutput', false);
-                elseif ~isempty(dir(fullfile(obj.configFile, mr))) % try relative to configFile directory
-                    dmr = dir(fullfile(obj.configFile, mr));
-                    dmrDir = {dmr{1}.folder};
-                    dmrName = {dmr{1}.name};
-                    obj.multiRaw = arrayfun(@(i) fullfile(dmrDir{i}, dmrName{i}), 1:numel(dmr{1}), 'UniformOutput', false);
+                elseif ~isempty(dir(fullfile(fileparts(obj.configFile), mr))) % try relative to configFile directory
+                    dmr = dir(fullfile(fileparts(obj.configFile), mr));
+                    dmrDir = {dmr.folder};
+                    dmrName = {dmr.name};
+                    obj.multiRaw = arrayfun(@(i) fullfile(dmrDir{i}, dmrName{i}), 1:numel(dmr), 'UniformOutput', false);
                 else
                     error('could not find file(s) ''%''', mr);
                 end

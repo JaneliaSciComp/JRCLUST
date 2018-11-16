@@ -22,6 +22,7 @@ function hJRC_ = jrc(varargin)
     addpath(fullfile(fileparts(which('jrc')), 'src'));
 
     if hJRC.inProgress()
+        set(0, 'UserData', []); % clear pesky UserData values not yet eliminated
         hJRC.hCfg.fVerbose = true;
         hJRC.run();
     end

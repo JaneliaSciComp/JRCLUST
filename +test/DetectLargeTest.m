@@ -1,18 +1,20 @@
-classdef DetectTest < matlab.unittest.TestCase
-    %DETECTTEST
+classdef DetectLargeTest < matlab.unittest.TestCase
+    %DETECTLARGETEST
 
     properties
         dRes;
+        siteLoc;
         testConfig;
-        nSpikes = 11208;
+        nSpikes = 1433802;
     end
 
     methods (TestClassSetup)
         function doDetect(testCase)
-            testCase.testConfig = fullfile(getenv('JRCTESTDATA'), 'single', 'test.prm');
+            testCase.testConfig = fullfile(getenv('JRCTESTDATA'), 'large', 'test.prm');
             hJRC = jrc('detect', testCase.testConfig);
 
             testCase.dRes = hJRC.dRes;
+            testCase.siteLoc = hJRC.hCfg.siteLoc;
         end
     end
 
@@ -67,7 +69,7 @@ classdef DetectTest < matlab.unittest.TestCase
                 t = timesAreEqual(i); % spikeTimes(t) == spikeTimes(t+1)
                 sites1 = [testCase.dRes.spikeSites(t) testCase.dRes.spikeSites2(t)];
                 sites2 = [testCase.dRes.spikeSites(t+1) testCase.dRes.spikeSites2(t+1)];
-                testCase.verifyEmpty(intersect(sites1, sites2));
+                testCase.assertEmpty(intersect(sites1, sites2));
             end
         end
     end
