@@ -93,7 +93,7 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
     write_spk_();
 
     [miSite_spk, viTime_spk, vrAmp_spk, vnThresh_site] = ...
-    multifun_(@(x)cat(1, x{:}), miSite_spk, viTime_spk, vrAmp_spk, vnThresh_site);
+        multifun_(@(x)cat(1, x{:}), miSite_spk, viTime_spk, vrAmp_spk, vnThresh_site);
     vrThresh_site = mean(single(vnThresh_site),1);
     viSite_spk = miSite_spk(:,1);
     if size(miSite_spk,2) >= 2

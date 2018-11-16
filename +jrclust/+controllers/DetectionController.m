@@ -1,62 +1,86 @@
-classdef DetectionController
+classdef DetectionController < handle
     %DETECTIONCONTROLLER Summary of this class goes here
     %   Detailed explanation goes here
     
     properties (SetAccess=private)
         hCfg;
         hRecs;
-        nRecs;
+        isError;
     end
 
     properties
-        siteThresh;
+        knownTimes; % spike times already known
+        knownSites; % spike center sites already known
+
+        siteThresh; % site-wise detection thresholds
+        spikeTimes; % detected spike times
+        spikeAmps;  % detected spike amplitudes
+        spikeSites; % detected spike center sites
+
+        spikesRaw;  % raw waveform tensor, nSamples x nChannels x nSpikes
+        spikesFilt; % filtered waveform tensor, nSamples x nChannels x nSpikes
+        spikeFeatures; % spike features tensor
+        miSite_spk; % 
     end
-    
+
     % LIFECYCLE
     methods
-        function obj = DetectionController(hCfg)
+        function obj = DetectionController(hCfg, knownTimes, knownSites)
             obj.hCfg = hCfg;
-            obj.nRecs = numel(obj.hCfg.rawRecordings);
             obj.hRecs = jrclust.models.Recording.empty;
+            if nargin < 2
+                knownTimes = [];
+            end
+            if nargin < 3
+                knownSites = [];
+            end
+
+            obj.knownTimes = knownTimes(:);
+            obj.knownSites = knownSites(:);
+
+            obj.siteThresh = {};
+            obj.spikeTimes = {};
+            obj.spikeAmps = {};
+            obj.spikeSites = {};
+            obj.miSite_spk = {};
+            obj.spikesRaw = {};
+            obj.spikesFilt = {};
+            obj.spikeFeatures = {};
+
+            obj.isError = false;
         end
     end
 
     % USER METHODS
     methods
-        function res = detect(obj, givenTimes, givenSites)
+        function res = detect(obj)
             res = struct();
             t0 = tic;
-
-            if nargin < 2
-                givenTimes = [];
-            end
-            if nargin < 3
-                givenSites = [];
-            end
-
-            givenTimes = givenTimes(:);
-            givenSites = givenSites(:);
 
             dtype = obj.hCfg.dtype;
             nChans = obj.hCfg.nChans;
             headerOffset = obj.hCfg.headerOffset;
 
-            % get manually set spike thresholds
+            % get manually-set spike thresholds
             if ~isempty(obj.hCfg.threshFile)
                 try
                     S = load(obj.hCfg.threshFile);
-                    obj.siteThresh = S.vnThresh_site;
+                    siteThresh_ = S.siteThresh;
                     fprintf('Loaded %s\n', obj.hCfg.threshFile);
                 catch
                     warning('Could not load threshFile %s', obj.hCfg.threshFile);
-                    obj.siteThresh = [];
+                    siteThresh_ = [];
                 end
             else
-                obj.siteThresh = [];
+                siteThresh_ = [];
             end
 
+            nRecs = numel(obj.hCfg.rawRecordings);
+
             % load from files
-            for iRec = 1:obj.nRecs
+            for iRec = 1:nRecs
+                t1 = tic;
+
                 fn = obj.hCfg.rawRecordings{iRec};
                 rec = jrclust.models.Recording(fn, dtype, nChans, headerOffset);
 
@@ -72,7 +96,7 @@ classdef DetectionController
                 for iLoad = 1:nLoads
                     t1 = tic;
 
-                    fprintf('Processing %d/%d of file %d/%d...\n', iLoad, nLoads, iRec, obj.nRecs);
+                    fprintf('Processing %d/%d of file %d/%d...\n', iLoad, nLoads, iRec, nRecs);
                     if iLoad == nLoads
                         nSamples = nSamplesFinal;
                     else
@@ -82,7 +106,6 @@ classdef DetectionController
 
                     % load raw samples
                     samplesRaw = rec.readROI(obj.hCfg.siteMap, sampOffset:sampOffset+nSamples-1);
-                    
 
                     % convert samples to int16 and get channel means
                     [samplesRaw, channelMeans] = obj.regularize(samplesRaw);
@@ -90,44 +113,65 @@ classdef DetectionController
 
                     % select given spikes in this time interval
                     [intTimes, intSites] = deal([]);
-                    if ~isempty(givenTimes)
-                        inInterval = (givenTimes >= sampOffset & givenTimes < sampOffset + nSamples);
-                        intTimes = givenTimes(inInterval) - sampOffset + 1; % shift spike timing
+                    if ~isempty(obj.knownTimes)
+                        inInterval = (obj.knownTimes >= sampOffset & obj.knownTimes < sampOffset + nSamples);
+                        intTimes = obj.knownTimes(inInterval) - sampOffset + 1; % shift spike timing
 
                         % take sites assoc with times between limits
-                        if ~isempty(givenSites)
-                            intSites = givenSites(inInterval);
+                        if ~isempty(obj.knownSites)
+                            intSites = obj.knownSites(inInterval);
                         end
                     end
 
-                    % increment sample offset
-                    sampOffset = sampOffset + nSamples;
-
                     % load next N samples to ensure we don't miss any spikes at the boundary
                     if iLoad < nLoads && obj.hCfg.nSamplesPad > 0
-                        windowPost = rec.readROI(obj.hCfg.siteMap, sampOffset:sampOffset+obj.hCfg.nSamplesPad-1);
+                        windowPost = rec.readROI(obj.hCfg.siteMap, sampOffset:sampOffset+nSamples+obj.hCfg.nSamplesPad-1);
                         windowPost = obj.regularize(windowPost);
                     else
                         windowPost = [];
                     end
 
-                    %%%%%%%%%%%%%%
+                    % denoise and filter samples
+                    [samplesFilt, keepMe] = obj.filterSamples(samplesRaw, windowPre, windowPost);
+                    % switch obj.hCfg.vcFilter_detect (DEPRECATED?)
+                    %     case {'', 'none'}
+                    %         mnWav3 = samplesFilt;
 
-                    [tnWav_raw_, tnWav_spk_, trFet_spk_, miSite_spk{end+1}, viTime_spk{end+1}, vrAmp_spk{end+1}, siteThresh{end+1}, obj.hCfg.fGpu] ...
-                        = wav2spk_(samplesRaw, channelMeans, intTimes, intSites, windowPre, windowPost);
-                    write_spk_(tnWav_raw_, tnWav_spk_, trFet_spk_);
-                    viTime_spk{end} = viTime_spk{end} + nSamples1;
-                    nSamples1 = nSamples1 + nSamples;
+                    %     case 'ndist'
+                    %         [mnWav3, nShift_post] = filter_detect_(samplesRaw, obj.hCfg); % pass raw trace
+
+                    %     otherwise
+                    %         [mnWav3, nShift_post] = filter_detect_(samplesFilt, obj.hCfg); % pass filtered trace
+                    % end
+
+                    % detect spikes in filtered samples
+                    obj.findSpikes(samplesFilt, keepMe, intTimes, intSites, siteThresh_, size(windowPre, 1), size(windowPost, 1));
+
+                    % extract features
+                    obj.extractFeatures(samplesRaw, samplesFilt, size(windowPre, 1));
+
+                    obj.spikeTimes{end} = obj.spikeTimes{end} + sampOffset - 1;
+
+                    % increment sample offset
+                    sampOffset = sampOffset + nSamples;
 
                     if iLoad < nLoads
                         windowPre = samplesRaw(end-obj.hCfg.nSamplesPad+1:end, :);
                     end
-                    clear mnWav11 vrWav_mean11;
-                    nLoads = nLoads + 1;
+
+                    clear samplesRaw channelMeans;
                 end
+                t1 = toc(t1);
+                tr = (nBytesFile/jrclust.utils.typeBytes(obj.hCfg.dtype)/obj.hCfg.nChans)/obj.hCfg.sampleRate;
+                fprintf('File %d/%d took %0.1fs (%0.1f MB, %0.1f MB/s, x%0.1f realtime)\n', ...
+                    iRec, nRecs, t1, nBytesFile/1e6, nBytesFile/t1/1e6, tr/t1);
             end
 
             res.runtime = toc(t0);
+            obj.miSite_spk = cat(1, obj.miSite_spk{:});
+            obj.spikeTimes = cat(1, obj.spikeTimes{:});
+            obj.spikeAmps = cat(1, obj.spikeAmps{:});
+            obj.siteThresh = cat(1, obj.siteThresh{:});
         end
     end
 
@@ -204,8 +248,8 @@ classdef DetectionController
             end
         end
 
-        function samplesOut = filterSamples(obj, samplesIn, windowPre, windowPost)
-            %FILTERSAMPLES Denoise and filter raw samples
+        function [samplesOut, keepMe] = filterSamples(obj, samplesIn, windowPre, windowPost)
+            %FILTERSAMPLES Denoise and filter raw samples, apply CAR
             tFilt = tic;
 
             fprintf('\tFiltering spikes...');
@@ -215,155 +259,208 @@ classdef DetectionController
             try
                 samplesIn = jrclust.utils.tryGpuArray(samplesIn, obj.hCfg.useGPU);
 
-                if obj.hCfg.fft_thresh > 0
-                    samplesIn = jrclust.utils.fftClean(samplesIn, P);
+                if obj.hCfg.fftThreshMAD > 0
+                    samplesIn = jrclust.utils.fftClean(samplesIn, obj.hCfg.fftThreshMAD, obj.hCfg.ramToGPUFactor);
                 end
-
-                [samplesOut, vnWav11] = jrclust.utils.filtCar(samplesIn, P);
-            catch % GPU failure
+            catch % GPU denoising failed, retry in CPU
                 obj.hCfg.useGPU = false;
-                samplesIn = samplesIn_;
-                if obj.hCfg.fft_thresh > 0
-                    samplesIn = jrclust.utils.fftClean(samplesIn, P);
-                end
 
-                [samplesOut, vnWav11] = jrclust.utils.filtCar(samplesIn, P);
+                samplesIn = samplesIn_;
+                if obj.hCfg.fftThreshMAD > 0
+                    samplesIn = jrclust.utils.fftClean(samplesIn, obj.hCfg.fftThreshMAD, obj.hCfg.ramToGPUFactor);
+                end
+            end
+
+            % filter spikes; samples go in padded and come out padded
+            try
+                [samplesOut, channelMeans] = jrclust.utils.filtCar(samplesIn, [], [], false, obj.hCfg);
+            catch % GPU filtering failed, retry in CPU
+                obj.hCfg.useGPU = false;
+
+                samplesIn = samplesIn_;
+                [samplesOut, channelMeans] = jrclust.utils.filtCar(samplesIn, [], [], false, obj.hCfg);
             end
 
             clear rawSamples_;
 
             % common mode rejection
             if obj.hCfg.blank_thresh > 0
-                if isempty(vnWav11)
-                    vnWav11 = mr2ref_(samplesOut, obj.hCfg.vcCommonRef, obj.hCfg.viSiteZero); %channelMeans(:);
+                if isempty(channelMeans) % carMode='whiten'
+                    channelMeans = jrclust.utils.getCAR(samplesOut, obj.hCfg.carMode, obj.hCfg.ignoreSites);
                 end
 
-                vlKeep_ref = car_reject_(vnWav11(:), P);
-                fprintf('Rejecting %0.3f %% of time due to motion\n', (1-mean(vlKeep_ref))*100 );
+                keepMe = jrclust.utils.carReject(channelMeans(:), obj.hCfg.blank_period_ms, obj.hCfg.blank_thresh, obj.hCfg.sampleRate);
+                fprintf('!! rejecting %0.3f %% of time due to motion !!', (1 - mean(keepMe))*100);
             else
-                vlKeep_ref = [];
+                keepMe = [];
             end
 
-            % UNDO PADDING HERE?
-
-            fprintf('\ttook %0.1fs\n', toc(tFilt));
+            fprintf('\tdone (%0.2f) s\n', toc(tFilt));
         end
 
-        %function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk, siteThresh, fGpu] = ...
-        function w2sS = wav2spk_(obj, rawSamples, channelMeans, spikeTimes, spikeSites, windowPre, windowPost)
-            %WAV2SPK_ wave to spike I guess
-            [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk] = deal([]);
-            
-            nSite_use = obj.hCfg.nSiteDir*2 - obj.hCfg.nSitesExcl + 1;
-            if nSite_use == 1
-                nFet_use = 1;
-            else
-                nFet_use = obj.hCfg.nFet_use;
-            end
-
-            % these don't appear to be used anywhere, may add back in later
-            % fMerge_spk = 1;
-            % fShift_pos = 0; % shift center position based on center of mass
-
-            
-            nSamplesPre = size(windowPre, 1);
-            
-
-            switch get_set_(P, 'vcFilter_detect', '')
-                case {'', 'none'}, mnWav3 = mnWav2;
-                case 'ndist'
-                [mnWav3, nShift_post] = filter_detect_(rawSamples, P); % pass raw trace
-                otherwise
-                [mnWav3, nShift_post] = filter_detect_(mnWav2, P); % pass filtered trace
-            end
-
-            %-----
-            % detect spikes or use the one passed from the input (importing)
-            if isempty(obj.siteThresh)
+        function findSpikes(obj, samplesIn, keepMe, spTimes, spSites, siteThresh_ nPadPre, nPadPost)
+            %FINDSPIKES detect spikes or use the one passed from the input (importing)
+            if isempty(siteThresh_)
                 try
-                    obj.siteThresh = jrclust.utils.tryGather(int16(mr2rms_(mnWav3, 1e5) * obj.hCfg.qqFactor));
+                    siteThresh_ = jrclust.utils.tryGather(int16(mr2rms_(samplesIn, 1e5) * obj.hCfg.qqFactor));
                 catch
-                    obj.siteThresh = int16(mr2rms_(jrclust.utils.tryGather(mnWav3), 1e5) * obj.hCfg.qqFactor);
-                    obj.hCfg.fGpu = 0;
+                    obj.hCfg.fGpu = false;
+                    siteThresh_ = int16(mr2rms_(jrclust.utils.tryGather(samplesIn), 1e5) * obj.hCfg.qqFactor);
                 end
             end
-            if isempty(spikeTimes) || isempty(spikeSites)
-                P_ = setfield(P, 'nPad_pre', nSamplesPre);
-                [spikeTimes, vnAmp_spk, spikeSites] = detect_spikes_(mnWav3, obj.siteThresh, vlKeep_ref, P_);
+
+            if isempty(spTimes) || isempty(spSites)
+                try
+                    obj.hCfg.nPad_pre = nPadPre;
+                catch
+                    obj.hCfg.addprop('nPad_pre');
+                    obj.hCfg.nPad_pre = nPadPre;
+                end
+                [spTimes, spAmps, spSites] = jrclust.utils.detectSpikes(samplesIn, siteThresh_, keepMe, obj.hCfg);
             else
-                spikeTimes = spikeTimes + nSamplesPre;
-                vnAmp_spk = mnWav3(sub2ind(size(mnWav3), spikeTimes, spikeSites)); % @TODO read spikes at the site and time
+                spTimes = spTimes + nPadPre;
+                spAmps = samplesIn(sub2ind(size(samplesIn), spTimes, spSites)); % @TODO read spikes at the site and time
             end
-            vnAmp_spk = jrclust.utils.tryGather(vnAmp_spk);
-            % if nShift_post~=0, viTime_spk = viTime_spk + nShift_post; end % apply possible shift due to filtering
 
             % reject spikes within the overlap region
-            if ~isempty(windowPre) || ~isempty(windowPost)
-                ilim_spk = [nSamplesPre+1, size(mnWav3,1) - size(windowPost,1)]; %inclusive
-                viKeep_spk = find(spikeTimes >= ilim_spk(1) & spikeTimes <= ilim_spk(2));
-                [spikeTimes, vnAmp_spk, spikeSites] = multifun_(@(x)x(viKeep_spk), spikeTimes, vnAmp_spk, spikeSites);
-            end %if
-            if isempty(spikeTimes), return; end
+            if nPadPre > 0 || nPadPost > 0
+                bounds = [nPadPre + 1, size(samplesIn, 1) - nPadPost]; % inclusive
+                inBounds = spTimes >= bounds(1) & spTimes <= bounds(2);
 
+                spTimes = spTimes(inBounds);
+                spAmps = spAmps(inBounds);
+                spSites = spSites(inBounds);
+            end
+            
+            obj.siteThresh{end+1} = siteThresh_;
+            obj.spikeTimes{end+1} = spTimes;
+            obj.spikeAmps{end+1} = jrclust.utils.tryGather(spAmps);
+            obj.spikeSites{end+1} = spSites;
+        end
 
-            %-----
+        function extractFeatures(obj, samplesRaw, samplesFilt, nPad_pre)
             % Extract spike waveforms and build a spike table
-            fprintf('\tExtracting features'); t_fet = tic;
-            % mnWav2 = jrclust.utils.tryGather(mnWav2); %do in CPU. 10.2s in GPU, 10.4s in CPU
-            % if fRecenter_spk % center site is where the energy is the highest, if disabled min is chosen
-            %     tnWav_spk = mn2tn_wav_spk2_(mnWav2, viSite_spk, viTime_spk, P);
-            %     %[~, viMaxSite_spk] = max(squeeze_(std(single(tnWav_spk))));
-            %     [~, viMaxSite_spk] = max(squeeze_(max(tnWav_spk) - min(tnWav_spk)));
-            %     viSite_spk = obj.hCfg.miSites(sub2ind(size(obj.hCfg.miSites), viMaxSite_spk(:), viSite_spk));
-            % end
-            viSite_spk_ = jrclust.utils.tryGpuArray(spikeSites);
-            [tnWav_spk_raw, tnWav_spk, spikeTimes] = mn2tn_wav_(rawSamples, mnWav2, viSite_spk_, spikeTimes, P); fprintf('.');
-            if nFet_use >= 2
-                viSite2_spk = find_site_spk23_(tnWav_spk, viSite_spk_, P);
-                tnWav_spk2 = mn2tn_wav_spk2_(mnWav2, viSite2_spk, spikeTimes, P);
+            fprintf('\tExtracting features');
+            tf = tic;
+
+            spTimes = obj.spikeTimes{end};
+            spSites = obj.spikeSites{end};
+
+            spSites_ = jrclust.utils.tryGpuArray(spSites);
+
+            % spRaw, spFilt are nSamples x nChannels x nSpikes
+            [spRaw, spFilt, spTimes] = obj.mn2tn_wav_(samplesRaw, samplesFilt, spSites_, spTimes);
+            fprintf('.');
+
+            if obj.hCfg.nFet_use >= 2
+                spSites2_ = find_site_spk23_(spFilt, spSites_, obj.hCfg);
+                spFilt2 = mn2tn_wav_spk2_(samplesFilt, spSites2_, spTimes, obj.hCfg);
             else
-                [viSite2_spk, tnWav_spk2] = deal([]);
+                [spSites2_, spFilt2] = deal([]);
             end
 
-            %-----
             % Cancel overlap
-            if get_set_(P, 'fCancel_overlap', 0)
+            if get_set_(obj.hCfg, 'fCancel_overlap', 0)
                 try
-                    [tnWav_spk, tnWav_spk2] = cancel_overlap_spk_(tnWav_spk, tnWav_spk2, spikeTimes, spikeSites, viSite2_spk, obj.siteThresh, P);
+                    [spFilt, spFilt2] = cancel_overlap_spk_(spFilt, spFilt2, spTimes, spSites, spSites2_, vnThresh_site, obj.hCfg);
                 catch
                     fprintf(2, 'fCancel_overlap failed\n');
                 end
             end
 
-            tnWav_spk_raw = jrclust.utils.tryGather(tnWav_spk_raw);
-            assert_(nSite_use >0, 'nSites_use = maxSite*2+1 - nSites_ref must be greater than 0');
-            switch nFet_use
-                case 3
-                [viSite2_spk, viSite3_spk] = find_site_spk23_(tnWav_spk, viSite_spk_, P); fprintf('.');
-                mrFet1 = trWav2fet_(tnWav_spk, P); fprintf('.');
-                mrFet2 = trWav2fet_(tnWav_spk2, P); fprintf('.');
-                mrFet3 = trWav2fet_(mn2tn_wav_spk2_(mnWav2, viSite3_spk, spikeTimes, P), P); fprintf('.');
-                trFet_spk = permute(cat(3, mrFet1, mrFet2, mrFet3), [1,3,2]); %nSite x nFet x nSpk
-                miSite_spk = [viSite_spk_(:), viSite2_spk(:), viSite3_spk(:)]; %nSpk x nFet
-                case 2
-                mrFet1 = trWav2fet_(tnWav_spk, P); fprintf('.');
-                mrFet2 = trWav2fet_(tnWav_spk2, P); fprintf('.');
-                trFet_spk = permute(cat(3, mrFet1, mrFet2), [1,3,2]); %nSite x nFet x nSpk
-                miSite_spk = [viSite_spk_(:), viSite2_spk(:)]; %nSpk x nFet
-                case 1
-                mrFet1 = trWav2fet_(tnWav_spk, P); fprintf('.');
-                trFet_spk = permute(mrFet1, [1,3,2]); %nSite x nFet x nSpk
-                miSite_spk = [viSite_spk_(:)];
-                otherwise
-                error('wav2spk_: nFet_use must be 1, 2 or 3');
+            obj.spikesRaw{end+1} = jrclust.utils.tryGather(spRaw);
+            assert_(obj.hCfg.maxSite*2+1 - obj.hCfg.nSites_ref > 0, 'maxSite*2+1 - nSites_ref must be greater than 0');
+            
+            if obj.hCfg.nFet_use == 1
+                mrFet1 = trWav2fet_(spFilt, obj.hCfg);
+                fprintf('.');
+
+                spFeatures = permute(mrFet1, [1,3,2]); %nSite x nFet x nSpk
+                miSites = spSites_(:);
+            elseif obj.hCfg.nFet_use == 2
+                mrFet1 = trWav2fet_(spFilt, obj.hCfg);
+                fprintf('.');
+
+                mrFet2 = trWav2fet_(spFilt2, obj.hCfg);
+                fprintf('.');
+
+                spFeatures = permute(cat(3, mrFet1, mrFet2), [1, 3, 2]); % nSite x nFet x nSpk
+                miSites = [spSites_(:), spSites2_(:)]; % nSpk x nFet
+            else % obj.hCfg.nFet_use == 3
+                [spSites2_, spSites3_] = find_site_spk23_(spFilt, spSites_, obj.hCfg);
+                fprintf('.');
+
+                mrFet1 = trWav2fet_(spFilt, obj.hCfg);
+                fprintf('.');
+
+                mrFet2 = trWav2fet_(spFilt2, obj.hCfg);
+                fprintf('.');
+
+                mrFet3 = trWav2fet_(mn2tn_wav_spk2_(samplesFilt, spSites3_, spTimes, obj.hCfg), obj.hCfg);
+                fprintf('.');
+
+                spFeatures = permute(cat(3, mrFet1, mrFet2, mrFet3), [1,3,2]); % nSite x nFet x nSpk
+                miSites = [spSites_(:), spSites2_(:), spSites3_(:)]; % nSpk x nFet
             end
 
-            if nSamplesPre > 0, spikeTimes = spikeTimes - nSamplesPre; end
-            [spikeTimes, trFet_spk, miSite_spk, tnWav_spk] = ...
-            jrclust.utils.tryGather(spikeTimes, trFet_spk, miSite_spk, tnWav_spk);
-            fGpu = obj.hCfg.fGpu;
-            fprintf('\ttook %0.1fs\n', toc(t_fet));
-        end %func
+            if nPad_pre > 0
+                spTimes = spTimes - nPad_pre;
+            end
+
+            obj.spikeTimes{end} = jrclust.utils.tryGather(spTimes);
+            obj.spikesFilt{end+1} = jrclust.utils.tryGather(spFilt);
+            obj.spikeFeatures{end+1} = jrclust.utils.tryGather(spFeatures);
+            obj.miSite_spk{end+1} = jrclust.utils.tryGather(miSites);
+            fprintf('done (%0.2f s)\n', toc(tf));
+        end
+
+        function [spikesRaw, spikesFilt, spTimes] = mn2tn_wav_(obj, samplesRaw, samplesFilt, spSites, spTimes)
+            nSpks = numel(spTimes);
+            nSites = numel(obj.hCfg.viSite2Chan);
+            spkLim_wav = obj.hCfg.spkLim;
+            spkLim_raw = obj.hCfg.spkLim_raw;
+            nSites_spk = (obj.hCfg.maxSite * 2) + 1;
+
+            % tensors, nSamples x nChannels x nSpikes
+            spikesRaw = zeros(diff(spkLim_raw) + 1, nSites_spk, nSpks, 'like', samplesRaw);
+            spikesFilt = zeros(diff(spkLim_wav) + 1, nSites_spk, nSpks, 'like', samplesFilt);
+
+            % Realignment parameters
+            fRealign_spk = get_set_(obj.hCfg, 'fRealign_spk', 0); %0,1,2
+            spTimes = jrclust.utils.tryGpuArray(spTimes, isGpu_(samplesRaw));
+            spSites = jrclust.utils.tryGpuArray(spSites, isGpu_(samplesRaw));
+
+            if isempty(spSites)
+                spikesRaw = permute(mr2tr3_(samplesRaw, spkLim_raw, spTimes), [1,3,2]);
+                spikesFilt = permute(mr2tr3_(samplesFilt, spkLim_wav, spTimes), [1,3,2]);
+            else
+                for iSite = 1:nSites
+                    viiSpk11 = find(spSites == iSite);
+                    if isempty(viiSpk11)
+                        continue;
+                    end
+
+                    viTime_spk11 = spTimes(viiSpk11); % already sorted by time
+                    viSite11 = obj.hCfg.siteNeighbors(:, iSite);
+
+                    try
+                        tnWav_spk1 = mr2tr3_(samplesFilt, spkLim_wav, viTime_spk11, viSite11);
+
+                        if fRealign_spk == 1
+                            [tnWav_spk1, viTime_spk11] = spkwav_realign_(tnWav_spk1, samplesFilt, spkLim_wav, viTime_spk11, viSite11, obj.hCfg);
+                            spTimes(viiSpk11) = viTime_spk11;
+                        elseif fRealign_spk == 2
+                            tnWav_spk1 = spkwav_align_(tnWav_spk1, obj.hCfg);
+                        end
+
+                        spikesFilt(:, :, viiSpk11) = permute(tnWav_spk1, [1, 3, 2]);
+                        spikesRaw(:,:,viiSpk11) = permute(mr2tr3_(samplesRaw, spkLim_raw, viTime_spk11, viSite11), [1,3,2]); %raw
+                    catch % GPU failure
+                        obj.isError = true;
+                    end
+                end
+            end
+        end
     end
 end
 

@@ -6,7 +6,7 @@ function [vrFilt_spk, vrVaf, nShift_post] = calc_matched_filt_(mnWav1, P) %detec
     % 6/30/17 JJJ: Range optimization
 
     vnThresh_site = jrclust.utils.tryGather(int16(mr2rms_(mnWav1, 1e5) * P.qqFactor));
-    [viTime_spk, vnAmp_spk, viSite_spk] = detect_spikes_(mnWav1, vnThresh_site, [], P);
+    [viTime_spk, vnAmp_spk, viSite_spk] = jrclust.utils.detectSpikes(mnWav1, vnThresh_site, [], P);
 
     % extract wave forms
     nSpks = numel(viSite_spk);

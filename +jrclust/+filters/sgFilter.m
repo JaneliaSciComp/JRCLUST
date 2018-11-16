@@ -2,7 +2,7 @@ function samplesOut = sgFilter(samplesIn, nDiff_filt)
     %SGFILTER Savitzky-Golay filter
     % works for a vector, matrix and tensor
     fInvert_filter = 0;
-    fGpu = isa(samplesIn, gpuArray);
+    fGpu = isa(samplesIn, 'gpuArray');
     n1 = size(samplesIn,1);
     if n1 == 1
         n1 = size(samplesIn,2); 

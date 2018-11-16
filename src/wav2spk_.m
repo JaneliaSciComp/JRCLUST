@@ -51,9 +51,9 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
     % common mode rejection
     if P.blank_thresh > 0
         if isempty(vnWav11)
-            vnWav11 = mr2ref_(mnWav2, P.vcCommonRef, P.viSiteZero); %vrWav_mean1(:);
+            vnWav11 = jrclust.utils.getCAR(mnWav2, P.vcCommonRef, P.viSiteZero); %vrWav_mean1(:);
         end
-        vlKeep_ref = car_reject_(vnWav11(:), P);
+        vlKeep_ref = jrclust.utils.carReject(vnWav11(:), P);
         fprintf('Rejecting %0.3f %% of time due to motion\n', (1-mean(vlKeep_ref))*100 );
     else
         vlKeep_ref = [];
@@ -81,7 +81,7 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
     end
     if isempty(viTime_spk) || isempty(viSite_spk)
         P_ = setfield(P, 'nPad_pre', nPad_pre);
-        [viTime_spk, vnAmp_spk, viSite_spk] = detect_spikes_(mnWav3, vnThresh_site, vlKeep_ref, P_);
+        [viTime_spk, vnAmp_spk, viSite_spk] = jrclust.utils.detectSpikes(mnWav3, vnThresh_site, vlKeep_ref, P_);
     else
         viTime_spk = viTime_spk + nPad_pre;
         vnAmp_spk = mnWav3(sub2ind(size(mnWav3), viTime_spk, viSite_spk)); % @TODO read spikes at the site and time

@@ -42,7 +42,7 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     % else
     %     vrWav_filt_mean = mean(mnWav_filt(:,~S_fig.vlSite_bad), 2);
     % end
-    vrWav_filt_mean = mr2ref_(mnWav_filt, S_fig.vcCommonRef, S_fig.viSite_bad);
+    vrWav_filt_mean = jrclust.utils.getCAR(mnWav_filt, S_fig.vcCommonRef, S_fig.viSite_bad);
     if ~strcmpi(S_fig.vcCommonRef, 'none')
         mnWav_filt = bsxfun(@minus, mnWav_filt, int16(vrWav_filt_mean));
     end
@@ -66,8 +66,8 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
 
     % Spike detection
     % P_.fMerge_spk = 0;
-    [vlKeep_ref, S_fig.vrMad_ref] = car_reject_(vrWav_filt_mean, P_);
-    [S_fig.viTime_spk, S_fig.vnAmp_spk, viSite_spk] = detect_spikes_(mnWav_filt, vnThresh_site, vlKeep_ref, P_);
+    [vlKeep_ref, S_fig.vrMad_ref] = jrclust.utils.carReject(vrWav_filt_mean, P_);
+    [S_fig.viTime_spk, S_fig.vnAmp_spk, viSite_spk] = jrclust.utils.detectSpikes(mnWav_filt, vnThresh_site, vlKeep_ref, P_);
     t_dur = size(mnWav_filt,1) / P.sRateHz;
     S_fig.vrEventRate_site = hist(viSite_spk, 1:nSites) / t_dur; % event count
     S_fig.vrEventSnr_site = abs(single(arrayfun(@(i)median(S_fig.vnAmp_spk(viSite_spk==i)), 1:nSites))) ./ vrRmsQ_site;

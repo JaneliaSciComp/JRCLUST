@@ -22,6 +22,7 @@ classdef Config < handle & dynamicprops
         blank_thresh;               % => blankThresh
         csFile_merge;               % => multiRaw
         fEllip;                     % => useElliptic
+        fft_thresh;                 % => fftThreshMad
         fGpu;                       % => useGPU
         gain_boost;                 % => gainBoost
         header_offset;              % => headerOffset
@@ -108,6 +109,7 @@ classdef Config < handle & dynamicprops
 
         % preprocessing params
         useElliptic = true;         % use elliptic filter if true (and only if filterType='bandpass')
+        fftThreshMAD = 0;           % automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
         filtOrder = 3;              % bandpass filter order
         filterType = 'ndiff';       % filter to use {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
         freqLim = [300 3000];       % frequency cut-off limit for filterType='bandpass' (ignored otherwise)
@@ -204,7 +206,6 @@ classdef Config < handle & dynamicprops
         fVerbose = false;
         fWav_raw_show = false;
         fWhiten_traces = false;
-        fft_thresh = 0;
         filter_sec_rate = 2;
         filter_shape_rate = 'triangle';
         flim_vid = [];
@@ -581,7 +582,7 @@ classdef Config < handle & dynamicprops
         % carMode/vcCommonRef
         function set.carMode(obj, cm)
             legalTypes = {'mean', 'median', 'whiten', 'none'};
-            assert(sum(strcmp(cm, legalTypes) == 1), 'legal carModes are %s', strjoin(legalTypes, ', '));
+            assert(sum(strcmp(cm, legalTypes)) == 1, 'legal carModes are %s', strjoin(legalTypes, ', '));
             obj.carMode = cm;
         end
         function cm = get.vcCommonRef(obj)
@@ -774,11 +775,25 @@ classdef Config < handle & dynamicprops
         end
         function ew = get.spkLim(obj)
             obj.logOldP('spkLim');
-            ew = obj.evtWindowms;
+            ew = obj.evtWindowSamp;
         end
         function set.spkLim(obj, ew)
             obj.logOldP('spkLim');
             obj.evtWindowSamp = ew;
+        end
+
+        % fftThreshMAD/fft_thresh
+        function set.fftThreshMAD(obj, ft)
+            assert(jrclust.utils.isscalarnum(ft) && ft >= 0, 'fftThreshMAD must be a nonnegative scalar');
+            obj.fftThreshMAD = ft;
+        end
+        function ft = get.fft_thresh(obj)
+            obj.logOldP('fft_thresh');
+            ft = obj.fftThreshMAD;
+        end
+        function set.fft_thresh(obj, ft)
+            obj.logOldP('fft_thresh');
+            obj.fftThreshMAD = ft;
         end
 
         % filtOrder
@@ -991,6 +1006,12 @@ classdef Config < handle & dynamicprops
         function set.csFile_merge(obj, mr)
             obj.logOldP('csFile_merge');
             obj.multiRaw = mr;
+        end
+
+        % nFet_use
+        function set.nFet_use(obj, nf)
+            assert(jrclust.utils.isscalarnum(nf) && ~isempty(intersect(nf, [1 2 3])), 'nFet_use must be 1, 2, or 3');
+            obj.nFet_use = nf;
         end
 
         % nSamplesPad/nPad_filt

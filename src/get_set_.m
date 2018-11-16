@@ -5,11 +5,20 @@ function val = get_set_(S, vcName, def_val)
 
     if isempty(S), S = get(0, 'UserData'); end
     if isempty(S), val = def_val; return; end
-    if ~isstruct(S)
+    if isa(S, 'jrclust.Config')
+        try
+            val = S.(vcName);
+        catch
+            val = [];
+        end
+    elseif ~isstruct(S)
         val = [];
         fprintf(2, 'get_set_: %s must be a struct\n', inputname(1));
         return;
+    else
+        val = get_(S, vcName);
     end
-    val = get_(S, vcName);
-    if isempty(val), val = def_val; end
+    if isempty(val)
+        val = def_val;
+    end
 end %func

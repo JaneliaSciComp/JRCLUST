@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 % function [samplesIn, vnWav2_mean] = filtCar(samplesIn, hCfg, windowPre, windowPost, fTrim_pad)
-function [samplesIn, sampleMeans] = filtCar(samplesIn, windowPre, windowPost, trimPad, hCfg)
+function [samplesIn, channelMeans] = filtCar(samplesIn, windowPre, windowPost, trimPad, hCfg)
     %FILTCAR Apply user-specified filter and common-average referencing
 
     if nargin < 3
@@ -53,13 +53,13 @@ function [samplesIn, sampleMeans] = filtCar(samplesIn, windowPre, windowPost, tr
     end
 
     % global subtraction before
-    [samplesIn, sampleMeans] = applyCAR(samplesIn, hCfg);
+    [samplesIn, channelMeans] = applyCAR(samplesIn, hCfg);
 end
 
 %% LOCAL FUNCTIONS
-function [samplesIn, sampleMeans] = applyCAR(samplesIn, hCfg)
+function [samplesIn, channelMeans] = applyCAR(samplesIn, hCfg)
     %APPLYCAR Perform common average referencing (CAR) on filtered traces
-    sampleMeans = [];
+    channelMeans = [];
 
     if any(strcmpi(hCfg.carMode, {'tmean', 'nmean'})) % dead code (deprecated option?)
         trimLim = [.25, .75];
@@ -86,11 +86,11 @@ function [samplesIn, sampleMeans] = applyCAR(samplesIn, hCfg)
             end
         end
     elseif strcmpi(hCfg.carMode, 'mean')
-        sampleMeans = meanExcluding(samplesIn, hCfg.ignoreSites);
-        samplesIn = bsxfun(@minus, samplesIn, sampleMeans);
+        channelMeans = meanExcluding(samplesIn, hCfg.ignoreSites);
+        samplesIn = bsxfun(@minus, samplesIn, channelMeans);
     elseif strcmpi(hCfg.carMode, 'median')
-        sampleMedians = medianExcluding(samplesIn, hCfg.ignoreSites);
-        samplesIn = bsxfun(@minus, samplesIn, sampleMedians);
+        channelMedians = medianExcluding(samplesIn, hCfg.ignoreSites);
+        samplesIn = bsxfun(@minus, samplesIn, channelMedians);
     elseif strcmpi(hCfg.carMode, 'whiten')  
         samplesIn = whiten(samplesIn, hCfg.ignoreSites, hCfg.ramToGPUFactor);
     end
@@ -121,7 +121,7 @@ end
 
 function medians = medianExcluding(samplesIn, ignoreSites)
     %MEDIANEXCLUDING Calculate median after excluding ignoreSites
-    useGPU = isa(samplesIn, gpuArray);
+    useGPU = isa(samplesIn, 'gpuArray');
     if useGPU
         samplesIn = jrclust.utils.tryGather(samplesIn);
     end

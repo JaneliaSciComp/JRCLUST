@@ -4,7 +4,7 @@ function samplesOut = fftdiffFilter(samplesIn, freqLim, ramToGPUFactor)
         return;
     end
 
-    useGPU = isa(samplesIn, gpuArray);
+    useGPU = isa(samplesIn, 'gpuArray');
 
     nSamples = size(samplesIn, 1);
     [nLoads, nSamplesLoad, nSamplesLast] = jrclust.utils.partitionLoad(nSamples, round(nSamples/ramToGPUFactor));
