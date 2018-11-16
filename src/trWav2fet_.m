@@ -7,7 +7,9 @@ function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites
 
     [mrFet1, mrFet2, mrFet3] = deal(single([]));
     trWav2_spk = single(permute(tnWav1_spk, [1,3,2]));
-    trWav2_spk = spkwav_car_(trWav2_spk, P, nSites_spk, viSite2_spk);
+    if get_set_(P, 'fRealign_spk', 0) ~= 1
+        trWav2_spk = spkwav_car_(trWav2_spk, P, nSites_spk, viSite2_spk);
+    end
     % if get_set_(P, 'fMeanSubt_fet', 1), trWav2_spk = meanSubt_(trWav2_spk); end % 12/16/17 JJJ experimental
 
     switch lower(P.vcFet) %{'xcor', 'amp', 'slope', 'pca', 'energy', 'vpp', 'diff248', 'spacetime'}
@@ -58,7 +60,7 @@ function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites
             mrPv_global = get0_('mrPv_global');
             if isempty(mrPv_global)
                 [mrPv_global, vrD_global] = tnWav2pv_(trWav2_spk, P);
-                [mrPv_global, vrD_global] = jrclust.utils.tryGather(mrPv_global, vrD_global);
+                [mrPv_global, vrD_global] = gather_(mrPv_global, vrD_global);
                 set0_(mrPv_global, vrD_global);
             end
             mrPv = mrPv_global;
