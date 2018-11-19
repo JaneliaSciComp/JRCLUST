@@ -15,7 +15,6 @@ function [tnWav_spk1, viTime_spk1] = spkwav_realign_(tnWav_spk1, mnWav_spk, spkL
     end    
     [viSpk_shift, viShift] = spkwav_shift_(trWav_spk2, shift_max, P);
 
-    [viSpk_shift, viShift] = spkwav_shift_(trWav_spk2, 1, P);
     if isempty(viSpk_shift), return; end
 
     viTime_shift = viTime_spk1(viSpk_shift) - int32(viShift(:)); % spike time to shift

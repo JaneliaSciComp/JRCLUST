@@ -27,7 +27,7 @@ function [mnWav2, vnWav2_mean] = filt_car_(mnWav2, P, mnWav1_pre, mnWav1_post, f
         end
         case 'ndiff', mnWav2 = ndiff_(mnWav2, P.nDiff_filt);
         case 'fftdiff', mnWav2 = fftdiff_(mnWav2, P);
-        %     case 'fftdiff', mnWav2 = fftdiff__(gather_(mnWav2), P.freqLim(2)/P.sRateHz/2);
+        %     case 'fftdiff', mnWav2 = fftdiff__(jrclust.utils.tryGather(mnWav2), P.freqLim(2)/P.sRateHz/2);
         case {'sgdiff', 'sgfilt'}
         mnWav2 = sgfilt_(mnWav2, P.nDiff_filt);
         case 'bandpass'
