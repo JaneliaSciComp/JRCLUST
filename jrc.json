@@ -1,19 +1,39 @@
 {
-    "authors": [
-        "James Jun",
-        "Alan Liddell"
-    ],
-    "changeDate": "7 Nov, 2018",
     "program": "JRCLUST",
+    "version": {
+        "major": 4,
+        "minor": 0,
+        "release": 0
+    },
+    "changeDate": "19 Nov 2018",
+    "authors": [
+        "James Jun"
+    ],
+    "maintainers": [
+        "Alan Liddell",
+        "Vidrio Technologies"
+    ],
     "contributors": [
         "Mike Economo",
         "Hidehiko Inagaki",
         "Thomas Luo",
         "Tim Wang"
     ],
-    "version": {
-        "major": 4,
-        "minor": 0,
-        "release": 0
-    }
+    "hardwareRequirements": [
+        "32GB RAM",
+        "NVIDIA GPU, compute capability 3.5 or later"
+    ],
+    "softwareRequirements": [
+        "MATLAB R2014b or later",
+        "Parallel Computing Toolbox",
+        "Image Processing Toolbox",
+        "Signal Processing Toolbox",
+        "Statistics and Machine Learning Toolbox",
+        "Microsoft Visual Studio Community 2015",
+        "CUDA 8.0 (if using MATLAB R2017a or later)",
+        "CUDA 7.5 (if using MATLAB R2016a or R2016a)",
+        "CUDA 7.0 (if using MATLAB R2015b)",
+        "CUDA 6.5 (if using MATLAB R2015a)",
+        "CUDA 6.0 (if using MATLAB R2014b)"
+    ]
 }

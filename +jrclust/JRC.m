@@ -122,7 +122,10 @@ classdef JRC < handle & dynamicprops
 
                 % info commands
                 case 'about'
-                    disp(jrclust.utils.about());
+                    md = jrclust.utils.info();
+                    verstr = sprintf('%s v%s', md.program, jrclust.utils.version());
+                    abstr = jrclust.utils.about();
+                    msgbox(abstr, verstr);
                     obj.isCompleted = true;
                     return;
 
