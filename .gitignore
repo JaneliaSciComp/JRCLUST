@@ -4,10 +4,10 @@
 # sample binary files and JRC output
 sample*.bin
 sample*.jrc
-sample*.mat
 sample*.png
 sample*.prm
+sample*.csv
 
 # Misc
-jrc_log_error.mat
+*.mat
 *.ipynb
