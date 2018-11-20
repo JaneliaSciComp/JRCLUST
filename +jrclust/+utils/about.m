@@ -9,10 +9,10 @@ function abstr = about()
                      'With contributions from:';
                      sprintf('    - %s', strjoin(md.contributors, '\n    - '));
                      '';
-                     'Hardware Requirements';
+                     'Hardware Requirements:';
                      sprintf('    - %s', strjoin(md.hardwareRequirements, '\n    - '));
                      '';
-                     'Software Requirements';
+                     'Software Requirements:';
                      sprintf('    - %s', strjoin(md.softwareRequirements, '\n    - '));
                      '';
                      sprintf('Last update: %s', md.changeDate);

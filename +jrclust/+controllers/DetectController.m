@@ -2,9 +2,8 @@ classdef DetectController < handle
     %DETECTIONCONTROLLER Summary of this class goes here
     %   Detailed explanation goes here
 
-    properties (SetAccess=private)
+    properties (SetAccess=private, SetObservable, Transient)
         hCfg;
-        hRecs;
         isError;
     end
 
@@ -27,7 +26,6 @@ classdef DetectController < handle
     methods
         function obj = DetectController(hCfg, knownTimes, knownSites)
             obj.hCfg = hCfg;
-            obj.hRecs = jrclust.models.Recording.empty;
             if nargin < 2
                 knownTimes = [];
             end
@@ -95,6 +93,7 @@ classdef DetectController < handle
                 sampOffset = 1;
 
                 windowPre = [];
+                rec.open();
                 for iLoad = 1:nLoads
                     t1 = tic;
 
@@ -166,6 +165,8 @@ classdef DetectController < handle
                 end
 
                 t1 = toc(t1);
+                rec.close();
+
                 tr = (nBytesFile/jrclust.utils.typeBytes(obj.hCfg.dtype)/obj.hCfg.nChans)/obj.hCfg.sampleRate;
                 fprintf('File %d/%d took %0.1fs (%0.1f MB, %0.1f MB/s, x%0.1f realtime)\n', ...
                     iRec, nRecs, t1, nBytesFile/1e6, nBytesFile/t1/1e6, tr/t1);
@@ -210,6 +211,10 @@ classdef DetectController < handle
 
             % summarize
             res.runtime = toc(t0);
+        end
+
+        function saveFiles(obj)
+            
         end
     end
 
@@ -377,7 +382,7 @@ classdef DetectController < handle
         end
 
         function extractFeatures(obj, samplesRaw, samplesFilt, nPad_pre)
-            % Extract spike waveforms and build a spike table
+            %EXTRACTFEATURES Extract spike waveforms and build a spike table
             fprintf('\tExtracting features');
             tf = tic;
 
@@ -407,7 +412,7 @@ classdef DetectController < handle
             end
 
             obj.spikesRaw{end+1} = jrclust.utils.tryGather(spRaw);
-            assert_(obj.hCfg.maxSite*2+1 - obj.hCfg.nSites_ref > 0, 'maxSite*2+1 - nSites_ref must be greater than 0');
+            assert(obj.hCfg.maxSite*2 + 1 - obj.hCfg.nSites_ref > 0, 'maxSite*2+1 must be greater than nSites_ref');
 
             if obj.hCfg.nFet_use == 1
                 mrFet1 = trWav2fet_(spFilt, obj.hCfg);
@@ -492,7 +497,7 @@ classdef DetectController < handle
                         end
 
                         spikesFilt(:, :, viiSpk11) = permute(tnWav_spk1, [1, 3, 2]);
-                        spikesRaw(:,:,viiSpk11) = permute(mr2tr3_(samplesRaw, spkLim_raw, viTime_spk11, viSite11), [1,3,2]); %raw
+                        spikesRaw(:, :, viiSpk11) = permute(mr2tr3_(samplesRaw, spkLim_raw, viTime_spk11, viSite11), [1,3,2]);
                     catch % GPU failure
                         obj.isError = true;
                     end

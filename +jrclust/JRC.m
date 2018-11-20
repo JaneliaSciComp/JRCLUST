@@ -13,11 +13,21 @@ classdef JRC < handle & dynamicprops
     properties (SetObservable, SetAccess=private)
         args;
         cmd;
-        dRes; % TODO: this is temporary, fields should be accessible directly
         hCfg;
         hDet;
         hSort;
         hCurate;
+    end
+
+    % most relevant data from detection step
+    properties (Dependent)
+        spikeTimes;
+        spikeSites;
+    end
+
+    % contains all computed data from detection step
+    properties (Hidden, SetAccess=private)
+        dRes;
     end
 
     % LIFECYCLE
@@ -136,7 +146,7 @@ classdef JRC < handle & dynamicprops
 
                 case 'version'
                     md = jrclust.utils.info();
-                    fprintf('%s %s\n', md.program, jrclust.utils.version());
+                    fprintf('%s v%s\n', md.program, jrclust.utils.version());
                     obj.isCompleted = true;
                     return;
             end
@@ -213,7 +223,11 @@ classdef JRC < handle & dynamicprops
                 obj.hDet = jrclust.controllers.DetectController(obj.hCfg);
                 obj.dRes = obj.hDet.detect();
                 if obj.hCfg.fVerbose
-                    fprintf('detection completed in %0.2f seconds', obj.dRes.runtime);
+                    fprintf('Detection completed in %0.2f seconds', obj.dRes.runtime);
+                end
+
+                if ~(obj.isSorting || obj.isCuration) % save to pick up later
+                    obj.hDet.saveFiles();
                 end
             end
 
@@ -251,6 +265,24 @@ classdef JRC < handle & dynamicprops
         % isError
         function ie = get.isError(obj)
             ie = obj.isError || obj.hCfg.isError;
+        end
+
+        % spikeTimes
+        function st = get.spikeTimes(obj)
+            if isempty(obj.dRes) || ~isfield(obj.dRes, 'spikeTimes')
+                st = [];
+            else
+                st = obj.dRes.spikeTimes;
+            end
+        end
+
+        % spikeSites
+        function ss = get.spikeSites(obj)
+            if isempty(obj.dRes) || ~isfield(obj.dRes, 'spikeSites')
+                ss = [];
+            else
+                ss = obj.dRes.spikeSites;
+            end
         end
     end
 end

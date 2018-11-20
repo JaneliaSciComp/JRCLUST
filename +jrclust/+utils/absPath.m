@@ -1,24 +1,36 @@
 function ap = absPath(filename, basedir)
     %ABSPATH Get the absolute path of filename
-    %   Returns empty str if filename can't be found
-    if nargin < 2
+    % Returns empty str if filename can't be found
+    if nargin < 2 || ~isdir(basedir)
         basedir = pwd();
+    elseif ~isAbsPath(basedir)
+        basedir = fullfile(pwd(), basedir);
     end
-    
-    ap = '';
 
-    % which returns empty if you're looking for a directory
-    if isfile(filename) && isempty(which(filename))
+    if isAbsPath(filename) && isfile(filename)
         ap = filename;
-    elseif isfile(filename)
-        ap = which(filename);
-    else % ~isfile(filename)
-        filename = fullfile(basedir, filename);
-        if isfile(filename) && isempty(which(filename)) % basedir is absolute
-            ap = filename;
-        elseif isfile(filename) % basedir is relative
-            ap = which(filename);
-        end % otherwise, can't find it, you're on your own
+    else
+        if isfile(fullfile(basedir, filename)) % check hinted directory first
+            ap = fullfile(basedir, filename);
+        elseif isfile(filename) % try to find it relative to current directory
+            ap = fullfile(pwd(), filename);
+        else % can't find it, you're on your own
+            ap = '';
+        end
     end
 end
 
+%% LOCAL FUNCTIONS
+function ia = isAbsPath(pathname)
+    %ISABSPATH Return true if pathname is an absolute path
+    % On *nix, it begins with /
+    % On Windows, it begins with / or \ after chopping off `[A-Za-z]:`
+
+    if ispc() % Windows
+        % chop off drive letter at beginning
+        truncd = regexprep(pathname, '^[a-z]:', '', 'ignorecase');
+        ia = ~strcmp(truncd, pathname) && (all(regexp(truncd, '^[/\\]')) == 1);
+    else
+        ia = (all(regexp(pathname, '^/')) == 1);
+    end
+end
