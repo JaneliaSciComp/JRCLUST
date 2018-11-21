@@ -1,33 +1,34 @@
 classdef JRC < handle & dynamicprops
-    %JRC
+    %JRC Handle class for spike sorting pipeline
 
     properties (SetObservable, SetAccess=private, Hidden)
-        errMsg;
-        isCompleted;
-        isError;
-        isDetection;
-        isSorting;
-        isCuration;
+        errMsg;         %
+        isCompleted;    %
+        isError;        %
+        isDetect;       %
+        isSort;         %
+        isCurate;       %
     end
 
     properties (SetObservable, SetAccess=private)
-        args;
-        cmd;
-        hCfg;
-        hDet;
-        hSort;
-        hCurate;
+        args;           %
+        cmd;            %
+        hCfg;           %
+        hDet;           %
+        hSort;          %
+        hCurate;        %
     end
 
-    % most relevant data from detection step
+    % most general data from detection step
     properties (Dependent)
-        spikeTimes;
-        spikeSites;
+        spikeTimes;     %
+        spikeSites;     % 
     end
 
-    % contains all computed data from detection step
-    properties (Hidden, SetAccess=private)
-        dRes;
+    % structs containing results from steps in the pipeline
+    properties (Hidden, SetAccess=private, SetObservable)
+        dRes;           % detect step (must contain at a minimum spikeTimes and spikeSites)
+        sRes;           % sort step
     end
 
     % LIFECYCLE
@@ -37,9 +38,9 @@ classdef JRC < handle & dynamicprops
             obj.args = varargin;
             obj.isCompleted = false;
             obj.isError = false;
-            obj.isDetection = false;
-            obj.isSorting = false;
-            obj.isCuration = false;
+            obj.isDetect = false;
+            obj.isSort = false;
+            obj.isCurate = false;
 
             if ~jrclust.utils.sysCheck()
                 obj.errMsg = 'system requirements not met';
@@ -53,6 +54,7 @@ classdef JRC < handle & dynamicprops
 
     methods (Access=protected)
         function processArgs(obj)
+            %PROCESSARGS Handle command-line arguments, load param file
             nargs = numel(obj.args);
 
             if nargs == 0
@@ -152,7 +154,7 @@ classdef JRC < handle & dynamicprops
             end
 
             % command sentinel
-            legalCmds = {'detect', 'full', 'manual', 'sort', 'spikesort'};
+            legalCmds = {'detect', 'sort'};
             if ~any(strcmpi(obj.cmd, legalCmds))
                 obj.errMsg = sprintf('Command `%s` not recognized', obj.cmd);
                 errordlg(obj.errMsg, 'Unrecognized command');
@@ -166,13 +168,13 @@ classdef JRC < handle & dynamicprops
             curateCmds = {'full', 'manual'};
 
             if any(strcmp(obj.cmd, detectCmds))
-                obj.isDetection = true;
+                obj.isDetect = true;
             end
             if any(strcmp(obj.cmd, sortCmds))
-                obj.isSorting = true;
+                obj.isSort = true;
             end
             if any(strcmp(obj.cmd, curateCmds))
-                obj.isCuration = true;
+                obj.isCurate = true;
             end
 
             % load from saved
@@ -202,32 +204,65 @@ classdef JRC < handle & dynamicprops
         function it = invocationType(obj)
             if obj.isError
                 it = 'error';
-            elseif obj.isSorting
-                it = 'sorting';
-            elseif obj.isCuration
-                it = 'manual';
-            else % ~(obj.isCuration || obj.isSorting)
+            elseif obj.isSort
+                it = 'sort';
+            elseif obj.isDetect
+                it = 'detect';
+            elseif obj.isCurate
+                it = 'curate';
+            else % ~(obj.isCurate || obj.isSort)
                 it = 'info';
             end
         end
 
         function run(obj)
+            %RUN Run commands
             if obj.isError
                 error(obj.errMsg);
             elseif obj.isCompleted
-                warning('command %s completed successfully; to rerun, use rerun()');
+                warning('command ''%s'' completed successfully; to rerun, use rerun()', obj.cmd);
                 return;
             end
 
-            if obj.isDetection
-                obj.hDet = jrclust.controllers.DetectController(obj.hCfg);
-                obj.dRes = obj.hDet.detect();
-                if obj.hCfg.fVerbose
-                    fprintf('Detection completed in %0.2f seconds', obj.dRes.runtime);
+            % set random seeds
+            rng(obj.hCfg.randomSeed);
+            if obj.hCfg.useGPU
+                % while we're here, clear GPU memory
+                if obj.hCfg.verbose
+                    fprintf('Clearing GPU memory...');
+                end
+                gpuDevice(); % selects GPU device
+                gpuDevice([]); % clears GPU memory
+                if obj.hCfg.verbose
+                    fprintf('done\n');
                 end
 
-                if ~(obj.isSorting || obj.isCuration) % save to pick up later
-                    obj.hDet.saveFiles();
+                parallel.gpu.rng(obj.hCfg.randomSeed);
+            end
+
+            if obj.isDetect
+                obj.hDet = jrclust.controllers.DetectController(obj.hCfg);
+                obj.dRes = obj.hDet.detect();
+
+                if obj.hDet.isError
+                    error(obj.hDet.errMsg);
+                elseif obj.hCfg.verbose
+                    fprintf('Detection completed in %0.2f seconds\n', obj.dRes.runtime);
+                end
+
+                if ~(obj.isSort || obj.isCurate) % save to pick up later
+                    obj.saveFiles();
+                end
+            end
+
+            if obj.isSort
+                obj.hSort = jrclust.controllers.SortController(obj.hCfg);
+                obj.sRes = obj.hSort.sort(obj.dRes);
+
+                if obj.hSort.isError
+                    error(obj.hSort.errMsg);
+                elseif obj.hCfg.verbose
+                    fprintf('Sorting completed in %0.2f seconds\n', obj.sRes.runtime);
                 end
             end
 
@@ -235,6 +270,7 @@ classdef JRC < handle & dynamicprops
         end
 
         function rerun(obj)
+            %RERUN Rerun commands
             if obj.isError
                 error(obj.errMsg);
             else
@@ -242,16 +278,36 @@ classdef JRC < handle & dynamicprops
                 obj.run();
             end
         end
+
+        function saveFiles(obj)
+            %SAVEFILES Save results structs and binary files to disk
+            if obj.isError
+                error(obj.errMsg);
+            end
+
+            if isempty(obj.hCfg.outputDir)
+                obj.hCfg.outputDir = fileparts(obj.hCfg.configFile);
+            end
+
+            [~, sessionName, ~] = fileparts(obj.hCfg.configFile);
+
+            if obj.isDetect && ~isempty(obj.dRes)
+                filename = fullfile(obj.hCfg.outputDir, [sessionName '_detect.mat']);
+                if obj.hCfg.verbose
+                    fprintf('Saving detection results to %s\n', filename);
+                end
+                jrclust.utils.saveStruct(obj.dRes, filename);
+            end
+        end
     end
 
     % GETTERS/SETTERS
     methods
-        % args
-        function args = get.args(obj)
-            args = obj.args;
-        end
-        function set.args(obj, args)
-            obj.args = args;
+        % dRes
+        function set.dRes(obj, dr)
+            failMsg = 'dRes must contain at a minimum: spikeTimes, spikeSites';
+            assert(isstruct(dr) && isfield(dr, 'spikeTimes') && isfield(dr, 'spikeSites'), failMsg);
+            obj.dRes = dr;
         end
 
         % hCfg
@@ -264,7 +320,13 @@ classdef JRC < handle & dynamicprops
 
         % isError
         function ie = get.isError(obj)
-            ie = obj.isError || obj.hCfg.isError;
+            ie = obj.isError;
+            if ~isempty(obj.hCfg) % pick up error in Config
+                ie = ie || obj.hCfg.isError;
+            end
+            if ~isempty(obj.hDet) % pick up error in Detect
+                ie = ie || obj.hDet.isError;
+            end
         end
 
         % spikeTimes

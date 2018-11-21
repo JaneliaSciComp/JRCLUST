@@ -25,7 +25,7 @@ function validate_(P)
             if isempty(S_gt0), fprintf(2, 'Groundtruth does not exist. Run "jrclust import" to create a groundtruth file.\n'); return; end
             %[S_gt, tnWav_gt] = gt2spk_(S_gt, P, snr_thresh_stat);
             S_gt = gt2spk_(S_gt0, P, snr_thresh_stat);
-            struct_save_(S_gt, vcFile_gt1);
+            jrclust.utils.saveStruct(S_gt, vcFile_gt1);
         end
     end
     S_score = struct(...

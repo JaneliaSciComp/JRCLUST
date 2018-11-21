@@ -67,7 +67,7 @@ function S_clu = cluster_spacetime_(S0, P, vlRedo_spk)
     for iSite = 1:nSites
         [mrFet12_, viSpk12_, n1_, n2_, viiSpk12_ord_] = fet12_site_(trFet_spk, S0, P, iSite, vlRedo_spk);
         if isempty(mrFet12_), continue; end
-        viiRho12_ord_ = rankorder_(vrRho(viSpk12_), 'descend');
+        viiRho12_ord_ = jrclust.utils.rankorder(vrRho(viSpk12_), 'descend');
         [mrFet12_, viiRho12_ord_, viiSpk12_ord_] = ...
         multifun_(@jrclust.utils.tryGpuArray, mrFet12_, viiRho12_ord_, viiSpk12_ord_);
         try

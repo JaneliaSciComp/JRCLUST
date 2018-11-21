@@ -15,7 +15,7 @@ function S0 = save0_(vcFile_mat, fSkip_fig)
         P = S0.P;
         set0_(P);
 
-        struct_save_(S0, vcFile_mat, 1);
+        jrclust.utils.saveStruct(S0, vcFile_mat);
         vcFile_prm = S0.P.vcFile_prm;
         export_prm_(vcFile_prm, strrep(vcFile_prm, '.prm', '_full.prm'), 0);
 

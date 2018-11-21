@@ -2,13 +2,15 @@ classdef Config < handle & dynamicprops
     %CONFIG JRCLUST session configuration
     % replacement for P struct
 
-    properties (SetObservable, SetAccess=private, Hidden)
+    %% OBJECT-LEVEL PROPERTIES
+    properties (Hidden, SetObservable, SetAccess=private)
         isLoaded;
+        errMsg;
         isError;
         oldPcount;
     end
 
-    % old-style params, will be deprecated after a grace period
+    %% OLD-STYLE PARAMS, publicly settable (will be deprecated after a grace period)
     properties (SetObservable, Dependent, Hidden, Transient)
         % cvrDepth_drift;           % doesn't appear to be used (was {})
         % maxSite_detect;           % doesn't appear to be used (was 1.5)
@@ -21,9 +23,11 @@ classdef Config < handle & dynamicprops
         % rejectSpk_mean_thresh;    % appears to be synonymous with blankThresh/blank_thresh
         blank_thresh;               % => blankThresh
         csFile_merge;               % => multiRaw
+        delta1_cut;                 % => log10DeltaCut
         fEllip;                     % => useElliptic
         fft_thresh;                 % => fftThreshMad
         fGpu;                       % => useGPU
+        fVerbose;                   % => verbose
         gain_boost;                 % => gainBoost
         header_offset;              % => headerOffset
         MAX_BYTES_LOAD;             % => maxBytesLoad
@@ -31,6 +35,7 @@ classdef Config < handle & dynamicprops
         maxDist_site_um             % => evtMergeRad
         maxDist_site_spk_um;        % => evtDetectRad
         maxSite;                    % => nSiteDir
+        min_count;                  % => minClusterSize
         mrSiteXY;                   % => siteLoc
         nLoads_gpu;                 % => ramToGPUFactor
         nPad_filt;                  % => nSamplesPad
@@ -69,26 +74,22 @@ classdef Config < handle & dynamicprops
         viSiteZero;                 % => ignoreSites
     end
 
-    % computed from other params but not in need of storage
-    properties (SetObservable, Dependent)
-        bytesPerSample;             % byte count for each discrete sample
-        evtManualThresh;            % evtManualThreshuV / bitScaling
-        evtWindowRawSamp;           % interval around event to extract raw spike waveforms, in samples
-        evtWindowSamp;              % interval around event to extract filtered spike waveforms, in samples
-        refracIntSamp;              % spike refractory interval, in samples
+    %% OLD-STLYE PARAMS, not publicly settable
+    properties (Dependent, SetAccess=private, Hidden)
+        miSites;                    % => siteNeighbors
     end
-
-    properties (Access=private, Hidden, SetObservable)
-        multiRaw;                   % list of recording files to merge (empty if single file is used)
-        singleRaw;                  % raw recording file path (empty if multiple files are sorted together)
-    end
-
-    % new-style params, settable from outside
+    
+    %% NEW-STYLE PARAMS, publicly settable
     properties (SetObservable)
-        % GPU params
+        % computation params
         gpuLoadFactor = 5;          % GPU memory usage factor (4x means 1/4 of GPU memory can be loaded)
+        randomSeed = 0;             % random seed
         ramToGPUFactor = 8;         % ratio: RAM / (GPU memory) (increase this number if GPU memory error)
         useGPU = true;              % use GPU in computation if true
+        verbose = false;            % be chatty while processing
+
+        % file location params
+        outputDir = '';             % directory in which to place output files
 
         % recording params
         auxSites;                   %
@@ -96,7 +97,7 @@ classdef Config < handle & dynamicprops
         configFile;                 % parameter file
         dtype = 'int16';            % raw data binary format
         gainBoost = 1;              % multiply the raw recording by this gain to boost uV/bit
-        gtFile= '';                 % ground truth file (default: SESSION_NAME_gt.mat) (TODO: specify format)
+        gtFile = '';                % ground truth file (default: SESSION_NAME_gt.mat) (TODO: specify format)
         headerOffset = 0;           % file header offset, in bytes
         lfpSampleRate = 2500;       % sample rate of the LFP recording, in Hz
         probeFile;                  % probe file to use (.prb, .mat)
@@ -140,10 +141,17 @@ classdef Config < handle & dynamicprops
         threshFile = '';            % path to .mat file storing spike detection thresholds (created by 'preview' GUI)
 
         % feature extraction params
+        fSpatialMask_clu = false;   % apply spatial mask calculated from the distances between sites to the peak site (half-scale: P.maxDist_site_um)
+        min_sites_mask = 5;         % minimum number of sites to have to apply spatial mask
         nFet_use = 2;               % undocumented
+        time_feature_factor;        % undocumented
 
         % clustering params
+        dc_percent = 2;             % percentile at which to cut off distance in rho computation
+        log10DeltaCut = 0.6;        % the base-10 log of the delta cutoff value
         log10RhoCut = -2.5;         % the base-10 log of the rho cutoff value
+        minClusterSize = 30;        % minimum cluster size (set to 2*#features if lower)
+        nTime_clu = 1;              % number of time periods over which to cluster separately (later to be merged after clustering)
 
         % display params
         dispFilter = '';
@@ -159,8 +167,6 @@ classdef Config < handle & dynamicprops
         cviShank = [];
         dc_factor = 1;
         dc_frac = [];
-        dc_percent = 2;
-        delta1_cut = 0.6;
         dinput_imec_trial = 1;
         duration_file = [];
         fAddCommonRef = false;
@@ -197,13 +203,11 @@ classdef Config < handle & dynamicprops
         fShowAllSites = false;
         fSingleColumn_track = true;
         fSmooth_track = true;
-        fSpatialMask_clu = false;
         fSpike_show = true;
         fText = true;
         fTranspose_bin = true;
         fUseCache_track = false;
         fUseLfp_track = true;
-        fVerbose = false;
         fWav_raw_show = false;
         fWhiten_traces = false;
         filter_sec_rate = 2;
@@ -227,11 +231,8 @@ classdef Config < handle & dynamicprops
         maxSite_track = [2 3 4 5 6 7 8];
         maxWavCor = 0.98;
         max_shift_track = [];
-        min_count = 30;
-        min_sites_mask = 5;
         mrColor_proj = [0.75 0.75 0.75; 0 0 0; 1 0 0];
         nBytes_file = [];
-        nC_max = 45;
         nChans = 120;
         nClu_show_aux = 10;
         nInterp_merge = 1;
@@ -249,7 +250,6 @@ classdef Config < handle & dynamicprops
         nSpk_show = 30;
         nT_drift = [];
         nThreads = 128;
-        nTime_clu = 4;
         nTime_traces = 1;
         nneigh_min_detect = 0;
         nw_lcm_track = 1;
@@ -312,17 +312,27 @@ classdef Config < handle & dynamicprops
         ybin_drift = 2;
     end
 
-    % private params, old-style
-    properties (Dependent, SetAccess=private, Hidden)
-        miSites;                    % => siteNeighbors
-    end
-
-    % private params, new-style
+    %% NEW-STYLE PARAMS, not publicly settable
     properties (SetAccess=private)
         siteNeighbors;              % indices of neighbors for each site
     end
 
-    % lifecycle
+    %% COMPUTED PARAMS
+    properties (SetObservable, Dependent)
+        bytesPerSample;             % byte count for each discrete sample
+        evtManualThresh;            % evtManualThreshuV / bitScaling
+        evtWindowRawSamp;           % interval around event to extract raw spike waveforms, in samples
+        evtWindowSamp;              % interval around event to extract filtered spike waveforms, in samples
+        refracIntSamp;              % spike refractory interval, in samples
+    end
+
+    % here to ease the transition (use rawRecordings to access both)
+    properties (Access=private, Hidden, SetObservable)
+        multiRaw;                   % list of recording files to merge (empty if single file is used)
+        singleRaw;                  % raw recording file path (empty if multiple files are sorted together)
+    end
+
+    %% LIFECYCLE
     methods
         function obj = Config(filename)
             %CONFIG Construct an instance of this class
@@ -345,6 +355,19 @@ classdef Config < handle & dynamicprops
                 obj.validateParams();
             end
             obj.isLoaded = ~obj.isError;
+        end
+    end
+
+    %% UTILITY METHODS
+    methods(Access=protected, Hidden)
+        function logOldP(obj, prm)
+            %LOGOLDP Increment the old-style parameter counter
+            %   collect stats on usage of old parameters
+            if ~isKey(obj.oldPcount, prm)
+                obj.oldPcount(prm) = 1;
+            else
+                obj.oldPcount(prm) = obj.oldPcount(prm) + 1;
+            end
         end
 
         function loadParams(obj)
@@ -430,6 +453,7 @@ classdef Config < handle & dynamicprops
         end
 
         function loadProbe(obj)
+            %LOADPROBE Load probe construct from .mat or .m
             try % first try to load probe from mat file
                 pstr = load(obj.probeFile, '-mat');
             catch
@@ -471,6 +495,7 @@ classdef Config < handle & dynamicprops
         end
 
         function validateParams(obj)
+            %VALIDATEPARAMS Ensure parameters make sense
             % check probe is consistent
             if ~(jrclust.utils.ismatrixnum(obj.siteMap) && all(obj.siteMap > 0))
                 errordlg('Malformed channel map', 'Bad probe configuration');
@@ -534,18 +559,8 @@ classdef Config < handle & dynamicprops
         end
     end
 
-    % getters/setters
+    %% GETTERS/SETTERS
     methods
-        function logOldP(obj, prm)
-            %LOGOLDP Increment the old-style parameter counter
-            %   collect stats on usage of old parameters
-            if ~isKey(obj.oldPcount, prm)
-                obj.oldPcount(prm) = 1;
-            else
-                obj.oldPcount(prm) = obj.oldPcount(prm) + 1;
-            end
-        end
-
         % auxSites/viChan_aux
         function set.auxSites(obj, ac)
             assert(jrclust.utils.ismatrixnum(ac) && all(ac > 0), 'malformed auxSites');
@@ -673,7 +688,7 @@ classdef Config < handle & dynamicprops
 
         % evtDetectRad/maxDist_site_um
         function set.evtDetectRad(obj, ed)
-            assert(jrclust.utils.isscalarnum(ed) && ed >= 0, 'evtDetectRad must be a nonnegative scalar');
+            assert(jrclust.utils.isscalarnum(ed) && ed > 0, 'evtDetectRad must be a positive scalar');
             obj.evtDetectRad = ed;
         end
         function ed = get.maxDist_site_spk_um(obj)
@@ -924,6 +939,20 @@ classdef Config < handle & dynamicprops
             obj.loadTimeLimits = tl;
         end
 
+        % log10DeltaCut/delta1_cut
+        function set.log10DeltaCut(obj, dc)
+            assert(jrclust.utils.isscalarnum(dc), 'log10RhoCut must be a numeric scalar');
+            obj.log10DeltaCut = dc;
+        end
+        function dc = get.delta1_cut(obj)
+            obj.logOldP('delta1_cut');
+            dc = obj.log10DeltaCut;
+        end
+        function set.delta1_cut(obj, dc)
+            obj.logOldP('delta1_cut');
+            obj.log10DeltaCut = dc;
+        end
+
         % log10RhoCut/rho_cut
         function set.log10RhoCut(obj, rc)
             assert(jrclust.utils.isscalarnum(rc), 'log10RhoCut must be a numeric scalar');
@@ -964,6 +993,20 @@ classdef Config < handle & dynamicprops
         function set.MAX_LOAD_SEC(obj, ms)
             obj.logOldP('MAX_LOAD_SEC');
             obj.maxSecLoad = ms;
+        end
+
+        % minClusterSize/min_count
+        function set.minClusterSize(obj, mc)
+            assert(jrclust.utils.isscalarnum(mc) && mc == round(mc) && mc > 0, 'minClusterSize must be a positive integer-valued scalar');
+            obj.minClusterSize = mc;
+        end
+        function mc = get.min_count(obj)
+            obj.logOldP('min_count');
+            mc = obj.minClusterSize;
+        end
+        function set.min_count(obj, mc)
+            obj.logOldP('min_count');
+            obj.minClusterSize = mc;
         end
 
         % multiRaw/csFile_merge
@@ -1070,13 +1113,24 @@ classdef Config < handle & dynamicprops
             obj.nSitesExcl = ns;
         end
 
+        % outputDir
+        function set.outputDir(obj, od)
+            od_ = jrclust.utils.absPath(od, fileparts(obj.configFile));
+            if isempty(od_) % fall back to wherever configFile is stored
+                od_ = fileparts(obj.configFile);
+            elseif isfile(od_)
+                error('''%s'' is a file', od);
+            end
+            obj.outputDir = od_;
+        end
+
         % probeFile/probe_file
         function set.probeFile(obj, pf)
             % first check where the config file is located
             pf_ = jrclust.utils.absPath(pf, fileparts(obj.configFile));
             % if we can't find it there, try the standard location
             if isempty(pf_)
-                pf_ = jrclust.utils.absPath(pf, fullfile(jrclust.utils.basedir, 'probes'));
+                pf_ = jrclust.utils.absPath(pf, fullfile(jrclust.utils.basedir(), 'probes'));
             end
             assert(isfile(pf_), 'could not find probe file ''%s''', pf);
             obj.probeFile = pf_;
@@ -1116,6 +1170,13 @@ classdef Config < handle & dynamicprops
         function set.nLoads_gpu(obj, rg)
             obj.logOldP('nLoads_gpu');
             obj.ramToGPUFactor = rg;
+        end
+
+        % randomSeed
+        function set.randomSeed(obj, rs)
+            failMsg = 'randomSeed must be a nonnegative integer';
+            assert(jrclust.utils.isscalarnum(rs) && rs == round(rs) && rs >= 0, failMsg);
+            obj.randomSeed = rs;
         end
 
         % rawRecordings
@@ -1171,7 +1232,7 @@ classdef Config < handle & dynamicprops
             obj.sampleRate = sr;
         end
 
-        % shankMap/viSite2Chan
+        % shankMap/viShank_site
         function set.shankMap(obj, sm)
             assert(jrclust.utils.ismatrixnum(sm) && all(sm > 0), 'malformed shankMap');
             obj.shankMap = sm;
@@ -1313,6 +1374,19 @@ classdef Config < handle & dynamicprops
         function set.vnFilter_user(obj, uf)
             obj.logOldP('vnFilter_user');
             obj.userFiltKernel = uf;
+        end
+
+        % verbose/fVerbose
+        function set.verbose(obj, vb)
+            obj.verbose = true && vb;
+        end
+        function vb = get.fVerbose(obj)
+            obj.logOldP('fVerbose');
+            vb = obj.verbose;
+        end
+        function set.fVerbose(obj, vb)
+            obj.logOldP('fVerbose');
+            obj.verbose = vb;
         end
     end
 end

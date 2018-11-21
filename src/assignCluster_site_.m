@@ -12,7 +12,7 @@ function viClu = assignCluster_site_(S_clu, S0)
         %     viSpk_ = viSpk_(S0.viSite_spk(S_clu.nneigh(viSpk_)) == iSite); % in group spikes only
         %     viSpk_ = viSpk_(ismember(S_clu.nneigh(viSpk_), viSpk_));
         cl_ = viClu(viSpk_);
-        ordrho_ = rankorder_(S_clu.rho(viSpk_), 'descend');
+        ordrho_ = jrclust.utils.rankorder(S_clu.rho(viSpk_), 'descend');
         [vl_, nneigh_] = ismember(S_clu.nneigh(viSpk_), viSpk_);
         vi_ = find(vl_);
         vi_ = vi_(:)';

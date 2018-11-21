@@ -15,7 +15,7 @@ function hJRC_ = jrc(varargin)
 
     try
         hJRC = jrclust.JRC(varargin{:});
-    catch
+    catch ME
         return;
     end
 
@@ -23,7 +23,7 @@ function hJRC_ = jrc(varargin)
 
     if hJRC.inProgress()
         set(0, 'UserData', []); % clear pesky UserData values not yet eliminated
-        hJRC.hCfg.fVerbose = true;
+        hJRC.hCfg.verbose = true;
         hJRC.run();
     end
 

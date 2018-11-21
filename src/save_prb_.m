@@ -28,5 +28,5 @@ function P = save_prb_(vcFile_prb, P)
                    'pad', P.vrSiteHW, ...
                    'shank', P.viShank_site);
 
-    struct_save_(S_prb, vcFile_prb);
+    jrclust.utils.saveStruct(S_prb, vcFile_prb);
 end % function

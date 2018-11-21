@@ -53,7 +53,7 @@ classdef DetectController < handle
     methods
         function res = detect(obj)
             res = struct();
-            t0 = tic;
+            t0 = tic();
 
             dtype = obj.hCfg.dtype;
             nChans = obj.hCfg.nChans;
@@ -109,7 +109,7 @@ classdef DetectController < handle
                     samplesRaw = rec.readROI(obj.hCfg.siteMap, sampOffset:sampOffset+nSamples-1);
 
                     % convert samples to int16 and get channel means
-                    [samplesRaw, channelMeans] = obj.regularize(samplesRaw);
+                    samplesRaw = obj.regularize(samplesRaw);
                     fprintf('done (%0.2f s)\n', toc(t1));
 
                     % select given spikes in this time interval
@@ -212,10 +212,6 @@ classdef DetectController < handle
             % summarize
             res.runtime = toc(t0);
         end
-
-        function saveFiles(obj)
-            
-        end
     end
 
     % UTILITY METHODS
@@ -230,8 +226,8 @@ classdef DetectController < handle
             % if not constrained by user, try to compute maximum bytes/load
             if isempty(obj.hCfg.maxBytesLoad)
                 if obj.hCfg.useGPU
-                    S = gpuDevice(); % does not reset GPU
-                    nBytes = floor(S(1).AvailableMemory());
+                    S = gpuDevice(); % select first GPU device
+                    nBytes = floor(S(1).TotalMemory()/2); % take half the total memory
                 elseif ispc()
                     S = memory();
                     nBytes = floor(S.MaxPossibleArrayBytes());
@@ -324,7 +320,7 @@ classdef DetectController < handle
                 [samplesOut, channelMeans] = jrclust.utils.filtCar(samplesIn, [], [], false, obj.hCfg);
             end
 
-            clear rawSamples_;
+            clear('rawSamples_');
 
             % common mode rejection
             if obj.hCfg.blank_thresh > 0
@@ -499,6 +495,7 @@ classdef DetectController < handle
                         spikesFilt(:, :, viiSpk11) = permute(tnWav_spk1, [1, 3, 2]);
                         spikesRaw(:, :, viiSpk11) = permute(mr2tr3_(samplesRaw, spkLim_raw, viTime_spk11, viSite11), [1,3,2]);
                     catch % GPU failure
+                        obj.errMsg = 'GPU failure in mn2tn_wav_';
                         obj.isError = true;
                     end
                 end

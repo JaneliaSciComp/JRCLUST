@@ -6,7 +6,7 @@ function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites
     if nargin<4, viSite2_spk = []; end
 
     [mrFet1, mrFet2, mrFet3] = deal(single([]));
-    trWav2_spk = single(permute(tnWav1_spk, [1,3,2]));
+    trWav2_spk = single(permute(tnWav1_spk, [1, 3, 2]));
     if get_set_(P, 'fRealign_spk', 0) ~= 1
         trWav2_spk = spkwav_car_(trWav2_spk, P, nSites_spk, viSite2_spk);
     end
@@ -37,7 +37,7 @@ function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites
         mrFet2 = shiftdim(abs(max(trWav2_spk)))';
 
         case 'energy'
-        mrFet1 = shiftdim(std(trWav2_spk,1))';
+        mrFet1 = shiftdim(std(trWav2_spk, 1))';
 
         case 'energy2'
         nDelay = 3;

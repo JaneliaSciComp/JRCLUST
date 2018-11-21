@@ -66,7 +66,7 @@ function import_h5_(vcFile_h5)
 
     S_gt.viTime = viTime_gt;
     S_gt.viClu = ones(size(viTime_gt));
-    struct_save_(S_gt, strrep(P.vcFile, '.bin', '_gt.mat'));
+    jrclust.utils.saveStruct(S_gt, strrep(P.vcFile, '.bin', '_gt.mat'));
 
 
     % Create prm file
