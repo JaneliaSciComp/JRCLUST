@@ -240,6 +240,7 @@ classdef JRC < handle & dynamicprops
                 parallel.gpu.rng(obj.hCfg.randomSeed);
             end
 
+            gpuDetect = obj.hCfg.useGPU;
             if obj.isDetect
                 obj.hDet = jrclust.controllers.DetectController(obj.hCfg);
                 obj.dRes = obj.hDet.detect();
@@ -256,6 +257,11 @@ classdef JRC < handle & dynamicprops
             end
 
             if obj.isSort
+                % set to false during detect, try again for sort
+                if gpuDetect && ~obj.hCfg.useGPU
+                    obj.hCfg.useGPU = true;
+                end
+
                 obj.hSort = jrclust.controllers.SortController(obj.hCfg);
                 obj.sRes = obj.hSort.sort(obj.dRes);
 

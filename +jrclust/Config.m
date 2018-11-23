@@ -559,6 +559,22 @@ classdef Config < handle & dynamicprops
         end
     end
 
+    %% USER METHODS
+    methods
+        function val = getOr(obj, fn, dv)
+            %GETOR GET set value obj.(fn) OR default value dv if unset or empty
+            if nargin < 3
+                dv = [];
+            end
+
+            if ~isprop(obj, fn) || isempty(obj.(fn))
+                val = dv;
+            else
+                val = obj.(fn);
+            end
+        end
+    end
+
     %% GETTERS/SETTERS
     methods
         % auxSites/viChan_aux

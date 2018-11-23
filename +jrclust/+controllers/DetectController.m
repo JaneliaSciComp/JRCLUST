@@ -65,7 +65,7 @@ classdef DetectController < handle
                     S = load(obj.hCfg.threshFile);
                     siteThresh_ = S.siteThresh;
                     fprintf('Loaded %s\n', obj.hCfg.threshFile);
-                catch
+                catch ME
                     warning('Could not load threshFile %s', obj.hCfg.threshFile);
                     siteThresh_ = [];
                 end
@@ -162,7 +162,7 @@ classdef DetectController < handle
                     end
 
                     clear samplesRaw channelMeans;
-                end
+                end % for
 
                 t1 = toc(t1);
                 rec.close();
@@ -301,7 +301,7 @@ classdef DetectController < handle
                 if obj.hCfg.fftThreshMAD > 0
                     samplesIn = jrclust.utils.fftClean(samplesIn, obj.hCfg.fftThreshMAD, obj.hCfg.ramToGPUFactor);
                 end
-            catch % GPU denoising failed, retry in CPU
+            catch ME % GPU denoising failed, retry in CPU
                 obj.hCfg.useGPU = false;
 
                 samplesIn = samplesIn_;
@@ -313,7 +313,7 @@ classdef DetectController < handle
             % filter spikes; samples go in padded and come out padded
             try
                 [samplesOut, channelMeans] = jrclust.utils.filtCar(samplesIn, [], [], false, obj.hCfg);
-            catch % GPU filtering failed, retry in CPU
+            catch ME % GPU filtering failed, retry in CPU
                 obj.hCfg.useGPU = false;
 
                 samplesIn = samplesIn_;
@@ -342,19 +342,18 @@ classdef DetectController < handle
             if isempty(siteThresh_)
                 try
                     siteThresh_ = jrclust.utils.tryGather(int16(mr2rms_(samplesIn, 1e5) * obj.hCfg.qqFactor));
-                catch
-                    obj.hCfg.fGpu = false;
+                catch ME
+                    obj.hCfg.useGPU = false;
                     siteThresh_ = int16(mr2rms_(jrclust.utils.tryGather(samplesIn), 1e5) * obj.hCfg.qqFactor);
                 end
             end
 
             if isempty(spTimes) || isempty(spSites)
-                try
-                    obj.hCfg.nPad_pre = nPadPre;
-                catch
+                if ~isprop(obj.hCfg, 'nPad_pre')
                     obj.hCfg.addprop('nPad_pre');
-                    obj.hCfg.nPad_pre = nPadPre;
                 end
+                obj.hCfg.nPad_pre = nPadPre;
+
                 [spTimes, spAmps, spSites] = jrclust.utils.detectSpikes(samplesIn, siteThresh_, keepMe, obj.hCfg);
             else
                 spTimes = spTimes + nPadPre;
@@ -399,10 +398,10 @@ classdef DetectController < handle
             end
 
             % Cancel overlap
-            if get_set_(obj.hCfg, 'fCancel_overlap', 0)
+            if obj.hCfg.getOr('fCancel_overlap', false)
                 try
                     [spFilt, spFilt2] = cancel_overlap_spk_(spFilt, spFilt2, spTimes, spSites, spSites2_, vnThresh_site, obj.hCfg);
-                catch
+                catch ME
                     fprintf(2, 'fCancel_overlap failed\n');
                 end
             end
@@ -454,6 +453,7 @@ classdef DetectController < handle
         end
 
         function [spikesRaw, spikesFilt, spTimes] = mn2tn_wav_(obj, samplesRaw, samplesFilt, spSites, spTimes)
+            % TODO: make this a Recording method
             nSpks = numel(spTimes);
             nSites = numel(obj.hCfg.viSite2Chan);
             spkLim_wav = obj.hCfg.spkLim;
@@ -465,7 +465,7 @@ classdef DetectController < handle
             spikesFilt = zeros(diff(spkLim_wav) + 1, nSites_spk, nSpks, 'like', samplesFilt);
 
             % Realignment parameters
-            fRealign_spk = get_set_(obj.hCfg, 'fRealign_spk', 0); %0,1,2
+            fRealign_spk = obj.hCfg.getOr('fRealign_spk', 0); %0, 1, 2
             spTimes = jrclust.utils.tryGpuArray(spTimes, isGpu_(samplesRaw));
             spSites = jrclust.utils.tryGpuArray(spSites, isGpu_(samplesRaw));
 
@@ -494,7 +494,7 @@ classdef DetectController < handle
 
                         spikesFilt(:, :, viiSpk11) = permute(tnWav_spk1, [1, 3, 2]);
                         spikesRaw(:, :, viiSpk11) = permute(mr2tr3_(samplesRaw, spkLim_raw, viTime_spk11, viSite11), [1,3,2]);
-                    catch % GPU failure
+                    catch ME % GPU failure
                         obj.errMsg = 'GPU failure in mn2tn_wav_';
                         obj.isError = true;
                     end

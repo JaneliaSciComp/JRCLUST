@@ -48,30 +48,44 @@ classdef SortController < handle
                 return;
             end
 
-            nSites = numel(obj.hCfg.siteMap);
             nSpikes = numel(dRes.spikeTimes);
 
             res.spikeRho = zeros(nSpikes, 1, 'single');
             res.spikeDelta = zeros(nSpikes, 1, 'single');
             res.spikeNeigh = zeros(nSpikes, 1, 'uint32');
-            res.rhoCutSite = zeros(nSites, 1, 'single');
-            res.rhoCutGlobal = [];
 
-            % clear memory
-            % cuda_rho_(); % set nC_ to 0 and return
-            % cuda_delta_(); % set nC_ to 0 and return
-            % if get_set_(obj.hCfg, 'fDenoise_fet', 0) % not in default prm; deprecated?
+            % if obj.hCfg.getOr('fDenoise_fet', 0) % not in default prm; deprecated?
             %     trFet_spk = denoise_fet_(trFet_spk, vlRedo_spk);
             % end
 
+            % compute rho
+            res = obj.computeRho(dRes, res);
+
+            % compute delta
+            res = obj.computeDelta(dRes, res);
+
+            [~, res.ordRho] = sort(res.spikeRho, 'descend');
+            
+            res.runtime = toc(t0);
+        end
+    end
+
+    % RHO METHODS
+    methods (Access=protected, Hidden)
+        function res = computeRho(obj, dRes, res)
+            %COMPUTERHO Compute rho values for spike features
+            nSites = numel(obj.hCfg.siteMap);
+
+            res.rhoCutSite = zeros(nSites, 1, 'single');
+            res.rhoCutGlobal = [];
+
             % compute rho cutoff globally
-            if get_set_(obj.hCfg, 'fDc_global', true)
+            if obj.hCfg.getOr('fDc_global', true)
                 res.rhoCutGlobal = obj.estRhoCutGlobal(dRes);
             end
 
-            % compute rho
             if obj.hCfg.verbose
-                fprintf('Calculating Rho\n\t');
+                fprintf('Computing rho\n\t');
                 t1 = tic;
             end
 
@@ -106,25 +120,57 @@ classdef SortController < handle
                     siteCut = res.rhoCutGlobal.^2;
                 end
 
-                siteRho = obj.cuda_rho_(siteFeatures, spikeOrder, n1, n2, siteCut);
+                siteRho = obj.computeRhoSite(siteFeatures, spikeOrder, n1, n2, siteCut);
 
 %                 if ~isempty(vlRedo_spk), viSpk_site_ = viSpk_site_(vlRedo_spk(viSpk_site_)); end
                 res.spikeRho(spikeData.spikes1) = jrclust.utils.tryGather(siteRho);
                 res.rhoCutSite(iSite) = jrclust.utils.tryGather(siteCut);
-                [siteFeatures, spikeOrder, siteRho] = deal([]);
+                clear siteFeatures spikeOrder siteRho;
                 fprintf('.');
             end
 
             if obj.hCfg.verbose
                 fprintf('\n\ttook %0.1fs\n', toc(t1));
             end
-
-            res.runtime = toc(t0);
         end
-    end
 
-    % UTILITY METHODS
-    methods (Access=protected, Hidden)
+        function rho = computeRhoSite(obj, siteFeatures, spikeOrder, n1, n2, rhoCut)
+            %COMPUTERHOSITE Compute site-wise rho for spike features
+            [nC, n12] = size(siteFeatures); % nc is constant with the loop
+            dn_max = int32(round((n1 + n2) / obj.hCfg.nTime_clu));
+
+            rhoCut = single(rhoCut);
+
+            if obj.hCfg.useGPU
+                try
+                    if isempty(obj.rhoCK) % create CUDA kernel
+                        ptxFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.ptx');
+                        cuFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.cu');
+                        obj.rhoCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
+                        obj.rhoCK.ThreadBlockSize = [obj.hCfg.nThreads, 1];
+                        obj.rhoCK.SharedMemorySize = 4 * obj.chunkSize * (2 + obj.nC_max + 2 * obj.hCfg.nThreads); % @TODO: update the size
+                    end
+
+                    obj.rhoCK.GridSize = [ceil(n1 / obj.chunkSize / obj.chunkSize), obj.chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
+                    rho = zeros(1, n1, 'single', 'gpuArray');
+                    consts = int32([n1, n12, nC, dn_max, obj.hCfg.getOr('fDc_spk', 0)]);
+                    rho = feval(obj.rhoCK, rho, siteFeatures, spikeOrder, consts, rhoCut);
+
+                    return;
+                catch ME
+                    disperr_('CUDA kernel failed. Re-trying in CPU.');
+                    obj.rhoCK = [];
+                end
+            end
+
+            % retry in CPU
+            [siteFeatures, spikeOrder] = jrclust.utils.tryGather(siteFeatures, spikeOrder);
+            spikeOrderN1 = spikeOrder(1:n1)';
+            nearby = abs(bsxfun(@minus, spikeOrder, spikeOrderN1)) <= dn_max;
+            rho = sum(nearby & pdist2(siteFeatures', siteFeatures(:,1:n1)').^2 < rhoCut) - 1; %do not include self
+            rho = single(rho ./ sum(nearby)); % normalize
+        end
+
         function rhoCut = estRhoCutGlobal(obj, dRes, vlRedo_spk)
             %ESTRHOCUTGLOBAL Estimate rho cutoff distance over all sites
             if nargin < 3
@@ -176,7 +222,7 @@ classdef SortController < handle
 
         function rhoCut = estRhoCutSite(obj, siteFeatures, spikeOrder, n1, n2)
             %ESTRHOCUTSITE Estimate site-wise rho cutoff
-            if get_set_(obj.hCfg, 'fDc_spk', 0)
+            if obj.hCfg.getOr('fDc_spk', 0)
                 rhoCut = (obj.hCfg.dc_percent/100).^2;
                 return;
             end
@@ -197,12 +243,12 @@ classdef SortController < handle
 
                     fSubset = abs(bsxfun(@minus, spikeOrder, spikeOrderPrimary')) < (n1 + n2) / obj.hCfg.nTime_clu;
                     featureDists(~fSubset) = nan;
-                catch
+                catch ME
                     siteFeatures = jrclust.utils.tryGather(siteFeatures);
                 end
             end
 
-            if get_set_(obj.hCfg, 'fDc_subsample_mode', 0)
+            if obj.hCfg.getOr('fDc_subsample_mode', false)
                 featureDists(featureDists <= 0) = nan;
                 rhoCut = quantile(featureDists(~isnan(featureDists)), obj.hCfg.dc_percent/100);
             else
@@ -217,86 +263,108 @@ classdef SortController < handle
 
             fprintf('.');
         end
+    end
 
-        function rho = cuda_rho_(obj, siteFeatures, spikeOrder, n1, n2, rhoCut)
-%             persistent nC_
-            if nargin == 0
-                obj.rhoCK = [];
+    % DELTA METHODS
+    methods (Access=protected, Hidden)
+        function res = computeDelta(obj, dRes, res)
+            %COMPUTEDELTA Compute delta for spike features
+            nSites = numel(obj.hCfg.siteMap);
+
+            if obj.hCfg.verbose
+                fprintf('Computing delta\n\t');
+                t2 = tic;
             end
 
+            spikeData = struct('spikeTimes', dRes.spikeTimes);
+            for iSite = 1:nSites
+                if isfield(dRes, 'spikesBySite')
+                    spikeData.spikes1 = dRes.spikesBySite{iSite};
+                else
+                    spikeData.spikes1 = dRes.spikeSites(dRes.spikeSites==iSite);
+                end
+
+                if isfield(dRes, 'spikesBySite2') && ~isempty(dRes.spikesBySite2)
+                    spikeData.spikes2 = dRes.spikesBySite2{iSite};
+                end
+
+                if isfield(dRes, 'spikesBySite3') && ~isempty(dRes.spikesBySite3)
+                    spikeData.spikes3 = dRes.spikesBySite3{iSite};
+                end
+
+                [siteFeatures, spikes, n1, n2, spikeOrder] = jrclust.features.getSiteFeatures(obj.spikeFeatures, iSite, spikeData, obj.hCfg);
+
+                if isempty(siteFeatures)
+                    continue;
+                end
+
+                rhoOrder = jrclust.utils.rankorder(res.spikeRho(spikes), 'descend');
+                siteFeatures = jrclust.utils.tryGpuArray(siteFeatures);
+                rhoOrder = jrclust.utils.tryGpuArray(rhoOrder);
+                spikeOrder = jrclust.utils.tryGpuArray(spikeOrder);
+
+                try
+                    [siteDelta, siteNN] = obj.computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, n1, n2, res.rhoCutSite(iSite));
+                    [siteDelta, siteNN] = jrclust.utils.tryGather(siteDelta, siteNN);
+                catch ME
+                    disperr_(sprintf('error at site# %d', iSite), ME);
+                end
+
+                % if ~isempty(vlRedo_spk), viSpk_site_ = viSpk_site_(vlRedo_spk(viSpk_site_)); end
+
+                res.spikeDelta(spikeData.spikes1) = siteDelta;
+                res.spikeNeigh(spikeData.spikes1) = spikes(siteNN);
+                [siteFeatures, rhoOrder, spikeOrder] = jrclust.utils.tryGather(siteFeatures, rhoOrder, spikeOrder);
+                clear('siteFeatures', 'rhoOrder', 'spikeOrder');
+                fprintf('.');
+            end
+
+            % set delta for spikes with no nearest neighbor of higher
+            % density to maximum distance to ensure they don't get
+            % grouped into another cluster
+            nanDelta = find(isnan(res.spikeDelta));
+            if ~isempty(nanDelta)
+                res.spikeDelta(nanDelta) = max(spikeDelta);
+            end
+
+            if obj.hCfg.verbose
+                fprintf('\n\ttook %0.2fs\n', toc(t2));
+            end
+        end
+
+        function [delta, nNeigh] = computeDeltaSite(obj, siteFeatures, spikeOrder, rhoOrder, n1, n2, rhoCut)
+            %COMPUTEDELTASITE Compute site-wise delta for spike features
             [nC, n12] = size(siteFeatures); % nc is constant with the loop
             dn_max = int32(round((n1 + n2) / obj.hCfg.nTime_clu));
 
-            rhoCut = single(rhoCut);
-
-            if obj.hCfg.useGPU
+            if obj.hCfg.fGpu
                 try
-                    if isempty(obj.rhoCK) % create CUDA kernel
-                        ptxFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.ptx');
-                        cuFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.cu');
-                        obj.rhoCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
-                        obj.rhoCK.ThreadBlockSize = [obj.hCfg.nThreads, 1];
-                        obj.rhoCK.SharedMemorySize = 4 * obj.chunkSize * (2 + obj.nC_max + 2 * obj.hCfg.nThreads); % @TODO: update the size
+                    if isempty(obj.deltaCK) % create cuda kernel
+                        ptxFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_delta.ptx');
+                        cuFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_delta.cu');
+                        obj.deltaCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
+                        obj.deltaCK.ThreadBlockSize = [obj.hCfg.nThreads, 1];
+                        obj.deltaCK.SharedMemorySize = 4 * obj.chunkSize * (3 + obj.nC_max + 2*obj.hCfg.nThreads); % @TODO: update the size
                     end
 
-                    obj.rhoCK.GridSize = [ceil(n1 / obj.chunkSize / obj.chunkSize), obj.chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
-                    rho = zeros(1, n1, 'single', 'gpuArray');
-                    consts = int32([n1, n12, nC, dn_max, get_set_(obj.hCfg, 'fDc_spk', 0)]);
-                    rho = feval(obj.rhoCK, rho, siteFeatures, spikeOrder, consts, rhoCut);
+                    % set every time function is called
+                    obj.deltaCK.GridSize = [ceil(n1 / obj.chunkSize / obj.chunkSize), obj.chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
+                    delta = zeros([1, n1], 'single', 'gpuArray');
+                    nNeigh = zeros([1, n1], 'uint32', 'gpuArray');
+                    consts = int32([n1, n12, nC, dn_max, obj.hCfg.getOr('fDc_spk', 0)]);
+                    [delta, nNeigh] = feval(obj.deltaCK, delta, nNeigh, siteFeatures, spikeOrder, rhoOrder, consts, rhoCut);
 
                     return;
                 catch ME
                     disperr_('CUDA kernel failed. Re-trying in CPU.');
-                    obj.rhoCK = [];
+                    obj.deltaCK = [];
                 end
             end
 
-            % retry in CPU
-            viiSpk1_ord = spikeOrder(1:n1)';
-            mlKeep12_ = abs(bsxfun(@minus, spikeOrder, viiSpk1_ord)) <= dn_max;
-            if FLAG_FIXN == 0
-                rho = sum(pdist2(siteFeatures', siteFeatures(:,1:n1')) < rhoCut & mlKeep12_) - 1; %do not include self
-                rho = single(rho ./ sum(mlKeep12_));
-            else
-                mlKeep12_(1:min(2*dn_max+1,n12), viiSpk1_ord <= min(dn_max,n1)) = 1;
-                mlKeep12_(max(n12-2*dn_max,1):n12,  viiSpk1_ord >= max(n1-dn_max,1)) = 1;
-                rho = sum(pdist2(siteFeatures', siteFeatures(:,1:n1')) < rhoCut & mlKeep12_) - 1; %do not include self
-                rho = single(rho ./ (2*dn_max));
-            end
-        end
-
-        function [vrDelta1, viNneigh1] = cuda_delta_(obj, mrFet12, viiSpk12_ord, viiRho12_ord, n1, n2, dc2)
-            % Ultimately use CUDA to do this distance computation
-            if nargin==0, nC_ = 0; return; end
-            if isempty(nC_), nC_ = 0; end
-            [nC, n12] = size(mrFet12); %nc is constant with the loop
-            dn_max = int32(round((n1+n2) / obj.hCfg.nTime_clu));
-            if obj.hCfg.fGpu
-                try
-                    if (nC_ ~= nC) % create cuda kernel
-                        nC_ = nC;
-                        obj.deltaCK = parallel.gpu.CUDAKernel('jrc_cuda_delta.ptx','jrc_cuda_delta.cu');
-                        obj.deltaCK.ThreadBlockSize = [obj.hCfg.nThreads, 1];
-                        obj.deltaCK.SharedMemorySize = 4 * obj.chunkSize * (3 + obj.nC_max + 2*obj.hCfg.nThreads); % @TODO: update the size
-                    end
-                    obj.deltaCK.GridSize = [ceil(n1 / obj.chunkSize / obj.chunkSize), obj.chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
-                    vrDelta1 = zeros([1, n1], 'single', 'gpuArray');
-                    viNneigh1 = zeros([1, n1], 'uint32', 'gpuArray');
-                    vnConst = int32([n1, n12, nC, dn_max, get_set_(obj.hCfg, 'fDc_spk', 0)]);
-                    [vrDelta1, viNneigh1] = feval(obj.deltaCK, vrDelta1, viNneigh1, mrFet12, viiSpk12_ord, viiRho12_ord, vnConst, dc2);
-                    % [vrDelta1_, viNneigh1_] = deal(vrDelta1, viNneigh1);
-                    return;
-                catch
-                    disperr_('CUDA kernel failed. Re-trying in CPU.');
-                    nC_ = 0;
-                end
-            end
-
-            mrDist12_ = pdist2(mrFet12', mrFet12(:,1:n1')); %not sqrt
-            mlRemove12_ = bsxfun(@ge, viiRho12_ord, viiRho12_ord(1:n1)') ...
-            | abs(bsxfun(@minus, viiSpk12_ord, viiSpk12_ord(1:n1)')) > dn_max;
-            mrDist12_(mlRemove12_) = nan;
-            [vrDelta1, viNneigh1] = min(mrDist12_);
+            dists = pdist2(siteFeatures', siteFeatures(:,1:n1)').^2;
+            nearby = bsxfun(@lt, rhoOrder, rhoOrder(1:n1)') & abs(bsxfun(@minus, spikeOrder, spikeOrder(1:n1)')) <= dn_max;
+            dists(~nearby) = nan;
+            [delta, nNeigh] = min(dists);
         end
     end
 end
