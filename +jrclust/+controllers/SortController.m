@@ -65,9 +65,8 @@ classdef SortController < handle
             res = obj.computeDelta(dRes, res);
 
             % assign clusters
-            res = obj.assignClusters(dRes, res);
-
             [~, res.ordRho] = sort(res.spikeRho, 'descend');
+            res = obj.assignClusters(dRes, res);
             
             res.runtime = toc(t0);
         end
@@ -370,7 +369,7 @@ classdef SortController < handle
 
     % CLUSTER ASSIGNMENT/MERGING METHODS
     methods (Access=protected, Hidden)
-        function res = assignClusters(obj, dRes, res)
+        function res = assignClusters(obj, dRes, res) % WIP
             if ~isfield(dRes, 'spikesBySite')
                 spikesBySite = arrayfun(@(iSite) dRes.spikes(dRes.spikeSites==iSite), obj.hCfg.siteMap, 'UniformOutput', false);
             end
@@ -448,7 +447,7 @@ classdef SortController < handle
                 obj.hCfg.minClusterSize = max(obj.hCfg.minClusterSize, 2*size(dRes.spikeFeatures, 1));
                 % http://scikit-learn.org/stable/modules/lda_qda.html
 
-                res = S_clu_refresh_(res);
+                hClust = jrclust.models.Clustering(spikeClusters);
 
                 % remove clusters unused
                 viCluKill = find(res.vnSpk_clu <= obj.hCfg.minClusterSize);
@@ -464,6 +463,8 @@ classdef SortController < handle
                     fprintf(2, 'assign_clu_count_: exceeded nRepeat_max=%d\n', nRepeat_max);
                 end
             end
+
+            res.hClust = hClust;
 
             fprintf('\n\ttook %0.1fs. Removed %d clusters having <%d spikes: %d->%d\n', ...
             toc(t1), nClu_rm, obj.hCfg.minClusterSize, nClu_pre, res.nClu);
