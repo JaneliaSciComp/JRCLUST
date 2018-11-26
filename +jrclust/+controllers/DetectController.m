@@ -1,6 +1,5 @@
 classdef DetectController < handle
-    %DETECTIONCONTROLLER Summary of this class goes here
-    %   Detailed explanation goes here
+    %DETECTCONTROLLER
 
     properties (SetAccess=private, SetObservable, Transient)
         hCfg;

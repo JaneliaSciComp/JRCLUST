@@ -12,7 +12,7 @@ function [icl, x, y] = log_ztran_(x, y, x_cut, y_cut)
     y = log10(y(:));
 
     vlValid = isfinite(x) & isfinite(y);
-    y(vlValid) = zscore_(y(vlValid));
+    y(vlValid) = jrclust.utils.zscore(y(vlValid));
 
     if isempty(n_icl)
         icl = find(x>=x_cut & y>=y_cut);

@@ -32,8 +32,8 @@ classdef SortController < handle
             obj.isError = false;
         end
     end
-    % USER METHODS
 
+    % USER METHODS
     methods
         function res = sort(obj, dRes)
             %SORT Cluster the spikes given in dRes
@@ -64,13 +64,16 @@ classdef SortController < handle
             % compute delta
             res = obj.computeDelta(dRes, res);
 
+            % assign clusters
+            res = obj.assignClusters(dRes, res);
+
             [~, res.ordRho] = sort(res.spikeRho, 'descend');
             
             res.runtime = toc(t0);
         end
     end
 
-    % RHO METHODS
+    % RODRIGUEZ-LAIO METHODS
     methods (Access=protected, Hidden)
         function res = computeRho(obj, dRes, res)
             %COMPUTERHO Compute rho values for spike features
@@ -263,10 +266,7 @@ classdef SortController < handle
 
             fprintf('.');
         end
-    end
 
-    % DELTA METHODS
-    methods (Access=protected, Hidden)
         function res = computeDelta(obj, dRes, res)
             %COMPUTEDELTA Compute delta for spike features
             nSites = numel(obj.hCfg.siteMap);
@@ -365,6 +365,108 @@ classdef SortController < handle
             nearby = bsxfun(@lt, rhoOrder, rhoOrder(1:n1)') & abs(bsxfun(@minus, spikeOrder, spikeOrder(1:n1)')) <= dn_max;
             dists(~nearby) = nan;
             [delta, nNeigh] = min(dists);
+        end
+    end
+
+    % CLUSTER ASSIGNMENT/MERGING METHODS
+    methods (Access=protected, Hidden)
+        function res = assignClusters(obj, dRes, res)
+            if ~isfield(dRes, 'spikesBySite')
+                spikesBySite = arrayfun(@(iSite) dRes.spikes(dRes.spikeSites==iSite), obj.hCfg.siteMap, 'UniformOutput', false);
+            end
+
+            if strcmp(obj.hCfg.rlDetrendMode, 'local')      % perform detrending site by site
+                res.centers = jrclust.clustering.detrendRhoDelta(res, spikesBySite, true, obj.hCfg);
+            elseif strcmp(obj.hCfg.rlDetrendMode, 'global') % detrend over all sites
+                res.centers = jrclust.clustering.detrendRhoDelta(res, spikesBySite, false, obj.hCfg);
+            elseif strcmp(obj.hCfg.rlDetrendMode, 'logz')   % identify centers with sufficiently high z-scores
+                % res.centers = log_ztran_(res.spikeRho, res.spikeDelta, obj.hCfg.log10RhoCut, 4 + obj.hCfg.log10DeltaCut);
+                x = log10(res.spikeRho(:));
+                y = log10(res.spikeDelta(:));
+
+                mask = isfinite(x) & isfinite(y);
+                y(mask) = jrclust.utils.zscore(y(mask));
+
+                % from postCluster_: 4+P.delta1_cut
+                res.centers = find(x >= obj.hCfg.log10RhoCut & y >= 4 + obj.hCfg.log10DeltaCut);
+            else % strcmp(obj.hCfg.rlDetrendMode, 'none')
+                res.centers = find(res.spikeRho(:) > 10^(obj.hCfg.log10RhoCut) & res.spikeDelta(:) > 10^(obj.hCfg.log10DeltaCut));                
+            end
+
+            spikeClusters = [];
+
+            % res = assign_clu_count_(res, obj.hCfg); % enforce min count algorithm
+            nRepeat_max = 1000;
+            if isempty(spikeClusters)
+                nClu_pre = [];
+            else
+                nClu_pre = res.nClu;
+            end
+            nClu_rm = 0;
+            fprintf('assigning clusters, nClu:%d\n', numel(res.centers));
+            t1 = tic;
+
+            % assign spikes to clusters
+            for iRepeat = 1:nRepeat_max % repeat 1000 times max
+                % [spikeClusters, res.centers] = assignCluster_(spikeClusters, res.ordRho, res.nneigh, res.centers);
+                nSpikes = numel(res.ordRho);
+                nClusters = numel(res.centers);
+
+                if isempty(spikeClusters)
+                    spikeClusters = zeros([nSpikes, 1], 'int32');
+                    spikeClusters(res.centers) = 1:nClusters;
+                end
+
+                % one or no center, assign all spikes to one cluster
+                if numel(res.centers) == 0 || numel(res.centers) == 1
+                    spikeClusters = ones([nSpikes, 1], 'int32');
+                    res.centers = res.ordRho(1);
+                else
+                    nneigh1 = res.spikeNeigh(res.ordRho);
+                    for i = 1:10
+                        vi = find(spikeClusters(res.ordRho) <=0);
+                        if isempty(vi)
+                            break;
+                        end
+
+                        vi = vi(:)';
+
+                        for j = vi
+                            spikeClusters(res.ordRho(j)) = spikeClusters(nneigh1(j));
+                        end
+                        nUnassigned = sum(spikeClusters <= 0);
+
+                        if nUnassigned==0
+                            break;
+                        end
+
+                        fprintf('i:%d, n0=%d, ', i, nUnassigned);
+                    end
+                    spikeClusters(spikeClusters <= 0) = 1; %background
+                end
+
+                obj.hCfg.minClusterSize = max(obj.hCfg.minClusterSize, 2*size(dRes.spikeFeatures, 1));
+                % http://scikit-learn.org/stable/modules/lda_qda.html
+
+                res = S_clu_refresh_(res);
+
+                % remove clusters unused
+                viCluKill = find(res.vnSpk_clu <= obj.hCfg.minClusterSize);
+                if isempty(viCluKill)
+                    break;
+                end
+
+                res.centers(viCluKill) = [];
+                spikeClusters = [];
+                nClu_rm = nClu_rm + numel(viCluKill);
+
+                if iRepeat == nRepeat_max
+                    fprintf(2, 'assign_clu_count_: exceeded nRepeat_max=%d\n', nRepeat_max);
+                end
+            end
+
+            fprintf('\n\ttook %0.1fs. Removed %d clusters having <%d spikes: %d->%d\n', ...
+            toc(t1), nClu_rm, obj.hCfg.minClusterSize, nClu_pre, res.nClu);
         end
     end
 end

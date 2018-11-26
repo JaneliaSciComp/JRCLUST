@@ -1,15 +1,21 @@
-%--------------------------------------------------------------------------
-function [S_clu, vlKeep_clu] = S_clu_refresh_(S_clu, fRemoveEmpty)
+%function [S_clu, vlKeep_clu] = S_clu_refresh_(S_clu, fRemoveEmpty)
+function [clusterData, vlKeep_clu] = S_clu_refresh_(clusterData, spikeSites, fRemoveEmpty)
+    %
+    if nargin < 3
+        fRemoveEmpty = true;
+    end
 
-    if nargin<2, fRemoveEmpty=1; end
-    nClu = double(max(S_clu.viClu));
-    S_clu.nClu = nClu;
-    viSite_spk = get0_('viSite_spk');
-    % if isfield(S_clu, 'viSpk_shank'), viSite_spk = viSite_spk(S_clu.viSpk_shank); end
-    % gviClu = jrclust.utils.tryGpuArray(S_clu.viClu);
-    % S_clu.cviSpk_clu = arrayfun(@(iClu)gather(find(gviClu==iClu)), 1:nClu, 'UniformOutput', 0);
-    S_clu.cviSpk_clu = arrayfun(@(iClu)find(S_clu.viClu==iClu), 1:nClu, 'UniformOutput', 0);
-    S_clu.vnSpk_clu = cellfun(@numel, S_clu.cviSpk_clu);
-    S_clu.viSite_clu = double(arrayfun(@(iClu)mode(viSite_spk(S_clu.cviSpk_clu{iClu})), 1:nClu));
-    if fRemoveEmpty, [S_clu, vlKeep_clu] = S_clu_remove_empty_(S_clu); end
-end %func
+    nClusters = double(max(clusterData.spikeClusters));
+    clusterData.nClusters = nClusters;
+
+    %cviSpk_clu
+    clusterData.spikesByCluster = arrayfun(@(iC) find(clusterData.spikeClusters == iC), 1:nClusters, 'UniformOutput', 0);
+    %vnSpk_clu
+    clusterData.clusterCounts = cellfun(@numel, clusterData.spikesByCluster);
+    %viSite_clu
+    clusterData.clusterSites = double(arrayfun(@(iC) mode(spikeSites(clusterData.spikesByCluster{iC})), 1:nClusters));
+
+    if fRemoveEmpty
+        [clusterData, vlKeep_clu] = S_clu_remove_empty_(clusterData);
+    end
+end

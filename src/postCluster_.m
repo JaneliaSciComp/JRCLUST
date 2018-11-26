@@ -10,15 +10,21 @@ function S_clu = postCluster_(S_clu, P)
         %         case {'hidehiko', 'hide'}
         %             S_clu.icl = selec_rho_delta_with_slope(S_clu, P.delta1_cut);
         case 'local' %
-        S_clu.icl = detrend_local_(S_clu, P, 1);
+            S0 = get0();
+            S_clu.icl = jrclust.clustering.detrendRhoDelta(S_clu, S0.cviSpk_site, true, P);
+
         case 'none'
-        S_clu.icl = find(S_clu.rho(:) > 10^(P.rho_cut) & S_clu.delta(:) > 10^(P.delta1_cut));
+            S_clu.icl = find(S_clu.rho(:) > 10^(P.rho_cut) & S_clu.delta(:) > 10^(P.delta1_cut));
+
         case 'global'
-        S_clu.icl = detrend_local_(S_clu, P, 0);
+            S0 = get0();
+            S_clu.icl = jrclust.clustering.detrendRhoDelta(S_clu, S0.cviSpk_site, false, P);
+
         case 'logz'
-        S_clu.icl = log_ztran_(S_clu.rho, S_clu.delta, P.rho_cut, 4+P.delta1_cut);
+            S_clu.icl = log_ztran_(S_clu.rho, S_clu.delta, P.rho_cut, 4+P.delta1_cut);
+
         otherwise
-        fprintf(2, 'postCluster_: vcDetrend_postclu = ''%s''; not supported.\n', P.vcDetrend_postclu);
+            fprintf(2, 'postCluster_: vcDetrend_postclu = ''%s''; not supported.\n', P.vcDetrend_postclu);
     end
     % end
 

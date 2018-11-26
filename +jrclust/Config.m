@@ -32,6 +32,7 @@ classdef Config < handle & dynamicprops
         header_offset;              % => headerOffset
         MAX_BYTES_LOAD;             % => maxBytesLoad
         MAX_LOAD_SEC;               % => maxSecLoad
+        maxCluPerSite;              % => maxClustersSite
         maxDist_site_um             % => evtMergeRad
         maxDist_site_spk_um;        % => evtDetectRad
         maxSite;                    % => nSiteDir
@@ -60,6 +61,7 @@ classdef Config < handle & dynamicprops
         uV_per_bit;                 % => bitScaling
         vcCommonRef;                % => carMode
         vcDataType;                 % => dtype
+        vcDetrend_postclu;          % => rlDetrendMode
         vcFile;                     % => singleRaw
         vcFile_gt;                  % => gtFile
         vcFile_prm;                 % => configFile
@@ -148,8 +150,10 @@ classdef Config < handle & dynamicprops
 
         % clustering params
         dc_percent = 2;             % percentile at which to cut off distance in rho computation
+        rlDetrendMode = 'global';   % 
         log10DeltaCut = 0.6;        % the base-10 log of the delta cutoff value
         log10RhoCut = -2.5;         % the base-10 log of the rho cutoff value
+        maxClustersSite = 20;       % maximum number of clusters per site if local detrending is used
         minClusterSize = 30;        % minimum cluster size (set to 2*#features if lower)
         nTime_clu = 1;              % number of time periods over which to cluster separately (later to be merged after clustering)
 
@@ -225,7 +229,6 @@ classdef Config < handle & dynamicprops
         load_fraction_track = [];
         maxAmp = 250;
         maxAmp_lfp = 1000;
-        maxCluPerSite = 20;
         maxDist_site_merge_um = 35;
         maxLfpSdZ = 4.5;
         maxSite_track = [2 3 4 5 6 7 8];
@@ -289,7 +292,6 @@ classdef Config < handle & dynamicprops
         vcCluWavMode = 'mean';
         vcDate_file = '';
         vcDc_clu = 'distr';
-        vcDetrend_postclu = 'global';
         vcFet = 'gpca';
         vcFet_show = 'vpp';
         vcFile_aux = '';
@@ -957,7 +959,7 @@ classdef Config < handle & dynamicprops
 
         % log10DeltaCut/delta1_cut
         function set.log10DeltaCut(obj, dc)
-            assert(jrclust.utils.isscalarnum(dc), 'log10RhoCut must be a numeric scalar');
+            assert(jrclust.utils.isscalarnum(dc), 'log10DeltaCut must be a numeric scalar');
             obj.log10DeltaCut = dc;
         end
         function dc = get.delta1_cut(obj)
@@ -995,6 +997,21 @@ classdef Config < handle & dynamicprops
         function set.MAX_BYTES_LOAD(obj, mb)
             obj.logOldP('MAX_BYTES_LOAD');
             obj.maxBytesLoad = mb;
+        end
+
+        % maxClustersSite/maxCluPerSite
+        function set.maxClustersSite(obj, mc)
+            failMsg = 'maxClustersSite must be a nonnegative integer';
+            assert(jrclust.utils.isscalarnum(mc) && round(mc) == mc && mc > 0, failMsg);
+            obj.maxClustersSite = mc;
+        end
+        function mc = get.maxCluPerSite(obj)
+            obj.logOldP('maxCluPerSite');
+            mc = obj.maxClustersSite;
+        end
+        function set.maxCluPerSite(obj, mc)
+            obj.logOldP('maxCluPerSite');
+            obj.maxClustersSite = mc;
         end
 
         % maxSecLoad/MAX_LOAD_SEC
@@ -1232,6 +1249,22 @@ classdef Config < handle & dynamicprops
         function set.spkRefrac(obj, ri)
             obj.logOldP('spkRefrac');
             obj.refracIntSamp = ri;
+        end
+
+        % rlDetrendMode/vcDetrend_postclu
+        function set.rlDetrendMode(obj, dm)
+            legalTypes = {'global', 'local', 'logz', none};
+            failMsg = sprintf('legal rlDetrendModes are %s', strjoin(legalTypes, ', '));
+            assert(sum(strcmp(dm, legalTypes)) == 1, failMsg);
+            obj.rlDetrendMode = dm;
+        end
+        function dm = get.vcDetrend_postclu(obj)
+            obj.logOldP('vcDetrend_postclu');
+            dm = obj.rlDetrendMode;
+        end
+        function set.vcDetrend_postclu(obj, dm)
+            obj.logOldP('vcDetrend_postclu');
+            obj.rlDetrendMode = dm;
         end
 
         % sampleRate/sRateHz

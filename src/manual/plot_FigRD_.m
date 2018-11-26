@@ -36,12 +36,12 @@ function S0 = plot_FigRD_(S0)
             fDetrend = 0;
 
         case 'global'
-            [icl, x, y] = detrend_local_(S_clu, P, 0);
+            [icl, x, y] = jrclust.clustering.detrendRhoDelta(S_clu, S0.cviSpk_site, false, P);
             y = nanlog10(y);
             fDetrend = 1;
 
         case 'local'
-            [icl, x, y] = detrend_local_(S_clu, P, 1);
+            [icl, x, y] = jrclust.clustering.detrendRhoDelta(S_clu, S0.cviSpk_site, true, P);
             y = nanlog10(y);
             fDetrend = 1;
     end

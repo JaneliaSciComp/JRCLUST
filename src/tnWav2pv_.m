@@ -22,7 +22,7 @@ function [mrPv, vrD1] = tnWav2pv_(tr, P)
     % mrCov = meanSubt_(mrSpkWav1);
     mrCov = mrSpkWav1 * mrSpkWav1';
     [mrPv1, vrD1] = eig(mrCov);
-    mrPv1 = zscore_(fliplr(mrPv1)); % sort largest first
+    mrPv1 = jrclust.utils.zscore(fliplr(mrPv1)); % sort largest first
     vrD1 = flipud(diag(vrD1));
 
     % spike center should be negative

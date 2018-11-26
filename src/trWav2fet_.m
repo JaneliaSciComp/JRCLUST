@@ -18,8 +18,8 @@ function [mrFet1, mrFet2, mrFet3, trWav2_spk] = trWav2fet_(tnWav1_spk, P, nSites
         case 'cov_prev'
         nDelay = 3;
         gtrWav1 = meanSubt_(trWav2_spk);
-        mr1 = zscore_(gtrWav1(:,:,1));
-        mr2 = zscore_(gtrWav1([ones(1,nDelay),1:end-nDelay],:,1));
+        mr1 = jrclust.utils.zscore(gtrWav1(:,:,1));
+        mr2 = jrclust.utils.zscore(gtrWav1([ones(1,nDelay),1:end-nDelay],:,1));
         mrFet1 = mean(gtrWav1 .* repmat(mr1, [1,1,size(gtrWav1,3)]), 1);
         mrFet2 = mean(gtrWav1 .* repmat(mr2, [1,1,size(gtrWav1,3)]), 1);
         mrFet1 = shiftdim(mrFet1,1)';

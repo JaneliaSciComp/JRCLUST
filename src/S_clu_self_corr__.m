@@ -16,7 +16,7 @@ function selfcorr = S_clu_self_corr__(S_clu, tnWav_spk, iClu1, viSite_spk)
     mrWavA = meanSubt_(mean(trWav1(:, :, viSrt(1:imid)), 3));
     mrWavB = meanSubt_(mean(trWav1(:, :, viSrt(imid+1:end)), 3));
     % selfcorr = calc_corr_(mrWavA(:), mrWavB(:));
-    % selfcorr = mean(mean(zscore_(mrWavA) .* zscore_(mrWavB)));
-    % selfcorr = mean(zscore_(mrWavA(:)) .* zscore_(mrWavB(:)));
+    % selfcorr = mean(mean(jrclust.utils.zscore(mrWavA) .* jrclust.utils.zscore(mrWavB)));
+    % selfcorr = mean(jrclust.utils.zscore(mrWavA(:)) .* jrclust.utils.zscore(mrWavB(:)));
     selfcorr = corr_(mrWavA(:), mrWavB(:));
 end %func
