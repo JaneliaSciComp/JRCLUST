@@ -27,6 +27,7 @@ classdef Config < handle & dynamicprops
         fEllip;                     % => useElliptic
         fft_thresh;                 % => fftThreshMad
         fGpu;                       % => useGPU
+        fRepeat_clu;                % => repeatLower
         fVerbose;                   % => verbose
         gain_boost;                 % => gainBoost
         header_offset;              % => headerOffset
@@ -150,12 +151,13 @@ classdef Config < handle & dynamicprops
 
         % clustering params
         dc_percent = 2;             % percentile at which to cut off distance in rho computation
-        rlDetrendMode = 'global';   % 
+        repeatLower = false;        % repeat clustering for the bottom half of the cluster amplitudes if true
         log10DeltaCut = 0.6;        % the base-10 log of the delta cutoff value
         log10RhoCut = -2.5;         % the base-10 log of the rho cutoff value
         maxClustersSite = 20;       % maximum number of clusters per site if local detrending is used
         minClusterSize = 30;        % minimum cluster size (set to 2*#features if lower)
         nTime_clu = 1;              % number of time periods over which to cluster separately (later to be merged after clustering)
+        rlDetrendMode = 'global';   % 
 
         % display params
         dispFilter = '';
@@ -197,7 +199,6 @@ classdef Config < handle & dynamicprops
         fProj_sort = false;
         fRamCache = true;
         fRejectSpk_vpp = false;
-        fRepeat_clu = false;
         fRms_detect = false;
         fRun = true;
         fSaveEvt = true;
@@ -1251,9 +1252,23 @@ classdef Config < handle & dynamicprops
             obj.refracIntSamp = ri;
         end
 
+        % repeatLower/fRepeat_clu
+        function set.repeatLower(obj, rl)
+            rl = rl && true;
+            obj.repeatLower = rl;
+        end
+        function rl = get.fRepeat_clu(obj)
+            obj.logOldP('fRepeat_clu');
+            rl = obj.repeatLower;
+        end
+        function set.fRepeat_clu(obj, rl)
+            obj.logOldP('fRepeat_clu');
+            obj.repeatLower = rl;
+        end
+
         % rlDetrendMode/vcDetrend_postclu
         function set.rlDetrendMode(obj, dm)
-            legalTypes = {'global', 'local', 'logz', none};
+            legalTypes = {'global', 'local', 'logz', 'none'};
             failMsg = sprintf('legal rlDetrendModes are %s', strjoin(legalTypes, ', '));
             assert(sum(strcmp(dm, legalTypes)) == 1, failMsg);
             obj.rlDetrendMode = dm;

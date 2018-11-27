@@ -12,7 +12,8 @@ function saveStruct(S, filename)
             catch
                 pause(.5);
             end
-            fprintf(2, 'Saving failed: %s\n', filename);
+
+            warning('Could not save: %s', filename);
         end
     else
         for iRetry = 1:nRetry
@@ -22,7 +23,8 @@ function saveStruct(S, filename)
             catch
                 pause(.5);
             end
-            fprintf(2, 'Saving failed: %s\n', filename);
+
+            warning('Could not save: %s', filename);
         end
     end
 end

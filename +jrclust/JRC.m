@@ -29,6 +29,7 @@ classdef JRC < handle & dynamicprops
     properties (Hidden, SetAccess=private, SetObservable)
         dRes;           % detect step (must contain at a minimum spikeTimes and spikeSites)
         sRes;           % sort step
+        cRes;           % curate step
     end
 
     % LIFECYCLE
@@ -163,22 +164,21 @@ classdef JRC < handle & dynamicprops
             end
 
             % determine which commands in the pipeline to run
-            detectCmds = {'detect', 'sort', 'spikesort', 'full'};
+            detectCmds = {'detect', 'full'};
             sortCmds   = {'sort', 'spikesort', 'full'};
             curateCmds = {'full', 'manual'};
 
-            if any(strcmp(obj.cmd, detectCmds))
-                obj.isDetect = true;
-            end
-            if any(strcmp(obj.cmd, sortCmds))
-                obj.isSort = true;
-            end
             if any(strcmp(obj.cmd, curateCmds))
                 obj.isCurate = true;
             end
 
-            % load from saved
-            % TODO (much much later)
+            if any(strcmp(obj.cmd, sortCmds))
+                obj.isSort = true;
+            end
+
+            if any(strcmp(obj.cmd, detectCmds))
+                obj.isDetect = true;
+            end
 
             % commands from here on out require a parameter file
             if nargs < 1
@@ -240,6 +240,35 @@ classdef JRC < handle & dynamicprops
                 parallel.gpu.rng(obj.hCfg.randomSeed);
             end
 
+            % try to load sort and detect results
+            if obj.isCurate && ~obj.isSort
+                [obj.dRes, obj.sRes] = obj.loadFiles();
+                if isempty(obj.dRes)
+                    obj.isDetect = true;
+                    obj.isSort = true;
+                elseif isempty(obj.sRes)
+                    obj.isSort = true;
+                end
+
+                if obj.hCfg.verbose
+                    if ~isempty(obj.dRes) && isfield(obj.dRes, 'completedAt')
+                        fprintf('Using spikes detected on %s', datestr(obj.dRes.completedAt));
+                    end
+                    if ~isempty(obj.sRes) && isfield(obj.sRes, 'completedAt')
+                        fprintf('Using clustering computed on %s', datestr(obj.sRes.completedAt));
+                    end
+                end
+            end
+
+            % try to load detect results
+            if obj.isSort && ~obj.isDetect
+                obj.dRes = obj.loadFiles();
+                if isempty(obj.dRes)
+                    obj.isDetect = true;
+                end
+            end
+
+             % save this in case useGPU is set to false during detection step
             gpuDetect = obj.hCfg.useGPU;
             if obj.isDetect
                 obj.hDet = jrclust.controllers.DetectController(obj.hCfg);
@@ -250,15 +279,10 @@ classdef JRC < handle & dynamicprops
                 elseif obj.hCfg.verbose
                     fprintf('Detection completed in %0.2f seconds\n', obj.dRes.runtime);
                 end
-
-                if ~(obj.isSort || obj.isCurate) % save to pick up later
-                    obj.saveFiles();
-                end
             end
 
             if obj.isSort
-                % set to false during detect, try again for sort
-                if gpuDetect && ~obj.hCfg.useGPU
+                if gpuDetect && ~obj.hCfg.useGPU % set to false during detect, try again for sort
                     obj.hCfg.useGPU = true;
                 end
 
@@ -272,6 +296,8 @@ classdef JRC < handle & dynamicprops
                 end
             end
 
+            % save our results for later
+            obj.saveFiles();
             obj.isCompleted = true;
         end
 
@@ -302,7 +328,54 @@ classdef JRC < handle & dynamicprops
                 if obj.hCfg.verbose
                     fprintf('Saving detection results to %s\n', filename);
                 end
+
                 jrclust.utils.saveStruct(obj.dRes, filename);
+            end
+
+            if obj.isSort && ~isempty(obj.sRes)
+                filename = fullfile(obj.hCfg.outputDir, [sessionName '_sort.mat']);
+                if obj.hCfg.verbose
+                    fprintf('Saving sorting results to %s\n', filename);
+                end
+
+                jrclust.utils.saveStruct(obj.sRes, filename);
+            end
+        end
+
+        function [dRes, sRes, cRes] = loadFiles(obj)
+            %LOADFILES Load results structs
+            dRes = [];
+            sRes = [];
+            cRes = [];
+
+            if isempty(obj.hCfg.outputDir)
+                obj.hCfg.outputDir = fileparts(obj.hCfg.configFile);
+            end
+
+            [~, sessionName, ~] = fileparts(obj.hCfg.configFile);
+            if nargout >= 1
+                filename = fullfile(obj.hCfg.outputDir, [sessionName '_detect.mat']);
+                try
+                    dRes = load(filename);
+                catch ME
+                    warning(ME.identifier, 'detect data not loaded: %s', ME.message);
+                end
+            end
+            if nargout >= 2
+                filename = fullfile(obj.hCfg.outputDir, [sessionName '_sort.mat']);
+                try
+                    sRes = load(filename);
+                catch ME
+                    warning(ME.identifier, 'sort data not loaded: %s', ME.message);
+                end
+            end
+            if nargout >= 3
+                filename = fullfile(obj.hCfg.outputDir, [sessionName '_curate.mat']);
+                try
+                    cRes = load(filename);
+                catch ME
+                    warning(ME.identifier, 'curate data not loaded: %s', ME.message);
+                end
             end
         end
     end

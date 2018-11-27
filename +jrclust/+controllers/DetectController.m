@@ -133,17 +133,6 @@ classdef DetectController < handle
 
                     % denoise and filter samples
                     [samplesFilt, keepMe] = obj.filterSamples(samplesRaw, windowPre, windowPost);
-                    % vcFilter_detect: DEPRECATED?
-                    % switch obj.hCfg.vcFilter_detect
-                    %     case {'', 'none'}
-                    %         mnWav3 = samplesFilt;
-
-                    %     case 'ndist'
-                    %         [mnWav3, nShift_post] = filter_detect_(samplesRaw, obj.hCfg); % pass raw trace
-
-                    %     otherwise
-                    %         [mnWav3, nShift_post] = filter_detect_(samplesFilt, obj.hCfg); % pass filtered trace
-                    % end
 
                     % detect spikes in filtered samples
                     obj.findSpikes(samplesFilt, keepMe, intTimes, intSites, siteThresh_, size(windowPre, 1), size(windowPost, 1));
@@ -210,6 +199,7 @@ classdef DetectController < handle
 
             % summarize
             res.runtime = toc(t0);
+            res.completedAt = now();
         end
     end
 
@@ -436,7 +426,7 @@ classdef DetectController < handle
                 mrFet3 = trWav2fet_(mn2tn_wav_spk2_(samplesFilt, spSites3_, spTimes, obj.hCfg), obj.hCfg);
                 fprintf('.');
 
-                spFeatures = permute(cat(3, mrFet1, mrFet2, mrFet3), [1,3,2]); % nSite x nFet x nSpk
+                spFeatures = permute(cat(3, mrFet1, mrFet2, mrFet3), [1, 3, 2]); % nSite x nFet x nSpk
                 miSites = [spSites_(:), spSites2_(:), spSites3_(:)]; % nSpk x nFet
             end
 

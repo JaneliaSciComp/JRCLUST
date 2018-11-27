@@ -1,15 +1,14 @@
-function [centers, x, zscores] = detrendRhoDelta(clusterData, spikesBySite, fLocal, hCfg)
+function [centers, logRho, zscores] = detrendRhoDelta(clusterData, spikesBySite, fLocal, hCfg)
     %DETREND Detrend rho-delta plot to identify cluster centers (high rho, high delta)
+    logRho = log10(clusterData.spikeRho);
+    delta = clusterData.spikeDelta;
 
-    x = log10(clusterData.spikeRho);
-
-    % detrend for each site and apply
-    if fLocal
+    if fLocal % detrend for each site
         rhosBySite = cellfun(@(spikes) clusterData.spikeRho(spikes), spikesBySite, 'UniformOutput', 0);
-        deltasBySite = cellfun(@(spikes) clusterData.spikeDelta(spikes), spikesBySite, 'UniformOutput', 0);
+        deltasBySite = cellfun(@(spikes) delta(spikes), spikesBySite, 'UniformOutput', 0);
 
         centersBySite = cell(size(spikesBySite));
-        zscores = zeros(size(clusterData.spikeDelta), 'like', clusterData.spikeDelta);
+        zscores = zeros(size(delta), 'like', delta);
 
         for iSite = 1:numel(spikesBySite)
             siteSpikes = spikesBySite{iSite};
@@ -17,22 +16,21 @@ function [centers, x, zscores] = detrendRhoDelta(clusterData, spikesBySite, fLoc
                 continue;
             end
 
-            rhoSite = rhosBySite{iSite};
+            logRhoSite = log10(rhosBySite{iSite});
             deltaSite = deltasBySite{iSite};
-
-            log10RhoSite = log10(rhoSite);
 
             % select only those rho values between 10^cutoff and 0.1
             % and delta values between 0 and 1
-            detIndices = find(log10RhoSite > hCfg.log10RhoCut & log10RhoSite < -1 & deltaSite > 0 & deltaSite < 1 & isfinite(log10RhoSite) & isfinite(deltaSite));
-            [yhat, zsite] = detrendQuadratic(log10RhoSite(detIndices), deltaSite(detIndices));
+            detIndices = find(logRhoSite > hCfg.log10RhoCut & logRhoSite < -1 & deltaSite > 0 & deltaSite < 1 & isfinite(logRhoSite) & isfinite(deltaSite));
+            [yhat, zsite] = detrendQuadratic(logRhoSite, deltaSite, detIndices);
 
+            % spikes with exact same features
             yhat(deltaSite == 0) = nan;
             zsite(deltaSite == 0) = nan;
 
             % get the indices of the maxClustersSite largest detrended
             % values where the rho values beat the cutoff
-            centers_ = nLargest(yhat, hCfg.maxClustersSite, find(log10RhoSite > hCfg.log10RhoCut & ~isnan(yhat)));
+            centers_ = nLargest(yhat, hCfg.maxClustersSite, find(logRhoSite > hCfg.log10RhoCut & ~isnan(yhat)));
             if isempty(centers_)
                 continue;
             end
@@ -42,19 +40,18 @@ function [centers, x, zscores] = detrendRhoDelta(clusterData, spikesBySite, fLoc
         end
 
         centers = cell2vec(centersBySite);
-    else
-        y = clusterData.spikeDelta;
-        detIndices = find(clusterData.spikeDelta < 1 & clusterData.spikeDelta > 0 & clusterData.spikeRho > 10^hCfg.rho_cut & clusterData.spikeRho < .1 & isfinite(x) & isfinite(y));
-        [~, zscores] = detrendQuadratic(x(detIndices), y(detIndices));
+    else % detrend globally
+        detIndices = find(delta > 0 & delta < 1 & clusterData.spikeRho > 10^hCfg.rho_cut & clusterData.spikeRho < .1 & isfinite(logRho) & isfinite(delta));
+        [~, zscores] = detrendQuadratic(logRho, delta, detIndices);
 
-        zscores(clusterData.spikeDelta == 0) = nan;
+        zscores(delta == 0) = nan;
         [centers, zLargest] = nLargest(zscores, hCfg.maxClustersSite*numel(spikesBySite), find(clusterData.spikeRho > 10^hCfg.log10RhoCut & ~isnan(zscores)));
         centers(zLargest < 10^hCfg.log10DeltaCut) = [];
     end
 end
 
 %% LOCAL FUNCTIONS
-function [yhat, zscores] = detrendQuadratic(x, y)
+function [yhat, zscores] = detrendQuadratic(x, y, indices)
     %DETRENDQUADRATIC Remove quadratic component from y~x
     x = x(:);
     y = y(:);

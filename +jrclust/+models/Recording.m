@@ -27,7 +27,7 @@ classdef Recording < handle
         dshape;       % shape of data (rows x columns), in samples
         fSizeBytes;   % size of the file, in bytes
         headerOffset; % number of bytes at the beginning of the file to skip
-        end
+    end
 
     properties
         spikeTimes;   % times of detected spikes in this file, in samples
