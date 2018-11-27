@@ -32,7 +32,7 @@ function [tnWav_spk, vnThresh_site] = wav2spk_gt_(mnWav1, P, viTime_spk, mnWav1_
         viTime_spk = multifun_(@(x)x(viKeep_spk), viTime_spk);
     end %if
     % [tnWav_spk_raw, tnWav_spk] = mn2tn_wav_(mnWav1, mnWav2, [], viTime_spk, P);
-    tnWav_spk = permute(jrclust.utils.tryGather(mr2tr3_(mnWav2, P.spkLim, viTime_spk)), [1,3,2]);
+    tnWav_spk = permute(jrclust.utils.tryGather(jrclust.utils.extractWindows(mnWav2, P.spkLim, viTime_spk)), [1,3,2]);
 
     % if nPad_pre > 0, viTime_spk = viTime_spk - nPad_pre; end
 end %func

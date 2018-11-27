@@ -70,7 +70,7 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
     mrWavCor = jrclust.utils.tryGpuArray(zeros(nClu), P.fGpu);
     nSites_spk = P.maxSite*2+1-P.nSites_ref;
     nT = size(tmrWav_clu, 1);
-    [cviShift1, cviShift2] = shift_range_(jrclust.utils.tryGpuArray(int32(nT), P.fGpu), nShift);
+    [cviShift1, cviShift2] = jrclust.utils.shiftRange(jrclust.utils.tryGpuArray(int32(nT), P.fGpu), nShift);
     % viLags = 1:numel(cviShift1);
     if isempty(viClu_update)
         vlClu_update = true(nClu, 1);
@@ -333,8 +333,8 @@ function maxCor = maxCor_drift_2_(cmr1, cmr2, cviShift1, cviShift2)
         nShift = numel(cviShift1);
         vrCor = zeros(1, nShift);
         for iShift = 1:nShift
-            mr1_ = reshape(meanSubt_(tr1(cviShift1{iShift},:,:)), [], nDrift);
-            mr2_ = reshape(meanSubt_(tr2(cviShift2{iShift},:,:)), [], nDrift);
+            mr1_ = reshape(jrclust.utils.meanSubtract(tr1(cviShift1{iShift},:,:)), [], nDrift);
+            mr2_ = reshape(jrclust.utils.meanSubtract(tr2(cviShift2{iShift},:,:)), [], nDrift);
 
             mr12_ = (mr1_' * mr2_) ./ sqrt(sum(mr1_.^2)' * sum(mr2_.^2));
             vrCor(iShift) = max(mr12_(:));

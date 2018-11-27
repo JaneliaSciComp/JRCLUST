@@ -63,6 +63,7 @@ classdef Config < handle & dynamicprops
         vcCommonRef;                % => carMode
         vcDataType;                 % => dtype
         vcDetrend_postclu;          % => rlDetrendMode
+        vcFet;                      % => clusterFeature
         vcFile;                     % => singleRaw
         vcFile_gt;                  % => gtFile
         vcFile_prm;                 % => configFile
@@ -144,6 +145,8 @@ classdef Config < handle & dynamicprops
         threshFile = '';            % path to .mat file storing spike detection thresholds (created by 'preview' GUI)
 
         % feature extraction params
+        clusterFeature = 'pca';     % feature to use in clustering
+        fInterp_fet = true;         % interpolate waveforms for feature projection to find optimal delay (2x interp) if true
         fSpatialMask_clu = false;   % apply spatial mask calculated from the distances between sites to the peak site (half-scale: P.maxDist_site_um)
         min_sites_mask = 5;         % minimum number of sites to have to apply spatial mask
         nFet_use = 2;               % undocumented
@@ -183,7 +186,6 @@ classdef Config < handle & dynamicprops
         fDiscard_count = true;
         fDrift_merge = true;
         fGroup_shank = false;
-        fInterp_fet = true;
         fInverse_file = false;
         fLoad_lfp = false;
         fMeanSite = true;
@@ -293,7 +295,6 @@ classdef Config < handle & dynamicprops
         vcCluWavMode = 'mean';
         vcDate_file = '';
         vcDc_clu = 'distr';
-        vcFet = 'gpca';
         vcFet_show = 'vpp';
         vcFile_aux = '';
         vcFile_bonsai = '';
@@ -642,6 +643,26 @@ classdef Config < handle & dynamicprops
             obj.carMode = cm;
         end
 
+        % clusterFeature/vcFet
+        function set.clusterFeature(obj, cf)
+            if strcmp(cf, 'gpca')
+                cf = 'pca';
+                warning('gpca feature temporarily disabled; using pca');
+            end
+            legalTypes = {'cov', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'};
+            failMsg = sprintf('legal clusterFeatures are: %s', strjoin(legalTypes, ', '));
+            assert(sum(strcmp(cf, legalTypes)) == 1, failMsg);
+            obj.clusterFeature = cf;
+        end
+        function cf = get.vcFet(obj)
+            obj.logOldP('vcFet');
+            cf = obj.clusterFeature;
+        end
+        function set.vcFet(obj, cf)
+            obj.logOldP('vcFet');
+            obj.clusterFeature = cf;
+        end
+
         % configFile/vcFile_prm
         function set.configFile(obj, cf)
             cf_ = jrclust.utils.absPath(cf);
@@ -660,7 +681,8 @@ classdef Config < handle & dynamicprops
         % dispFilter/vcFilter_show
         function set.dispFilter(obj, ft)
             legalTypes = {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'};
-            assert((ischar(ft) && isempty(ft)) || sum(strcmp(ft, legalTypes)) == 1, 'legal filterTypes are: %s or ''''', strjoin(legalTypes, ', '));
+            failMsg = sprintf('legal filterTypes are: %s or ''''', strjoin(legalTypes, ', '));
+            assert((ischar(ft) && isempty(ft)) || sum(strcmp(ft, legalTypes)) == 1, failMsg);
             obj.dispFilter = ft;
         end
         function ft = get.vcFilter_show(obj)
@@ -1454,4 +1476,3 @@ classdef Config < handle & dynamicprops
         end
     end
 end
-

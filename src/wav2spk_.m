@@ -132,18 +132,18 @@ function [tnWav_spk_raw, tnWav_spk, trFet_spk, miSite_spk, viTime_spk, vnAmp_spk
     switch nFet_use
         case 3
         [viSite2_spk, viSite3_spk] = find_site_spk23_(tnWav_spk, viSite_spk_, P); fprintf('.');
-        mrFet1 = trWav2fet_(tnWav_spk, P); fprintf('.');
-        mrFet2 = trWav2fet_(tnWav_spk2, P); fprintf('.');
-        mrFet3 = trWav2fet_(mn2tn_wav_spk2_(mnWav2, viSite3_spk, viTime_spk, P), P); fprintf('.');
+        mrFet1 = jrclust.features.computeFeatures(tnWav_spk, P); fprintf('.');
+        mrFet2 = jrclust.features.computeFeatures(tnWav_spk2, P); fprintf('.');
+        mrFet3 = jrclust.features.computeFeatures(mn2tn_wav_spk2_(mnWav2, viSite3_spk, viTime_spk, P), P); fprintf('.');
         trFet_spk = permute(cat(3, mrFet1, mrFet2, mrFet3), [1,3,2]); %nSite x nFet x nSpk
         miSite_spk = [viSite_spk_(:), viSite2_spk(:), viSite3_spk(:)]; %nSpk x nFet
         case 2
-        mrFet1 = trWav2fet_(tnWav_spk, P); fprintf('.');
-        mrFet2 = trWav2fet_(tnWav_spk2, P); fprintf('.');
+        mrFet1 = jrclust.features.computeFeatures(tnWav_spk, P); fprintf('.');
+        mrFet2 = jrclust.features.computeFeatures(tnWav_spk2, P); fprintf('.');
         trFet_spk = permute(cat(3, mrFet1, mrFet2), [1,3,2]); %nSite x nFet x nSpk
         miSite_spk = [viSite_spk_(:), viSite2_spk(:)]; %nSpk x nFet
         case 1
-        mrFet1 = trWav2fet_(tnWav_spk, P); fprintf('.');
+        mrFet1 = jrclust.features.computeFeatures(tnWav_spk, P); fprintf('.');
         trFet_spk = permute(mrFet1, [1,3,2]); %nSite x nFet x nSpk
         miSite_spk = [viSite_spk_(:)];
         otherwise

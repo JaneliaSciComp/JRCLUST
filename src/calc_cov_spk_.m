@@ -8,7 +8,7 @@ function [mrVpp1, mrVpp2] = calc_cov_spk_(viSpk1, viSites1)
     viSites_spk1 = viSite_spk(viSpk1);
     tnWav_spk1 = jrclust.utils.tryGpuArray(tnWav_spk(:,:,viSpk1), P.fGpu);
     nSites_spk = 1 + P.maxSite * 2;
-    [mrVpp1_, mrVpp2_] = trWav2fet_(tnWav_spk1, P, nSites_spk);
+    [mrVpp1_, mrVpp2_] = jrclust.features.computeFeatures(tnWav_spk1, P, nSites_spk);
     [mrVpp1_, mrVpp2_] = multifun_(@(x)jrclust.utils.tryGather(abs(x)), mrVpp1_, mrVpp2_);
 
     % re-project to common basis

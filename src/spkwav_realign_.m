@@ -19,6 +19,6 @@ function [tnWav_spk1, viTime_spk1] = spkwav_realign_(tnWav_spk1, mnWav_spk, spkL
 
     viTime_shift = viTime_spk1(viSpk_shift) - int32(viShift(:)); % spike time to shift
     viTime_spk1(viSpk_shift) = viTime_shift;
-    tnWav_spk1(:,viSpk_shift,:) = mr2tr3_(mnWav_spk, spkLim_wav, viTime_shift, viSite1);
+    tnWav_spk1(:,viSpk_shift,:) = jrclust.utils.extractWindows(mnWav_spk, spkLim_wav, viTime_shift, viSite1);
     % fprintf('\n\t\ttook %0.1fs\n', toc(t1));
 end %func

@@ -1,23 +1,23 @@
-function [vals, vi] = subsample(vals, n, dim)
-    %SUBSAMPLE Summary of this function goes here
-    s = size(vals);
+function [vals, vi] = subsample(vals, k, dim)
+    %SUBSAMPLE Sample k items from vals, optionally along dim
+    shape = size(vals);
 
-    if ~any(s == 1) || nargin == 3
-        [vals, vi] = subsampleMat(vals, n, dim);
+    if ~any(shape == 1) || nargin == 3
+        [vals, vi] = subsampleMat(vals, k, dim);
     else
-        [vals, vi] = subsampleVec(vals, n);
+        [vals, vi] = subsampleVec(vals, k);
     end
 end
 
 %% LOCAL FUNCTIONS
-function [vals, vi] = subsampleVec(vals, n)
+function [vals, vi] = subsampleVec(vals, k)
     %SUBSAMPLEVEC
     vi = [];
 
-    if numel(vals) > n
+    if numel(vals) > k
         % nSkip = floor(numel(vals)/n);
         % vi = 1:nSkip:numel(vals);
-        vi = sort(randsample(1:numel(vals), n, false));
+        vi = sort(randsample(1:numel(vals), k, false));
         vals = vals(vi);
     end
 end

@@ -19,7 +19,7 @@ function [mrPv, vrD1] = tnWav2pv_(tr, P)
     % tr = single(tr);
     % if ~isempty(viSites_ref), tr = spkwav_car_(tr, viSites_ref); end
 
-    % mrCov = meanSubt_(mrSpkWav1);
+    % mrCov = jrclust.utils.meanSubtract(mrSpkWav1);
     mrCov = mrSpkWav1 * mrSpkWav1';
     [mrPv1, vrD1] = eig(mrCov);
     mrPv1 = jrclust.utils.zscore(fliplr(mrPv1)); % sort largest first

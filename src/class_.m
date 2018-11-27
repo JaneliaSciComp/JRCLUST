@@ -7,6 +7,6 @@ function [vc, fGpu] = class_(vr)
         vc = class(jrclust.utils.tryGather(vr(1)));
     end
     if nargout >=2
-        fGpu = isGpu_(vr);
+        fGpu = isa(vr, 'gpuArray');
     end
 end %func

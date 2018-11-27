@@ -110,7 +110,7 @@ function [viSpk1, vrSpk1, thresh1] = spikeDetectSingle_fast_(vrWav1, hCfg, thres
     % if hCfg.refrac_factor > 1
     %     nRefrac = int32(round(double(nRefrac) * hCfg.refrac_factor));
     % end
-    if isGpu_(viSpk1)
+    if isa(viSpk1, 'gpuArray')
         [viSpk1, vrSpk1, thresh1] = multifun_(@gather, viSpk1, vrSpk1, thresh1);
     end
 end

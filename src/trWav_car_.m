@@ -7,6 +7,6 @@ function tr = trWav_car_(tr, P)
     dimm_tr = size(tr);
     viSite_ref = ceil(size(tr,3)/2):size(tr,3);
     mrWav_ref = mean(tr(:,:,viSite_ref), 3);
-    tr = meanSubt_(reshape(bsxfun(@minus, reshape(tr,[],dimm_tr(3)), mrWav_ref(:)), dimm_tr));
+    tr = jrclust.utils.meanSubtract(reshape(bsxfun(@minus, reshape(tr,[],dimm_tr(3)), mrWav_ref(:)), dimm_tr));
     tr = permute(tr, [1,3,2]);
 end %func

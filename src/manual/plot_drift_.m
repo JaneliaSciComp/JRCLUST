@@ -15,7 +15,7 @@ function plot_drift_(P)
         case 'filt'
         tnWav_spk = get_spkwav_(P, 0);
         %mrVp = squeeze_(single(min(tnWav_spk))) .^ 2;
-        %         tnWav_spk1 = meanSubt_(single(tnWav_spk),2);
+        %         tnWav_spk1 = jrclust.utils.meanSubtract(single(tnWav_spk),2);
         mrVp = single(squeeze_(max(tnWav_spk) - min(tnWav_spk))) .^ 2;
         case 'filtstd'
         mrVp = squeeze_(var(single(get_spkwav_(P, 0))));

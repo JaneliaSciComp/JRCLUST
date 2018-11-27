@@ -2,7 +2,7 @@
 % 12/16/17 JJJ: Find overlapping spikes and set superthreshold sample points to zero in the overlapping region
 function [tnWav_spk_out, tnWav_spk2_out] = cancel_overlap_spk_(tnWav_spk, tnWav_spk2, viTime_spk, viSite_spk, viSite2_spk, vnThresh_site, P)
     % Overlap detection. only return one stronger than other
-    fGpu = isGpu_(tnWav_spk);
+    fGpu = isa(tnWav_spk, 'gpuArray');
     [viTime_spk, tnWav_spk, tnWav_spk2] = jrclust.utils.tryGather(viTime_spk, tnWav_spk, tnWav_spk2);
     [viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = detect_overlap_spk_(viTime_spk, viSite_spk, P);
     [tnWav_spk_out, tnWav_spk2_out] = deal(tnWav_spk, tnWav_spk2);

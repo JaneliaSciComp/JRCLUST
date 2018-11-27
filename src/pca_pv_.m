@@ -2,7 +2,7 @@
 function [vrPv1, vrPv2] = pca_pv_(mr1)
     MAX_SAMPLE = 10000; %for pca
     mrCov = subsample_mr_(mr1, MAX_SAMPLE, 2);
-    mrCov = meanSubt_(single(mrCov));
+    mrCov = jrclust.utils.meanSubtract(single(mrCov));
     mrCov = mrCov * mrCov';
     [mrPv1, vrD1] = eig(mrCov);
     vrPv1 = mrPv1(:,end);

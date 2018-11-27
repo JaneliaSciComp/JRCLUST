@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function mnWav2 = ndistFilter(mnWav2, ndist_filt)
 
-    vnFilt_ = jrclust.utils.tryGpuArray(ones(ndist_filt,1,'single'), isGpu_(mnWav2));
+    vnFilt_ = jrclust.utils.tryGpuArray(ones(ndist_filt,1,'single'), isa(mnWav2, 'gpuArray'));
     mnWav_ = mnWav2(1+ndist_filt:end,:) - mnWav2(1:end-ndist_filt,:);
     [n1, nChans] = deal(round((ndist_filt-1)/2) , size(mnWav_,2));
     n2 = ndist_filt - n1;

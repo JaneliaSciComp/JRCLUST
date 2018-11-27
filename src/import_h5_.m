@@ -41,7 +41,7 @@ function import_h5_(vcFile_h5)
             error('no traces found');
         end
         % P.uV_per_bit = min_step_(rawMEA(:,1));
-        write_bin_(P.vcFile, int16(meanSubt_(mrWav) / P.uV_per_bit)');
+        write_bin_(P.vcFile, int16(jrclust.utils.meanSubtract(mrWav) / P.uV_per_bit)');
     end
 
 

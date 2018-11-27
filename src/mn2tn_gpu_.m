@@ -19,7 +19,7 @@ function [tr, miRange] = mn2tn_gpu_(mr, spkLim, viTime, viSite)
     end
     if iscolumn(viTime), viTime = viTime'; end
 
-    fGpu = isGpu_(mr);
+    fGpu = isa(mr, 'gpuArray');
     viTime = jrclust.utils.tryGpuArray(viTime, fGpu);
     spkLim = jrclust.utils.tryGpuArray(spkLim, fGpu);
 

@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function mnWav1 = fftdiff_(mnWav, P)
 
-    fGpu = isGpu_(mnWav);
+    fGpu = isa(mnWav, 'gpuArray');
     nLoads_gpu = get_set_(P, 'nLoads_gpu', 8); % GPU load limit
 
     % [fGpu, nLoads_gpu] = deal(0, 1); %debug

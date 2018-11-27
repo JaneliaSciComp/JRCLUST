@@ -52,7 +52,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
         vcFilter = S_fig.vcFilter;
         mrWav_ = bit2uV_(S_fig.mnWav_filt(viPlot,:), struct_add_(P, vcFilter));
     else
-        mrWav_ = meanSubt_(single(S_fig.mnWav_clean(viPlot,:)) * P.uV_per_bit);
+        mrWav_ = jrclust.utils.meanSubtract(single(S_fig.mnWav_clean(viPlot,:)) * P.uV_per_bit);
     end
     multiplot(S_fig.hPlot_traces, S_fig.maxAmp, vrTime_sec, mrWav_, 1:nSites);
     if ~isempty(S_fig.viSite_bad)

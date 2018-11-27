@@ -3,6 +3,7 @@ classdef DetectController < handle
 
     properties (SetAccess=private, SetObservable, Transient)
         hCfg;
+        errMsg;
         isError;
     end
 
@@ -21,7 +22,7 @@ classdef DetectController < handle
         spikeFeatures;
     end
 
-    % LIFECYCLE
+    %% LIFECYCLE
     methods
         function obj = DetectController(hCfg, knownTimes, knownSites)
             obj.hCfg = hCfg;
@@ -48,7 +49,7 @@ classdef DetectController < handle
         end
     end
 
-    % USER METHODS
+    %% USER METHODS
     methods
         function res = detect(obj)
             res = struct();
@@ -107,7 +108,7 @@ classdef DetectController < handle
                     % load raw samples
                     samplesRaw = rec.readROI(obj.hCfg.siteMap, sampOffset:sampOffset+nSamples-1);
 
-                    % convert samples to int16 and get channel means
+                    % convert samples to int16
                     samplesRaw = obj.regularize(samplesRaw);
                     fprintf('done (%0.2f s)\n', toc(t1));
 
@@ -203,7 +204,7 @@ classdef DetectController < handle
         end
     end
 
-    % UTILITY METHODS
+    %% UTILITY METHODS
     methods (Access=protected, Hidden)
         function [nLoads, nSamplesLoad, nSamplesFinal] = planLoad(obj, nBytesFile)
             %PLANLOAD Get number of samples to load in each chunk of a file
@@ -338,10 +339,10 @@ classdef DetectController < handle
             end
 
             if isempty(spTimes) || isempty(spSites)
-                if ~isprop(obj.hCfg, 'nPad_pre')
-                    obj.hCfg.addprop('nPad_pre');
+                if ~isprop(obj.hCfg, 'nPadPre')
+                    obj.hCfg.addprop('nPadPre');
                 end
-                obj.hCfg.nPad_pre = nPadPre;
+                obj.hCfg.nPadPre = nPadPre;
 
                 [spTimes, spAmps, spSites] = jrclust.utils.detectSpikes(samplesIn, siteThresh_, keepMe, obj.hCfg);
             else
@@ -365,7 +366,7 @@ classdef DetectController < handle
             obj.spikeSites{end+1} = spSites;
         end
 
-        function extractFeatures(obj, samplesRaw, samplesFilt, nPad_pre)
+        function extractFeatures(obj, samplesRaw, samplesFilt, nPadPre)
             %EXTRACTFEATURES Extract spike waveforms and build a spike table
             fprintf('\tExtracting features');
             tf = tic;
@@ -376,12 +377,16 @@ classdef DetectController < handle
             spSites_ = jrclust.utils.tryGpuArray(spSites);
 
             % spRaw, spFilt are nSamples x nChannels x nSpikes
-            [spRaw, spFilt, spTimes] = obj.mn2tn_wav_(samplesRaw, samplesFilt, spSites_, spTimes);
+            [spRaw, spFilt, spTimes] = obj.spikesToWindows(samplesRaw, samplesFilt, spSites_, spTimes);
             fprintf('.');
 
             if obj.hCfg.nFet_use >= 2
-                spSites2_ = find_site_spk23_(spFilt, spSites_, obj.hCfg);
+                [spSites2_, spSites3_] = find_site_spk23_(spFilt, spSites_, obj.hCfg);
                 spFilt2 = mn2tn_wav_spk2_(samplesFilt, spSites2_, spTimes, obj.hCfg);
+
+                if obj.hCfg.nFet_use == 3
+                    spFilt3 = mn2tn_wav_spk2_(samplesFilt, spSites3_, spTimes, obj.hCfg);
+                end
             else
                 [spSites2_, spFilt2] = deal([]);
             end
@@ -391,47 +396,44 @@ classdef DetectController < handle
                 try
                     [spFilt, spFilt2] = cancel_overlap_spk_(spFilt, spFilt2, spTimes, spSites, spSites2_, vnThresh_site, obj.hCfg);
                 catch ME
-                    fprintf(2, 'fCancel_overlap failed\n');
+                    warning(ME.identifier, 'Cancel overlap failure: %s', ME.message);
                 end
             end
 
             obj.spikesRaw{end+1} = jrclust.utils.tryGather(spRaw);
-            assert(obj.hCfg.maxSite*2 + 1 - obj.hCfg.nSites_ref > 0, 'maxSite*2+1 must be greater than nSites_ref');
+            assert(obj.hCfg.nSiteDir*2 + 1 - obj.hCfg.nSitesExcl > 0, '1 + nSiteDir*2 must be greater than nSitesExcl');
 
             if obj.hCfg.nFet_use == 1
-                mrFet1 = trWav2fet_(spFilt, obj.hCfg);
+                features1 = jrclust.features.computeFeatures(spFilt, obj.hCfg);
                 fprintf('.');
 
-                spFeatures = permute(mrFet1, [1,3,2]); %nSite x nFet x nSpk
+                spFeatures = permute(features1, [1, 3, 2]); % nSites x nFeatures x nSpikes
                 miSites = spSites_(:);
             elseif obj.hCfg.nFet_use == 2
-                mrFet1 = trWav2fet_(spFilt, obj.hCfg);
+                features1 = jrclust.features.computeFeatures(spFilt, obj.hCfg);
                 fprintf('.');
 
-                mrFet2 = trWav2fet_(spFilt2, obj.hCfg);
+                features2 = jrclust.features.computeFeatures(spFilt2, obj.hCfg);
                 fprintf('.');
 
-                spFeatures = permute(cat(3, mrFet1, mrFet2), [1, 3, 2]); % nSite x nFet x nSpk
-                miSites = [spSites_(:), spSites2_(:)]; % nSpk x nFet
+                spFeatures = permute(cat(3, features1, features2), [1, 3, 2]); % nSites x nFeatures x nSpikes
+                miSites = [spSites_(:), spSites2_(:)]; % nSpikes x nFeatures
             else % obj.hCfg.nFet_use == 3
-                [spSites2_, spSites3_] = find_site_spk23_(spFilt, spSites_, obj.hCfg);
+                features1 = jrclust.features.computeFeatures(spFilt, obj.hCfg);
                 fprintf('.');
 
-                mrFet1 = trWav2fet_(spFilt, obj.hCfg);
+                features2 = jrclust.features.computeFeatures(spFilt2, obj.hCfg);
                 fprintf('.');
 
-                mrFet2 = trWav2fet_(spFilt2, obj.hCfg);
+                features3 = jrclust.features.computeFeatures(spFilt3, obj.hCfg);
                 fprintf('.');
 
-                mrFet3 = trWav2fet_(mn2tn_wav_spk2_(samplesFilt, spSites3_, spTimes, obj.hCfg), obj.hCfg);
-                fprintf('.');
-
-                spFeatures = permute(cat(3, mrFet1, mrFet2, mrFet3), [1, 3, 2]); % nSite x nFet x nSpk
-                miSites = [spSites_(:), spSites2_(:), spSites3_(:)]; % nSpk x nFet
+                spFeatures = permute(cat(3, features1, features2, features3), [1, 3, 2]); % nSites x nFeatures x nSpikes
+                miSites = [spSites_(:), spSites2_(:), spSites3_(:)]; % nSpikes x nFeatures
             end
 
-            if nPad_pre > 0
-                spTimes = spTimes - nPad_pre;
+            if nPadPre > 0
+                spTimes = spTimes - nPadPre;
             end
 
             obj.spikeTimes{end} = jrclust.utils.tryGather(spTimes);
@@ -441,54 +443,91 @@ classdef DetectController < handle
             fprintf('done (%0.2f s)\n', toc(tf));
         end
 
-        function [spikesRaw, spikesFilt, spTimes] = mn2tn_wav_(obj, samplesRaw, samplesFilt, spSites, spTimes)
-            % TODO: make this a Recording method
-            nSpks = numel(spTimes);
-            nSites = numel(obj.hCfg.viSite2Chan);
-            spkLim_wav = obj.hCfg.spkLim;
-            spkLim_raw = obj.hCfg.spkLim_raw;
-            nSites_spk = (obj.hCfg.maxSite * 2) + 1;
+        function [spikesRaw, spikesFilt, spTimes] = spikesToWindows(obj, samplesRaw, samplesFilt, spSites, spTimes)
+            %SPIKESTOWINDOWS Get sample windows around spiking events
+            nSpikes = numel(spTimes);
+            nSites = numel(obj.hCfg.siteMap);
+            nSitesEvt = 1 + obj.hCfg.nSiteDir*2;
 
-            % tensors, nSamples x nChannels x nSpikes
-            spikesRaw = zeros(diff(spkLim_raw) + 1, nSites_spk, nSpks, 'like', samplesRaw);
-            spikesFilt = zeros(diff(spkLim_wav) + 1, nSites_spk, nSpks, 'like', samplesFilt);
+            % tensors, nSamples{Raw, Filt} x nChannels x nSpikes
+            spikesRaw = zeros(diff(obj.hCfg.evtWindowRawSamp) + 1, nSitesEvt, nSpikes, 'like', samplesRaw);
+            spikesFilt = zeros(diff(obj.hCfg.evtWindowSamp) + 1, nSitesEvt, nSpikes, 'like', samplesFilt);
 
             % Realignment parameters
             fRealign_spk = obj.hCfg.getOr('fRealign_spk', 0); %0, 1, 2
-            spTimes = jrclust.utils.tryGpuArray(spTimes, isGpu_(samplesRaw));
-            spSites = jrclust.utils.tryGpuArray(spSites, isGpu_(samplesRaw));
+            spTimes = jrclust.utils.tryGpuArray(spTimes, isa(samplesRaw, 'gpuArray'));
+            spSites = jrclust.utils.tryGpuArray(spSites, isa(samplesRaw, 'gpuArray'));
 
             if isempty(spSites)
-                spikesRaw = permute(mr2tr3_(samplesRaw, spkLim_raw, spTimes), [1,3,2]);
-                spikesFilt = permute(mr2tr3_(samplesFilt, spkLim_wav, spTimes), [1,3,2]);
+                spikesRaw = permute(jrclust.utils.extractWindows(samplesRaw, obj.hCfg.evtWindowRawSamp, spTimes), [1, 3, 2]);
+                spikesFilt = permute(jrclust.utils.extractWindows(samplesFilt, obj.hCfg.evtWindowSamp, spTimes), [1, 3, 2]);
             else
                 for iSite = 1:nSites
-                    viiSpk11 = find(spSites == iSite);
-                    if isempty(viiSpk11)
+                    siteSpikes = find(spSites == iSite);
+                    if isempty(siteSpikes)
                         continue;
                     end
 
-                    viTime_spk11 = spTimes(viiSpk11); % already sorted by time
-                    viSite11 = obj.hCfg.siteNeighbors(:, iSite);
+                    siteTimes = spTimes(siteSpikes); % already sorted by time
+                    neighbors = obj.hCfg.siteNeighbors(:, iSite);
 
                     try
-                        tnWav_spk1 = mr2tr3_(samplesFilt, spkLim_wav, viTime_spk11, viSite11);
+                        spikeWindows = jrclust.utils.extractWindows(samplesFilt, obj.hCfg.evtWindowSamp, siteTimes, neighbors);
 
                         if fRealign_spk == 1
-                            [tnWav_spk1, viTime_spk11] = spkwav_realign_(tnWav_spk1, samplesFilt, spkLim_wav, viTime_spk11, viSite11, obj.hCfg);
-                            spTimes(viiSpk11) = viTime_spk11;
+                            [spikeWindows, siteTimes] = obj.spkwav_realign_(spikeWindows, samplesFilt, siteTimes, neighbors);
+                            spTimes(siteSpikes) = siteTimes;
                         elseif fRealign_spk == 2
-                            tnWav_spk1 = spkwav_align_(tnWav_spk1, obj.hCfg);
+                            spikeWindows = spkwav_align_(spikeWindows);
                         end
 
-                        spikesFilt(:, :, viiSpk11) = permute(tnWav_spk1, [1, 3, 2]);
-                        spikesRaw(:, :, viiSpk11) = permute(mr2tr3_(samplesRaw, spkLim_raw, viTime_spk11, viSite11), [1,3,2]);
-                    catch ME % GPU failure
-                        obj.errMsg = 'GPU failure in mn2tn_wav_';
+                        spikesFilt(:, :, siteSpikes) = permute(spikeWindows, [1, 3, 2]);
+                        spikesRaw(:, :, siteSpikes) = permute(jrclust.utils.extractWindows(samplesRaw, obj.hCfg.evtWindowRawSamp, siteTimes, neighbors), [1, 3, 2]);
+                    catch ME
+                        obj.errMsg = ME.message;
                         obj.isError = true;
                     end
                 end
             end
+        end
+
+        function spikeWindows = spkwav_align_(obj, spikeWindows)
+            nInterp_spk = 2;
+
+            imin_int = (-obj.hCfg.spkLim(1))*nInterp_spk+1;
+            mnWav_spk1_int = interpft_(spikeWindows(:,:,1), nInterp_spk);
+            [~, viMin_int] = min(mnWav_spk1_int);
+            viSpk_right = find(viMin_int == imin_int + 1);
+            viSpk_left = find(viMin_int == imin_int - 1);
+
+            if ~isempty(viSpk_right)
+                tnWav_spk1_right = interpft_(spikeWindows(:,viSpk_right,:), nInterp_spk);
+                spikeWindows(1:end-1,viSpk_right,:) = tnWav_spk1_right(2:nInterp_spk:end,:,:);
+            end
+
+            if ~isempty(viSpk_left)
+                tnWav_spk1_left = interpft_(spikeWindows(:,viSpk_left,:), nInterp_spk);
+                spikeWindows(2:end,viSpk_left,:) = tnWav_spk1_left(2:nInterp_spk:end,:,:); %todo for nInterp_spk~=2
+            end
+        end
+
+        function [spikeWindows, siteTimes] = spkwav_realign_(obj, spikeWindows, samplesIn, siteTimes, neighbors)
+            if ~strcmpi(obj.hCfg.vcSpkRef, 'nmean')
+                return;
+            end
+
+            trWav_spk2 = spkwav_car_(single(spikeWindows), obj.hCfg); % apply car
+            [shiftMe, shiftBy] = spkwav_shift_(trWav_spk2, obj.hCfg.refracIntSamp, obj.hCfg);
+            if isempty(shiftMe)
+                return;
+            end
+
+            % adjust spike times
+            shiftedTimes = siteTimes(shiftMe) - int32(shiftBy(:));
+            siteTimes(shiftMe) = shiftedTimes;
+
+            % extract windows at new shifted times
+            spikeWindows(:, shiftMe, :) = jrclust.utils.extractWindows(samplesIn, obj.hCfg.evtWindowSamp, shiftedTimes, neighbors);
         end
     end
 end

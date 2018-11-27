@@ -9,7 +9,7 @@ function vrDist12 = xcorr2_mr_(mrWav1, mrWav2, arg1, arg2)
     if nargin == 3
         nShift = arg1;
         nT = size(mrWav1, 1);
-        [cvi1, cvi2] = shift_range_(nT, nShift);
+        [cvi1, cvi2] = jrclust.utils.shiftRange(nT, nShift);
     else
         cvi1 = arg1;
         cvi2 = arg2;
@@ -18,7 +18,7 @@ function vrDist12 = xcorr2_mr_(mrWav1, mrWav2, arg1, arg2)
     %     mrWav1 = mrWav1 .^ 2;
     %     mrWav2 = mrWav2 .^ 2;
     % end
-    % vrDist12 = jrclust.utils.tryGpuArray(zeros(size(cvi1)), isGpu_(mrWav1));
+    % vrDist12 = jrclust.utils.tryGpuArray(zeros(size(cvi1)), isa(mrWav1, 'gpuArray'));
     vrDist12 = zeros(size(cvi1));
     for iDist = 1:numel(vrDist12)
         vr1 = mrWav1(cvi1{iDist},:);

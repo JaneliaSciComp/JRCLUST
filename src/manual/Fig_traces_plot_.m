@@ -26,11 +26,11 @@ function Fig_traces_plot_(fAxis_reset)
         mrWav1 = bit2uV_(jrclust.utils.filtCar(mnWav1(viSamples1, P.viSite2Chan), P1), P1);
         vcFilter_show = P1.vcFilter;
     else
-        mrWav1 = meanSubt_(single(mnWav1(viSamples1, P.viSite2Chan))) * P.uV_per_bit;
+        mrWav1 = jrclust.utils.meanSubtract(single(mnWav1(viSamples1, P.viSite2Chan))) * P.uV_per_bit;
         vcFilter_show = 'off';
     end
     viSites = 1:numel(P.viSite2Chan);
-    % mrWav1 = meanSubt_(single(mnWav1(:, P.viSite2Chan))) * P.uV_per_bit;
+    % mrWav1 = jrclust.utils.meanSubtract(single(mnWav1(:, P.viSite2Chan))) * P.uV_per_bit;
     % hide bad channels
     nTime_traces = get_(P, 'nTime_traces');
     if isempty(nTime_traces) || nTime_traces==1
