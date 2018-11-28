@@ -20,7 +20,7 @@ function [mrWav_clu1, viSite_clu1, mrWav_lo_clu1, mrWav_hi_clu1] = clu_wav_(S_cl
     if ~fDrift_merge
         viSpk_clu2 = spk_select_mid_(viSpk_clu1, S0.viTime_spk, S0.P);
         mrWav_clu1 = mean(single(tnWav_(:,:,viSpk_clu2)), 3);
-        mrWav_clu1 = jrclust.utils.meanSubtract(mrWav_clu1); %122717 JJJ
+        mrWav_clu1 = meanSubt_(mrWav_clu1); %122717 JJJ
         return;
     end
 

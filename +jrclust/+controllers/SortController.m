@@ -2,15 +2,15 @@ classdef SortController < handle
     %SORTCONTROLLER Handle for sorting spikes into clusters using Rodriguez-Laio
 
     properties (SetAccess=private, SetObservable, Transient)
-        rhoCK;          % CUDA kernel for rho computation
-        deltaCK;        % CUDA kernel for delta computation
-
-        chunkSize;
-        fTwoStep;
+        chunkSize;      
         nC_max;         % maximum number of dimensions per event
         nSubsample;     % number of spikes to sample in estimating cutoff distance
+        spikeFeatures;  % features to cluster
+    end
 
-        spikeFeatures;
+    properties (Access=private, Transient)
+        rhoCK;          % CUDA kernel for rho computation
+        deltaCK;        % CUDA kernel for delta computation
 
         hCfg;           % Config object
         errMsg;         % error message, if any
@@ -25,7 +25,6 @@ classdef SortController < handle
 
             % set default clustering params
             obj.chunkSize = 16;
-            obj.fTwoStep = false;
             obj.nC_max = 45;
             obj.nSubsample = 1000;
 
@@ -455,7 +454,7 @@ classdef SortController < handle
                     res.spikeClusters(res.spikeClusters <= 0) = 1; %background
                 end
 
-                obj.hCfg.minClusterSize = max(obj.hCfg.minClusterSize, 2*size(dRes.spikeFeatures, 1));
+                obj.hCfg.minClusterSize = max(obj.hCfg.minClusterSize, 2*size(obj.spikeFeatures, 1));
                 % http://scikit-learn.org/stable/modules/lda_qda.html
 
                 % count spikes in clusters
@@ -481,7 +480,7 @@ classdef SortController < handle
                 end
             end
 
-            res.hClust = jrclust.models.Clustering(res.spikeClusters);
+            res.hClust = jrclust.models.Clustering(res.spikeClusters, obj.spikeFeatures, dRes.spikeSites);
 
             if obj.hCfg.verbose
                 fprintf('\n\ttook %0.1fs. Removed %d clusters having <%d spikes: %d->%d\n', toc(t), removedClusters, obj.hCfg.minClusterSize, nClustersPrev, res.hClust.nClusters);
@@ -491,7 +490,7 @@ classdef SortController < handle
 %         function res = S_clu_reclust_(obj, dRes, res, S0)
 %             vcMode_divide = 'amp'; % {'amp', 'density', 'fet'}
 % 
-%             trFet_spk0 = dRes.spikeFeatures;
+%             trFet_spk0 = obj.spikeFeatures;
 %             nSites_fet = obj.hCfg.maxSite*2+1-obj.hCfg.nSites_ref;
 %             nFetPerSite = size(trFet_spk,1) / nSites_fet;
 % 

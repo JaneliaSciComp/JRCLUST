@@ -50,7 +50,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
     end
     if S_fig.fFilter
         vcFilter = S_fig.vcFilter;
-        mrWav_ = bit2uV_(S_fig.mnWav_filt(viPlot,:), struct_add_(P, vcFilter));
+        mrWav_ = jrclust.utils.bit2uV(S_fig.mnWav_filt(viPlot,:), struct_add_(P, vcFilter));
     else
         mrWav_ = jrclust.utils.meanSubtract(single(S_fig.mnWav_clean(viPlot,:)) * P.uV_per_bit);
     end
@@ -75,7 +75,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
         multiplot(S_fig.hPlot_traces_spk1, S_fig.maxAmp, vrTime_spk_, mr2vr_sub2ind_(mrWav_, viTime_spk_, viSite_spk_), viSite_spk_, 1);
         menu_label_('menu_preview_view_spike', 'Hide [S]pikes');
     end
-    vrThresh_site_uV = bit2uV_(-S_fig.vnThresh_site(:), setfield(P, 'vcFilter', S_fig.vcFilter));
+    vrThresh_site_uV = jrclust.utils.bit2uV(-S_fig.vnThresh_site(:), setfield(P, 'vcFilter', S_fig.vcFilter));
     vrThresh_site_uV(S_fig.viSite_bad) = nan;
     if S_fig.fThresh_spk && S_fig.fFilter
         multiplot(S_fig.hPlot_traces_thresh, S_fig.maxAmp, vrTime_sec([1,end,end])', repmat(vrThresh_site_uV, [1,3])');

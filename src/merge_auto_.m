@@ -17,8 +17,11 @@ function merge_auto_(S0)
     % Auto delete
     figure_wait_(1); drawnow;
     nClu_prev = S_clu.nClu;
-    S_clu = post_merge_wav_(S_clu, P.nRepeat_merge, setfield(P, 'maxWavCor', maxWavCor));
-    % [S_clu, S0] = S_clu_commit_(S_clu, 'post_merge_');
+    spikeData = struct('spikeTimes', S0.viTime_spk, ...
+                       'spikeSites', S0.viSite_spk, ...
+                       'spikeSites2', S0.viSite2_spk, ...
+                       'spikePositions', S0.mrPos_spk);
+    S_clu = post_merge_wav_(S_clu, spikeData, setfield(P, 'maxWavCor', maxWavCor));
     S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, S_clu_self_corr_(S_clu, [], S0));
     set0_(S_clu);
     S0 = gui_update_();

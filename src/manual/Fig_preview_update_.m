@@ -46,7 +46,7 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     if ~strcmpi(S_fig.vcCommonRef, 'none')
         mnWav_filt = bsxfun(@minus, mnWav_filt, int16(vrWav_filt_mean));
     end
-    S_fig.vrWav_filt_mean = madscore_(mean(vrWav_filt_mean, 2)); % Save in MAD unit
+    S_fig.vrWav_filt_mean = jrclust.utils.madScore(mean(vrWav_filt_mean, 2)); % Save in MAD unit
     S_fig.mnWav_filt = mnWav_filt;
     % reference threshold. determine
     % vrWav_filt_mean = mean(mnWav_filt, 2) * P.uV_per_bit; % @TODO: save in MAD unit

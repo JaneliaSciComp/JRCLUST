@@ -31,7 +31,7 @@ function S_clu = S_clu_quality_(S_clu, P, viClu_update)
     try
         S0 = get(0, 'UserData');
         if isempty(S0), S0 = load0_(subsFileExt_(P.vcFile_prm, '_jrc.mat')); end
-        vrVrms_site = bit2uV_(single(S0.vrThresh_site(:)) / S0.P.qqFactor, P);
+        vrVrms_site = jrclust.utils.bit2uV(single(S0.vrThresh_site(:)) / S0.P.qqFactor, P);
         %     vrSnr_clu = vrVpp_clu ./ vrVrms_site(viSite_clu);
         vrSnr_clu = abs(vrVmin_clu) ./ vrVrms_site(S_clu.viSite_clu);
         vnSite_clu = sum(bsxfun(@lt, mrVmin_clu, -vrVrms_site * S0.P.qqFactor),1)';

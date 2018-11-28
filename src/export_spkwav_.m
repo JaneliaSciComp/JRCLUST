@@ -34,8 +34,6 @@ function export_spkwav_(P, vcArg2, fDiff)
         else
             ctrWav_clu{iClu} = tnWav2uV_(tnWav_clu1, P);
         end
-        %     ctrWav_clu{iClu} = (cumsum(bit2uV_(jrclust.utils.meanSubtract(tnWav_clu1))));
-        %     ctrWav_clu{iClu} = (bit2uV_(jrclust.utils.meanSubtract(tnWav_clu1)));
         fprintf('.');
     end
     fprintf('\n\ttook %0.1fs\n', toc(t1));

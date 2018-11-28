@@ -21,6 +21,7 @@ classdef Config < handle & dynamicprops
         % maxSite_show;             % appears to be synonymous with nSiteDir/maxSite
         % maxSite_sort;             % doesn't appear to be used (was [])
         % rejectSpk_mean_thresh;    % appears to be synonymous with blankThresh/blank_thresh
+        autoMergeCriterion;         % => autoMergeBy
         blank_thresh;               % => blankThresh
         csFile_merge;               % => multiRaw
         delta1_cut;                 % => log10DeltaCut
@@ -41,6 +42,7 @@ classdef Config < handle & dynamicprops
         mrSiteXY;                   % => siteLoc
         nLoads_gpu;                 % => ramToGPUFactor
         nPad_filt;                  % => nSamplesPad
+        nRepeat_merge;              % => nPassesMerge
         nSites_ref;                 % => nSitesExcl
         nSkip_lfp;                  % => lfpDsFactor
         probe_file;                 % => probeFile
@@ -57,6 +59,7 @@ classdef Config < handle & dynamicprops
         sRateHz;                    % => sampleRate
         sRateHz_lfp;                % => lfpSampleRate
         thresh_corr_bad_site;       % => siteCorrThresh
+        thresh_mad_clu;             % => outlierThresh
         tlim;                       % => dispTimeLimits
         tlim_load;                  % => loadTimeLimits
         uV_per_bit;                 % => bitScaling
@@ -153,14 +156,20 @@ classdef Config < handle & dynamicprops
         time_feature_factor;        % undocumented
 
         % clustering params
+        autoMergeBy = 'xcorr';      % metric to use when automerging clusters
         dc_percent = 2;             % percentile at which to cut off distance in rho computation
-        repeatLower = false;        % repeat clustering for the bottom half of the cluster amplitudes if true
+        fDrift_merge = true;        % compute multiple waveforms at three drift locations based on the spike position if true
         log10DeltaCut = 0.6;        % the base-10 log of the delta cutoff value
         log10RhoCut = -2.5;         % the base-10 log of the rho cutoff value
         maxClustersSite = 20;       % maximum number of clusters per site if local detrending is used
         minClusterSize = 30;        % minimum cluster size (set to 2*#features if lower)
+        nInterp_merge = 1;          % Interpolation factor for the mean unit waveforms, set to 1 to disable
+        nPassesMerge = 10;          % number of passes for unit mean raw waveform-based merging
+        outlierThresh = 7.5;        % threshold to remove outlier spikes for each cluster, in MAD
         nTime_clu = 1;              % number of time periods over which to cluster separately (later to be merged after clustering)
+        repeatLower = false;        % repeat clustering for the bottom half of the cluster amplitudes if true
         rlDetrendMode = 'global';   % 
+        spkLim_factor_merge = 1;    % Waveform range for computing the correlation. spkLim_factor_merge <= spkLim_raw_factor_merge. circa v3.1.8
 
         % display params
         dispFilter = '';
@@ -170,7 +179,6 @@ classdef Config < handle & dynamicprops
         LineStyle = '';
         MAX_LOG = 5;
         S_imec3 = [];
-        autoMergeCriterion = 'xcorr';
         blank_period_ms = 5;
         corrLim = [0.9 1];
         cviShank = [];
@@ -184,7 +192,6 @@ classdef Config < handle & dynamicprops
         fCheckSites = false;
         fDetectBipolar = false;
         fDiscard_count = true;
-        fDrift_merge = true;
         fGroup_shank = false;
         fInverse_file = false;
         fLoad_lfp = false;
@@ -241,12 +248,10 @@ classdef Config < handle & dynamicprops
         nBytes_file = [];
         nChans = 120;
         nClu_show_aux = 10;
-        nInterp_merge = 1;
         nLoads_max_preview = 30;
         nMinAmp_ms = 0;
         nPcPerChan = 1;
         nPc_dip = 3;
-        nRepeat_merge = 10;
         nShow = 200;
         nShow_proj = 500;
         nSites_excl_ref = 6;
@@ -270,7 +275,6 @@ classdef Config < handle & dynamicprops
         sRateHz_rate = 1000;
         sec_per_load_preview = 1;
         slopeLim_ms = [0.05 0.35];
-        spkLim_factor_merge = 1;
         spkLim_ms_fet = [-0.25 0.75];
         spkThresh_max_uV = [];
         tBin_track = 9;
@@ -280,7 +284,6 @@ classdef Config < handle & dynamicprops
         template_file = '';
         thresh_automerge_pca = [];
         thresh_corr_track = [];
-        thresh_mad_clu = 7.5;
         thresh_merge_clu = 0;
         thresh_sd_ref = 5;
         thresh_split_clu = 0;
@@ -581,6 +584,22 @@ classdef Config < handle & dynamicprops
 
     %% GETTERS/SETTERS
     methods
+        % autoMergeBy/autoMergeCriterion
+        function set.autoMergeBy(obj, am)
+            legalTypes = {'xcorr', 'dist'};
+            failMsg = sprintf('legal autoMergeBys are %s', strjoin(legalTypes, ', '));
+            assert(sum(strcmp(am, legalTypes)) == 1, failMsg);
+            obj.autoMergeBy = am;
+        end
+        function am = get.autoMergeCriterion(obj)
+            obj.logOldP('autoMergeCriterion');
+            am = obj.autoMergeBy;
+        end
+        function set.autoMergeCriterion(obj, am)
+            obj.logOldP('autoMergeCriterion');
+            obj.autoMergeBy = am;
+        end
+
         % auxSites/viChan_aux
         function set.auxSites(obj, ac)
             assert(jrclust.utils.ismatrixnum(ac) && all(ac > 0), 'malformed auxSites');
@@ -631,7 +650,8 @@ classdef Config < handle & dynamicprops
         % carMode/vcCommonRef
         function set.carMode(obj, cm)
             legalTypes = {'mean', 'median', 'whiten', 'none'};
-            assert(sum(strcmp(cm, legalTypes)) == 1, 'legal carModes are %s', strjoin(legalTypes, ', '));
+            failMsg = sprintf('legal carModes are %s', strjoin(legalTypes, ', '));
+            assert(sum(strcmp(cm, legalTypes)) == 1, failMsg);
             obj.carMode = cm;
         end
         function cm = get.vcCommonRef(obj)
@@ -1127,6 +1147,21 @@ classdef Config < handle & dynamicprops
             obj.nFet_use = nf;
         end
 
+        % nPassesMerge/nRepeat_merge
+        function set.nPassesMerge(obj, np)
+            failMsg = 'nPassesMerge must be a nonnegative integer';
+            assert(jrclust.utils.isscalarnum(np) && np == round(np) && np >= 0, failMsg);
+            obj.nPassesMerge = np;
+        end
+        function np = get.nRepeat_merge(obj)
+            obj.logOldP('nRepeat_merge');
+            np = obj.nPassesMerge;
+        end
+        function set.nRepeat_merge(obj, np)
+            obj.logOldP('nRepeat_merge');
+            obj.nPassesMerge = np;
+        end
+
         % nSamplesPad/nPad_filt
         function set.nSamplesPad(obj, ns)
             assert(jrclust.utils.isscalarnum(ns) && ns >= 0, 'nSamplesPad must be a nonnegative scalar');
@@ -1167,6 +1202,21 @@ classdef Config < handle & dynamicprops
         function set.nSites_ref(obj, ns)
             obj.logOldP('nSites_ref');
             obj.nSitesExcl = ns;
+        end
+
+        % outlierThresh/thresh_mad_clu
+        function set.outlierThresh(obj, ot)
+            failMsg = 'outlierThresh must be a nonnegative number';
+            assert(jrclust.utils.isscalarnum(ot) && ot >= 0, failMsg);
+            obj.outlierThresh = ot;
+        end
+        function ot = get.thresh_mad_clu(obj)
+            obj.logOldP('thresh_mad_clu');
+            ot = obj.outlierThresh;
+        end
+        function set.thresh_mad_clu(obj, ot)
+            obj.logOldP('thresh_mad_clu');
+            obj.outlierThresh = ot;
         end
 
         % outputDir

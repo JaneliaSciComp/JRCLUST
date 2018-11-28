@@ -14,7 +14,8 @@ function S_clu = S_clu_update_(S_clu, viClu1, P)
     end
 
     % update mean waveform
-    S_clu = S_clu_wav_(S_clu, viClu1);
+    % S_clu = S_clu_wav_(S_clu, viClu1);
+    S_clu.computeMeanWaveforms(S_clu, P, viClu1);
     % [~, S_clu.viSite_clu(iClu1)] = min(S_clu.tmrWav_clu(1-P.spkLim(1),:,iClu1));
     % S_clu.viSite_clu(iClu1) = mode(viSite_spk(viSpk_clu1));
     vrSelfCorr_clu = get_diag_(S_clu.mrWavCor);

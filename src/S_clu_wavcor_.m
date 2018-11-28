@@ -1,94 +1,97 @@
-%--------------------------------------------------------------------------
-% 2017/12/5 JJJ: distance-based neighboring unit selection
-function mrWavCor = S_clu_wavcor_(S_clu, P, viClu_update)
-    % version selector
-    fUse_old = 1;
-
-    spkLim_raw_factor = get_set_(P, 'spkLim_raw_factor', 2);
-    spkLim_factor_merge = get_set_(P, 'spkLim_factor_merge', 1);
-    if nargin<3, viClu_update = []; end
-
-    if spkLim_factor_merge < spkLim_raw_factor && ~fUse_old
-        mrWavCor = S_clu_wavcor_2_(S_clu, P, viClu_update); % newer format v3.1.8
-    else
-        mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update); % older format
+function mrWavCor = S_clu_wavcor_(hClust, hCfg, updateMe)
+    if nargin < 3
+        updateMe = [];
     end
-end %func
 
-%% local functions
-%--------------------------------------------------------------------------
-% 6/29/17 JJJ: distance-based neighboring unit selection
-function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
+    fUse_old = true; % TODO: investigate S_clu_wavcor_2_
+    if hCfg.spkLim_factor_merge < hCfg.evtWindowRawFactor && ~fUse_old
+        mrWavCor = S_clu_wavcor_2_(hClust, hCfg, updateMe); % newer format v3.1.8
+    else
+        mrWavCor = S_clu_wavcor_1_(hClust, hCfg, updateMe); % older format
+    end
+end
+
+%% LOCAL FUNCTIONS
+function mrWavCor = S_clu_wavcor_1_(hClust, hCfg, updateMe)
     % symmetric matrix and common basis comparison only
+    if nargin < 3 || isempty(hClust.mrWavCor)
+        updateMe = [];
+    end
 
-    fUsePeak2 = 0;
-    nInterp_merge = get_set_(P, 'nInterp_merge', 1); % set to 1 to disable
-    fDrift_merge = get_set_(P, 'fDrift_merge', 0);
-    P.fGpu = 0;
-    nShift = ceil(P.spkRefrac_ms / 1000 * P.sRateHz * nInterp_merge); % +/-n number of samples to compare time shift
-    % nShift = 0;
-    fWaveform_raw = get_set_(P, 'fWavRaw_merge', 1); % revert TW: get_set_(P, 'fWavRaw_merge', 0);
+    hCfg.useGPU = false;
 
-    fZeroStart_raw = get_set_(P, 'fZeroStart_raw', 0);
-    fRankCorr_merge = get_set_(P, 'fRankCorr_merge', 0);
-    fMode_cor = 1; %0: pearson, 1:no mean subt pearson
+    % +/-n number of samples to compare time shift
+    nShift = ceil(hCfg.sampleRate*hCfg.nInterp_merge*hCfg.refracIntms/1000);
 
-    if nargin<3, viClu_update = []; end
-    if ~isfield(S_clu, 'mrWavCor'), viClu_update = []; end
-    fprintf('Computing waveform correlation...'); t1 = tic;
+    % not in default param set, but can be overridden if you really want
+    fUsePeak2 = hCfg.getOr('fUsePeak2', false);
+    fWaveform_raw = hCfg.getOr('fWavRaw_merge', true); % revert TW: get_set_(P, 'fWavRaw_merge', 0);
+    fZeroStart_raw = hCfg.getOr('fZeroStart_raw', false);
+    fRankCorr_merge = hCfg.getOr('fRankCorr_merge', false);
+    fMode_cor = hCfg.getOr('fMode_cor', 1); % 0: pearson, 1: no mean subt pearson
+
+    if hCfg.verbose
+        fprintf('Computing waveform correlation...');
+        t1 = tic;
+    end
+
     if fWaveform_raw
-        tmrWav_clu = trim_spkraw_(S_clu.tmrWav_raw_clu, P);
+        meanWfGlobal = trim_spkraw_(hClust.meanWfGlobalRaw, hCfg);
     else
-        tmrWav_clu = S_clu.tmrWav_spk_clu;
+        meanWfGlobal = hClust.meanWfGlobal;
     end
-    % tmrWav_clu = ifeq_(fWaveform_raw, S_clu.tmrWav_raw_clu, S_clu.tmrWav_spk_clu);
-    % tmrWav_clu = jrclust.utils.tryGpuArray(tmrWav_clu, P.fGpu);
-    if fDrift_merge && fWaveform_raw % only works on raw
-        tmrWav_lo_clu = trim_spkraw_(S_clu.tmrWav_raw_lo_clu, P);
-        tmrWav_hi_clu = trim_spkraw_(S_clu.tmrWav_raw_hi_clu, P);
-        ctmrWav_clu = {tmrWav_clu, tmrWav_lo_clu, tmrWav_hi_clu};
+
+    if hCfg.fDrift_merge && fWaveform_raw % only works on raw
+        meanWfRawLow = trim_spkraw_(hClust.meanWfRawLow, hCfg);
+        meanWfRawHigh = trim_spkraw_(hClust.meanWfRawHigh, hCfg);
+        meanWfSet = {meanWfGlobal, meanWfRawLow, meanWfRawHigh};
     else
-        ctmrWav_clu = {tmrWav_clu};
+        meanWfSet = {meanWfGlobal};
     end
+
     if fZeroStart_raw
-        ctmrWav_clu = cellfun(@(x)zero_start_(x), ctmrWav_clu, 'UniformOutput', 0);
+        meanWfSet = cellfun(@(x) zeroStart(x), meanWfSet, 'UniformOutput', 0);
     end
+
     if fRankCorr_merge
-        ctmrWav_clu = cellfun(@(x)rankorder_mr_(x,0), ctmrWav_clu, 'UniformOutput', 0);
+        meanWfSet = cellfun(@(x) rankorder_mr_(x), meanWfSet, 'UniformOutput', 0);
     end
-    if nInterp_merge>1
-        ctmrWav_clu = cellfun(@(x)interpft_(x, nInterp_merge), ctmrWav_clu, 'UniformOutput', 0);
+
+    if hCfg.nInterp_merge > 1
+        meanWfSet = cellfun(@(x) interpft_(x, hCfg.nInterp_merge), meanWfSet, 'UniformOutput', 0);
     end
-    nClu = S_clu.nClu;
+
     if fUsePeak2
-        [viSite_clu, viSite2_clu, viSite3_clu] = S_clu_peak2_(S_clu);
-        cviSite_clu = {viSite_clu, viSite2_clu, viSite3_clu};
+        [peaks1, peaks2, peaks3] = getSecondaryPeaks(hClust);
+        clusterSites = {peaks1, peaks2, peaks3};
     else
-        viSite_clu = S_clu.viSite_clu;
-        cviSite_clu = {viSite_clu};
+        peaks1 = hClust.clusterSites;
+        clusterSites = {peaks1};
     end
-    mrWavCor = jrclust.utils.tryGpuArray(zeros(nClu), P.fGpu);
-    nSites_spk = P.maxSite*2+1-P.nSites_ref;
-    nT = size(tmrWav_clu, 1);
-    [cviShift1, cviShift2] = jrclust.utils.shiftRange(jrclust.utils.tryGpuArray(int32(nT), P.fGpu), nShift);
-    % viLags = 1:numel(cviShift1);
-    if isempty(viClu_update)
-        vlClu_update = true(nClu, 1);
+
+    mrWavCor = jrclust.utils.tryGpuArray(zeros(hClust.nClusters), hCfg.useGPU);
+
+    nT = size(meanWfGlobal, 1);
+    [cviShift1, cviShift2] = jrclust.utils.shiftRange(jrclust.utils.tryGpuArray(int32(nT), hCfg.useGPU), nShift);
+
+    if isempty(updateMe)
+        vlClu_update = true(hClust.nClusters, 1);
         mrWavCor0 = [];
         fParfor = 1;
     else
         fParfor = 0;
-        vlClu_update = false(nClu, 1);
-        vlClu_update(viClu_update) = 1;
-        mrWavCor0 = S_clu.mrWavCor;
+        vlClu_update = false(hClust.nClusters, 1);
+        vlClu_update(updateMe) = 1;
+        mrWavCor0 = hClust.mrWavCor;
         nClu_pre = size(mrWavCor0, 1);
-        vlClu_update((1:nClu) > nClu_pre) = 1;
+        vlClu_update((1:hClust.nClusters) > nClu_pre) = 1;
     end
     cell_5args = {vlClu_update, cviShift1, cviShift2, mrWavCor0, fMode_cor};
+
     if fParfor
         try
-            parfor iClu2 = 1:nClu %parfor speedup: 4x
-                vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2);
+            parfor iClu2 = 1:hClust.nClusters %parfor speedup: 4x
+                vrWavCor2 = clu_wavcor_(meanWfSet, clusterSites, hCfg, cell_5args, iClu2);
                 if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
             end
         catch
@@ -96,9 +99,10 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
             fParfor = 0;
         end
     end
+
     if ~fParfor
-        for iClu2 = 1:nClu %parfor speedup: 4x
-            vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2);
+        for iClu2 = 1:hClust.nClusters %parfor speedup: 4x
+            vrWavCor2 = clu_wavcor_(meanWfSet, clusterSites, hCfg, cell_5args, iClu2);
             if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
         end
     end
@@ -106,7 +110,10 @@ function mrWavCor = S_clu_wavcor_1_(S_clu, P, viClu_update)
     mrWavCor = max(mrWavCor, mrWavCor'); %make it symmetric
     mrWavCor(mrWavCor==0) = nan;
     mrWavCor = jrclust.utils.tryGather(mrWavCor);
-    fprintf('\ttook %0.1fs\n', toc(t1));
+
+    if hCfg.verbose
+        fprintf('\ttook %0.1fs\n', toc(t1));
+    end
 end %func
 
 %--------------------------------------------------------------------------
@@ -121,7 +128,7 @@ function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2)
         [viSite_clu, viSite2_clu, viSite3_clu] = deal(cviSite_clu{:});
         fUsePeak2 = 1;
     end
-    nClu = numel(viSite_clu);
+    nClusters = numel(viSite_clu);
     iSite_clu2 = viSite_clu(iClu2);
     if iSite_clu2==0 || isnan(iSite_clu2), vrWavCor2 = []; return; end
     viSite2 = P.miSites(:,iSite_clu2);
@@ -135,7 +142,7 @@ function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2)
         viClu1 = find(ismember(viSite_clu, findNearSite_(P.mrSiteXY, iSite_clu2, maxDist_site_um)));
     end
 
-    vrWavCor2 = zeros(nClu, 1, 'single');
+    vrWavCor2 = zeros(nClusters, 1, 'single');
     viClu1(viClu1 >= iClu2) = []; % symmetric matrix comparison
     if isempty(viClu1), return; end
     cmrWav_clu2 = cellfun(@(x)x(:,viSite2,iClu2), ctmrWav_clu, 'UniformOutput', 0);
@@ -249,28 +256,28 @@ function mrWavCor = S_clu_wavcor_2_(S_clu, P, viClu_update) % works for only the
     fprintf('Computing waveform correlation...'); t1 = tic;
     ctmrWav_clu = {S_clu.tmrWav_raw_clu, S_clu.tmrWav_raw_lo_clu, S_clu.tmrWav_raw_hi_clu};
 
-    nClu = S_clu.nClu;
-    mrWavCor = jrclust.utils.tryGpuArray(zeros(nClu), P.fGpu);
+    nClusters = S_clu.nClusters;
+    mrWavCor = jrclust.utils.tryGpuArray(zeros(nClusters), P.fGpu);
     if isempty(viClu_update)
-        vlClu_update = true(nClu, 1);
+        vlClu_update = true(nClusters, 1);
         mrWavCor0 = [];
     else
-        vlClu_update = false(nClu, 1);
+        vlClu_update = false(nClusters, 1);
         vlClu_update(viClu_update) = 1;
         mrWavCor0 = S_clu.mrWavCor;
         nClu_pre = size(mrWavCor0, 1);
-        vlClu_update((1:nClu) > nClu_pre) = 1;
+        vlClu_update((1:nClusters) > nClu_pre) = 1;
     end
     [cviShift1, cviShift2] = calc_shift_range_(P);
     cell_5args = {P, vlClu_update, mrWavCor0, cviShift1, cviShift2};
     try
-        parfor iClu2 = 1:nClu %parfor speedup: 4x
+        parfor iClu2 = 1:nClusters %parfor speedup: 4x
             vrWavCor2 = clu_wavcor_2_(ctmrWav_clu, S_clu.viSite_clu, iClu2, cell_5args);
             if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
         end
     catch
         fprintf('S_clu_wavcor_: parfor failed. retrying for loop\n');
-        for iClu2 = 1:nClu %parfor speedup: 4x
+        for iClu2 = 1:nClusters %parfor speedup: 4x
             vrWavCor2 = clu_wavcor_2_(ctmrWav_clu, S_clu.viSite_clu, iClu2, cell_5args);
             if ~isempty(vrWavCor2), mrWavCor(:, iClu2) = vrWavCor2; end
         end
@@ -286,14 +293,14 @@ end %func
 % 10/27/17 JJJ: distance-based neighboring unit selection
 function vrWavCor2 = clu_wavcor_2_(ctmrWav_clu, viSite_clu, iClu2, cell_5args)
     [P, vlClu_update, mrWavCor0, cviShift1, cviShift2] = deal(cell_5args{:});
-    nClu = numel(viSite_clu);
+    nClusters = numel(viSite_clu);
     iSite_clu2 = viSite_clu(iClu2);
     if iSite_clu2==0 || isnan(iSite_clu2), vrWavCor2 = []; return; end
     viSite2 = P.miSites(:,iSite_clu2);
     maxDist_site_um = get_set_(P, 'maxDist_site_merge_um', 35);
     viClu1 = find(ismember(viSite_clu, findNearSite_(P.mrSiteXY, iSite_clu2, maxDist_site_um)));
 
-    vrWavCor2 = zeros(nClu, 1, 'single');
+    vrWavCor2 = zeros(nClusters, 1, 'single');
     viClu1(viClu1 >= iClu2) = []; % symmetric matrix comparison
     if isempty(viClu1), return; end
     cmrWav_clu2 = cellfun(@(x)x(:,viSite2,iClu2), ctmrWav_clu, 'UniformOutput', 0);
@@ -341,4 +348,75 @@ function maxCor = maxCor_drift_2_(cmr1, cmr2, cviShift1, cviShift2)
         end
         maxCor = max(vrCor);
     end
+end
+
+function meanWf = trim_spkraw_(meanWf, hCfg)
+    nSamples_raw = diff(hCfg.evtWindowRawSamp) + 1;
+    spkLim_merge = round(hCfg.evtWindowSamp * hCfg.spkLim_factor_merge);
+    nSamples_raw_merge = diff(spkLim_merge) + 1;
+
+    if size(meanWf, 1) <= nSamples_raw_merge
+        return;
+    end
+
+    lim_merge = [spkLim_merge(1) - hCfg.evtWindowRawSamp(1) + 1,  nSamples_raw - (hCfg.evtWindowRawSamp(2) - spkLim_merge(2))];
+    meanWf = meanWf(lim_merge(1):lim_merge(2), :, :);
+    meanWf = jrclust.utils.meanSubtract(meanWf);
+end
+
+function meanWf = zeroStart(meanWf)
+    %ZEROSTART subtract the first row from all rows
+    shape = size(meanWf);
+    if numel(shape) ~= 2
+        meanWf = reshape(meanWf, shape(1), []);
+    end
+
+    meanWf = bsxfun(@minus, meanWf, meanWf(1, :));
+    if numel(shape) ~= 2
+        meanWf = reshape(meanWf, shape);
+    end
+end
+
+function mi = rankorder_mr_(meanWf)
+    if isrow(meanWf)
+        meanWf = meanWf';
+    end
+
+    shape = size(meanWf);
+    if numel(shape) == 3
+        meanWf = meanWf(:); % global order
+    end
+
+    mi = zeros(size(meanWf));
+    for iCol = 1:size(meanWf, 2)
+        col = meanWf(:, iCol);
+        pos = find(col > 0);
+
+        if ~isempty(pos)
+            [~, argsort] = sort(col(pos), 'ascend');
+            mi(pos(argsort), iCol) = 1:numel(pos);
+        end
+
+        neg = find(col < 0);
+        if ~isempty(neg)
+            [~, argsort] = sort(col(neg), 'descend');
+            mi(neg(argsort), iCol) = -(1:numel(neg));
+        end
+    end
+
+    if numel(shape) == 3
+        mi = reshape(mi, shape);
+    end
+end
+
+function [viSite, viSite2, viSite3] = getSecondaryPeaks(hClust)
+    mrMin_clu = squeeze_(min(hClust.tmrWav_spk_clu) - hClust.tmrWav_spk_clu(1,:,:));
+
+    [~, viSite] = min(mrMin_clu);
+
+    mrMin_clu(sub2ind(size(mrMin_clu), viSite, 1:numel(viSite))) = 0;
+    [~, viSite2] = min(mrMin_clu);
+
+    mrMin_clu(sub2ind(size(mrMin_clu), viSite2, 1:numel(viSite2))) = 0;
+    [~, viSite3] = min(mrMin_clu);
 end

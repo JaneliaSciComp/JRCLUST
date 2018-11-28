@@ -13,7 +13,12 @@ function auto_(P)
         fprintf(2, 'You must sort first by running "jrc sort".\n');
         return;
     end
-    [S_clu, S0] = post_merge_(S_clu, P);
+
+    spikeData = struct('spikeTimes', S0.viTime_spk, ...
+                       'spikeSites', S0.viSite_spk, ...
+                       'spikeSites2', S0.viSite2_spk, ...
+                       'spikePositions', S0.mrPos_spk);
+    [S_clu, S0] = jrclust.clustering.autoMerge(S_clu, spikeData, P);
     S0 = clear_log_(S0);
     save0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
 end %func

@@ -9,7 +9,8 @@ function raw_waveform_(hMenu)
     end
 
     if isempty(get_(S_clu, 'tmrWav_raw_clu'))
-        S_clu = S_clu_wav_(S_clu);
+        % S_clu = S_clu_wav_(S_clu);
+        S_clu.computeMeanWaveforms(P);
         S0 = set0_(P, S_clu);
     else
         S0 = set0_(P);
