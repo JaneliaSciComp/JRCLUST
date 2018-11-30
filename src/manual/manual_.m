@@ -39,7 +39,7 @@ function manual_(P, vcMode)
 
                 case 'yes'
                     S0 = set0_(P); %update the P structure
-                    S0.S_clu = S_clu_update_wav_(S0.S_clu, P);
+                    S0.S_clu.updateWaveforms(P);
             end
         else
             S_clu = S0.S_clu;

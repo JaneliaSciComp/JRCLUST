@@ -66,7 +66,7 @@ classdef DetectController < handle
                     siteThresh_ = S.siteThresh;
                     fprintf('Loaded %s\n', obj.hCfg.threshFile);
                 catch ME
-                    warning('Could not load threshFile %s', obj.hCfg.threshFile);
+                    warning('Could not load threshFile %s: %s', obj.hCfg.threshFile, ME.message);
                     siteThresh_ = [];
                 end
             else
@@ -408,7 +408,7 @@ classdef DetectController < handle
                 fprintf('.');
 
                 spFeatures = permute(features1, [1, 3, 2]); % nSites x nFeatures x nSpikes
-                miSites = spSites_(:);
+                centerSites_ = spSites_(:);
             elseif obj.hCfg.nFet_use == 2
                 features1 = jrclust.features.computeFeatures(spFilt, obj.hCfg);
                 fprintf('.');
@@ -417,7 +417,7 @@ classdef DetectController < handle
                 fprintf('.');
 
                 spFeatures = permute(cat(3, features1, features2), [1, 3, 2]); % nSites x nFeatures x nSpikes
-                miSites = [spSites_(:), spSites2_(:)]; % nSpikes x nFeatures
+                centerSites_ = [spSites_(:), spSites2_(:)]; % nSpikes x nFeatures
             else % obj.hCfg.nFet_use == 3
                 features1 = jrclust.features.computeFeatures(spFilt, obj.hCfg);
                 fprintf('.');
@@ -429,7 +429,7 @@ classdef DetectController < handle
                 fprintf('.');
 
                 spFeatures = permute(cat(3, features1, features2, features3), [1, 3, 2]); % nSites x nFeatures x nSpikes
-                miSites = [spSites_(:), spSites2_(:), spSites3_(:)]; % nSpikes x nFeatures
+                centerSites_ = [spSites_(:), spSites2_(:), spSites3_(:)]; % nSpikes x nFeatures
             end
 
             if nPadPre > 0
@@ -439,7 +439,7 @@ classdef DetectController < handle
             obj.spikeTimes{end} = jrclust.utils.tryGather(spTimes);
             obj.spikesFilt{end+1} = jrclust.utils.tryGather(spFilt);
             obj.spikeFeatures{end+1} = jrclust.utils.tryGather(spFeatures);
-            obj.centerSites{end+1} = jrclust.utils.tryGather(miSites);
+            obj.centerSites{end+1} = jrclust.utils.tryGather(centerSites_);
             fprintf('done (%0.2f s)\n', toc(tf));
         end
 

@@ -104,7 +104,7 @@ min_sites_mask = 5;         % Minimum number of sites to have to apply spatial m
 % #Post-cluster auto-merging parameters (run "jrc auto" after change)
 delta1_cut = .6;            % RL cluster: delta cut-off. Increasing this will produce less clusters.
 rho_cut = -2.5;             % RL cluster: rho cut-off. Decreasing (more negative) this will produce more clusters.
-maxWavCor = .98;            % merge if waveform autoMergeCriterion is greater than maxWavCor.
+maxWavCor = .98;            % merge if waveform autoMergeCriterion is less than maxWavCor.
 autoMergeCriterion = 'xcorr'; % 'xcorr' (Pearson correlation coefficient), 'dist' (1 - normalized distance between mean waveforms)
 min_count = 30;             % Minimum cluster size (min_count will be set to 2*#features if lower).
 nRepeat_merge = 10;         % # of repeats for average unit raw waveform based merging

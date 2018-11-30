@@ -21,8 +21,9 @@ function merge_auto_(S0)
                        'spikeSites', S0.viSite_spk, ...
                        'spikeSites2', S0.viSite2_spk, ...
                        'spikePositions', S0.mrPos_spk);
-    S_clu = post_merge_wav_(S_clu, spikeData, setfield(P, 'maxWavCor', maxWavCor));
-    S_clu.mrWavCor = set_diag_(S_clu.mrWavCor, S_clu_self_corr_(S_clu, [], S0));
+    
+    S_clu.doWaveformMerge(maxWavCor);
+    S_clu.mrWavCor = jrclust.utils.setDiag(S_clu.mrWavCor, S_clu.computeSelfSim());
     set0_(S_clu);
     S0 = gui_update_();
     figure_wait_(0);

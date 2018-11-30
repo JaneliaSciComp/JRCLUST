@@ -190,7 +190,7 @@ function import_ksort_(vcFile_prm)
 
     S_clu = S_clu_refresh_(S_clu, 0); % don't remove empty
     S_clu = S_clu_sort_(S_clu, 'viSite_clu');
-    S_clu = S_clu_update_wav_(S_clu);
+    S_clu.updateWaveforms(P);
     S_clu.P = P;
     S_clu = S_clu_position_(S_clu);
     S_clu = S_clu_update_(S_clu, 1:nClu, P);

@@ -16,6 +16,7 @@ classdef JRC < handle & dynamicprops
         hCfg;           %
         hDet;           %
         hSort;          %
+        hClust;         % clustering handle
         hCurate;        %
     end
 
@@ -287,7 +288,7 @@ classdef JRC < handle & dynamicprops
                 end
 
                 obj.hSort = jrclust.controllers.SortController(obj.hCfg);
-                obj.sRes = obj.hSort.sort(obj.dRes);
+                [obj.sRes, obj.hClust] = obj.hSort.sort(obj.dRes);
 
                 if obj.hSort.isError
                     error(obj.hSort.errMsg);

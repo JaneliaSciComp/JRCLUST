@@ -11,7 +11,7 @@ function S_clu = fet2clu_(S0, P)
                     'spikeSites', S0.viSite_spk, ...
                     'spikeSites2', S0.viSite2_spk, ...
                     'spikePositions', S0.mrPos_spk);
-    S_clu = jrclust.clustering.autoMerge(S_clu, spikeData, P, 0);
+    S_clu.autoMerge();
 
     S_clu.viClu_auto = S_clu.viClu;
     fprintf('\tClustering took %0.1f s\n', S_clu.t_runtime);

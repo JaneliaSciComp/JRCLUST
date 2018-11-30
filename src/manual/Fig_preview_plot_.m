@@ -72,7 +72,7 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
         hide_plot_(S_fig.hPlot_traces_spk1);
         menu_label_('menu_preview_view_spike', 'Show [S]pikes');
     else
-        multiplot(S_fig.hPlot_traces_spk1, S_fig.maxAmp, vrTime_spk_, mr2vr_sub2ind_(mrWav_, viTime_spk_, viSite_spk_), viSite_spk_, 1);
+        multiplot(S_fig.hPlot_traces_spk1, S_fig.maxAmp, vrTime_spk_, jrclust.utils.rowColSelect(mrWav_, viTime_spk_, viSite_spk_), viSite_spk_, 1);
         menu_label_('menu_preview_view_spike', 'Hide [S]pikes');
     end
     vrThresh_site_uV = jrclust.utils.bit2uV(-S_fig.vnThresh_site(:), setfield(P, 'vcFilter', S_fig.vcFilter));

@@ -16,7 +16,7 @@ function S_fig = plot_spkwav_(S_fig, S0)
     end
     for iClu = 1:S_clu.nClu
         try
-            viSpk_show = randomSelect_(S_clu_viSpk_(S_clu, iClu, viSite_spk), P.nSpk_show);
+            viSpk_show = randomSelect_(S_clu.getCenteredSpikes(iClu), P.nSpk_show);
             if P.fWav_raw_show
                 trWav1 = raw2uV_(tnWav(:,:,viSpk_show), P);
                 trWav1 = fft_lowpass_(trWav1, get_set_(P, 'fc_spkwav_show', []), P.sRateHz);

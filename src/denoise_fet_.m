@@ -42,7 +42,7 @@ function trFet_spk_ = denoise_fet_(trFet_spk, P, vlRedo_spk)
                 [vrDelta1, viNneigh1] = feval(CK, vrDelta1, viNneigh1, mrFet1, viiSpk1_ord, vnConst);
                 mrFet1 = (mrFet1 + mrFet1(:,viNneigh1)) / 2;
                 mrFet2 = (mrFet2 + mrFet2(:,viNneigh1)) / 2;
-                %             mrD11 = set_diag_(eucl2_dist_(mrFet1, mrFet1), nan);
+                %             mrD11 = jrclust.utils.setDiag(eucl2_dist_(mrFet1, mrFet1), nan);
                 %               [vrDelta2, viNneigh2] = min(mrD11);
             end
 

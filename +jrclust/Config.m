@@ -150,7 +150,7 @@ classdef Config < handle & dynamicprops
         % feature extraction params
         clusterFeature = 'pca';     % feature to use in clustering
         fInterp_fet = true;         % interpolate waveforms for feature projection to find optimal delay (2x interp) if true
-        fSpatialMask_clu = false;   % apply spatial mask calculated from the distances between sites to the peak site (half-scale: P.maxDist_site_um)
+        fSpatialMask_clu = false;   % apply spatial mask calculated from the distances between sites to the peak site (half-scale: evtDetectRad)
         min_sites_mask = 5;         % minimum number of sites to have to apply spatial mask
         nFet_use = 2;               % undocumented
         time_feature_factor;        % undocumented

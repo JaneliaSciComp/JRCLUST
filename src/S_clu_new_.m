@@ -15,7 +15,7 @@ function [S_clu, S0] = S_clu_new_(viClu, S0)
     end
     S_clu.viClu = int32(S_clu.viClu);
     S_clu = S_clu_refresh_(S_clu);
-    S_clu = S_clu_update_wav_(S_clu, S0.P);
+    S_clu = S_clu.updateWaveforms(S0.P);
     S_clu = S_clu_position_(S_clu);
     if ~isfield(S_clu, 'csNote_clu')
         S_clu.csNote_clu = cell(S_clu.nClu, 1); %reset note

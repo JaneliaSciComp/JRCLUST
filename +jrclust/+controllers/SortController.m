@@ -13,6 +13,9 @@ classdef SortController < handle
         deltaCK;        % CUDA kernel for delta computation
 
         hCfg;           % Config object
+    end
+
+    properties(SetAccess=private, Transient)
         errMsg;         % error message, if any
         isError;        % flag indicating an error occurred in sorting
     end
@@ -34,7 +37,7 @@ classdef SortController < handle
 
     %% USER METHODS
     methods
-        function res = sort(obj, dRes)
+        function [res, hClust] = sort(obj, dRes)
             %SORT Cluster the spikes given in dRes
             res = struct();
             t0 = tic();
@@ -61,11 +64,16 @@ classdef SortController < handle
 
             % assign clusters
             [~, res.ordRho] = sort(res.spikeRho, 'descend');
-            res = obj.assignClusters(dRes, res);
+            [hClust, res] = obj.assignClusters(dRes, res);
+            hClust.autoMerge();
 
 %             if obj.hCfg.repeatLower
 %                 
 %             end
+
+            % if get_set_(P, 'fCorrect_overlap', 0) % correct waveforms and features after correcting clusters
+            %     S_clu = sort_overlap_(S0, S_clu, P);
+            % end
 
             % summarize
             res.runtime = toc(t0);
@@ -395,7 +403,7 @@ classdef SortController < handle
             end
         end
 
-        function res = assignClusters(obj, dRes, res)
+        function [hClust, res] = assignClusters(obj, dRes, res)
             %ASSIGNCLUSTERS Given rho-delta information, assign spikes to clusters
             res = obj.computeCenters(dRes, res);
             res.spikeClusters = [];
@@ -480,10 +488,10 @@ classdef SortController < handle
                 end
             end
 
-            res.hClust = jrclust.models.Clustering(res.spikeClusters, obj.spikeFeatures, dRes.spikeSites);
+            hClust = jrclust.models.Clustering(res, dRes, obj.hCfg);
 
             if obj.hCfg.verbose
-                fprintf('\n\ttook %0.1fs. Removed %d clusters having <%d spikes: %d->%d\n', toc(t), removedClusters, obj.hCfg.minClusterSize, nClustersPrev, res.hClust.nClusters);
+                fprintf('\n\ttook %0.1fs. Removed %d clusters having <%d spikes: %d->%d\n', toc(t), removedClusters, obj.hCfg.minClusterSize, nClustersPrev, hClust.nClusters);
             end
         end
 

@@ -18,7 +18,7 @@ function TWfilter_(P, vcMode)
 	set0_(fDebug_ui, P);
 
 	S0 = set0_(P); %update the P structure
-	S0.S_clu = S_clu_update_wav_(S0.S_clu, P);                
+	S0.S_clu.updateWaveforms(P);                
 	set(0, 'UserData', S0);
 
     for i_clu = sort(find(S0.S_clu.viSite_clu>P.max_real_site),'descend')

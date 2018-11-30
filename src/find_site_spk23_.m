@@ -18,11 +18,11 @@ function [viSite_spk2, viSite_spk3] = find_site_spk23_(tnWav_spk, viSite_spk, P)
             viSite_spk2 = int32(miSites2);
         else
             [~, viSite_spk] = min(mnMin_spk, [], 1);
-            viSite_spk2 = int32(mr2vr_sub2ind_(miSites2, viSite_spk, []));
+            viSite_spk2 = int32(jrclust.utils.rowColSelect(miSites2, viSite_spk, []));
         end
     else
         [~, miSite_spk2] = sort(mnMin_spk, 'ascend');
-        viSite_spk2 = int32(mr2vr_sub2ind_(miSites2, miSite_spk2(1,:), []));
-        viSite_spk3 = int32(mr2vr_sub2ind_(miSites2, miSite_spk2(2,:), []));
+        viSite_spk2 = int32(jrclust.utils.rowColSelect(miSites2, miSite_spk2(1,:), []));
+        viSite_spk3 = int32(jrclust.utils.rowColSelect(miSites2, miSite_spk2(2,:), []));
     end
 end %func

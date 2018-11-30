@@ -7,11 +7,21 @@ classdef Clustering < handle
         dRes;               % detection results
     end
 
+    properties (SetAccess=private, Hidden, SetObservable)
+        hCfg;               % Config object
+    end
+
     %% OLD-STYLE PROPERTIES, publicly gettable (will be deprecated after a grace period)
     properties (SetObservable, Dependent, Hidden, Transient)
         cviSpk_clu;         % => spikesByCluster
         csNote_clu;         % => clusterNotes
+        delta;              % => spikeDelta
+        icl;                % => clusterCenters
+        mrWavCor;           % => simScore
         nClu;               % => nClusters
+        nneigh;             % => spikeNeigh
+        ordrho;             % => ordRho
+        rho;                % => spikeRho
         tmrWav_spk_clu;     % => meanWfGlobal
         tmrWav_raw_clu;     % => meanWfGlobalRaw
         trWav_spk_clu;      % => meanWfLocal
@@ -19,49 +29,80 @@ classdef Clustering < handle
         tmrWav_raw_hi_clu;  % => meanWfRawHigh
         tmrWav_raw_lo_clu;  % => meanWfRawLow
         viClu;              % => spikeClusters
+        viClu_auto;         % => initialClustering
         viSite_clu;         % => clusterSites
-        viSite_min_clu;     % => minSites
+        viSite_min_clu;     % => unitPeakSites
+        vnSite_clu;         % => nSitesOverThresh
         vnSpk_clu;          % => clusterCounts
-        vrPosX_clu;         % => centroids(:, 1)
-        vrPosY_clu;         % => centroids(:, 2)
-        vrVmin_clu;         % => peakVoltages
+        vrIsiRatio_clu;     % => unitISIRatio
+        vrIsoDist_clu;      % => unitIsoDist
+        vrLRatio_clu;       % => unitLRatio
+        vrPosX_clu;         % => clusterCentroids(:, 1)
+        vrPosY_clu;         % => clusterCentroids(:, 2)
+        vrSnr_clu;          % => unitSNR
+        vrVmin_clu;         % => unitPeaks
+        vrVmin_uv_clu;      % => unitPeaksRaw
+        vrVpp_clu;          % => viSite_clu
+        vrVpp_uv_clu;       % => unitVppRaw
+        vrVrms_site;        % => siteRMS
     end
 
     %% NEW-STYLE CLUSTERING PROPERTIES
-    properties (Dependent, Transient)
-        initialClustering;  % initial assignment of spikes to cluster
-        nClusters;          % number of clusters
-    end
-
-    properties (SetAccess=private)
+    properties (SetAccess=private, SetObservable)
+        clusterCenters;     % cluster centers
+        clusterCentroids;   % centroids of clusters on the probe
         clusterCounts;      % number of spikes per cluster
-        clusterSites;       % site on which spikes in this cluster most often occur
         clusterNotes;       % notes on clusters
+        clusterSites;       % site on which spikes in this cluster most often occur
+        history;            % cell array, log of merge/split/delete operations
         spikeClusters;      % individual spike assignments
         spikesByCluster;    % cell array of spike indices per cluster
     end
 
     properties (Hidden)
-        peakVoltages; 
-        minSites;
-
-        meanWfLocal;
-        meanWfGlobal;
-        meanWfLocalRaw;
-        meanWfGlobalRaw;
-        meanWfRawLow;
-        meanWfRawHigh;
-
-        mrWavCor;
+        meanWfLocal;        % mean filtered waveforms for each cluster
+        meanWfGlobal;       % mean filtered waveforms for each cluster over all sites
+        meanWfLocalRaw;     % mean raw waveforms for each cluster
+        meanWfGlobalRaw;    % mean raw waveforms for each cluster over all sites
+        meanWfRawLow;       % mean raw waveforms for each cluster over all sites at a low point on the probe (for drift correction)
+        meanWfRawHigh;      % mean raw waveforms for each cluster over all sites at a high point on the probe (for drift correction)
+        simScore;           % waveform-based cluster similarity scores
         tmrWav_clu;
     end
 
-    properties (SetObservable)
-        centroids;          % centroids of clusters on the probe
+    % quality metrics
+    properties (SetAccess=private, SetObservable)
+        nSitesOverThresh;   % number of sites exceeding the detection threshold, per cluster
+        siteRMS;            % site-wise 
+        unitPeaks;          % minimum voltage of mean filtered waveforms at peak site, per cluster
+        unitPeaksRaw;       % minimum voltage (uV) of mean raw waveforms at peak site, per cluster
+        unitPeakSites;      % sites on which unitPeaks occur
+        unitVpp;            % peak-to-peak voltage of filtered waveforms at peak site, per cluster
+        unitVppRaw;         % peak-to-peak voltage of raw waveforms at peak site, per cluster
+        unitISIRatio;       % inter-spike interval ratio #(ISI <= 2ms)/#(ISI <= 20ms), per cluster
+        unitIsoDist;        % isolation distance
+        unitLRatio;         % L-ratio
+        unitSNR;            % signal-to-noise ratio at peak site (peak/RMS)
+    end
+
+    % computed from other values
+    properties (Dependent, Transient)
+        nClusters;          % number of clusters
+        nEdits;             % number of edits made to initial clustering
+    end
+
+    %% SORTING RESULTS, IMMUTABLE
+    properties (Dependent, Transient)
+        initialClustering;  % initial assignment of spikes to cluster
+        ordRho;             % spike-wise index ordered by density (DPCLUS)
+        rhoCuts;            % site-wise distance cutoff values for computing density (DPCLUS)
+        spikeDelta;         % spike-wise distance to nearest neighbor of higher density (DPCLUS)
+        spikeNeigh;         % nearest neighbor of higher density (DPCLUS)
+        spikeRho;           % spike-wise density (DPCLUS)
     end
 
     %% DETECTION RESULTS
-    properties
+    properties (Dependent, Transient)
         siteThresh;         % sitewise detection threshold
         spikeAmps;          % amplitudes of detected spikes
         spikeFeatures;      % features which were clustered
@@ -78,89 +119,109 @@ classdef Clustering < handle
 
     %% LIFECYCLE
     methods
-        function obj = Clustering(sRes, dRes)
+        function obj = Clustering(sRes, dRes, hCfg)
             obj.sRes = sRes;
             obj.dRes = dRes;
+            obj.hCfg = hCfg;
 
+            % these fields are mutable so we need to store copies in obj
             obj.spikeClusters = obj.initialClustering;
+            if isfield(sRes, 'clusterCenters')
+                obj.clusterCenters = sRes.clusterCenters;
+            else
+                obj.clusterCenters = [];
+            end
+            obj.clusterCentroids = [];
+            obj.history = cell(0, 2);
+
             obj.clearNotes();
             obj.refresh(true);
+            obj.commit('initial commit');
         end
     end
 
     %% UTILITY METHODS
     methods (Access=protected, Hidden)
-        function [clusterMean, siteNeighbors, clusterMeanLow, clusterMeanHigh] = getClusterMean(obj, spikeWindows, iCluster, hCfg)
-            %GETCLUSTERMEAN Get mean cluster waveform, optionally low and high
-
-            function [spikesOut, sitesOut] = selectSpikesInBounds(spikesIn, sitesIn, yPos, yLims)
-                %SELECTSPIKESINBOUNDS Select spikes by whether their y-positions fall within given limits
-                nSamplesMax = 1000;
-                inBounds = yPos >= yLims(1) & yPos < yLims(2);
-
-                if ~any(inBounds)
-                    spikesOut = spikesIn;
-                    sitesOut = sitesIn;
-                    return;
-                end
-
-                spikesOut = jrclust.utils.subsample(spikesIn(inBounds), nSamplesMax);
-                sitesOut = jrclust.utils.subsample(sitesIn(inBounds), nSamplesMax);
+        function selfSim = computeSelfSim(obj, iCluster)
+            %COMPUTESELFSIM Get similarity between bottom and top half (vpp-wise) of cluster
+            if nargin < 2
+                iCluster = [];
             end
 
-            function mrWav_clu1 = nanmeanInt16(spikeWindows, iSite, sites, hCfg)
-                iSiteNeighbors = hCfg.siteNeighbors(:, iSite);
-                trWav = nan([size(spikeWindows, 1), numel(iSiteNeighbors), numel(sites)], 'single');
-                uniqueSites = unique(sites);
-                nUniqueSites = numel(uniqueSites);
-                uniqueNeighbors = hCfg.siteNeighbors(:, uniqueSites);
+            if isempty(iCluster)
+                fprintf('Computing self correlation\n\t');
+                t1 = tic;
 
-                for jSite = 1:nUniqueSites
-                    iSiteUnique = uniqueSites(jSite);
-                    viSpk_ = find(sites == iSiteUnique);
-
-                    [~, viSite1a_, viSite1b_] = intersect(iSiteNeighbors, uniqueNeighbors(:, jSite));
-                    if isempty(viSite1a_)
-                        continue;
-                    end
-
-                    trWav(:, viSite1a_, viSpk_) = spikeWindows(:, viSite1b_, viSpk_);
+                selfSim = zeros(1, obj.nClusters);
+                for iCluster = 1:obj.nClusters
+                    selfSim(iCluster) = scKern(obj, iCluster);
+                    fprintf('.');
                 end
 
-                mrWav_clu1 = nanmean(trWav, 3);
-                mrWav_clu1 = jrclust.utils.meanSubtract(mrWav_clu1); %122717 JJJ
+                fprintf('\n\ttook %0.1fs\n', toc(t1));
+            else
+                selfSim = scKern(obj, iCluster);
             end
+        end
 
-            [clusterMean, clusterMeanLow, clusterMeanHigh] = deal([]);
-            iSite = obj.clusterSites(iCluster);
-            siteNeighbors = hCfg.siteNeighbors(:, iSite);
+        function [sites1, sites2, sites3] = getSecondaryPeaks(obj)
+            %GETSECONDARYPEAKS
+            minVals = squeeze(min(obj.meanWfGlobal) - obj.meanWfGlobal(1, :, :));
 
-            clusterSpikes = obj.spikesByCluster{iCluster};
-            clusterSites_ = obj.spikeSites(clusterSpikes);
+            [~, sites1] = min(minVals);
 
-            if isempty(clusterSpikes)
+            minVals(sub2ind(size(minVals), sites1, 1:numel(sites1))) = 0;
+            [~, sites2] = min(minVals);
+
+            minVals(sub2ind(size(minVals), sites2, 1:numel(sites2))) = 0;
+            [~, sites3] = min(minVals);
+        end
+
+        function nMerged = mergeBySim(obj)
+            %AUTOMERGEBYSIM Automatically merge clusters by similarity score
+            simScore_ = obj.simScore;
+            nClusters_ = size(simScore_, 2);
+
+            % Identify clusters to remove, update and same (no change), disjoint sets
+            simScore_(tril(true(nClusters_))) = 0; % ignore bottom half
+            [scoresMax, mapTo] = max(simScore_);
+            keepMe_ = scoresMax < obj.hCfg.maxWavCor; % keep clusters whose max similarity to another cluster is less than our threshold
+
+            if all(keepMe_)
+                nMerged = 0;
                 return;
             end
 
-            if ~hCfg.fDrift_merge || isempty(obj.spikePositions)
-                middlemost = spk_select_mid_(clusterSpikes, obj.spikeTimes, hCfg.nTime_clu);
-                clusterMean = mean(single(spikeWindows(:, :, middlemost)), 3);
-                clusterMean = jrclust.utils.meanSubtract(clusterMean);
-                return;
-            end
+            minScore = min(scoresMax(~keepMe_));
+            keepMe = find(keepMe_);
+            mapTo(keepMe_) = keepMe;
+            keepMe = setdiff(keepMe, mapTo(~keepMe_));
+            removeMe = setdiff(1:nClusters_, mapTo);
+            updateMe = setdiff(setdiff(1:nClusters_, keepMe), removeMe);
 
-            yPos = obj.spikePositions(clusterSpikes, 2); % position based quantile
-            yLims = quantile(yPos, [0, 1, 2, 3]/3);
+            % update cluster number
+            % try
+            %     obj.clusterCenters(removeMe) = [];
+            % catch ME
+            %     rethrow(ME);
+            % end
 
-            [selectedSpikes, selectedSites] = selectSpikesInBounds(clusterSpikes, clusterSites_, yPos, yLims(2:3));
-            clusterMean = nanmeanInt16(spikeWindows(:, :, selectedSpikes), iSite, selectedSites, hCfg); % * hCfg.uV_per_bit;
+            %hClust = S_clu_map_index_(hClust, mapTo); %index mapped
+            good = obj.spikeClusters > 0;
+            mapTo = int32(mapTo);
+            obj.spikeClusters(good) = mapTo(obj.spikeClusters(good)); %translate cluster number
+            obj.refresh(false); % empty clusters removed later
 
-            if nargout > 2
-                [selectedSpikes, selectedSites] = selectSpikesInBounds(clusterSpikes, clusterSites_, yPos, yLims(1:2));
-                clusterMeanLow = nanmeanInt16(spikeWindows(:, :, selectedSpikes), iSite, selectedSites, hCfg);
+            obj.rmRefracSpikes(); % remove refrac spikes
 
-                [selectedSpikes, selectedSites] = selectSpikesInBounds(clusterSpikes, clusterSites_, yPos, yLims(3:4));
-                clusterMeanHigh = nanmeanInt16(spikeWindows(:, :, selectedSpikes), iSite, selectedSites, hCfg);
+            % update cluster waveforms and distance
+            obj.computeMeanWaveforms(updateMe);
+            obj.computeWaveformSim();
+            obj.removeEmptyClusters();
+
+            nMerged = nClusters_ - obj.nClusters;
+            if obj.hCfg.verbose
+                fprintf('\tnClusters: %d->%d (%d merged, min score: %0.4f)\n', nClusters_, obj.nClusters, nMerged, minScore);
             end
         end
 
@@ -172,7 +233,7 @@ classdef Clustering < handle
             end
 
             % subset all fields indexed by cluster
-            % obj.subsetFields(obj, keepClusters);
+            obj.subsetFields(keepClusters);
 
             if min(obj.spikeClusters) < 1 % noise or garbage clusters
                 obj.spikeClusters(obj.spikeClusters < 1) = 0;
@@ -188,166 +249,423 @@ classdef Clustering < handle
             obj.spikeClusters = int32(obj.spikeClusters);
         end
 
-        function subsetFields(obj, keepClusters) % WIP
-            %SELECT Subset all data fields, taking only those we're interested in
-            % excl vnSpk_clu, viSite_clu, vrPosX_clu, vrPosY_clu
-
-            csNames = fieldnames(obj);
-            if isempty(csNames)
-                return;
+        function subsetFields(obj, keepMe) % WIP
+            %SELECT Subset all data fields, taking only those indices we want to keep
+            % subset vector fields
+            if ~isempty(obj.clusterCenters) % ?
+                obj.clusterCenters = obj.clusterCenters(keepMe);
+            end
+            if ~isempty(obj.clusterCounts) % ?
+                obj.clusterCounts = obj.clusterCounts(keepMe);
+            end
+            if ~isempty(obj.clusterSites) % ?
+                obj.clusterSites = obj.clusterSites(keepMe);
+            end
+            if ~isempty(obj.nSitesOverThresh)
+                obj.nSitesOverThresh = obj.nSitesOverThresh(keepMe);
+            end
+            if ~isempty(obj.unitISIRatio)
+                obj.unitISIRatio = obj.unitISIRatio(keepMe);
+            end
+            if ~isempty(obj.unitIsoDist)
+                obj.unitIsoDist = obj.unitIsoDist(keepMe);
+            end
+            if ~isempty(obj.unitLRatio)
+                obj.unitLRatio = obj.unitLRatio(keepMe);
+            end
+            if ~isempty(obj.unitPeaks)
+                obj.unitPeaks = obj.unitPeaks(keepMe);
+            end
+            if ~isempty(obj.unitPeaksRaw)
+                obj.unitPeaksRaw = obj.unitPeaksRaw(keepMe);
+            end
+            if ~isempty(obj.unitPeakSites)
+                obj.unitPeakSites = obj.unitPeakSites(keepMe);
+            end
+            if ~isempty(obj.unitSNR)
+                obj.unitSNR = obj.unitSNR(keepMe);
+            end
+            if ~isempty(obj.unitVpp)
+                obj.unitVpp = obj.unitVpp(keepMe);
+            end
+            if ~isempty(obj.unitVppRaw)
+                obj.unitVppRaw = obj.unitVppRaw(keepMe);
             end
 
-            % subset vector fields
-            viMatch_v = cellfun(@(vi) ~isempty(vi), cellfun(@(cs)regexp(cs, '^v\w*_clu$'), csNames, 'UniformOutput', false));
-            obj = struct_select_(obj, csNames(viMatch_v), keepClusters);
+            % subset matrix fields
+            if ~isempty(obj.clusterCentroids) % nClusters x 2 %?
+                obj.clusterCentroids = obj.clusterCentroids(keepMe, :);
+            end
+            if ~isempty(obj.simScore) % nClusters x nClusters
+                obj.simScore = obj.simScore(keepMe, keepMe);
+            end
 
             % subset tensor fields
-            viMatch_t = cellfun(@(vi)~isempty(vi), cellfun(@(cs)regexp(cs, '^t\w*_clu$'), csNames, 'UniformOutput', false));
-            obj = struct_select_(obj, csNames(viMatch_t), keepClusters, 3);
-
-            % subset cell fields
-            viMatch_c = cellfun(@(vi)~isempty(vi), cellfun(@(cs)regexp(cs, '^c\w*_clu$'), csNames, 'UniformOutput', false));
-            obj = struct_select_(obj, csNames(viMatch_c), keepClusters);
-
-            % remap mrWavCor
-            if isprop(obj, 'mrWavCor')
-        %         obj.mrWavCor = S_clu_wavcor_remap_(obj, viKeep_clu);
-                obj.mrWavCor = obj.mrWavCor(keepClusters, keepClusters);
+            if ~isempty(obj.meanWfGlobal)
+                obj.meanWfGlobal = obj.meanWfGlobal(:, :, keepMe);
+            end
+            if ~isempty(obj.meanWfGlobalRaw)
+                obj.meanWfGlobalRaw = obj.meanWfGlobalRaw(:, :, keepMe);
+            end
+            if ~isempty(obj.meanWfLocal)
+                obj.meanWfLocal = obj.meanWfLocal(:, :, keepMe);
+            end
+            if ~isempty(obj.meanWfLocalRaw)
+                obj.meanWfLocalRaw = obj.meanWfLocalRaw(:, :, keepMe);
+            end
+            if ~isempty(obj.meanWfRawHigh)
+                obj.meanWfRawHigh = obj.meanWfRawHigh(:, :, keepMe);
+            end
+            if ~isempty(obj.meanWfRawLow)
+                obj.meanWfRawLow = obj.meanWfRawLow(:, :, keepMe);
             end
 
-            % remap mrSim_clu
-            if isprop(obj, 'mrSim_clu')
-                obj.mrSim_clu = obj.mrSim_clu(keepClusters, keepClusters);
+            % subset cell fields
+            if ~isempty(obj.clusterNotes)
+                obj.clusterNotes = obj.clusterNotes(keepMe);
+            end
+            if ~isempty(obj.spikesByCluster)
+                obj.spikesByCluster = obj.spikesByCluster(keepMe);
             end
         end
     end
 
     %% USER METHODS
     methods
+        function autoMerge(obj, doAssign)
+            %AUTOMERGE Automatically merge clusters
+            if nargin < 4
+                doAssign = true;
+            end
+
+        %     if doAssign
+        %         S_clu = postCluster_(S_clu, P);
+        %     end
+
+            obj.refresh(true);
+            obj.orderClusters('clusterSites');
+            obj.clearNotes();
+
+            obj.rmOutlierSpikes();
+            obj.doWaveformMerge();
+            obj.refresh(true);
+            obj.orderClusters('clusterSites');
+            obj.updateWaveforms();
+
+            obj.computeCentroids();
+            obj.clearNotes();
+            obj.computeQualityScores();
+            obj.commit('autoMerge');
+        end
+
         function clearNotes(obj)
             %CLEARNOTES Remove all cluster notes
             obj.clusterNotes = cell(obj.nClusters, 1);
         end
 
-        function computeMeanWaveforms(obj, hCfg, updateMe, useRaw)
-            %COMPUTEMEANWAVEFORMS Compute the mean waveform for each cluster
-            if isempty(obj.spikesFilt)
-                return;
+        function commit(obj, msg)
+            %COMMIT Commit a modification of clustering to history log
+            if nargin < 2
+                msg = '';
             end
 
-            if nargin < 3
-                updateMe = [];
-            end
-            if nargin < 4
-                useRaw = true;
-            end
-            useRaw = useRaw && ~isempty(obj.spikesRaw);
-            
-            verbose = hCfg.verbose && isempty(updateMe);
-            if verbose
-                fprintf('Calculating cluster mean waveform.\n\t');
-                t = tic;
-            end
-
-            nSites = numel(hCfg.siteMap);
-            [nSamples, nSitesEvt, ~] = size(obj.spikesFilt);
-
-            meanWfLocal_ = zeros(nSamples, nSitesEvt, obj.nClusters, 'single');
-            meanWfGlobal_ = zeros(nSamples, nSites, obj.nClusters, 'single');
-
-            if useRaw
-                nSamplesRaw = size(obj.spikesRaw, 1);
-                meanWfLocalRaw_ = zeros(nSamplesRaw, nSitesEvt, obj.nClusters, 'single');
-                meanWfGlobalRaw_ = zeros(nSamplesRaw, nSites, obj.nClusters, 'single');
-                meanWfRawLow_ = zeros(nSamplesRaw, nSites, obj.nClusters, 'single');
-                meanWfRawHigh_ = zeros(nSamplesRaw, nSites, obj.nClusters, 'single');
+            if isempty(obj.history)
+                iDiffs = find(obj.spikeClusters ~= obj.initialClustering);
+                sDiffs = obj.spikeClusters(iDiffs);
+                obj.history(1, :) = {msg, [iDiffs'; sDiffs']};
             else
-                [meanWfLocalRaw_, meanWfGlobalRaw_, meanWfRawLow_, meanWfRawHigh_] = deal([]);
-            end
+                % check for consistency before committing
+                ic = obj.selfConsistent();
+                if ~isempty(ic)
+                    wmsg = strjoin(ic, '\n\t');
+                    warning('Cluster data inconsistent after previous operations:\n\t%s', wmsg);
+                    obj.editSeek(obj.nEdits);
+                    return;
+                end
 
-            % we have specific clusters to update
-            if ~isempty(updateMe) && ~isempty(obj.meanWfLocal)
-                % visit all clusters explicitly requested or not previously seen
-                visitMe = false(obj.nClusters, 1);
-                visitMe(updateMe) = true;
-                visitMe((1:obj.nClusters) > size(obj.meanWfLocal, 3)) = true;
+                % replay from the beginning
+                spikeClusters_ = obj.initialClustering;
 
-                meanWfLocal_ = obj.meanWfLocal;
-                meanWfGlobal_ = obj.meanWfGlobal;
-
-                meanWfLocalRaw_ = obj.meanWfLocalRaw;
-                meanWfGlobalRaw_ = obj.meanWfGlobalRaw;
-
-                meanWfRawLow_ = obj.tmrWav_raw_lo_clu;
-                meanWfRawHigh_ = obj.tmrWav_raw_hi_clu;
-            else % nothing specific requested, update all
-                visitMe = true(obj.nClusters, 1);
-            end
-
-            for iCluster = 1:obj.nClusters
-                if visitMe(iCluster)
-                    [clusterMean, siteNeighbors] = getClusterMean(obj, obj.spikesFilt, iCluster, hCfg);
-
-                    if isempty(clusterMean)
+                for j = 1:size(obj.history, 1)
+                    diffs = obj.history{j, 2};
+                    if isempty(diffs)
                         continue;
                     end
 
-                    clusterMean = jrclust.utils.bit2uV(clusterMean, hCfg);
-                    meanWfLocal_(:, :, iCluster) = clusterMean;
-                    meanWfGlobal_(:, siteNeighbors, iCluster) = clusterMean;
-                end
+                    iDiffs = diffs(1, :);
+                    sDiffs = diffs(2, :);
+                    spikeClusters_(iDiffs) = sDiffs;
+                end % now caught up to the current state, can get diff
+                
+                iDiffs = find(obj.spikeClusters ~= spikeClusters_);
+                sDiffs = obj.spikeClusters(iDiffs);
+                obj.history(end+1, :) = {msg, [iDiffs'; sDiffs']};
+            end
+        end
 
-                if verbose
-                    fprintf('.');
-                end
+        function computeCentroids(obj, updateMe)
+            %COMPUTEPOSITIONS determine cluster position from spike position
+            if nargin < 2 || isempty(obj.centroids)
+                updateMe = [];
             end
 
-            % Compute spkraw
-            if useRaw
-                for iCluster = 1:obj.nClusters
-                    if visitMe(iCluster)
-                        [clusterMean, siteNeighbors, clusterMeanLow, clusterMeanHigh] = getClusterMean(obj, obj.spikesRaw, iCluster, hCfg);
-                        if isempty(clusterMean)
-                            continue;
-                        end
-
-                        clusterMean = jrclust.utils.meanSubtract(clusterMean)*hCfg.bitScaling;
-                        meanWfGlobalRaw_(:, siteNeighbors, iCluster) = clusterMean;
-                        meanWfLocalRaw_(:, :, iCluster) = clusterMean;
-
-                        if isempty(clusterMeanLow) || isempty(clusterMeanHigh)
-                            meanWfRawLow_(:, siteNeighbors, iCluster) = zeros(nSamplesRaw, numel(siteNeighbors));
-                            meanWfRawHigh_(:, siteNeighbors, iCluster) = zeros(nSamplesRaw, numel(siteNeighbors));
-                        else
-                            meanWfRawLow_(:,siteNeighbors,iCluster) = jrclust.utils.meanSubtract(clusterMeanLow)*hCfg.bitScaling;
-                            meanWfRawHigh_(:,siteNeighbors,iCluster) = jrclust.utils.meanSubtract(clusterMeanHigh)*hCfg.bitScaling;
-                        end
-                    end
-
-                    if verbose
-                        fprintf('.');
-                    end
-                end
+            if isempty(updateMe)
+                centroids_ = zeros(obj.nClusters, 2);
+                clusters_ = 1:obj.nClusters;
+            else % selective update
+                centroids_ = obj.clusterCentroids;
+                clusters_ = updateMe(:)';
             end
 
-            obj.tmrWav_clu = meanWfGlobal_; % meanSubtract after or before?
+            featureSites = 1:(1+obj.hCfg.nSiteDir*2 - obj.hCfg.nSitesExcl);
 
-            % measure waveforms
-            [peakVoltages_, minSites_] = min(permute(min(meanWfLocal_), [2, 3, 1]), [], 1);
-            obj.peakVoltages = abs(peakVoltages_(:));
-            obj.minSites = minSites_(:);
+            for iCluster = clusters_
+                [clusterSpikes, neighbors] = subsampleCenteredSpikes(obj, iCluster);
+                if isempty(clusterSpikes)
+                    continue;
+                end
 
+                neighbors = neighbors(1:end-obj.hCfg.nSitesExcl);
+                featureWeights = squeeze(obj.spikeFeatures(featureSites, 1, clusterSpikes));
+                neighborLoc = single(obj.hCfg.siteLoc(neighbors, :)); % position on probe
+
+                centroids_(iCluster, 1) = median(getWeightedLoc(featureWeights, neighborLoc(:, 1)));
+                centroids_(iCluster, 2) = median(getWeightedLoc(featureWeights, neighborLoc(:, 2)));
+            end
+
+            obj.clusterCentroids = centroids_;
+        end
+
+        function computeMeanWaveforms(obj, updateMe, useRaw)
+            %COMPUTEMEANWAVEFORMS Compute the mean waveform for each cluster
+            if nargin < 2
+                updateMe = [];
+            end
+            if nargin < 3
+                useRaw = true;
+            end
+
+            results = compMeanWf(obj, updateMe, useRaw);
+            
             % collect computed values
-            obj.meanWfLocal = meanWfLocal_;
-            obj.meanWfGlobal = meanWfGlobal_;
-            obj.meanWfLocalRaw = meanWfLocalRaw_;
-            obj.meanWfGlobalRaw = meanWfGlobalRaw_;
-            obj.meanWfRawLow = meanWfRawLow_;
-            obj.meanWfRawHigh = meanWfRawHigh_;
+            obj.unitPeaks = results.unitPeaks;
+            obj.unitPeakSites = results.unitPeakSites;
+            obj.meanWfLocal = results.meanWfLocal;
+            obj.meanWfGlobal = results.meanWfGlobal;
+            obj.meanWfLocalRaw = results.meanWfLocalRaw;
+            obj.meanWfGlobalRaw = results.meanWfGlobalRaw;
+            obj.meanWfRawLow = results.meanWfRawLow;
+            obj.meanWfRawHigh = results.meanWfRawHigh;
 
-            if verbose
-                fprintf('\n\ttook %0.1fs\n', toc(t));
+        end
+
+        function computeWaveformSim(obj, updateMe_)
+            %WAVEFORMSIM Compute waveform-based similarity scores for all clusters
+            if nargin < 3 || isempty(obj.simScore)
+                updateMe_ = [];
             end
+
+            if isempty(obj.meanWfGlobal)
+                return;
+            end
+
+            obj.hCfg.useGPU = false; % disable GPU for this
+            obj.simScore = compWfSim(obj, updateMe_);
+            obj.hCfg.useGPU = true; % disable GPU for this
+        end
+
+        function computeQualityScores(obj, updateMe)
+            %COMPUTEQUALITYSCORES Get cluster quality scores
+            if nargin < 2
+                updateMe = [];
+            end
+            scores = qualScores(obj, updateMe);
+            obj.nSitesOverThresh = scores.nSitesOverThresh;
+            obj.siteRMS = scores.siteRMS;
+            obj.unitISIRatio = scores.unitISIRatio;
+            obj.unitIsoDist = scores.unitIsoDist;
+            obj.unitLRatio = scores.unitLRatio;
+            obj.unitPeaksRaw = scores.unitPeaksRaw; % unitPeaks set elsewhere
+            obj.unitSNR = scores.unitSNR;
+            obj.unitVpp = scores.unitVpp;
+            obj.unitVppRaw = scores.unitVppRaw;
+        end
+
+        function doWaveformMerge(obj, maxWavCor)
+            %DOWAVEFORMMERGE Merge clusters by waveform-based similarity scores
+            if nargin == 2 && ~isempty(maxWavCor)
+                mwcOld = obj.hCfg.maxWavCor;
+                obj.hCfg.maxWavCor = mwcOld;
+            end
+
+            obj.computeMeanWaveforms();
+            obj.computeWaveformSim();
+
+            for iRepeat = 1:obj.hCfg.nPassesMerge % single-pass vs dual-pass correction
+                nMerged = obj.mergeBySim();
+                if nMerged < 1
+                    break;
+                end
+            end
+
+            if nargin == 2 && ~isempty(maxWavCor) % restore old maxWavCor
+                obj.hCfg.maxWavCor = mwcOld;
+            end
+        end
+
+        function editSeek(obj, seekTo)
+            %EDITSEEK Seek back and forth to position in history
+            %   TODO: this can cause branching issues; make non-tip
+            %   positions read-only
+            if seekTo < 0 || seekTo > obj.nEdits
+                return;
+            end
+
+            % restore initial state and fast forward
+            spikeClusters_ = obj.initialClustering;
+            if isfield(obj.sRes, 'clusterCenters')
+                obj.clusterCenters = obj.sRes.clusterCenters;
+            else
+                obj.clusterCenters = [];
+            end
+
+            for j = 1:seekTo+1
+                diffs = obj.history{j, 2};
+                if isempty(diffs)
+                    continue;
+                end
+
+                iDiffs = diffs(1, :);
+                sDiffs = diffs(2, :);
+                spikeClusters_(iDiffs) = sDiffs;
+            end
+
+            obj.spikeClusters = spikeClusters_;
+
+            obj.refresh(true);
+            if ~isempty(obj.meanWfGlobal) % only compute mean waveforms if we already had them
+                obj.updateWaveforms();
+            end
+        end
+
+        function [centeredSpikes, whichCentered] = getCenteredSpikes(obj, iCluster)
+            %GETCENTEREDSPIKES Return subset of spikes which occur on center site of cluster
+            iClusterSite = obj.clusterSites(iCluster);
+            centeredSpikes = obj.spikesByCluster{iCluster};
+            clusterSites_ = obj.spikeSites(centeredSpikes);
+            whichCentered = clusterSites_ == iClusterSite;
+            centeredSpikes = centeredSpikes(whichCentered);
+        end
+
+        function inconsistencies = selfConsistent(obj)
+            %SELFCONSISTENT Check all fields have the correct sizes
+            inconsistencies = {};
+            % vector fields
+            if ~isempty(obj.clusterCenters) && numel(obj.clusterCenters) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('clusterCenters: expected %d, actual %d', obj.nClusters, numel(obj.clusterCenters));
+            end
+            if ~isempty(obj.clusterCounts) && numel(obj.clusterCounts) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('clusterCounts: expected %d, actual %d', obj.nClusters, numel(obj.clusterCounts));
+            end
+            if ~isempty(obj.clusterSites) && numel(obj.clusterSites) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('clusterSites: expected %d, actual %d', obj.nClusters, numel(obj.clusterSites));
+            end
+            if ~isempty(obj.nSitesOverThresh) && numel(obj.nSitesOverThresh) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('nSitesOverThresh: expected %d, actual %d', obj.nClusters, numel(obj.nSitesOverThresh));
+            end
+            if ~isempty(obj.unitISIRatio) && numel(obj.unitISIRatio) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('unitISIRatio: expected %d, actual %d', obj.nClusters, numel(obj.unitISIRatio));
+            end
+            if ~isempty(obj.unitIsoDist) && numel(obj.unitIsoDist) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('unitIsoDist: expected %d, actual %d', obj.nClusters, numel(obj.unitIsoDist));
+            end
+            if ~isempty(obj.unitLRatio) && numel(obj.unitLRatio) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('unitLRatio: expected %d, actual %d', obj.nClusters, numel(obj.unitLRatio));
+            end
+            if ~isempty(obj.unitPeakSites) && numel(obj.unitPeakSites) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('unitPeakSites: expected %d, actual %d', obj.nClusters, numel(obj.unitPeakSites));
+            end
+            if ~isempty(obj.unitPeaks) && numel(obj.unitPeaks) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('unitPeaks: expected %d, actual %d', obj.nClusters, numel(obj.unitPeaks));
+            end
+            if ~isempty(obj.unitPeaksRaw) && numel(obj.unitPeaksRaw) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('unitPeaksRaw: expected %d, actual %d', obj.nClusters, numel(obj.unitPeaksRaw));
+            end
+            if ~isempty(obj.unitSNR) && numel(obj.unitSNR) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('unitSNR: expected %d, actual %d', obj.nClusters, numel(obj.unitSNR));
+            end
+            if ~isempty(obj.unitVpp) && numel(obj.unitVpp) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('unitVpp: expected %d, actual %d', obj.nClusters, numel(obj.unitVpp));
+            end
+            if ~isempty(obj.unitVppRaw) && numel(obj.unitVppRaw) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('unitVppRaw: expected %d, actual %d', obj.nClusters, numel(obj.unitVppRaw));
+            end
+
+            % matrix fields
+            if ~isempty(obj.clusterCentroids) && size(obj.clusterCentroids, 1) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('clusterCentroids: expected %d, actual %d', obj.nClusters, size(obj.clusterCentroids, 1));
+            end
+            if ~isempty(obj.simScore) && ~all(size(obj.simScore) == obj.nClusters)
+                inconsistencies{end+1} = sprintf('simScore: expected %dx%d, actual %d', obj.nClusters, obj.nClusters, size(obj.simScore, 1), size(obj.simScore, 2));
+            end
+
+            % tensor fields
+            if ~isempty(obj.meanWfGlobal) && size(obj.meanWfGlobal, 3) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('meanWfGlobal: expected %d, actual %d', obj.nClusters, size(obj.meanWfGlobal, 3));
+            end
+            if ~isempty(obj.meanWfGlobalRaw) && size(obj.meanWfGlobalRaw, 3) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('meanWfGlobalRaw: expected %d, actual %d', obj.nClusters, size(obj.meanWfGlobalRaw, 3));
+            end
+            if ~isempty(obj.meanWfLocal) && size(obj.meanWfLocal, 3) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('meanWfLocal: expected %d, actual %d', obj.nClusters, size(obj.meanWfLocal, 3));
+            end
+            if ~isempty(obj.meanWfLocalRaw) && size(obj.meanWfLocalRaw, 3) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('meanWfLocalRaw: expected %d, actual %d', obj.nClusters, size(obj.meanWfLocalRaw, 3));
+            end
+            if ~isempty(obj.meanWfRawHigh) && size(obj.meanWfRawHigh, 3) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('meanWfRawHigh: expected %d, actual %d', obj.nClusters, size(obj.meanWfRawHigh, 3));
+            end
+            if ~isempty(obj.meanWfRawLow) && size(obj.meanWfRawLow, 3) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('meanWfRawLow: expected %d, actual %d', obj.nClusters, size(obj.meanWfRawLow, 3));
+            end
+
+            % cell fields
+            if ~isempty(obj.clusterNotes) && numel(obj.clusterNotes) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('clusterNotes: expected %d, actual %d', obj.nClusters, numel(obj.clusterNotes));
+            end
+            if ~isempty(obj.spikesByCluster) && numel(obj.spikesByCluster) ~= obj.nClusters
+                inconsistencies{end+1} = sprintf('spikesByCluster: expected %d, actual %d', obj.nClusters, numel(obj.spikesByCluster));
+            end
+        end
+
+        function orderClusters(obj, by)
+            %ORDERCLUSTERS Arrange cluster ID numbers by some criterion
+
+            if nargin < 2 || isempty(by)
+                by = 'clusterSites';
+            end
+
+            if strcmpi(by, 'Y + X') && ~isempty(obj.clusterCentroids)
+                [~, argsort] = sort(sum(obj.clusterCentroids, 2), 'ascend');
+            elseif isprop(obj, by)
+                [~, argsort] = sort(obj.(by), 'ascend');
+            end
+
+            %obj.spikeClusters = mapIndex_(obj.spikeClusters, argsort);
+            map(argsort) = 1:numel(argsort);
+            mask = (obj.spikeClusters > 0);
+            obj.spikeClusters(mask) = map(obj.spikeClusters(mask)); % do not map zeros
+
+            % reorder data fields
+            obj.spikesByCluster = obj.spikesByCluster(argsort); % redundant with refresh?
+            obj.clusterSites = obj.clusterSites(argsort);       % redundant with refresh?
+            obj.clusterCounts = obj.clusterCounts(argsort);     % redundant with refresh?
+            obj.clusterNotes = obj.clusterNotes(argsort);
+            if ~isempty(obj.clusterCentroids)
+                obj.clusterCentroids = obj.clusterCentroids(argsort, :);
+            end
+
+            obj.refresh(true);
         end
 
         function refresh(obj, doRemoveEmpty)
@@ -365,39 +683,114 @@ classdef Clustering < handle
             end
         end
 
-        function orderClusters(obj, by)
-            %ORDERCLUSTERS Arrange cluster ID numbers by some criterion
-
-            if nargin < 2 || isempty(by)
-                by = 'clusterSites';
+        function rmOutlierSpikes(obj)
+            %RMOUTLIERSPIKES Mahalanobis-distance based outlier removal
+            if obj.hCfg.outlierThresh == 0
+                return;
             end
 
-            if strcmpi(by, 'Y + X') && ~isempty(obj.centroids)
-                [~, argsort] = sort(sum(obj.centroids, 2), 'ascend');
-            elseif isprop(obj, by)
-                [~, argsort] = sort(obj.(by), 'ascend');
+            for iCluster = 1:obj.nClusters
+                iSite = obj.clusterSites(iCluster);
+                iSpikes = obj.spikesByCluster{iCluster};
+
+                if isempty(iSpikes)
+                    continue;
+                end
+
+                iFeatures = squeeze(obj.spikeFeatures(:, 1, iSpikes));
+
+                % if iSite is secondary site for any spikes in this cluster, prefer
+                % features computed from those over primary spike features
+                if size(obj.spikeFeatures, 2) >= 2
+                    iFeatures2 = squeeze(obj.spikeFeatures(:, 2, iSpikes));
+                    onSite2 = find(obj.spikeSites2(iSpikes) == iSite);
+                    iFeatures(:, onSite2) = iFeatures2(:, onSite2);
+                end
+
+                iFeatures = iFeatures';
+
+                try % MAD transform of log self-Mahalanobis distance
+                    iDist = jrclust.utils.madScore(log(mahal(iFeatures, iFeatures)));
+                catch
+                    continue;
+                end
+
+                exclude = (iDist > obj.hCfg.outlierThresh);
+                if any(exclude)
+                    obj.spikesByCluster{iCluster} = iSpikes(~exclude);
+                    obj.spikeClusters(iSpikes(exclude)) = 0; % classify as noise
+                    obj.clusterCounts(iCluster) = numel(obj.spikesByCluster{iCluster});
+                end
+
+                fprintf('.');
+            end
+        end
+
+        function nRemoved = rmRefracSpikes(obj, iCluster)
+            % remove refractory spikes
+            if nargin == 1 % recurse for each cluster
+                nRemoved = 0;
+                for iCluster_ = 1:obj.nClusters
+                    nRemoved_ = obj.rmRefracSpikes(iCluster_);
+                    nRemoved = nRemoved + nRemoved_;
+                end
+
+                return;
+            else
+                nRemoved = 0;
+                nSkip_refrac = 4;
+
+                try
+                    clusterSpikes_ = obj.spikesByCluster{iCluster};
+                catch
+                    clusterSpikes_ = find(obj.spikeClusters == iCluster);
+                end
+
+                if isempty(clusterSpikes_)
+                    return;
+                end
+
+                clusterTimes_ = obj.spikeTimes(clusterSpikes_);
+
+                % removal loop
+                keepMe = true(size(clusterTimes_));
+                while (1)
+                    iKeepMe = find(keepMe);
+
+                    inRefrac = find(diff(clusterTimes_(keepMe)) < obj.hCfg.refracIntSamp) + 1;
+                    if isempty(inRefrac)
+                        break;
+                    end
+
+                    keepMe(iKeepMe(inRefrac(1:nSkip_refrac:end))) = false;
+                end
+
+                nRemoved = sum(~keepMe);
+                nTotal = numel(keepMe);
+                obj.spikeClusters(clusterSpikes_(~keepMe)) = 0; % assign to noise cluster
+
+                obj.spikesByCluster{iCluster} = clusterSpikes_(keepMe);
+                obj.clusterCounts(iCluster) = sum(keepMe);
             end
 
-            %obj.spikeClusters = mapIndex_(obj.spikeClusters, argsort);
-            map(argsort) = 1:numel(argsort);
-            mask = (obj.spikeClusters > 0);
-            obj.spikeClusters(mask) = map(obj.spikeClusters(mask)); % do not map zeros
-
-            % reorder data fields
-            obj.spikesByCluster = obj.spikesByCluster(argsort); % redundant with refresh?
-            obj.clusterSites = obj.clusterSites(argsort);       % redundant with refresh?
-            obj.clusterCounts = obj.clusterCounts(argsort);     % redundant with refresh?
-            obj.clusterNotes = obj.clusterNotes(argsort);
-            if ~isempty(obj.centroids)
-                obj.centroids = obj.centroids(argsort, :);
+            if obj.hCfg.verbose
+                fprintf('Cluster %d: removed %d/%d (%0.2f%%) duplicate spikes\n', iCluster, nRemoved, nTotal, 100*nRemoved/nTotal);
             end
+        end
 
-            obj.refresh();
+        function updateWaveforms(obj)
+            obj.computeMeanWaveforms();
+            obj.computeWaveformSim();
+            obj.simScore = jrclust.utils.setDiag(obj.mrWavCor, obj.computeSelfSim());
         end
     end
 
     %% GETTERS/SETTERS
     methods
+        function c = get.icl(obj)
+            c = obj.clusterCenters;
+        end
+
         % clusterNotes/csNote_clu
         function cn = get.csNote_clu(obj)
             cn = obj.clusterNotes;
@@ -428,13 +821,16 @@ classdef Clustering < handle
             obj.dRes = dr;
         end
 
-        % initialClustering
+        % initialClustering/viClu_auto
         function ic = get.initialClustering(obj)
             if ~isempty(obj.sRes)
                 ic = obj.sRes.spikeClusters;
             else
                 ic = [];
             end
+        end
+        function ic = get.viClu_auto(obj)
+            ic = obj.initialClustering;
         end
 
         % meanWfGlobal/tmrWav_spk_clu
@@ -467,9 +863,9 @@ classdef Clustering < handle
             mw = obj.meanWfRawLow;
         end
 
-        % minSites/viSite_min_clu
+        % unitPeakSites/viSite_min_clu
         function ms = get.viSite_min_clu(obj)
-            ms = obj.minSites;
+            ms = obj.unitPeakSites;
         end
 
         % nClusters/nClu
@@ -480,9 +876,40 @@ classdef Clustering < handle
             nc = obj.nClusters;
         end
 
-        % peakVoltages/vrVmin_clu
-        function pv = get.vrVmin_clu(obj)
-            pv = obj.peakVoltages;
+        % nEdits
+        function ne = get.nEdits(obj)
+            ne = size(obj.history, 1) - 1;
+        end
+
+        % ordRho/ordrho
+        function or = get.ordRho(obj)
+            if isfield(obj.sRes, 'ordRho')
+                or = obj.sRes.ordRho;
+            else
+                or = [];
+            end
+        end
+        function or = get.ordrho(obj)
+            or = obj.ordRho;
+        end
+
+        % rhoCuts
+        function rc = get.rhoCuts(obj)
+            if isfield(obj.sRes, 'rhoCutSite')
+                rc = obj.sRes.rhoCutSite;
+            else
+                rc = [];
+            end
+        end
+
+        % simScore/mrWavCor
+        function ss = get.mrWavCor(obj)
+            ss = obj.simScore;
+        end
+
+        % nSitesOverThresh/vnSite_clu
+        function so = get.vnSite_clu(obj)
+            so = obj.nSitesOverThresh;
         end
 
         % siteThresh
@@ -506,6 +933,42 @@ classdef Clustering < handle
         % spikeClusters/viClu
         function sc = get.viClu(obj)
             sc = obj.spikeClusters;
+        end
+
+        % spikeDelta/delta
+        function sd = get.spikeDelta(obj)
+            if isfield(obj.sRes, 'spikeDelta')
+                sd = obj.sRes.spikeDelta;
+            else
+                sd = [];
+            end
+        end
+        function sd = get.delta(obj)
+            sd = obj.spikeDelta;
+        end
+
+        % spikeNeigh/nneigh
+        function sn = get.spikeNeigh(obj)
+            if isfield(obj.sRes, 'spikeNeigh')
+                sn = obj.sRes.spikeNeigh;
+            else
+                sn = [];
+            end
+        end
+        function sd = get.nneigh(obj)
+            sd = obj.spikeNeigh;
+        end
+
+        % spikeRho/rho
+        function sr = get.spikeRho(obj)
+            if isfield(obj.sRes, 'spikeRho')
+                sr = obj.sRes.spikeRho;
+            else
+                sr = [];
+            end
+        end
+        function sr = get.rho(obj)
+            sr = obj.spikeRho;
         end
 
         % spikeFeatures
@@ -599,6 +1062,67 @@ classdef Clustering < handle
             end
 
             obj.sRes = sr;
+        end
+
+        % tmrWav_clu
+        function tm = get.tmrWav_clu(obj)
+            tm = obj.meanWfGlobal;
+        end
+
+        % unitISIRato/VrIsiRatio_clu
+        function ir = get.vrIsiRatio_clu(obj)
+            ir = obj.unitISIRatio;
+        end
+
+        % unitIsoDist/vrIsoDist_clu
+        function id = get.vrIsoDist_clu(obj)
+            id = obj.unitIsoDist;
+        end
+
+        % unitLRatio/vrLRatio_clu
+        function lr = get.vrLRatio_clu(obj)
+            lr = obj.unitLRatio;
+        end
+
+        % unitPeaks/vrVmin_clu
+        function pv = get.vrVmin_clu(obj)
+            pv = obj.unitPeaks;
+        end
+
+        % unitPeaksRaw/vrVmin_uv_clu
+        function pv = get.vrVmin_uv_clu(obj)
+            pv = obj.unitPeaksRaw;
+        end
+
+        % unitSNR/vrSnr_clu
+        function sn = get.vrSnr_clu(obj)
+            sn = obj.unitSNR;
+        end
+
+        % unitVpp/vrVpp_clu
+        function pv = get.vrVpp_clu(obj)
+            pv = obj.unitVpp;
+        end
+
+        % unitVppRaw/vrVpp_uv_clu
+        function pv = get.vrVpp_uv_clu(obj)
+            pv = obj.unitVppRaw;
+        end
+
+        % vrPos{X,Y}_clu
+        function xp = get.vrPosX_clu(obj)
+            if ~isempty(obj.clusterCentroids)
+                xp = obj.clusterCentroids(:, 1);
+            else
+                xp = [];
+            end
+        end
+        function yp = get.vrPosY_clu(obj)
+            if ~isempty(obj.clusterCentroids)
+                yp = obj.clusterCentroids(:, 2);
+            else
+                yp = [];
+            end
         end
     end
 end
