@@ -6,7 +6,7 @@ function plot_FigIsi_(S0)
 
     [vrX1, vrY1] = get_returnMap_(S0.iCluCopy, P);
     if isempty(S_fig)
-        S_fig.hAx = axes_new_(hFig);
+        S_fig.hAx = hFig.axes();
         S_fig.hPlot1 = plot(S_fig.hAx, nan, nan, 'ko');
         S_fig.hPlot2 = plot(S_fig.hAx, nan, nan, 'ro');
         set(S_fig.hAx, 'XScale','log', 'YScale','log');

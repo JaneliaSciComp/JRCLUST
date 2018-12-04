@@ -76,6 +76,8 @@ function manual_(P, vcMode)
 
     S0 = plot_FigRD_(S0);
     S0.S_clu = plot_FigRD_(S0.S_clu, P); % ask user before doing so
+    
+    %%%%%%%%%%%%%%%%%%%%
 
     % Set initial amplitudes
     set(0, 'UserData', S0);

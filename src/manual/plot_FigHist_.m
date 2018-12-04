@@ -13,7 +13,7 @@ function plot_FigHist_(S0)
 
     % draw
     if isempty(S_fig) %first time the iCluPaste is always empty
-        S_fig.hAx = axes_new_(hFig);
+        S_fig.hAx = hFig.axes();
         S_fig.hPlot1 = stairs(S_fig.hAx, nan, nan, 'k');
         S_fig.hPlot2 = stairs(S_fig.hAx, nan, nan, 'r');
         xlim_(S_fig.hAx, [1 10000]); %in msec

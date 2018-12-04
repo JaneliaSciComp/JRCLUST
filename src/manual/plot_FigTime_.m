@@ -27,7 +27,7 @@ function plot_FigTime_(S0)
     % draw
     if isempty(S_fig)
         S_fig.maxAmp = P.maxAmp;
-        S_fig.hAx = axes_new_(hFig);
+        S_fig.hAx = hFig.axes();
         set(S_fig.hAx, 'Position', [.05 .2 .9 .7], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
         % first time

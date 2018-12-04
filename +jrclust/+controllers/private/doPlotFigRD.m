@@ -1,5 +1,5 @@
 function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
-    %DOPLOTFIGRD Summary of this function goes here    
+    %DOPLOTFIGRD Display rho-delta data   
     hFigRD.clf();
 
 %     if isfield(hClust, 'cS_clu_shank')

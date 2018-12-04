@@ -34,7 +34,7 @@ function plot_FigCorr_(S0)
     %--------------
     % draw
     if isempty(S_fig)
-        S_fig.hAx = axes_new_(hFig);
+        S_fig.hAx = hFig.axes();
         S_fig.hBar = bar(vrTime_lag, vnCnt, 1);
         xlabel('Time (ms)');
         ylabel('Counts');

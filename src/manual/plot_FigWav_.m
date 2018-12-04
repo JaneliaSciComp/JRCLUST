@@ -13,7 +13,7 @@ function S0 = plot_FigWav_(S0)
     if isempty(S_fig)
         % initialize
         S_fig.maxAmp = P.maxAmp;
-        S_fig.hAx = axes_new_(hFig);
+        S_fig.hAx = hFig.axes();
         set(gca, 'Position', [.05 .05 .9 .9], 'XLimMode', 'manual', 'YLimMode', 'manual');
         xlabel('Cluster #');    ylabel('Site #');   grid on;
         S_fig.vcTitle = 'Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi'; % TW

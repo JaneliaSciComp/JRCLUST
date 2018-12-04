@@ -7,19 +7,24 @@ classdef Figure < handle
     end
 
     properties (Dependent, SetObservable)
-        figTag = '';
-        figPos = [];
-        figName = '';
-        figData = [];
-        figMetadata = [];
+        figTag;
+        figPos;         
+        figName;        % 
+        figData;        % 
+        figMetadata;    % 'UserData' for hFig
+    end
+
+    properties (Hidden, SetObservable)
+        hFunClick;      % left-click function handle
+        hFunKey;        % keypress function handle
+        status;         % 
     end
 
     properties (Hidden, SetAccess=private)
-        isMouseable = false;
-        mouseFigHidden = false;
-        mouseStatus = '';
-        prevPoint = [];
-        hClickFun;
+        isMouseable;
+        mouseFigHidden;
+        mouseStatus;
+        prevPoint;
     end
 
     %% LIFECYCLE
@@ -45,6 +50,11 @@ classdef Figure < handle
             else
                 set(obj.hFig, 'MenuBar', 'none');
             end
+
+            obj.isMouseable = false;
+            obj.mouseFigHidden = false;
+            obj.status = 'ready';
+            set(obj.hFig, 'CloseRequestFcn', @obj.destroyFig);
         end
     end
 
@@ -121,15 +131,15 @@ classdef Figure < handle
             hAx = get(obj.hFig, 'CurrentAxes');
 
             % select on click, pan on shift-click
-            selType = get(obj.hFig, 'SelectionType');
+            clickType = get(obj.hFig, 'SelectionType');
 
-            if strcmp(selType, 'normal') % || strcmp(selType, 'alt')
+            if strcmp(clickType, 'normal') % || strcmp(selType, 'alt')
                 xyPoint = get(hAx, 'CurrentPoint');
 
-                if isa(obj.hClickFun, 'function_handle')
-                    obj.hClickFun(xyPoint([1, 3]), selType);
+                if isa(obj.hFunClick, 'function_handle')
+                    obj.hFunClick(xyPoint([1, 3]), clickType);
                 end
-            elseif strcmp(selType, 'extend') % shift-click
+            elseif strcmp(clickType, 'extend') % shift-click
                 obj.mouseStatus = 'down';
                 obj.hideDrag(); % hide objects
                 obj.prevPoint = get(hAx, 'CurrentPoint');
@@ -248,15 +258,26 @@ classdef Figure < handle
     
     %% USER METHODS
     methods
+        function axes(obj, varargin)
+            %AXES Create new axes for this figure
+            if isempty(obj.hFig)
+                obj.hFig = figure();
+            end
+
+            obj.clf();
+            axes(obj.hFig);
+            obj.hold('on');
+        end
+
         function axis(obj, varargin)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
                 axis(hAx, varargin{:});
             end
         end
         
         function val = axGet(obj, varargin)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
                 if isempty(hAx)
                     val = [];
@@ -269,27 +290,35 @@ classdef Figure < handle
         end
         
         function axSet(obj, varargin)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
                 set(hAx, varargin{:});
             end
         end
 
         function clf(obj)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 clf(obj.hFig);
             end
         end
 
         function close(obj)
             %CLOSE Close the figure
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 close(obj.hFig);
+            end
+        end
+
+        function colorbar(obj, varargin)
+            %COLORBAR Colorbar showing color scale
+            if ~strcmp(obj.status, 'destroyed')
+                hAx = get(obj.hFig, 'CurrentAxes');
+                colorbar(hAx);
             end
         end
         
         function val = figGet(obj, varargin)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 val = get(obj.hFig, varargin{:});
             else
                 val = [];
@@ -297,27 +326,27 @@ classdef Figure < handle
         end
 
         function figSet(obj, varargin)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 set(obj.hFig, varargin{:});
             end
         end
 
         function grid(obj, varargin)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
                 grid(hAx, varargin{:});
             end
         end
 
         function hold(obj, varargin)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
-                hold(hAx, varargin{2:end});
+                hold(hAx, varargin{:});
             end
         end
 
         function plot(obj, varargin)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
                 if isempty(hAx)
                     obj.toForeground();
@@ -332,11 +361,14 @@ classdef Figure < handle
             end
         end
 
-        function setMouseable(obj)
+        function setMouseable(obj, hFunClick)
             %SETMOUSEABLE Set the figure to be mouseable
             obj.isMouseable = true;
+            if nargin == 2 && ~isempty(hFunClick)
+                obj.hFunClick = hFunClick;
+            end                
 
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
                  % is2D might disappear in a future release...
                 if ~is2D(hAx) || isempty(hAx)
@@ -353,30 +385,38 @@ classdef Figure < handle
         end
 
         function title(obj, varargin)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
                 title(hAx, varargin{:});
             end
         end
 
         function toForeground(obj)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 figure(obj.hFig);
             end
         end
         
         function xlabel(obj, varargin)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
                 xlabel(hAx, varargin{:});
             end
         end
         
         function ylabel(obj, varargin)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
                 ylabel(hAx, varargin{:});
             end
+        end
+    end
+
+    %% UTILITY METHODS
+    methods (Hidden)
+        function destroyFig(obj, hObject, ~)
+            delete(hObject);
+            obj.status = 'destroyed';
         end
     end
 
@@ -384,35 +424,35 @@ classdef Figure < handle
     methods
         % figMetadata
         function fm = get.figMetadata(obj)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 fm = get(obj.hFig, 'UserData');
             else
                 fm = [];
             end
         end
         function set.figMetadata(obj, fm)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 set(obj.hFig, 'UserData', fm);
             end
         end
 
         % figName
         function fn = get.figName(obj)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 fn = get(obj.hFig, 'Name');
             else
                 fn = '';
             end
         end
         function set.figName(obj, figName)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 set(obj.hFig, 'Name', figName);
             end
         end
 
         % figPos
         function fp = get.figPos(obj)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 fp = get(obj.hFig, 'OuterPosition');
             else
                 fp = [];
@@ -440,15 +480,32 @@ classdef Figure < handle
 
         % figTag
         function ft = get.figTag(obj)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 ft = get(obj.hFig, 'Tag');
             else
                 ft = '';
             end
         end
         function set.figTag(obj, figTag)
-            if ~isempty(obj.hFig)
+            if ~strcmp(obj.status, 'destroyed')
                 set(obj.hFig, 'Tag', figTag);
+            end
+        end
+
+        % hFunClick
+        function set.hFunClick(obj, hf)
+            failMsg = 'hFunClick must be a function handle';
+            assert(isa(hf, 'function_handle'), failMsg);
+            obj.hFunClick = hf;
+        end
+
+        % hFunKey
+        function set.hFunKey(obj, hf)
+            failMsg = 'hFunKey must be a function handle';
+            assert(isa(hf, 'function_handle'), failMsg);
+            obj.hFunKey = hf;
+            if ~strcmp(obj.status, 'destroyed')
+                set(obj.hFig, 'KeyPressFcn', obj.hFunKey);
             end
         end
     end

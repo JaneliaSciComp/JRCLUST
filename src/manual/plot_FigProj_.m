@@ -59,7 +59,7 @@ function plot_FigProj_(S0)
     % display
     if isempty(S_fig)
         S_fig.maxAmp = P.maxAmp;
-        S_fig.hAx = axes_new_(hFig);
+        S_fig.hAx = hFig.axes();
         set(S_fig.hAx, 'Position', [.1 .1 .85 .85], 'XLimMode', 'manual', 'YLimMode', 'manual');
         S_fig.hPlot0 = line(nan, nan, 'Color', P.mrColor_proj(1,:), 'Parent', S_fig.hAx);
         S_fig.hPlot1 = line(nan, nan, 'Color', P.mrColor_proj(2,:), 'Parent', S_fig.hAx); %place holder

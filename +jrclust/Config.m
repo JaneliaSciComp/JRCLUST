@@ -333,6 +333,7 @@ classdef Config < handle & dynamicprops
         evtWindowRawSamp;           % interval around event to extract raw spike waveforms, in samples
         evtWindowSamp;              % interval around event to extract filtered spike waveforms, in samples
         refracIntSamp;              % spike refractory interval, in samples
+        sessionName;                % name of prm file, without path or extensions
     end
 
     % here to ease the transition (use rawRecordings to access both)
@@ -1381,6 +1382,11 @@ classdef Config < handle & dynamicprops
         function set.sRateHz(obj, sr)
             obj.logOldP('sRateHz');
             obj.sampleRate = sr;
+        end
+
+        % sessionName
+        function sn = get.sessionName(obj)
+            [~, sn, ~] = fileparts(obj.configFile);
         end
 
         % shankMap/viShank_site
