@@ -12,6 +12,7 @@ classdef Figure < handle
         figName;        % 
         figData;        % 
         figMetadata;    % 'UserData' for hFig
+        outerPosition;  % position of the figure on the screen
     end
 
     properties (Hidden, SetObservable)
@@ -133,7 +134,7 @@ classdef Figure < handle
             % select on click, pan on shift-click
             clickType = get(obj.hFig, 'SelectionType');
 
-            if strcmp(clickType, 'normal') % || strcmp(selType, 'alt')
+            if strcmp(clickType, 'normal') || strcmp(clickType, 'alt') % left or right click
                 xyPoint = get(hAx, 'CurrentPoint');
 
                 if isa(obj.hFunClick, 'function_handle')
@@ -384,10 +385,10 @@ classdef Figure < handle
             end
         end
 
-        function title(obj, varargin)
+        function title(obj, t)
             if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
-                title(hAx, varargin{:});
+                title(hAx, t, 'Interpreter', 'none', 'FontWeight', 'normal');
             end
         end
 
@@ -396,14 +397,22 @@ classdef Figure < handle
                 figure(obj.hFig);
             end
         end
-        
+
+        function hMenu = uimenu(obj, varargin)
+            if ~strcmp(obj.status, 'destroyed')
+                hMenu = uimenu(obj.hFig, varargin{:});
+            else
+                hMenu = [];
+            end
+        end
+
         function xlabel(obj, varargin)
             if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
                 xlabel(hAx, varargin{:});
             end
         end
-        
+
         function ylabel(obj, varargin)
             if ~strcmp(obj.status, 'destroyed')
                 hAx = get(obj.hFig, 'CurrentAxes');
@@ -506,6 +515,20 @@ classdef Figure < handle
             obj.hFunKey = hf;
             if ~strcmp(obj.status, 'destroyed')
                 set(obj.hFig, 'KeyPressFcn', obj.hFunKey);
+            end
+        end
+
+        % outerPosition
+        function op = get.outerPosition(obj)
+            if ~strcmp(obj.status, 'destroyed')
+                op = get(obj.hFig, 'OuterPosition');
+            else
+                op = [];
+            end
+        end
+        function set.outerPosition(obj, op)
+            if ~strcmp(obj.status, 'destroyed')
+                set(obj.hFig, 'OuterPosition', op);
             end
         end
     end

@@ -76,12 +76,11 @@ function manual_(P, vcMode)
 
     S0 = plot_FigRD_(S0);
     S0.S_clu = plot_FigRD_(S0.S_clu, P); % ask user before doing so
-    
-    %%%%%%%%%%%%%%%%%%%%
 
     % Set initial amplitudes
     set(0, 'UserData', S0);
     plot_FigWavCor_(S0); % hFigWavCor
+    %%%%%%%%%%%%%%%%%%%%
     S0 = plot_FigWav_(S0); % hFigWav %do this after for ordering
 
     % hFigProj, hFigHist, hFigIsi, hFigCorr, hFigPos, hFigMap, hFigTime
