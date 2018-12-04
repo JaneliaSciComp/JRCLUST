@@ -1,7 +1,5 @@
-%--------------------------------------------------------------------------
-function hFig = create_figure_(figTag, figPos, figName, figToolbar, figMenubar)
-    % create_figure_('FigPos', [0 0 .15 .5], ['Unit position; ', P.vcFile_prm], 1, 0);
-    % or call external create_figure()
+function hFig = doCreateFigure(figTag, figPos, figName, figToolbar, figMenubar)
+    %DOCREATEFIGURE Create a Figure object
     if nargin < 2
         figPos = [];
     end
@@ -38,5 +36,5 @@ function hFig = create_figure_(figTag, figPos, figName, figToolbar, figMenubar)
 %     if ~isempty(vrPos), resize_figure_(hFig, vrPos); end
 %     clf(hFig);
 
-    hFig = jrclust.views.Figure(figTag, figPos, figName, figToolbar, figMenubar);
-end %func
+    hFig = jrclust.models.Figure(figTag, figPos, figName, figToolbar, figMenubar);
+end

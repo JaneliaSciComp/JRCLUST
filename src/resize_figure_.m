@@ -1,6 +1,5 @@
 %--------------------------------------------------------------------------
 function hFig = resize_figure_(hFig, posvec0, fRefocus)
-    if nargin<3, fRefocus = 1; end
     height_taskbar = 40;
 
     pos0 = get(groot, 'ScreenSize');

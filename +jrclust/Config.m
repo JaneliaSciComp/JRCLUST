@@ -28,6 +28,7 @@ classdef Config < handle & dynamicprops
         fEllip;                     % => useElliptic
         fft_thresh;                 % => fftThreshMad
         fGpu;                       % => useGPU
+        fImportKilosort;            % => fImportKsort
         fRepeat_clu;                % => repeatLower
         fVerbose;                   % => verbose
         gain_boost;                 % => gainBoost
@@ -194,6 +195,7 @@ classdef Config < handle & dynamicprops
         fDiscard_count = true;
         fGroup_shank = false;
         fInverse_file = false;
+        fImportKsort = false;
         fLoad_lfp = false;
         fMeanSite = true;
         fMeanSiteRef = false;
@@ -905,6 +907,19 @@ classdef Config < handle & dynamicprops
         function set.vcFilter(obj, ft)
             obj.logOldP('vcFilter');
             obj.filterType = ft;
+        end
+
+        % fImportKsort/fImportKilosort
+        function set.fImportKsort(obj, fi)
+            obj.fImportKsort = true && fi;
+        end
+        function fi = get.fImportKilosort(obj)
+            obj.logOldP('fImportKilosort');
+            fi = obj.fImportKsort;
+        end
+        function set.fImportKilosort(obj, fi)
+            obj.logOldP('fImportKilosort');
+            obj.fImportKilosort = fi;
         end
 
         % freqLim

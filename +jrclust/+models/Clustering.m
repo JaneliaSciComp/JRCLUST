@@ -42,7 +42,7 @@ classdef Clustering < handle
         vrSnr_clu;          % => unitSNR
         vrVmin_clu;         % => unitPeaks
         vrVmin_uv_clu;      % => unitPeaksRaw
-        vrVpp_clu;          % => viSite_clu
+        vrVpp_clu;          % => unitVpp
         vrVpp_uv_clu;       % => unitVppRaw
         vrVrms_site;        % => siteRMS
     end
@@ -689,6 +689,11 @@ classdef Clustering < handle
                 return;
             end
 
+            % This is troubling:
+            % Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+            % > In mahal (line 49)
+            % TODO: investigate
+            warning off;
             for iCluster = 1:obj.nClusters
                 iSite = obj.clusterSites(iCluster);
                 iSpikes = obj.spikesByCluster{iCluster};
@@ -710,7 +715,13 @@ classdef Clustering < handle
                 iFeatures = iFeatures';
 
                 try % MAD transform of log self-Mahalanobis distance
+                    lastwarn(''); % reset last warning to catch it
+
                     iDist = jrclust.utils.madScore(log(mahal(iFeatures, iFeatures)));
+                    [wstr, wid] = lastwarn();
+                    if strcmp(wid, 'MATLAB:nearlySingularMatrix')
+                        error(wstr);
+                    end
                 catch
                     continue;
                 end
@@ -724,10 +735,11 @@ classdef Clustering < handle
 
                 fprintf('.');
             end
+            warning on;
         end
 
         function nRemoved = rmRefracSpikes(obj, iCluster)
-            % remove refractory spikes
+            %RMREFRACSPIKES remove refractory spikes
             if nargin == 1 % recurse for each cluster
                 nRemoved = 0;
                 for iCluster_ = 1:obj.nClusters
@@ -773,9 +785,9 @@ classdef Clustering < handle
                 obj.clusterCounts(iCluster) = sum(keepMe);
             end
 
-            if obj.hCfg.verbose
-                fprintf('Cluster %d: removed %d/%d (%0.2f%%) duplicate spikes\n', iCluster, nRemoved, nTotal, 100*nRemoved/nTotal);
-            end
+            % if obj.hCfg.verbose
+            %     fprintf('Cluster %d: removed %d/%d (%0.2f%%) duplicate spikes\n', iCluster, nRemoved, nTotal, 100*nRemoved/nTotal);
+            % end
         end
 
         function updateWaveforms(obj)

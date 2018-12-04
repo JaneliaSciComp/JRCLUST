@@ -2,7 +2,7 @@ classdef Figure < handle
     %FIGURE handle for JRCLUST manual figure
     %   Base class for specific figure types
 
-    properties (SetObservable, SetAccess=private, Hidden)
+    properties (Access=private, Hidden, SetObservable)
         hFig;
     end
 
@@ -14,7 +14,7 @@ classdef Figure < handle
         figMetadata = [];
     end
 
-    properties (SetAccess=private, Hidden)
+    properties (Hidden, SetAccess=private)
         isMouseable = false;
         mouseFigHidden = false;
         mouseStatus = '';
@@ -22,7 +22,7 @@ classdef Figure < handle
         hClickFun;
     end
 
-    % life cycle
+    %% LIFECYCLE
     methods
         function obj = Figure(figTag, figPos, figName, figToolbar, figMenubar)
             %FIGURE Construct an instance of this class
@@ -46,27 +46,12 @@ classdef Figure < handle
                 set(obj.hFig, 'MenuBar', 'none');
             end
         end
-        
-        function setMouseable(obj)
-            obj.isMouseable = true;
-
-            hAx = get(obj.hFig, 'CurrentAxes');
-             % is2D might disappear in a future release...
-            if ~is2D(hAx) || isempty(hAx)
-                return;
-            end
-
-            % define zoom with scroll wheel, pan with left click
-            set(obj.hFig, ...
-                'WindowScrollWheelFcn' , @obj.scrollZoom, ...
-                'WindowButtonDownFcn'  , @obj.panClick, ...
-                'WindowButtonUpFcn'    , @obj.panRelease, ...
-                'WindowButtonMotionFcn', @obj.panMotion);
-        end
     end
-    
-    methods % mouse methods
+
+    %% MOUSE METHODS
+    methods (Access=private, Hidden)
         function scrollZoom(obj, varargin)
+            %SCROLLZOOM Zoom with the scroll wheel
             hAx = get(obj.hFig, 'CurrentAxes');
             scrolls = varargin{2}.VerticalScrollCount;
 
@@ -130,9 +115,9 @@ classdef Figure < handle
                 'CameraPositionMode', 'auto', ...
                 'CameraTargetMode', 'auto');
         end
-        
-        % pan on mouse click
+
         function panClick(obj, varargin)
+            %PANCLICK Pan on mouse click
             hAx = get(obj.hFig, 'CurrentAxes');
 
             % select on click, pan on shift-click
@@ -151,14 +136,8 @@ classdef Figure < handle
             end
         end
 
-        % release mouse button
-        function panRelease(obj, varargin)
-            obj.showDrag();
-            obj.mouseStatus = '';
-        end
-
-        % move the mouse (with button clicked)
         function panMotion(obj, varargin)
+            %PANMOUSE Move the mouse (with button clicked)
             if isempty(obj.prevPoint) || isempty(obj.mouseStatus)
                 return
             end
@@ -184,8 +163,15 @@ classdef Figure < handle
             % save new position
             obj.prevPoint = get(hAx, 'CurrentPoint');
         end
-        
+
+        function panRelease(obj, varargin)
+            %PANRELEASE Release the mouse button after pan
+            obj.showDrag();
+            obj.mouseStatus = '';
+        end
+
         function hideDrag(obj)
+            %HIDEDRAG Hide objects on drag mouse
             if ~isfield(obj.figMetadata, 'cvhHide_mouse')
                 return;
             end
@@ -260,101 +246,177 @@ classdef Figure < handle
         end
     end
     
-    % user methods (mostly wrappers around plotting functions)
+    %% USER METHODS
     methods
         function axis(obj, varargin)
-            hAx = get(obj.hFig, 'CurrentAxes');
-            axis(hAx, varargin{:});
+            if ~isempty(obj.hFig)
+                hAx = get(obj.hFig, 'CurrentAxes');
+                axis(hAx, varargin{:});
+            end
         end
         
         function val = axGet(obj, varargin)
-            hAx = get(obj.hFig, 'CurrentAxes');
-            if isempty(hAx)
-                val = [];
+            if ~isempty(obj.hFig)
+                hAx = get(obj.hFig, 'CurrentAxes');
+                if isempty(hAx)
+                    val = [];
+                else
+                    val = get(hAx, varargin{:});
+                end
             else
-                val = get(hAx, varargin{:});
+                val = [];
             end
         end
         
         function axSet(obj, varargin)
-            hAx = get(obj.hFig, 'CurrentAxes');
-            set(hAx, varargin{:});
+            if ~isempty(obj.hFig)
+                hAx = get(obj.hFig, 'CurrentAxes');
+                set(hAx, varargin{:});
+            end
         end
 
         function clf(obj)
-            clf(obj.hFig);
+            if ~isempty(obj.hFig)
+                clf(obj.hFig);
+            end
+        end
+
+        function close(obj)
+            %CLOSE Close the figure
+            if ~isempty(obj.hFig)
+                close(obj.hFig);
+            end
         end
         
         function val = figGet(obj, varargin)
-            val = get(obj.hFig, varargin{:});
+            if ~isempty(obj.hFig)
+                val = get(obj.hFig, varargin{:});
+            else
+                val = [];
+            end
         end
 
         function figSet(obj, varargin)
-            set(obj.hFig, varargin{:});
+            if ~isempty(obj.hFig)
+                set(obj.hFig, varargin{:});
+            end
         end
 
         function grid(obj, varargin)
-            hAx = get(obj.hFig, 'CurrentAxes');
-            grid(hAx, varargin{:});
+            if ~isempty(obj.hFig)
+                hAx = get(obj.hFig, 'CurrentAxes');
+                grid(hAx, varargin{:});
+            end
         end
 
         function hold(obj, varargin)
-            hAx = get(obj.hFig, 'CurrentAxes');
-            hold(hAx, varargin{:});
+            if ~isempty(obj.hFig)
+                hAx = get(obj.hFig, 'CurrentAxes');
+                hold(hAx, varargin{2:end});
+            end
         end
 
         function plot(obj, varargin)
-            hAx = get(obj.hFig, 'CurrentAxes');
-            if isempty(hAx)
-                obj.toForeground();
-                plot(varargin{:});
-            else
-                plot(hAx, varargin{:});
-            end
+            if ~isempty(obj.hFig)
+                hAx = get(obj.hFig, 'CurrentAxes');
+                if isempty(hAx)
+                    obj.toForeground();
+                    plot(varargin{:});
+                else
+                    plot(hAx, varargin{:});
+                end
 
-            if obj.isMouseable
-                obj.setMouseable();
+                if obj.isMouseable
+                    obj.setMouseable();
+                end
             end
         end
-        
+
+        function setMouseable(obj)
+            %SETMOUSEABLE Set the figure to be mouseable
+            obj.isMouseable = true;
+
+            if ~isempty(obj.hFig)
+                hAx = get(obj.hFig, 'CurrentAxes');
+                 % is2D might disappear in a future release...
+                if ~is2D(hAx) || isempty(hAx)
+                    return;
+                end
+
+                % define zoom with scroll wheel, pan with left click
+                set(obj.hFig, ...
+                    'WindowScrollWheelFcn' , @obj.scrollZoom, ...
+                    'WindowButtonDownFcn'  , @obj.panClick, ...
+                    'WindowButtonUpFcn'    , @obj.panRelease, ...
+                    'WindowButtonMotionFcn', @obj.panMotion);
+            end
+        end
+
         function title(obj, varargin)
-            hAx = get(obj.hFig, 'CurrentAxes');
-            title(hAx, varargin{:});
+            if ~isempty(obj.hFig)
+                hAx = get(obj.hFig, 'CurrentAxes');
+                title(hAx, varargin{:});
+            end
         end
 
         function toForeground(obj)
-            figure(obj.hFig);
+            if ~isempty(obj.hFig)
+                figure(obj.hFig);
+            end
         end
         
         function xlabel(obj, varargin)
-            hAx = get(obj.hFig, 'CurrentAxes');
-            xlabel(hAx, varargin{:});
+            if ~isempty(obj.hFig)
+                hAx = get(obj.hFig, 'CurrentAxes');
+                xlabel(hAx, varargin{:});
+            end
         end
         
         function ylabel(obj, varargin)
-            hAx = get(obj.hFig, 'CurrentAxes');
-            ylabel(hAx, varargin{:});
+            if ~isempty(obj.hFig)
+                hAx = get(obj.hFig, 'CurrentAxes');
+                ylabel(hAx, varargin{:});
+            end
         end
     end
 
-    % getters/setters
+    %% GETTERS/SETTERS
     methods
         % figMetadata
         function fm = get.figMetadata(obj)
-            fm = get(obj.hFig, 'UserData');
+            if ~isempty(obj.hFig)
+                fm = get(obj.hFig, 'UserData');
+            else
+                fm = [];
+            end
+        end
+        function set.figMetadata(obj, fm)
+            if ~isempty(obj.hFig)
+                set(obj.hFig, 'UserData', fm);
+            end
         end
 
         % figName
         function fn = get.figName(obj)
-            fn = get(obj.hFig, 'Name');
+            if ~isempty(obj.hFig)
+                fn = get(obj.hFig, 'Name');
+            else
+                fn = '';
+            end
         end
         function set.figName(obj, figName)
-            set(obj.hFig, 'Name', figName);
+            if ~isempty(obj.hFig)
+                set(obj.hFig, 'Name', figName);
+            end
         end
 
         % figPos
         function fp = get.figPos(obj)
-            fp = get(obj.hFig, 'OuterPosition');
+            if ~isempty(obj.hFig)
+                fp = get(obj.hFig, 'OuterPosition');
+            else
+                fp = [];
+            end
         end
         function set.figPos(obj, figPos)
             if isempty(figPos)
@@ -378,10 +440,16 @@ classdef Figure < handle
 
         % figTag
         function ft = get.figTag(obj)
-            ft = get(obj.hFig, 'Tag');
+            if ~isempty(obj.hFig)
+                ft = get(obj.hFig, 'Tag');
+            else
+                ft = '';
+            end
         end
         function set.figTag(obj, figTag)
-            set(obj.hFig, 'Tag', figTag);
+            if ~isempty(obj.hFig)
+                set(obj.hFig, 'Tag', figTag);
+            end
         end
     end
 end

@@ -377,7 +377,7 @@ classdef SortController < handle
     end
 
     %% CLUSTER ASSIGNMENT/MERGING METHODS
-    methods (Access=protected, Hidden)
+    methods (Access=public, Hidden)
         function res = computeCenters(obj, dRes, res)
             %COMPUTECENTERS Find cluster centers
             if ~isfield(dRes, 'spikesBySite')
@@ -457,7 +457,9 @@ classdef SortController < handle
                             break;
                         end
 
-                        fprintf('i:%d, n0=%d, ', i, nUnassigned);
+                        if obj.hCfg.verbose
+                            fprintf('i: %d, n0 = %d, ', i, nUnassigned);
+                        end
                     end
                     res.spikeClusters(res.spikeClusters <= 0) = 1; %background
                 end
