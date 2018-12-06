@@ -4,7 +4,7 @@ function rescale_FigWav_(event, S0, P)
     set(0, 'UserData', S0);
 
     [S_fig, maxAmp_prev, hFigWav] = set_fig_maxAmp_('FigWav', event);
-    set_fig_(hFigWav, plot_tnWav_clu_(S_fig, P));
+    set_fig_(hFigWav, plotMeanWaveforms(S_fig, P));
     multiplot(S0.hCopy, S_fig.maxAmp);
     if ~isempty(S0.iCluPaste)
         multiplot(S0.hPaste, S_fig.maxAmp);

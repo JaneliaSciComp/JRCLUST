@@ -8,7 +8,7 @@ function plot_activity_(P) % single column only
     % vcFile_evt = subsFileExt(P.vcFile_prm, '_evt.mat');
     S0 = load_cached_(P, 0); %do not load waveforms
     nSites = numel(P.viSite2Chan);
-    % tdur = max(cell2mat_(cellfun(@(x)double(max(x)), Sevt.cviSpk_site, 'UniformOutput', 0))) / P.sRateHz;
+    % tdur = max(jrclust.utils.neCell2mat(cellfun(@(x)double(max(x)), Sevt.cviSpk_site, 'UniformOutput', 0))) / P.sRateHz;
     tdur = double(max(S0.viTime_spk)) / P.sRateHz; % in sec
     nTime = ceil(tdur / tbin);
 

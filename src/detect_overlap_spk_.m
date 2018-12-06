@@ -14,7 +14,7 @@ function [viSpk_ol_spk, vnDelay_ol_spk, vnCount_ol_spk] = detect_overlap_spk_(vi
         viSpk1 = cviSpk_site{iSite};
         if isempty(viSpk1), continue; end
         viSite2 = find(mrDist_site(:,iSite) <= maxDist_site_um & mrDist_site(:,iSite) > 0);
-        viSpk2 = cell2mat_(cviSpk_site(viSite2));
+        viSpk2 = jrclust.utils.neCell2mat(cviSpk_site(viSite2));
         [n1, n2] = deal(numel(viSpk1), numel(viSpk2));
         viSpk12 = [viSpk1(:); viSpk2(:)];
         [viTime1, viTime12] = deal(viTime_spk(viSpk1), viTime_spk(viSpk12));

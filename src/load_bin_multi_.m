@@ -8,6 +8,6 @@ function mnWav = load_bin_multi_(fid, cvi_lim_bin, P)
         mnWav{i} = jrclust.utils.readBin(fid, P.vcDataType, [P.nChans, diff(lim1)+1]);
         if i==1, fpos = ftell(fid); end
     end %for
-    mnWav = cell2mat_(mnWav);
+    mnWav = jrclust.utils.neCell2mat(mnWav);
     fseek(fid, fpos, 'bof'); % restore the file position
 end %func

@@ -6,5 +6,5 @@ function vi = cell2vi_(cvi)
     for iSite=1:numel(cvi)
         vi{iSite} = iSite * ones(vn_site(iSite), 1);
     end
-    vi = cell2mat_(vi);
+    vi = jrclust.utils.neCell2mat(vi);
 end %func

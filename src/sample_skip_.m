@@ -23,7 +23,7 @@ function [cvnlim_bin, viRange, viEdges] = sample_skip_(nlim_bin, nSamples_bin, n
         cvnlim_bin{i} = lim1;
     end
     if nargout>=2
-        viRange = cell2mat_(cellfun(@(x)x(1):x(2), cvnlim_bin, 'UniformOutput', 0));
+        viRange = jrclust.utils.neCell2mat(cellfun(@(x)x(1):x(2), cvnlim_bin, 'UniformOutput', 0));
     end
     if nargout>=3 %compute the number of samples
         viEdges = cumsum(cellfun(@(x)diff(x)+1, cvnlim_bin));

@@ -29,7 +29,7 @@ classdef CurateController < handle
 
     %% KEYPRESS/MOUSECLICK METHODS
     methods (Hidden)
-        function keyPressFigSim(obj, ~, hEvent)
+        function keyPressFigSim(obj, hFigSim, hEvent)
             %KEYPRESSFIGSIM Handle callbacks for keys pressed in sim view
             switch hEvent.Key
                 case {'d', 'backspace', 'delete'} % delete
@@ -61,10 +61,9 @@ classdef CurateController < handle
             end % switch
         end
 
-        function keyPressFigWav(obj, hObject, hEvent)
+        function keyPressFigWav(obj, hFigWav, hEvent)
             %KEYPRESSFIGWAV Handle callbacks for keys pressed in main view
-            %disp(hObject);
-            %disp(hEvent);
+            nSites = numel(obj.hCfg.siteMap);
         end
 
         function mouseClickFigSim(obj, xyPos, clickType)
@@ -86,21 +85,39 @@ classdef CurateController < handle
 
         function mouseClickFigWav(obj, xyPos, clickType)
             %MOUSECLICKFIGWAV Handle callbacks for mouse clicks in sim view
-            disp(clickType);
-            if strcmp(clickType, 'normal')  % select primary cluster
-                obj.updateCursor(floor(xyPos(1)), false)
-            elseif strcmp(clickType, 'alt') % select secondary cluster
-                obj.updateCursor(floor(xyPos(1)), true)
-            else
+            hFig = obj.hFigs('hFigWav');
+            if strcmp(clickType, 'normal')  % left click, select primary cluster
+                obj.updateCursor(hFig, floor(xyPos(1)), false)
+            elseif strcmp(clickType, 'alt') % right click, select secondary cluster
+                obj.updateCursor(hFig, floor(xyPos(1)), true)
+            else                            % middle click, ignore
                 return;
             end
 
-            hFig = obj.hFigs('hFigWav');
             hFig.figSet('Pointer', 'watch');
             % S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'j','t','c','i','v','e','f'}, S0); %'z'
             % auto_scale_proj_time_(S0);
             % plot_raster_(S0);
             hFig.figSet('Pointer', 'arrow');
+        end
+    end
+
+    %% SPECIFIC PLOT METHODS
+    methods
+        function [iCluster, hPlot] = plot_tmrWav_clu_(obj, iCluster, hPlot, colorMap)
+            hFig = obj.hFigs('hFigWav');
+
+            if ~isvalid_(hPlot)
+                hPlot = hFig.plot(nan, nan, 'Color', colorMap, 'LineWidth', 2);
+            end
+            if obj.hCfg.fWav_raw_show
+                mrWav_clu1 = obj.hClust.meanWfGlobalRaw(:, :, iCluster);
+            else
+                mrWav_clu1 = obj.hClust.meanWfGlobal(:, :, iCluster);
+            end
+
+            multiplot(hPlot, S_fig.maxAmp, getXRange(iCluster, obj.hCfg), mrWav_clu1);
+            uistack_(hPlot, 'top');
         end
     end
 
@@ -181,27 +198,32 @@ classdef CurateController < handle
 
         function closeFigures(obj)
             %CLOSEFIGURES Close all open figures
-            hKeys = keys(obj.hFigs);
-            if any(strcmp(hKeys, 'hFigWav'))
+            if isKey(obj.hFigs, 'hFigWav')
                 hFigWav = obj.hFigs('hFigWav');
-                hFigWav.close(); % calls killFigWav, removes itself, and calls this function
+                hFigWav.close(); % calls killFigWav
             else
-                for iKey = 1:numel(hKeys)
-                    hFig = obj.hFigs(hKeys{iKey});
-                    try
-                        hFig.close();
-                    catch ME
-                    end
+                try
+                    obj.figApply(@(hFig) hFig.close());
+                catch ME
                 end
 
                 obj.hFigs = containers.Map();
             end
         end
 
-        function killFigWav(obj, hObject, hEvent)
-            hKeys = keys(obj.hFigs);
-            if any(strcmp(hKeys, 'hFigWav'))
-                remove(obj.hFigs, 'hFigWav');
+        function res = figApply(obj, hFun)
+            %FIGAPPLY Apply a function to all figures
+            if nargout == 0 % "Too many output arguments"
+                cellfun(@(k) hFun(obj.hFigs(k)), keys(obj.hFigs));
+            else
+                res = cellfun(@(k) hFun(obj.hFigs(k)), keys(obj.hFigs));
+            end
+        end
+
+        function killFigWav(obj, hObject, ~)
+            %KILLFIGWAV Destroy the main figure, close all other figures
+            if isKey(obj.hFigs, 'hFigWav')
+                remove(obj.hFigs, 'hFigWav'); % to prevent infinite recursion!
             end
 
             delete(hObject);
@@ -212,16 +234,18 @@ classdef CurateController < handle
             %PLOTALLFIGURES Plot all figures
             if isempty(obj.hFigs)
                 obj.spawnFigures();
+            elseif ~all(obj.figApply(@(hFig) hFig.isReady)) % clean up from an aborted session
+                obj.closeFigures();
+                obj.spawnFigures();
             end
-            hKeys = keys(obj.hFigs);
 
             % plot rho-delta figure
-            if any(strcmp(hKeys, 'hFigRD'))
+            if isKey(obj.hFigs, 'hFigRD')
                 obj.hFigs('hFigRD') = doPlotFigRD(obj.hFigs('hFigRD'), obj.hClust, obj.hCfg);
             end
 
             % plot sim score figure
-            if any(strcmp(hKeys, 'hFigSim'))
+            if isKey(obj.hFigs, 'hFigSim')
                 hFigSim = doPlotFigSim(obj.hFigs('hFigSim'), obj.hClust, obj.hCfg);
 
                 % set key and mouse handles
@@ -232,14 +256,14 @@ classdef CurateController < handle
             end
 
             % plot main waveform view
-            if any(strcmp(hKeys, 'hFigWav'))
+            if isKey(obj.hFigs, 'hFigWav')
                 hFigWav = doPlotFigWav(obj.hFigs('hFigWav'), obj.hClust, obj.hCfg);
 
                 % set key and mouse handles
                 hFigWav.hFunKey = @obj.keyPressFigWav;
                 hFigWav.setMouseable(@obj.mouseClickFigWav);
 
-                % make this guy the main view
+                % make this guy the key log
                 hFigWav.figSet('CloseRequestFcn', @obj.killFigWav);
                 obj.addMenu(hFigWav);
 
@@ -252,21 +276,21 @@ classdef CurateController < handle
             obj.hFigs = doSpawnFigures(obj.hCfg);
         end
 
-        function updateCursor(obj, iCluster, fPaste)
+        function updateCursor(obj, hFig, iCluster, fSecondary)
             if isempty(iCluster)
                 return;
             end
 %             if ~isfield(S0, 'hCopy'), S0.hCopy = []; end
 %             if ~isfield(S0, 'hPaste'), S0.hPaste = []; end
 
-            if ~fPaste
+            if ~fSecondary
                 selected_ = iCluster;
                 if selected_ < 1 || selected_ > obj.hClust.nClusters
                     return;
                 end
                 % update_plot_(S0.hPaste, nan, nan); %hide paste
                 obj.selected = selected_;
-                % [S0.iCluCopy, S0.hCopy] = plot_tmrWav_clu_(S0, iCluCopy, S0.hCopy, [0 0 0]);
+                %[iCluCopy, hCopy] = obj.plot_tmrWav_clu_(selected_, [], [0 0 0]);
             else
                 selected_ = obj.selected;
                 selected_(2) = iCluster;

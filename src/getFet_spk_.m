@@ -7,7 +7,7 @@ function [mrMin, mrMax] = getFet_spk_(viSpk1, viSites1, S0)
 
     switch lower(P.vcFet_show)
         case {'vmin', 'vpp'}
-            tnWav_spk1 = tnWav2uV_(tnWav_spk_sites_(viSpk1, viSites1, S0), P);
+            tnWav_spk1 = jrclust.utils.filtTouV(tnWav_spk_sites_(viSpk1, viSites1, S0), P);
             [mrMin, mrMax] = multifun_(@(x)abs(permute(x,[2,3,1])), min(tnWav_spk1), max(tnWav_spk1));
 
         case {'cov', 'spacetime'}

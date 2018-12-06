@@ -34,7 +34,7 @@ function MainFig = mouse_figure(MainFig, axs, hFunClick)
 % Name       : Rody P.S. Oldenhuis
 % E-mail     : oldenhuis@gmail.com    (personal)
 %              oldenhuis@luxspace.lu  (professional)
-% Affiliation: LuxSpace sàrl
+% Affiliation: LuxSpace sï¿½rl
 % Licence    : BSD
 
 
@@ -203,11 +203,11 @@ function hide_drag_(hFig)
 global mouse_figure_hidden %remember hidden obj
 % S0 = get(0, 'UserData');
 S_fig = get(hFig, 'UserData');
-if ~isfield(S_fig, 'cvhHide_mouse'), return; end
+if ~isfield(S_fig, 'hidePlots'), return; end
 try 
 %     iFig = find(hFig == S0.vhFig_mouse);
 %     if isempty(iFig), return; end
-    vhHide = S_fig.cvhHide_mouse;
+    vhHide = S_fig.hidePlots;
     if strcmpi(get(vhHide{1}(1), 'Visible'), 'off'), return; end
     
     toggleVisible_(vhHide, 0); %hide

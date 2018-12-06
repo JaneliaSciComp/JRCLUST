@@ -16,7 +16,7 @@ function [csFile_merge, vcDir] = dir_file_(vcFile_dir, fSortByDate)
     csFile_merge = dir_(vcFile_dir);
 
     % vsDir = dir(vcFile_dir);
-    % vrDatenum = cell2mat_({vsDir.datenum});
+    % vrDatenum = jrclust.utils.neCell2mat({vsDir.datenum});
     % csFile_merge = {vsDir.name};
     switch fSortByDate
         case 0

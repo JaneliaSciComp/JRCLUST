@@ -3,74 +3,53 @@ function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
     hFigSim.figSet('Pointer', 'watch');
 
     nClusters = hClust.nClusters;
-    if isempty(hFigSim.figMetadata)
-        % figMetadata.hAx = axes_new_(hFig);
+    if isempty(hFigSim.figData) % create from scratch
         hFigSim.axes();
-        % set(figMetadata.hAx, 'Position', [.1 .1 .8 .8], 'XLimMode', 'manual', 'YLimMode', 'manual', 'Layer', 'top');
-        hFigSim.axSet('Position', [.1 .1 .8 .8], 'XLimMode', 'manual', 'YLimMode', 'manual', 'Layer', 'top');
-        % set(figMetadata.hAx, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
-        hFigSim.axSet({'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
+        hFigSim.axSet('Position', [.1 .1 .8 .8], ...
+                      'XLimMode', 'manual', ...
+                      'YLimMode', 'manual', ...
+                      'Layer', 'top', ...
+                      'XTick', 1:nClusters, ...
+                      'YTick', 1:nClusters);
 
         if hCfg.fImportKsort
-            hFigSim.figMetadata.figView = 'kilosort';
+            hFigSim.figData.figView = 'kilosort';
         else
-            hFigSim.figMetadata.figView = 'waveform';
+            hFigSim.figData.figView = 'waveform';
         end
 
-        % axis_(figMetadata.hAx, [0 nClusters 0 nClusters] + .5);
         hFigSim.axis([0 nClusters 0 nClusters] + .5);
-        % axis(figMetadata.hAx, 'xy');
         hFigSim.axis('xy')
-        % grid(figMetadata.hAx, 'on');
         hFigSim.grid('on');
-        %xlabel(figMetadata.hAx, 'Clu#');
         hFigSim.xlabel('Cluster #');
-        %ylabel(figMetadata.hAx, 'Clu#');
         hFigSim.ylabel('Cluster #');
 
-        %clears title and current figure
-        if strcmp(hFigSim.figMetadata.figView, 'kilosort') && isprop(hClust, 'kSimScore')
-            % figMetadata.hImWavCor = imagesc(hClust.mrSim_clu, hCfg.corrLim); 
-            hFigSim.figMetadata.hImSim = imagesc(hClust.kSimScore, hCfg.corrLim);
+        if strcmp(hFigSim.figData.figView, 'kilosort') && isprop(hClust, 'kSimScore')
+            hFigSim.addImagesc('hImSim', 'CData', hClust.kSimScore, hCfg.corrLim);
             hFig.title('[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr');
         else
-            % figMetadata.hImWavCor = imagesc(hClust.mrWavCor, hCfg.corrLim); %clears title and current figure
-            hFigSim.figMetadata.hImSim = imagesc(hClust.simScore, hCfg.corrLim);
+            hFigSim.addImagesc('hImSim', 'CData', hClust.simScore, hCfg.corrLim);
             hFigSim.title('[S]plit; [M]erge; [D]elete');
         end
 
-        hFigSim.figMetadata.hCursorV = line([1 1], [.5 nClusters + .5], 'Color', [0 0 0], 'LineWidth', 1.5);
-        hFigSim.figMetadata.hCursorH = line([.5 nClusters + .5], [1 1], 'Color', [1 0 0], 'LineWidth', 1.5);
-        % colorbar(figMetadata.hAx);
+        % selected cluster pair cursors
+        hFigSim.addLine('hCursorV', [1 1], [.5 nClusters + .5], 'Color', [0 0 0], 'LineWidth', 1.5);
+        hFigSim.addLine('hCursorH', [.5 nClusters + .5], [1 1], 'Color', [1 0 0], 'LineWidth', 1.5);
+
         hFigSim.colorbar();
-
-%         if get_set_(hCfg, 'fImportKsort', 0)
-%             figMetadata.vcTitle = '[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr';
-%         else
-%             figMetadata.vcTitle = '[S]plit; [M]erge; [D]elete';
-%         end
-
-        % set(hFigSim, 'KeyPressFcn', @keyPressFcn_FigWavCor_);
-        % mouse_figure(hFigSim, figMetadata.hAx, @button_FigWavCor_);
-        hFigSim.figMetadata.hDiag = plotDiag_([0, nClusters, .5], 'Color', [0 0 0], 'LineWidth', 1.5);
+        hFigSim.addDiag('hDiag', [0, nClusters, 0.5], 'Color', [0 0 0], 'LineWidth', 1.5);
     else
-        if strcmp(hFigSim.figMetadata.figView, 'kilosort') && isprop(hClust, 'kSimScore')
-            set(hFigSim.figMetadata.hImWavCor, 'CData', hClust.kSimScore);
-            % set(hFigSim, 'Name', ['KiloSort cluster similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w');
+        if strcmp(hFigSim.figData.figView, 'kilosort') && isprop(hClust, 'kSimScore')
+            hFigSim.updateImagesc('hImSim', hClust.kSimScore);
             hFigSim.figSet('Name', ['KiloSort cluster similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
         else
-            set(hFigSim.figMetadata.hImWavCor, 'CData', hClust.mrWavCor);
-            % set(hFigSim, 'Name', ['Waveform-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w');
+            hFigSim.updateImagesc('hImSim', hClust.simScore);
             hFigSim.figSet('Name', ['Waveform-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
         end
 
-        %set(figMetadata.hAx, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
         hFigSim.axSet({'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
-        [diagX, diagY] = plotDiag__([0, nClusters, .5]);
-        set(hFigSim.figMetadata.hDiag, 'XData', diagX, 'YData', diagY);
+        hFigSim.addDiag('hDiag', [0, nClusters, 0.5], 'Color', [0 0 0], 'LineWidth', 1.5); % overwrites previous diag plot
     end
 
-    % output
-    % set(hFigSim, 'UserData', figMetadata);
     hFigSim.figSet('Pointer', 'arrow');
 end

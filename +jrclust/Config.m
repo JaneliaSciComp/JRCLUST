@@ -175,6 +175,8 @@ classdef Config < handle & dynamicprops
         % display params
         dispFilter = '';
         dispTimeLimits = [0 0.2];   % time range to display (in s?)
+        fWav_raw_show = false;      % show raw waveforms in main view if true
+        nSpk_show = 30;             % show spike waveforms for manual clustering
 
         % to get to, eventually
         LineStyle = '';
@@ -224,7 +226,6 @@ classdef Config < handle & dynamicprops
         fTranspose_bin = true;
         fUseCache_track = false;
         fUseLfp_track = true;
-        fWav_raw_show = false;
         fWhiten_traces = false;
         filter_sec_rate = 2;
         filter_shape_rate = 'triangle';
@@ -260,7 +261,6 @@ classdef Config < handle & dynamicprops
         nSkip_show = 1;
         nSkip_whiten = 10;
         nSmooth_ms_psth = 50;
-        nSpk_show = 30;
         nT_drift = [];
         nThreads = 128;
         nTime_traces = 1;

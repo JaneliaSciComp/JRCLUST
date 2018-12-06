@@ -17,7 +17,7 @@ function varargout = spikeCov(spikeWindows, hCfg)
     end %for
 
     if nargout==1
-        varargout{1} = cell2mat_(cmrFet);
+        varargout{1} = jrclust.utils.neCell2mat(cmrFet);
     else
         varargout = cmrFet;
     end

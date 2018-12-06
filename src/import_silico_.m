@@ -16,8 +16,8 @@ function import_silico_(vcFile_prm, fSort)
 
     S_gt = load(strrep(vcFile_prm, '.prm', '_gt.mat')); %must contain viTime, viSite, viClu
     % vnSpk = cellfun(@numel, S.a);
-    % viClu = int32(cell2mat_(arrayfun(@(n)n*ones(1, vnSpk(n)), 1:numel(vnSpk), 'UniformOutput', 0)));
-    % viTime = int32(cell2mat_(S.a) * 20); % Convert to sample # (saved in ms unit & sampling rate =20KHZ)
+    % viClu = int32(jrclust.utils.neCell2mat(arrayfun(@(n)n*ones(1, vnSpk(n)), 1:numel(vnSpk), 'UniformOutput', 0)));
+    % viTime = int32(jrclust.utils.neCell2mat(S.a) * 20); % Convert to sample # (saved in ms unit & sampling rate =20KHZ)
     if ~isfield(S_gt, 'viSite')
         S_gt.viSite = S_gt.viSite_clu(S_gt.viClu);
     end

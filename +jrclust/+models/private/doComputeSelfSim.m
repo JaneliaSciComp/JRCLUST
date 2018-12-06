@@ -1,4 +1,4 @@
-function selfcorr = scKern(hClust, iCluster)
+function selfcorr = doComputeSelfSim(hClust, iCluster)
     %SCKERN Kernel of the self-similarity method
     %   low means bad. return 1-corr score
     MAX_SAMPLE = 4000;
@@ -17,11 +17,11 @@ function selfcorr = scKern(hClust, iCluster)
     lowHalf = jrclust.utils.meanSubtract(mean(centeredWf(:, :, argsort(1:imid)), 3));
     highHalf = jrclust.utils.meanSubtract(mean(centeredWf(:, :, argsort(imid+1:end)), 3));
 
-    selfcorr = zscCorr(lowHalf(:), highHalf(:));
+    selfcorr = colZScore(lowHalf(:), highHalf(:));
 end
 
 %% LOCAL FUNCTIONS
-function C = zscCorr(X, Y)
+function C = colZScore(X, Y)
     % https://stackoverflow.com/questions/9262933/what-is-a-fast-way-to-compute-column-by-column-correlation-in-matlab
     % compute Z-scores for columns of X and Y
     X = bsxfun(@minus, X, mean(X)); % zero-mean

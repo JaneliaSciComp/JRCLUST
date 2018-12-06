@@ -45,7 +45,7 @@ function batch_verify_(vcFile_batch, vcCommand)
         end
     end
 
-    [vrSnr, vrFp, vrFn, vrAccuracy, vnSite, vnSpk] = multifun_(@(x)cell2mat_(x'), cvrSnr, cvrFp, cvrFn, cvrAccuracy, cvnSite, cvnSpk);
+    [vrSnr, vrFp, vrFn, vrAccuracy, vnSite, vnSpk] = multifun_(@(x)jrclust.utils.neCell2mat(x'), cvrSnr, cvrFp, cvrFn, cvrAccuracy, cvnSite, cvnSpk);
     disp('All files pooled:');
     disp_score_(vrSnr, vrFp, vrFn, vrAccuracy, vnSite, vnSpk, 1);
 

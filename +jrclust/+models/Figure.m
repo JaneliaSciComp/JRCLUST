@@ -3,27 +3,27 @@ classdef Figure < handle
     %   Base class for specific figure types
 
     properties (Access=private, Hidden, SetObservable)
-        hFig;
+        hFig;           % Figure object
+        hPlots;         % hashmap of current plots (return value of `plot`)
     end
 
     properties (Dependent, SetObservable)
         figTag;
         figPos;         
         figName;        % 
-        figData;        % 
-        figMetadata;    % 'UserData' for hFig
+        figData;        % 'UserData' for hFig
+        isReady;        % convenience prop for hFig validity
         outerPosition;  % position of the figure on the screen
     end
 
     properties (Hidden, SetObservable)
         hFunClick;      % left-click function handle
         hFunKey;        % keypress function handle
-        status;         % 
     end
 
     properties (Hidden, SetAccess=private)
+        hideOnDrag;     % cell of plotKeys which we want to hide when we drag
         isMouseable;
-        mouseFigHidden;
         mouseStatus;
         prevPoint;
     end
@@ -52,10 +52,10 @@ classdef Figure < handle
                 set(obj.hFig, 'MenuBar', 'none');
             end
 
+            obj.hPlots = containers.Map();
+
+            obj.hideOnDrag = {};
             obj.isMouseable = false;
-            obj.mouseFigHidden = false;
-            obj.status = 'ready';
-            set(obj.hFig, 'CloseRequestFcn', @obj.destroyFig);
         end
     end
 
@@ -183,85 +183,148 @@ classdef Figure < handle
 
         function hideDrag(obj)
             %HIDEDRAG Hide objects on drag mouse
-            if ~isfield(obj.figMetadata, 'cvhHide_mouse')
+            if isempty(obj.hideOnDrag)
                 return;
             end
 
-            try
-                vhHide = obj.figMetadata.cvhHide_mouse;
-                if strcmpi(get(vhHide{1}(1), 'Visible'), 'off')
-                    return;
-                end
-
-                obj.toggleVisible(vhHide, 0); % hide
-                obj.mouseFigHidden = vhHide; % hidden object
-            catch
-            end
+            obj.toggleVisible(obj.hideOnDrag, 0);
         end
-        
+
         function showDrag(obj)
-            if isempty(obj.mouseFigHidden)
-                return;
-            end 
+            %SHOWDRAG Show figures after drag release
             try 
-                obj.toggleVisible(obj.mouseFigHidden, 1); % hide
-                obj.mouseFigHidden = [];
+                obj.toggleVisible(obj.hideOnDrag, 1);
             catch
             end
         end
-        
-        function vlVisible = toggleVisible(obj, vhPlot, fVisible)
-            if isempty(vhPlot)
+
+        function toggleVisible(obj, plotKey, fVis)
+            %TOGGLEVISIBLE Toggle visibility of plot by key
+            if isempty(plotKey)
                 return;
             end
 
-            if iscell(vhPlot)
-                cvhPlot = vhPlot;
-
+            if iscell(plotKey)
                 if nargin < 3
-                    cellfun(@(vhPlot) obj.toggleVisible(vhPlot), cvhPlot);
+                    cellfun(@(pKey) obj.toggleVisible(pKey), plotKey);
                 else
-                    cellfun(@(vhPlot) obj.toggleVisible(vhPlot, fVisible), cvhPlot);
+                    cellfun(@(pKey) obj.toggleVisible(pKey, fVis), plotKey);
                 end
 
                 return;
             end
 
-            try
-                if nargin == 2
-                    vlVisible = false(size(vhPlot));
-                    % toggle visibility
-                    for iH = 1:numel(vhPlot)
-                        hPlot1 = vhPlot(iH);
-                        if strcmpi(get(hPlot1, 'Visible'), 'on')
-                            vlVisible(iH) = 0;
-                            set(hPlot1, 'Visible', 'off');
-                        else
-                            vlVisible(iH) = 1;
-                            set(hPlot1, 'Visible', 'on');
-                        end
-                    end
-                else
-                    % set visible directly
-                    if fVisible
-                        vlVisible = true(size(vhPlot));
-                        set(vhPlot, 'Visible', 'on');
-                    else
-                        vlVisible = false(size(vhPlot));
-                        set(vhPlot, 'Visible', 'off');
-                    end
-                end
-            catch
+            if ~obj.hasPlot(plotKey)
                 return;
             end
+
+            hPlot = obj.hPlots(plotKey);
+            if nargin == 2
+                if strcmp(get(hPlot, 'Visible'), 'on')
+                    set(hPlot, 'Visible', 'off');
+                else
+                    set(hPlot, 'Visible', 'on');
+                end
+            else
+                if fVis == 0 % off
+                    set(hPlot, 'Visible', 'off');
+                elseif fVis == 1 % on
+                    set(hPlot, 'Visible', 'on');
+                end
+            end
+
+%             try
+%                 if nargin == 2
+%                     isVisible = false(size(plotKey));
+%                     % toggle visibility
+%                     for iPlot = 1:numel(plotKey)
+%                         hPlot1 = plotKey(iPlot);
+%                         if strcmpi(get(hPlot1, 'Visible'), 'on')
+%                             isVisible(iPlot) = false;
+%                             set(hPlot1, 'Visible', 'off');
+%                         else
+%                             isVisible(iPlot) = true;
+%                             set(hPlot1, 'Visible', 'on');
+%                         end
+%                     end
+%                 else
+%                     % set visible directly
+%                     if fVis
+%                         isVisible = true(size(plotKey));
+%                         set(plotKey, 'Visible', 'on');
+%                     else
+%                         isVisible = false(size(plotKey));
+%                         set(plotKey, 'Visible', 'off');
+%                     end
+%                 end
+%             catch
+%                 return;
+%             end
         end
     end
-    
+
     %% USER METHODS
     methods
+        function addDiag(obj, plotKey, lim, varargin)
+            %ADDDIAG
+            [xVals, yVals] = getDiagXY(lim);
+            obj.addPlot(plotKey, xVals, yVals, varargin{:});
+        end
+
+        function addImagesc(obj, plotKey, varargin)
+            %ADDLINE Create and store an image with scaled colors
+            if obj.isReady
+                hAx = obj.gca();
+                if isempty(hAx)
+                    obj.toForeground();
+                    obj.hPlots(plotKey) = imagesc(varargin{:});
+                else
+                    obj.hPlots(plotKey) = imagesc(hAx, varargin{:});
+                end
+
+                if obj.isMouseable
+                    obj.setMouseable();
+                end
+            end
+        end
+
+        function addLine(obj, plotKey, varargin)
+            %ADDLINE Create and store a primitive line plot
+            if obj.isReady
+                hAx = obj.gca();
+                if isempty(hAx)
+                    obj.toForeground();
+                    obj.hPlots(plotKey) = line(varargin{:});
+                else
+                    obj.hPlots(plotKey) = line(hAx, varargin{:});
+                end
+
+                if obj.isMouseable
+                    obj.setMouseable();
+                end
+            end
+        end
+
+        function addPlot(obj, plotKey, varargin)
+            %ADDPLOT Create and store a 2-D line plot
+            if obj.isReady
+                hAx = obj.gca();
+                if isempty(hAx)
+                    obj.toForeground();
+                    obj.hPlots(plotKey) = plot(varargin{:});
+                else
+                    obj.hPlots(plotKey) = plot(hAx, varargin{:});
+                end
+
+                if obj.isMouseable
+                    obj.setMouseable();
+                end
+            end
+        end
+
         function axes(obj, varargin)
             %AXES Create new axes for this figure
-            if isempty(obj.hFig)
+            if ~obj.isReady
                 obj.hFig = figure();
             end
 
@@ -271,55 +334,57 @@ classdef Figure < handle
         end
 
         function axis(obj, varargin)
-            if ~strcmp(obj.status, 'destroyed')
-                hAx = get(obj.hFig, 'CurrentAxes');
+            %AXIS Set axis limits and aspect ratios
+            hAx = obj.gca();
+            if ~isempty(hAx)
                 axis(hAx, varargin{:});
             end
         end
-        
+
         function val = axGet(obj, varargin)
-            if ~strcmp(obj.status, 'destroyed')
-                hAx = get(obj.hFig, 'CurrentAxes');
-                if isempty(hAx)
-                    val = [];
-                else
-                    val = get(hAx, varargin{:});
-                end
+            %AXGET Query current axes properties
+            hAx = obj.gca();
+            if ~isempty(hAx)
+                val = get(hAx, varargin{:});
             else
                 val = [];
             end
         end
-        
+
         function axSet(obj, varargin)
-            if ~strcmp(obj.status, 'destroyed')
-                hAx = get(obj.hFig, 'CurrentAxes');
+            %AXSET Set current axes properties
+            hAx = obj.gca();
+            if ~isempty(hAx)
                 set(hAx, varargin{:});
             end
         end
 
         function clf(obj)
-            if ~strcmp(obj.status, 'destroyed')
+            %CLF Clear figure window and remove references to plots
+            if obj.isReady
                 clf(obj.hFig);
+                obj.hPlots = containers.Map(); % reset mapping
             end
         end
 
         function close(obj)
             %CLOSE Close the figure
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 close(obj.hFig);
             end
         end
 
         function colorbar(obj, varargin)
             %COLORBAR Colorbar showing color scale
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 hAx = get(obj.hFig, 'CurrentAxes');
                 colorbar(hAx);
             end
         end
-        
+
         function val = figGet(obj, varargin)
-            if ~strcmp(obj.status, 'destroyed')
+            %FIGGET Query figure properties
+            if obj.isReady
                 val = get(obj.hFig, varargin{:});
             else
                 val = [];
@@ -327,39 +392,53 @@ classdef Figure < handle
         end
 
         function figSet(obj, varargin)
-            if ~strcmp(obj.status, 'destroyed')
+            %FIGSET Set figure properties
+            if obj.isReady
                 set(obj.hFig, varargin{:});
             end
         end
 
         function grid(obj, varargin)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 hAx = get(obj.hFig, 'CurrentAxes');
                 grid(hAx, varargin{:});
             end
         end
 
+        function hp = hasPlot(obj, plotKey)
+            %HASPLOT Return true iff a plot exists with plotKey as label
+            hp = ischar(plotKey) && isKey(obj.hPlots, plotKey);
+        end
+
+        function hidePlot(obj, plotKey)
+            %HIDEPLOT Set XData and YData of a plot to nan
+            obj.updatePlot(plotKey, nan, nan);
+        end
+
         function hold(obj, varargin)
-            if ~strcmp(obj.status, 'destroyed')
+            %HOLD Retain current plot when adding new plots
+            if obj.isReady
                 hAx = get(obj.hFig, 'CurrentAxes');
                 hold(hAx, varargin{:});
             end
         end
 
-        function plot(obj, varargin)
-            if ~strcmp(obj.status, 'destroyed')
-                hAx = get(obj.hFig, 'CurrentAxes');
-                if isempty(hAx)
-                    obj.toForeground();
-                    plot(varargin{:});
-                else
-                    plot(hAx, varargin{:});
-                end
-
-                if obj.isMouseable
-                    obj.setMouseable();
-                end
+        function rmPlot(obj, plotKey)
+            %RMPLOT Remove a plot by key
+            if ~obj.hasPlot(plotKey)
+                return;
             end
+
+            delete(obj.hPlots(plotKey));
+            remove(obj.hPlots, plotKey);
+        end
+
+        function setHideOnDrag(obj, plotKey)
+            if ~obj.hasPlot(plotKey) || any(strcmp(obj.hideOnDrag, plotKey))
+                return;
+            end
+
+            obj.hideOnDrag{end+1} = plotKey;
         end
 
         function setMouseable(obj, hFunClick)
@@ -369,7 +448,7 @@ classdef Figure < handle
                 obj.hFunClick = hFunClick;
             end                
 
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 hAx = get(obj.hFig, 'CurrentAxes');
                  % is2D might disappear in a future release...
                 if ~is2D(hAx) || isempty(hAx)
@@ -386,35 +465,83 @@ classdef Figure < handle
         end
 
         function title(obj, t)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 hAx = get(obj.hFig, 'CurrentAxes');
                 title(hAx, t, 'Interpreter', 'none', 'FontWeight', 'normal');
             end
         end
 
         function toForeground(obj)
-            if ~strcmp(obj.status, 'destroyed')
+            %TOFOREGROUND Move current plot into focus
+            if obj.isReady
                 figure(obj.hFig);
             end
         end
 
         function hMenu = uimenu(obj, varargin)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 hMenu = uimenu(obj.hFig, varargin{:});
             else
                 hMenu = [];
             end
         end
 
+        function updateImagesc(obj, plotKey, CData)
+            %UPDATEIMAGESC Set CData of an image
+            if ~obj.hasPlot(plotKey)
+                return;
+            end
+
+            hPlot = obj.hPlots(plotKey);
+            set(hPlot, 'CData', CData);
+        end
+
+        function updatePlot(obj, plotKey, newXData, newYData, UserData)
+            %UPDATEPLOT Set XData, YData, and optionally UserData of a plot
+            if ~obj.hasPlot(plotKey)
+                return;
+            end
+
+            % clear data if we're empty
+            if isempty(newXData) || isempty(newYData)
+                obj.hidePlot(plotKey);
+                return;
+            end
+
+            if nargin < 4
+                UserData = [];
+            end
+
+            hPlot = obj.hPlots(plotKey);
+
+            % only update if both x and y are changed
+            oldXData = get(hPlot, 'XData');
+            oldYData = get(hPlot, 'YData');
+
+            doUpdate = true;
+            if (numel(oldXData) == numel(newXData)) && (numel(oldYData) == numel(newYData))
+                if (std(oldXData(:) - newXData(:)) == 0) && (std(oldYData(:) - newYData(:)) == 0)
+                    doUpdate = false;
+                end
+            end
+
+            if doUpdate
+                set(hPlot, 'XData', newXData, 'YData', newYData);
+            end
+            if ~isempty(UserData)
+                set(hPlot, 'UserData', UserData);
+            end
+        end
+
         function xlabel(obj, varargin)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 hAx = get(obj.hFig, 'CurrentAxes');
                 xlabel(hAx, varargin{:});
             end
         end
 
         function ylabel(obj, varargin)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 hAx = get(obj.hFig, 'CurrentAxes');
                 ylabel(hAx, varargin{:});
             end
@@ -422,46 +549,50 @@ classdef Figure < handle
     end
 
     %% UTILITY METHODS
-    methods (Hidden)
-        function destroyFig(obj, hObject, ~)
-            delete(hObject);
-            obj.status = 'destroyed';
+    methods (Access=protected, Hidden)
+        function hAx = gca(obj)
+            %GCA Get current axes
+            if obj.isReady
+                hAx = get(obj.hFig, 'CurrentAxes');
+            else
+                hAx = [];
+            end
         end
     end
 
     %% GETTERS/SETTERS
     methods
-        % figMetadata
-        function fm = get.figMetadata(obj)
-            if ~strcmp(obj.status, 'destroyed')
-                fm = get(obj.hFig, 'UserData');
+        % figData
+        function fd = get.figData(obj)
+            if obj.isReady
+                fd = get(obj.hFig, 'UserData');
             else
-                fm = [];
+                fd = [];
             end
         end
-        function set.figMetadata(obj, fm)
-            if ~strcmp(obj.status, 'destroyed')
+        function set.figData(obj, fm)
+            if obj.isReady
                 set(obj.hFig, 'UserData', fm);
             end
         end
 
         % figName
         function fn = get.figName(obj)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 fn = get(obj.hFig, 'Name');
             else
                 fn = '';
             end
         end
         function set.figName(obj, figName)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 set(obj.hFig, 'Name', figName);
             end
         end
 
         % figPos
         function fp = get.figPos(obj)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 fp = get(obj.hFig, 'OuterPosition');
             else
                 fp = [];
@@ -489,14 +620,14 @@ classdef Figure < handle
 
         % figTag
         function ft = get.figTag(obj)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 ft = get(obj.hFig, 'Tag');
             else
                 ft = '';
             end
         end
         function set.figTag(obj, figTag)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 set(obj.hFig, 'Tag', figTag);
             end
         end
@@ -513,21 +644,26 @@ classdef Figure < handle
             failMsg = 'hFunKey must be a function handle';
             assert(isa(hf, 'function_handle'), failMsg);
             obj.hFunKey = hf;
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 set(obj.hFig, 'KeyPressFcn', obj.hFunKey);
             end
         end
 
+        % isReady
+        function ir = get.isReady(obj)
+            ir = (~isempty(obj.hFig) && isvalid(obj.hFig));
+        end
+
         % outerPosition
         function op = get.outerPosition(obj)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 op = get(obj.hFig, 'OuterPosition');
             else
                 op = [];
             end
         end
         function set.outerPosition(obj, op)
-            if ~strcmp(obj.status, 'destroyed')
+            if obj.isReady
                 set(obj.hFig, 'OuterPosition', op);
             end
         end

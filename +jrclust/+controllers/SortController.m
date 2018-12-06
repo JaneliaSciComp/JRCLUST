@@ -490,7 +490,7 @@ classdef SortController < handle
                 end
             end
 
-            hClust = jrclust.models.Clustering(res, dRes, obj.hCfg);
+            hClust = jrclust.models.RLClustering(res, dRes, obj.hCfg);
 
             if obj.hCfg.verbose
                 fprintf('\n\ttook %0.1fs. Removed %d clusters having <%d spikes: %d->%d\n', toc(t), removedClusters, obj.hCfg.minClusterSize, nClustersPrev, hClust.nClusters);

@@ -36,8 +36,8 @@ function [viTime_spk, vrAmp_spk, viSite_spk] = detectSpikes(samplesIn, siteThres
         [viTime_spk, vrAmp_spk, viSite_spk] = spikeMerge_(cviSpk_site, cvrSpk_site, hCfg);
         fprintf('\t%d spiking events found; took %0.1fs\n', numel(viSite_spk), toc(t2));
     else
-        viTime_spk = cell2mat_(cviSpk_site);
-        vrAmp_spk = cell2mat_(cvrSpk_site);
+        viTime_spk = jrclust.utils.neCell2mat(cviSpk_site);
+        vrAmp_spk = jrclust.utils.neCell2mat(cvrSpk_site);
         viSite_spk = cell2vi_(cviSpk_site);
 
         % sort by time
@@ -134,8 +134,8 @@ function [viSpk, vrSpk, viSite] = spikeMerge_(cviSpk, cvrSpk, hCfg)
     % provide spike index (cviSpk) and amplitudes (cvrSPk) per sites
 
     nSites = numel(cviSpk);
-    viSpk = cell2mat_(cviSpk);      vrSpk = cell2mat_(cvrSpk);
-    viSite = cell2mat_(cellfun(@(vi,i)repmat(i,size(vi)), cviSpk, num2cell((1:nSites)'), 'UniformOutput', false));
+    viSpk = jrclust.utils.neCell2mat(cviSpk);      vrSpk = jrclust.utils.neCell2mat(cvrSpk);
+    viSite = jrclust.utils.neCell2mat(cellfun(@(vi,i)repmat(i,size(vi)), cviSpk, num2cell((1:nSites)'), 'UniformOutput', false));
     [viSpk, viSrt] = sort(viSpk);   vrSpk = vrSpk(viSrt);   viSite = viSite(viSrt);
     viSite = int32(viSite);
     viSpk = int32(viSpk);
@@ -163,9 +163,9 @@ function [viSpk, vrSpk, viSite] = spikeMerge_(cviSpk, cvrSpk, hCfg)
     end
 
     % merge parfor output and sort
-    viSpk = cell2mat_(cviSpkA);
-    vrSpk = cell2mat_(cvrSpkA);
-    viSite = cell2mat_(cviSiteA);
+    viSpk = jrclust.utils.neCell2mat(cviSpkA);
+    vrSpk = jrclust.utils.neCell2mat(cvrSpkA);
+    viSite = jrclust.utils.neCell2mat(cviSiteA);
     [viSpk, viSrt] = sort(viSpk); %sort by time
     vrSpk = jrclust.utils.tryGather(vrSpk(viSrt));
     viSite = viSite(viSrt);

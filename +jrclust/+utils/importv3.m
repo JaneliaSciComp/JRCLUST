@@ -74,6 +74,7 @@ function [hCfg, dRes, sRes] = importv3(filename)
     sRes.unitPeakSites = S0.S_clu.viSite_min_clu;
     sRes.nSitesOverThresh = S0.S_clu.vnSite_clu;
     sRes.clusterCounts = S0.S_clu.vnSpk_clu;
+    sRes.rhoCuts = S0.S_clu.vrDc2_site;
     sRes.unitISIRatio = S0.S_clu.vrIsiRatio_clu;
     sRes.unitIsoDist = S0.S_clu.vrIsoDist_clu;
     sRes.unitLRatio = S0.S_clu.vrLRatio_clu;

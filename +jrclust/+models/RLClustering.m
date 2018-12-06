@@ -1,14 +1,14 @@
-classdef Clustering < handle
-    %CLUSTERING Model representing clustering of spike data
+classdef RLClustering < jrclust.interfaces.Clustering
+    %RLCLUSTERING A Rodriguez-Laio clustering of spike data
+
+    properties (Hidden, SetAccess=protected, SetObservable)
+        hCfg;               % Config object
+    end
 
     %% DETECTION/CLUSTERING RESULTS
     properties (Access=private, Hidden, SetObservable)
         sRes;               % sorting results
         dRes;               % detection results
-    end
-
-    properties (SetAccess=private, Hidden, SetObservable)
-        hCfg;               % Config object
     end
 
     %% OLD-STYLE PROPERTIES, publicly gettable (will be deprecated after a grace period)
@@ -119,7 +119,7 @@ classdef Clustering < handle
 
     %% LIFECYCLE
     methods
-        function obj = Clustering(sRes, dRes, hCfg)
+        function obj = RLClustering(sRes, dRes, hCfg)
             obj.sRes = sRes;
             obj.dRes = dRes;
             obj.hCfg = hCfg;
@@ -154,13 +154,13 @@ classdef Clustering < handle
 
                 selfSim = zeros(1, obj.nClusters);
                 for iCluster = 1:obj.nClusters
-                    selfSim(iCluster) = scKern(obj, iCluster);
+                    selfSim(iCluster) = doComputeSelfSim(obj, iCluster);
                     fprintf('.');
                 end
 
                 fprintf('\n\ttook %0.1fs\n', toc(t1));
             else
-                selfSim = scKern(obj, iCluster);
+                selfSim = doComputeSelfSim(obj, iCluster);
             end
         end
 
@@ -641,7 +641,7 @@ classdef Clustering < handle
         function orderClusters(obj, by)
             %ORDERCLUSTERS Arrange cluster ID numbers by some criterion
 
-            if nargin < 2 || isempty(by)
+            if nargin < 2 || isempty(by) || ~isprop(obj, by)
                 by = 'clusterSites';
             end
 
@@ -778,16 +778,11 @@ classdef Clustering < handle
                 end
 
                 nRemoved = sum(~keepMe);
-                nTotal = numel(keepMe);
                 obj.spikeClusters(clusterSpikes_(~keepMe)) = 0; % assign to noise cluster
 
                 obj.spikesByCluster{iCluster} = clusterSpikes_(keepMe);
                 obj.clusterCounts(iCluster) = sum(keepMe);
             end
-
-            % if obj.hCfg.verbose
-            %     fprintf('Cluster %d: removed %d/%d (%0.2f%%) duplicate spikes\n', iCluster, nRemoved, nTotal, 100*nRemoved/nTotal);
-            % end
         end
 
         function updateWaveforms(obj)
@@ -831,6 +826,13 @@ classdef Clustering < handle
             end
 
             obj.dRes = dr;
+        end
+
+        % hCfg
+        function set.hCfg(obj, hc)
+            failMsg = 'hCfg must be an object of type jrclust.Config';
+            assert(isa(hc, 'jrclust.Config'), failMsg);
+            obj.hCfg = hc;
         end
 
         % initialClustering/viClu_auto

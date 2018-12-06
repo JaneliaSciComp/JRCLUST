@@ -46,7 +46,7 @@ function plot_FigTime_(S0)
             makeConstrainToRectFcn('imrect',time_lim, [-4000 4000]));
         end
         set(hFig, 'KeyPressFcn', @keyPressFcn_FigTime_);
-        S_fig.cvhHide_mouse = mouse_hide_(hFig, S_fig.hPlot0, S_fig);
+        S_fig.hidePlots = mouse_hide_(hFig, S_fig.hPlot0, S_fig);
         if ~isempty(P.time_tick_show) %tick mark
             set(S_fig.hAx, 'XTick', time_lim(1):P.time_tick_show:time_lim(end));
         end

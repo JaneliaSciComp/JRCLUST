@@ -19,7 +19,6 @@ end
 %% LOCAL FUNCTIONS
 function [prVecs, eigVals] = spikePrVecs(spikeWindows, hCfg)
     %SPIKEPRVECS Get principal vectors for spikes
-    %tr: nSamples x nSpikes x nSites
     MAX_SAMPLE = 10000;
 
     % subsample spikes on their primary sites up to MAX_SAMPLE

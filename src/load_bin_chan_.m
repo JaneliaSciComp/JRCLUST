@@ -17,7 +17,7 @@ function vrWav = load_bin_chan_(P, iChan)
             cvrWav{iFile} = load_bin_chan_(P_, iChan);
             fprintf('.');
         end
-        vrWav = cell2mat_(cvrWav);
+        vrWav = jrclust.utils.neCell2mat(cvrWav);
         return;
     end
 

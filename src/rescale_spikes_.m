@@ -18,5 +18,5 @@ function rescale_spikes_(hSpkAll, maxAmp_prev, P)
         cvrY{iClu} = trY(:);
     end
     S.cvrY = cvrY;
-    set(hSpkAll, 'YData', cell2mat_(cvrY), 'UserData', S);
+    set(hSpkAll, 'YData', jrclust.utils.neCell2mat(cvrY), 'UserData', S);
 end

@@ -16,8 +16,8 @@ function S_gt = load_gt_(vcFile_gt, P)
     else
         % Convert Nick's format to JRCLUST fomat
         if isfield(S, 'gtTimes')
-            S_gt.viTime = cell2mat_(S.gtTimes');
-            S_gt.viClu = cell2mat_(arrayfun(@(i)ones(size(S.gtTimes{i}))*i, 1:numel(S.gtTimes), 'UniformOutput', 0)');
+            S_gt.viTime = jrclust.utils.neCell2mat(S.gtTimes');
+            S_gt.viClu = jrclust.utils.neCell2mat(arrayfun(@(i)ones(size(S.gtTimes{i}))*i, 1:numel(S.gtTimes), 'UniformOutput', 0)');
         else
             error('no field found.');
         end

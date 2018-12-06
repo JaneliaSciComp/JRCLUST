@@ -22,7 +22,7 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
         fDetrend = true;
     end
 
-    hFigRD.plot(x, y, '.');
+    hFigRD.addPlot('allSpikes', x, y, '.');
     hFigRD.hold('on');
 
     hFigRD.axis('tight');
@@ -30,11 +30,11 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
     hFigRD.axSet('XScale', 'linear', 'YScale', 'linear');
 
     % show rho/delta cutoff lines
-    hFigRD.plot(hCfg.log10RhoCut * [1 1], hFigRD.axGet('YLim'), 'r--', ...
-                hFigRD.axGet('XLim'), hCfg.log10DeltaCut*[1, 1], 'r--');
+    hFigRD.addPlot('RDCuts', hCfg.log10RhoCut * [1 1], hFigRD.axGet('YLim'), 'r--', ...
+                   hFigRD.axGet('XLim'), hCfg.log10DeltaCut*[1, 1], 'r--');
     hFigRD.grid('on');
 
-    hFigRD.figMetadata = struct('x', x, 'y', y);
+    hFigRD.figData = struct('x', x, 'y', y);
 
     % label cluster centers
     if ~isempty(hClust.clusterCenters)
@@ -42,7 +42,7 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
     end
     centersX = double(x(centers));
     centersY = double(y(centers));
-    hFigRD.plot(centersX, centersY, 'r.');
+    hFigRD.addPlot('centers', centersX, centersY, 'r.');
 
     % set labels
     hFigRD.xlabel('log10 rho');

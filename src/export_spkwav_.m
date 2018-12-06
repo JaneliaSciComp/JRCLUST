@@ -32,7 +32,7 @@ function export_spkwav_(P, vcArg2, fDiff)
         if fDiff
             ctrWav_clu{iClu} = tnWav_clu1;
         else
-            ctrWav_clu{iClu} = tnWav2uV_(tnWav_clu1, P);
+            ctrWav_clu{iClu} = jrclust.utils.filtTouV(tnWav_clu1, P);
         end
         fprintf('.');
     end

@@ -12,7 +12,7 @@ function [mrFet1, viSpk1] = getFet_clu_(iClu1, iSite, S0)
         n_use = 1 + round(P.maxSite);
         viSite_ = P.miSites(1:n_use, iSite);
         try
-            viSpk1 = cell2mat_([S0.cviSpk_site(viSite_)]');
+            viSpk1 = jrclust.utils.neCell2mat([S0.cviSpk_site(viSite_)]');
         catch
             viSpk1 = find(ismember(viSite_spk, viSite_));
         end
@@ -23,7 +23,7 @@ function [mrFet1, viSpk1] = getFet_clu_(iClu1, iSite, S0)
 
     switch lower(P.vcFet_show)
         case {'vmin', 'vpp'}
-            mrWav_spk1 = squeeze_(tnWav2uV_(tnWav_spk_sites_(viSpk1, iSite, S0), P));
+            mrWav_spk1 = squeeze_(jrclust.utils.filtTouV(tnWav_spk_sites_(viSpk1, iSite, S0), P));
             mrFet1 = max(mrWav_spk1)-min(mrWav_spk1);
 
         case 'cov'
