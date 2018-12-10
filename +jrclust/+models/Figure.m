@@ -1,4 +1,4 @@
-classdef Figure < handle
+classdef Figure < handle %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MOVE ME BACK INTO +views
     %FIGURE handle for JRCLUST manual figure
     %   Base class for specific figure types
 
@@ -24,6 +24,7 @@ classdef Figure < handle
     properties (Hidden, SetAccess=private)
         hideOnDrag;     % cell of plotKeys which we want to hide when we drag
         isMouseable;
+        isWaiting;      % are we waiting on an operation to complete?
         mouseStatus;
         prevPoint;
     end
@@ -56,6 +57,7 @@ classdef Figure < handle
 
             obj.hideOnDrag = {};
             obj.isMouseable = false;
+            obj.isWaiting = false;
         end
     end
 
@@ -198,73 +200,27 @@ classdef Figure < handle
             end
         end
 
-        function toggleVisible(obj, plotKey, fVis)
-            %TOGGLEVISIBLE Toggle visibility of plot by key
-            if isempty(plotKey)
-                return;
-            end
-
-            if iscell(plotKey)
-                if nargin < 3
-                    cellfun(@(pKey) obj.toggleVisible(pKey), plotKey);
-                else
-                    cellfun(@(pKey) obj.toggleVisible(pKey, fVis), plotKey);
-                end
-
-                return;
-            end
-
-            if ~obj.hasPlot(plotKey)
-                return;
-            end
-
-            hPlot = obj.hPlots(plotKey);
-            if nargin == 2
-                if strcmp(get(hPlot, 'Visible'), 'on')
-                    set(hPlot, 'Visible', 'off');
-                else
-                    set(hPlot, 'Visible', 'on');
-                end
-            else
-                if fVis == 0 % off
-                    set(hPlot, 'Visible', 'off');
-                elseif fVis == 1 % on
-                    set(hPlot, 'Visible', 'on');
-                end
-            end
-
-%             try
-%                 if nargin == 2
-%                     isVisible = false(size(plotKey));
-%                     % toggle visibility
-%                     for iPlot = 1:numel(plotKey)
-%                         hPlot1 = plotKey(iPlot);
-%                         if strcmpi(get(hPlot1, 'Visible'), 'on')
-%                             isVisible(iPlot) = false;
-%                             set(hPlot1, 'Visible', 'off');
-%                         else
-%                             isVisible(iPlot) = true;
-%                             set(hPlot1, 'Visible', 'on');
-%                         end
-%                     end
-%                 else
-%                     % set visible directly
-%                     if fVis
-%                         isVisible = true(size(plotKey));
-%                         set(plotKey, 'Visible', 'on');
-%                     else
-%                         isVisible = false(size(plotKey));
-%                         set(plotKey, 'Visible', 'off');
-%                     end
-%                 end
-%             catch
-%                 return;
-%             end
-        end
     end
 
     %% USER METHODS
     methods
+        function addBar(obj, plotKey, varargin)
+            %ADDBAR Create and store a bar graph
+            if obj.isReady
+                hAx = obj.gca();
+                if isempty(hAx)
+                    obj.toForeground();
+                    obj.hPlots(plotKey) = bar(varargin{:});
+                else
+                    obj.hPlots(plotKey) = bar(hAx, varargin{:});
+                end
+
+                if obj.isMouseable
+                    obj.setMouseable();
+                end
+            end
+        end
+
         function addDiag(obj, plotKey, lim, varargin)
             %ADDDIAG
             [xVals, yVals] = getDiagXY(lim);
@@ -314,6 +270,23 @@ classdef Figure < handle
                     obj.hPlots(plotKey) = plot(varargin{:});
                 else
                     obj.hPlots(plotKey) = plot(hAx, varargin{:});
+                end
+
+                if obj.isMouseable
+                    obj.setMouseable();
+                end
+            end
+        end
+
+        function addStairs(obj, plotKey, varargin)
+            %ADDSTAIRS Create and store a stairstep graph
+            if obj.isReady
+                hAx = obj.gca();
+                if isempty(hAx)
+                    obj.toForeground();
+                    obj.hPlots(plotKey) = stairs(varargin{:});
+                else
+                    obj.hPlots(plotKey) = stairs(hAx, varargin{:});
                 end
 
                 if obj.isMouseable
@@ -423,6 +396,92 @@ classdef Figure < handle
             end
         end
 
+        function [plotKey, yOffsets] = multiplot(obj, plotKey, scale, XData, YData, yOffsets, fScatter)
+            % Create (nargin > 2) or rescale (nargin <= 2) a multi-line plot
+            % TODO: separate these (presumably multiple plots are passed in somewhere)
+            if nargin <= 2 % rescale
+                obj.rescalePlot(plotKey, scale);
+                % handle_fun_(@rescale_plot_, plotKey, scale);
+                yOffsets = [];
+                return;
+            end
+
+            if nargin < 7
+                fScatter = false;
+            end
+
+            if isa(YData, 'gpuArray')
+                YData = gather(YData);
+            end
+            if isa(YData, 'int16')
+                YData = single(YData);
+            end
+
+            if nargin < 6
+                yOffsets = 1:size(YData, 2);
+            end
+
+            [plotKey, yOffsets] = doMultiplot(obj, plotKey, scale, XData, YData, yOffsets, fScatter);
+        end
+
+        function val = plotGet(obj, plotKey, varargin)
+            %PLOTGET Query a plot by key
+            if ~obj.hasPlot(plotKey)
+                return;
+            end
+
+            val = get(obj.hPlots(plotKey), varargin{:});
+        end
+
+        function plotSet(obj, plotKey, varargin)
+            %PLOTSET Set a plot value by key
+            if ~obj.hasPlot(plotKey)
+                return;
+            end
+
+            set(obj.hPlots(plotKey), varargin{:});
+        end
+
+        function rescalePlot(obj, plotKey, scale)
+            % hPlot must have UserData containing scale, shape
+            if ~obj.hasPlot(plotKey)
+                return;
+            end
+
+            hPlot = obj.hPlots(plotKey);
+            userData = get(hPlot, 'UserData');
+
+            % backward compatible
+            % if ~isfield(userData, 'yOffsets')
+            %     userData.yOffsets = 1:userData.shape(2);
+            % end
+
+            % Rescale
+            YData = reshape(get(hPlot, 'YData'), userData.shape);
+            if isfield(userData, 'fScatter')
+                fScatter = userData.fScatter; 
+            else
+                fScatter = false;
+            end
+
+            if fScatter
+                YData = (YData(:) - userData.yOffsets(:)) * userData.scale; %restore original 
+                YData = YData(:) / scale + userData.yOffsets(:); %convert to plot
+            elseif isvector(userData.yOffsets)
+                YData = bsxfun(@minus, YData, userData.yOffsets(:)') * userData.scale; % restore original 
+                YData = bsxfun(@plus, YData/scale, userData.yOffsets(:)'); % convert to plot
+            else
+                for iSpike = 1:userData.shape(3)
+                    iYOffsets = userData.yOffsets(:, iSpike)';
+                    iYData = bsxfun(@minus, YData(:, :, iSpike), iYOffsets)*userData.scale;
+                    YData(:, :, iSpike) = bsxfun(@plus, iYData/scale, iYOffsets);
+                end  
+            end
+
+            userData.scale = scale; % update local scale
+            set(hPlot, 'YData', YData(:), 'UserData', userData);
+        end
+
         function rmPlot(obj, plotKey)
             %RMPLOT Remove a plot by key
             if ~obj.hasPlot(plotKey)
@@ -464,6 +523,39 @@ classdef Figure < handle
             end
         end
 
+        function setWindow(obj, xlim1, ylim1, xlim0, ylim0)
+            %SETWINDOW set the window within the box limit
+            if nargin <= 3
+                % square case
+                xlim0 = ylim1;
+                ylim1 = xlim1;
+                ylim0 = xlim0;
+            end
+
+            lastFocused = gcf();
+            obj.toForeground();
+
+            dx = diff(xlim1);
+            dy = diff(ylim1);
+
+%             if xlim1(1)<xlim0(1), xlim1 = xlim0(1) + [0, dx]; end
+%             if xlim1(2)>xlim0(2), xlim1 = xlim0(2) + [-dx, 0]; end
+%             if ylim1(1)<ylim0(1), ylim1 = ylim0(1) + [0, dy]; end
+%             if ylim1(2)>ylim0(2), ylim1 = ylim0(2) + [-dy, 0]; end
+% 
+%             xlim1(1) = max(xlim1(1), xlim0(1));
+%             ylim1(1) = max(ylim1(1), ylim0(1));
+%             xlim1(2) = min(xlim1(2), xlim0(2));
+%             ylim1(2) = min(ylim1(2), ylim0(2));
+
+            xlim1 = jrclust.utils.trimLim(xlim1, xlim0);
+            ylim1 = jrclust.utils.trimLim(ylim1, ylim0);
+
+            obj.axis([xlim1, ylim1]);
+
+            figure(lastFocused);
+        end
+
         function title(obj, t)
             if obj.isReady
                 hAx = get(obj.hFig, 'CurrentAxes');
@@ -486,6 +578,16 @@ classdef Figure < handle
             end
         end
 
+        function uistack(obj, plotKey, varargin)
+            %UISTACK Reorder visual stacking order of plot given by plotKey
+            if ~obj.hasPlot(plotKey)
+                return;
+            end
+
+            hPlot = obj.hPlots(plotKey);
+            uistack(hPlot, varargin{:});
+        end
+
         function updateImagesc(obj, plotKey, CData)
             %UPDATEIMAGESC Set CData of an image
             if ~obj.hasPlot(plotKey)
@@ -494,6 +596,42 @@ classdef Figure < handle
 
             hPlot = obj.hPlots(plotKey);
             set(hPlot, 'CData', CData);
+        end
+
+        function toggleVisible(obj, plotKey, fVis)
+            %TOGGLEVISIBLE Toggle visibility of plot by key
+            if isempty(plotKey)
+                return;
+            end
+
+            if iscell(plotKey)
+                if nargin < 3
+                    cellfun(@(pKey) obj.toggleVisible(pKey), plotKey);
+                else
+                    cellfun(@(pKey) obj.toggleVisible(pKey, fVis), plotKey);
+                end
+
+                return;
+            end
+
+            if ~obj.hasPlot(plotKey)
+                return;
+            end
+
+            hPlot = obj.hPlots(plotKey);
+            if nargin == 2
+                if strcmp(get(hPlot, 'Visible'), 'on')
+                    set(hPlot, 'Visible', 'off');
+                else
+                    set(hPlot, 'Visible', 'on');
+                end
+            else
+                if fVis == 0 % off
+                    set(hPlot, 'Visible', 'off');
+                elseif fVis == 1 % on
+                    set(hPlot, 'Visible', 'on');
+                end
+            end
         end
 
         function updatePlot(obj, plotKey, newXData, newYData, UserData)
@@ -508,7 +646,7 @@ classdef Figure < handle
                 return;
             end
 
-            if nargin < 4
+            if nargin < 5
                 UserData = [];
             end
 
@@ -520,7 +658,7 @@ classdef Figure < handle
 
             doUpdate = true;
             if (numel(oldXData) == numel(newXData)) && (numel(oldYData) == numel(newYData))
-                if (std(oldXData(:) - newXData(:)) == 0) && (std(oldYData(:) - newYData(:)) == 0)
+                if (norm(oldXData(:) - newXData(:)) == 0) && (norm(oldYData(:) - newYData(:)) == 0)
                     doUpdate = false;
                 end
             end
@@ -530,6 +668,25 @@ classdef Figure < handle
             end
             if ~isempty(UserData)
                 set(hPlot, 'UserData', UserData);
+            end
+        end
+
+        function wait(obj, doWait)
+            %WAIT Toggle waiting status and set pointer to reflect
+            if obj.isReady
+                if nargin == 2 && doWait
+                    obj.isWaiting = true;
+                elseif nargin == 2 % ~doWait
+                    obj.isWaiting = false;
+                else % nargin == 0, toggle on/off
+                    obj.isWaiting = ~obj.isWaiting;
+                end
+
+                if obj.isWaiting
+                    obj.figSet('Pointer', 'watch');
+                else
+                    obj.figSet('Pointer', 'arrow');
+                end
             end
         end
 

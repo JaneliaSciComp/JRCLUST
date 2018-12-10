@@ -80,16 +80,16 @@ function [hPlot, viY] = multiplot(hPlot, scale, vrX, mrY, viY, fScatter)
 end %func
 
 %% LOCAL FUNCTIONS
-function rescale_plot_(hPlot, scale)
+function rescale_plot_(plotKey, scale)
     % hPlot must have UserData containing scale, shape
     % multi-line plot
-    S_plot = get(hPlot, 'UserData');
+    S_plot = get(plotKey, 'UserData');
 
     % backward copmatible
     if ~isfield(S_plot, 'viY'), S_plot.viY = 1:S_plot.shape(2); end
 
     % Rescale
-    mrY = reshape(get(hPlot, 'YData'), S_plot.shape);
+    mrY = reshape(get(plotKey, 'YData'), S_plot.shape);
     if isfield(S_plot, 'fScatter')
         fScatter = S_plot.fScatter; 
     else
@@ -110,7 +110,7 @@ function rescale_plot_(hPlot, scale)
     end
 
     S_plot.scale = scale; %scale is changed
-    set(hPlot, 'YData', mrY(:), 'UserData', S_plot);
+    set(plotKey, 'YData', mrY(:), 'UserData', S_plot);
 end
 
 function handle_fun_(hFun, handles, varargin)

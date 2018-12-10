@@ -19,6 +19,6 @@ function cursor_FigWavCor_(S0)
     title_(S_fig.hAx, sprintf('Clu%d vs. Clu%d: %0.3f; %s', iClu1, iClu2, cor12, S_fig.vcTitle));
     if iClu1==iClu2, color_H = [0 0 0]; else color_H = [1 0 0]; end
     set(S_fig.hCursorH, 'YData', iClu2*[1,1], 'XData', [.5, S_clu.nClu+.5], 'Color', color_H);
-    xlim_(S_fig.hAx, trim_lim_(iClu1 + [-6,6], [.5, S_clu.nClu+.5]));
-    ylim_(S_fig.hAx, trim_lim_(iClu2 + [-6,6], [.5, S_clu.nClu+.5]));
+    xlim_(S_fig.hAx, jrclust.utils.trimLim(iClu1 + [-6,6], [.5, S_clu.nClu+.5]));
+    ylim_(S_fig.hAx, jrclust.utils.trimLim(iClu2 + [-6,6], [.5, S_clu.nClu+.5]));
 end %func

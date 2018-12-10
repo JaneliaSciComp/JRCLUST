@@ -176,6 +176,7 @@ classdef Config < handle & dynamicprops
         dispFilter = '';
         dispTimeLimits = [0 0.2];   % time range to display (in s?)
         fWav_raw_show = false;      % show raw waveforms in main view if true
+        nShow = 200;                % maximum number of traces to show [D?# spikes to show]
         nSpk_show = 30;             % show spike waveforms for manual clustering
 
         % to get to, eventually
@@ -255,7 +256,6 @@ classdef Config < handle & dynamicprops
         nMinAmp_ms = 0;
         nPcPerChan = 1;
         nPc_dip = 3;
-        nShow = 200;
         nShow_proj = 500;
         nSites_excl_ref = 6;
         nSkip_show = 1;

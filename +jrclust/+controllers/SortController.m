@@ -385,9 +385,9 @@ classdef SortController < handle
             end
 
             if strcmp(obj.hCfg.rlDetrendMode, 'local')      % perform detrending site by site
-                res.centers = jrclust.clustering.detrendRhoDelta(res, dRes.spikesBySite, true, obj.hCfg);
+                res.centers = jrclust.cluster.rl.detrendRhoDelta(res, dRes.spikesBySite, true, obj.hCfg);
             elseif strcmp(obj.hCfg.rlDetrendMode, 'global') % detrend over all sites
-                res.centers = jrclust.clustering.detrendRhoDelta(res, dRes.spikesBySite, false, obj.hCfg);
+                res.centers = jrclust.cluster.rl.detrendRhoDelta(res, dRes.spikesBySite, false, obj.hCfg);
             elseif strcmp(obj.hCfg.rlDetrendMode, 'logz')   % identify centers with sufficiently high z-scores
                 % res.centers = log_ztran_(res.spikeRho, res.spikeDelta, obj.hCfg.log10RhoCut, 4 + obj.hCfg.log10DeltaCut);
                 x = log10(res.spikeRho(:));

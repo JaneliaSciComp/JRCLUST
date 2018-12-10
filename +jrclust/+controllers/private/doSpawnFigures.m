@@ -26,7 +26,7 @@ function hFigs = doSpawnFigures(hCfg)
     hFigs('hFigProj')   = doCreateFigure('FigProj', [.5 .2 .35 .5], ['Feature projection: ', hCfg.sessionName]);
     hFigs('hFigSim')    = doCreateFigure('FigSim', [.5 .7 .35 .3], fwcTitle);
     hFigs('hFigHist')   = doCreateFigure('FigHist', fhShape, ['ISI Histogram: ', hCfg.sessionName]);
-    hFigs('hFigIsi')    = doCreateFigure('FigIsi', fiShape, ['Return map: ', hCfg.sessionName]);
+    hFigs('hFigISI')    = doCreateFigure('FigISI', fiShape, ['Return map: ', hCfg.sessionName]);
     hFigs('hFigCorr')   = doCreateFigure('FigCorr', fcShape, ['Time correlation: ', hCfg.sessionName]);
 
     % hFigs.cvrFigPos0 = cellfun(@(vc) get(get_fig_(vc), 'OuterPosition'), hFigs.csFig, 'UniformOutput', 0);

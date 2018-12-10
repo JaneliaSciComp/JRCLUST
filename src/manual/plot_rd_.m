@@ -17,7 +17,7 @@ function hFig = plot_rd_(P, S0)
     end
     vrX_plot = S_clu.rho;
     vrX_plot1 = log10(S_clu.rho);
-    [~, ~, vrY_plot1] = jrclust.clustering.detrendRhoDelta(S_clu, S0.cviSpk_site, false, P);
+    [~, ~, vrY_plot1] = jrclust.cluster.rl.detrendRhoDelta(S_clu, S0.cviSpk_site, false, P);
     vrY_plot1 = log10(vrY_plot1);
 
     % Plot

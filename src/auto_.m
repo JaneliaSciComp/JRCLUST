@@ -18,7 +18,7 @@ function auto_(P)
                        'spikeSites', S0.viSite_spk, ...
                        'spikeSites2', S0.viSite2_spk, ...
                        'spikePositions', S0.mrPos_spk);
-    [S_clu, S0] = jrclust.clustering.autoMerge(S_clu, spikeData, P);
+    [S_clu, S0] = jrclust.cluster.autoMerge(S_clu, spikeData, P);
     S0 = clear_log_(S0);
     save0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
 end %func

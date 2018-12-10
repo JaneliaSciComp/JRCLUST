@@ -13,11 +13,11 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
         y = jrclust.utils.nanlog10(hClust.spikeDelta(:));
         fDetrend = false;
     elseif strcmp(hCfg.rlDetrendMode, 'global')
-        [centers, x, y] = jrclust.clustering.detrendRhoDelta(hClust, hClust.spikesBySite, false, hCfg);
+        [centers, x, y] = jrclust.cluster.rl.detrendRhoDelta(hClust, hClust.spikesBySite, false, hCfg);
         y = jrclust.utils.nanlog10(y);
         fDetrend = true;
     elseif strcmp(hCfg.rlDetrendMode, 'local')
-        [centers, x, y] = jrclust.clustering.detrendRhoDelta(hClust, hClust.spikesBySite, true, hCfg);
+        [centers, x, y] = jrclust.cluster.rl.detrendRhoDelta(hClust, hClust.spikesBySite, true, hCfg);
         y = jrclust.utils.nanlog10(y);
         fDetrend = true;
     end
