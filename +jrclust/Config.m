@@ -178,6 +178,7 @@ classdef Config < handle & dynamicprops
         fWav_raw_show = false;      % show raw waveforms in main view if true
         nShow = 200;                % maximum number of traces to show [D?# spikes to show]
         nSpk_show = 30;             % show spike waveforms for manual clustering
+        um_per_pix = 20;
 
         % to get to, eventually
         LineStyle = '';
@@ -295,7 +296,6 @@ classdef Config < handle & dynamicprops
         tlim_lfp = [0 5];
         tlim_psth = [-1 5];
         tlim_vid = [];
-        um_per_pix = 20;
         vcCluDist = 'eucldist';
         vcCluWavMode = 'mean';
         vcDate_file = '';

@@ -9,6 +9,7 @@ classdef CurateController < handle
 
     properties (AbortSet, Access=private, Hidden, Transient, SetObservable)
         hFigs;          % containers.Map of Figure objects
+        hMenus;         % containers.Map of Menu handles
         selected;       % selected clusters, in order of selection
     end
 
@@ -17,6 +18,7 @@ classdef CurateController < handle
         function obj = CurateController(hCfg)
             obj.hCfg = hCfg;
             obj.hFigs = containers.Map();
+            obj.hMenus = containers.Map();
             obj.selected = [];
         end
 
@@ -142,7 +144,7 @@ classdef CurateController < handle
 
                 case 'z' % zoom
                     if isempty(obj.selected)
-                        obj.selected = 1;
+                        obj.selectCluster(1);
                     end
                     iSite = obj.hClust.clusterSites(obj.selected(1));
                     hFigWav.setWindow(obj.selected(1) + [-1, 1]*6, iSite + [-1, 1]*(obj.hCfg.maxSite*2+1), [0 obj.hClust.nClusters+1], [0 nSites+1]);
@@ -180,15 +182,14 @@ classdef CurateController < handle
 
         function mouseClickFigSim(obj, xyPos, clickType)
             %MOUSECLICKFIGSIM Handle callbacks for mouse clicks in sim view
-            xyPos = floor(xyPos);
+            xyPos = round(xyPos);
             if strcmp(clickType, 'normal') % left click
-                obj.selected = xyPos(1); % first selected cluster is x position
-
                 if diff(xyPos) ~= 0
-                    obj.selected(2) = xyPos(2);
+                    obj.selected = xyPos(1); % first selected cluster is x position
+                    obj.selectCluster(xyPos(2), true);
+                else
+                    obj.selectCluster(xyPos(1), false);
                 end
-
-                disp(obj.selected);
 
                 % S0 = button_CluWav_simulate_(S0.iCluCopy, S0.iCluPaste, S0);
                 % S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'z'}, S0); %zoom
@@ -203,11 +204,9 @@ classdef CurateController < handle
             end
 
             if strcmp(clickType, 'normal')  % left click, select primary cluster
-                obj.selected = iCluster;
-                obj.updateCursorFigWav();
+                obj.selectCluster(iCluster, false);
             elseif strcmp(clickType, 'alt') && iCluster ~= obj.selected(1) % right click, select secondary cluster
-                obj.selected(2) = iCluster;
-                obj.updateCursorFigWav();
+                obj.selectCluster(iCluster, true);
             else                            % middle click, ignore
                 disp(clickType);
                 return;
@@ -341,6 +340,26 @@ classdef CurateController < handle
             hFigISI = doPlotFigISI(obj.hFigs('hFigISI'), obj.hClust, obj.hCfg, obj.selected);
             obj.hFigs('hFigISI') = hFigISI;
         end
+
+        function updateFigMap(obj)
+            %UPDATEFIGMAP Plot probe map
+            if isempty(obj.selected) || ~obj.hasFig('hFigMap')
+                return;
+            end
+
+            hFigMap = doPlotFigMap(obj.hFigs('hFigMap'), obj.hClust, obj.hCfg, obj.selected);
+            obj.hFigs('hFigMap') = hFigMap;
+        end
+
+        function updateFigPos(obj)
+            %UPDATEFIGPOS Plot cluster position on probe
+            if isempty(obj.selected) || ~obj.hasFig('hFigPos')
+                return;
+            end
+
+            hFigPos = doPlotFigPos(obj.hFigs('hFigPos'), obj.hClust, obj.hCfg, obj.selected);
+            obj.hFigs('hFigPos') = hFigPos;
+        end
     end
 
     %% UTILITY METHODS
@@ -351,20 +370,20 @@ classdef CurateController < handle
             outerPosition = hFig.outerPosition;
             hFig.figSet('MenuBar','None');
 
-            hMFile = hFig.uimenu('Label', 'File');
-            uimenu(hMFile, 'Label', 'Save', 'Callback', @obj.saveFiles); % save_manual_
-            uimenu(hMFile, 'Label', 'Save figures as .fig', 'Callback', @(h, e) obj.saveFigures('.fig')); % save_figures_
-            uimenu(hMFile, 'Label', 'Save figures as .png', 'Callback', @(h, e) obj.saveFigures('.png')); % save_figures_
-%             uimenu(mhFile, 'Label', 'Describe', 'Callback', @(h,e) msgbox_(describe_()), 'Separator', 'on');
-%             uimenu(mhFile, 'Label', 'Edit prm file', 'Callback', @edit_prm_);
-%             uimenu(mhFile, 'Label', 'Reload prm file', 'Callback', @reload_prm_);
-%             uimenu(mhFile, 'Label', 'Export units to csv', 'Callback', @export_csv_, 'Separator', 'on');
-%             uimenu(mhFile, 'Label', 'Export unit qualities to csv', 'Callback', @(h,e)export_quality_);
-%             uimenu(mhFile, 'Label', 'Export all mean unit waveforms', 'Callback', @export_tmrWav_clu_);
-%             uimenu(mhFile, 'Label', 'Export selected mean unit waveforms', 'Callback', @(h,e)export_mrWav_clu_);
-%             uimenu(mhFile, 'Label', 'Export all waveforms from the selected unit', 'Callback', @(h,e)export_tnWav_spk_);
-%             uimenu(mhFile, 'Label', 'Export firing rate for all units', 'Callback', @(h,e)export_rate_);
-            uimenu(hMFile, 'Label', 'Exit', 'Callback', @(h, e) obj.endSession, 'Separator', 'on', 'Accelerator', 'Q');
+            obj.hMenus('hMenuFile') = hFig.uimenu('Label', 'File');
+            uimenu(obj.hMenus('hMenuFile'), 'Label', 'Save', 'Callback', @obj.saveFiles); % save_manual_
+            uimenu(obj.hMenus('hMenuFile'), 'Label', 'Save figures as .fig', 'Callback', @(h, e) obj.saveFigures('.fig')); % save_figures_
+            uimenu(obj.hMenus('hMenuFile'), 'Label', 'Save figures as .png', 'Callback', @(h, e) obj.saveFigures('.png')); % save_figures_
+%             uimenu(obj.hMenus('hMenuFile'), 'Label', 'Describe', 'Callback', @(h,e) msgbox_(describe_()), 'Separator', 'on');
+%             uimenu(obj.hMenus('hMenuFile'), 'Label', 'Edit prm file', 'Callback', @edit_prm_);
+%             uimenu(obj.hMenus('hMenuFile'), 'Label', 'Reload prm file', 'Callback', @reload_prm_);
+%             uimenu(obj.hMenus('hMenuFile'), 'Label', 'Export units to csv', 'Callback', @export_csv_, 'Separator', 'on');
+%             uimenu(obj.hMenus('hMenuFile'), 'Label', 'Export unit qualities to csv', 'Callback', @(h,e)export_quality_);
+%             uimenu(obj.hMenus('hMenuFile'), 'Label', 'Export all mean unit waveforms', 'Callback', @export_tmrWav_clu_);
+%             uimenu(obj.hMenus('hMenuFile'), 'Label', 'Export selected mean unit waveforms', 'Callback', @(h,e)export_mrWav_clu_);
+%             uimenu(obj.hMenus('hMenuFile'), 'Label', 'Export all waveforms from the selected unit', 'Callback', @(h,e)export_tnWav_spk_);
+%             uimenu(obj.hMenus('hMenuFile'), 'Label', 'Export firing rate for all units', 'Callback', @(h,e)export_rate_);
+            uimenu(obj.hMenus('hMenuFile'), 'Label', 'Exit', 'Callback', @(h, e) obj.endSession, 'Separator', 'on', 'Accelerator', 'Q');
 
 %             mh_edit = uimenu(hFig,'Label','Edit');
 %             uimenu(mh_edit,'Label', '[M]erge', 'Callback', @(h,e) keyPressFcn_cell_(hFig, 'm'));
@@ -403,13 +422,13 @@ classdef CurateController < handle
 %             uimenu(mh_plot, 'Label', 'All unit firing rate vs. aux. input', 'Callback', @(h,e)plot_aux_rate_);
 %             uimenu(mh_plot, 'Label', 'Selected unit firing rate vs. aux. input', 'Callback', @(h,e)plot_aux_rate_(1));
 % 
-%             mh_info = uimenu(hFig,'Label','','Tag', 'mh_info');
-%             uimenu(mh_info, 'Label', 'Annotate unit', 'Callback', @unit_annotate_);
-%             uimenu(mh_info, 'Label', 'single', 'Callback', @(h,e)unit_annotate_(h,e,'single'));
-%             uimenu(mh_info, 'Label', 'multi', 'Callback', @(h,e)unit_annotate_(h,e,'multi'));
-%             uimenu(mh_info, 'Label', 'noise', 'Callback', @(h,e)unit_annotate_(h,e,'noise'));
-%             uimenu(mh_info, 'Label', 'clear annotation', 'Callback', @(h,e)unit_annotate_(h,e,''));
-%             uimenu(mh_info, 'Label', 'equal to', 'Callback', @(h,e)unit_annotate_(h,e,'=%d'));
+            obj.hMenus('hMenuInfo') = uimenu(hFig, 'Label', '', 'Tag', 'hMenuInfo');
+%             uimenu(obj.hMenus('hMenuInfo'), 'Label', 'Annotate unit', 'Callback', @unit_annotate_);
+%             uimenu(obj.hMenus('hMenuInfo'), 'Label', 'single', 'Callback', @(h,e)unit_annotate_(h,e,'single'));
+%             uimenu(obj.hMenus('hMenuInfo'), 'Label', 'multi', 'Callback', @(h,e)unit_annotate_(h,e,'multi'));
+%             uimenu(obj.hMenus('hMenuInfo'), 'Label', 'noise', 'Callback', @(h,e)unit_annotate_(h,e,'noise'));
+%             uimenu(obj.hMenus('hMenuInfo'), 'Label', 'clear annotation', 'Callback', @(h,e)unit_annotate_(h,e,''));
+%             uimenu(obj.hMenus('hMenuInfo'), 'Label', 'equal to', 'Callback', @(h,e)unit_annotate_(h,e,'=%d'));
 % 
 %             mh_help = uimenu(hFig,'Label','Help');
 %             uimenu(mh_help, 'Label', '[H]elp', 'Callback', @help_FigWav_);
@@ -499,7 +518,6 @@ classdef CurateController < handle
 
 %                 case 't', plot_FigTime_(S0); % time view
 %                 case 'j', plot_FigProj_(S0); %projection view
-%                 case 'e', plot_FigMap_(S0);
 %                 case 'u', update_FigCor_(S0);
 %                 case 'p' %PSTH plot
 %                 if isempty(hCfg.vcFile_trial), msgbox_('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
@@ -514,8 +532,51 @@ classdef CurateController < handle
             % plot return map (ISI view)
             obj.updateFigISI();
 
+            % plot probe map
+            obj.updateFigMap();
+
+            % plot cluster position
+            obj.updateFigPos();
+
+            % select first cluster
+            obj.selectCluster(1, false);
+        end
+
+        function selectCluster(obj, iCluster, fSecondary)
+            %SELECTCLUSTER Select a cluster across all views
+            if iCluster < 0
+                iCluster = 1;
+            elseif iCluster > obj.hClust.nClusters
+                iCluster = obj.hClust.nClusters;
+            end
+
+            if ~fSecondary
+                obj.selected = iCluster;
+            else
+                obj.selected(2) = iCluster;
+            end
+
+            % update plots
+            obj.updateCursorFigWav();
+            obj.updateCursorFigSim();
+            obj.updateFigCorr();
+            obj.updateFigHist();
+            obj.updateFigISI();
+            obj.updateFigMap();
+
+            % update menu entry to indicate selected clusters
+            if numel(obj.selected) > 1 && obj.hasMenu('hMenuInfo')
+                menuLabel = sprintf('Unit %d "%s" vs. Unit %d "%s"', obj.selected(1), ...
+                                    obj.hClust.clusterNotes{obj.selected(1)}, obj.selected(2), ...
+                                    obj.hClust.clusterNotes{obj.selected(2)});
+                set(obj.hMenus('hMenuInfo'), 'Label', menuLabel);
+            elseif obj.hasMenu('hMenuInfo')
+                menuLabel = sprintf('Unit %d "%s"', obj.selected(1), obj.hClust.clusterNotes{obj.selected(1)});
+                set(obj.hMenus('hMenuInfo'), 'Label', menuLabel);
+            end
+
             % zoom in on waveform view
-            obj.keyPressFigWav([], struct('Key', 'z'));
+            %obj.keyPressFigWav([], struct('Key', 'z'));
         end
 
         function spawnFigures(obj)
@@ -529,8 +590,8 @@ classdef CurateController < handle
         function beginSession(obj, hClust)
             %BEGINSESSION Start curating clusters
             obj.cRes = struct('hClust', hClust);
-            obj.selected = 1;
             obj.plotAllFigures();
+            obj.selectCluster(1, false);
         end
 
         function res = endSession(obj)
@@ -548,6 +609,11 @@ classdef CurateController < handle
         function hf = hasFig(obj, figKey)
             %HASFIG Return true if we have a figure by key
             hf = ischar(figKey) && isKey(obj.hFigs, figKey);
+        end
+
+        function hm = hasMenu(obj, menuKey)
+            %HASMENU Return true if we have a menu item by key
+            hm = ischar(menuKey) && isKey(obj.hMenus, menuKey);
         end
 
         function saveFigures(obj, ext)

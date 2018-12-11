@@ -56,13 +56,13 @@ function add_menu_(hFig, P)
     uimenu(mh_plot, 'Label', 'All unit firing rate vs. aux. input', 'Callback', @(h,e)plot_aux_rate_);
     uimenu(mh_plot, 'Label', 'Selected unit firing rate vs. aux. input', 'Callback', @(h,e)plot_aux_rate_(1));
 
-    mh_info = uimenu(hFig,'Label','','Tag', 'mh_info');
-    uimenu(mh_info, 'Label', 'Annotate unit', 'Callback', @unit_annotate_);
-    uimenu(mh_info, 'Label', 'single', 'Callback', @(h,e)unit_annotate_(h,e,'single'));
-    uimenu(mh_info, 'Label', 'multi', 'Callback', @(h,e)unit_annotate_(h,e,'multi'));
-    uimenu(mh_info, 'Label', 'noise', 'Callback', @(h,e)unit_annotate_(h,e,'noise'));
-    uimenu(mh_info, 'Label', 'clear annotation', 'Callback', @(h,e)unit_annotate_(h,e,''));
-    uimenu(mh_info, 'Label', 'equal to', 'Callback', @(h,e)unit_annotate_(h,e,'=%d'));
+    hMenuInfo = uimenu(hFig,'Label','','Tag', 'hMenuInfo');
+    uimenu(hMenuInfo, 'Label', 'Annotate unit', 'Callback', @unit_annotate_);
+    uimenu(hMenuInfo, 'Label', 'single', 'Callback', @(h,e)unit_annotate_(h,e,'single'));
+    uimenu(hMenuInfo, 'Label', 'multi', 'Callback', @(h,e)unit_annotate_(h,e,'multi'));
+    uimenu(hMenuInfo, 'Label', 'noise', 'Callback', @(h,e)unit_annotate_(h,e,'noise'));
+    uimenu(hMenuInfo, 'Label', 'clear annotation', 'Callback', @(h,e)unit_annotate_(h,e,''));
+    uimenu(hMenuInfo, 'Label', 'equal to', 'Callback', @(h,e)unit_annotate_(h,e,'=%d'));
 
     mh_history = uimenu(hFig, 'Label', 'History', 'Tag', 'mh_history');
 

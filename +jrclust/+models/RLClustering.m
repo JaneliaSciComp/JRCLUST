@@ -445,7 +445,7 @@ classdef RLClustering < jrclust.interfaces.Clustering
                 useRaw = true;
             end
 
-            results = compMeanWf(obj, updateMe, useRaw);
+            results = doComputeMeanWaveforms(obj, updateMe, useRaw);
             
             % collect computed values
             obj.unitPeaks = results.unitPeaks;
@@ -470,7 +470,7 @@ classdef RLClustering < jrclust.interfaces.Clustering
             end
 
             obj.hCfg.useGPU = false; % disable GPU for this
-            obj.simScore = compWfSim(obj, updateMe_);
+            obj.simScore = doComputeWaveformSim(obj, updateMe_);
             obj.hCfg.useGPU = true; % disable GPU for this
         end
 
@@ -479,7 +479,7 @@ classdef RLClustering < jrclust.interfaces.Clustering
             if nargin < 2
                 updateMe = [];
             end
-            scores = qualScores(obj, updateMe);
+            scores = doComputeQualityScores(obj, updateMe);
             obj.nSitesOverThresh = scores.nSitesOverThresh;
             obj.siteRMS = scores.siteRMS;
             obj.unitISIRatio = scores.unitISIRatio;
@@ -545,6 +545,55 @@ classdef RLClustering < jrclust.interfaces.Clustering
             obj.refresh(true);
             if ~isempty(obj.meanWfGlobal) % only compute mean waveforms if we already had them
                 obj.updateWaveforms();
+            end
+        end
+
+        function uInfo = exportUnitInfo(obj, iCluster)
+            %EXPORTUNITINFO Get all data pertinent to a cluster
+            if ~ismember(iCluster, 1:obj.nClusters)
+                uInfo = [];
+                return;
+            end
+
+            iSite = obj.clusterSites(iCluster);
+            iNeighbors = obj.hCfg.siteNeighbors(:, iSite);
+
+            pos = sprintf('Unit %d (x,y):(%0.1f, %0.1f)[pix]', iCluster, obj.clusterCentroids/obj.hCfg.um_per_pix);
+
+            % subsample some (raw or filtered) waveforms
+            iSubset = jrclust.utils.subsample(obj.getCenteredSpikes(iCluster), obj.hCfg.nSpk_show);
+            if obj.hCfg.fWav_raw_show
+                meanWf = obj.meanWfGlobalRaw(:, iNeighbors, iCluster);
+                sampleWf = jrclust.utils.rawTouV(obj.spikesRaw(:, :, iSubset), obj.hCfg);
+                sampleWf = jrclust.filters.fftLowpass(sampleWf, obj.hCfg.getOr('fc_spkwav_show', []), obj.hCfg.sampleRate);
+            else
+                meanWf = obj.meanWfGlobal(:,iNeighbors,iCluster);
+                sampleWf = jrclust.utils.filtTouV(obj.spikesFilt(:, :, iSubset), obj.hCfg);
+            end
+
+            uInfo = struct('cluster', iCluster, ...
+                           'xyPos', xyPos, ...
+                           'meanWf', meanWf, ...
+                           'neighbors', iNeighbors, ...
+                           'position', pos, ...
+                           'sampleWf', sampleWf);
+            if ~isempty(obj.unitLRatio)
+                uInfo.LRatio = obj.unitLRatio(iCluster);
+            end
+            if ~isempty(obj.unitISIRatio)
+                uInfo.ISIRatio = obj.unitISIRatio(iCluster);
+            end
+            if ~isempty(obj.unitIsoDist)
+                uInfo.IsoDist = obj.unitIsoDist(iCluster);
+            end
+            if ~isempty(obj.unitSNR)
+                uInfo.SNR = obj.unitSNR(iCluster);
+            end
+            if ~isempty(obj.unitPeaksRaw)
+                uInfo.peaksRaw = obj.unitPeaksRaw(iCluster);
+            end
+            if ~isempty(obj.unitVppRaw)
+                uInfo.vpp = obj.unitVppRaw(iCluster);
             end
         end
 

@@ -1,5 +1,5 @@
-function results = compMeanWf(hClust, updateMe, useRaw)
-    %COMPMEANWF Compute the mean waveform for each cluster
+function results = doComputeMeanWaveforms(hClust, updateMe, useRaw)
+    %DOCOMPUTEMEANWAVEFORMS Compute the mean waveform for each cluster
     if isempty(hClust.spikesFilt)
         return;
     end

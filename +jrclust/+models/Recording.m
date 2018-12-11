@@ -118,13 +118,13 @@ classdef Recording < handle
 
         function roi = readROI(obj, rows, cols)
             %READROI get a region of interest by rows/cols
-            if jrclust.utils.isscalarnum(rows)
-                rows = rows*[1 1];
-            end
-
-            if jrclust.utils.isscalarnum(cols)
-                cols = cols*[1 1];
-            end
+%             if jrclust.utils.isscalarnum(rows)
+%                 rows = rows*[1 1];
+%             end
+% 
+%             if jrclust.utils.isscalarnum(cols)
+%                 cols = cols*[1 1];
+%             end
 
             rowPred = jrclust.utils.ismatrixnum(rows) && ~isempty(rows) ...
                 && all(rows > 0) && max(rows) <= obj.dshape(1);

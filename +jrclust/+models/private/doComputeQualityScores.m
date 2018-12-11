@@ -1,5 +1,5 @@
-function scores = qualScores(hClust, updateMe)
-    %QUALSCORES Compute cluster quality scores
+function scores = doComputeQualityScores(hClust, updateMe)
+    %DOCOMPUTEQUALSCORES Compute cluster quality scores
     if nargin < 2
         updateMe = [];
     end
@@ -51,10 +51,10 @@ function scores = qualScores(hClust, updateMe)
         clusterTimes_ = hClust.spikeTimes(clusterSpikes_);
         diffCtimes = diff(clusterTimes_);
         
-        % def ISI ratio: #(ISI <= 2ms)/#(ISI <= 20ms)
+        % define ISI ratio as #(ISI <= 2ms)/#(ISI <= 20ms)
         unitISIRatio_(iCluster) = sum(diffCtimes <= nSamples2ms)./sum(diffCtimes <= nSamples20ms);
 
-        % Compute L-ratio an disodist (use neighboring features
+        % Compute L-ratio and isolation distance (use neighboring features)
         iSite = hClust.clusterSites(iCluster);
 
         % find spikes whose primary or secondary spikes live on iSite
@@ -109,7 +109,7 @@ function scores = qualScores(hClust, updateMe)
     scores.unitISIRatio = unitISIRatio_;
     scores.unitIsoDist = unitIsoDist_;
     scores.unitLRatio = unitLRatio_;
-    scores.unitPeaksRaw = unitPeaksRaw_; % unitPeaks set elsewhere
+    scores.unitPeaksRaw = unitPeaksRaw_; % unitPeaks is set elsewhere
     scores.unitSNR = unitSNR_;
     scores.unitVpp = unitVpp_;
     scores.unitVppRaw = unitVppRaw_;

@@ -36,5 +36,5 @@ function hFig = doCreateFigure(figTag, figPos, figName, figToolbar, figMenubar)
 %     if ~isempty(vrPos), resize_figure_(hFig, vrPos); end
 %     clf(hFig);
 
-    hFig = jrclust.models.Figure(figTag, figPos, figName, figToolbar, figMenubar);
+    hFig = jrclust.views.Figure(figTag, figPos, figName, figToolbar, figMenubar);
 end

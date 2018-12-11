@@ -261,6 +261,23 @@ classdef Figure < handle %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             end
         end
 
+        function addPatch(obj, plotKey, varargin)
+            %ADDPATCH Create and store one or more filled polygons
+            if obj.isReady
+                hAx = obj.gca();
+                if isempty(hAx)
+                    obj.toForeground();
+                    obj.hPlots(plotKey) = patch(varargin{:});
+                else
+                    obj.hPlots(plotKey) = patch(hAx, varargin{:});
+                end
+
+                if obj.isMouseable
+                    obj.setMouseable();
+                end
+            end
+        end
+
         function addPlot(obj, plotKey, varargin)
             %ADDPLOT Create and store a 2-D line plot
             if obj.isReady
@@ -287,6 +304,23 @@ classdef Figure < handle %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     obj.hPlots(plotKey) = stairs(varargin{:});
                 else
                     obj.hPlots(plotKey) = stairs(hAx, varargin{:});
+                end
+
+                if obj.isMouseable
+                    obj.setMouseable();
+                end
+            end
+        end
+
+        function addText(obj, plotKey, varargin)
+            %ADDSTAIRS Add and store text descriptions for data points
+            if obj.isReady
+                hAx = obj.gca();
+                if isempty(hAx)
+                    obj.toForeground();
+                    obj.hPlots(plotKey) = text(varargin{:});
+                else
+                    obj.hPlots(plotKey) = text(hAx, varargin{:});
                 end
 
                 if obj.isMouseable
@@ -329,6 +363,22 @@ classdef Figure < handle %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             hAx = obj.gca();
             if ~isempty(hAx)
                 set(hAx, varargin{:});
+            end
+        end
+
+        function caxis(obj, limits)
+            %CAXIS Set colormap limits for current axis
+            hAx = obj.gca();
+            if ~isempty(hAx)
+                caxis(hAx, limits);
+            end
+        end
+
+        function cla(obj)
+            %CLA Clear axes
+            hAx = obj.gca();
+            if ~isempty(hAx)
+                cla(hAx);
             end
         end
 
