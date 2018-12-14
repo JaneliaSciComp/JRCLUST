@@ -46,7 +46,12 @@ function vrWavCor2 = clu_wavcor_(ctmrWav_clu, cviSite_clu, P, cell_5args, iClu2)
                 cmrWav_clu2_ = cellfun(@(x)x(:,viSite12), cmrWav_clu2, 'UniformOutput', 0);
                 cmrWav_clu1_ = cellfun(@(x)x(:,viSite12,iClu11), ctmrWav_clu1, 'UniformOutput', 0);
             end
-            vrWavCor2(iClu1) = maxCor_drift_(cmrWav_clu2_, cmrWav_clu1_, cviShift1, cviShift2, fMode_cor);
+
+            if strcmpi(get_set_(P, 'autoMergeBy', 'pearson'), 'dist') % use distance method
+                vrWavCor2(iClu1) = minDist_drift_(cmrWav_clu2_, cmrWav_clu1_, cviShift1, cviShift2);
+            else % use Pearson
+                vrWavCor2(iClu1) = maxCor_drift_(cmrWav_clu2_, cmrWav_clu1_, cviShift1, cviShift2, fMode_cor);
+            end
         end
     end %iClu2 loop
 end %func
