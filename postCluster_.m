@@ -7,8 +7,8 @@ function S_clu = postCluster_(S_clu, P)
     if isempty(S_clu), return; end
 
     switch lower(P.vcDetrend_postclu)
-        %         case {'hidehiko', 'hide'}
-        %             S_clu.icl = selec_rho_delta_with_slope(S_clu, P.delta1_cut);
+        case {'hidehiko', 'hide'}
+        S_clu.icl = select_icl_with_slope_(S_clu, P.delta1_cut);
         case 'local' %
         S_clu.icl = detrend_local_(S_clu, P, 1);
         case 'none'

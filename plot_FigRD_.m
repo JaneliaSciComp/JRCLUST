@@ -20,11 +20,6 @@ function S_clu = plot_FigRD_(S_clu, P)
     if ~isfield(P, 'vcDetrend_postclu'), P.vcDetrend_postclu = 'none'; end
 
     switch P.vcDetrend_postclu
-        case 'none'
-        icl = find(S_clu.rho(:) > 10^(P.rho_cut) & S_clu.delta(:) > 10^(P.delta1_cut));
-        x = log10_(S_clu.rho(:));
-        y = log10_(S_clu.delta(:));
-        fDetrend = 0;
         case 'global'
         [icl, x, y] = detrend_local_(S_clu, P, 0);
         vl_nan = y<=0;
@@ -34,6 +29,11 @@ function S_clu = plot_FigRD_(S_clu, P)
         [icl, x, y] = detrend_local_(S_clu, P, 1);
         y = log10_(y);
         fDetrend = 1;
+        otherwise % none, hide/hidehiko
+        icl = find(S_clu.rho(:) > 10^(P.rho_cut) & S_clu.delta(:) > 10^(P.delta1_cut));
+        x = log10_(S_clu.rho(:));
+        y = log10_(S_clu.delta(:));
+        fDetrend = 0;
     end
 
     hold on; plot(x, y, '.');
