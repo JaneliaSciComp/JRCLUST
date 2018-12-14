@@ -157,7 +157,7 @@ classdef JRC < handle & dynamicprops
             end
 
             % command sentinel
-            legalCmds = {'detect', 'sort'};
+            legalCmds = {'detect', 'sort', 'manual'};
             if ~any(strcmpi(obj.cmd, legalCmds))
                 obj.errMsg = sprintf('Command `%s` not recognized', obj.cmd);
                 errordlg(obj.errMsg, 'Unrecognized command');
@@ -240,24 +240,34 @@ classdef JRC < handle & dynamicprops
                 end
 
                 parallel.gpu.rng(obj.hCfg.randomSeed);
+
+                % clear persistent kernels
+                clear jrclust.cluster.densitypeaks.computeRho;
+                clear jrclust.cluster.densitypeaks.computeDeltaSite;
             end
 
             % try to load sort and detect results
             if obj.isCurate && ~obj.isSort
-                [obj.dRes, obj.sRes] = obj.loadFiles();
-                if isempty(obj.dRes)
+                [dRes_, sRes_] = obj.loadFiles();
+                if isempty(dRes_)
                     obj.isDetect = true;
                     obj.isSort = true;
-                elseif isempty(obj.sRes)
+                elseif isempty(sRes_)
+                    obj.dRes = dRes_;
                     obj.isSort = true;
+                else
+                    obj.dRes = dRes_;
+                    obj.sRes = sRes_;
                 end
             end
 
             % try to load detect results
             if obj.isSort && ~obj.isDetect
-                obj.dRes = obj.loadFiles();
-                if isempty(obj.dRes)
+                dRes_ = obj.loadFiles();
+                if isempty(dRes_)
                     obj.isDetect = true;
+                else
+                    obj.dRes = dRes_;
                 end
             end
 
@@ -278,7 +288,7 @@ classdef JRC < handle & dynamicprops
             gpuDetect = obj.hCfg.useGPU; % save this in case useGPU is disabled during detection step
             % DETECT SPIKES
             if obj.isDetect
-                obj.hDet = jrclust.controllers.DetectController(obj.hCfg);
+                obj.hDet = jrclust.controllers.detect.DetectController(obj.hCfg);
                 obj.dRes = obj.hDet.detect();
 
                 if obj.hDet.isError
@@ -293,7 +303,7 @@ classdef JRC < handle & dynamicprops
             if obj.isSort
                 obj.hCfg.useGPU = gpuSort;
 
-                obj.hSort = jrclust.controllers.SortController(obj.hCfg);
+                obj.hSort = jrclust.controllers.sort.SortController(obj.hCfg);
                 [obj.sRes, obj.hClust] = obj.hSort.sort(obj.dRes);
 
                 if obj.hSort.isError

@@ -1,8 +1,8 @@
-classdef Figure < handle %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MOVE ME BACK INTO +views
+classdef Figure < handle
     %FIGURE handle for JRCLUST manual figure
     %   Base class for specific figure types
 
-    properties (Access=private, Hidden, SetObservable)
+    properties (Access=protected, Hidden, SetObservable)
         hFig;           % Figure object
         hPlots;         % hashmap of current plots (return value of `plot`)
     end
@@ -21,7 +21,7 @@ classdef Figure < handle %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         hFunKey;        % keypress function handle
     end
 
-    properties (Hidden, SetAccess=private)
+    properties (Hidden, SetAccess=protected)
         hideOnDrag;     % cell of plotKeys which we want to hide when we drag
         isMouseable;
         isWaiting;      % are we waiting on an operation to complete?

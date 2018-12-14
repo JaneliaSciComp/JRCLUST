@@ -13,7 +13,7 @@ function S_clu_position_(hClust, updateMe)
         clusters_ = updateMe(:)';
     end
 
-    featureSites = 1:(1+hClust.hCfg.nSiteDir*2 - hClust.hCfg.nSitesExcl);
+    featureSites = 1:hClust.hCfg.nSitesEvt);
 
     for iCluster = clusters_
         [clusterSpikes, neighbors] = subsampleCenteredSpikes(hClust, iCluster);

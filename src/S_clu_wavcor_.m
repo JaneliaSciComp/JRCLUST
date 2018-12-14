@@ -41,7 +41,7 @@ function mrWavCor = waveformSim(hClust, hCfg, updateMe_)
     end
 
     if hCfg.nInterp_merge > 1
-        meanWfSet = cellfun(@(x) interpft_(x, hCfg.nInterp_merge), meanWfSet, 'UniformOutput', 0);
+        meanWfSet = cellfun(@(x) jrclust.utils.interpWindows(x, hCfg.nInterp_merge), meanWfSet, 'UniformOutput', 0);
     end
 
     if fUsePeak2

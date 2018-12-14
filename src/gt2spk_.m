@@ -21,17 +21,17 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
     % P = setfield(P, 'vcFilter', 'bandpass'); % use bandpass for GT evaluation
     if ~P.fTranspose_bin
         [mnWav, vrWav_mean] = load_file_(P.vcFile, [], P);
-        mnWav = jrclust.utils.fftClean(mnWav, P);
+        mnWav = jrclust.filters.fftClean(mnWav, P);
         if fProcessRaw
             tnWav_raw = permute(mn2tn_gpu_(mnWav, P.spkLim_raw, viTime_spk), [1,3,2]);
         end
-        [mnWav, ~] = jrclust.utils.filtCar(mnWav, P);
+        [mnWav, ~] = jrclust.filters.filtCAR(mnWav, P);
         %     mnWav = mnWav_filt_(mnWav, P); % Apply filtering in RAM
         if fSubtract_nmean % Apply nmean CAR to ground truth spikes (previous standard)
             P1=P; P1.vcCommonRef = 'nmean'; mnWav = wav_car_(mnWav, P1);
         end
         tnWav_spk = permute(mn2tn_gpu_(mnWav, P.spkLim, viTime_spk), [1,3,2]);
-        vrVrms_site = jrclust.utils.tryGather(mr2rms_(mnWav, 1e5));
+        vrVrms_site = jrclust.utils.tryGather(jrclust.utils.estimateRMS(mnWav, 1e5));
         clear mnWav;
     else % real ground truth: must block load and filter.
         viClu = viClu(1:nSubsample_clu:end);
@@ -72,7 +72,7 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
 
     % if fSubtract_ref
     % % apply surrounding reference subtraction
-    %     trWav_clu = spkwav_car_(trWav_clu, spkwav_car_init_(P));
+    %     trWav_clu = jrclust.utils.carWindows(trWav_clu, spkwav_car_init_(P));
     % end
 
     % Find center location and spike SNR

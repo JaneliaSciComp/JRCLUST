@@ -5,8 +5,8 @@ function [vrFilt_spk, vrVaf, nShift_post] = calc_matched_filt_(mnWav1, P) %detec
     % 6/29/17 JJJ: Spike waveform matched fitler determination
     % 6/30/17 JJJ: Range optimization
 
-    vnThresh_site = jrclust.utils.tryGather(int16(mr2rms_(mnWav1, 1e5) * P.qqFactor));
-    [viTime_spk, vnAmp_spk, viSite_spk] = jrclust.utils.detectSpikes(mnWav1, vnThresh_site, [], P);
+    vnThresh_site = jrclust.utils.tryGather(int16(jrclust.utils.estimateRMS(mnWav1, 1e5) * P.qqFactor));
+    [viTime_spk, vnAmp_spk, viSite_spk] = jrclust.utils.detectPeaks(mnWav1, vnThresh_site, [], P);
 
     % extract wave forms
     nSpks = numel(viSite_spk);

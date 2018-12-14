@@ -14,7 +14,7 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     figure_wait_(1, hFig); drawnow;
     fft_thresh = S_fig.fft_thresh;
     if fft_thresh > 0
-        S_fig.mnWav_clean = jrclust.utils.fftClean(S_fig.mnWav_raw, struct_add_(P, fft_thresh)); % fft filter
+        S_fig.mnWav_clean = jrclust.filters.fftClean(S_fig.mnWav_raw, struct_add_(P, fft_thresh)); % fft filter
     else
         S_fig.mnWav_clean = S_fig.mnWav_raw;
     end
@@ -36,7 +36,7 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     % Perform filter fft_thresh
     P_ = set_(P, 'vcCommonRef', 'none', 'fGpu', 0, 'vcFilter', S_fig.vcFilter, ...
     'blank_period_ms', S_fig.blank_period_ms, 'blank_thresh', S_fig.blank_thresh, 'fParfor', 0);
-    mnWav_filt = jrclust.utils.filtCar(S_fig.mnWav_clean, P_);
+    mnWav_filt = jrclust.filters.filtCAR(S_fig.mnWav_clean, P_);
     % if strcmpi(S_fig.vcCommonRef, 'median')
     %     vrWav_filt_mean = median(mnWav_filt(:,~S_fig.vlSite_bad), 2);
     % else
@@ -57,7 +57,7 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     [S_fig.vrPower_psd, S_fig.vrPower_clean_psd] = multifun_(@(x)mean(x,2), mrPower_psd, mrPower_clean_psd);
 
     % Apply threshold and perform spike detection
-    vrRmsQ_site = mr2rms_(mnWav_filt, 1e5);
+    vrRmsQ_site = jrclust.utils.estimateRMS(mnWav_filt, 1e5);
     vnThresh_site = int16(vrRmsQ_site * S_fig.qqFactor);
     vnThresh_site(S_fig.vlSite_bad) = nan; % shows up as 0 for int16
     S_fig.mlWav_thresh = bsxfun(@lt, mnWav_filt, -abs(vnThresh_site)); %negative threshold crossing
@@ -67,7 +67,7 @@ function S_fig = Fig_preview_update_(hFig, S_fig, fKeepView)
     % Spike detection
     % P_.fMerge_spk = 0;
     [vlKeep_ref, S_fig.vrMad_ref] = jrclust.utils.carReject(vrWav_filt_mean, P_);
-    [S_fig.viTime_spk, S_fig.vnAmp_spk, viSite_spk] = jrclust.utils.detectSpikes(mnWav_filt, vnThresh_site, vlKeep_ref, P_);
+    [S_fig.viTime_spk, S_fig.vnAmp_spk, viSite_spk] = jrclust.utils.detectPeaks(mnWav_filt, vnThresh_site, vlKeep_ref, P_);
     t_dur = size(mnWav_filt,1) / P.sRateHz;
     S_fig.vrEventRate_site = hist(viSite_spk, 1:nSites) / t_dur; % event count
     S_fig.vrEventSnr_site = abs(single(arrayfun(@(i)median(S_fig.vnAmp_spk(viSite_spk==i)), 1:nSites))) ./ vrRmsQ_site;

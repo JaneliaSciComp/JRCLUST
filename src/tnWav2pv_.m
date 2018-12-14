@@ -10,14 +10,14 @@ function [mrPv, vrD1] = tnWav2pv_(tr, P)
     %     viSpk_sub = subsample_vr_(1:nSpk, MAX_SAMPLE);
     %     tr = permute(tnWav_spk(:,:,viSpk_sub), [1 3 2]);
     %     tr = single(tr);
-    %     tr = spkwav_car_(tr, P);
+    %     tr = jrclust.utils.carWindows(tr, P);
     %     mrSpkWav1 = tr(:,:,1);
     % else
     viSpk_sub = subsample_vr_(1:size(tr,2), MAX_SAMPLE);
     mrSpkWav1 = tr(:,viSpk_sub, 1);
     % end
     % tr = single(tr);
-    % if ~isempty(viSites_ref), tr = spkwav_car_(tr, viSites_ref); end
+    % if ~isempty(viSites_ref), tr = jrclust.utils.carWindows(tr, viSites_ref); end
 
     % mrCov = jrclust.utils.meanSubtract(mrSpkWav1);
     mrCov = mrSpkWav1 * mrSpkWav1';

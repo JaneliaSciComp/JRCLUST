@@ -22,8 +22,8 @@ function Fig_traces_plot_(fAxis_reset)
     if strcmpi(S_fig.vcFilter, 'on')
         P1=P; P1.sRateHz = sRateHz; P1.fGpu = 0;
         P1.vcFilter = get_set_(P, 'vcFilter_show', P.vcFilter);
-        if P.fft_thresh>0, mnWav1 = jrclust.utils.fftClean(mnWav1, P); end
-        mrWav1 = jrclust.utils.bit2uV(jrclust.utils.filtCar(mnWav1(viSamples1, P.viSite2Chan), P1), P1);
+        if P.fft_thresh>0, mnWav1 = jrclust.filters.fftClean(mnWav1, P); end
+        mrWav1 = jrclust.utils.bit2uV(jrclust.filters.filtCAR(mnWav1(viSamples1, P.viSite2Chan), P1), P1);
         vcFilter_show = P1.vcFilter;
     else
         mrWav1 = jrclust.utils.meanSubtract(single(mnWav1(viSamples1, P.viSite2Chan))) * P.uV_per_bit;

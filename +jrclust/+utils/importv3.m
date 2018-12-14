@@ -1,4 +1,4 @@
-function [hCfg, dRes, sRes] = importv3(filename)
+function hClust = importv3(filename)
     %IMPORTV3
     [hCfg, dRes, sRes] = deal([]);
 
@@ -57,7 +57,7 @@ function [hCfg, dRes, sRes] = importv3(filename)
     sRes.spikesByCluster = S0.S_clu.cviSpk_clu;
     sRes.clusterNotes = S0.S_clu.csNote_clu;
     sRes.spikeDelta = S0.S_clu.delta;
-    sRes.clusterCenters = S0.S_clu.icl;
+    sRes.centers = S0.S_clu.icl;
     sRes.simScore = S0.S_clu.mrWavCor;
     sRes.spikeNeigh = S0.S_clu.nneigh;
     sRes.ordRho = S0.S_clu.ordrho;
@@ -85,6 +85,6 @@ function [hCfg, dRes, sRes] = importv3(filename)
     sRes.unitVpp = S0.S_clu.vrVpp_clu;
     sRes.unitVppRaw = S0.S_clu.vrVpp_uv_clu;
     sRes.siteRMS = S0.S_clu.vrVrms_site;
-end
 
-% hCfg = jrclust.Config('F:\chen-20181126\SC009_112118_g0_t0.nidq_hh2_sc.prm');
+    hClust = jrclust.models.clustering.DensityPeakClustering(sRes, dRes, hCfg);
+end

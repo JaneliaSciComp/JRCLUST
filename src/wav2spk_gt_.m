@@ -17,11 +17,11 @@ function [tnWav_spk, vnThresh_site] = wav2spk_gt_(mnWav1, P, viTime_spk, mnWav1_
     if ~isempty(mnWav1_pre) || ~isempty(mnWav1_post)
         mnWav1 = [mnWav1_pre; mnWav1; mnWav1_post];
     end
-    if P.fft_thresh>0, mnWav1 = jrclust.utils.fftClean(mnWav1, P); end
-    [mnWav2, vnWav11] = jrclust.utils.filtCar(mnWav1, P); % filter and car
+    if P.fft_thresh>0, mnWav1 = jrclust.filters.fftClean(mnWav1, P); end
+    [mnWav2, vnWav11] = jrclust.filters.filtCAR(mnWav1, P); % filter and car
 
     % detect spikes or use the one passed from the input (importing)
-    vnThresh_site = jrclust.utils.tryGather(int16(mr2rms_(mnWav2, 1e5) * P.qqFactor));
+    vnThresh_site = jrclust.utils.tryGather(int16(jrclust.utils.estimateRMS(mnWav2, 1e5) * P.qqFactor));
     nPad_pre = size(mnWav1_pre,1);
     viTime_spk = viTime_spk + nPad_pre;
 

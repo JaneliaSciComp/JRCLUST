@@ -94,7 +94,7 @@ classdef Config < handle & dynamicprops
         randomSeed = 0;             % random seed
         ramToGPUFactor = 8;         % ratio: RAM / (GPU memory) (increase this number if GPU memory error)
         useGPU = true;              % use GPU in computation if true
-        verbose = false;            % be chatty while processing
+        verbose = true;             % be chatty while processing
 
         % file location params
         outputDir = '';             % directory in which to place output files
@@ -140,12 +140,15 @@ classdef Config < handle & dynamicprops
         evtWindowms = [-0.25 0.75]; % interval around event to extract filtered spike waveforms, in ms
         evtWindowRawms;             % interval around event to extract raw spike waveforms, in ms
         evtWindowRawFactor = 2;     % ratio of raw samples to filtered samples to extract if evtWindowRawms is not set
+        fGroup_shank = false;       % group all sites in the same shank if true
         ignoreSites = [];           % sites to manually ignore in the sorting
-        nDiff_filt = 2;             % Differentiation filter for vcFilter='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
+        nDiff_filt = 2;             % Differentiation filter for filterType='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
+        nneigh_min_detect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
         nSiteDir;                   % number of neighboring sites to group in each direction (TODO: deprecate this)
         nSitesExcl;                 % number of sites to exclude from the spike waveform group
         refracIntms = 0.25;         % spike refractory interval, in ms
         siteCorrThresh = 0;         % reject bad sites based on max correlation with neighboring sites, using raw waveforms; ignored if 0
+        spkThresh_max_uV = [];      % maximum absolute amp. allowed
         threshFile = '';            % path to .mat file storing spike detection thresholds (created by 'preview' GUI)
 
         % feature extraction params
@@ -197,7 +200,6 @@ classdef Config < handle & dynamicprops
         fCheckSites = false;
         fDetectBipolar = false;
         fDiscard_count = true;
-        fGroup_shank = false;
         fInverse_file = false;
         fImportKsort = false;
         fLoad_lfp = false;
@@ -265,7 +267,6 @@ classdef Config < handle & dynamicprops
         nT_drift = [];
         nThreads = 128;
         nTime_traces = 1;
-        nneigh_min_detect = 0;
         nw_lcm_track = 1;
         offset_sec_preview = 0;
         pix_per_sec_track = [];
@@ -279,7 +280,6 @@ classdef Config < handle & dynamicprops
         sec_per_load_preview = 1;
         slopeLim_ms = [0.05 0.35];
         spkLim_ms_fet = [-0.25 0.75];
-        spkThresh_max_uV = [];
         tBin_track = 9;
         tRefrac_trial = 0.001;
         tbin_drift = [];
@@ -332,6 +332,7 @@ classdef Config < handle & dynamicprops
         evtManualThresh;            % evtManualThreshuV / bitScaling
         evtWindowRawSamp;           % interval around event to extract raw spike waveforms, in samples
         evtWindowSamp;              % interval around event to extract filtered spike waveforms, in samples
+        nSitesEvt;                  % 2*nSiteDir + 1 - nSitesExcl
         refracIntSamp;              % spike refractory interval, in samples
         sessionName;                % name of prm file, without path or extensions
     end
@@ -546,6 +547,11 @@ classdef Config < handle & dynamicprops
                 if isempty(obj.nSiteDir)
                     obj.nSiteDir = nsd;
                 end
+            end
+
+            if obj.nSitesEvt <= 0
+                errordlg('nSitesExcl is too large or nSiteDir is too small', 'Bad configuration');
+                obj.isError = true;
             end
 
             % try to infer a ground-truth file
@@ -1206,6 +1212,11 @@ classdef Config < handle & dynamicprops
             obj.nSiteDir = ns;
         end
 
+        % nSitesEvt
+        function ns = get.nSitesEvt(obj)
+            ns = 2*obj.nSiteDir - obj.nSitesExcl + 1;
+        end
+
         % nSitesExcl/nSites_ref
         function set.nSitesExcl(obj, ns)
             assert(jrclust.utils.ismatrixnum(ns) && (isempty(ns) || (jrclust.utils.isscalarnum(ns) && ns >= 0)), 'invalid value for nSitesExcl');
@@ -1356,7 +1367,7 @@ classdef Config < handle & dynamicprops
 
         % rlDetrendMode/vcDetrend_postclu
         function set.rlDetrendMode(obj, dm)
-            legalTypes = {'global', 'local', 'logz', 'none'};
+            legalTypes = {'global', 'local', 'logz', 'hidehiko', 'none'};
             failMsg = sprintf('legal rlDetrendModes are %s', strjoin(legalTypes, ', '));
             assert(sum(strcmp(dm, legalTypes)) == 1, failMsg);
             obj.rlDetrendMode = dm;

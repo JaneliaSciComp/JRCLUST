@@ -1,5 +1,5 @@
 function car = getCAR(samplesIn, carMode, ignoreSites)
-    %GETCAR Get common average reference (mean or median)
+    %GETCAR Get common average reference for samples (mean or median)
     if ~isempty(ignoreSites)
         samplesIn(:, ignoreSites) = [];
     end

@@ -55,7 +55,7 @@ function [siteFeatures, spikes, n1, n2, spikeOrder] = getSiteFeatures(spikeFeatu
 
     % weight features by distance from site, greater for nearer sites
     try
-        nSites = 1 + hCfg.nSiteDir*2 - hCfg.nSitesExcl;
+        nSites = hCfg.nSitesEvt;
 
         if hCfg.fSpatialMask_clu && nSites >= hCfg.min_sites_mask
             nFeaturesPerSite = size(siteFeatures, 1) / nSites;

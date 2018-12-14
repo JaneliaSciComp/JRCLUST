@@ -1,59 +1,86 @@
 % function [vlKeep_ref, vrMad_ref] = carReject(vrWav_mean1, P)
-function [vlKeep_ref, vrMad_ref] = carReject(channelMeans, blankPer_ms, blankThresh, sampleRate)
+function [keepMe, channelMeansMAD] = carReject(channelMeans, blankPerMs, blankThresh, sampleRate)
     %CARREJECT
 
-    vrMad_ref = [];
+    channelMeansMAD = [];
 
     channelMeans = single(channelMeans);
-    nwin = round(sampleRate * blankPer_ms / 1000);
-    if nwin > 0 % nwin <= 1
+    blankWindow = ceil(sampleRate*blankPerMs/1000);
+    
+    if blankWindow > 0
         if nargout < 2
-            vlKeep_ref = threshMAD(abs(channelMeans), blankThresh);
+            keepMe = threshMAD(abs(channelMeans), blankThresh);
         else
-            [vlKeep_ref, vrMad_ref] = threshMAD(abs(channelMeans), blankThresh);
+            [keepMe, channelMeansMAD] = threshMAD(abs(channelMeans), blankThresh);
         end
 
-        if nwin > 1
-            over_thresh = find(~vlKeep_ref);
-            for crossing = over_thresh'
-                left = max(crossing-ceil(nwin/2), 1);
-                right = min(crossing+ceil(nwin/2), numel(vlKeep_ref));
-                vlKeep_ref(left:right) = 0;
+        if blankWindow > 1 % clear out neighbors of blanked samples
+            overThresh = find(~keepMe);
+            for crossing = overThresh'
+                left = max(crossing - ceil(blankWindow/2), 1);
+                right = min(crossing + ceil(blankWindow/2), numel(keepMe));
+                keepMe(left:right) = 0;
             end
         end
+%     else
+%         channelMeansBinned = std(padReshape(channelMeans, blankWindow), 1, 1);
+%         if nargout < 2
+%             keepMe = threshMAD(channelMeansBinned, blankThresh);
+%         else
+%             [keepMe, channelMeansMAD] = threshMAD(channelMeansBinned, blankThresh);
+%             channelMeansMAD = expand_vr_(channelMeansMAD, blankWindow, size(channelMeans));
+%         end
+% 
+%         keepMe = expand_vr_(keepMe, blankWindow, size(channelMeans));
     else
-        vrRef_bin = std(reshape_vr2mr_(channelMeans, nwin), 1,1);
-        if nargout < 2
-            vlKeep_ref = threshMAD(vrRef_bin, blankThresh);
-        else
-            [vlKeep_ref, vrMad_ref] = threshMAD(vrRef_bin, blankThresh);
-            vrMad_ref = expand_vr_(vrMad_ref, nwin, size(channelMeans));
-        end
-        vlKeep_ref = expand_vr_(vlKeep_ref, nwin, size(channelMeans));
+        [keepMe, channelMeansMAD] = deal([]);
     end
 end
 
 %% LOCAL FUNCTIONS
-function [vl, vr] = threshMAD(vr, thresh)
-    %THRESHMAD single sided, no absolute value
-    nSubs = 300000;
-    offset = median(subsample_vr_(vr, nSubs));
-    vr = vr - offset; % center the mean
-    factor = median(abs(subsample_vr_(vr, nSubs)));
+function [keepMe, channelMeans] = threshMAD(channelMeans, madThresh)
+    %THRESHMAD Find which channel means fall within MAD threshold
+    nSubsamples = 300000;
 
-    if isempty(thresh) || thresh == 0
-        vl = true(size(vr));
+    % estimate MAD of channelMeans
+    med = median(jrclust.utils.subsample(channelMeans, nSubsamples));
+    channelMeans = channelMeans - med; % deviation from the median
+    mad = median(abs(jrclust.utils.subsample(channelMeans, nSubsamples)));
+
+    if isempty(madThresh) || madThresh == 0
+        keepMe = true(size(channelMeans));
     else
-        vl = vr < factor * thresh;
+        keepMe = channelMeans < mad*madThresh;
     end
 
     if nargout >= 2
-        vr = vr / factor; % MAD unit
+        channelMeans = channelMeans/mad; % MAD unit
     end
 end
 
-function mr = reshape_vr2mr_(vr, nwin)
-    nbins = ceil(numel(vr)/nwin);
-    vr(nbins*nwin) = 0; % expand size
-    mr = reshape(vr(1:nbins*nwin), nwin, nbins);
-end
+% function mat = padReshape(vec, nwin)
+%     %PADRESHAPE Reshape a vector to a matrix, padding if necessary
+%     nbins = ceil(numel(vec)/nwin);
+%     vec(nbins*nwin) = 0; % pad the end with zeros
+%     mat = reshape(vec(1:nbins*nwin), nwin, nbins);
+% end
+% 
+% function vr1 = expand_vr_(vr, nwin, shape)
+%     if islogical(vr)
+%         vr1 = false(shape);
+%     else
+%         vr1 = zeros(shape, 'like', vr);
+%     end
+%     vr = repmat(vr(:)', [nwin, 1]);
+%     vr = vr(:);
+%     [n,n1] = deal(numel(vr), numel(vr1));
+%     if n1 > n
+%         vr1(1:n) = vr;
+%         vr1(n+1:end) = vr1(n);
+%     elseif numel(vr1) < n
+%         vr1 = vr(1:n1);
+%     else
+%         vr1 = vr;
+%     end
+% end
+
