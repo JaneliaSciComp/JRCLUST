@@ -9,13 +9,13 @@ function scores = doComputeQualityScores(hClust, updateMe)
 
     unitVmin = squeeze(min(hClust.meanWfGlobal));
     unitVmax = squeeze(max(hClust.meanWfGlobal));
-    mrVmin_uv_clu = squeeze(min(hClust.meanWfGlobalRaw));
-    mrVmax_uv_clu = squeeze(max(hClust.meanWfGlobalRaw));
+    unitVminRaw = squeeze(min(hClust.meanWfGlobalRaw));
+    unitVmaxRaw = squeeze(max(hClust.meanWfGlobalRaw));
 
     unitVpp_ = jrclust.utils.rowColSelect(unitVmax - unitVmin, hClust.clusterSites, 1:hClust.nClusters);
     unitPeaks_ = jrclust.utils.rowColSelect(unitVmin, hClust.clusterSites, 1:hClust.nClusters);
-    unitVppRaw_ = jrclust.utils.rowColSelect(mrVmax_uv_clu-mrVmin_uv_clu, hClust.clusterSites, 1:hClust.nClusters);
-    unitPeaksRaw_ = jrclust.utils.rowColSelect(mrVmin_uv_clu, hClust.clusterSites, 1:hClust.nClusters);
+    unitVppRaw_ = jrclust.utils.rowColSelect(unitVmaxRaw - unitVminRaw, hClust.clusterSites, 1:hClust.nClusters);
+    unitPeaksRaw_ = jrclust.utils.rowColSelect(unitVminRaw, hClust.clusterSites, 1:hClust.nClusters);
 
     try
         siteRMS_ = jrclust.utils.bit2uV(single(hClust.siteThresh(:))/hClust.hCfg.qqFactor, hClust.hCfg);
@@ -23,7 +23,7 @@ function scores = doComputeQualityScores(hClust, updateMe)
         nSitesOverThresh_ = sum(bsxfun(@lt, unitVmin, - siteRMS_*hClust.hCfg.qqFactor), 1)';
     catch ME
         [siteRMS_, unitSNR_, nSitesOverThresh_] = deal([]);
-        disp('no Sevt in memory.'); % ?
+        warning(ME.identifier, 'RMS, SNR, nSitesOverThresh not set: %s', ME.message);
     end
 
     % compute unitIsoDist_, unitLRatio_, unitISIRatio_

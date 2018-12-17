@@ -29,13 +29,16 @@ classdef ControlFigure < dynamicprops & jrclust.views.Figure
             obj.hold('on');
         end
 
-        function addUicontrol(obj, controlKey, varargin)
+        function hCtl = addUicontrol(obj, controlKey, varargin)
             %ADDUICONTROL Create and store user interface control object
             if ~obj.isReady
                 return;
             end
 
             obj.hControls(controlKey) = uicontrol('Parent', obj.hPanel, varargin{:});
+            if nargout == 1
+                hCtl = obj.hControls(controlKey);
+            end
         end
     end
 

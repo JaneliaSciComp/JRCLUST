@@ -12,10 +12,10 @@ function centers = regressCenters(sRes, spikesBySite, thresh)
     log10Rho = log10(sRes.spikeRho);
     log10Delta = log10(sRes.spikeDelta);
 
-    %xRange = -4:0.1:1.5;
-    xRange = floor(min(log10Rho)):0.1:ceil(max(log10Rho));
-    %yRange = -3.5:0.1:1.5;
-    yRange = floor(min(log10Delta)):0.1:ceil(max(log10Delta));
+    xRange = -4:0.1:1.5;
+    %xRange = floor(min(log10Rho)):0.1:ceil(max(log10Rho));
+    yRange = -3.5:0.1:1.5;
+    %yRange = floor(min(log10Delta)):0.1:ceil(max(log10Delta));
 
     nSites = numel(spikesBySite);
 

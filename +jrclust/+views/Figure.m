@@ -441,7 +441,7 @@ classdef Figure < handle
         function hold(obj, varargin)
             %HOLD Retain current plot when adding new plots
             if obj.isReady
-                hAx = get(obj.hFig, 'CurrentAxes');
+                hAx = obj.gca();
                 hold(hAx, varargin{:});
             end
         end
@@ -761,6 +761,10 @@ classdef Figure < handle
             %GCA Get current axes
             if obj.isReady
                 hAx = get(obj.hFig, 'CurrentAxes');
+                if isempty(hAx)
+                    obj.axes();
+                    hAx = get(obj.hFig, 'CurrentAxes');
+                end
             else
                 hAx = [];
             end

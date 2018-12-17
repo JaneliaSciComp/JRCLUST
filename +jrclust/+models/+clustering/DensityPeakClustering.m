@@ -132,6 +132,9 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             else
                 obj.clusterCenters = [];
             end
+            if isfield(sRes, 'clusterCentroids')
+                obj.clusterCentroids = sRes.clusterCentroids;
+            end
             obj.clusterCentroids = [];
             obj.history = cell(0, 2);
 

@@ -7,12 +7,7 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
 %         return;
 %     end
 
-    if strcmp(hCfg.rlDetrendMode, 'none')
-        centers = find(hClust.spikeRho(:) > 10^(hCfg.log10RhoCut) & hClust.spikeDelta(:) > 10^(hCfg.log10DeltaCut));
-        x = jrclust.utils.nanlog10(hClust.spikeRho(:));
-        y = jrclust.utils.nanlog10(hClust.spikeDelta(:));
-        fDetrend = false;
-    elseif strcmp(hCfg.rlDetrendMode, 'global')
+    if strcmp(hCfg.rlDetrendMode, 'global')
         [centers, x, y] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, false, hCfg);
         y = jrclust.utils.nanlog10(y);
         fDetrend = true;
@@ -20,6 +15,11 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
         [centers, x, y] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, true, hCfg);
         y = jrclust.utils.nanlog10(y);
         fDetrend = true;
+    else
+        centers = find(hClust.spikeRho(:) > 10^(hCfg.log10RhoCut) & hClust.spikeDelta(:) > 10^(hCfg.log10DeltaCut));
+        x = jrclust.utils.nanlog10(hClust.spikeRho(:));
+        y = jrclust.utils.nanlog10(hClust.spikeDelta(:));
+        fDetrend = false;
     end
 
     hFigRD.addPlot('allSpikes', x, y, '.');
