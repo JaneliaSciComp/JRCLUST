@@ -1,8 +1,9 @@
 classdef DensityPeakClustering < jrclust.interfaces.Clustering
     %DENSITYPEAKCLUSTERING A Rodriguez-Laio clustering of spike data
 
-    properties (Hidden, SetAccess=protected, SetObservable)
+    properties (SetAccess=protected, SetObservable)
         hCfg;               % Config object
+        isImport;           % did we import from v3?
     end
 
     %% DETECTION/CLUSTERING RESULTS
@@ -121,26 +122,31 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
     %% LIFECYCLE
     methods
         function obj = DensityPeakClustering(sRes, dRes, hCfg)
-            obj.sRes = sRes;
             obj.dRes = dRes;
             obj.hCfg = hCfg;
-
-            % these fields are mutable so we need to store copies in obj
-            obj.spikeClusters = obj.initialClustering;
-            if isfield(sRes, 'clusterCenters')
-                obj.clusterCenters = sRes.clusterCenters;
-            else
-                obj.clusterCenters = [];
-            end
-            if isfield(sRes, 'clusterCentroids')
-                obj.clusterCentroids = sRes.clusterCentroids;
-            end
-            obj.clusterCentroids = [];
             obj.history = cell(0, 2);
+            obj.tryImport(sRes);
 
-            obj.clearNotes();
-            obj.refresh(true);
-            obj.commit('initial commit');
+            if ~obj.isImport
+                obj.sRes = sRes;
+
+                % these fields are mutable so we need to store copies in obj
+                obj.spikeClusters = obj.initialClustering;
+                if isfield(sRes, 'clusterCenters')
+                    obj.clusterCenters = sRes.clusterCenters;
+                else
+                    obj.clusterCenters = [];
+                end
+                if isfield(sRes, 'clusterCentroids')
+                    obj.clusterCentroids = sRes.clusterCentroids;
+                else
+                    obj.clusterCentroids = [];
+                end
+
+                obj.clearNotes();
+                obj.refresh(true);
+                obj.commit('initial commit');
+            end
         end
     end
 
@@ -323,6 +329,93 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             end
             if ~isempty(obj.spikesByCluster)
                 obj.spikesByCluster = obj.spikesByCluster(keepMe);
+            end
+        end
+
+        function tryImport(obj, sRes)
+            reqFields = {'spikeClusters', 'spikeRho', 'spikeDelta', 'spikeNeigh', 'clusterCenters'};
+            if all(ismember(reqFields, fieldnames(sRes)))
+                obj.spikeClusters = double(sRes.spikeClusters);
+                obj.clusterCenters = sRes.clusterCenters;
+                if ~isfield(sRes, 'ordRho')
+                    [~, sRes.ordRho] = sort(obj.spikeRho, 'descend');
+                end
+                if isfield(sRes, 'initialClustering')
+                    sRes.spikeClusters = double(sRes.initialClustering);
+                end
+
+                if isfield(sRes, 'clusterNotes')
+                    obj.clusterNotes = sRes.clusterNotes;
+                end
+                if isfield(sRes, 'simScore')
+                    obj.simScore = sRes.simScore;
+                end
+                if isfield(sRes, 'meanWfGlobal')
+                    obj.meanWfGlobal = sRes.meanWfGlobal;
+                end
+                if isfield(sRes, 'meanWfGlobalRaw')
+                    obj.meanWfGlobalRaw = sRes.meanWfGlobalRaw;
+                end
+                if isfield(sRes, 'meanWfLocal')
+                    obj.meanWfLocal = sRes.meanWfLocal;
+                end
+                if isfield(sRes, 'meanWfLocalRaw')
+                    obj.meanWfLocalRaw = sRes.meanWfLocalRaw;
+                end
+                if isfield(sRes, 'meanWfRawHigh')
+                    obj.meanWfRawHigh = sRes.meanWfRawHigh;
+                end
+                if isfield(sRes, 'meanWfRawLow')
+                    obj.meanWfRawLow = sRes.meanWfRawLow;
+                end
+                if isfield(sRes, 'clusterSites')
+                    obj.clusterSites = sRes.clusterSites;
+                end
+                if isfield(sRes, 'unitPeakSites')
+                    obj.unitPeakSites = sRes.unitPeakSites;
+                end
+                if isfield(sRes, 'nSitesOverThresh')
+                    obj.nSitesOverThresh = sRes.nSitesOverThresh;
+                end
+                if isfield(sRes, 'clusterCounts')
+                    obj.clusterCounts = sRes.clusterCounts;
+                end
+                if isfield(sRes, 'unitISIRatio')
+                    obj.unitISIRatio = sRes.unitISIRatio;
+                end
+                if isfield(sRes, 'unitIsoDist')
+                    obj.unitIsoDist = sRes.unitIsoDist;
+                end
+                if isfield(sRes, 'unitLRatio')
+                    obj.unitLRatio = sRes.unitLRatio;
+                end
+                if isfield(sRes, 'clusterCentroids')
+                    obj.clusterCentroids = sRes.clusterCentroids;
+                end
+                if isfield(sRes, 'unitSNR')
+                    obj.unitSNR = sRes.unitSNR;
+                end
+                if isfield(sRes, 'unitPeaks')
+                    obj.unitPeaks = sRes.unitPeaks;
+                end
+                if isfield(sRes, 'unitPeaksRaw')
+                    obj.unitPeaksRaw = sRes.unitPeaksRaw;
+                end
+                if isfield(sRes, 'unitVpp')
+                    obj.unitVpp = sRes.unitVpp;
+                end
+                if isfield(sRes, 'unitVppRaw')
+                    obj.unitVppRaw = sRes.unitVppRaw;
+                end
+                if isfield(sRes, 'siteRMS')
+                    obj.siteRMS = sRes.siteRMS;
+                end
+
+                obj.sRes = sRes;
+
+                obj.isImport = true;
+                obj.refresh(true);
+                obj.commit('initial import');
             end
         end
     end
