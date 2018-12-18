@@ -182,7 +182,7 @@ classdef CurateController < handle
 
         function mouseClickFigSim(obj, xyPos, clickType)
             %MOUSECLICKFIGSIM Handle callbacks for mouse clicks in sim view
-            xyPos = round(xyPos);
+            xyPos = max(round(xyPos), [1 1]);
             if strcmp(clickType, 'normal') % left click
                 if diff(xyPos) ~= 0
                     obj.selected = xyPos(1); % first selected cluster is x position
