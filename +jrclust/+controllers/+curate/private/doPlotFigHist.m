@@ -16,8 +16,8 @@ function hFigHist = doPlotFigHist(hFigHist, hClust, hCfg, selected)
     % draw the plot
     if isempty(hFigHist.figData)
         hFigHist.axes();
-        hFigHist.addStairs('hPlot1', nan, nan, 'k');
-        hFigHist.addStairs('hPlot2', nan, nan, 'r');
+        hFigHist.addStairs('hPlot1', nan, nan, 'Color', hCfg.mrColor_proj(2, :));
+        hFigHist.addStairs('hPlot2', nan, nan, 'Color', hCfg.mrColor_proj(3, :));
         hFigHist.axSet('XLim', [1 10000], 'XScale', 'log'); % ms
         hFigHist.grid('on');
         hFigHist.xlabel('ISI (ms)');
@@ -34,8 +34,6 @@ function hFigHist = doPlotFigHist(hFigHist, hClust, hCfg, selected)
         hFigHist.title(sprintf('Cluster %d', iCluster));
         hFigHist.hidePlot('hPlot2');
     end
-
-    %set(hFigHist, 'UserData', S_fig);
 end
 
 %% LOCAL FUNCTIONS

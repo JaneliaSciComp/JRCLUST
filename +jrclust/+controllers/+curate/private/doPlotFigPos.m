@@ -1,13 +1,10 @@
-function doPlotFigPos(hFigPos, hClust, hCfg, selected)
-    % This also plots cluster position
-    [hFigPos, S_fig] = get_fig_cache_('FigPos');
-
-    S_clu1 = hClust.exportUnitInfo(selected(1));
+function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
+    %DOPLOTFIGPOS Plot position of cluster on probe
+    c1Data = hClust.exportUnitInfo(selected(1));
     if numel(selected) > 1
-        S_clu2 = hClust.exportUnitInfo(selected(2));
+        c2Data = hClust.exportUnitInfo(selected(2));
     end
 
-    % plot waveform in space
     if isempty(hFigPos.figData)
         hFigPos.axes();
     else
@@ -15,67 +12,75 @@ function doPlotFigPos(hFigPos, hClust, hCfg, selected)
         hFigPos.hold('on');
     end
 
-    plot_unit_(S_clu1, S_fig.hAx, [0 0 0]);
-    vrPosXY1 = [hClust.vrPosX_clu(S_clu1.iClu), hClust.vrPosY_clu(S_clu1.iClu)];
-    nSpk1 = hClust.vnSpk_clu(S_clu1.iClu);
-    if isempty(S_clu2)
-        vcTitle = sprintf('Unit %d: %d spikes; (X=%0.1f, Y=%0.1f) [um]', S_clu1.iClu, nSpk1, vrPosXY1);
+    plotPosUnit(c1Data, hFigPos, hCfg, false, maxAmp);
+
+    clusterPos = hClust.clusterCentroids(c1Data.cluster, :)/hCfg.um_per_pix;
+    nSpikes = hClust.clusterCounts(c1Data.cluster);
+
+    if numel(selected) == 1
+        figTitle = sprintf('Unit %d: %d spikes; (X=%0.1f, Y=%0.1f) [um]', c1Data.cluster, nSpikes, clusterPos);
         try
-            vcTitle = sprintf('%s\n%0.1fuVmin, %0.1fuVpp, SNR:%0.1f ISI%%:%2.3f IsoDist:%0.1f L-rat:%0.1f', ...
-                vcTitle, S_clu1.uVmin, S_clu1.uVpp, S_clu1.snr, S_clu1.isi_ratio*100, S_clu1.iso_dist,  S_clu1.l_ratio);
+            figTitle = sprintf('%s\n%0.1fuVmin, %0.1fuVpp, SNR:%0.1f ISI%%:%2.3f IsoDist:%0.1f L-rat:%0.1f', ...
+                figTitle, c1Data.peaksRaw, c1Data.vpp, c1Data.SNR, c1Data.ISIRatio*100, c1Data.IsoDist,  c1Data.LRatio);
         catch
         end
     else
-        nSpk2 = hClust.vnSpk_clu(S_clu2.iClu);
-        vrPosXY2 = [hClust.vrPosX_clu(S_clu2.iClu), hClust.vrPosY_clu(S_clu2.iClu)] / hCfg.um_per_pix;
-        plot_unit_(S_clu2, S_fig.hAx, [1 0 0]);
-        vcTitle = sprintf('Unit %d(black)/%d(red); (%d/%d) spikes\n(X=%0.1f/%0.1f, Y=%0.1f/%0.1f) [um]', ...
-        S_clu1.iClu, S_clu2.iClu, nSpk1, nSpk2, ...
-        [vrPosXY1(1), vrPosXY2(1), vrPosXY1(2), vrPosXY2(2)]);
+        nSpikes2 = hClust.clusterCounts(c2Data.cluster);
+        clusterPos2 = hClust.clusterCentroids(c2Data.cluster, :)/hCfg.um_per_pix;
+        plotPosUnit(c2Data, hFigPos, hCfg, true, maxAmp);
+
+        figTitle = sprintf('Unit %d(black)/%d(red); (%d/%d) spikes\n(X=%0.1f/%0.1f, Y=%0.1f/%0.1f) [um]', ...
+            c1Data.cluster, c2Data.cluster, nSpikes, nSpikes2, ...
+            [clusterPos(1), clusterPos2(1), clusterPos(2), clusterPos2(2)]);
     end
-    title_(S_fig.hAx, vcTitle);
-    set(hFigPos, 'UserData', S_fig);
+    hFigPos.title(figTitle);
 end
 
 %% LOCAL FUNCTIONS
-function plot_unit_(S_clu1, hFigPos, vcColor0, hCfg)
-    if isempty(S_clu1)
+function plotPosUnit(cData, hFigPos, hCfg, fSecondary, maxAmp)
+    if isempty(cData)
         return;
     end
-
-    [~, S_figWav] = get_fig_cache_('FigWav');
-    maxAmp = S_figWav.maxAmp;
-    % plot individual unit
-    nSamples = size(S_clu1.mrWav_clu, 1);
-    vrX = (1:nSamples)'/nSamples;
-    vrX([1,end]) = nan; % line break
-
-    if ~isequal(vcColor0, [0 0 0])
-        trWav1 = zeros(1,1,0);
+    if fSecondary
+        cmapMean = hCfg.mrColor_proj(3, :); % red
     else
-        trWav1 = S_clu1.trWav;
+        cmapMean = hCfg.mrColor_proj(2, :); % black
+    end
+
+    % plot individual unit
+    nSamples = size(cData.meanWf, 1);
+    XBase = (1:nSamples)'/nSamples;
+    XBase([1, end]) = nan; % line break
+
+    if fSecondary
+        sampleWf = zeros(1, 1, 0);
+    else
+        sampleWf = cData.sampleWf;
     end
 
     % show example traces
-    for iWav = size(trWav1,3):-1:0
-        if iWav==0
-            mrY1 = S_clu1.mrWav_clu / maxAmp;
-            lineWidth=1.5;
-            vcColor = vcColor0;
+    for iWav = size(sampleWf, 3):-1:0
+        if iWav == 0 % plot the cluster mean waveform
+            YData = cData.meanWf/maxAmp;
+            lineWidth = 1.5;
+            cmap = cmapMean;
         else
-            mrY1 = trWav1(:,:,iWav) / maxAmp;
-            lineWidth=.5;
-            vcColor = .5*[1,1,1];
+            YData = sampleWf(:,:,iWav) / maxAmp;
+            lineWidth = 0.5;
+            cmap = 0.5*[1, 1, 1];
         end
-        vrX1_site = hCfg.mrSiteXY(S_clu1.viSite, 1) / hCfg.um_per_pix;
-        vrY1_site = hCfg.mrSiteXY(S_clu1.viSite, 2) / hCfg.um_per_pix;
-        mrY1 = bsxfun(@plus, mrY1, vrY1_site');
-        mrX1 = bsxfun(@plus, repmat(vrX, [1, size(mrY1, 2)]), vrX1_site');
-        line(mrX1(:), mrY1(:), 'Color', vcColor, 'Parent', hFigPos, 'LineWidth', lineWidth);
+
+        siteXData = hCfg.siteLoc(cData.neighbors, 1) / hCfg.um_per_pix;
+        siteYData = hCfg.siteLoc(cData.neighbors, 2) / hCfg.um_per_pix;
+        YData = bsxfun(@plus, YData, siteYData');
+        XData = bsxfun(@plus, repmat(XBase, [1, size(YData, 2)]), siteXData');
+        hFigPos.addLine(sprintf('neighbor%d', iWav), XData(:), YData(:), ...
+                        'Color', cmap, 'LineWidth', lineWidth);
     end
-    xlabel(hFigPos, 'X pos [pix]');
-    ylabel(hFigPos, 'Z pos [pix]');
-    grid(hFigPos, 'on');
-    xlim_(hFigPos, [min(mrX1(:)), max(mrX1(:))]);
-    ylim_(hFigPos, [floor(min(mrY1(:))-1), ceil(max(mrY1(:))+1)]);
-end %func
+
+    hFigPos.xlabel('X pos [pix]');
+    hFigPos.ylabel('Z pos [pix]');
+    hFigPos.grid('on');
+    hFigPos.axSet('XLim', [min(XBase(:)), max(XBase(:))]);
+    hFigPos.axSet('YLim', [floor(min(YData(:))-1), ceil(max(YData(:))+1)]);
+end

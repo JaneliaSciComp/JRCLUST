@@ -15,7 +15,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     else
         fWav_raw_show = get_set_(P, 'fWav_raw_show', 0);
     end
-    trWav12 = jrclust.utils.filtTouV(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu1}, site12, S0, fWav_raw_show), P);
+    trWav12 = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(S_clu.cviSpk_clu{iClu1}, site12, S0, fWav_raw_show), P);
     if diff(site12) == 0, trWav12(:,2,:) = trWav12(:,1,:); end
     vxPoly = (mrPolyPos([1:end,1],1) - site12_show(1)) * S1.maxAmp;
     vyPoly = (mrPolyPos([1:end,1],2) - site12_show(2)) * S1.maxAmp;
@@ -35,7 +35,7 @@ function [fSplit, vlIn] = plot_split_(S1)
         end
 
         case {'cov', 'spacetime'}
-        [mrAmin12, mrAmax12] = calc_cov_spk_(S_clu.cviSpk_clu{iClu1}, site12);
+        [mrAmin12, mrAmax12] = getSpikeCov(S_clu, S_clu.cviSpk_clu{iClu1}, site12);
         [mrAmin12, mrAmax12] = multifun_(@(x)abs(x'), mrAmin12, mrAmax12);
         vyPlot = mrAmin12(:,2);
         vcYlabel = sprintf('Site %d (cov1)', site12(2));
@@ -106,7 +106,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     vlIn = poly_mask_(hPoly, vxPlot, vyPlot);
     set(hPlot, 'XData', vxPlot(vlIn), 'YData',vyPlot(vlIn));
     % if P.fWav_raw_show
-    %     trWav12_raw = jrclust.utils.filtTouV(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu1}, site12, 1));
+    %     trWav12_raw = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(S_clu.cviSpk_clu{iClu1}, site12, 1));
     %     mrWavX = squeeze_(trWav12_raw(:, 1, :));
     %     mrWavY = squeeze_(trWav12_raw(:, 2, :));
     % else

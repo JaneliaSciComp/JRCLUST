@@ -19,13 +19,13 @@ function auto_scale_proj_time_(S0, fPlot)
     % Update time
     [hFig_time, S_fig_time] = get_fig_cache_('FigTime');
     iSite = S0.S_clu.viSite_clu(S0.iCluCopy);
-    % [vrFet0, vrTime0] = getFet_site_(iSite, [], S0);    % plot background
-    [vrFet1, vrTime1, vcYlabel, viSpk1] = getFet_site_(iSite, S0.iCluCopy, S0); % plot iCluCopy
+    % [vrFet0, vrTime0] = getDispFeaturesSite(iSite, [], S0);    % plot background
+    [vrFet1, vrTime1, vcYlabel, viSpk1] = getDispFeaturesSite(iSite, S0.iCluCopy, S0); % plot iCluCopy
     if isempty(S0.iCluPaste)
         %     vrFet = [vrFet0(:); vrFet1(:)];
         cvrFet = {vrFet1};
     else
-        [vrFet2, vrTime2, vcYlabel, viSpk2] = getFet_site_(iSite, S0.iCluPaste, S0); % plot iCluCopy
+        [vrFet2, vrTime2, vcYlabel, viSpk2] = getDispFeaturesSite(iSite, S0.iCluPaste, S0); % plot iCluCopy
         %     vrFet = [vrFet0(:); vrFet1(:); vrFet2(:)];
         cvrFet = {vrFet1, vrFet2};
     end

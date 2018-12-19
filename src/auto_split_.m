@@ -19,13 +19,13 @@ function auto_split_(fMulti, S0)
         viSites1 = iSite1;
     end
     % mrSpkWav1 = jrclust.utils.filtTouV(tnWav_sites_(tnWav_spk, S_clu.cviSpk_clu{iClu1}, viSites1));
-    mrSpkWav1 = jrclust.utils.filtTouV(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu1}, viSites1, S0), P);
+    mrSpkWav1 = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(S_clu.cviSpk_clu{iClu1}, viSites1, S0), P);
     mrSpkWav1 = reshape(mrSpkWav1, [], size(mrSpkWav1,3));
 
     [~, temp_S_fig] = get_fig_cache_('FigTime'); % TW gets the variables in the "time" figure -- needed for getting the highlighted site
     site_to_use = temp_S_fig.iSite; % TW use the highlighted site from "time" figure
     % site_to_use = iSite1; % TW use dominant site for the cluster
-    mrWav_spk1 = squeeze_(jrclust.utils.filtTouV(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu1}, site_to_use, S0), P)); % TW calculate amplitudes on the fly
+    mrWav_spk1 = squeeze_(jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(S_clu.cviSpk_clu{iClu1}, site_to_use, S0), P)); % TW calculate amplitudes on the fly
     mrFet1 = max(mrWav_spk1)-min(mrWav_spk1); % TW calculate amplitudes on the fly
 
     % [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [S0.viTime_spk(S_clu.cviSpk_clu{iClu1}) S0.vrAmp_spk(S_clu.cviSpk_clu{iClu1})], 2); % MNE

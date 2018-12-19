@@ -33,8 +33,8 @@ function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
         end
 
         % selected cluster pair cursors
-        hFigSim.addLine('hCursorV', [1 1], [.5 nClusters + .5], 'Color', [0 0 0], 'LineWidth', 1.5);
-        hFigSim.addLine('hCursorH', [.5 nClusters + .5], [1 1], 'Color', [1 0 0], 'LineWidth', 1.5);
+        hFigSim.addLine('hCursorV', [1 1], [.5 nClusters + .5], 'Color', hCfg.mrColor_proj(2, :), 'LineWidth', 1.5);
+        hFigSim.addLine('hCursorH', [.5 nClusters + .5], [1 1], 'Color', hCfg.mrColor_proj(3, :), 'LineWidth', 1.5);
 
         hFigSim.colorbar();
         hFigSim.addDiag('hDiag', [0, nClusters, 0.5], 'Color', [0 0 0], 'LineWidth', 1.5);

@@ -12,9 +12,9 @@ function hFigISI = doPlotFigISI(hFigISI, hClust, hCfg, selected)
     if isempty(hFigISI.figData)
         hFigISI.axes();
         %S_fig.hPlot1 = plot(S_fig.hAx, nan, nan, 'ko');
-        hFigISI.addPlot('hPlot1', nan, nan, 'ko');
+        hFigISI.addPlot('hPlot1', nan, nan, 'Color', hCfg.mrColor_proj(2, :), 'Marker', 'o', 'LineStyle', 'none');
         %S_fig.hPlot2 = plot(S_fig.hAx, nan, nan, 'ro');
-        hFigISI.addPlot('hPlot2', nan, nan, 'ro');
+        hFigISI.addPlot('hPlot2', nan, nan, 'Color', hCfg.mrColor_proj(3, :), 'Marker', 'o', 'LineStyle', 'none');
 
         %set(S_fig.hAx, 'XScale','log', 'YScale','log');
         hFigISI.axSet('XScale','log', 'YScale','log');

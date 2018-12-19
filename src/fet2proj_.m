@@ -84,10 +84,10 @@ function [mrMin0, mrMax0, mrMin1, mrMax1, mrMin2, mrMax2] = fet2proj_(S0, viSite
             end
 
         otherwise % generic
-            [mrMin0, mrMax0] = getFet_spk_(viSpk00, viSites0, S0); %getall spikes whose center lies in certain range
-            [mrMin1, mrMax1] = getFet_spk_(viSpk01, viSites0, S0); %getall spikes whose center lies in certain range
+            [mrMin0, mrMax0] = getDispFeaturesSpikes(viSpk00, viSites0, S0); %getall spikes whose center lies in certain range
+            [mrMin1, mrMax1] = getDispFeaturesSpikes(viSpk01, viSites0, S0); %getall spikes whose center lies in certain range
             if ~isempty(iClu2)
-                [mrMin2, mrMax2] = getFet_spk_(viSpk02, viSites0, S0);
+                [mrMin2, mrMax2] = getDispFeaturesSpikes(viSpk02, viSites0, S0);
             end
     end % switch
 

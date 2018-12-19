@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 function [vrPv1, vrPv2] = pca_pv_(mr1)
     MAX_SAMPLE = 10000; %for pca
-    mrCov = subsample_mr_(mr1, MAX_SAMPLE, 2);
+    mrCov = jrclust.utils.subsample(mr1, MAX_SAMPLE, 2);
     mrCov = jrclust.utils.meanSubtract(single(mrCov));
     mrCov = mrCov * mrCov';
     [mrPv1, vrD1] = eig(mrCov);

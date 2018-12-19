@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
-function [mrPv1, mrPv2] = pca_pv_spk_(viSpk1, viSites1, tnWav_spk1)
+function [mrPv1, mrPv2] = pca_pv_spk_(sampledSpikes, iSite, sampledWindows)
     % if viSite not found just set to zero
-    nSites = numel(viSites1);
+    nSites = numel(iSite);
     S0 = get0_();
     mrPv_global = get_(S0, 'mrPv_global');
     if ~isempty(mrPv_global)
@@ -10,13 +10,13 @@ function [mrPv1, mrPv2] = pca_pv_spk_(viSpk1, viSites1, tnWav_spk1)
         mrPv2 = repmat(mrPv_global(:,2), [1, nSites]);
     else
         if nargin<3
-            tnWav_spk1 = permute(tnWav_spk_sites_(viSpk1, viSites1, S0, 0), [1,3,2]);
+            sampledWindows = permute(jrclust.utils.getSampledWindows(sampledSpikes, iSite, S0, 0), [1, 3, 2]);
         end
-        nT = size(tnWav_spk1, 1);
+        nT = size(sampledWindows, 1);
         % show site pca
         [mrPv1, mrPv2] = deal(zeros(nT, nSites, 'single'));
-        for iSite1=1:nSites
-            [mrPv1(:,iSite1), mrPv2(:,iSite1)] = pca_pv_(tnWav_spk1(:,:,iSite1));
+        for jSite = 1:nSites
+            [mrPv1(:, jSite), mrPv2(:, jSite)] = pca_pv_(sampledWindows(:, :, jSite));
         end %for
     end
 end %func

@@ -68,7 +68,7 @@ function [spikeTimes, spikeClusters] = jrcToPhy(S0, savePath)
         end
 
         % vpp (min/max) features
-        tnWav_spk1 = jrclust.utils.filtTouV(tnWav_spk_sites_(find(siteSpikes), siteNeighbors, S0), P);
+        tnWav_spk1 = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(find(siteSpikes), siteNeighbors, S0), P);
         [mins, maxes] = multifun_(@(x) squeeze(x), min(tnWav_spk1), max(tnWav_spk1));
         vppFeatures(siteSpikes, 1, :) = mins';
         vppFeatures(siteSpikes, 2, :) = maxes';

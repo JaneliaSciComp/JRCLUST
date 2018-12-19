@@ -244,6 +244,23 @@ classdef Figure < handle
             end
         end
 
+        function addImrect(obj, plotKey, varargin)
+            %ADDIMRECT Create and store a draggable rectangle
+            if obj.isReady
+                hAx = obj.gca();
+                if isempty(hAx)
+                    obj.toForeground();
+                    obj.hPlots(plotKey) = imrect(varargin{:});
+                else
+                    obj.hPlots(plotKey) = imrect(hAx, varargin{:});
+                end
+
+                if obj.isMouseable
+                    obj.setMouseable();
+                end
+            end
+        end
+
         function addLine(obj, plotKey, varargin)
             %ADDLINE Create and store a primitive line plot
             if obj.isReady
@@ -443,6 +460,22 @@ classdef Figure < handle
             if obj.isReady
                 hAx = obj.gca();
                 hold(hAx, varargin{:});
+            end
+        end
+
+        function vals = imrectFun(obj, plotKey, hFun, varargin)
+            %IMRECTFUN Apply hFun to the imrect given by plotKey
+            if ~obj.hasPlot(plotKey)
+                return;
+            end
+
+            try
+                if nargout == 1
+                    vals = hFun(obj.hPlots(plotKey), varargin{:});
+                else
+                    hFun(obj.hPlots(plotKey), varargin{:});
+                end
+            catch
             end
         end
 

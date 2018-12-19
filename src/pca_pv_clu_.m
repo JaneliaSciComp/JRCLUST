@@ -9,7 +9,7 @@ function [mrPv1, mrPv2] = pca_pv_clu_(viSites, iClu1, iClu2)
     % show site pca
     MAX_SAMPLE = 10000; %for pca
     viSpk1 = subsample_vr_(S_clu.cviSpk_clu{iClu1}, MAX_SAMPLE);
-    tnWav_spk1 = permute(tnWav_spk_sites_(viSpk1, viSites, S0, 0), [1,3,2]);
+    tnWav_spk1 = permute(jrclust.utils.getSampledWindows(viSpk1, viSites, S0, 0), [1,3,2]);
     [nT, nSites] = deal(size(tnWav_spk1, 1), numel(viSites));
     [mrPv1, mrPv2] = deal(zeros(nT, nSites, 'single'));
 
@@ -19,7 +19,7 @@ function [mrPv1, mrPv2] = pca_pv_clu_(viSites, iClu1, iClu2)
         end %for
     else
         viSpk2 = subsample_vr_(S_clu.cviSpk_clu{iClu2}, MAX_SAMPLE);
-        tnWav_spk2 = permute(tnWav_spk_sites_(S_clu.cviSpk_clu{iClu2}, viSites, S0, 0), [1,3,2]);
+        tnWav_spk2 = permute(jrclust.utils.getSampledWindows(S_clu.cviSpk_clu{iClu2}, viSites, S0, 0), [1,3,2]);
         for iSite1=1:nSites
             mrPv1(:,iSite1) = pca_pv_(tnWav_spk1(:,:,iSite1));
             mrPv2(:,iSite1) = pca_pv_(tnWav_spk2(:,:,iSite1));

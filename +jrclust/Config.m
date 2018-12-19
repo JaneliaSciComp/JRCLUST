@@ -31,6 +31,7 @@ classdef Config < handle & dynamicprops
         fImportKilosort;            % => fImportKsort
         fRepeat_clu;                % => repeatLower
         fVerbose;                   % => verbose
+        fWav_raw_show;              % => showRaw
         gain_boost;                 % => gainBoost
         header_offset;              % => headerOffset
         MAX_BYTES_LOAD;             % => maxBytesLoad
@@ -68,6 +69,7 @@ classdef Config < handle & dynamicprops
         vcDataType;                 % => dtype
         vcDetrend_postclu;          % => rlDetrendMode
         vcFet;                      % => clusterFeature
+        vcFet_show;                 % => dispFeature
         vcFile;                     % => singleRaw
         vcFile_gt;                  % => gtFile
         vcFile_prm;                 % => configFile
@@ -176,12 +178,15 @@ classdef Config < handle & dynamicprops
         spkLim_factor_merge = 1;    % Waveform range for computing the correlation. spkLim_factor_merge <= spkLim_raw_factor_merge. circa v3.1.8
 
         % display params
-        dispFilter = '';
+        dispFeature = 'vpp';        % feature to display in time/projection views
+        dispFilter = '';            % 
         dispTimeLimits = [0 0.2];   % time range to display (in s?)
-        fWav_raw_show = false;      % show raw waveforms in main view if true
         nShow = 200;                % maximum number of traces to show [D?# spikes to show]
+        nSitesFigProj = 5;          % number of sites to display in the feature projection view
         nSpk_show = 30;             % show spike waveforms for manual clustering
-        um_per_pix = 20;
+        showRaw = false;            % show raw waveforms in main view if true
+        time_tick_show = [];        % 
+        um_per_pix = 20;            % 
 
         % to get to, eventually
         LineStyle = '';
@@ -251,7 +256,7 @@ classdef Config < handle & dynamicprops
         maxSite_track = [2 3 4 5 6 7 8];
         maxWavCor = 0.98;
         max_shift_track = [];
-        mrColor_proj = [0.75 0.75 0.75; 0 0 0; 1 0 0];
+        mrColor_proj = [213 219 235; 0 130 196; 240 119 22]/256;
         nBytes_file = [];
         nChans = 120;
         nClu_show_aux = 10;
@@ -291,7 +296,6 @@ classdef Config < handle & dynamicprops
         thresh_sd_ref = 5;
         thresh_split_clu = 0;
         thresh_trial = [];
-        time_tick_show = [];
         tlim_clu = [];
         tlim_lfp = [0 5];
         tlim_psth = [-1 5];
@@ -300,7 +304,6 @@ classdef Config < handle & dynamicprops
         vcCluWavMode = 'mean';
         vcDate_file = '';
         vcDc_clu = 'distr';
-        vcFet_show = 'vpp';
         vcFile_aux = '';
         vcFile_bonsai = '';
         vcFile_lfp = '';
@@ -721,6 +724,30 @@ classdef Config < handle & dynamicprops
         function set.vcFilter_show(obj, ft)
             obj.logOldP('vcFilter_show');
             obj.dispFilter = ft;
+        end
+
+        % dispFeature/vcFet_show
+        function set.dispFeature(obj, df)
+            % canonicalize synonyms
+            if strcmp(df, 'vmin')
+                df = 'vpp';
+            elseif strcmp(df, 'gpca')
+                df = 'pca';
+            elseif strcmp(df, 'private pca')
+                df = 'ppca';
+            end
+            legalTypes = {'cov', 'kilosort', 'pca', 'ppca', 'vpp'};
+            failMsg = sprintf('legal dispFeatures are %s', strjoin(legalTypes, ', '));
+            assert(ismember(df, legalTypes), failMsg);
+            obj.dispFeature = df;
+        end
+        function df = get.vcFet_show(obj)
+            obj.logOldP('vcFet_show');
+            df = obj.dispFeature;
+        end
+        function set.vcFet_show(obj, df)
+            obj.logOldP('vcFet_show');
+            obj.dispFeature = df;
         end
 
         % dispTimeLimits/tlim
@@ -1412,6 +1439,19 @@ classdef Config < handle & dynamicprops
         function set.viShank_site(obj, sm)
             obj.logOldP('viShank_site');
             obj.shankMap = sm;
+        end
+
+        % showRaw/fWav_raw_show
+        function set.showRaw(obj, sr)
+            obj.showRaw = true && sr;
+        end
+        function sr = get.fWav_raw_show(obj)
+            obj.logOldP('fWav_raw_show');
+            sr = obj.showRaw;
+        end
+        function set.fWav_raw_show(obj, sr)
+            obj.logOldP('fWav_raw_show');
+            obj.showRaw = sr;
         end
 
         % singleRaw/vcFile
