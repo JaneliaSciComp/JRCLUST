@@ -2,7 +2,7 @@ classdef Figure < handle
     %FIGURE handle for JRCLUST manual figure
     %   Base class for specific figure types
 
-    properties (Access=protected, Hidden, SetObservable)
+    properties (SetAccess=protected, Hidden, SetObservable)
         hFig;           % Figure object
         hPlots;         % hashmap of current plots (return value of `plot`)
     end
@@ -329,6 +329,14 @@ classdef Figure < handle
             end
         end
 
+        function addTable(obj, plotKey, lim, varargin)
+            %ADDTABLE Add a table
+            XData = floor((lim(1)*2:lim(2)*2+1)/2);
+            YData = repmat([lim(1), lim(2), lim(2), lim(1)], [1, ceil(numel(XData)/4)]);
+            YData = YData(1:numel(XData));
+            obj.addPlot(plotKey, [XData(1:end-1), fliplr(YData)], [YData(1:end-1), fliplr(XData)], varargin{:});
+        end
+
         function addText(obj, plotKey, varargin)
             %ADDSTAIRS Add and store text descriptions for data points
             if obj.isReady
@@ -392,11 +400,13 @@ classdef Figure < handle
         end
 
         function cla(obj)
-            %CLA Clear axes
+            %CLA Clear axes and remove all plots
             hAx = obj.gca();
             if ~isempty(hAx)
                 cla(hAx);
             end
+
+            obj.hPlots = containers.Map();
         end
 
         function clf(obj)
@@ -452,7 +462,7 @@ classdef Figure < handle
 
         function hidePlot(obj, plotKey)
             %HIDEPLOT Set XData and YData of a plot to nan
-            obj.updatePlot(plotKey, nan, nan);
+            obj.updatePlot(plotKey, nan, nan); % updatePlot checks for existence of plotKey
         end
 
         function hold(obj, varargin)

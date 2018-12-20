@@ -7,15 +7,15 @@ function [fSplit, vlIn] = plot_split_(S1)
 
     % get amp
     S0 = get(0, 'UserData');
-    S_clu = S0.S_clu;
+    hClust = S0.hClust;
     P = S0.P;
     iClu1 = S0.iCluCopy;
     if ismember(P.vcFet_show, {'pca', 'ppca', 'gpca'})
-        fWav_raw_show = 0;
+        showRaw = 0;
     else
-        fWav_raw_show = get_set_(P, 'fWav_raw_show', 0);
+        showRaw = get_set_(P, 'showRaw', 0);
     end
-    trWav12 = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(S_clu.cviSpk_clu{iClu1}, site12, S0, fWav_raw_show), P);
+    trWav12 = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(hClust.spikesByCluster{iClu1}, site12, S0, showRaw), P);
     if diff(site12) == 0, trWav12(:,2,:) = trWav12(:,1,:); end
     vxPoly = (mrPolyPos([1:end,1],1) - site12_show(1)) * S1.maxAmp;
     vyPoly = (mrPolyPos([1:end,1],2) - site12_show(2)) * S1.maxAmp;
@@ -35,7 +35,7 @@ function [fSplit, vlIn] = plot_split_(S1)
         end
 
         case {'cov', 'spacetime'}
-        [mrAmin12, mrAmax12] = getSpikeCov(S_clu, S_clu.cviSpk_clu{iClu1}, site12);
+        [mrAmin12, mrAmax12] = getSpikeCov(hClust, hClust.spikesByCluster{iClu1}, site12);
         [mrAmin12, mrAmax12] = multifun_(@(x)abs(x'), mrAmin12, mrAmax12);
         vyPlot = mrAmin12(:,2);
         vcYlabel = sprintf('Site %d (cov1)', site12(2));
@@ -49,10 +49,14 @@ function [fSplit, vlIn] = plot_split_(S1)
 
         case {'pca', 'ppca', 'gpca'}
         if strcmpi(P.vcFet_show, 'ppca')
-            [mrPv1, mrPv2] = pca_pv_clu_(site12, S0.iCluCopy, S0.iCluPaste);
-            [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.cviSpk_clu{iClu1}, site12, mrPv1, mrPv2);
+            %[prVecs1, prVecs2] = pca_pv_clu_(site12, S0.iCluCopy, S0.iCluPaste);
+            [prVecs1, prVecs2] = jrclust.features.getPVClusters(hClust, site12, S0.iCluCopy, S0.iCluPaste);
+            [mrAmin12, mrAmax12] = jrclust.features.pcProjectSpikes(hClust.spikesByCluster{iClu1}, site12, prVecs1, prVecs2);
         else
-            [mrAmin12, mrAmax12] = pca_pc_spk_(S_clu.cviSpk_clu{iClu1}, site12);
+            sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, hClust.spikesByCluster{iClu1}, site12, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+            [prVecs1, prVecs2, prVecs3] = jrclust.features.getPVSpikes(sampledWindows);
+            [mrAmin12, mrAmax12] = jrclust.features.pcProjectSpikes(sampledWindows, prVecs1, prVecs2, prVecs3);
+            %[mrAmin12, mrAmax12] = jrclust.features.pcProjectSpikes(hClust.spikesByCluster{iClu1}, site12);
         end
         [mrAmin12, mrAmax12] = multifun_(@(x)abs(x'), mrAmin12, mrAmax12);
         vyPlot = mrAmin12(:,2);
@@ -69,7 +73,7 @@ function [fSplit, vlIn] = plot_split_(S1)
         error('plot_split: vcFetShow: not implemented');
         %         vxPoly = (mrPolyPos([1:end,1],1) - site12_show(1)) * S1.maxAmp;
         %         vyPoly = (mrPolyPos([1:end,1],2) - site12_show(2)) * S1.maxAmp;
-        %         trFet12 = trFet_([], site12, S_clu.cviSpk_clu{iClu1});
+        %         trFet12 = trFet_([], site12, hClust.spikesByCluster{iClu1});
         %         vyPlot = squeeze_(trFet12(1, 2, :));
         %         vcYlabel = sprintf('Site %d (%s1)', site12(2), P.vcFet);
         %         if site12(2) > site12(1)
@@ -90,7 +94,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     line(vxPlot, vyPlot, 'Color', P.mrColor_proj(2,:), 'Marker', 'o', 'MarkerSize', 2, 'LineStyle', 'none');
     hPlot = line(vxPlot(vlIn), vyPlot(vlIn), 'Color', P.mrColor_proj(3,:), 'Marker', 'o', 'MarkerSize', 2, 'LineStyle', 'none');
     % plot(vxPoly, vyPoly, 'b+-'); %boundary
-    title(sprintf('Cluster %d (%d spikes)', iClu1, S_clu.vnSpk_clu(iClu1)));
+    title(sprintf('Cluster %d (%d spikes)', iClu1, hClust.vnSpk_clu(iClu1)));
     xlabel(sprintf('Site %d', site12(1)));
     ylabel(vcYlabel);   xlabel(vcXlabel);
     grid on;
@@ -105,8 +109,8 @@ function [fSplit, vlIn] = plot_split_(S1)
 
     vlIn = poly_mask_(hPoly, vxPlot, vyPlot);
     set(hPlot, 'XData', vxPlot(vlIn), 'YData',vyPlot(vlIn));
-    % if P.fWav_raw_show
-    %     trWav12_raw = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(S_clu.cviSpk_clu{iClu1}, site12, 1));
+    % if P.showRaw
+    %     trWav12_raw = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(hClust.spikesByCluster{iClu1}, site12, 1));
     %     mrWavX = squeeze_(trWav12_raw(:, 1, :));
     %     mrWavY = squeeze_(trWav12_raw(:, 2, :));
     % else

@@ -1,10 +1,10 @@
-function vals = meanSubtract(vals, dim, hFunc)
+function vals = meanSubtract(vals, dim, hFun)
     %MEANSUBTRACT Subtract mean (or other statistic) from vals
     if nargin < 2
         dim = 1;
     end
     if nargin < 3
-        hFunc = @mean;
+        hFun = @mean;
     end
 
     if ~reallyisa(vals, 'single') && ~reallyisa(vals, 'double')
@@ -18,7 +18,7 @@ function vals = meanSubtract(vals, dim, hFunc)
     end
 
     % compute mean and subtract it from vals
-    vals = bsxfun(@minus, vals, hFunc(vals, dim));
+    vals = bsxfun(@minus, vals, hFun(vals, dim));
 
     % restore original shape
     if numel(shape) > 2

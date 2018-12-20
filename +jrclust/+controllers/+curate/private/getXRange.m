@@ -1,6 +1,6 @@
 function xRange = getXRange(iCluster, hCfg)
     %GETXRANGE Get the x-values of iCluster waveforms for main view
-    if hCfg.fWav_raw_show
+    if hCfg.showRaw
         evtWindowSamp = hCfg.evtWindowRawSamp;
     else
         evtWindowSamp = hCfg.evtWindowSamp;

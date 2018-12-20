@@ -16,7 +16,7 @@ function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg)
             iSpikes = jrclust.utils.subsample(hClust.getCenteredSpikes(iCluster), hCfg.nSpk_show);
             iSites = siteNeighbors(:, iCluster);
 
-            if hCfg.fWav_raw_show
+            if hCfg.showRaw
                 iWaveforms = jrclust.utils.rawTouV(hClust.spikesRaw(:, :, iSpikes), hCfg);
                 iWaveforms = jrclust.filters.fftLowpass(iWaveforms, hCfg.getOr('fc_spkwav_show', []), hCfg.sampleRate);
             else

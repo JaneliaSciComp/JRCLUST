@@ -1,6 +1,34 @@
-function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected)
+function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
     %DOPLOTFIGTIME
-    iSite = hClust.clusterSites(selected(1));
+    if nargin < 6
+        iSite = hClust.clusterSites(selected(1));
+    end
+
+    timeLimits = double([0, abs(hClust.spikeTimes(end))/hCfg.sampleRate]);
+    % construct plot for the first time
+    if isempty(hFigTime.figData)
+        hFigTime.axes();
+        hFigTime.axSet('Position', [.05 .2 .9 .7], 'XLimMode', 'manual', 'YLimMode', 'manual');
+
+        % first time
+        hFigTime.addLine('background',  nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(1, :), 'MarkerSize', 5, 'LineStyle', 'none');
+        hFigTime.addLine('foreground',  nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(2, :), 'MarkerSize', 5, 'LineStyle', 'none');
+        hFigTime.addLine('foreground2', nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(3, :), 'MarkerSize', 5, 'LineStyle', 'none');
+        hFigTime.xlabel('Time (s)');
+        hFigTime.grid('on');
+
+        % rectangle plot
+        rectPos = [timeLimits(1), maxAmp, diff(timeLimits), maxAmp];
+        hFigTime.addImrect('hRect', rectPos); % default position?
+        hFigTime.imrectFun('hRect', @setColor, 'r');
+        hFigTime.imrectFun('hRect', @setPositionConstraintFcn, makeConstrainToRectFcn('imrect', timeLimits, [-4000 4000]));
+
+        hFigTime.setHideOnDrag('background'); % hide background spikes when dragging
+        if ~isempty(hCfg.time_tick_show) % tick mark
+            hFigTime.axSet('XTick', timeLimits(1):hCfg.time_tick_show:timeLimits(end));
+        end
+    end
+
     [bgFeatures, bgTimes] = getDispFeaturesSite(hClust, iSite); % plot background
     [fgFeatures, fgTimes, yLabel] = getDispFeaturesSite(hClust, iSite, selected(1)); % plot primary selected cluster
 
@@ -14,34 +42,7 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected)
         figTitle = sprintf('Clu%d (black); %s', selected(1), figTitle);
     end
 
-    timeLimits = double([0, abs(hClust.spikeTimes(end))/hCfg.sampleRate]);
-
-    % construct plot for the first time
-    if isempty(hFigTime.figData)
-        hFigTime.figData.maxAmp = hCfg.maxAmp;
-        hFigTime.axes();
-        hFigTime.axSet('Position', [.05 .2 .9 .7], 'XLimMode', 'manual', 'YLimMode', 'manual');
-
-        % first time
-        hFigTime.addLine('background',  nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(1, :), 'MarkerSize', 5, 'LineStyle', 'none');
-        hFigTime.addLine('foreground',  nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(2, :), 'MarkerSize', 5, 'LineStyle', 'none');
-        hFigTime.addLine('foreground2', nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(3, :), 'MarkerSize', 5, 'LineStyle', 'none');
-        hFigTime.xlabel('Time (s)');
-        hFigTime.grid('on');
-
-        % rectangle plot
-        rectPos = [timeLimits(1), hFigTime.figData.maxAmp, diff(timeLimits), hFigTime.figData.maxAmp];
-        hFigTime.addImrect('hRect', rectPos); % default position?
-        hFigTime.imrectFun('hRect', @setColor, 'r');
-        hFigTime.imrectFun('hRect', @setPositionConstraintFcn, makeConstrainToRectFcn('imrect', timeLimits, [-4000 4000]));
-
-%         set(hFigTime, 'KeyPressFcn', @keyPressFcn_FigTime_);
-        hFigTime.setHideOnDrag('background'); % hide background spikes when dragging
-        if ~isempty(hCfg.time_tick_show) % tick mark
-            hFigTime.axSet('XTick', timeLimits(1):hCfg.time_tick_show:timeLimits(end));
-        end
-    end
-    vpp_lim = [0, abs(hFigTime.figData.maxAmp)];
+    vpp_lim = [0, abs(maxAmp)];
 
     hFigTime.updatePlot('background', bgTimes, bgFeatures);
     hFigTime.updatePlot('foreground', fgTimes, fgFeatures);

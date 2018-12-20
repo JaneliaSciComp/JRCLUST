@@ -14,9 +14,6 @@ function hFigs = doSpawnFigures(hCfg)
         fiShape = [.85 .5 .15 .25];
         fhShape = [.85 .75 .15 .25];
         fwcTitle = ['Waveform-based similarity score (click): ', hCfg.sessionName];
-
-        % rho-delta plot
-        hFigs('hFigRD') = doCreateFigure('FigRD', [.85 0 .15 .25], ['Cluster rho-delta: ', hCfg.sessionName]);
     end
 
     hFigs('hFigPos')    = doCreateFigure('FigPos', [0 0 .15 .5], ['Unit position; ', hCfg.sessionName], 1, 0);
@@ -28,6 +25,8 @@ function hFigs = doSpawnFigures(hCfg)
     hFigs('hFigHist')   = doCreateFigure('FigHist', fhShape, ['ISI Histogram: ', hCfg.sessionName]);
     hFigs('hFigISI')    = doCreateFigure('FigISI', fiShape, ['Return map: ', hCfg.sessionName]);
     hFigs('hFigCorr')   = doCreateFigure('FigCorr', fcShape, ['Time correlation: ', hCfg.sessionName]);
-
-    % hFigs.cvrFigPos0 = cellfun(@(vc) get(get_fig_(vc), 'OuterPosition'), hFigs.csFig, 'UniformOutput', 0);
+    if ~hCfg.fImportKsort
+        % rho-delta plot
+        hFigs('hFigRD') = doCreateFigure('FigRD', [.85 0 .15 .25], ['Cluster rho-delta: ', hCfg.sessionName]);
+    end
 end

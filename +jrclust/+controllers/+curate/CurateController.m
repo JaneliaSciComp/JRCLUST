@@ -7,10 +7,11 @@ classdef CurateController < handle
         hClust;         % Clustering object
     end
 
-    properties (AbortSet, Access=private, Hidden, Transient, SetObservable)
+    properties (AbortSet, SetAccess=private, Hidden, Transient, SetObservable)
         currentSite;    % current site
         hFigs;          % containers.Map of Figure objects
         hMenus;         % containers.Map of Menu handles
+        maxAmp;         % 
         selected;       % selected clusters, in order of selection
     end
 
@@ -20,6 +21,8 @@ classdef CurateController < handle
             obj.hCfg = hCfg;
             obj.hFigs = containers.Map();
             obj.hMenus = containers.Map();
+            obj.currentSite = [];
+            obj.maxAmp = [];
             obj.selected = [];
         end
 
@@ -63,6 +66,111 @@ classdef CurateController < handle
                         disp('waveform');
                     end
             end % switch
+        end
+
+        function keyPressFigProj(obj, hObject, hEvent)
+            hFigProj = obj.hFigs('hFigProj');
+            %S_plot1 = get(S_fig.hPlot1, 'UserData');
+            %viSites_show = S_plot1.viSites_show;
+            hFigProj.wait(true);
+
+            switch lower(hEvent.Key)
+                case {'uparrow', 'downarrow'}
+                    %rescale_FigProj_(hEvent, hObject, S_fig, S0);
+                    disp('rescale');
+
+                case {'leftarrow', 'rightarrow'} % change channels
+                    disp('change channels');
+%                     fPlot = 0;
+%                     if strcmpi(hEvent.Key, 'leftarrow')
+%                         if min(S_fig.viSites_show)>1
+%                             S_fig.viSites_show=S_fig.viSites_show-1;
+%                             fPlot = 1;
+%                         end
+%                     else
+%                         if max(S_fig.viSites_show) < max(hCfg.viSite2Chan)
+%                             S_fig.viSites_show=S_fig.viSites_show+1;
+%                             fPlot = 1;
+%                         end
+%                     end
+%                     if fPlot
+%                         set(hObject, 'UserData', S_fig);
+%                         S0.P.viSites_show = S_fig.viSites_show;
+%                         plot_FigProj_(S0);
+%                     end
+
+                case 'r' %reset view
+                    disp('reset view');
+%                     axis_([0 numel(viSites_show) 0 numel(viSites_show)]);
+
+                case 's' %split
+                    disp('split');
+%                     figure_wait_(0);
+%                     if ~isempty(S0.iCluPaste)
+%                         msgbox_('Select one cluster to split'); return;
+%                     end
+%                     S_plot1 = select_polygon_(S_fig.hPlot1);
+%                     if ~isempty(S_plot1)
+%                         [fSplit, vlIn] = plot_split_(S_plot1);
+%                         if fSplit
+%                             hClust = split_clu_(S0.iCluCopy, vlIn);
+%                         else
+%                             update_plot2_proj_();
+%                             %                 delete_multi_(S_plot1.hPoly);
+%                         end
+%                     end
+
+                case 'm'
+                    disp('merge');
+                    %ui_merge_(S0);
+
+                case 'f'
+                    disp('toggle features');
+%                     if get_set_(hCfg, 'fImportKsort', 0) && strcmpi(hCfg.vcFet_show, 'vpp')
+%                         hCfg.vcFet_show = 'kilosort';
+%                     elseif strcmpi(hCfg.vcFet_show, 'vpp')
+%                         hCfg.vcFet_show = hCfg.vcFet;
+%                     else
+%                         hCfg.vcFet_show = 'vpp';
+%                     end
+% 
+%                     set0_(hCfg);
+%                     try
+%                         plot_FigProj_();
+%                     catch
+%                         hCfg.vcFet_show = 'vpp';
+%                         set0_(hCfg);
+%                         plot_FigProj_();
+%                     end
+
+                case 'p' % toggle PCi v. PCj
+                    disp('toggle pc pair');
+%                     if get_set_(hCfg, 'fImportKsort', 0) && strcmpi(hCfg.vcFet_show, 'kilosort')
+%                         pcPair = get_set_(S0, 'pcPair', [1 2]);
+% 
+%                         if all(pcPair == [1 2])
+%                             S0.pcPair = [1 3];
+%                         elseif all(pcPair == [1 3])
+%                             S0.pcPair = [2 3];
+%                         else
+%                             S0.pcPair = [1 2];
+%                         end
+% 
+%                         set(0, 'UserData', S0);
+% 
+%                         plot_FigProj_(S0);
+%                     end
+
+                case 'b' % background spikes
+                    disp('toggle background');
+                    %toggleVisible_(S_fig.hPlot0);
+
+                case 'h' % help
+                    disp('halp');
+                    %msgbox_(S_fig.csHelp, 1);
+            end % switch
+
+            hFigProj.wait(false);
         end
 
         function keyPressFigTime(obj, hObject, hEvent)
@@ -227,10 +335,10 @@ classdef CurateController < handle
                     %clu_info_(S0); %update figpos
 
                 case 'leftarrow' % select previous cluster
-                    disp('previous cluster');
+                    obj.selectCluster(max(obj.selected(1)-1, 1), false);
 
                 case 'rightarrow' % select next cluster
-                    disp('next cluster');
+                    obj.selectCluster(min(obj.selected(1)+1, obj.hClust.nClusters), false);
 
                 case 'home' % select first cluster
                     disp('first cluster');
@@ -389,7 +497,7 @@ classdef CurateController < handle
                 hFigWav.addPlot(plotKey, nan, nan, 'Color', colorMap, 'LineWidth', 2);
             end
 
-            if obj.hCfg.fWav_raw_show
+            if obj.hCfg.showRaw
                 meanWf = obj.hClust.meanWfGlobalRaw(:, :, iCluster);
             else
                 meanWf = obj.hClust.meanWfGlobal(:, :, iCluster);
@@ -397,14 +505,14 @@ classdef CurateController < handle
 
             % this is a hack until we hunt down and destroy all calls to
             % `multiplot` which are actually rescales (nargin <= 2)
-            userData = hFigWav.plotGet(plotKey, 'UserData');
-            if isempty(userData)
-                userData = struct('maxAmp', obj.hCfg.maxAmp);
-            elseif ~isfield(userData, 'maxAmp')
-                userData.maxAmp = obj.hCfg.maxAmp;
-            end 
+%             userData = hFigWav.plotGet(plotKey, 'UserData');
+%             if isempty(userData)
+%                 userData = struct('maxAmp', obj.hCfg.maxAmp);
+%             elseif ~isfield(userData, 'maxAmp')
+%                 userData.maxAmp = obj.hCfg.maxAmp;
+%             end 
 
-            hFigWav.multiplot(plotKey, userData.maxAmp, getXRange(iCluster, obj.hCfg), meanWf);
+            hFigWav.multiplot(plotKey, obj.maxAmp, getXRange(iCluster, obj.hCfg), meanWf);
             hFigWav.uistack(plotKey, 'top');
         end
 
@@ -506,13 +614,7 @@ classdef CurateController < handle
                 return;
             end
 
-            if obj.hasFig('hFigWav')
-                maxAmp = obj.hFigs('hFigWav').figData.maxAmp;
-            else
-                maxAmp = obj.hCfg.maxAmp;
-            end
-
-            hFigPos = doPlotFigPos(obj.hFigs('hFigPos'), obj.hClust, obj.hCfg, obj.selected, maxAmp);
+            hFigPos = doPlotFigPos(obj.hFigs('hFigPos'), obj.hClust, obj.hCfg, obj.selected, obj.maxAmp);
             obj.hFigs('hFigPos') = hFigPos;
         end
 
@@ -524,22 +626,24 @@ classdef CurateController < handle
 
             hFigTime = obj.hFigs('hFigTime');
 
-            [dispFeatures, dispTimes, yLabel] = getDispFeaturesSite(obj.hClust, obj.currentSite);
-            hFigTime.toggleVisible('background', hFigTime.figData.doPlotBG);
-
             % plot background spikes
-            hFigTime.updatePlot('background', dispTimes, dispFeatures);
+            [bgFeatures, bgTimes, yLabel] = getDispFeaturesSite(obj.hClust, obj.currentSite);
+            hFigTime.toggleVisible('background', hFigTime.figData.doPlotBG);
+            hFigTime.updatePlot('background', bgTimes, bgFeatures);
+
             % plot foreground spikes
-            hFigTime.plotSet('foreground', 'YData', getDispFeaturesSite(obj.hClust, obj.currentSite, obj.selected(1)));
+            [fgFeatures, fgTimes] = getDispFeaturesSite(obj.hClust, obj.currentSite, obj.selected(1));
+            hFigTime.updatePlot('foreground', fgTimes, fgFeatures);
             % plot secondary foreground spikes
             if numel(obj.selected) == 2
-                hFigTime.plotSet('foreground2', 'YData', getDispFeaturesSite(obj.hClust, obj.currentSite, obj.selected(2)));
+                [fgFeatures2, fgTimes2] = getDispFeaturesSite(obj.hClust, obj.currentSite, obj.selected(2));
+                hFigTime.updatePlot('foreground2', fgTimes2, fgFeatures2);
             else % or hide them
                 hFigTime.hidePlot('foreground2');
             end
 
-            hFigTime.axSet('YLim', [0, 1] * hFigTime.figData.maxAmp);
-            imrect_set_(hFigTime, 'hRect', [], [0, 1] * hFigTime.figData.maxAmp);
+            hFigTime.axSet('YLim', [0, 1] * obj.maxAmp);
+            imrect_set_(hFigTime, 'hRect', [], [0, 1] * obj.maxAmp);
             hFigTime.grid('on');
             hFigTime.ylabel(yLabel);
         end
@@ -586,7 +690,7 @@ classdef CurateController < handle
 %             uimenu(mh_view,'Label', '[W]aveform (toggle)', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'w'));
 %             uimenu(mh_view,'Label', '[N]umbers (toggle)', 'Callback', @(h,e)keyPressFcn_cell_(hFig, 'n'));
 %             uimenu(mh_view,'Label', 'Show raw waveform', 'Callback', @(h,e)raw_waveform_(h), ...
-%             'Checked', ifeq_(get_(obj.hCfg, 'fWav_raw_show'), 'on', 'off'));
+%             'Checked', ifeq_(get_(obj.hCfg, 'showRaw'), 'on', 'off'));
 %             %uimenu(mh_view,'Label', 'Threshold by sites', 'Callback', @(h,e)keyPressFcn_thresh_(hFig, 'n'));
 %             % uimenu(mh_view,'Label', '.prm file', 'Callback', @edit_prm_);
 %             uimenu(mh_view,'Label', 'Reset window positions', 'Callback', @reset_position_);
@@ -622,7 +726,7 @@ classdef CurateController < handle
 
         function closeFigures(obj)
             %CLOSEFIGURES Close all open figures
-            if obj.hasFig('hFigWav')
+            if obj.hasFig('hFigWav') && obj.hFigs('hFigWav').isReady
                 hFigWav = obj.hFigs('hFigWav');
                 hFigWav.close(); % calls killFigWav
             else
@@ -635,12 +739,12 @@ classdef CurateController < handle
             end
         end
 
-        function res = figApply(obj, hFun)
+        function res = figApply(obj, hFun, varargin)
             %FIGAPPLY Apply a function to all figures
             if nargout == 0 % "Too many output arguments"
-                cellfun(@(k) hFun(obj.hFigs(k)), keys(obj.hFigs));
+                cellfun(@(k) hFun(obj.hFigs(k)), keys(obj.hFigs), varargin{:});
             else
-                res = cellfun(@(k) hFun(obj.hFigs(k)), keys(obj.hFigs));
+                res = cellfun(@(k) hFun(obj.hFigs(k)), keys(obj.hFigs), varargin{:});
             end
         end
 
@@ -651,7 +755,7 @@ classdef CurateController < handle
             end
 
             delete(hObject);
-            obj.closeFigures();
+            obj.endSession();
         end
 
         function plotAllFigures(obj)
@@ -679,9 +783,41 @@ classdef CurateController < handle
                 obj.hFigs('hFigSim') = hFigSim;
             end
 
+            % plot feature projection view
+%             if obj.hasFig('hFigProj')
+%                 
+%             end
+
+%                 case 'u', update_FigCor_(S0);
+%                 case 'p' %PSTH plot
+%                 if isempty(hCfg.vcFile_trial), msgbox_('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
+%                 plot_raster_(S0, 1);
+
+            % plot feature projection
+            if obj.hasFig('hFigProj')
+                hFigProj = doPlotFigProj(obj.hFigs('hFigProj'), obj.hClust, obj.hCfg, obj.selected, obj.maxAmp);
+
+                % set key and mouse handles
+                hFigProj.hFunKey = @obj.keyPressFigProj;
+                hFigProj.setMouseable(); % nothing special here
+
+                obj.hFigs('hFigProj') = hFigProj;
+            end
+
+            % plot amplitude vs. time
+            if obj.hasFig('hFigTime')
+                hFigTime = doPlotFigTime(obj.hFigs('hFigTime'), obj.hClust, obj.hCfg, obj.selected, obj.maxAmp);
+
+                % set key and mouse handles
+                hFigTime.hFunKey = @obj.keyPressFigTime;
+                hFigTime.setMouseable(); % nothing special here
+
+                obj.hFigs('hFigTime') = hFigTime;
+            end
+
             % plot main waveform view
             if obj.hasFig('hFigWav')
-                hFigWav = doPlotFigWav(obj.hFigs('hFigWav'), obj.hClust, obj.hCfg);
+                hFigWav = doPlotFigWav(obj.hFigs('hFigWav'), obj.hClust, obj.hCfg, obj.maxAmp);
 
                 % set key and mouse handles
                 hFigWav.hFunKey = @obj.keyPressFigWav;
@@ -692,43 +828,6 @@ classdef CurateController < handle
                 obj.addMenu(hFigWav);
 
                 obj.hFigs('hFigWav') = hFigWav;
-            end
-
-            % plot feature projection view
-%             if obj.hasFig('hFigProj')
-%                 
-%             end
-
-%                 case 'j', plot_FigProj_(S0); %projection view
-%                 case 'u', update_FigCor_(S0);
-%                 case 'p' %PSTH plot
-%                 if isempty(hCfg.vcFile_trial), msgbox_('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
-%                 plot_raster_(S0, 1);
-
-            % plot correlation view
-            obj.updateFigCorr();
-
-            % plot ISI histogram
-            obj.updateFigHist();
-
-            % plot return map (ISI view)
-            obj.updateFigISI();
-
-            % plot probe map
-            obj.updateFigMap();
-
-            % plot cluster position
-            obj.updateFigPos();
-
-            % plot amplitude vs. time
-            if obj.hasFig('hFigTime')
-                hFigTime = doPlotFigTime(obj.hFigs('hFigTime'), obj.hClust, obj.hCfg, obj.selected);
-
-                % set key and mouse handles
-                hFigTime.hFunKey = @obj.keyPressFigTime;
-                hFigTime.setMouseable(); % nothing special here
-
-                obj.hFigs('hFigTime') = hFigTime;
             end
 
             % select first cluster
@@ -749,6 +848,8 @@ classdef CurateController < handle
                 obj.selected(2) = iCluster;
             end
 
+            obj.currentSite = obj.hClust.clusterSites(obj.selected(1));
+
             % update plots
             obj.updateCursorFigWav();
             obj.updateCursorFigSim();
@@ -757,8 +858,7 @@ classdef CurateController < handle
             obj.updateFigISI();
             obj.updateFigMap();
             obj.updateFigPos();
-
-            doPlotFigTime(obj.hFigs('hFigTime'), obj.hClust, obj.hCfg, obj.selected);
+            obj.updateFigTime();
 
             % update menu entry to indicate selected clusters
             if numel(obj.selected) > 1 && obj.hasMenu('hMenuInfo')
@@ -783,11 +883,17 @@ classdef CurateController < handle
 
     %% USER METHODS
     methods
+        function allToForeground(obj)
+            %ALLTOFOREGROUND Bring all figures to the foreground
+            obj.figApply(@(hFig) hFig.toForeground());
+        end
+
         function beginSession(obj, hClust)
             %BEGINSESSION Start curating clusters
             obj.cRes = struct('hClust', hClust);
             obj.selected = 1;
             obj.currentSite = hClust.clusterSites(1);
+            obj.maxAmp = obj.hCfg.maxAmp;
             obj.plotAllFigures();
         end
 

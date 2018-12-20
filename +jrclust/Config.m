@@ -182,10 +182,12 @@ classdef Config < handle & dynamicprops
         dispFilter = '';            % 
         dispTimeLimits = [0 0.2];   % time range to display (in s?)
         nShow = 200;                % maximum number of traces to show [D?# spikes to show]
+        nShow_proj = 500;           % maximum number of features to show in projection
         nSitesFigProj = 5;          % number of sites to display in the feature projection view
         nSpk_show = 30;             % show spike waveforms for manual clustering
         showRaw = false;            % show raw waveforms in main view if true
         time_tick_show = [];        % 
+        tLimFigProj = [];           % time range to display in feature view, in seconds
         um_per_pix = 20;            % 
 
         % to get to, eventually
@@ -264,7 +266,6 @@ classdef Config < handle & dynamicprops
         nMinAmp_ms = 0;
         nPcPerChan = 1;
         nPc_dip = 3;
-        nShow_proj = 500;
         nSites_excl_ref = 6;
         nSkip_show = 1;
         nSkip_whiten = 10;
@@ -735,6 +736,8 @@ classdef Config < handle & dynamicprops
                 df = 'pca';
             elseif strcmp(df, 'private pca')
                 df = 'ppca';
+            elseif strcmp(df, 'spacetime')
+                df = 'cov';
             end
             legalTypes = {'cov', 'kilosort', 'pca', 'ppca', 'vpp'};
             failMsg = sprintf('legal dispFeatures are %s', strjoin(legalTypes, ', '));

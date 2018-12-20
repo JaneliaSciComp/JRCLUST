@@ -80,7 +80,7 @@ function rescaleProj_(vhPlot1, maxAmp, P)
                 
         end % switch
 
-        [vrX, vrY, viPlot] = amp2proj_(S_plot1.mrMin, S_plot1.mrMax, bounds, P.maxSite, P);
+        [vrX, vrY, viPlot] = ampToProj(S_plot1.mrMin, S_plot1.mrMax, bounds, P.maxSite, P);
         S_plot1 = struct_add_(S_plot1, viPlot, vrX, vrY, maxAmp);
         set(hPlot1, 'XData', vrX, 'YData', vrY, 'UserData', S_plot1);
     end

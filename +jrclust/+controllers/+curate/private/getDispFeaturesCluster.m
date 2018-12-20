@@ -1,6 +1,6 @@
-%function [mrFet1, viSpk1] = getDispFeaturesCluster(iClu1, iSite, S0)
 function [sampledFeatures, sampledSpikes] = getDispFeaturesCluster(hClust, iCluster, iSite)
-    %GETDISPFEATURESCLUSTER Get 
+    %GETDISPFEATURESCLUSTER Get display features for a cluster (or bg spikes) on a group of sites
+    %   TODO: there's some code redundancy between this and getDispFeatures
     MAX_SAMPLE = 10000; % max points to display
 
     hCfg = hClust.hCfg;
@@ -27,12 +27,15 @@ function [sampledFeatures, sampledSpikes] = getDispFeaturesCluster(hClust, iClus
     elseif strcmp(hCfg.dispFeature, 'cov')
         sampledFeatures = getSpikeCov(hClust, sampledSpikes, iSite);
     elseif strcmp(hCfg.dispFeature, 'pca')
-        sampledFeatures = pca_pc_spk_(sampledSpikes, iSite);
+        sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, sampledSpikes, iSite, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+        prVecs1 = jrclust.features.getPVSpikes(sampledWindows);
+        sampledFeatures = jrclust.features.pcProjectSpikes(sampledWindows, prVecs1);
     elseif strcmp(hCfg.dispFeature, 'ppca')
-        [mrPv1, mrPv2] = pca_pv_clu_(iSite, S0.iCluCopy);
-        sampledFeatures = pca_pc_spk_(sampledSpikes, iSite, mrPv1, mrPv2);
-    elseif strcmp(hCfg.dispFeature, 'kilosort')
-        sampledFeatures = ks_fet_spk_(sampledSpikes, iSite, S0);
+        sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, sampledSpikes, iSite, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+        prVecs1 = jrclust.features.getPVClusters(hClust, iSite, iCluster);
+        sampledFeatures = jrclust.features.pcProjectSpikes(sampledWindows, prVecs1);
+    % elseif strcmp(hCfg.dispFeature, 'kilosort')
+    %     sampledFeatures = ks_fet_spk_(sampledSpikes, iSite, S0);
     else
         error('not implemented yet');
     end

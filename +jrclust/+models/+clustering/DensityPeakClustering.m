@@ -671,7 +671,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
             % subsample some (raw or filtered) waveforms
             iSubset = jrclust.utils.subsample(obj.getCenteredSpikes(iCluster), obj.hCfg.nSpk_show);
-            if obj.hCfg.fWav_raw_show
+            if obj.hCfg.showRaw
                 meanWf = obj.meanWfGlobalRaw(:, iNeighbors, iCluster);
                 sampleWf = jrclust.utils.rawTouV(obj.spikesRaw(:, :, iSubset), obj.hCfg);
                 sampleWf = jrclust.filters.fftLowpass(sampleWf, obj.hCfg.getOr('fc_spkwav_show', []), obj.hCfg.sampleRate);

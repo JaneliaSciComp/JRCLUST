@@ -210,7 +210,7 @@ maxAmp_lfp = 1000;          % Amplitude range in uV (LFP) [D]
 freqLim_corr = [15 150];    % LFP correlation frequency limit [D]
 time_tick_show = [];        % Time interval tick marks in secondds, [] for auto [D]
 viChan_show = [];           % Show all if empty [D]
-fWav_raw_show = 0;          % Show raw waveform (0 to show filtered); [D]
+showRaw = 0;          % Show raw waveform (0 to show filtered); [D]
 
 % Pre-processing
 nSites_excl_ref = 6;        % excl three nearest sites when perfomaing 'nmean' local referencing [D]

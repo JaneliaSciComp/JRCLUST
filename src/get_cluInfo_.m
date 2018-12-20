@@ -10,13 +10,13 @@ function S_cluInfo = get_cluInfo_(iClu)
 
     xyPos = [S_clu.vrPosX_clu(iClu), S_clu.vrPosY_clu(iClu)];
     vcPos = sprintf('Unit %d (x,y):(%0.1f, %0.1f)[pix]', iClu, xyPos/P.um_per_pix);
-    if P.fWav_raw_show
+    if P.showRaw
         mrWav_clu = S_clu.tmrWav_raw_clu(:,viSite,iClu);
     else
         mrWav_clu = S_clu.tmrWav_clu(:,viSite,iClu);
     end
     trWav = trWav_clu_(iClu, P.nSpk_show * 1);
-    if P.fWav_raw_show
+    if P.showRaw
         trWav = jrclust.filters.fftLowpass(trWav, get_set_(P, 'fc_spkwav_show', []), P.sRateHz);
     end
     S_cluInfo = makeStruct_(xyPos, iClu, mrWav_clu, viSite, vcPos, trWav);

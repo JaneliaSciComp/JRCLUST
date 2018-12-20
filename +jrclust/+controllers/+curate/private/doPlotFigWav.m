@@ -1,9 +1,8 @@
-function hFigWav = doPlotFigWav(hFigWav, hClust, hCfg)
+function hFigWav = doPlotFigWav(hFigWav, hClust, hCfg, maxAmp)
     %DOPLOTFIGWAV Plot the main view (FigWav)
     nSites = numel(hCfg.siteMap);
 
     if isempty(hFigWav.figData) % construct from scratch
-        hFigWav.figData.maxAmp = hCfg.maxAmp;
         hFigWav.axes();
         hFigWav.axSet('Position', [.05 .05 .9 .9], 'XLimMode', 'manual', 'YLimMode', 'manual');
         hFigWav.xlabel('Cluster #');
@@ -11,14 +10,15 @@ function hFigWav = doPlotFigWav(hFigWav, hClust, hCfg)
         hFigWav.grid('on');
 
         % hFigWav.figData.vcTitle = 'Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi'; % TW
-        % hFigWav.title(sprintf('Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi', hFigWav.figData.maxAmp));
+        % hFigWav.title(sprintf('Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi', maxAmp));
         info_ = jrclust.utils.info();
-        hFigWav.title(sprintf('%s v%s; press [H] for help (scale: %0.1f uV)', info_.program, jrclust.utils.version(), hFigWav.figData.maxAmp));
+        hFigWav.title(sprintf('%s v%s; press [H] for help (scale: %0.1f uV)', info_.program, jrclust.utils.version(), maxAmp));
         hFigWav.axis([0, hClust.nClusters + 1, 0, nSites + 1]);
 
         hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg);
-        hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg);
+        hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp);
         hFigWav.setHideOnDrag('hSpkAll');
+        hFigWav.figData.isPlotted = true;
     else
         hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg);
         % clear mean waveforms
@@ -28,7 +28,7 @@ function hFigWav = doPlotFigWav(hFigWav, hClust, hCfg)
             iGroup = iGroup + 1;
         end
         % replot mean waveforms
-        hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg);
+        hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp);
     end
 
     hFigWav = setFigWavXTicks(hFigWav, hClust, true);

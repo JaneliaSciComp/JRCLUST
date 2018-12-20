@@ -1,6 +1,6 @@
-function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg)
+function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp)
     %PLOTMEANWAVEFORMS Plot mean cluster waveforms in the main view
-    if hCfg.fWav_raw_show
+    if hCfg.showRaw
         waveforms = hClust.meanWfGlobalRaw;
     else
         waveforms = hClust.meanWfGlobal;
@@ -14,7 +14,7 @@ function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg)
     xData = (1:nSamples*nClusters)/nSamples + xOffset;
     xData(1:nSamples:end) = nan;
     xData(nSamples:nSamples:end) = nan;
-    waveforms = waveforms / hFigWav.figData.maxAmp;
+    waveforms = waveforms/maxAmp;
 
     xData = repmat(xData(:), [1, nSitesShow]);
     xData = reshape(xData, [nSamples, nClusters, nSitesShow]);

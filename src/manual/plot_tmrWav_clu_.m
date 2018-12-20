@@ -5,7 +5,7 @@ function [iClu, hPlot] = plot_tmrWav_clu_(S0, iClu, hPlot, vrColor)
     if ~isvalid_(hPlot)
         hPlot = plot(nan, nan, 'Color', vrColor, 'LineWidth', 2, 'Parent', S_fig.hAx);
     end
-    if hCfg.fWav_raw_show
+    if hCfg.showRaw
         mrWav_clu1 = hClust.tmrWav_raw_clu(:,:, iClu);
     else
         mrWav_clu1 = hClust.tmrWav_clu(:,:, iClu);

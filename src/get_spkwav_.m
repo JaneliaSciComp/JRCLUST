@@ -5,7 +5,7 @@ function tnWav_ = get_spkwav_(P, fRaw)
     global tnWav_spk tnWav_raw
     if nargin<1, P = []; end
     if isempty(P), P = get0_('P'); end
-    if nargin<2, fRaw = P.fWav_raw_show; end
+    if nargin<2, fRaw = P.showRaw; end
 
     fRamCache = get_set_(P, 'fRamCache', 1);
     if fRaw

@@ -7,6 +7,7 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
 
     if isempty(hFigPos.figData)
         hFigPos.axes();
+        hFigPos.figData.isPlotted = true;
     else
         hFigPos.cla();
         hFigPos.hold('on');
@@ -58,6 +59,9 @@ function plotPosUnit(cData, hFigPos, hCfg, fSecondary, maxAmp)
         sampleWf = cData.sampleWf;
     end
 
+    siteXData = hCfg.siteLoc(cData.neighbors, 1) / hCfg.um_per_pix;
+    siteYData = hCfg.siteLoc(cData.neighbors, 2) / hCfg.um_per_pix;
+
     % show example traces
     for iWav = size(sampleWf, 3):-1:0
         if iWav == 0 % plot the cluster mean waveform
@@ -70,8 +74,6 @@ function plotPosUnit(cData, hFigPos, hCfg, fSecondary, maxAmp)
             cmap = 0.5*[1, 1, 1];
         end
 
-        siteXData = hCfg.siteLoc(cData.neighbors, 1) / hCfg.um_per_pix;
-        siteYData = hCfg.siteLoc(cData.neighbors, 2) / hCfg.um_per_pix;
         YData = bsxfun(@plus, YData, siteYData');
         XData = bsxfun(@plus, repmat(XBase, [1, size(YData, 2)]), siteXData');
         hFigPos.addLine(sprintf('neighbor%d', iWav), XData(:), YData(:), ...
@@ -81,6 +83,6 @@ function plotPosUnit(cData, hFigPos, hCfg, fSecondary, maxAmp)
     hFigPos.xlabel('X pos [pix]');
     hFigPos.ylabel('Z pos [pix]');
     hFigPos.grid('on');
-    hFigPos.axSet('XLim', [min(XBase(:)), max(XBase(:))]);
+    hFigPos.axSet('XLim', [min(XBase(:)), max(XBase(:))] + median(siteXData));
     hFigPos.axSet('YLim', [floor(min(YData(:))-1), ceil(max(YData(:))+1)]);
 end

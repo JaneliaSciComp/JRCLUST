@@ -12,7 +12,6 @@ function [dispFeatures, spikeTimesSecs, yLabel, dispSpikes] = getDispFeaturesSit
 
     if strcmp(hCfg.dispFeature, 'vpp')
         yLabel = sprintf('Site %d (\\mu Vpp)', iSite);
-
     else
         yLabel = sprintf('Site %d (%s)', iSite, hCfg.dispFeature);
     end

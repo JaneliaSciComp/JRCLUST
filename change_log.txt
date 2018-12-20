@@ -607,7 +607,7 @@ Multiple feature viewing enabled. Go to menu and select 'Projection' to change f
   To change a default feature to display, set 'vcFet_show' to one of {'vpp', 'cov', 'pca'} in the .prm file.
 
 [2017/4/19]
-Raw waveform is enabled for manual clustering. set 'fWav_raw_show=1' to enable raw waveform view.
+Raw waveform is enabled for manual clustering. set 'showRaw=1' to enable raw waveform view.
 
 [2017/4/5]
 Instruction manual updated (install.txt). Updated installation from the website (jrc2.zip).
