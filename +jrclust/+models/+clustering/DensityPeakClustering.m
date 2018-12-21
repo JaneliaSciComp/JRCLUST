@@ -192,10 +192,13 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             simScore_ = obj.simScore;
             nClusters_ = size(simScore_, 2);
 
-            % Identify clusters to remove, update and same (no change), disjoint sets
+            % identify clusters to remove, update and same (no change), disjoint sets
             simScore_(tril(true(nClusters_))) = 0; % ignore bottom half
             [scoresMax, mapTo] = max(simScore_);
-            keepMe_ = scoresMax < obj.hCfg.maxWavCor; % keep clusters whose max similarity to another cluster is less than our threshold
+
+            % keep clusters whose maximum similarity to some other cluster
+            % is LESS than our threshold
+            keepMe_ = scoresMax < obj.hCfg.maxWavCor;
 
             if all(keepMe_)
                 nMerged = 0;
@@ -205,14 +208,13 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             minScore = min(scoresMax(~keepMe_));
             keepMe = find(keepMe_);
             mapTo(keepMe_) = keepMe;
+
             keepMe = setdiff(keepMe, mapTo(~keepMe_));
             removeMe = setdiff(1:nClusters_, mapTo);
             updateMe = setdiff(setdiff(1:nClusters_, keepMe), removeMe);
 
-            %hClust = S_clu_map_index_(hClust, mapTo); %index mapped
             good = obj.spikeClusters > 0;
-            mapTo = int32(mapTo);
-            obj.spikeClusters(good) = mapTo(obj.spikeClusters(good)); % translate cluster number
+            obj.spikeClusters(good) = int32(mapTo(obj.spikeClusters(good))); % translate cluster number
             obj.refresh(false); % empty clusters removed later
 
             obj.rmRefracSpikes(); % remove refrac spikes
@@ -225,6 +227,25 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             nMerged = nClusters_ - obj.nClusters;
             if obj.hCfg.verbose
                 fprintf('\tnClusters: %d->%d (%d merged, min score: %0.4f)\n', nClusters_, obj.nClusters, nMerged, minScore);
+            end
+        end
+
+        function postOp(obj, updateMe)
+            %POSTOP Call this after a merge or split operation
+            % update counts, center sites, remove empty clusters
+            obj.refresh(true);
+
+            if ~isempty(updateMe)
+                obj.rmRefracSpikes();
+
+                % update cluster waveforms and distance
+                obj.updateWaveforms(updateMe);
+
+                % update cluster positions
+                obj.computeCentroids(updateMe);
+
+                % compute quality scores for new clusters
+                obj.computeQualityScores(updateMe);
             end
         end
 
@@ -252,7 +273,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             obj.spikeClusters = int32(obj.spikeClusters);
         end
 
-        function subsetFields(obj, keepMe) % WIP
+        function subsetFields(obj, keepMe)
             %SELECT Subset all data fields, taking only those indices we want to keep
             % subset vector fields
             if ~isempty(obj.clusterCenters) % ?
@@ -511,15 +532,15 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
         function computeCentroids(obj, updateMe)
             %COMPUTEPOSITIONS determine cluster position from spike position
-            if nargin < 2 || isempty(obj.centroids)
+            if nargin < 2 || isempty(obj.clusterCentroids)
                 updateMe = [];
             end
 
             if isempty(updateMe)
-                centroids_ = zeros(obj.nClusters, 2);
+                centroids = zeros(obj.nClusters, 2);
                 clusters_ = 1:obj.nClusters;
             else % selective update
-                centroids_ = obj.clusterCentroids;
+                centroids = obj.clusterCentroids;
                 clusters_ = updateMe(:)';
             end
 
@@ -535,11 +556,11 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 featureWeights = squeeze(obj.spikeFeatures(featureSites, 1, clusterSpikes));
                 neighborLoc = single(obj.hCfg.siteLoc(neighbors, :)); % position on probe
 
-                centroids_(iCluster, 1) = median(getWeightedLoc(featureWeights, neighborLoc(:, 1)));
-                centroids_(iCluster, 2) = median(getWeightedLoc(featureWeights, neighborLoc(:, 2)));
+                centroids(iCluster, 1) = median(getWeightedLoc(featureWeights, neighborLoc(:, 1)));
+                centroids(iCluster, 2) = median(getWeightedLoc(featureWeights, neighborLoc(:, 2)));
             end
 
-            obj.clusterCentroids = centroids_;
+            obj.clusterCentroids = centroids;
         end
 
         function computeMeanWaveforms(obj, updateMe, useRaw)
@@ -595,6 +616,49 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             obj.unitSNR = scores.unitSNR;
             obj.unitVpp = scores.unitVpp;
             obj.unitVppRaw = scores.unitVppRaw;
+        end
+
+        function success = deleteClusters(obj, deleteMe, holdRefresh)
+            %DELETECLUSTERS Delete clusters
+            if nargin < 3
+                holdRefresh = false;
+            end
+            success = true;
+
+            clustersBak = obj.spikeClusters; % in case we need to restore
+
+            nClustersOld = numel(obj.spikesByCluster);
+            keepMe = setdiff(1:nClustersOld, deleteMe);
+            obj.subsetFields(keepMe);
+
+            garbageCluster = min(obj.spikeClusters) - 1;
+            if garbageCluster == 0 % reserved for noise
+                garbageCluster = -1;
+            end
+
+            deleteSpikes = ismember(obj.spikeClusters, deleteMe);
+            obj.spikeClusters(deleteSpikes) = garbageCluster;
+            nClusters_ = numel(keepMe);
+
+            good = (obj.spikeClusters > 0);
+            mapFrom = zeros(1, nClustersOld);
+            mapFrom(keepMe) = 1:nClusters_;
+
+            obj.spikeClusters(good) = mapFrom(obj.spikeClusters(good));
+
+            % recompute similarity scores
+%             if isfield(obj, 'mrSim_clu')
+%                 obj = sim_score_(obj);
+%             end
+
+            if ~isempty(obj.selfConsistent)
+                warning('Cluster data is inconsistent after deleting %d', deleteMe);
+                obj.spikeClusters = clustersBak;
+                success = false;
+                obj.refresh(true);
+            elseif ~holdRefresh
+                obj.postOp([]);
+            end
         end
 
         function doWaveformMerge(obj, maxWavCor)
@@ -713,6 +777,35 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             clusterSites_ = obj.spikeSites(centeredSpikes);
             whichCentered = clusterSites_ == iClusterSite;
             centeredSpikes = centeredSpikes(whichCentered);
+        end
+
+        function success = mergeClusterPair(obj, iCluster, jCluster)
+            %MERGECLUSTERPAIR Merge a pair of clusters
+            success = false;
+            if iCluster == jCluster || numel(intersect([iCluster, jCluster], obj.spikeClusters)) < 2
+                return;
+            end
+
+            if iCluster > jCluster % merge into the smaller of the two
+                [iCluster, jCluster] = deal(jCluster, iCluster);
+            end
+
+            clustersBak = obj.spikeClusters;
+            obj.spikeClusters(obj.spikeClusters == jCluster) = iCluster;
+
+            if ~obj.deleteClusters(jCluster, true) % subsets fields
+                warning('Failed to delete cluster %d', jCluster);
+                obj.spikeClusters = clustersBak;
+                success = false;
+            elseif ~isempty(obj.selfConsistent)
+                warning('Cluster data is inconsistent after merging %d and %d', iCluster, jCluster);
+                obj.spikeClusters = clustersBak;
+                success = false;
+                obj.refresh(true);
+            else
+                success = true;
+                obj.postOp(iCluster); % update counts, scores
+            end
         end
 
         function inconsistencies = selfConsistent(obj)
@@ -1005,8 +1098,12 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             end
         end
 
-        function updateWaveforms(obj)
-            obj.computeMeanWaveforms();
+        function updateWaveforms(obj, updateMe)
+            if nargin < 2
+                updateMe = [];
+            end
+
+            obj.computeMeanWaveforms(updateMe);
             obj.computeWaveformSim();
             obj.simScore = jrclust.utils.setDiag(obj.mrWavCor, obj.computeSelfSim());
         end
