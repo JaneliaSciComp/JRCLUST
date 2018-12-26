@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-function auto_split_(fMulti, S0)
+function S0 = auto_split_(fMulti, S0)
     % Auto-split feature that calls Hidehiko Inagaki's code
     % 20160426
     if nargin<1, fMulti = 0; end
@@ -62,5 +62,5 @@ function auto_split_(fMulti, S0)
             plot(vrX1(vlSpkIn), vrY1(vlSpkIn), 'b.', vrX1(~vlSpkIn), vrY1(~vlSpkIn), 'r.');
         end %switch
     end
-    split_clu_(iClu1, vlSpkIn);
+    S0.S_clu = split_clu_(iClu1, vlSpkIn);
 end %func

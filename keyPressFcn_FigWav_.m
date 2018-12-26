@@ -52,7 +52,8 @@ function S0 = keyPressFcn_FigWav_(hObject, event, S0) %amp dist
         [~,S0.iCluPaste] = max(mrWavCor(:,S0.iCluCopy));
         set(0, 'UserData', S0);
         button_CluWav_simulate_([], S0.iCluPaste);
-        case 's', auto_split_(1, S0);
+        case 's'
+            S0 = auto_split_(1, S0);
         case 'r' %reset view
         figure_wait_(1);
         axis_([0, S0.S_clu.nClu + 1, 0, numel(P.viSite2Chan) + 1]);
