@@ -762,7 +762,7 @@ classdef CurateController < handle
             if success
                 % save the new clustering
                 deleted = strjoin(arrayfun(@num2str, deleteMe, 'UniformOutput', false), ', ');
-                commitMsg = sprintf('%s: delete %s', datestr(now, 31), deleted);
+                commitMsg = sprintf('%s;delete;%s', datestr(now, 31), deleted);
                 obj.hClust.commit(commitMsg);
 
                 % replot
@@ -801,7 +801,7 @@ classdef CurateController < handle
             success = obj.hClust.mergeClusterPair(iCluster, jCluster);
             if success
                 % save the new clustering
-                commitMsg = sprintf('%s: merge %d into %d', datestr(now, 31), jCluster, iCluster);
+                commitMsg = sprintf('%s;merge;%d;%d', datestr(now, 31), iCluster, jCluster);
                 obj.hClust.commit(commitMsg);
 
                 % replot

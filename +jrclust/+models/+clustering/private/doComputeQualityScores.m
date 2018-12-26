@@ -4,8 +4,10 @@ function scores = doComputeQualityScores(hClust, updateMe)
         updateMe = [];
     end
 
-    t1 = tic;
-    fprintf('Calculating cluster quality...\n');
+    if hClust.hCfg.verbose
+        t1 = tic;
+        fprintf('Calculating cluster quality...\n');
+    end
 
     unitVmin = squeeze(min(hClust.meanWfGlobal));
     unitVmax = squeeze(max(hClust.meanWfGlobal));
@@ -114,5 +116,7 @@ function scores = doComputeQualityScores(hClust, updateMe)
     scores.unitVpp = unitVpp_;
     scores.unitVppRaw = unitVppRaw_;
 
-    fprintf('\ttook %0.1fs\n', toc(t1));
+    if hClust.hCfg.verbose
+        fprintf('\ttook %0.1fs\n', toc(t1));
+    end
 end

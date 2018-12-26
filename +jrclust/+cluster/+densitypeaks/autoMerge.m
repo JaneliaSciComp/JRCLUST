@@ -24,6 +24,7 @@ function autoMerge(hClust, hCfg, doAssign)
     hClust.computeCentroids();
     hClust.clearNotes();
     hClust.computeQualityScores();
-    hClust.commit('autoMerge');
+    commitMsg = sprintf('%s;autoMerge', datestr(now, 31));
+    hClust.commit(commitMsg);
 end
 
