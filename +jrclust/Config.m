@@ -185,6 +185,7 @@ classdef Config < handle & dynamicprops
         nShow_proj = 500;           % maximum number of features to show in projection
         nSitesFigProj = 5;          % number of sites to display in the feature projection view
         nSpk_show = 30;             % show spike waveforms for manual clustering
+        pcPair = [1 2];             % PC projection to show (1 vs 2; 1 vs 3; 2 vs 3), can be toggled
         showRaw = false;            % show raw waveforms in main view if true
         time_tick_show = [];        % 
         tLimFigProj = [];           % time range to display in feature view, in seconds
@@ -599,7 +600,7 @@ classdef Config < handle & dynamicprops
     methods
         % autoMergeBy/autoMergeCriterion
         function set.autoMergeBy(obj, am)
-            legalTypes = {'xcorr', 'dist'};
+            legalTypes = {'pearson', 'dist'};
             failMsg = sprintf('legal autoMergeBys are %s', strjoin(legalTypes, ', '));
             assert(sum(strcmp(am, legalTypes)) == 1, failMsg);
             obj.autoMergeBy = am;

@@ -65,13 +65,17 @@ function simScore = doComputeWaveformSim(hClust, updateMe_)
         scoreData.updateMe = false(hClust.nClusters, 1);
         scoreData.updateMe(updateMe_) = true;
         scoreData.simScoreOld = hClust.simScore;
-        scoreData.updateMe((1:hClust.nClusters) > size(simScoreOld, 1)) = true;
+        scoreData.updateMe((1:hClust.nClusters) > size(scoreData.simScoreOld, 1)) = true;
     end
-
+                    
     if fParfor
+        cfgSub = struct('siteNeighbors', hClust.hCfg.siteNeighbors, ...
+                    'siteLoc', hClust.hCfg.siteLoc, ...
+                    'evtDetectRad', hClust.hCfg.evtDetectRad, ...
+                    'autoMergeBy', hClust.hCfg.autoMergeBy);
         try
             parfor iCluster = 1:hClust.nClusters
-                pwCor = clusterWaveformSim(meanWfSet, clusterSites_, hClust.hCfg, scoreData, iCluster);
+                pwCor = clusterWaveformSim(meanWfSet, clusterSites_, cfgSub, scoreData, iCluster);
 
                 if ~isempty(pwCor)
                     simScore(:, iCluster) = pwCor;

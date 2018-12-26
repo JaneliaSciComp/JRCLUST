@@ -1,6 +1,24 @@
-function [sampledFeatures, sampledSpikes] = getDispFeaturesCluster(hClust, iCluster, iSite)
-    %GETDISPFEATURESCLUSTER Get display features for a cluster (or bg spikes) on a group of sites
-    %   TODO: there's some code redundancy between this and getDispFeatures
+function [dispFeatures, spikeTimesSecs, yLabel, dispSpikes] = getFigTimeFeatures(hClust, iSite, iCluster)
+    %GETFIGTIMEFEATURES Compute features to display in FigTime on iSite
+    if nargin < 3 % get features off of background spikes
+        iCluster = [];
+    end
+
+    hCfg = hClust.hCfg;
+    [dispFeatures, dispSpikes] = getClusterFeaturesSite(hClust, iSite, iCluster);
+    spikeTimesSecs = double(hClust.spikeTimes(dispSpikes))/hCfg.sampleRate;
+
+    if strcmp(hCfg.dispFeature, 'vpp')
+        yLabel = sprintf('Site %d (\\mu Vpp)', iSite);
+    else
+        yLabel = sprintf('Site %d (%s)', iSite, hCfg.dispFeature);
+    end
+end
+
+%% LOCAL FUNCTIONS
+function [sampledFeatures, sampledSpikes] = getClusterFeaturesSite(hClust, iSite, iCluster)
+    %GETCLUSTERFEATURESSITE Get display features for a cluster or
+    %background spikes on iSite
     MAX_SAMPLE = 10000; % max points to display
 
     hCfg = hClust.hCfg;
@@ -42,3 +60,4 @@ function [sampledFeatures, sampledSpikes] = getDispFeaturesCluster(hClust, iClus
 
     sampledFeatures = squeeze(abs(sampledFeatures));
 end
+

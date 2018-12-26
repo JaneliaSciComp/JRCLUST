@@ -87,7 +87,7 @@ function manual_(P, vcMode)
     close_(get_fig_('FigTrial')); %close previous FigTrial figure
     close_(get_fig_('FigTrial_b')); %close previous FigTrial figure
     S0 = button_CluWav_simulate_(1, [], S0); %select first clu
-    auto_scale_proj_time_(S0);
+    autoScaleProjTime(S0);
     S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'z'}, S0); %zoom
     %S0.cS_log = load_(strrep(P.vcFile_prm, '.prm', '_log.mat'), 'cS_log', 0);
     S_log = load_(strrep(P.vcFile_prm, '.prm', '_log.mat'), [], 0);

@@ -22,16 +22,22 @@ function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp)
 
     yData = zeros(nSamples * nSitesShow, nClusters, 'single');
     for iCluster = 1:nClusters
-        iSites = hCfg.siteNeighbors(:, hClust.clusterSites(iCluster))   ;
+        iSites = hCfg.siteNeighbors(:, hClust.clusterSites(iCluster));
         iWaveforms = waveforms(:, iSites, iCluster);
         iWaveforms = bsxfun(@plus, iWaveforms, single(iSites'));
         yData(:, iCluster) = iWaveforms(:);
     end
 
-    if ~hFigWav.hasPlot('Group1')
+    if ~hFigWav.hasPlot('hGroup1')
         plotGroup(hFigWav, xData, yData, 'LineWidth', hCfg.getOr('LineWidth', 1));
     else
-        updateGroup(hFigWav, xData, yData);
+        iGroup = 1;
+        while hFigWav.hasPlot(sprintf('hGroup%d', iGroup))
+            hFigWav.rmPlot(sprintf('hGroup%d', iGroup));
+            iGroup = iGroup + 1;
+        end
+        plotGroup(hFigWav, xData, yData, 'LineWidth', hCfg.getOr('LineWidth', 1));
+        %updateGroup(hFigWav, xData, yData);
     end
 
     hFigWav.axSet('YTick', 1:nSites, 'XTick', 1:nClusters);
@@ -40,14 +46,12 @@ end
 %% LOCAL FUNCTIONS
 function updateGroup(hFig, xData, yData)
     %UPDATE Update group-plotted data
-    iGroup = 1;
+    nGroups = sum(cellfun(@(c) ~isempty(c), regexp(keys(hFig.hPlots), '^hGroup\d')));
 
-    while hFig.hasPlot(sprintf('hGroup%d', iGroup))
-        iXData = xData(:, iPlot:nPlots:end);
-        iYData = yData(:, iPlot:nPlots:end);
-        hFig.updatePlot(sprintf('hGroup%d', iGroup), iXData, iYData);
-
-        iGroup = iGroup + 1;
+    for iGroup = 1:numel(nGroups)
+        iXData = xData(:, iGroup:nGroups:end);
+        iYData = yData(:, iGroup:nGroups:end);
+        hFig.updatePlot(sprintf('hGroup%d', iGroup), iXData(:), iYData(:));
     end
 end
 

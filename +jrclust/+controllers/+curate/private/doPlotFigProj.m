@@ -1,22 +1,9 @@
-function hFigProj = doPlotFigProj(hFigProj, hClust, hCfg, selected, maxAmp)
+function hFigProj = doPlotFigProj(hFigProj, hClust, sitesToShow, selected, boundScale)
     %DOPLOTFIGPROJ Plot feature projection figure
+    hCfg = hClust.hCfg;
+
     hFigProj.rmPlot('hSelect'); % clear select polygon
-    hFigProj.hidePlot('background'); % clear select polygon
-
-    iSite = hClust.clusterSites(selected(1));
-    
-    % limit the number of sites to display in the feature projection view
-    nSites = min(hCfg.nSitesFigProj, size(hCfg.siteNeighbors, 1)); % by request
-
-    % center sites around cluster center site
-    if nSites < size(hCfg.siteNeighbors, 1)
-        sitesToShow = iSite:iSite + nSites - 1;
-        if sitesToShow(end) > max(hCfg.siteMap) % correct for overshooting
-            sitesToShow = sitesToShow - max(sitesToShow) + max(hCfg.siteMap);
-        end
-    else
-        sitesToShow = sort(hCfg.siteNeighbors(:, iSite), 'ascend');
-    end
+    hFigProj.hidePlot('foreground2'); % clear secondary cluster spikes
 
     if strcmp(hCfg.dispFeature, 'vpp')
         xLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
@@ -30,6 +17,7 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, hCfg, selected, maxAmp)
     end
     figTitle = '[H]elp; [S]plit; [B]ackground; (Sft)[Up/Down]:Scale; [Left/Right]:Sites; [M]erge; [F]eature';
 
+    nSites = numel(sitesToShow);
     if isempty(hFigProj.figData)
         hFigProj.axes();
         hFigProj.axSet('Position', [.1 .1 .85 .85], 'XLimMode', 'manual', 'YLimMode', 'manual');
@@ -50,13 +38,16 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, hCfg, selected, maxAmp)
         hFigProj.figData.isPlotted = true;
     end
 
-    dispFeatures = getDispFeatures(hClust, hCfg, sitesToShow, selected);
-    bgYData = dispFeatures.bgY;
-    bgXData = dispFeatures.bgX;
-    fgYData = dispFeatures.fgY;
-    fgXData = dispFeatures.fgX;
-    fg2YData = dispFeatures.fg2Y;
-    fg2XData = dispFeatures.fg2X;
+    dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected);
+    bgYData = dispFeatures.bgYData;
+    bgXData = dispFeatures.bgXData;
+    fgYData = dispFeatures.fgYData;
+    fgXData = dispFeatures.fgXData;
+    fg2YData = dispFeatures.fg2YData;
+    fg2XData = dispFeatures.fg2XData;
+
+    % save these for autoscaling
+    hFigProj.figData.dispFeatures = dispFeatures;
 
 %     if ~isfield(hFigProj.figData, 'viSites_show')
 %         hFigProj.figData.viSites_show = [];
@@ -64,17 +55,17 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, hCfg, selected, maxAmp)
 
     %if ~equal_vr_(hFigProj.figData.viSites_show, hCfg.viSites_show) || ~equal_vr_(hFigProj.figData.dispFeature, hCfg.viSites_show)
     % plot background spikes
-    plotFeatures(hFigProj, 'background', bgYData, bgXData, maxAmp, hCfg);
+    plotFeatures(hFigProj, 'background', bgYData, bgXData, boundScale, hCfg);
     %end
 
     % plot foreground spikes
-    plotFeatures(hFigProj, 'foreground', fgYData, fgXData, maxAmp, hCfg);
+    plotFeatures(hFigProj, 'foreground', fgYData, fgXData, boundScale, hCfg);
     % plot secondary foreground spikes
     if numel(selected) == 2
-        plotFeatures(hFigProj, 'foreground2', fg2YData, fg2XData, maxAmp, hCfg);
+        plotFeatures(hFigProj, 'foreground2', fg2YData, fg2XData, boundScale, hCfg);
         figTitle = sprintf('Clu%d (black), Clu%d (red); %s', selected(1), selected(2), figTitle);
     else % or hide the plot
-        hFigProj.hidePlot('background');
+        hFigProj.hidePlot('foreground2');
         figTitle = sprintf('Clu%d (black); %s', selected(1), figTitle);
     end
 
@@ -83,8 +74,8 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, hCfg, selected, maxAmp)
     hFigProj.axSet('XTick', 0.5:1:nSites, 'YTick', 0.5:1:nSites, ...
                    'XTickLabel', sitesToShow, 'YTickLabel', sitesToShow, ...
                    'Box', 'off');
-    hFigProj.xlabel(sprintf(xLabel, maxAmp));
-    hFigProj.ylabel(sprintf(yLabel, maxAmp));
+    hFigProj.xlabel(sprintf(xLabel, boundScale));
+    hFigProj.ylabel(sprintf(yLabel, boundScale));
     hFigProj.title(figTitle);
 
     hFigProj.figData.csHelp = {'[D]raw polygon', ...

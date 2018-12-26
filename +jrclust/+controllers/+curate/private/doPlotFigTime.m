@@ -19,7 +19,7 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
 
         % rectangle plot
         rectPos = [timeLimits(1), maxAmp, diff(timeLimits), maxAmp];
-        hFigTime.addImrect('hRect', rectPos); % default position?
+        hFigTime.addImrect('hRect', rectPos);
         hFigTime.imrectFun('hRect', @setColor, 'r');
         hFigTime.imrectFun('hRect', @setPositionConstraintFcn, makeConstrainToRectFcn('imrect', timeLimits, [-4000 4000]));
 
@@ -29,12 +29,12 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
         end
     end
 
-    [bgFeatures, bgTimes] = getDispFeaturesSite(hClust, iSite); % plot background
-    [fgFeatures, fgTimes, yLabel] = getDispFeaturesSite(hClust, iSite, selected(1)); % plot primary selected cluster
+    [bgFeatures, bgTimes] = getFigTimeFeatures(hClust, iSite); % plot background
+    [fgFeatures, fgTimes, yLabel] = getFigTimeFeatures(hClust, iSite, selected(1)); % plot primary selected cluster
 
     figTitle = '[H]elp; (Sft)[Left/Right]:Sites/Features; (Sft)[Up/Down]:Scale; [B]ackground; [S]plit; [R]eset view; [P]roject; [M]erge; (sft)[Z] pos; [E]xport selected; [C]hannel PCA';
     if numel(selected) == 2
-        [fgFeatures2, fgTimes2] = getDispFeaturesSite(hClust, iSite, selected(2));
+        [fgFeatures2, fgTimes2] = getFigTimeFeatures(hClust, iSite, selected(2));
         figTitle = sprintf('Clu%d (black), Clu%d (red); %s', selected(1), selected(2), figTitle);
     else
         fgFeatures2 = [];
@@ -42,12 +42,12 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
         figTitle = sprintf('Clu%d (black); %s', selected(1), figTitle);
     end
 
-    vpp_lim = [0, abs(maxAmp)];
+    vppLim = [0, abs(maxAmp)];
 
     hFigTime.updatePlot('background', bgTimes, bgFeatures);
     hFigTime.updatePlot('foreground', fgTimes, fgFeatures);
     hFigTime.updatePlot('foreground2', fgTimes2, fgFeatures2);
-    imrect_set_(hFigTime, 'hRect', timeLimits, vpp_lim);
+    imrect_set_(hFigTime, 'hRect', timeLimits, vppLim);
 
 %     if isfield(S_fig, 'vhAx_track')
 %         toggleVisible_({S_fig.vhAx_track, S_fig.hPlot0_track, S_fig.hPlot1_track, S_fig.hPlot2_track}, 0);
@@ -59,7 +59,7 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
     end
 %     toggleVisible_(S_fig.hPlot0, S_fig.doPlotBG);
 
-    hFigTime.axis([timeLimits, vpp_lim]);
+    hFigTime.axis([timeLimits, vppLim]);
     hFigTime.title(figTitle);
     hFigTime.ylabel(yLabel);
 

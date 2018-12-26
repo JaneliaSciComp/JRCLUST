@@ -1,15 +1,9 @@
-function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg)
+function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
     %PLOTSPIKEWAVEFORMS Plot individual waveforms in the main view
     [xData, yData, showSites] = deal(cell(hClust.nClusters, 1));
 
     nSpikesCluster = zeros(hClust.nClusters, 1);
     siteNeighbors = hCfg.siteNeighbors(:, hClust.clusterSites);
-
-    if isfield(hFigWav.figData, 'maxAmp')
-        maxAmp = hFigWav.figData.maxAmp;
-    else
-        maxAmp = hCfg.maxAmp;
-    end
 
     for iCluster = 1:hClust.nClusters
         try
@@ -23,10 +17,11 @@ function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg)
                 iWaveforms = jrclust.utils.filtTouV(hClust.spikesFilt(:, :, iSpikes), hCfg);
             end
 
-            [yData{iCluster}, xData{iCluster}] = waveformsToPlot(iWaveforms, iCluster, iSites, maxAmp, hCfg);
+            [yData{iCluster}, xData{iCluster}] = wfToPlot(iWaveforms, iCluster, iSites, maxAmp, hCfg);
             showSites{iCluster} = iSites;
             nSpikesCluster(iCluster) = size(iWaveforms, 3);
         catch ME
+            warning(ME.identifier, 'Can''t plot cluster %d: %s', iCluster, ME.message);
         end
     end
 
@@ -38,8 +33,9 @@ function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg)
     end
 end
 
-function [yData, xData] = waveformsToPlot(waveforms, iCluster, iSites, maxAmp, hCfg)
-    %WAVEFORMSTOPLOT Scale and translate waveforms by cluster ID and site
+%% LOCAL FUNCTIONS
+function [yData, xData] = wfToPlot(waveforms, iCluster, iSites, maxAmp, hCfg)
+    %WFTOPLOT Scale and translate waveforms by cluster ID and site
     iCluster = double(iCluster);
 
     if isempty(iSites)
