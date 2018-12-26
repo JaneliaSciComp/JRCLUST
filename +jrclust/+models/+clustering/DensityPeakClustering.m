@@ -3,7 +3,6 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
     properties (SetAccess=protected, SetObservable)
         hCfg;               % Config object
-        isImport;           % did we import from v3?
     end
 
     %% DETECTION/CLUSTERING RESULTS
@@ -125,13 +124,14 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             obj.dRes = dRes;
             obj.hCfg = hCfg;
             obj.history = cell(0, 2);
-            %obj.tryImport(sRes);
+            isImport = obj.tryImport(sRes);
 
-            %if ~obj.isImport
-            obj.sRes = sRes;
+            if ~isImport
+                obj.sRes = sRes;
+                obj.spikeClusters = obj.initialClustering;
+            end
 
             % these fields are mutable so we need to store copies in obj
-            obj.spikeClusters = obj.initialClustering;
             if isfield(sRes, 'clusterCenters')
                 obj.clusterCenters = sRes.clusterCenters;
             else
@@ -143,10 +143,11 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 obj.clusterCentroids = [];
             end
 
-            obj.clearNotes();
-            obj.refresh(true, []);
-            obj.commit('initial commit');
-            %end
+            if ~isImport
+                obj.clearNotes();
+                obj.refresh(true, []);
+                obj.commit('initial commit');
+            end
         end
     end
 
@@ -159,16 +160,22 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             end
 
             if isempty(iCluster)
-                fprintf('Computing self correlation\n\t');
-                t1 = tic;
+                if obj.hCfg.verbose
+                    fprintf('Computing self correlation\n\t');
+                    t1 = tic;
+                end
 
                 selfSim = zeros(1, obj.nClusters);
                 for iCluster = 1:obj.nClusters
                     selfSim(iCluster) = doComputeSelfSim(obj, iCluster);
-                    fprintf('.');
+                    if obj.hCfg.verbose
+                        fprintf('.');
+                    end
                 end
 
-                fprintf('\n\ttook %0.1fs\n', toc(t1));
+                if obj.hCfg.verbose
+                    fprintf('\n\ttook %0.1fs\n', toc(t1));
+                end
             else
                 selfSim = doComputeSelfSim(obj, iCluster);
             end
@@ -274,15 +281,16 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
         end
 
         function subsetFields(obj, keepMe)
-            %SELECT Subset all data fields, taking only those indices we want to keep
+            %SELECT Subset all data fields, taking only those indices we
+            %want to keep
             % subset vector fields
-            if ~isempty(obj.clusterCenters) % ?
+            if ~isempty(obj.clusterCenters)
                 obj.clusterCenters = obj.clusterCenters(keepMe);
             end
-            if ~isempty(obj.clusterCounts) % ?
+            if ~isempty(obj.clusterCounts)
                 obj.clusterCounts = obj.clusterCounts(keepMe);
             end
-            if ~isempty(obj.clusterSites) % ?
+            if ~isempty(obj.clusterSites)
                 obj.clusterSites = obj.clusterSites(keepMe);
             end
             if ~isempty(obj.nSitesOverThresh)
@@ -317,7 +325,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             end
 
             % subset matrix fields
-            if ~isempty(obj.clusterCentroids) % nClusters x 2 %?
+            if ~isempty(obj.clusterCentroids) % nClusters x 2
                 obj.clusterCentroids = obj.clusterCentroids(keepMe, :);
             end
             if ~isempty(obj.simScore) % nClusters x nClusters
@@ -353,89 +361,84 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             end
         end
 
-        function tryImport(obj, sRes)
+        function success = tryImport(obj, sRes)
             reqFields = {'spikeClusters', 'spikeRho', 'spikeDelta', ...
                          'spikeNeigh', 'ordRho', 'clusterCenters', ...
                          'initialClustering', 'clusterNotes'};
             if all(ismember(reqFields, fieldnames(sRes)))
                 obj.spikeClusters = double(sRes.spikeClusters);
-                obj.clusterCenters = sRes.clusterCenters;
-                if ~isfield(sRes, 'ordRho')
-                    [~, sRes.ordRho] = sort(obj.spikeRho, 'descend');
-                end
+                % object takes initalClustering from sRes.spikeClusters
                 if isfield(sRes, 'initialClustering')
                     sRes.spikeClusters = double(sRes.initialClustering);
                 end
 
+                if ~isfield(sRes, 'ordRho')
+                    [~, sRes.ordRho] = sort(obj.spikeRho, 'descend');
+                end
+
+                % mean waveforms
+                meanFields = {'meanWfGlobal', 'meanWfGlobalRaw', 'meanWfLocal', ...
+                              'meanWfLocalRaw', 'meanWfRawHigh', 'meanWfRawLow'};
+                for i = 1:numel(meanFields)
+                    mf = meanFields{i};
+                    if isfield(sRes, mf)
+                        obj.(mf) = sRes.(mf);
+                    end
+                end
+
+                % cluster-wise summaries
+                sumFields = {'clusterCounts', 'clusterSites', 'spikesByCluster'};
+                for i = 1:numel(sumFields)
+                    mf = sumFields{i};
+                    if isfield(sRes, mf)
+                        obj.(mf) = sRes.(mf);
+                    end
+                end
+
+                % quality scores
+                qualFields = {'nSitesOverThresh', 'siteRMS', 'unitISIRatio', ...
+                              'unitIsoDist', 'unitLRatio', 'unitPeaks', ...
+                              'unitPeaksRaw', 'unitSNR', 'unitVpp', 'unitVppRaw'};
+                for i = 1:numel(qualFields)
+                    mf = qualFields{i};
+                    if isfield(sRes, mf)
+                        obj.(mf) = sRes.(mf);
+                    end
+                end
+
+                % sim score
                 if isfield(sRes, 'simScore')
                     obj.simScore = sRes.simScore;
+                else
+                    obj.simScore = doComputeWaveformSim(obj, []);
                 end
-                if isfield(sRes, 'meanWfGlobal')
-                    obj.meanWfGlobal = sRes.meanWfGlobal;
-                end
-                if isfield(sRes, 'meanWfGlobalRaw')
-                    obj.meanWfGlobalRaw = sRes.meanWfGlobalRaw;
-                end
-                if isfield(sRes, 'meanWfLocal')
-                    obj.meanWfLocal = sRes.meanWfLocal;
-                end
-                if isfield(sRes, 'meanWfLocalRaw')
-                    obj.meanWfLocalRaw = sRes.meanWfLocalRaw;
-                end
-                if isfield(sRes, 'meanWfRawHigh')
-                    obj.meanWfRawHigh = sRes.meanWfRawHigh;
-                end
-                if isfield(sRes, 'meanWfRawLow')
-                    obj.meanWfRawLow = sRes.meanWfRawLow;
-                end
-                if isfield(sRes, 'clusterSites')
-                    obj.clusterSites = sRes.clusterSites;
-                end
-                if isfield(sRes, 'unitPeakSites')
-                    obj.unitPeakSites = sRes.unitPeakSites;
-                end
-                if isfield(sRes, 'nSitesOverThresh')
-                    obj.nSitesOverThresh = sRes.nSitesOverThresh;
-                end
-                if isfield(sRes, 'clusterCounts')
-                    obj.clusterCounts = sRes.clusterCounts;
-                end
-                if isfield(sRes, 'unitISIRatio')
-                    obj.unitISIRatio = sRes.unitISIRatio;
-                end
-                if isfield(sRes, 'unitIsoDist')
-                    obj.unitIsoDist = sRes.unitIsoDist;
-                end
-                if isfield(sRes, 'unitLRatio')
-                    obj.unitLRatio = sRes.unitLRatio;
-                end
-                if isfield(sRes, 'clusterCentroids')
-                    obj.clusterCentroids = sRes.clusterCentroids;
-                end
-                if isfield(sRes, 'unitSNR')
-                    obj.unitSNR = sRes.unitSNR;
-                end
-                if isfield(sRes, 'unitPeaks')
-                    obj.unitPeaks = sRes.unitPeaks;
-                end
-                if isfield(sRes, 'unitPeaksRaw')
-                    obj.unitPeaksRaw = sRes.unitPeaksRaw;
-                end
-                if isfield(sRes, 'unitVpp')
-                    obj.unitVpp = sRes.unitVpp;
-                end
-                if isfield(sRes, 'unitVppRaw')
-                    obj.unitVppRaw = sRes.unitVppRaw;
-                end
-                if isfield(sRes, 'siteRMS')
-                    obj.siteRMS = sRes.siteRMS;
+
+                if isfield(sRes, 'clusterNotes')
+                    obj.clusterNotes = sRes.clusterNotes;
+                else
+                    obj.clearNotes();
                 end
 
                 obj.sRes = sRes;
+                % any mean waveform fields empty? recompute
+                if any(cellfun(@(f) isempty(obj.(f)), meanFields))
+                    obj.updateWaveforms([]);
+                end
 
-                obj.isImport = true;
-                obj.refresh(true, []);
+                % any summary fields empty? refresh
+                if any(cellfun(@(f) isempty(obj.(f)), sumFields))
+                    obj.refresh(true, []);
+                end
+
+                % any quality scores empty? recompute
+                if any(cellfun(@(f) isempty(obj.(f)), qualFields))
+                    obj.computeQualityScores();
+                end
                 obj.commit('initial import');
+
+                success = true;
+            else
+                success = false;
             end
         end
     end
@@ -595,9 +598,10 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 return;
             end
 
-            obj.hCfg.useGPU = false; % disable GPU for this
+            %obj.hCfg.useGPU = false; % disable GPU for this
             obj.simScore = doComputeWaveformSim(obj, updateMe);
-            obj.hCfg.useGPU = true; % disable GPU for this
+            obj.simScore = jrclust.utils.setDiag(obj.simScore, obj.computeSelfSim());
+            %obj.hCfg.useGPU = true; % disable GPU for this
         end
 
         function computeQualityScores(obj, updateMe)
@@ -780,9 +784,8 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 return;
             end
 
-            if iCluster > jCluster % merge into the smaller of the two
-                [iCluster, jCluster] = deal(jCluster, iCluster);
-            end
+            % keep the smaller of the two and shift others left by one
+            [iCluster, jCluster] = deal(min(iCluster, jCluster), max(iCluster, jCluster));
 
             clustersBak = obj.spikeClusters;
             obj.spikeClusters(obj.spikeClusters == jCluster) = iCluster;
@@ -1110,11 +1113,6 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
             obj.computeMeanWaveforms(updateMe);
             obj.computeWaveformSim(updateMe);
-            if isempty(updateMe)
-                obj.simScore = jrclust.utils.setDiag(obj.mrWavCor, obj.computeSelfSim());
-            else
-                obj.simScore(updateMe, updateMe) = obj.computeSelfSim(updateMe);
-            end
         end
     end
 

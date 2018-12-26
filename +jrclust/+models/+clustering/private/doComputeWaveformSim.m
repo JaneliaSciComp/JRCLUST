@@ -1,4 +1,4 @@
-function simScore = doComputeWaveformSim(hClust, updateMe_)
+function simScore = doComputeWaveformSim(hClust, updateMe)
     %COMPWFSIM Compute waveform-based similarity scores for all clusters
     % these guys are not in the default param set, but can be overridden if you really want
     fUsePeak2 = hClust.hCfg.getOr('fUsePeak2', false);
@@ -56,14 +56,14 @@ function simScore = doComputeWaveformSim(hClust, updateMe_)
     scoreData = struct('cviShift1', {cviShift1}, ...
                       'cviShift2', {cviShift2}, ...
                       'fMode_cor', fMode_cor);
-    if isempty(updateMe_)
+    if isempty(updateMe)
         fParfor = true;
         scoreData.updateMe = true(hClust.nClusters, 1);
         scoreData.simScoreOld = [];
     else
         fParfor = false;
         scoreData.updateMe = false(hClust.nClusters, 1);
-        scoreData.updateMe(updateMe_) = true;
+        scoreData.updateMe(updateMe) = true;
         scoreData.simScoreOld = hClust.simScore;
         scoreData.updateMe((1:hClust.nClusters) > size(scoreData.simScoreOld, 1)) = true;
     end
@@ -81,8 +81,8 @@ function simScore = doComputeWaveformSim(hClust, updateMe_)
                     simScore(:, iCluster) = pwCor;
                 end
             end
-        catch
-            fprintf('computeWaveformSim: parfor failed. retrying for loop\n');
+        catch ME
+            warning(ME.identifier, 'computeWaveformSim: parfor failed: %s', ME.messsage);
             fParfor = false;
         end
     end
