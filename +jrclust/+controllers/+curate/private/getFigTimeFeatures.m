@@ -1,4 +1,4 @@
-function [dispFeatures, spikeTimesSecs, yLabel, dispSpikes] = getFigTimeFeatures(hClust, iSite, iCluster)
+function [dispFeatures, spikeTimesSecs, YLabel, dispSpikes] = getFigTimeFeatures(hClust, iSite, iCluster)
     %GETFIGTIMEFEATURES Compute features to display in FigTime on iSite
     if nargin < 3 % get features off of background spikes
         iCluster = [];
@@ -9,9 +9,9 @@ function [dispFeatures, spikeTimesSecs, yLabel, dispSpikes] = getFigTimeFeatures
     spikeTimesSecs = double(hClust.spikeTimes(dispSpikes))/hCfg.sampleRate;
 
     if strcmp(hCfg.dispFeature, 'vpp')
-        yLabel = sprintf('Site %d (\\mu Vpp)', iSite);
+        YLabel = sprintf('Site %d (\\mu Vpp)', iSite);
     else
-        yLabel = sprintf('Site %d (%s)', iSite, hCfg.dispFeature);
+        YLabel = sprintf('Site %d (%s)', iSite, hCfg.dispFeature);
     end
 end
 

@@ -2,40 +2,42 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, sitesToShow, selected, bound
     %DOPLOTFIGPROJ Plot feature projection figure
     hCfg = hClust.hCfg;
 
-    hFigProj.rmPlot('hSelect'); % clear select polygon
     hFigProj.hidePlot('foreground2'); % clear secondary cluster spikes
 
     if strcmp(hCfg.dispFeature, 'vpp')
-        xLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
-        yLabel = 'Site # (%0.0f \\muV_{min})';    
-    elseif ismember(hCfg.dispFeature, {'kilosort', 'pca', 'gpca', 'ppca'})
-        xLabel = sprintf('Site # (PC %d)', 1); % fix this in post
-        yLabel = sprintf('Site # (PC %d)', 2);
+        XLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
+        YLabel = 'Site # (%0.0f \\muV_{min})';
+    elseif ismember(hCfg.dispFeature, {'kilosort', 'pca', 'ppca'})
+        XLabel = sprintf('Site # (PC %d)', hCfg.pcPair(1));
+        YLabel = sprintf('Site # (PC %d)', hCfg.pcPair(2));
     else
-        xLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', hCfg.dispFeature, hCfg.dispFeature, hCfg.dispFeature);
-        yLabel = sprintf('Site # (%%0.0f %s)', hCfg.dispFeature);
+        XLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', hCfg.dispFeature, hCfg.dispFeature, hCfg.dispFeature);
+        YLabel = sprintf('Site # (%%0.0f %s)', hCfg.dispFeature);
     end
     figTitle = '[H]elp; [S]plit; [B]ackground; (Sft)[Up/Down]:Scale; [Left/Right]:Sites; [M]erge; [F]eature';
 
     nSites = numel(sitesToShow);
     if isempty(hFigProj.figData)
         hFigProj.axes();
-        hFigProj.axSet('Position', [.1 .1 .85 .85], 'XLimMode', 'manual', 'YLimMode', 'manual');
+        hFigProj.axApply(@set, 'Position', [.1 .1 .85 .85], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
-        hFigProj.addLine('background',  nan, nan, 'Color', hCfg.mrColor_proj(1, :));
-        hFigProj.addLine('foreground',  nan, nan, 'Color', hCfg.mrColor_proj(2, :)); % placeholder
-        hFigProj.addLine('foreground2', nan, nan, 'Color', hCfg.mrColor_proj(3, :)); % placeholder
+        hFigProj.addPlot('background', @line, nan, nan, 'Color', hCfg.mrColor_proj(1, :));
+        hFigProj.addPlot('foreground', @line, nan, nan, 'Color', hCfg.mrColor_proj(2, :)); % placeholder
+        hFigProj.addPlot('foreground2', @line,  nan, nan, 'Color', hCfg.mrColor_proj(3, :)); % placeholder
         
         plotStyle = {'Marker', 'o', 'MarkerSize', 1, 'LineStyle', 'none'};
-        hFigProj.plotSet('background', plotStyle{:});
-        hFigProj.plotSet('foreground', plotStyle{:});
-        hFigProj.plotSet('foreground2', plotStyle{:});
+        hFigProj.plotApply('background', @set, plotStyle{:});
+        hFigProj.plotApply('foreground', @set, plotStyle{:});
+        hFigProj.plotApply('foreground2', @set, plotStyle{:});
 
         % plot boundary
         hFigProj.addTable('hTable', [0, nSites], '-', 'Color', [.5 .5 .5]);
         hFigProj.addDiag('hDiag', [0, nSites], '-', 'Color', [0 0 0], 'LineWidth', 1.5);
         hFigProj.setHideOnDrag('background');
+
+        % save for later
         hFigProj.figData.isPlotted = true;
+        hFigProj.figData.boundScale = boundScale;
     end
 
     dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected);
@@ -71,12 +73,12 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, sitesToShow, selected, bound
 
     % Annotate axes
     hFigProj.axis([0 nSites 0 nSites]);
-    hFigProj.axSet('XTick', 0.5:1:nSites, 'YTick', 0.5:1:nSites, ...
-                   'XTickLabel', sitesToShow, 'YTickLabel', sitesToShow, ...
-                   'Box', 'off');
-    hFigProj.xlabel(sprintf(xLabel, boundScale));
-    hFigProj.ylabel(sprintf(yLabel, boundScale));
-    hFigProj.title(figTitle);
+    hFigProj.axApply(@set, 'XTick', 0.5:1:nSites, 'YTick', 0.5:1:nSites, ...
+                     'XTickLabel', sitesToShow, 'YTickLabel', sitesToShow, ...
+                    'Box', 'off');
+    hFigProj.axApply(@xlabel, sprintf(XLabel, boundScale));
+    hFigProj.axApply(@ylabel, sprintf(YLabel, boundScale));
+    hFigProj.axApply(@title, figTitle, 'Interpreter', 'none', 'FontWeight', 'normal');
 
     hFigProj.figData.csHelp = {'[D]raw polygon', ...
                     '[S]plit cluster', ...
@@ -88,16 +90,13 @@ end
 
 %% LOCAL FUNCTIONS
 function plotFeatures(hFigProj, plotKey, featY, featX, boundScale, hCfg)
-%     switch lower(P.dispFeature)
-%         case 'vpp'
-%             bounds = maxAmp*[0 1];
-% 
-%         otherwise
-%             % round up to nearest 50 on either side of 0
-%             bounds = maxAmp*[-1 1];
-%     end
+    %PLOTFEATURES Plot features in a grid
+    if strcmp(hCfg.dispFeature, 'vpp')
+        bounds = boundScale*[0 1];
+    else
+        bounds = boundScale*[-1 1];
+    end
 
-    bounds = boundScale*[0 1];
     [XData, YData] = ampToProj(featY, featX, bounds, hCfg.nSiteDir, hCfg);
     hFigProj.updatePlot(plotKey, XData, YData);
 end

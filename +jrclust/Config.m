@@ -740,9 +740,14 @@ classdef Config < handle & dynamicprops
             elseif strcmp(df, 'spacetime')
                 df = 'cov';
             end
+
             legalTypes = {'cov', 'kilosort', 'pca', 'ppca', 'vpp'};
             failMsg = sprintf('legal dispFeatures are %s', strjoin(legalTypes, ', '));
             assert(ismember(df, legalTypes), failMsg);
+
+            if ~strcmp(df, 'pca') % reset pcPair
+                obj.pcPair = [1 2]; %#ok<MCSUP>
+            end
             obj.dispFeature = df;
         end
         function df = get.vcFet_show(obj)

@@ -9,7 +9,12 @@ function [prVecs1, prVecs2, prVecs3] = getPVSpikes(sampledWindows)
 %         mrPv2 = repmat(mrPv_global(:,2), [1, nSites]);
 %     else
 
-    [nSamples, ~, nSites] = size(sampledWindows, 1);
+    if ismatrix(sampledWindows)
+        nSamples = size(sampledWindows, 1);
+        nSites = 1;
+    else
+        [nSamples, ~, nSites] = size(sampledWindows);
+    end
 
     [prVecs1, prVecs2, prVecs3] = deal(zeros(nSamples, nSites, 'single'));
     for iSite = 1:nSites

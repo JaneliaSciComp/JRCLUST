@@ -37,7 +37,7 @@ function hCFig = RDPreview(hClust)
                                'Value', 2, ...
                                'Position', [175, 0, 100, 30], ...
                                'Callback', @setProjection);
-    hCFig.title('Projections of spikes onto features');
+    hCFig.axApply(@title, 'Projections of spikes onto features', 'Interpreter', 'none', 'FontWeight', 'normal');
     hFigRD = jrclust.views.Figure('FigRD', [0.55 0 0.4 0.5], ['Cluster rho-delta: ', hClust.hCfg.sessionName], false, false);
 
     hFigWav = jrclust.views.Figure('FigWav', [0.55 0.5 0.4 0.5], ['Filtered traces: ', hClust.hCfg.sessionName], false, false);
@@ -225,7 +225,7 @@ function hCFig = RDPreview(hClust)
 
 	function plotFeatures()
         hCFig.cla();
-        hCFig.hold('on');
+        hCFig.axApply(@hold, 'on');
 
         %siteSpikes = [hClust.spikesBySite{site}; hClust.spikesBySite2{site}];
         siteSpikes = hClust.spikesBySite{currentSite};
@@ -235,28 +235,28 @@ function hCFig = RDPreview(hClust)
         % set XData
         if strcmp(cproj{2}, 'amp')
             XData = hClust.spikeAmps(siteSpikes);
-            hCFig.xlabel('Amplitude');
+            hCFig.axApply(@xlabel, 'Amplitude');
         elseif strcmp(cproj{2}, 'time')
             XData = hClust.spikeTimes(siteSpikes);
-            hCFig.xlabel('Time');
+            hCFig.axApply(@xlabel, 'Time');
         elseif startsWith(cproj{2}, 'PC')
             nSitesRad = hClust.hCfg.nSitesEvt;
             whichPc = str2double(strrep(cproj{2}, 'PC', ''));
             iPc = (whichPc-1)*nSitesRad + whichPc;
             XData = squeeze(hClust.spikeFeatures(iPc, 1, hClust.spikesBySite{currentSite}));
-            hCFig.xlabel(cproj{2});
+            hCFig.axApply(@xlabel, cproj{2});
         end
 
         % set YData
         if strcmp(cproj{1}, 'amp')
             YData = hClust.spikeAmps(siteSpikes);
-            hCFig.ylabel('Amplitude');
+            hCFig.axApply(@ylabel, 'Amplitude');
         elseif startsWith(cproj{1}, 'PC')
             nSitesRad = hClust.hCfg.nSitesEvt;
             whichPc = str2double(strrep(cproj{1}, 'PC', ''));
             iPc = (whichPc-1)*nSitesRad + whichPc;
             YData = squeeze(hClust.spikeFeatures(iPc, 1, hClust.spikesBySite{currentSite}));
-            hCFig.ylabel(cproj{1});
+            hCFig.axApply(@ylabel, cproj{1});
         end
 
         uniqueClusters = cellfun(@(c) str2double(strrep(c, 'Cluster ', '')), ucStr, 'UniformOutput', true);
@@ -266,7 +266,7 @@ function hCFig = RDPreview(hClust)
             mask = jrclust.utils.subsample(find(spikeClusters == cluster), 1000); %#ok<*FNDSB>
             hCFig.addPlot(sprintf('s%dc%d', currentSite, cluster), XData(mask), YData(mask), '.');
         end
-        hCFig.hold('off');
+        hCFig.axApply(@hold, 'off');
         hCFig.toForeground();
         legend(ucStr(selectedClusters));
     end
@@ -293,19 +293,19 @@ function hCFig = RDPreview(hClust)
         mask = jrclust.utils.subsample(1:numel(rho), ceil(3*numel(rho)/5));
 
         hFigRD.addPlot('allSpikes', rho(mask), delta(mask), '.');
-        hFigRD.hold('on');
+        hFigRD.axApply(@hold, 'on');
 
         hFigRD.axis('tight');
         hFigRD.axis([min(jrclust.utils.nanlog10(hClust.spikeRho)) ...
                      max(jrclust.utils.nanlog10(hClust.spikeRho)) ...
                      min(jrclust.utils.nanlog10(hClust.spikeDelta)) ...
                      max(jrclust.utils.nanlog10(hClust.spikeDelta)) + 1]);
-        hFigRD.axSet('XScale', 'linear', 'YScale', 'linear');
+        hFigRD.axApply(@set, 'XScale', 'linear', 'YScale', 'linear');
 
         % show rho/delta cutoff lines
-        hFigRD.addPlot('RDCuts', hClust.hCfg.log10RhoCut * [1 1], hFigRD.axGet('YLim'), 'r--', ...
-                       hFigRD.axGet('XLim'), hClust.hCfg.log10DeltaCut*[1, 1], 'r--');
-        hFigRD.grid('on');
+        hFigRD.addPlot('RDCuts', hClust.hCfg.log10RhoCut * [1 1], hFigRD.axApply(@get, 'YLim'), 'r--', ...
+                       hFigRD.axApply(@get, 'XLim'), hClust.hCfg.log10DeltaCut*[1, 1], 'r--');
+        hFigRD.axApply(@grid, 'on');
 
         % label cluster centers
         if ~isempty(hClust.clusterCenters)
@@ -316,20 +316,20 @@ function hCFig = RDPreview(hClust)
         hFigRD.addPlot('centers', centersX, centersY, 'r.');
 
         % set labels
-        hFigRD.xlabel('log10 rho');
+        hFigRD.axApply(@xlabel, 'log10 rho');
         if fDetrend
-            hFigRD.ylabel('log10 delta (detrended)');
+            hFigRD.axApply(@ylabel, 'log10 delta (detrended)');
         else
-            hFigRD.ylabel('log10 delta');
+            hFigRD.axApply(@ylabel, 'log10 delta');
         end
-        hFigRD.title(sprintf('rho-cut: %f, delta-cut: %f', hClust.hCfg.log10RhoCut, hClust.hCfg.log10DeltaCut));
+        hFigRD.axApply(@title, sprintf('rho-cut: %f, delta-cut: %f', hClust.hCfg.log10RhoCut, hClust.hCfg.log10DeltaCut), 'Interpreter', 'none', 'FontWeight', 'normal');
 
         drawnow;
     end
 
     function plotWaves()
         hFigWav.cla();
-        hFigWav.hold('on');
+        hFigWav.axApply(@hold, 'on');
 
         siteSpikes = hClust.spikesBySite{currentSite};
         spikeClusters = hClust.spikeClusters(siteSpikes);
@@ -345,7 +345,7 @@ function hCFig = RDPreview(hClust)
             mask = jrclust.utils.subsample(find(spikeClusters == cluster), 100);
             hFigWav.addPlot(sprintf('s%dc%d', currentSite, cluster), 1:nSamples, offset*(iCluster-1) + YData(:, mask));
         end
-        hFigWav.hold('off');
+        hFigWav.axApply(@hold, 'off');
         hFigWav.toForeground();
         legend(ucStr(selectedClusters));
     end

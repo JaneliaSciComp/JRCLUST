@@ -1,10 +1,10 @@
 classdef Figure < handle
     %FIGURE handle for JRCLUST manual figure
     %   Base class for specific figure types
-
     properties (SetAccess=protected, Hidden, SetObservable)
         hFig;           % Figure object
         hPlots;         % hashmap of current plots (return value of `plot`)
+        hSubplots;      % hashmap of current subplots (return value of `subplot`)
     end
 
     properties (Dependent, SetObservable)
@@ -22,7 +22,8 @@ classdef Figure < handle
     end
 
     properties (Hidden, SetAccess=protected)
-        hideOnDrag;     % cell of plotKeys which we want to hide when we drag
+        hideOnDrag;     % plotKeys to hide when we drag
+        hideOnDragOff;  % plotKeys normally hidden on drag and manually toggled off
         isMouseable;
         isWaiting;      % are we waiting on an operation to complete?
         mouseStatus;
@@ -54,8 +55,10 @@ classdef Figure < handle
             end
 
             obj.hPlots = containers.Map();
+            obj.hSubplots = containers.Map();
 
             obj.hideOnDrag = {};
+            obj.hideOnDragOff = {};
             obj.isMouseable = false;
             obj.isWaiting = false;
         end
@@ -69,8 +72,8 @@ classdef Figure < handle
             scrolls = varargin{2}.VerticalScrollCount;
 
             % get original limits
-            xlim = get(hAx, 'xlim'); 
-            ylim = get(hAx, 'ylim');
+            XLim = get(hAx, 'XLim'); 
+            YLim = get(hAx, 'YLim');
 
             % get the current camera position, and save the [z]-value
             camPosZ = get(hAx, 'CameraPosition'); 
@@ -103,15 +106,15 @@ classdef Figure < handle
 
             % zooming with the camera has the side-effect of
             % NOT adjusting the axes limits. We have to correct for this:
-            xlim1 = (oldPos(1, 1) - min(xlim))/zfX;
-            xlim2 = (max(xlim) - oldPos(1, 1))/zfX;
-            xlim  = [oldPos(1,1) - xlim1, oldPos(1,1) + xlim2];
-            set(hAx, 'xlim', xlim);
+            xlim1 = (oldPos(1, 1) - min(XLim))/zfX;
+            xlim2 = (max(XLim) - oldPos(1, 1))/zfX;
+            XLim  = [oldPos(1,1) - xlim1, oldPos(1,1) + xlim2];
+            set(hAx, 'XLim', XLim);
 
-            ylim1 = (oldPos(1,2) - min(ylim))/zfY;
-            ylim2 = (max(ylim) - oldPos(1,2))/zfY;
-            ylim  = [oldPos(1,2) - ylim1, oldPos(1,2) + ylim2];            
-            set(hAx, 'ylim', ylim);
+            ylim1 = (oldPos(1,2) - min(YLim))/zfY;
+            ylim2 = (max(YLim) - oldPos(1,2))/zfY;
+            YLim  = [oldPos(1,2) - ylim1, oldPos(1,2) + ylim2];            
+            set(hAx, 'YLim', YLim);
 
             % set new camera position
             newPos = get(hAx, 'CurrentPoint');
@@ -159,19 +162,19 @@ classdef Figure < handle
             % get current location (in pixels)
             curPoint = get(hAx, 'CurrentPoint');
             % get current XY-limits
-            xlim = get(hAx, 'xlim');
-            ylim = get(hAx, 'ylim');
+            XLim = get(hAx, 'XLim');
+            YLim = get(hAx, 'YLim');
 
             % find change in position
             dPoints = curPoint - obj.prevPoint;
 
             % adjust limits
-            xlimNew = xlim - dPoints(1);
-            ylimNew = ylim - dPoints(3);
+            XlimNew = XLim - dPoints(1);
+            YLimNew = YLim - dPoints(3);
 
             % set new limits
-            set(hAx, 'xlim', xlimNew);
-            set(hAx, 'ylim', ylimNew);
+            set(hAx, 'XLim', XlimNew);
+            set(hAx, 'YLim', YLimNew);
 
             % save new position
             obj.prevPoint = get(hAx, 'CurrentPoint');
@@ -189,13 +192,13 @@ classdef Figure < handle
                 return;
             end
 
-            obj.toggleVisible(obj.hideOnDrag, 0);
+            obj.toggleVisible(obj.hideOnDrag, false);
         end
 
         function showDrag(obj)
             %SHOWDRAG Show figures after drag release
             try 
-                obj.toggleVisible(obj.hideOnDrag, 1);
+                obj.toggleVisible(obj.hideOnDrag, true);
             catch
             end
         end
@@ -204,38 +207,27 @@ classdef Figure < handle
 
     %% USER METHODS
     methods
-        function addBar(obj, plotKey, varargin)
-            %ADDBAR Create and store a bar graph
-            if obj.isReady
-                hAx = obj.gca();
-                if isempty(hAx)
-                    obj.toForeground();
-                    obj.hPlots(plotKey) = bar(varargin{:});
-                else
-                    obj.hPlots(plotKey) = bar(hAx, varargin{:});
-                end
-
-                if obj.isMouseable
-                    obj.setMouseable();
-                end
-            end
-        end
-
         function addDiag(obj, plotKey, lim, varargin)
             %ADDDIAG
-            [xVals, yVals] = getDiagXY(lim);
-            obj.addPlot(plotKey, xVals, yVals, varargin{:});
+            [XVals, YVals] = getDiagXY(lim);
+            obj.addPlot(plotKey, XVals, YVals, varargin{:});
         end
 
-        function addImagesc(obj, plotKey, varargin)
-            %ADDLINE Create and store an image with scaled colors
+        function addPlot(obj, plotKey, hPlotFun, varargin)
+            %ADDPLOT Create and store a plot
+            if ~isa(hPlotFun, 'function_handle')
+                varargin{end+1} = [];
+                varargin(2:end) = varargin(1:end-1);
+                varargin{1} = hPlotFun;
+                hPlotFun = @plot;
+            end
             if obj.isReady
                 hAx = obj.gca();
                 if isempty(hAx)
                     obj.toForeground();
-                    obj.hPlots(plotKey) = imagesc(varargin{:});
+                    obj.hPlots(plotKey) = hPlotFun(varargin{:});
                 else
-                    obj.hPlots(plotKey) = imagesc(hAx, varargin{:});
+                    obj.hPlots(plotKey) = hPlotFun(hAx, varargin{:});
                 end
 
                 if obj.isMouseable
@@ -244,88 +236,14 @@ classdef Figure < handle
             end
         end
 
-        function addImrect(obj, plotKey, varargin)
-            %ADDIMRECT Create and store a draggable rectangle
+        function addSubplot(obj, plotKey, nRows, nCols)
+            %ADDSUBPLOTGRID Create and store axes in tiled positions
             if obj.isReady
-                hAx = obj.gca();
-                if isempty(hAx)
-                    obj.toForeground();
-                    obj.hPlots(plotKey) = imrect(varargin{:});
-                else
-                    obj.hPlots(plotKey) = imrect(hAx, varargin{:});
+                sp = matlab.graphics.axis.Axes.empty(nRows*nCols, 0);
+                for i = 1:nRows*nCols
+                    sp(i) = subplot(nRows, nCols, i);
                 end
-
-                if obj.isMouseable
-                    obj.setMouseable();
-                end
-            end
-        end
-
-        function addLine(obj, plotKey, varargin)
-            %ADDLINE Create and store a primitive line plot
-            if obj.isReady
-                hAx = obj.gca();
-                if isempty(hAx)
-                    obj.toForeground();
-                    obj.hPlots(plotKey) = line(varargin{:});
-                else
-                    obj.hPlots(plotKey) = line(hAx, varargin{:});
-                end
-
-                if obj.isMouseable
-                    obj.setMouseable();
-                end
-            end
-        end
-
-        function addPatch(obj, plotKey, varargin)
-            %ADDPATCH Create and store one or more filled polygons
-            if obj.isReady
-                hAx = obj.gca();
-                if isempty(hAx)
-                    obj.toForeground();
-                    obj.hPlots(plotKey) = patch(varargin{:});
-                else
-                    obj.hPlots(plotKey) = patch(hAx, varargin{:});
-                end
-
-                if obj.isMouseable
-                    obj.setMouseable();
-                end
-            end
-        end
-
-        function addPlot(obj, plotKey, varargin)
-            %ADDPLOT Create and store a 2-D line plot
-            if obj.isReady
-                hAx = obj.gca();
-                if isempty(hAx)
-                    obj.toForeground();
-                    obj.hPlots(plotKey) = plot(varargin{:});
-                else
-                    obj.hPlots(plotKey) = plot(hAx, varargin{:});
-                end
-
-                if obj.isMouseable
-                    obj.setMouseable();
-                end
-            end
-        end
-
-        function addStairs(obj, plotKey, varargin)
-            %ADDSTAIRS Create and store a stairstep graph
-            if obj.isReady
-                hAx = obj.gca();
-                if isempty(hAx)
-                    obj.toForeground();
-                    obj.hPlots(plotKey) = stairs(varargin{:});
-                else
-                    obj.hPlots(plotKey) = stairs(hAx, varargin{:});
-                end
-
-                if obj.isMouseable
-                    obj.setMouseable();
-                end
+                obj.hSubplots(plotKey) = sp;
             end
         end
 
@@ -337,20 +255,19 @@ classdef Figure < handle
             obj.addPlot(plotKey, [XData(1:end-1), fliplr(YData)], [YData(1:end-1), fliplr(XData)], varargin{:});
         end
 
-        function addText(obj, plotKey, varargin)
-            %ADDSTAIRS Add and store text descriptions for data points
-            if obj.isReady
-                hAx = obj.gca();
-                if isempty(hAx)
-                    obj.toForeground();
-                    obj.hPlots(plotKey) = text(varargin{:});
-                else
-                    obj.hPlots(plotKey) = text(hAx, varargin{:});
-                end
+        function vals = axApply(obj, hFun, varargin)
+            %AXAPPLY Apply a function to current axes
+            hAx = obj.gca();
 
-                if obj.isMouseable
-                    obj.setMouseable();
+            if ~isempty(hAx)
+                % apply hFun
+                if nargout == 1
+                    vals = hFun(hAx, varargin{:});
+                else
+                    hFun(hAx, varargin{:});
                 end
+            else
+                vals = [];
             end
         end
 
@@ -362,7 +279,7 @@ classdef Figure < handle
 
             obj.clf();
             axes(obj.hFig);
-            obj.hold('on');
+            obj.axApply(@hold, 'on');
         end
 
         function axis(obj, varargin)
@@ -370,24 +287,6 @@ classdef Figure < handle
             hAx = obj.gca();
             if ~isempty(hAx)
                 axis(hAx, varargin{:});
-            end
-        end
-
-        function val = axGet(obj, varargin)
-            %AXGET Query current axes properties
-            hAx = obj.gca();
-            if ~isempty(hAx)
-                val = get(hAx, varargin{:});
-            else
-                val = [];
-            end
-        end
-
-        function axSet(obj, varargin)
-            %AXSET Set current axes properties
-            hAx = obj.gca();
-            if ~isempty(hAx)
-                set(hAx, varargin{:});
             end
         end
 
@@ -401,11 +300,7 @@ classdef Figure < handle
 
         function cla(obj)
             %CLA Clear axes and remove all plots
-            hAx = obj.gca();
-            if ~isempty(hAx)
-                cla(hAx);
-            end
-
+            obj.axApply(@cla);
             obj.hPlots = containers.Map();
         end
 
@@ -448,45 +343,19 @@ classdef Figure < handle
             end
         end
 
-        function grid(obj, varargin)
-            if obj.isReady
-                hAx = get(obj.hFig, 'CurrentAxes');
-                grid(hAx, varargin{:});
-            end
-        end
-
         function hp = hasPlot(obj, plotKey)
             %HASPLOT Return true iff a plot exists with plotKey as label
             hp = ischar(plotKey) && isKey(obj.hPlots, plotKey);
         end
 
+        function hp = hasSubplot(obj, plotKey)
+            %HASSUBPLOT Return true iff a subplot exists with plotKey as label
+            hp = ischar(plotKey) && isKey(obj.hSubplots, plotKey);
+        end
+
         function hidePlot(obj, plotKey)
             %HIDEPLOT Set XData and YData of a plot to nan
             obj.updatePlot(plotKey, nan, nan); % updatePlot checks for existence of plotKey
-        end
-
-        function hold(obj, varargin)
-            %HOLD Retain current plot when adding new plots
-            if obj.isReady
-                hAx = obj.gca();
-                hold(hAx, varargin{:});
-            end
-        end
-
-        function vals = imrectFun(obj, plotKey, hFun, varargin)
-            %IMRECTFUN Apply hFun to the imrect given by plotKey
-            if ~obj.hasPlot(plotKey)
-                return;
-            end
-
-            try
-                if nargout == 1
-                    vals = hFun(obj.hPlots(plotKey), varargin{:});
-                else
-                    hFun(obj.hPlots(plotKey), varargin{:});
-                end
-            catch
-            end
         end
 
         function [plotKey, yOffsets] = multiplot(obj, plotKey, scale, XData, YData, yOffsets, fScatter)
@@ -517,22 +386,20 @@ classdef Figure < handle
             [plotKey, yOffsets] = doMultiplot(obj, plotKey, scale, XData, YData, yOffsets, fScatter);
         end
 
-        function val = plotGet(obj, plotKey, varargin)
-            %PLOTGET Query a plot by key
+        function vals = plotApply(obj, plotKey, hFun, varargin)
+            %PLOTAPPLY Apply hFun to the plot given by plotKey
             if ~obj.hasPlot(plotKey)
                 return;
             end
 
-            val = get(obj.hPlots(plotKey), varargin{:});
-        end
-
-        function plotSet(obj, plotKey, varargin)
-            %PLOTSET Set a plot value by key
-            if ~obj.hasPlot(plotKey)
-                return;
+            try
+                if nargout == 1
+                    vals = hFun(obj.hPlots(plotKey), varargin{:});
+                else
+                    hFun(obj.hPlots(plotKey), varargin{:});
+                end
+            catch
             end
-
-            set(obj.hPlots(plotKey), varargin{:});
         end
 
         function rescalePlot(obj, plotKey, scale)
@@ -542,37 +409,35 @@ classdef Figure < handle
             end
 
             hPlot = obj.hPlots(plotKey);
-            userData = get(hPlot, 'UserData');
+            UserData = get(hPlot, 'UserData');
+            if ~isfield(UserData, 'scale') || ~isfield(UserData, 'shape')
+                return;
+            end
 
-            % backward compatible
-            % if ~isfield(userData, 'yOffsets')
-            %     userData.yOffsets = 1:userData.shape(2);
-            % end
-
-            % Rescale
-            YData = reshape(get(hPlot, 'YData'), userData.shape);
-            if isfield(userData, 'fScatter')
-                fScatter = userData.fScatter; 
+            % rescale
+            YData = reshape(get(hPlot, 'YData'), UserData.shape);
+            if isfield(UserData, 'fScatter')
+                fScatter = UserData.fScatter; 
             else
                 fScatter = false;
             end
 
             if fScatter
-                YData = (YData(:) - userData.yOffsets(:)) * userData.scale; %restore original 
-                YData = YData(:) / scale + userData.yOffsets(:); %convert to plot
-            elseif isvector(userData.yOffsets)
-                YData = bsxfun(@minus, YData, userData.yOffsets(:)') * userData.scale; % restore original 
-                YData = bsxfun(@plus, YData/scale, userData.yOffsets(:)'); % convert to plot
+                YData = (YData(:) - UserData.yOffsets(:)) * UserData.scale; %restore original 
+                YData = YData(:) / scale + UserData.yOffsets(:); %convert to plot
+            elseif isvector(UserData.yOffsets)
+                YData = bsxfun(@minus, YData, UserData.yOffsets(:)') * UserData.scale; % restore original 
+                YData = bsxfun(@plus, YData/scale, UserData.yOffsets(:)'); % convert to plot
             else
-                for iSpike = 1:userData.shape(3)
-                    iYOffsets = userData.yOffsets(:, iSpike)';
-                    iYData = bsxfun(@minus, YData(:, :, iSpike), iYOffsets)*userData.scale;
+                for iSpike = 1:UserData.shape(3)
+                    iYOffsets = UserData.yOffsets(:, iSpike)';
+                    iYData = bsxfun(@minus, YData(:, :, iSpike), iYOffsets)*UserData.scale;
                     YData(:, :, iSpike) = bsxfun(@plus, iYData/scale, iYOffsets);
                 end  
             end
 
-            userData.scale = scale; % update local scale
-            set(hPlot, 'YData', YData(:), 'UserData', userData);
+            UserData.scale = scale; % update local scale
+            set(hPlot, 'YData', YData(:), 'UserData', UserData);
         end
 
         function rmPlot(obj, plotKey)
@@ -618,8 +483,7 @@ classdef Figure < handle
 
         function setWindow(obj, xlim1, ylim1, xlim0, ylim0)
             %SETWINDOW set the window within the box limit
-            if nargin <= 3
-                % square case
+            if nargin <= 3 % square case
                 xlim0 = ylim1;
                 ylim1 = xlim1;
                 ylim0 = xlim0;
@@ -627,19 +491,6 @@ classdef Figure < handle
 
             lastFocused = gcf();
             obj.toForeground();
-
-            dx = diff(xlim1);
-            dy = diff(ylim1);
-
-%             if xlim1(1)<xlim0(1), xlim1 = xlim0(1) + [0, dx]; end
-%             if xlim1(2)>xlim0(2), xlim1 = xlim0(2) + [-dx, 0]; end
-%             if ylim1(1)<ylim0(1), ylim1 = ylim0(1) + [0, dy]; end
-%             if ylim1(2)>ylim0(2), ylim1 = ylim0(2) + [-dy, 0]; end
-% 
-%             xlim1(1) = max(xlim1(1), xlim0(1));
-%             ylim1(1) = max(ylim1(1), ylim0(1));
-%             xlim1(2) = min(xlim1(2), xlim0(2));
-%             ylim1(2) = min(ylim1(2), ylim0(2));
 
             xlim1 = jrclust.utils.trimLim(xlim1, xlim0);
             ylim1 = jrclust.utils.trimLim(ylim1, ylim0);
@@ -649,11 +500,26 @@ classdef Figure < handle
             figure(lastFocused);
         end
 
-        function title(obj, t)
-            if obj.isReady
-                hAx = get(obj.hFig, 'CurrentAxes');
-                title(hAx, t, 'Interpreter', 'none', 'FontWeight', 'normal');
+        function vals = subplotApply(obj, plotKey, spIndex, hFun, varargin)
+            %SUBPLOTAPPLY Apply a plotting function to a subplot
+            vals = [];
+
+            if ~obj.hasSubplot(plotKey) || numel(obj.hSubplots(plotKey)) < spIndex
+                return;
             end
+
+            hAxes = obj.hSubplots(plotKey);
+            hAx = hAxes(spIndex);
+
+            % apply hFun
+            if nargout == 1
+                vals = hFun(hAx, varargin{:});
+            else
+                hFun(hAx, varargin{:});
+            end
+
+            % save hAxes
+            obj.hSubplots(plotKey) = hAxes;
         end
 
         function toForeground(obj)
@@ -663,35 +529,7 @@ classdef Figure < handle
             end
         end
 
-        function hMenu = uimenu(obj, varargin)
-            if obj.isReady
-                hMenu = uimenu(obj.hFig, varargin{:});
-            else
-                hMenu = [];
-            end
-        end
-
-        function uistack(obj, plotKey, varargin)
-            %UISTACK Reorder visual stacking order of plot given by plotKey
-            if ~obj.hasPlot(plotKey)
-                return;
-            end
-
-            hPlot = obj.hPlots(plotKey);
-            uistack(hPlot, varargin{:});
-        end
-
-        function updateImagesc(obj, plotKey, CData)
-            %UPDATEIMAGESC Set CData of an image
-            if ~obj.hasPlot(plotKey)
-                return;
-            end
-
-            hPlot = obj.hPlots(plotKey);
-            set(hPlot, 'CData', CData);
-        end
-
-        function toggleVisible(obj, plotKey, fVis)
+        function fVis = toggleVisible(obj, plotKey, fVis)
             %TOGGLEVISIBLE Toggle visibility of plot by key
             if isempty(plotKey)
                 return;
@@ -715,8 +553,10 @@ classdef Figure < handle
             if nargin == 2
                 if strcmp(get(hPlot, 'Visible'), 'on')
                     set(hPlot, 'Visible', 'off');
+                    fVis = 0;
                 else
                     set(hPlot, 'Visible', 'on');
+                    fVis = 1;
                 end
             else
                 if fVis == 0 % off
@@ -724,6 +564,14 @@ classdef Figure < handle
                 elseif fVis == 1 % on
                     set(hPlot, 'Visible', 'on');
                 end
+            end
+        end
+
+        function hMenu = uimenu(obj, varargin)
+            if obj.isReady
+                hMenu = uimenu(obj.hFig, varargin{:});
+            else
+                hMenu = [];
             end
         end
 
@@ -780,20 +628,6 @@ classdef Figure < handle
                 else
                     obj.figSet('Pointer', 'arrow');
                 end
-            end
-        end
-
-        function xlabel(obj, varargin)
-            if obj.isReady
-                hAx = get(obj.hFig, 'CurrentAxes');
-                xlabel(hAx, varargin{:});
-            end
-        end
-
-        function ylabel(obj, varargin)
-            if obj.isReady
-                hAx = get(obj.hFig, 'CurrentAxes');
-                ylabel(hAx, varargin{:});
             end
         end
     end
@@ -898,7 +732,7 @@ classdef Figure < handle
             failMsg = 'hFunKey must be a function handle';
             assert(isa(hf, 'function_handle'), failMsg);
             obj.hFunKey = hf;
-            if obj.isReady
+            if obj.isReady %#ok<*MCSUP>
                 set(obj.hFig, 'KeyPressFcn', obj.hFunKey);
             end
         end

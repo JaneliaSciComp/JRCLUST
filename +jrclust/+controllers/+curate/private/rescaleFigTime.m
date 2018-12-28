@@ -1,7 +1,8 @@
 function rescaleFigTime(hFigTime, timeScale)
     %set_fig_maxAmp_('FigTime', timeScale);
-    hFigTime.axSet('YLim', [0, 1]*timeScale);
-    imrect_set_(hFigTime, 'hRect', [], [0, timeScale]);
+    YLim = hFigTime.axApply(@get, 'YLim');
+    hFigTime.axApply(@set, 'YLim', [0, YLim(2)*timeScale]);
+    imrect_set_(hFigTime, 'hRect', [], [0, YLim(2)*timeScale]);
 
     % switch lower(P.vcFet_show)
     %     case {'vpp', 'vmin'} %voltage feature
@@ -11,4 +12,4 @@ function rescaleFigTime(hFigTime, timeScale)
     % end
     % ylabel(S_fig.hAx, vcYlabel);
 
-end %func
+end

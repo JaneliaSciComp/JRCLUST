@@ -28,8 +28,8 @@ function auto_split_(fMulti, S0)
     mrWav_spk1 = squeeze_(jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(S_clu.cviSpk_clu{iClu1}, site_to_use, S0), P)); % TW calculate amplitudes on the fly
     mrFet1 = max(mrWav_spk1)-min(mrWav_spk1); % TW calculate amplitudes on the fly
 
-    % [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [S0.viTime_spk(S_clu.cviSpk_clu{iClu1}) S0.vrAmp_spk(S_clu.cviSpk_clu{iClu1})], 2); % MNE
-    [vlSpkIn, mrFet_split, vhAx] = auto_split_wav_(mrSpkWav1, [S0.viTime_spk(S_clu.cviSpk_clu{iClu1}) mrFet1'], 2); %TW
+    % [vlSpkIn, mrFet_split, vhAx] = doAutoSplit(mrSpkWav1, [S0.viTime_spk(S_clu.cviSpk_clu{iClu1}) S0.vrAmp_spk(S_clu.cviSpk_clu{iClu1})], 2); % MNE
+    [vlSpkIn, mrFet_split, vhAx] = doAutoSplit(mrSpkWav1, [S0.viTime_spk(S_clu.cviSpk_clu{iClu1}) mrFet1'], 2); %TW
 
     hPoly = [];
     hFigTemp = gcf;

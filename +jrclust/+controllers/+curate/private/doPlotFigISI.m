@@ -11,36 +11,32 @@ function hFigISI = doPlotFigISI(hFigISI, hClust, hCfg, selected)
     [iIsiK, iIsiK1] = getReturnMap(iCluster, hClust, hCfg);
     if isempty(hFigISI.figData)
         hFigISI.axes();
-        %S_fig.hPlot1 = plot(S_fig.hAx, nan, nan, 'ko');
-        hFigISI.addPlot('hPlot1', nan, nan, 'Color', hCfg.mrColor_proj(2, :), 'Marker', 'o', 'LineStyle', 'none');
-        %S_fig.hPlot2 = plot(S_fig.hAx, nan, nan, 'ro');
-        hFigISI.addPlot('hPlot2', nan, nan, 'Color', hCfg.mrColor_proj(3, :), 'Marker', 'o', 'LineStyle', 'none');
+        hFigISI.addPlot('foreground', nan, nan, 'Color', hCfg.mrColor_proj(2, :), 'Marker', 'o', 'LineStyle', 'none');
+        hFigISI.addPlot('foreground2', nan, nan, 'Color', hCfg.mrColor_proj(3, :), 'Marker', 'o', 'LineStyle', 'none');
 
-        %set(S_fig.hAx, 'XScale','log', 'YScale','log');
-        hFigISI.axSet('XScale','log', 'YScale','log');
+        hFigISI.axApply(@set, 'XScale','log', 'YScale','log');
 
-        %xlabel('ISI_{k} (ms)'); ylabel('ISI_{k+1} (ms)');
-        hFigISI.xlabel('ISI_{k} (ms)');
-        hFigISI.ylabel('ISI_{k+1} (ms)');
+        hFigISI.axApply(@xlabel, 'ISI_{k} (ms)');
+        hFigISI.axApply(@ylabel, 'ISI_{k+1} (ms)');
 
         %axis_(S_fig.hAx, [1 10000 1 10000]);
         hFigISI.axis([1 10000 1 10000]);
-        hFigISI.grid('on');
+        hFigISI.axApply(@grid, 'on');
 
         % show refractory line
         %line(get(S_fig.hAx,'XLim'), hCfg.spkRefrac_ms*[1 1], 'Color', [1 0 0]);
-        hFigISI.addLine('refracLine1', hFigISI.axGet('XLim'), hCfg.refracIntms*[1 1], 'Color', [1 0 0]);
+        hFigISI.addPlot('refracLine1', @line, hFigISI.axApply(@get, 'XLim'), hCfg.refracIntms*[1 1], 'Color', [1 0 0]);
         %line(hCfg.spkRefrac_ms*[1 1], get(S_fig.hAx,'YLim'), 'Color', [1 0 0]);
-        hFigISI.addLine('refracLine2', hCfg.refracIntms*[1 1], hFigISI.axGet('YLim'), 'Color', [1 0 0]);
+        hFigISI.addPlot('refracLine2', @line, hCfg.refracIntms*[1 1], hFigISI.axApply(@get, 'YLim'), 'Color', [1 0 0]);
     end
 
-    hFigISI.updatePlot('hPlot1', iIsiK, iIsiK1);
+    hFigISI.updatePlot('foreground', iIsiK, iIsiK1);
 
     if iCluster ~= jCluster
         [jIsiK, jIsiK1] = getReturnMap(jCluster, hClust, hCfg);
-        hFigISI.updatePlot('hPlot2', jIsiK, jIsiK1);
+        hFigISI.updatePlot('foreground2', jIsiK, jIsiK1);
     else
-        hFigISI.hidePlot('hPlot2');
+        hFigISI.hidePlot('foreground2');
     end
 
     %set(hFigISI, 'UserData', S_fig);

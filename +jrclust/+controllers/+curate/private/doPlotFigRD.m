@@ -23,16 +23,16 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
     end
 
     hFigRD.addPlot('allSpikes', x, y, '.');
-    hFigRD.hold('on');
+    hFigRD.axApply(@hold, 'on');
 
     hFigRD.axis('tight');
     hFigRD.axis([-4 -.5 -1 2]);
-    hFigRD.axSet('XScale', 'linear', 'YScale', 'linear');
+    hFigRD.axApply(@set, 'XScale', 'linear', 'YScale', 'linear');
 
     % show rho/delta cutoff lines
-    hFigRD.addPlot('RDCuts', hCfg.log10RhoCut * [1 1], hFigRD.axGet('YLim'), 'r--', ...
-                   hFigRD.axGet('XLim'), hCfg.log10DeltaCut*[1, 1], 'r--');
-    hFigRD.grid('on');
+    hFigRD.addPlot('RDCuts', hCfg.log10RhoCut * [1 1], hFigRD.axApply(@get, 'YLim'), 'r--', ...
+                   hFigRD.axApply(@get, 'XLim'), hCfg.log10DeltaCut*[1, 1], 'r--');
+    hFigRD.axApply(@grid, 'on');
 
     % label cluster centers
     if ~isempty(hClust.clusterCenters)
@@ -43,13 +43,13 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
     hFigRD.addPlot('centers', centersX, centersY, 'r.');
 
     % set labels
-    hFigRD.xlabel('log10 rho');
+    hFigRD.axApply(@xlabel, 'log10 rho');
     if fDetrend
-        hFigRD.ylabel('log10 delta (detrended)');
+        hFigRD.axApply(@ylabel, 'log10 delta (detrended)');
     else
-        hFigRD.ylabel('log10 delta');
+        hFigRD.axApply(@ylabel, 'log10 delta');
     end
-    hFigRD.title(sprintf('rho-cut: %f, delta-cut: %f', hCfg.log10RhoCut, hCfg.log10DeltaCut));
+    hFigRD.axApply(@title, sprintf('rho-cut: %f, delta-cut: %f', hCfg.log10RhoCut, hCfg.log10DeltaCut), 'Interpreter', 'none', 'FontWeight', 'normal');
 
     drawnow;
 end

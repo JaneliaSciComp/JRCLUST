@@ -17,7 +17,9 @@ function doSaveFiles(hJRC)
             fprintf('Saving sorting results to %s\n', filename);
         end
 
-        jrclust.utils.saveStruct(hJRC.sRes, filename);
+        sRes = hJRC.sRes;
+        sRes.hClust = hJRC.hClust;
+        jrclust.utils.saveStruct(sRes, filename);
     end
 end
 

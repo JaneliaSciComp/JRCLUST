@@ -1,34 +1,30 @@
-function rescaleFigProj(hFigProj, projScale, hClust)
+function rescaleFigProj(hFigProj, projScale, hCfg)
     %RESCALEFIGPROJ
-    hCfg = hClust.hCfg;
-    
-%     if isnumeric(projScale)
-%         S_fig.maxAmp = projScale;
-%     else
-%         S_fig.maxAmp = change_amp_(projScale, S_fig.maxAmp);
-%     end
-
     rescaleUpdate(hFigProj, projScale, hCfg);
+    hFigProj.figData.boundScale = projScale;
 
     if strcmp(hCfg.dispFeature, 'vpp')
-        xLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
-        yLabel = 'Site # (%0.0f \\muV_{min})';
+        XLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
+        YLabel = 'Site # (%0.0f \\muV_{min})';
     elseif ismember(hCfg.dispFeature, {'kilosort', 'pca', 'gpca', 'ppca'})
-        xLabel = sprintf('Site # (PC %d)', hCfg.pcPair(1));
-        yLabel = sprintf('Site # (PC %d)', hCfg.pcPair(2));
+        XLabel = sprintf('Site # (PC %d)', hCfg.pcPair(1));
+        YLabel = sprintf('Site # (PC %d)', hCfg.pcPair(2));
     else
-        xLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', hCfg.dispFeature, hCfg.dispFeature, hCfg.dispFeature);
-        yLabel = sprintf('Site # (%%0.0f %s)', hCfg.dispFeature);
+        XLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', hCfg.dispFeature, hCfg.dispFeature, hCfg.dispFeature);
+        YLabel = sprintf('Site # (%%0.0f %s)', hCfg.dispFeature);
     end
 
-    hFigProj.xlabel(sprintf(xLabel, projScale));
-    hFigProj.ylabel(sprintf(yLabel, projScale));
+    hFigProj.axApply(@xlabel, sprintf(XLabel, projScale));
+    hFigProj.axApply(@ylabel, sprintf(YLabel, projScale));
 end
 
 %% LOCAL FUNCTIONS
 function rescaleUpdate(hFigProj, projScale, hCfg)
-    hFigProj.rmPlot('hSelect'); % clear select polygon
-    bounds = projScale*[0 1];
+    if strcmp(hCfg.dispFeature, 'vpp')
+        bounds = projScale*[0 1];
+    else
+        bounds = projScale*[-1 1];
+    end
 
     dispFeatures = hFigProj.figData.dispFeatures;
     % rescale background features

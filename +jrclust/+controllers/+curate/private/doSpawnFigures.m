@@ -16,17 +16,17 @@ function hFigs = doSpawnFigures(hCfg)
         fwcTitle = ['Waveform-based similarity score (click): ', hCfg.sessionName];
     end
 
-    hFigs('hFigPos')    = doCreateFigure('FigPos', [0 0 .15 .5], ['Unit position; ', hCfg.sessionName], 1, 0);
-    hFigs('hFigMap')    = doCreateFigure('FigMap', [0 .5 .15 .5], ['Probe map; ', hCfg.sessionName], 1, 0);
-    hFigs('hFigWav')    = doCreateFigure('FigWav', [.15 .2 .35 .8],['Averaged waveform: ', hCfg.sessionName], 0, 1);
-    hFigs('hFigTime')   = doCreateFigure('FigTime', ftShape, ['Time vs. Amplitude; (Sft)[Up/Down] channel; [h]elp; [a]uto scale; ', hCfg.vcFile]);
-    hFigs('hFigProj')   = doCreateFigure('FigProj', [.5 .2 .35 .5], ['Feature projection: ', hCfg.sessionName]);
-    hFigs('hFigSim')    = doCreateFigure('FigSim', [.5 .7 .35 .3], fwcTitle);
-    hFigs('hFigHist')   = doCreateFigure('FigHist', fhShape, ['ISI Histogram: ', hCfg.sessionName]);
-    hFigs('hFigISI')    = doCreateFigure('FigISI', fiShape, ['Return map: ', hCfg.sessionName]);
-    hFigs('hFigCorr')   = doCreateFigure('FigCorr', fcShape, ['Time correlation: ', hCfg.sessionName]);
+    hFigs('FigPos')    = doCreateFigure('FigPos', [0 0 .15 .5], ['Unit position; ', hCfg.sessionName], 1, 0);
+    hFigs('FigMap')    = doCreateFigure('FigMap', [0 .5 .15 .5], ['Probe map; ', hCfg.sessionName], 1, 0);
+    hFigs('FigWav')    = doCreateFigure('FigWav', [.15 .2 .35 .8],['Averaged waveform: ', hCfg.sessionName], 0, 1);
+    hFigs('FigTime')   = doCreateFigure('FigTime', ftShape, ['Time vs. Amplitude; (Sft)[Up/Down] channel; [h]elp; [a]uto scale; ', hCfg.vcFile]);
+    hFigs('FigProj')   = doCreateFigure('FigProj', [.5 .2 .35 .5], ['Feature projection: ', hCfg.sessionName]);
+    hFigs('FigSim')    = doCreateFigure('FigSim', [.5 .7 .35 .3], fwcTitle);
+    hFigs('FigHist')   = doCreateFigure('FigHist', fhShape, ['ISI Histogram: ', hCfg.sessionName]);
+    hFigs('FigISI')    = doCreateFigure('FigISI', fiShape, ['Return map: ', hCfg.sessionName]);
+    hFigs('FigCorr')   = doCreateFigure('FigCorr', fcShape, ['Time correlation: ', hCfg.sessionName]);
     if ~hCfg.fImportKsort
         % rho-delta plot
-        hFigs('hFigRD') = doCreateFigure('FigRD', [.85 0 .15 .25], ['Cluster rho-delta: ', hCfg.sessionName]);
+        hFigs('FigRD') = doCreateFigure('FigRD', [.85 0 .15 .25], ['Cluster rho-delta: ', hCfg.sessionName]);
     end
 end

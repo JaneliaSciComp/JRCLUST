@@ -10,7 +10,7 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
         hFigPos.figData.isPlotted = true;
     else
         hFigPos.cla();
-        hFigPos.hold('on');
+        hFigPos.axApply(@hold, 'on');
     end
 
     plotPosUnit(c1Data, hFigPos, hCfg, false, maxAmp);
@@ -34,7 +34,7 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
             c1Data.cluster, c2Data.cluster, nSpikes, nSpikes2, ...
             [clusterPos(1), clusterPos2(1), clusterPos(2), clusterPos2(2)]);
     end
-    hFigPos.title(figTitle);
+    hFigPos.axApply(@title, figTitle, 'Interpreter', 'none', 'FontWeight', 'normal');
 end
 
 %% LOCAL FUNCTIONS
@@ -76,13 +76,13 @@ function plotPosUnit(cData, hFigPos, hCfg, fSecondary, maxAmp)
 
         YData = bsxfun(@plus, YData, siteYData');
         XData = bsxfun(@plus, repmat(XBase, [1, size(YData, 2)]), siteXData');
-        hFigPos.addLine(sprintf('neighbor%d', iWav), XData(:), YData(:), ...
+        hFigPos.addPlot(sprintf('neighbor%d', iWav), @line, XData(:), YData(:), ...
                         'Color', cmap, 'LineWidth', lineWidth);
     end
 
-    hFigPos.xlabel('X pos [pix]');
-    hFigPos.ylabel('Z pos [pix]');
-    hFigPos.grid('on');
-    hFigPos.axSet('XLim', [min(XBase(:)), max(XBase(:))] + median(siteXData));
-    hFigPos.axSet('YLim', [floor(min(YData(:))-1), ceil(max(YData(:))+1)]);
+    hFigPos.axApply(@xlabel, 'X pos [pix]');
+    hFigPos.axApply(@ylabel, 'Z pos [pix]');
+    hFigPos.axApply(@grid, 'on');
+    hFigPos.axApply(@set, 'XLim', [min(XBase(:)), max(XBase(:))] + median(siteXData));
+    hFigPos.axApply(@set, 'YLim', [floor(min(YData(:))-1), ceil(max(YData(:))+1)]);
 end

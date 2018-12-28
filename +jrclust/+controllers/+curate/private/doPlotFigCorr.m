@@ -36,20 +36,20 @@ function hFigCorr = doPlotFigCorr(hFigCorr, hClust, hCfg, selected)
     % draw the plot
     if isempty(hFigCorr.figData)
         hFigCorr.axes();
-        hFigCorr.addBar('hBar', timeLag, intCount, 1);
-        hFigCorr.xlabel('Time (ms)');
-        hFigCorr.ylabel('Counts');
-        hFigCorr.grid('on');
-        hFigCorr.axSet('YScale', 'log');
+        hFigCorr.addPlot('hBar', @bar, timeLag, intCount, 1);
+        hFigCorr.axApply(@xlabel, 'Time (ms)');
+        hFigCorr.axApply(@ylabel, 'Counts');
+        hFigCorr.axApply(@grid, 'on');
+        hFigCorr.axApply(@set, 'YScale', 'log');
     else
         hFigCorr.update('hBar', timeLag, intCount);
         %set(hFigCorr.figData.hBar, 'XData', timeLag, 'YData', intCount);
     end
 
     % title_(hFigCorr.figData.hAx, sprintf('Cluster %d vs. Cluster %d', iCluster, jCluster));
-    hFigCorr.title(sprintf('Cluster %d vs. Cluster %d', iCluster, jCluster));
+    hFigCorr.axApply(@title, sprintf('Cluster %d vs. Cluster %d', iCluster, jCluster), 'Interpreter', 'none', 'FontWeight', 'normal');
 
     % xlim_(hFigCorr.figData.hAx, [-nLags, nLags] * jitterMs);
-    hFigCorr.axSet('XLim', jitterMs*[-nLags, nLags]);
+    hFigCorr.axApply(@set, 'XLim', jitterMs*[-nLags, nLags]);
     %set(hFigCorr, 'UserData', hFigCorr.figData);
 end

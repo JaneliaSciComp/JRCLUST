@@ -26,7 +26,7 @@ classdef ControlFigure < dynamicprops & jrclust.views.Figure
             end
 
             axes(obj.hPanel);
-            obj.hold('on');
+            obj.axApply(@hold, 'on');
         end
 
         function hCtl = addUicontrol(obj, controlKey, varargin)

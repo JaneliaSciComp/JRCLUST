@@ -6,13 +6,13 @@ function hFigWav = setFigWavXTicks(hFigWav, hClust, displayCount)
         xTickLabels = arrayfun(@(i) sprintf('%d', i), 1:hClust.nClusters, 'UniformOutput', false);
     end
 
-    hFigWav.axSet('Xtick', 1:hClust.nClusters, ...
-                  'XTickLabel', xTickLabels, ...
-                  'FontSize', 8);
+    hFigWav.axApply(@set, 'Xtick', 1:hClust.nClusters, ...
+                    'XTickLabel', xTickLabels, ...
+                    'FontSize', 8);
     if displayCount
-        hFigWav.axSet('XTickLabelRotation', -20);
+        hFigWav.axApply(@set, 'XTickLabelRotation', -20);
     else
-        hFigWav.axSet('XTickLabelRotation', 0);
+        hFigWav.axApply(@set, 'XTickLabelRotation', 0);
     end
 
     hFigWav.figData.displayCount = displayCount;

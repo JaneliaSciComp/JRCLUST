@@ -45,7 +45,7 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
         clusterSites_ = {hClust.clusterSites};
     end
 
-    % simScore = jrclust.utils.tryGpuArray(zeros(hClust.nClusters), obj.hCfg.useGPU);
+    % simScore = jrclust.utils.tryGpuArray(zeros(hClust.nClusters), hClust.hCfg.useGPU);
     simScore = zeros(hClust.nClusters);
 
     % shift waveforms up to some multiple (nInterp_merge) of the refractory period

@@ -1,5 +1,5 @@
 function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp)
-    %PLOTMEANWAVEFORMS Plot mean cluster waveforms in the main view
+    %PLOTMEANWAVEFORMS Plot mean cluster waveforms in FigWav
     if hCfg.showRaw
         waveforms = hClust.meanWfGlobalRaw;
     else
@@ -10,61 +10,63 @@ function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp)
     nSitesShow = size(hCfg.siteNeighbors, 1);
 
     % determine x
-    xOffset = hCfg.evtWindowSamp(2)/(diff(hCfg.evtWindowSamp) + 1); % same for raw and filt
-    xData = (1:nSamples*nClusters)/nSamples + xOffset;
-    xData(1:nSamples:end) = nan;
-    xData(nSamples:nSamples:end) = nan;
+    xOffset = hCfg.evtWindowSamp(2)/(diff(hCfg.evtWindowSamp) + 1);
+    XData = (1:nSamples*nClusters)/nSamples + xOffset;
+
+    % breaks between clusters
+    XData(1:nSamples:end) = nan;
+    XData(nSamples:nSamples:end) = nan;
     waveforms = waveforms/maxAmp;
 
-    xData = repmat(xData(:), [1, nSitesShow]);
-    xData = reshape(xData, [nSamples, nClusters, nSitesShow]);
-    xData = reshape(permute(xData, [1 3 2]), [nSamples*nSitesShow, nClusters]);
+    XData = repmat(XData(:), [1, nSitesShow]);
+    XData = reshape(XData, [nSamples, nClusters, nSitesShow]);
+    XData = reshape(permute(XData, [1 3 2]), [nSamples*nSitesShow, nClusters]);
 
-    yData = zeros(nSamples * nSitesShow, nClusters, 'single');
+    YData = zeros(nSamples * nSitesShow, nClusters, 'single');
     for iCluster = 1:nClusters
         iSites = hCfg.siteNeighbors(:, hClust.clusterSites(iCluster));
         iWaveforms = waveforms(:, iSites, iCluster);
         iWaveforms = bsxfun(@plus, iWaveforms, single(iSites'));
-        yData(:, iCluster) = iWaveforms(:);
+        YData(:, iCluster) = iWaveforms(:);
     end
 
     if ~hFigWav.hasPlot('hGroup1')
-        plotGroup(hFigWav, xData, yData, 'LineWidth', hCfg.getOr('LineWidth', 1));
+        plotGroup(hFigWav, XData, YData, 'LineWidth', hCfg.getOr('LineWidth', 1));
     else
+        %updateGroup(hFigWav, XData, YData); % this is broken
         iGroup = 1;
         while hFigWav.hasPlot(sprintf('hGroup%d', iGroup))
             hFigWav.rmPlot(sprintf('hGroup%d', iGroup));
             iGroup = iGroup + 1;
         end
-        plotGroup(hFigWav, xData, yData, 'LineWidth', hCfg.getOr('LineWidth', 1));
-        %updateGroup(hFigWav, xData, yData);
+        plotGroup(hFigWav, XData, YData, 'LineWidth', hCfg.getOr('LineWidth', 1));
     end
 
-    hFigWav.axSet('YTick', 1:nSites, 'XTick', 1:nClusters);
+    hFigWav.axApply(@set, 'YTick', 1:nSites, 'XTick', 1:nClusters);
 end
 
 %% LOCAL FUNCTIONS
-function updateGroup(hFig, xData, yData)
+function updateGroup(hFig, XData, YData)
     %UPDATE Update group-plotted data
     nGroups = sum(cellfun(@(c) ~isempty(c), regexp(keys(hFig.hPlots), '^hGroup\d')));
 
     for iGroup = 1:numel(nGroups)
-        iXData = xData(:, iGroup:nGroups:end);
-        iYData = yData(:, iGroup:nGroups:end);
+        iXData = XData(:, iGroup:nGroups:end);
+        iYData = YData(:, iGroup:nGroups:end);
         hFig.updatePlot(sprintf('hGroup%d', iGroup), iXData(:), iYData(:));
     end
 end
 
-function plotGroup(hFig, xData, yData, varargin)
-    %PLOTGROUP Plot xData and yData colored by groups
+function plotGroup(hFig, XData, YData, varargin)
+    %PLOTGROUP Plot XData and YData colored by groups
     colorMap = [0, 0.4470, 0.7410; 0.8500, 0.3250, 0.0980; 0.9290, 0.6940, 0.1250; 0.4940, 0.1840, 0.5560; 0.4660, 0.6740, 0.1880; 0.3010, 0.7450, 0.9330; 0.6350, 0.0780, 0.1840]';
-    nGroups = min(size(colorMap, 2), size(xData, 2));
+    nGroups = min(size(colorMap, 2), size(XData, 2));
     colorMap = colorMap(:, 1:nGroups);
 
-    hFig.hold('on');
+    hFig.axApply(@hold, 'on');
     for iGroup = 1:nGroups
-        iXData = xData(:, iGroup:nGroups:end);
-        iYData = yData(:, iGroup:nGroups:end);
+        iXData = XData(:, iGroup:nGroups:end);
+        iYData = YData(:, iGroup:nGroups:end);
         hFig.addPlot(sprintf('hGroup%d', iGroup), iXData(:), iYData(:), varargin{:}, 'Color', colorMap(:, iGroup)');
     end
 end

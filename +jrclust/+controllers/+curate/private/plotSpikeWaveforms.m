@@ -1,6 +1,6 @@
 function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
     %PLOTSPIKEWAVEFORMS Plot individual waveforms in the main view
-    [xData, yData, showSites] = deal(cell(hClust.nClusters, 1));
+    [XData, YData, showSites] = deal(cell(hClust.nClusters, 1));
 
     nSpikesCluster = zeros(hClust.nClusters, 1);
     siteNeighbors = hCfg.siteNeighbors(:, hClust.clusterSites);
@@ -17,7 +17,7 @@ function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
                 iWaveforms = jrclust.utils.filtTouV(hClust.spikesFilt(:, :, iSpikes), hCfg);
             end
 
-            [yData{iCluster}, xData{iCluster}] = wfToPlot(iWaveforms, iCluster, iSites, maxAmp, hCfg);
+            [YData{iCluster}, XData{iCluster}] = wfToPlot(iWaveforms, iCluster, iSites, maxAmp, hCfg);
             showSites{iCluster} = iSites;
             nSpikesCluster(iCluster) = size(iWaveforms, 3);
         catch ME
@@ -27,14 +27,14 @@ function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
 
     userData = struct('showSites', showSites, 'nSpikesCluster', nSpikesCluster);
     if hFigWav.hasPlot('hSpkAll')
-        hFigWav.updatePlot('hSpkAll', jrclust.utils.neCell2mat(xData), jrclust.utils.neCell2mat(yData), userData);
+        hFigWav.updatePlot('hSpkAll', jrclust.utils.neCell2mat(XData), jrclust.utils.neCell2mat(YData), userData);
     else
-        hFigWav.addPlot('hSpkAll', jrclust.utils.neCell2mat(xData), jrclust.utils.neCell2mat(yData), 'Color', [.5 .5 .5], 'LineWidth', .5, 'UserData', userData);
+        hFigWav.addPlot('hSpkAll', jrclust.utils.neCell2mat(XData), jrclust.utils.neCell2mat(YData), 'Color', [.5 .5 .5], 'LineWidth', .5, 'UserData', userData);
     end
 end
 
 %% LOCAL FUNCTIONS
-function [yData, xData] = wfToPlot(waveforms, iCluster, iSites, maxAmp, hCfg)
+function [YData, XData] = wfToPlot(waveforms, iCluster, iSites, maxAmp, hCfg)
     %WFTOPLOT Scale and translate waveforms by cluster ID and site
     iCluster = double(iCluster);
 
@@ -49,11 +49,11 @@ function [yData, xData] = wfToPlot(waveforms, iCluster, iSites, maxAmp, hCfg)
     % orient waveforms in Y by which site they occur on
     waveforms = waveforms + repmat(single(iSites(:)'), [size(waveforms, 1), 1, size(waveforms, 3)]);
     waveforms([1, end], :, :) = nan;
-    yData = waveforms(:);
+    YData = waveforms(:);
 
     % x values are samples offset by cluster number
-    xData = getXRange(iCluster, hCfg);
-    xData = repmat(xData(:), [1, nSites * nSpikes]);
-    xData = xData(:);
+    XData = getXRange(iCluster, hCfg);
+    XData = repmat(XData(:), [1, nSites * nSpikes]);
+    XData = XData(:);
 end
 

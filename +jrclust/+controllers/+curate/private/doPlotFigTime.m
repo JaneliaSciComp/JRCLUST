@@ -1,5 +1,5 @@
 function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
-    %DOPLOTFIGTIME
+    %DOPLOTFIGTIME Plot features vs. time
     if nargin < 6
         iSite = hClust.clusterSites(selected(1));
     end
@@ -8,29 +8,31 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
     % construct plot for the first time
     if isempty(hFigTime.figData)
         hFigTime.axes();
-        hFigTime.axSet('Position', [.05 .2 .9 .7], 'XLimMode', 'manual', 'YLimMode', 'manual');
+        hFigTime.axApply(@set, 'Position', [.05 .2 .9 .7], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
         % first time
-        hFigTime.addLine('background',  nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(1, :), 'MarkerSize', 5, 'LineStyle', 'none');
-        hFigTime.addLine('foreground',  nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(2, :), 'MarkerSize', 5, 'LineStyle', 'none');
-        hFigTime.addLine('foreground2', nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(3, :), 'MarkerSize', 5, 'LineStyle', 'none');
-        hFigTime.xlabel('Time (s)');
-        hFigTime.grid('on');
+        hFigTime.addPlot('background', @line, nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(1, :), 'MarkerSize', 5, 'LineStyle', 'none');
+        hFigTime.addPlot('foreground', @line, nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(2, :), 'MarkerSize', 5, 'LineStyle', 'none');
+        hFigTime.addPlot('foreground2', @line, nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(3, :), 'MarkerSize', 5, 'LineStyle', 'none');
+        hFigTime.axApply(@xlabel, 'Time (s)');
+        hFigTime.axApply(@grid, 'on');
 
         % rectangle plot
         rectPos = [timeLimits(1), maxAmp, diff(timeLimits), maxAmp];
-        hFigTime.addImrect('hRect', rectPos);
-        hFigTime.imrectFun('hRect', @setColor, 'r');
-        hFigTime.imrectFun('hRect', @setPositionConstraintFcn, makeConstrainToRectFcn('imrect', timeLimits, [-4000 4000]));
+        hFigTime.addPlot('hRect', @imrect, rectPos);
+        hFigTime.plotApply('hRect', @setColor, 'r');
+        hFigTime.plotApply('hRect', @setPositionConstraintFcn, makeConstrainToRectFcn('imrect', timeLimits, [-4000 4000]));
 
         hFigTime.setHideOnDrag('background'); % hide background spikes when dragging
         if ~isempty(hCfg.time_tick_show) % tick mark
-            hFigTime.axSet('XTick', timeLimits(1):hCfg.time_tick_show:timeLimits(end));
+            hFigTime.axApply(@set, 'XTick', timeLimits(1):hCfg.time_tick_show:timeLimits(end));
         end
+
+        hFigTime.figData.isPlotted = true;
     end
 
     [bgFeatures, bgTimes] = getFigTimeFeatures(hClust, iSite); % plot background
-    [fgFeatures, fgTimes, yLabel] = getFigTimeFeatures(hClust, iSite, selected(1)); % plot primary selected cluster
+    [fgFeatures, fgTimes, YLabel] = getFigTimeFeatures(hClust, iSite, selected(1)); % plot primary selected cluster
 
     figTitle = '[H]elp; (Sft)[Left/Right]:Sites/Features; (Sft)[Up/Down]:Scale; [B]ackground; [S]plit; [R]eset view; [P]roject; [M]erge; (sft)[Z] pos; [E]xport selected; [C]hannel PCA';
     if numel(selected) == 2
@@ -60,8 +62,8 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
 %     toggleVisible_(S_fig.hPlot0, S_fig.doPlotBG);
 
     hFigTime.axis([timeLimits, vppLim]);
-    hFigTime.title(figTitle);
-    hFigTime.ylabel(yLabel);
+    hFigTime.axApply(@title, figTitle, 'Interpreter', 'none', 'FontWeight', 'normal');
+    hFigTime.axApply(@ylabel, YLabel);
 
 %     S_fig = struct_merge_(S_fig, makeStruct_(iSite, timeLimits, hCfg, vpp_lim, clusterSpikes));
     hFigTime.figData.csHelp = {'Up/Down: change channel', ...

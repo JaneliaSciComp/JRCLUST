@@ -17,7 +17,7 @@ function S0 = keyPressFcn_FigWav_(hFigWav, hEvent, S0) %amp dist
             S0.iCluCopy = 1;
         elseif strcmpi(hEvent.Key, 'end')
             S0.iCluCopy = hClust.nClu;
-        elseif ~key_modifier_(hEvent, 'shift');
+        elseif ~keyMod(hEvent, 'shift');
             if strcmpi(hEvent.Key, 'leftarrow')
                 if S0.iCluCopy == 1, return; end
                 S0.iCluCopy = S0.iCluCopy - 1;

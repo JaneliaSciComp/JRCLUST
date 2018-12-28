@@ -6,7 +6,7 @@ function keyPressFcn_Fig_traces_(hFig, event)
     S0 = get(0, 'UserData');
     P = S0.P;
     S_fig = get(hFig, 'UserData');
-    factor = 1 + 3 * key_modifier_(event, 'shift');
+    factor = 1 + 3 * keyMod(event, 'shift');
     nSites = numel(P.viSite2Chan);
 
     switch lower(event.Key)

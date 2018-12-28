@@ -1,5 +1,5 @@
 function [plotKey, yOffsets] = doMultiplot(hFig, plotKey, scale, XData, YData, yOffsets, fScatter)
-%DOMULTIPLOT Create a multi-line plot
+    %DOMULTIPLOT Create a multi-line plot
     shape = size(YData); % nSamples x nSites x (nSpikes)
     userData = struct('scale', scale, ...
                       'shape', shape, ...
@@ -47,11 +47,9 @@ function [plotKey, yOffsets] = doMultiplot(hFig, plotKey, scale, XData, YData, y
     end
 
     if ~hFig.hasPlot(plotKey)
-        hFig.addLine(XData(:), YData(:), 'UserData', userData);
-        % set(plotKey, 'UserData', plotData);
+        hFig.addPlot(plotKey, @line, XData(:), YData(:), 'UserData', userData);
     else
         hFig.updatePlot(plotKey, XData(:), YData(:), userData);
-        % set(plotKey, 'XData', xData(:), 'YData', yData(:), 'UserData', plotData);
     end
 end
 

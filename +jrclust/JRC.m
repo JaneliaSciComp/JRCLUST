@@ -157,7 +157,7 @@ classdef JRC < handle & dynamicprops
             end
 
             % command sentinel
-            legalCmds = {'detect', 'sort', 'manual'};
+            legalCmds = {'detect', 'sort', 'manual', 'full'};
             if ~any(strcmpi(obj.cmd, legalCmds))
                 obj.errMsg = sprintf('Command `%s` not recognized', obj.cmd);
                 errordlg(obj.errMsg, 'Unrecognized command');
@@ -168,7 +168,7 @@ classdef JRC < handle & dynamicprops
             % determine which commands in the pipeline to run
             detectCmds = {'detect', 'full'};
             sortCmds   = {'sort', 'spikesort', 'full'};
-            curateCmds = {'full', 'manual'};
+            curateCmds = {'manual', 'full'};
 
             if any(strcmp(obj.cmd, curateCmds))
                 obj.isCurate = true;
@@ -258,6 +258,7 @@ classdef JRC < handle & dynamicprops
                 else
                     obj.dRes = dRes_;
                     obj.sRes = sRes_;
+                    obj.hClust = sRes_.hClust;
                 end
             end
 
@@ -318,7 +319,8 @@ classdef JRC < handle & dynamicprops
             if obj.isCurate
                 obj.hCfg.useGPU = gpuCurate;
 
-%                 obj.hCurate = 
+                obj.hCurate = jrclust.controllers.curate.CurateController(obj.hCfg);
+                obj.hCurate.beginSession(obj.hClust);
             end
 
             % save our results for later
