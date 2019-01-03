@@ -15,6 +15,15 @@ function res = computeRho(dRes, res, hCfg)
         t1 = tic;
     end
 
+    % create CUDA kernel
+    chunkSize = 16;
+    nC_max = 45;
+    ptxFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.ptx');
+    cuFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.cu');
+    rhoCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
+    rhoCK.ThreadBlockSize = [hCfg.nThreads, 1];
+    rhoCK.SharedMemorySize = 4 * chunkSize * (2 + nC_max + 2*hCfg.nThreads);
+
     spikeData = struct('spikeTimes', dRes.spikeTimes);
     for iSite = 1:nSites
         if isfield(dRes, 'spikesBySite')
@@ -50,7 +59,8 @@ function res = computeRho(dRes, res, hCfg)
             siteCut = res.rhoCutGlobal.^2;
         end
 
-        siteRho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, siteCut, hCfg);
+        rhoCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
+        siteRho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, siteCut, rhoCK, hCfg);
 
 %                 if ~isempty(vlRedo_spk), viSpk_site_ = viSpk_site_(vlRedo_spk(viSpk_site_)); end
         res.spikeRho(spikeData.spikes1) = jrclust.utils.tryGather(siteRho);
@@ -67,27 +77,14 @@ function res = computeRho(dRes, res, hCfg)
 end
 
 %% LOCAL FUNCTIONS
-function rho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, rhoCut, hCfg)
+function rho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, rhoCut, rhoCK, hCfg)
     %COMPUTERHOSITE Compute site-wise rho for spike features
     [nC, n12] = size(siteFeatures); % nc is constant with the loop
     dn_max = int32(round((n1 + n2) / hCfg.nTime_clu));
 
-    persistent rhoCK;
-    chunkSize = 16;
-    nC_max = 45;
-
     rhoCut = single(rhoCut);
     if hCfg.useGPU
         try
-            if isempty(rhoCK) % create CUDA kernel
-                ptxFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.ptx');
-                cuFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.cu');
-                rhoCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
-                rhoCK.ThreadBlockSize = [hCfg.nThreads, 1];
-                rhoCK.SharedMemorySize = 4 * chunkSize * (2 + nC_max + 2 * hCfg.nThreads); % @TODO: update the size
-            end
-
-            rhoCK.GridSize = [ceil(n1 / chunkSize / chunkSize), chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
             rho = zeros(1, n1, 'single', 'gpuArray');
             consts = int32([n1, n12, nC, dn_max, hCfg.getOr('fDc_spk', 0)]);
             rho = feval(rhoCK, rho, siteFeatures, spikeOrder, consts, rhoCut);
@@ -95,7 +92,6 @@ function rho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, rhoCut, hCfg)
             return;
         catch ME
             warning(ME.identifier, 'CUDA kernel failed: %s', ME.message);
-            rhoCK = [];
         end
     end
 

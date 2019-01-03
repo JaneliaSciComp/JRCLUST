@@ -21,6 +21,10 @@ classdef Figure < handle
         hFunKey;        % keypress function handle
     end
 
+    properties (Hidden, SetAccess=private)
+        initialPos;
+    end
+
     properties (Hidden, SetAccess=protected)
         hideOnDrag;     % plotKeys to hide when we drag
         hideOnDragOff;  % plotKeys normally hidden on drag and manually toggled off
@@ -37,7 +41,10 @@ classdef Figure < handle
             obj.hFig = figure();
 
             obj.figTag = figTag;
+
             obj.figPos = figPos;
+            obj.initialPos = figPos;
+
             obj.figName = figName;
 
             set(obj.hFig, 'Color', 'w', 'NumberTitle', 'off');
@@ -440,6 +447,11 @@ classdef Figure < handle
             set(hPlot, 'YData', YData(:), 'UserData', UserData);
         end
 
+        function resetPos(obj)
+            %RESETPOS Set figure position to where it was spawned initially
+            obj.figPos = obj.initialPos;
+        end
+
         function rmPlot(obj, plotKey)
             %RMPLOT Remove a plot by key
             if ~obj.hasPlot(plotKey)
@@ -599,7 +611,7 @@ classdef Figure < handle
 
             doUpdate = true;
             if (numel(oldXData) == numel(newXData)) && (numel(oldYData) == numel(newYData))
-                if (norm(oldXData(:) - newXData(:)) == 0) && (norm(oldYData(:) - newYData(:)) == 0)
+                if all(oldXData(:) - newXData(:) == 0) && all(oldYData(:) - newYData(:) == 0)
                     doUpdate = false;
                 end
             end

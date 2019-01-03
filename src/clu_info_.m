@@ -3,7 +3,7 @@ function clu_info_(S0)
     % This also plots cluster position
     if nargin<1, S0 = get(0, 'UserData'); end
     P = S0.P; S_clu = S0.S_clu;
-    hMenuInfo = get_tag_('hMenuInfo', 'uimenu');
+    hMenuInfo = get_tag_('InfoMenu', 'uimenu');
     S_clu1 = get_cluInfo_(S0.iCluCopy);
     if ~isempty(S0.iCluPaste)
         S_clu2 = get_cluInfo_(S0.iCluPaste);

@@ -8,7 +8,7 @@ function flag = delete_file_(vcFile)
         disperr_();
         return;
     end
-    % vcCmd = ifeq_(ispc(), 'del', 'rm');
+    % vcCmd = jrclust.utils.ifEq(ispc(), 'del', 'rm');
     % eval(sprintf('system(''%s "%s"'');', vcCmd, vcFile));
     flag = 1;
 end %func

@@ -19,8 +19,8 @@ function ui_update_log_(cS_log, S0)
         vcLabel1 = sprintf('%s: %s', datestr(S_log1.datenum), S_log1.vcCmd);
         fEnable = (iMenu <= P.MAX_LOG) && iMenu~=1;
         uimenu(mh_history, 'Label', vcLabel1, 'Callback', @(h,e)restore_log_(iMenu), ...
-        'Checked', ifeq_(iMenu==1, 'on', 'off'), ...
-        'Enable', ifeq_(fEnable, 'on', 'off'));
+        'Checked', jrclust.utils.ifEq(iMenu==1, 'on', 'off'), ...
+        'Enable', jrclust.utils.ifEq(fEnable, 'on', 'off'));
     end
     % update undo/redo menu
 end %func

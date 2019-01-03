@@ -52,9 +52,9 @@ function S0 = keyPressFcn_Fig_preview_(hFig, event, S0)
         S_fig.fGrid = ~S_fig.fGrid;
         grid_([S_fig.hAx_traces, S_fig.hAx_mean, S_fig.hAx_psd, S_fig.hAx_sites], S_fig.fGrid);
         set(hFig, 'UserData', S_fig);
-        menu_label_('menu_preview_view_grid', ifeq_(S_fig.fGrid, 'Hide [G]rid', 'Show [G]rid'));
+        menu_label_('menu_preview_view_grid', jrclust.utils.ifEq(S_fig.fGrid, 'Hide [G]rid', 'Show [G]rid'));
 
-        case 'h', msgbox_(S_fig.csHelp, 1); %help
+        case 'h', msgbox_(S_fig.helpText, 1); %help
 
         case 'r' %reset view
         P = get0_('P');

@@ -23,7 +23,7 @@ classdef SortController < handle
 
     %% USER METHODS
     methods
-        function [res, hClust] = sort(obj, dRes)
+        function res = sort(obj, dRes)
             %SORT Cluster the spikes given in dRes
             res = struct();
             t0 = tic();
@@ -52,6 +52,8 @@ classdef SortController < handle
             res = jrclust.cluster.densitypeaks.assignClusters(dRes, res, obj.hCfg);
             hClust = jrclust.models.clustering.DensityPeakClustering(res, dRes, obj.hCfg);
             hClust.autoMerge();
+
+            res.hClust = hClust;
 
 %             if obj.hCfg.repeatLower
 %                 

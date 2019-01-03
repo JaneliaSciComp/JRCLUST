@@ -63,7 +63,7 @@ function S0 = keyPressFcn_FigWav_(hFigWav, hEvent, S0) %amp dist
         case 'v', plot_FigIsi_(S0);
         case 'a', update_spikes_(S0); clu_info_(S0);
         case 'f', clu_info_(S0);
-        case 'h', msgbox_(figData.csHelp, 1);
+        case 'h', msgbox_(figData.helpText, 1);
         case '0', unit_annotate_([],[], 'to_delete'); % TW
         case '1', unit_annotate_([],[], 'single'); % TW
         case '2', unit_annotate_([],[], 'multi'); % TW

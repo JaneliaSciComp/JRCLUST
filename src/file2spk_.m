@@ -64,7 +64,7 @@ function S0 = file2spk_(P, viTime_spk0, viSite_spk0)
         mnWav11_pre = [];
         for iLoad1 = 1:nLoad1
             fprintf('Processing %d/%d of file %d/%d...\n', iLoad1, nLoad1, iFile, nFiles);
-            nSamples11 = ifeq_(iLoad1 == nLoad1, nSamples_last1, nSamples_load1);
+            nSamples11 = jrclust.utils.ifEq(iLoad1 == nLoad1, nSamples_last1, nSamples_load1);
             fprintf('\tLoading from file...'); t_load_ = tic;
             [mnWav11, vrWav_mean11] = load_file_(fid1, nSamples11, P);
             fprintf('took %0.1fs\n', toc(t_load_));

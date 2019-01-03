@@ -87,12 +87,12 @@ function [hFig, S_fig] = Fig_preview_plot_(P, fKeepView)
         menu_label_('menu_preview_view_threshold', 'Show spike [T]hreshold');
     end
     xylabel_(S_fig.hAx_traces, '', 'Site #');
-    vcFilter_ = ifeq_(S_fig.fFilter, sprintf('Filter=%s', S_fig.vcFilter), 'Filter off');
+    vcFilter_ = jrclust.utils.ifEq(S_fig.fFilter, sprintf('Filter=%s', S_fig.vcFilter), 'Filter off');
     set(hFig, 'Name', sprintf('%s; %s; CommonRef=%s', P.vcFile_prm, vcFilter_, S_fig.vcCommonRef));
 
     title_(S_fig.hAx_traces, sprintf('Scale: %0.1f uV', S_fig.maxAmp));
-    menu_label_('menu_preview_view_filter', ifeq_(S_fig.fFilter, 'Show raw traces [F]', 'Show [F]iltered traces'));
-    menu_label_('menu_preview_view_grid', ifeq_(S_fig.fGrid, 'Hide [G]rid', 'Show [G]rid'));
+    menu_label_('menu_preview_view_filter', jrclust.utils.ifEq(S_fig.fFilter, 'Show raw traces [F]', 'Show [F]iltered traces'));
+    menu_label_('menu_preview_view_grid', jrclust.utils.ifEq(S_fig.fGrid, 'Hide [G]rid', 'Show [G]rid'));
     if ~fKeepView
         set(S_fig.hAx_traces, 'YTick', 1:nSites, 'YLim', S_fig.siteLim + [-1,1], 'XLim', tlim_sec);
     end

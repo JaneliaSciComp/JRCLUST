@@ -63,7 +63,7 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
     elseif strcmp(dispFeature, 'ppca')
         % compute first principal vectors (on each of sitesToShow) from
         % spikes in iCluster and jCluster, respectively
-        [prVecs1, prVecs2] = jrclust.features.getPVClusters(sitesToShow, iCluster, jCluster);
+        [prVecs1, prVecs2] = jrclust.features.getPVClusters(hClust, sitesToShow, iCluster, jCluster);
 
         % project background and foreground spikes onto principal vectors
         bgWindows = permute(jrclust.utils.getSampledWindows(hClust, bgSpikes, sitesToShow, false), [1, 3, 2]); % nSamples x nSpikes x nSites

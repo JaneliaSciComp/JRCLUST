@@ -10,7 +10,7 @@ function [prVecs1, prVecs2] = getPVClusters(hClust, sites, iCluster, jCluster)
     %           if jCluster is not given, 2nd principal vectors of iCluster
     %           spike waveforms on sites
 
-    if nargin < 3
+    if nargin < 4
         jCluster = [];
     end
 

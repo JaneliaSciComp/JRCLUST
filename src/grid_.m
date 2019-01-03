@@ -5,7 +5,7 @@ function grid_(vhAx, fGrid)
         if ischar(fGrid)
             grid(vhAx(iAx), fGrid);
         else
-            grid(vhAx(iAx), ifeq_(fGrid, 'on', 'off'));
+            grid(vhAx(iAx), jrclust.utils.ifEq(fGrid, 'on', 'off'));
         end
     end
 end %func

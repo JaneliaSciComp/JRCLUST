@@ -16,6 +16,7 @@ function hJRC_ = jrc(varargin)
     try
         hJRC = jrclust.JRC(varargin{:});
     catch ME
+        warning(ME.identifier, 'Could not create JRC handle: %s', ME.message);
         return;
     end
 
@@ -210,7 +211,7 @@ end
 %             gui_test_(P, 'Fig_preview');
 % 
 %         case 'traces'
-%             traces_(P, 0, vcArg2);
+%             traces_(P, vcArg2);
 % 
 %         case 'traces-lfp'
 %             traces_lfp_(P)
@@ -219,7 +220,7 @@ end
 %             dir_files_(P.csFile_merge);
 % 
 %         case 'traces-test'
-%             traces_(P, 1);
+%             traces_(P);
 %             traces_test_(P);
 % 
 %         case {'full', 'all'}

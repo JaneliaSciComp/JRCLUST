@@ -17,8 +17,8 @@ function restore_log_(iMenu1)
         fTargetItem = iMenu==iMenu1;
         fEnable = ~fTargetItem && iMenu <= P.MAX_LOG;
         set(vhMenu(iMenu), ...
-        'Checked', ifeq_(fTargetItem, 'on', 'off'), ...
-        'Enable', ifeq_(fEnable, 'on', 'off'));
+        'Checked', jrclust.utils.ifEq(fTargetItem, 'on', 'off'), ...
+        'Enable', jrclust.utils.ifEq(fEnable, 'on', 'off'));
     end %for
 
     % update GUI

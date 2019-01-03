@@ -93,7 +93,7 @@ function keyPressFcn_FigProj_(hFig, event)
             toggleVisible_(S_fig.hPlot0);
 
         case 'h' % help
-            msgbox_(S_fig.csHelp, 1);
+            msgbox_(S_fig.helpText, 1);
     end % switch
 
     % drawnow;

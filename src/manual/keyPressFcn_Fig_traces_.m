@@ -10,7 +10,7 @@ function keyPressFcn_Fig_traces_(hFig, event)
     nSites = numel(P.viSite2Chan);
 
     switch lower(event.Key)
-        case 'h', msgbox_(S_fig.csHelp, 1);
+        case 'h', msgbox_(S_fig.helpText, 1);
 
         case {'uparrow', 'downarrow'}
         if isfield(S_fig, 'chSpk')
@@ -63,12 +63,12 @@ function keyPressFcn_Fig_traces_(hFig, event)
         mnWav1 = uint2int_(mnWav1);
         S_fig.nlim_bin = nlim_bin;
         set_fig_(hFig, S_fig);
-        Fig_traces_plot_(1); %redraw
+        doPlotFigTraces(1); %redraw
 
         case 'f' %apply filter
         S_fig.vcFilter = str_toggle_(S_fig.vcFilter, 'on', 'off');
         set_fig_(hFig, S_fig);
-        Fig_traces_plot_();
+        doPlotFigTraces();
 
         case 'g' %grid toggle on/off
         S_fig.vcGrid = str_toggle_(S_fig.vcGrid, 'on', 'off');
@@ -97,12 +97,12 @@ function keyPressFcn_Fig_traces_(hFig, event)
         case 's' %show/hide spikes
         S_fig.vcSpikes = str_toggle_(S_fig.vcSpikes, 'on', 'off');
         set_fig_(hFig, S_fig);
-        Fig_traces_plot_();
+        doPlotFigTraces();
 
         case 't' %show/hide traces
         S_fig.vcTraces = str_toggle_(S_fig.vcTraces, 'on', 'off');
         set_fig_(hFig, S_fig);
-        Fig_traces_plot_();
+        doPlotFigTraces();
 
         case 'c' %channel query
         msgbox_('Draw a rectangle', 1);

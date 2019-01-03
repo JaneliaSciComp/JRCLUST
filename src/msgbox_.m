@@ -10,7 +10,7 @@ function hMsgbox = msgbox_(csMsg, fBlock, fModal)
         uiwait(msgbox(csMsg, 'modal'));
     else
         try
-            hMsgbox = msgbox(csMsg, ifeq_(fModal, 'modal', 'non-modal'));
+            hMsgbox = msgbox(csMsg, jrclust.utils.ifEq(fModal, 'modal', 'non-modal'));
         catch
             ;
         end

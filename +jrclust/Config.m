@@ -110,6 +110,7 @@ classdef Config < handle & dynamicprops
         gtFile = '';                % ground truth file (default: SESSION_NAME_gt.mat) (TODO: specify format)
         headerOffset = 0;           % file header offset, in bytes
         lfpSampleRate = 2500;       % sample rate of the LFP recording, in Hz
+        nChans = 385;               % number of channels stored in recording
         probeFile;                  % probe file to use (.prb, .mat)
         probePad;                   %
         rawRecordings;              % unified interface to singleRaw and multiRaw
@@ -180,10 +181,12 @@ classdef Config < handle & dynamicprops
         % display params
         dispFeature = 'vpp';        % feature to display in time/projection views
         dispFilter = '';            % 
-        dispTimeLimits = [0 0.2];   % time range to display (in s?)
+        dispTimeLimits = [0 0.2];   % time range to display (in seconds)
+        fText = true;               % 
         nShow = 200;                % maximum number of traces to show [D?# spikes to show]
         nShow_proj = 500;           % maximum number of features to show in projection
         nSitesFigProj = 5;          % number of sites to display in the feature projection view
+        nTime_traces = 1;           % number of time segments to display. Set to 1 to show one continuous time segment
         nSpk_show = 30;             % show spike waveforms for manual clustering
         pcPair = [1 2];             % PC projection to show (1 vs 2; 1 vs 3; 2 vs 3), can be toggled
         showRaw = false;            % show raw waveforms in main view if true
@@ -234,7 +237,6 @@ classdef Config < handle & dynamicprops
         fSingleColumn_track = true;
         fSmooth_track = true;
         fSpike_show = true;
-        fText = true;
         fTranspose_bin = true;
         fUseCache_track = false;
         fUseLfp_track = true;
@@ -261,7 +263,6 @@ classdef Config < handle & dynamicprops
         max_shift_track = [];
         mrColor_proj = [213 219 235; 0 130 196; 240 119 22]/256;
         nBytes_file = [];
-        nChans = 120;
         nClu_show_aux = 10;
         nLoads_max_preview = 30;
         nMinAmp_ms = 0;
@@ -273,7 +274,6 @@ classdef Config < handle & dynamicprops
         nSmooth_ms_psth = 50;
         nT_drift = [];
         nThreads = 128;
-        nTime_traces = 1;
         nw_lcm_track = 1;
         offset_sec_preview = 0;
         pix_per_sec_track = [];

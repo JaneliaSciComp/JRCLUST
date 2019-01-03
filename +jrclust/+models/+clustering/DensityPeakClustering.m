@@ -84,7 +84,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
     end
 
     % computed from other values, but only on set
-    properties (Transient)
+    properties (SetAccess=private, Transient)
         nClusters;          % number of clusters
     end
 
@@ -1409,7 +1409,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
         % spikeClusters/viClu
         function set.spikeClusters(obj, sc)
             obj.spikeClusters = sc;
-            obj.nClusters = max(sc); %#ok<MCSUP>
+            obj.nClusters = double(max(sc)); %#ok<MCSUP>
         end
 
         function sc = get.viClu(obj)

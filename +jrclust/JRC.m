@@ -16,7 +16,6 @@ classdef JRC < handle & dynamicprops
         hCfg;           %
         hDet;           %
         hSort;          %
-        hClust;         % clustering handle
         hCurate;        %
     end
 
@@ -24,6 +23,11 @@ classdef JRC < handle & dynamicprops
     properties (Dependent)
         spikeTimes;     %
         spikeSites;     % 
+    end
+
+    % data from clustering step
+    properties (Dependent)
+        hClust;
     end
 
     % structs containing results from steps in the pipeline
@@ -102,7 +106,7 @@ classdef JRC < handle & dynamicprops
                     return;
 
                 case {'set', 'setprm', 'set-prm'}
-                    imsg = 'Use `hJRC.hCfg = myconfig;` instead';
+                    imsg = 'Create a new JRC handle instead';
                     jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.isCompleted = true;
                     return;
@@ -226,26 +230,6 @@ classdef JRC < handle & dynamicprops
                 return;
             end
 
-            % set random seeds
-            rng(obj.hCfg.randomSeed);
-            if obj.hCfg.useGPU
-                % while we're here, clear GPU memory
-                if obj.hCfg.verbose
-                    fprintf('Clearing GPU memory...');
-                end
-                gpuDevice(); % selects GPU device
-                gpuDevice([]); % clears GPU memory
-                if obj.hCfg.verbose
-                    fprintf('done\n');
-                end
-
-                parallel.gpu.rng(obj.hCfg.randomSeed);
-
-                % clear persistent kernels
-                clear jrclust.cluster.densitypeaks.computeRho;
-                clear jrclust.cluster.densitypeaks.computeDeltaSite;
-            end
-
             % try to load sort and detect results
             if obj.isCurate && ~obj.isSort
                 [dRes_, sRes_] = obj.loadFiles();
@@ -258,7 +242,6 @@ classdef JRC < handle & dynamicprops
                 else
                     obj.dRes = dRes_;
                     obj.sRes = sRes_;
-                    obj.hClust = sRes_.hClust;
                 end
             end
 
@@ -286,8 +269,26 @@ classdef JRC < handle & dynamicprops
                 end
             end
 
-            gpuDetect = obj.hCfg.useGPU; % save this in case useGPU is disabled during detection step
+            % set random seeds
+            rng(obj.hCfg.randomSeed);
+            if obj.hCfg.useGPU
+                % while we're here, clear GPU memory
+                if obj.isDetect || obj.isSort
+                    if obj.hCfg.verbose
+                        fprintf('Clearing GPU memory...');
+                    end
+                    gpuDevice(); % selects GPU device
+                    gpuDevice([]); % clears GPU memory
+                    if obj.hCfg.verbose
+                        fprintf('done\n');
+                    end
+                end
+
+                parallel.gpu.rng(obj.hCfg.randomSeed);
+            end
+
             % DETECT SPIKES
+            gpuDetect = obj.hCfg.useGPU; % save this in case useGPU is disabled during detection step
             if obj.isDetect
                 obj.hDet = jrclust.controllers.detect.DetectController(obj.hCfg);
                 obj.dRes = obj.hDet.detect();
@@ -299,13 +300,13 @@ classdef JRC < handle & dynamicprops
                 end
             end
 
-            gpuSort = obj.hCfg.useGPU | gpuDetect;
             % CLUSTER SPIKES
+            gpuSort = obj.hCfg.useGPU | gpuDetect;
             if obj.isSort
                 obj.hCfg.useGPU = gpuSort;
 
                 obj.hSort = jrclust.controllers.sort.SortController(obj.hCfg);
-                [obj.sRes, obj.hClust] = obj.hSort.sort(obj.dRes);
+                obj.sRes = obj.hSort.sort(obj.dRes);
 
                 if obj.hSort.isError
                     error(obj.hSort.errMsg);
@@ -319,8 +320,8 @@ classdef JRC < handle & dynamicprops
             if obj.isCurate
                 obj.hCfg.useGPU = gpuCurate;
 
-                obj.hCurate = jrclust.controllers.curate.CurateController(obj.hCfg);
-                obj.hCurate.beginSession(obj.hClust);
+                obj.hCurate = jrclust.controllers.curate.CurateController(obj.hClust);
+                obj.hCurate.beginSession();
             end
 
             % save our results for later
@@ -382,6 +383,15 @@ classdef JRC < handle & dynamicprops
             obj.dRes = dr;
         end
 
+        % hClust
+        function hc = get.hClust(obj)
+            if isempty(obj.sRes)
+                hc = [];
+            else
+                hc = obj.sRes.hClust;
+            end
+        end
+
         % isError
         function ie = get.isError(obj)
             ie = obj.isError;
@@ -412,6 +422,13 @@ classdef JRC < handle & dynamicprops
             else
                 ss = obj.dRes.spikeSites;
             end
+        end
+
+        % sRes
+        function set.sRes(obj, sr)
+            failMsg = 'sRes must contain at a minimum: hClust';
+            assert(isstruct(sr) && isfield(sr, 'hClust') && isa(sr.hClust, 'jrclust.models.clustering.DensityPeakClustering'), failMsg);
+            obj.sRes = sr;
         end
     end
 end

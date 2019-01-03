@@ -18,7 +18,7 @@ function [tnWav_spk, vrVrms_site] = file2spk_gt_(P, viTime_spk0)
     mnWav11_pre = [];
     for iLoad1 = 1:nLoad1
         fprintf('\tProcessing %d/%d...\n', iLoad1, nLoad1);
-        nSamples11 = ifeq_(iLoad1 == nLoad1, nSamples_last1, nSamples_load1);
+        nSamples11 = jrclust.utils.ifEq(iLoad1 == nLoad1, nSamples_last1, nSamples_load1);
         [mnWav11, vrWav_mean11] = load_file_(fid1, nSamples11, P);
         if iLoad1 < nLoad1
             mnWav11_post = load_file_preview_(fid1, P);

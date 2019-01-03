@@ -47,7 +47,7 @@ function make_trial_(vcFile_prm, fImec)
     nRefrac_trial = round(P.tRefrac_trial * P.sRateHz);
     viT_rising = remove_refrac(find(vrWav(1:end-1) < thresh & vrWav(2:end) >= thresh) + 1, nRefrac_trial);
     viT_falling = remove_refrac(find(vrWav(1:end-1) > thresh & vrWav(2:end) <= thresh), nRefrac_trial);
-    viT = ifeq_(strcmpi(vcAns, 'Rising edge'), viT_rising, viT_falling);
+    viT = jrclust.utils.ifEq(strcmpi(vcAns, 'Rising edge'), viT_rising, viT_falling);
     vrT = viT / P.sRateHz;
 
     % save
