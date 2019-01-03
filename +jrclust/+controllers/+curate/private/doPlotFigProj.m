@@ -78,7 +78,7 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, sitesToShow, selected, bound
                     'Box', 'off');
     hFigProj.axApply(@xlabel, sprintf(XLabel, boundScale));
     hFigProj.axApply(@ylabel, sprintf(YLabel, boundScale));
-    hFigProj.axApply(@title, figTitle, 'Interpreter', 'none', 'FontWeight', 'normal');
+    hFigProj.axApply(@title, figTitle);
 
     hFigProj.figData.helpText = {'[D]raw polygon', ...
                     '[S]plit cluster', ...

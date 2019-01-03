@@ -34,7 +34,7 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
             c1Data.cluster, c2Data.cluster, nSpikes, nSpikes2, ...
             [clusterPos(1), clusterPos2(1), clusterPos(2), clusterPos2(2)]);
     end
-    hFigPos.axApply(@title, figTitle, 'Interpreter', 'none', 'FontWeight', 'normal');
+    hFigPos.axApply(@title, figTitle);
 end
 
 %% LOCAL FUNCTIONS

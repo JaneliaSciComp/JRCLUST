@@ -780,7 +780,8 @@ classdef Config < handle & dynamicprops
         % dtype/vcDataType
         function set.dtype(obj, dt)
             legalTypes = {'int16', 'uint16', 'int32', 'uint32', 'single', 'double'};
-            assert(sum(strcmp(dt, legalTypes)) == 1, 'legal dtypes are: %s', strjoin(legalTypes, ', '));
+            failMsg = sprintf('legal dtypes are: %s', strjoin(legalTypes, ', '));
+            assert(ismember(dt, legalTypes), failMsg);
             obj.dtype = dt;
         end
         function dt = get.vcDataType(obj)

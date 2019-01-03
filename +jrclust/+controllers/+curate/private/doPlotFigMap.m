@@ -22,7 +22,7 @@ function hFigMap = doPlotFigMap(hFigMap, hClust, hCfg, selected)
         hFigMap.plotApply('hPatch', @set, 'CData', vpp);
     end
 
-    hFigMap.axApply(@title, sprintf('Max: %0.1f \\muVpp', max(clusterVpp)), 'Interpreter', 'none', 'FontWeight', 'normal');
+    hFigMap.axApply(@title, sprintf('Max: %0.1f \\muVpp', max(clusterVpp)));
     hFigMap.caxis([0, max(clusterVpp)]);
 end
 

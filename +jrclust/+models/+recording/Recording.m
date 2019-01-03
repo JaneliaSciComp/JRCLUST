@@ -40,48 +40,33 @@ classdef Recording < handle & dynamicprops
 
     %% LIFECYCLE
     methods
-        function obj = Recording(filename, dtype, nChans, headerOffset, hCfg)
+        function obj = Recording(filename, hCfg) % dtype, nChans, headerOffset, 
             %RECORDING Construct an instance of this class
             % check filename exists
             obj.binpath = jrclust.utils.absPath(filename); % returns empty if not found
             obj.isError = isempty(obj.binpath);
             if obj.isError
+                obj.errMsg = sprintf('file not found: %s', filename);
                 return;
             end
 
             % set object data type
-            legalTypes = {'int16', 'uint16', 'int32', 'uint32', 'single', 'double'};
-            if ~sum(strcmp(dtype, legalTypes)) == 1
-                obj.errMsg = sprintf('dtype must be one of %s', strjoin(legalTypes, ', '));
-                obj.isError = true;
-                return;
-            end
-            obj.dtype = dtype;
+            obj.dtype = hCfg.dtype;
 
             % set headerOffset
-            if ~(jrclust.utils.isscalarnum(headerOffset) && headerOffset >= 0)
-                obj.errMsg = 'headerOffset must be nonnegative scalar';
-                obj.isError = true;
-                return;
-            end
-            obj.headerOffset = headerOffset;
+            obj.headerOffset = hCfg.headerOffset;
 
             % set object data shape
-            if ~(jrclust.utils.isscalarnum(nChans) && nChans > 0)
-                obj.errMsg = 'nChans must be a positive scalar';
-                obj.isError = true;
-                return;
-            end
             d = dir(obj.binpath);
             obj.fSizeBytes = d.bytes;
 
-            nSamples = (d.bytes - obj.headerOffset) / nChans / jrclust.utils.typeBytes(obj.dtype);
+            nSamples = (d.bytes - obj.headerOffset) / hCfg.nChans / jrclust.utils.typeBytes(obj.dtype);
             if ceil(nSamples) ~= nSamples % must be an integer or we don't have a complete recording
                 obj.errMsg = 'incomplete recording';
                 obj.isError = true;
                 return;
             end
-            obj.dshape = [nChans nSamples];
+            obj.dshape = [hCfg.nChans nSamples];
 
             % load start and end times
             obj.metapath = jrclust.utils.findMeta(filename);

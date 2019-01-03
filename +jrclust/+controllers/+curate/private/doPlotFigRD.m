@@ -49,7 +49,7 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
     else
         hFigRD.axApply(@ylabel, 'log10 delta');
     end
-    hFigRD.axApply(@title, sprintf('rho-cut: %f, delta-cut: %f', hCfg.log10RhoCut, hCfg.log10DeltaCut), 'Interpreter', 'none', 'FontWeight', 'normal');
+    hFigRD.axApply(@title, sprintf('rho-cut: %f, delta-cut: %f', hCfg.log10RhoCut, hCfg.log10DeltaCut));
 
     drawnow;
 end

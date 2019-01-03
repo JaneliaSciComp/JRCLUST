@@ -6,8 +6,8 @@ function merge_auto_(S0)
     if isempty(S0), S0 = get(0, 'UserData'); end
     [S_clu, P] = deal(S0.S_clu, S0.P);
 
-    % snr_thresh = inputdlg_num_('SNR threshold: ', 'Auto-deletion based on SNR', 10); % also ask about # spikes/unit (or firing rate) @TODO
-    csAns = inputdlg_('Waveform correlation threshold (0-1):', 'Auto-merge based on waveform threshold', 1, {num2str(P.maxWavCor)});
+    % snr_thresh = inputdlgNum('SNR threshold: ', 'Auto-deletion based on SNR', 10); % also ask about # spikes/unit (or firing rate) @TODO
+    csAns = inputdlg('Waveform correlation threshold (0-1):', 'Auto-merge based on waveform threshold', 1, {num2str(P.maxWavCor)});
 
     % parse user input
     if isempty(csAns), return; end

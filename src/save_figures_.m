@@ -4,7 +4,7 @@ function save_figures_(vcExt)
     global fDebug_ui
 
     vcPrefix = sprintf('jrc3_%s_', datestr(now, 'yymmdd-HHMM'));
-    csAns = inputdlg_('Figure name prefix', 'Save figure set', 1, {vcPrefix});
+    csAns = inputdlg('Figure name prefix', 'Save figure set', 1, {vcPrefix});
     if isempty(csAns), return; end
     vcPrefix = csAns{1};
 

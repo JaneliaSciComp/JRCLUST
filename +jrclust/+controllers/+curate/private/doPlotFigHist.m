@@ -28,10 +28,10 @@ function hFigHist = doPlotFigHist(hFigHist, hClust, hCfg, selected)
 
     if iCluster ~= jCluster
         YData2 = getISIHistogram(jCluster, XData, hClust, hCfg);
-        hFigHist.axApply(@title, sprintf('Cluster %d (black) vs. %d (red)', iCluster, jCluster), 'Interpreter', 'none', 'FontWeight', 'normal');
+        hFigHist.axApply(@title, sprintf('Cluster %d (black) vs. %d (red)', iCluster, jCluster));
         hFigHist.updatePlot('hPlot2', XData, YData2);
     else
-        hFigHist.axApply(@title, sprintf('Cluster %d', iCluster), 'Interpreter', 'none', 'FontWeight', 'normal');
+        hFigHist.axApply(@title, sprintf('Cluster %d', iCluster));
         hFigHist.hidePlot('hPlot2');
     end
 end

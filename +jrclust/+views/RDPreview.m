@@ -37,7 +37,7 @@ function hCFig = RDPreview(hClust)
                                'Value', 2, ...
                                'Position', [175, 0, 100, 30], ...
                                'Callback', @setProjection);
-    hCFig.axApply(@title, 'Projections of spikes onto features', 'Interpreter', 'none', 'FontWeight', 'normal');
+    hCFig.axApply(@title, 'Projections of spikes onto features');
     hFigRD = jrclust.views.Figure('FigRD', [0.55 0 0.4 0.5], ['Cluster rho-delta: ', hClust.hCfg.sessionName], false, false);
 
     hFigWav = jrclust.views.Figure('FigWav', [0.55 0.5 0.4 0.5], ['Filtered traces: ', hClust.hCfg.sessionName], false, false);
@@ -322,7 +322,7 @@ function hCFig = RDPreview(hClust)
         else
             hFigRD.axApply(@ylabel, 'log10 delta');
         end
-        hFigRD.axApply(@title, sprintf('rho-cut: %f, delta-cut: %f', hClust.hCfg.log10RhoCut, hClust.hCfg.log10DeltaCut), 'Interpreter', 'none', 'FontWeight', 'normal');
+        hFigRD.axApply(@title, sprintf('rho-cut: %f, delta-cut: %f', hClust.hCfg.log10RhoCut, hClust.hCfg.log10DeltaCut));
 
         drawnow;
     end

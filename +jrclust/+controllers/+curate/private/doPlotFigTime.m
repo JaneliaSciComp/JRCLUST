@@ -62,7 +62,7 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
 %     toggleVisible_(S_fig.hPlot0, S_fig.doPlotBG);
 
     hFigTime.axis([timeLimits, vppLim]);
-    hFigTime.axApply(@title, figTitle, 'Interpreter', 'none', 'FontWeight', 'normal');
+    hFigTime.axApply(@title, figTitle);
     hFigTime.axApply(@ylabel, YLabel);
 
 %     S_fig = struct_merge_(S_fig, makeStruct_(iSite, timeLimits, hCfg, vpp_lim, clusterSpikes));

@@ -77,16 +77,15 @@ classdef CurateController < handle
         function keyPressFigProj(obj, hObject, hEvent)
             %KEYPRESSFIGPROJ Handle callbacks for keys pressed in feature view
             hFigProj = obj.hFigs('FigProj');
+            factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
 
             switch lower(hEvent.Key)
                 case 'uparrow'
-                    pow = -(4^double(keyMod(hEvent, 'shift'))); % 1 or 4
-                    projScale = hFigProj.figData.boundScale*sqrt(2)^pow;
+                    projScale = hFigProj.figData.boundScale*sqrt(2)^-factor;
                     rescaleFigProj(hFigProj, projScale, obj.hCfg);
 
                 case 'downarrow'
-                    pow = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
-                    projScale = hFigProj.figData.boundScale*sqrt(2)^pow;
+                    projScale = hFigProj.figData.boundScale*sqrt(2)^factor;
                     rescaleFigProj(hFigProj, projScale, obj.hCfg);
 
                 case 'leftarrow' % go down one channel
@@ -164,11 +163,11 @@ classdef CurateController < handle
         function keyPressFigTime(obj, hObject, hEvent)
             %KEYPRESSFIGTIME Handle callbacks for keys pressed in time view
             hFigTime = obj.hFigs('FigTime');
-
+            factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
             nSites = numel(obj.hCfg.siteMap);
+
             switch hEvent.Key
                 case 'leftarrow' % go down one channel
-                    factor = 3*double(keyMod(hEvent, 'shift')) + 1; % 1 or 4
                     obj.currentSite = max(obj.currentSite - factor, 1);
                     obj.updateFigTime(false);
 
@@ -176,17 +175,14 @@ classdef CurateController < handle
 %                     if ~isVisible_(S_fig.hAx)
 %                         msgbox_('Channel switching is disabled in the position view'); return;
 %                     end
-                    factor = 3*double(keyMod(hEvent, 'shift')) + 1; % 1 or 4
                     obj.currentSite = min(obj.currentSite + factor, nSites);
                     obj.updateFigTime(false);
 
                 case 'uparrow'
-                    pow = -(4^double(keyMod(hEvent, 'shift'))); % -1 or -4
-                    rescaleFigTime(hFigTime, sqrt(2)^pow);
+                    rescaleFigTime(hFigTime, sqrt(2)^-factor);
                     
                 case 'downarrow' % change amp
-                    pow = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
-                    rescaleFigTime(hFigTime, sqrt(2)^pow);
+                    rescaleFigTime(hFigTime, sqrt(2)^factor);
 
                 case 'b' % toggle background spikes
                     hFigTime.figData.doPlotBG = hFigTime.toggleVisible('background');
@@ -292,17 +288,16 @@ classdef CurateController < handle
         function keyPressFigWav(obj, hObject, hEvent)
             %KEYPRESSFIGWAV Handle callbacks for keys pressed in main view
             hFigWav = obj.hFigs('FigWav');
+            factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
             nSites = numel(obj.hCfg.siteMap);
 
             switch hEvent.Key
                 case 'uparrow'
-                    pow = -(4^double(keyMod(hEvent, 'shift'))); % -1 or -4
-                    obj.maxAmp = rescaleFigWav(hFigWav, obj.hClust, obj.hCfg, obj.maxAmp, sqrt(2)^pow);
+                    obj.maxAmp = rescaleFigWav(hFigWav, obj.hClust, obj.hCfg, obj.maxAmp, sqrt(2)^-factor);
                     obj.updateCursorFigWav();
 
                 case 'downarrow'
-                    pow = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
-                    obj.maxAmp = rescaleFigWav(hFigWav, obj.hClust, obj.hCfg, obj.maxAmp, sqrt(2)^pow);
+                    obj.maxAmp = rescaleFigWav(hFigWav, obj.hClust, obj.hCfg, obj.maxAmp, sqrt(2)^factor);
                     obj.updateCursorFigWav();
 
                 case 'leftarrow' % select previous cluster
@@ -493,7 +488,7 @@ classdef CurateController < handle
             hFigSim.axApply(@set, 'YLim', jrclust.utils.trimLim(jCluster + [-6, 6], 0.5 + [0, obj.hClust.nClusters]));
 
             scoreij = obj.hClust.simScore(iCluster, jCluster);
-            hFigSim.axApply(@title, sprintf('Cluster %d vs. Cluster %d: %0.3f', iCluster, jCluster, scoreij), 'Interpreter', 'none', 'FontWeight', 'normal');
+            hFigSim.axApply(@title, sprintf('Cluster %d vs. Cluster %d: %0.3f', iCluster, jCluster, scoreij));
         end
 
         function updateCursorFigWav(obj)
@@ -632,7 +627,7 @@ classdef CurateController < handle
             drawnow;
 
             outerPosition = hFig.outerPosition;
-            hFig.figSet('MenuBar','None');
+            hFig.figApply(@set, 'MenuBar','None');
 
             obj.hMenus('FileMenu') = hFig.uimenu('Label', 'File');
             uimenu(obj.hMenus('FileMenu'), 'Label', 'Save', 'Callback', @obj.saveFiles); % save_manual_
@@ -978,7 +973,7 @@ classdef CurateController < handle
                 hFigWav.setMouseable(@obj.mouseClickFigWav);
 
                 % make this guy the key log
-                hFigWav.figSet('CloseRequestFcn', @obj.killFigWav);
+                hFigWav.figApply(@set, 'CloseRequestFcn', @obj.killFigWav);
                 obj.addMenu(hFigWav);
             end
 

@@ -85,7 +85,7 @@ classdef DetectController < handle
                 t1 = tic;
 
                 fn = obj.hCfg.rawRecordings{iRec};
-                hRec = jrclust.models.recording.Recording(fn, dtype, nChans, headerOffset, obj.hCfg);
+                hRec = jrclust.models.recording.Recording(fn, obj.hCfg);
 
                 % subset imported samples in this recording interval
                 [impTimes, impSites] = deal([]);

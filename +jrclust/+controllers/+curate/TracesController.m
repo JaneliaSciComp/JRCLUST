@@ -3,14 +3,22 @@ classdef TracesController < handle
     
     properties (SetAccess=private)
         hCfg;
+        hClust;
         hRec;
     end
 
     properties (SetAccess=private, Transient)
+        hFigPSD;
+        hFigTraces;
+
+        showFilter;
+        showGrid;
+        showSpikes;
+        showTraces;
+
         tracesFull;
         tracesRaw;
         tracesFilt;
-        hFigTraces;
     end
 
     %% LIFECYCLE
@@ -25,22 +33,66 @@ classdef TracesController < handle
     methods
         function keyPressFigTraces(obj, hObject, hEvent)
             % 2017/6/22 James Jun: Added nTime_traces multiview
-            factor = 1 + 3 * keyMod(hEvent, 'shift');
+            factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
             nSites = numel(obj.hCfg.siteMap);
 
+            switch hEvent.Key
+                case 'uparrow'
+                    obj.hFigTraces.figData.maxAmp = obj.hFigTraces.figData.maxAmp*sqrt(2)^-factor;
+                    obj.updateFigTraces(false);
+
+                case 'downarrow'
+                    obj.hFigTraces.figData.maxAmp = obj.hFigTraces.figData.maxAmp*sqrt(2)^factor;
+                    obj.updateFigTraces(false);
+
+                case 'e' %export current view
+                    jrclust.utils.exportToWorkspace(struct('tracesRaw', obj.tracesRaw, 'tracesFilt', obj.tracesFilt), true);
+
+                case 'f' % toggle filter
+                    obj.toggleFilter();
+
+                case 'g' % toggle grid
+                    obj.toggleGrid();
+
+                case 'h'
+                    msgbox_(obj.hFigTraces.figData.helpText, 1);
+
+                case 'p' % power spectrum
+                    iSite = inputdlgNum(sprintf('Site# to show (1-%d, 0 for all)', nSites), 'Site#', 0);
+
+                    if isnan(iSite)
+                        return;
+                    end
+
+                    obj.hFigPSD = jrclust.views.Figure('FigPsd', [.5 0 .5 1], obj.hCfg.configFile, true, true); % show to the right
+
+                    % ask user which channels to plot
+                    if iSite > 0
+                        tracesFilt_ = obj.tracesFilt(:, iSite)';
+                    else
+                        tracesFilt_ = obj.tracesFilt;
+                    end
+
+                    doPlotFigPSD(obj.hFigPSD, tracesFilt_, obj.hCfg); %obj.hCfg.sampleRate/obj.hCfg.nSkip_show, 'ignoreSites', obj.hCfg.ignoreSites));
+
+                case 'r' % reset view
+                    if obj.hFigTraces.figData.maxAmp ~= obj.hCfg.maxAmp
+                        obj.hFigTraces.figData.maxAmp = obj.hCfg.maxAmp;
+                        obj.updateFigTraces(true);
+                    else
+                        resetFigTraces(obj.hFigTraces, obj.tracesRaw, obj.hCfg);
+                    end
+
+                case 's' %show/hide spikes
+                    obj.toggleSpikes();
+
+                case 't' %show/hide traces
+                    obj.toggleTraces();
+            end % switch
+
 %             switch lower(hEvent.Key)
-%                 case 'h'
-%                     msgbox_(obj.hFigTraces.figData.helpText, 1);
+%                 
 % 
-%                 case {'uparrow', 'downarrow'}
-%                     if isfield(obj.hFigTraces.figData, 'chSpk')
-%                         obj.hFigTraces.figData.maxAmp = change_amp_(hEvent, obj.hFigTraces.figData.maxAmp, obj.hFigTraces.figData.hPlot, obj.hFigTraces.figData.chSpk);
-%                     else
-%                         obj.hFigTraces.figData.maxAmp = change_amp_(hEvent, obj.hFigTraces.figData.maxAmp, obj.hFigTraces.figData.hPlot);
-%                     end
-% 
-%                     title_(obj.hFigTraces.figData.hAx, sprintf(obj.hFigTraces.figData.vcTitle, obj.hFigTraces.figData.maxAmp));
-%                     set(obj.hFigTraces, 'UserData', obj.hFigTraces.figData);
 % 
 %                 case {'leftarrow', 'rightarrow', 'j', 'home', 'end'}
 %                 switch lower(hEvent.Key)
@@ -61,7 +113,7 @@ classdef TracesController < handle
 %                     case 'end' %end of file
 %                     nlim_bin = [-obj.hFigTraces.figData.nLoad_bin+1, 0] + obj.hFigTraces.figData.nSamples_bin;
 %                     case 'j'
-%                     vcAns = inputdlg_('Go to time (s)', 'Jump to time', 1, {'0'});
+%                     vcAns = inputdlg('Go to time (s)', 'Jump to time', 1, {'0'});
 %                     if isempty(vcAns), return; end
 %                     try
 %                         nlim_bin = round(str2double(vcAns)*obj.hCfg.sRateHz) + [1, obj.hFigTraces.figData.nLoad_bin];
@@ -81,49 +133,10 @@ classdef TracesController < handle
 %                 else
 %                     obj.tracesRaw = obj.tracesFull(viRange_bin, :);
 %                 end
-%                 obj.tracesRaw = uint2int_(obj.tracesRaw);
+%                 obj.tracesRaw = u2i(obj.tracesRaw);
 %                 obj.hFigTraces.figData.nlim_bin = nlim_bin;
-%                 set_fig_(obj.hFigTraces, obj.hFigTraces.figData);
 %                 doPlotFigTraces(1); %redraw
 % 
-%                 case 'f' %apply filter
-%                 obj.hFigTraces.figData.vcFilter = str_toggle_(obj.hFigTraces.figData.vcFilter, 'on', 'off');
-%                 set_fig_(obj.hFigTraces, obj.hFigTraces.figData);
-%                 doPlotFigTraces();
-% 
-%                 case 'g' %grid toggle on/off
-%                 obj.hFigTraces.figData.vcGrid = str_toggle_(obj.hFigTraces.figData.vcGrid, 'on', 'off');
-%                 grid(obj.hFigTraces.figData.hAx, obj.hFigTraces.figData.vcGrid);
-%                 set(obj.hFigTraces, 'UserData', obj.hFigTraces.figData);
-% 
-%                 case 'r' %reset view
-%                 fig_traces_reset_(obj.hFigTraces.figData);
-% 
-%                 case 'e' %export current view
-%                 assignWorkspace_(obj.tracesRaw, obj.tracesFilt);
-%                 disp('tracesRaw: raw traces, obj.tracesFilt: filtered traces');
-% 
-%                 case 'p' %power spectrum
-%                 iSite_show = inputdlg_num_(sprintf('Site# to show (1-%d, 0 for all)', nSites), 'Site#', 0);
-%                 if isnan(iSite_show), return; end
-%                 obj.hFigTraces = create_figure_('FigPsd', [.5 0 .5 1], obj.hCfg.vcFile_prm, 1, 1); %show to the right
-%                 % ask user which channels to plot
-%                 if iSite_show>0
-%                     mrWav2 = obj.tracesFilt(:, iSite_show);
-%                 else
-%                     mrWav2 = obj.tracesFilt;
-%                 end
-%                 plotMedPower_(mrWav2, 'sRateHz', obj.hCfg.sRateHz/obj.hCfg.nSkip_show, 'viChanExcl', obj.hCfg.viSiteZero);
-% 
-%                 case 's' %show/hide spikes
-%                 obj.hFigTraces.figData.vcSpikes = str_toggle_(obj.hFigTraces.figData.vcSpikes, 'on', 'off');
-%                 set_fig_(obj.hFigTraces, obj.hFigTraces.figData);
-%                 doPlotFigTraces();
-% 
-%                 case 't' %show/hide traces
-%                 obj.hFigTraces.figData.vcTraces = str_toggle_(obj.hFigTraces.figData.vcTraces, 'on', 'off');
-%                 set_fig_(obj.hFigTraces, obj.hFigTraces.figData);
-%                 doPlotFigTraces();
 % 
 %                 case 'c' %channel query
 %                 msgbox_('Draw a rectangle', 1);
@@ -154,15 +167,44 @@ classdef TracesController < handle
     methods (Hidden)
         function closeFigTraces(obj, hFig, hEvent)
             obj.hRec.close();
-
             delete(hFig);
-            close(hFig);    
+        end
+
+        function toggleFilter(obj)
+            obj.showFilter = ~obj.showFilter;
+            obj.hFigTraces.figData.filter = jrclust.utils.ifEq(obj.showFilter, 'on', 'off');
+            obj.updateFigTraces(false);
+        end
+
+        function toggleGrid(obj)
+            obj.showGrid = ~obj.showGrid;
+            obj.hFigTraces.figData.grid = jrclust.utils.ifEq(obj.showGrid, 'on', 'off');
+            obj.hFigTraces.axApply(@grid, obj.hFigTraces.figData.grid);
+        end
+
+        function toggleSpikes(obj)
+            obj.showSpikes = ~obj.showSpikes;
+            obj.hFigTraces.figData.spikes = jrclust.utils.ifEq(obj.showSpikes, 'on', 'off');
+            obj.updateFigTraces(false);
+        end
+
+        function toggleTraces(obj)
+            obj.showTraces = ~obj.showTraces;
+            obj.hFigTraces.figData.traces = jrclust.utils.ifEq(obj.showTraces, 'on', 'off');
+            obj.updateFigTraces(false);
+        end
+
+        function updateFigTraces(obj, resetAxes)
+            doPlotFigTraces(obj.hFigTraces, obj.hCfg, obj.tracesRaw, resetAxes, obj.hClust);
         end
     end
 
     %% USER METHODS
     methods
-        function show(obj, recID, showLFP)
+        function show(obj, recID, showLFP, hClust)
+            if nargin < 4
+                hClust = [];
+            end
             if nargin < 3
                 showLFP = false;
             end
@@ -170,8 +212,9 @@ classdef TracesController < handle
                 recID = '';
             end
 
+            obj.hClust = hClust;
+
             % get file to show
-            iFile = 1;
             if numel(obj.hCfg.rawRecordings) > 1
                 if isempty(recID)
                     arrayfun(@(i) fprintf('%d: %s\n', i, obj.hCfg.rawRecordings{i}), 1:numel(obj.hCfg.rawRecordings), 'UniformOutput', 0);
@@ -195,7 +238,7 @@ classdef TracesController < handle
             end
 
             fprintf('Opening %s\n', recFilename);
-            obj.hRec = jrclust.models.recording.Recording(recFilename, obj.hCfg.dtype, obj.hCfg.nChans, obj.hCfg.headerOffset, obj.hCfg);
+            obj.hRec = jrclust.models.recording.Recording(recFilename, obj.hCfg);
 
         %     [fid_bin, nBytes_bin] = fopen_(vcFile_bin, 'r');
         %     if isempty(fid_bin)
@@ -220,11 +263,11 @@ classdef TracesController < handle
                 windowBounds = [-windowWidth + 1, 0] + nSamplesTotal;
             end
 
-            [cvn_lim_bin, ~] = sample_skip_(windowBounds, nSamplesTotal, obj.hCfg.nTime_traces);
+            multiBounds = sample_skip_(windowBounds, nSamplesTotal, obj.hCfg.nTime_traces);
 
             obj.tracesFull = [];
-            obj.tracesRaw = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), cvn_lim_bin, 'UniformOutput', false);
-            obj.tracesRaw = jrclust.utils.neCell2mat(obj.tracesRaw);
+            tracesRaw_ = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', false);
+            obj.tracesRaw = jrclust.utils.neCell2mat(tracesRaw_);
 
         %     if obj.hCfg.fTranspose_bin
         %         obj.tracesFull = [];
@@ -243,19 +286,21 @@ classdef TracesController < handle
         %         obj.tracesRaw = obj.tracesFull(viRange_bin, :);
         %         disp('Entire raw traces are cached to RAM since fTranspose=0.');
         %     end %if
-            obj.tracesRaw = uint2int_(obj.tracesRaw);
+            obj.tracesRaw = u2i(obj.tracesRaw);
 
             obj.hFigTraces = jrclust.views.Figure('FigTraces', [0 0 .5 1], recFilename, false, true);
             obj.hFigTraces.axes();
             obj.hFigTraces.addPlot('hLine', @line, nan, nan, 'Color', [1 1 1]*.5, 'LineWidth', .5);
             obj.hFigTraces.addPlot('hEdges', nan, nan, 'Color', [1 0 0]*.5, 'LineWidth', 1);
             obj.hFigTraces.axApply(@set, 'Position', [.05 .05 .9 .9], 'XLimMode', 'manual', 'YLimMode', 'manual');
+
             figData = struct('windowBounds', windowBounds, ...
                              'hRec', obj.hRec, ...
                              'nSamplesTotal', nSamplesTotal, ...
                              'windowWidth', windowWidth);
+
             figData.maxAmp = obj.hCfg.maxAmp;
-            figData.vcTitle = '[H]elp; (Sft)[Up/Down]:Scale(%0.1f uV); (Sft)[Left/Right]:Time; [F]ilter; [J]ump T; [C]han. query; [R]eset view; [P]SD; [S]pike; [A]ux chan; [E]xport; [T]race; [G]rid';
+            figData.title = '[H]elp; (Sft)[Up/Down]:Scale(%0.1f uV); (Sft)[Left/Right]:Time; [F]ilter; [J]ump T; [C]han. query; [R]eset view; [P]SD; [S]pike; [A]ux chan; [E]xport; [T]race; [G]rid';
             figData.helpText = { ...
                 'Left/Right: change time (Shift: x4)', ...
                 '[J]ump T', ...
@@ -277,14 +322,26 @@ classdef TracesController < handle
                 '[P]ower spectrum', ...
                 '[E]xport to workspace', ...
             };
-            figData = struct_append_(figData, ...
-                struct('grid', 'on', 'filter', 'off', 'spikes', 'on', 'traces', 'on'));
+
+            obj.showFilter = false;
+            figData.filter = 'off';
+
+            obj.showGrid = true;
+            figData.grid = 'on';
+
+            obj.showSpikes = false;
+            figData.spikes = 'off';
+
+            obj.showTraces = true;
+            figData.traces = 'on';
+
             obj.hFigTraces.figData = figData;
-            obj.hFigTraces.figSet('color', 'w', 'BusyAction', 'cancel', 'CloseRequestFcn', @close_hFig_traces_);
+
+            obj.hFigTraces.figApply(@set, 'Color', 'w', 'BusyAction', 'cancel', 'CloseRequestFcn', @obj.closeFigTraces);
             obj.hFigTraces.hFunKey = @obj.keyPressFigTraces;
             obj.hFigTraces.setMouseable();
 
-            doPlotFigTraces(obj.hFigTraces, obj.hCfg, obj.tracesRaw, 1); % Plot spikes and color clusters
+            obj.tracesFilt = doPlotFigTraces(obj.hFigTraces, obj.hCfg, obj.tracesRaw, true, obj.hClust);
         end
     end
 end

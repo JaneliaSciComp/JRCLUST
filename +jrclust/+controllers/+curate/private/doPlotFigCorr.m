@@ -47,7 +47,7 @@ function hFigCorr = doPlotFigCorr(hFigCorr, hClust, hCfg, selected)
     end
 
     % title_(hFigCorr.figData.hAx, sprintf('Cluster %d vs. Cluster %d', iCluster, jCluster));
-    hFigCorr.axApply(@title, sprintf('Cluster %d vs. Cluster %d', iCluster, jCluster), 'Interpreter', 'none', 'FontWeight', 'normal');
+    hFigCorr.axApply(@title, sprintf('Cluster %d vs. Cluster %d', iCluster, jCluster));
 
     % xlim_(hFigCorr.figData.hAx, [-nLags, nLags] * jitterMs);
     hFigCorr.axApply(@set, 'XLim', jitterMs*[-nLags, nLags]);

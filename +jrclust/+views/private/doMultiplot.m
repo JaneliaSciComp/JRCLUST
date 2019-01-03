@@ -1,14 +1,14 @@
-function [plotKey, yOffsets] = doMultiplot(hFig, plotKey, scale, XData, YData, yOffsets, fScatter)
+function [plotKey, YOffsets] = doMultiplot(hFig, plotKey, scale, XData, YData, YOffsets, fScatter)
     %DOMULTIPLOT Create a multi-line plot
     shape = size(YData); % nSamples x nSites x (nSpikes)
     userData = struct('scale', scale, ...
                       'shape', shape, ...
-                      'yOffsets', yOffsets, ...
+                      'yOffsets', YOffsets, ...
                       'fScatter', fScatter);
 
     if fScatter % only for points that are not connected
         XData = XData(:);
-        YData = YData(:)/scale + yOffsets(:);        
+        YData = YData(:)/scale + YOffsets(:);        
     elseif ismatrix(YData)
         if isempty(XData)
             XData = (1:shape(1))';
@@ -22,7 +22,7 @@ function [plotKey, yOffsets] = doMultiplot(hFig, plotKey, scale, XData, YData, y
             XData(end, :) = nan;
         end
 
-        YData = bsxfun(@plus, YData/scale, yOffsets(:)');
+        YData = bsxfun(@plus, YData/scale, YOffsets(:)');
     else % 3D array
         if isempty(XData)
             XData = bsxfun(@plus, (1:shape(1))', shape(1)*(0:shape(3)-1)); 
@@ -34,15 +34,15 @@ function [plotKey, yOffsets] = doMultiplot(hFig, plotKey, scale, XData, YData, y
             XData(end, :) = nan;
         end
 
-        if isvector(yOffsets)
-            yOffsets = repmat(yOffsets(:), [1, shape(3)]);
+        if isvector(YOffsets)
+            YOffsets = repmat(YOffsets(:), [1, shape(3)]);
         end
 
         XData = permute(repmat(XData, [1, 1, shape(2)]), [1,3,2]);       
         YData = YData / scale;
 
         for iSpike = 1:shape(3)
-            YData(:, :, iSpike) = bsxfun(@plus, YData(:, :, iSpike), yOffsets(:, iSpike)');
+            YData(:, :, iSpike) = bsxfun(@plus, YData(:, :, iSpike), YOffsets(:, iSpike)');
         end        
     end
 

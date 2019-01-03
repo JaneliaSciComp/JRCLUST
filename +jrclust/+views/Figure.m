@@ -209,7 +209,6 @@ classdef Figure < handle
             catch
             end
         end
-
     end
 
     %% USER METHODS
@@ -220,21 +219,19 @@ classdef Figure < handle
             obj.addPlot(plotKey, XVals, YVals, varargin{:});
         end
 
-        function addPlot(obj, plotKey, hPlotFun, varargin)
+        function addPlot(obj, plotKey, hFunPlot, varargin)
             %ADDPLOT Create and store a plot
-            if ~isa(hPlotFun, 'function_handle')
-                varargin{end+1} = [];
-                varargin(2:end) = varargin(1:end-1);
-                varargin{1} = hPlotFun;
-                hPlotFun = @plot;
+            if ~isa(hFunPlot, 'function_handle')
+                varargin = [hFunPlot, varargin];
+                hFunPlot = @plot;
             end
             if obj.isReady
                 hAx = obj.gca();
                 if isempty(hAx)
                     obj.toForeground();
-                    obj.hPlots(plotKey) = hPlotFun(varargin{:});
+                    obj.hPlots(plotKey) = hFunPlot(varargin{:});
                 else
-                    obj.hPlots(plotKey) = hPlotFun(hAx, varargin{:});
+                    obj.hPlots(plotKey) = hFunPlot(hAx, varargin{:});
                 end
 
                 if obj.isMouseable
@@ -266,7 +263,11 @@ classdef Figure < handle
             %AXAPPLY Apply a function to current axes
             hAx = obj.gca();
 
-            if ~isempty(hAx)
+            if ~isempty(hAx) && isa(hFun, 'function_handle')
+                if strcmp(func2str(hFun), 'title') % default arguments to title
+                    varargin = [varargin, {'Interpreter', 'none', 'FontWeight', 'normal'}];
+                end
+
                 % apply hFun
                 if nargout == 1
                     vals = hFun(hAx, varargin{:});
@@ -334,19 +335,16 @@ classdef Figure < handle
             end
         end
 
-        function val = figGet(obj, varargin)
-            %FIGGET Query figure properties
-            if obj.isReady
-                val = get(obj.hFig, varargin{:});
+        function vals = figApply(obj, hFun, varargin)
+            %FIGAPPLY Apply a function to hFig
+            if obj.isReady && isa(hFun, 'function_handle')
+                if nargout > 0
+                    vals = hFun(obj.hFig, varargin{:});
+                else
+                    hFun(obj.hFig, varargin{:});
+                end
             else
-                val = [];
-            end
-        end
-
-        function figSet(obj, varargin)
-            %FIGSET Set figure properties
-            if obj.isReady
-                set(obj.hFig, varargin{:});
+                vals = [];
             end
         end
 
@@ -365,13 +363,13 @@ classdef Figure < handle
             obj.updatePlot(plotKey, nan, nan); % updatePlot checks for existence of plotKey
         end
 
-        function [plotKey, yOffsets] = multiplot(obj, plotKey, scale, XData, YData, yOffsets, fScatter)
+        function [plotKey, YOffsets] = multiplot(obj, plotKey, scale, XData, YData, YOffsets, fScatter)
             % Create (nargin > 2) or rescale (nargin <= 2) a multi-line plot
             % TODO: separate these (presumably multiple plots are passed in somewhere)
             if nargin <= 2 % rescale
                 obj.rescalePlot(plotKey, scale);
                 % handle_fun_(@rescale_plot_, plotKey, scale);
-                yOffsets = [];
+                YOffsets = [];
                 return;
             end
 
@@ -387,10 +385,10 @@ classdef Figure < handle
             end
 
             if nargin < 6
-                yOffsets = 1:size(YData, 2);
+                YOffsets = 1:size(YData, 2);
             end
 
-            [plotKey, yOffsets] = doMultiplot(obj, plotKey, scale, XData, YData, yOffsets, fScatter);
+            [plotKey, YOffsets] = doMultiplot(obj, plotKey, scale, XData, YData, YOffsets, fScatter);
         end
 
         function vals = plotApply(obj, plotKey, hFun, varargin)
@@ -636,9 +634,9 @@ classdef Figure < handle
                 end
 
                 if obj.isWaiting
-                    obj.figSet('Pointer', 'watch');
+                    obj.figApply(@set, 'Pointer', 'watch');
                 else
-                    obj.figSet('Pointer', 'arrow');
+                    obj.figApply(@set, 'Pointer', 'arrow');
                 end
             end
         end

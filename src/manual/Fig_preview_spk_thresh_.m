@@ -5,7 +5,7 @@ function Fig_preview_spk_thresh_(hFig)
     P = get0_('P');
 
     % ask user
-    vcAns = inputdlg_('Set a spike detection threshold (qqFactor)', 'Spike detection threshold', 1, {num2str(S_fig.qqFactor)});
+    vcAns = inputdlg('Set a spike detection threshold (qqFactor)', 'Spike detection threshold', 1, {num2str(S_fig.qqFactor)});
     if isempty(vcAns), return; end
     qqFactor = str2num(vcAns{1});
     if isnan(qqFactor) || isempty(qqFactor), return; end

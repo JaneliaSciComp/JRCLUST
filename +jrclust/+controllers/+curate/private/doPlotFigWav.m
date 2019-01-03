@@ -10,7 +10,7 @@ function hFigWav = doPlotFigWav(hFigWav, hClust, hCfg, maxAmp)
         hFigWav.axApply(@grid, 'on');
 
         % hFigWav.figData.vcTitle = 'Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi'; % TW
-        % hFigWav.axApply(@title, sprintf('Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi', maxAmp), 'Interpreter', 'none', 'FontWeight', 'normal');
+        % hFigWav.axApply(@title, sprintf('Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi', maxAmp));
         
         hFigWav.axis([0, hClust.nClusters + 1, 0, nSites + 1]);
         hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp);
@@ -30,7 +30,7 @@ function hFigWav = doPlotFigWav(hFigWav, hClust, hCfg, maxAmp)
     end
 
     info_ = jrclust.utils.info();
-    hFigWav.axApply(@title, sprintf('%s v%s; press [H] for help (scale: %0.1f uV)', info_.program, jrclust.utils.version(), maxAmp), 'Interpreter', 'none', 'FontWeight', 'normal');
+    hFigWav.axApply(@title, sprintf('%s v%s; press [H] for help (scale: %0.1f uV)', info_.program, jrclust.utils.version(), maxAmp));
 
     hFigWav = setFigWavXTicks(hFigWav, hClust, true);
     hFigWav.figData.helpText = {'[Left-click] Cluster select/unselect (point at blank)', ...

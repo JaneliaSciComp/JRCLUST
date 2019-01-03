@@ -7,7 +7,7 @@ function Fig_preview_trange_(hFig, vc_trange, mh)
     if isempty(hFig), hFig = get_fig_cache_('Fig_preview'); end
 
     if strcmpi(vc_trange, 'custom') % ask user input box
-        vcAns = inputdlg_('Display time range (s)', 'Time range in seconds', 1, {'.2'});
+        vcAns = inputdlg('Display time range (s)', 'Time range in seconds', 1, {'.2'});
         if isempty(vcAns), return; end
         trange = str2double(vcAns{1});
     else

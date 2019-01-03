@@ -9,7 +9,7 @@ function Fig_preview_fft_thresh_(hFig)
     else
         vc_ = num2str(S_fig.fft_thresh);
     end
-    vcAns = inputdlg_('Set a threshold for FFT cleanup (0 to disable)', 'fft_thresh (20 recommended)', 1, {vc_});
+    vcAns = inputdlg('Set a threshold for FFT cleanup (0 to disable)', 'fft_thresh (20 recommended)', 1, {vc_});
     if isempty(vcAns), return; end
     fft_thresh = str2double(vcAns{1});
     if isnan(fft_thresh), return; end

@@ -7,7 +7,7 @@ function Fig_preview_site_range_(hFig)
     vcSiteTo = num2str(S_fig.siteLim(end));
     P = get0_('P');
     nSites = numel(P.viSite2Chan);
-    csAns = inputdlg_({'Show site from (>=1)', sprintf('Show site to (<=%d)', nSites)}, ...
+    csAns = inputdlg({'Show site from (>=1)', sprintf('Show site to (<=%d)', nSites)}, ...
     'Display site range', 1, {vcSiteFrom, vcSiteTo});
     if isempty(csAns), return; end
     % if isnan(site_start) || isnan(site_end), return; end;

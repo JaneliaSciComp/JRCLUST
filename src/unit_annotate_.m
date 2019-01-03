@@ -19,7 +19,7 @@ function unit_annotate_(hObject, event, vcLabel)
     else
         vcNote1 = S_clu.csNote_clu{iClu1};
         if isempty(vcNote1), vcNote1=''; end
-        csAns = inputdlg_(sprintf('Clu%d', iClu1), 'Annotation', 1, {vcNote1});
+        csAns = inputdlg(sprintf('Clu%d', iClu1), 'Annotation', 1, {vcNote1});
         if isempty(csAns), return; end
         vcLabel = csAns{1};
         S0.S_clu.csNote_clu{iClu1} = vcLabel;

@@ -1,6 +1,6 @@
 function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
     %DOPLOTFIGSIM Display cluster similarity scores
-    hFigSim.figSet('Pointer', 'watch');
+    hFigSim.wait(true);
 
     nClusters = hClust.nClusters;
     if isempty(hFigSim.figData) % create from scratch
@@ -26,10 +26,10 @@ function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
 
         if strcmp(hFigSim.figData.figView, 'kilosort') && isprop(hClust, 'kSimScore')
             hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.kSimScore, hCfg.corrLim);
-            hFig.axApply(@title, '[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr', 'Interpreter', 'none', 'FontWeight', 'normal');
+            hFig.axApply(@title, '[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr');
         else
             hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.simScore, hCfg.corrLim);
-            hFigSim.axApply(@title, '[S]plit; [M]erge; [D]elete', 'Interpreter', 'none', 'FontWeight', 'normal');
+            hFigSim.axApply(@title, '[S]plit; [M]erge; [D]elete');
         end
 
         % selected cluster pair cursors
@@ -41,15 +41,15 @@ function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
     else
         if strcmp(hFigSim.figData.figView, 'kilosort') && isprop(hClust, 'kSimScore')
             hFigSim.plotApply('hImSim', @set, 'CData', hClust.kSimScore);
-            hFigSim.figSet('Name', ['KiloSort cluster similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
+            hFigSim.figApply(@set, 'Name', ['KiloSort cluster similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
         else
             hFigSim.plotApply('hImSim', @set, 'CData', hClust.simScore);
-            hFigSim.figSet('Name', ['Waveform-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
+            hFigSim.figApply(@set, 'Name', ['Waveform-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
         end
 
         hFigSim.axApply(@set, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
         hFigSim.addDiag('hDiag', [0, nClusters, 0.5], 'Color', [0 0 0], 'LineWidth', 1.5); % overwrites previous diag plot
     end
 
-    hFigSim.figSet('Pointer', 'arrow');
+    hFigSim.wait(false);
 end
