@@ -184,6 +184,7 @@ function varargout = jrc(vcCmd, vcArg1, vcArg2, vcArg3, vcArg4, vcArg5)
     elseif contains_(lower(vcCmd), {'filter'})
         TWfilter_(P);
     elseif fError
+        clear_();
         help_();
     end
 end %func

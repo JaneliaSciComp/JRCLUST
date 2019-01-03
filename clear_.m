@@ -8,7 +8,7 @@ function clear_(vcFile_prm)
     global fDebug_ui;
 
     % clear jrc
-    clear(mfilename()); % clear persistent variables in the current file. Same as clear jrc
+    clear jrc cuda_rho_ cuda_delta_ get_fig_cache_ get_tag;
     clear global tnWav_spk tnWav_raw trFet_spk mnWav1 mrWav1 mnWav S_gt vcFile_prm_
     clear functions % clear function memory 10/15/17 JJJ
 
