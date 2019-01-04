@@ -12,13 +12,16 @@ function [S0, P] = load_cached_(P, fLoadWav)
     if ischar(P), P = loadParam_(P); end
     S0 = get(0, 'UserData');
     fClear_cache = 1;
+
     if ~isempty(S0)
-        if isfield(S0, 'P')
-            if strcmpi(P.vcFile_prm, S0.P.vcFile_prm)
-                fClear_cache = 0;
-            end
+        shapeCheck = (isfield(S0, 'viTime_spk') && numel(S0.viTime_spk) == size(trFet_spk, 3));
+        prmCheck = (isfield(S0, 'P') && strcmpi(P.vcFile_prm, S0.P.vcFile_prm));
+
+        if shapeCheck && prmCheck
+            fClear_cache = 0;
         end
     end
+
     if fClear_cache
         S0 = []; tnWav_spk = []; tnWav_raw = []; trFet_spk = []; % clear all
     end

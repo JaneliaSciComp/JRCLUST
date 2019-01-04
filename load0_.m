@@ -19,7 +19,6 @@ function S0 = load0_(vcFile_mat)
     try
         fprintf('loading %s...\n', vcFile_mat); t1=tic;
         S0 = load(vcFile_mat);
-        set(0, 'UserData', S0);
         fprintf('\ttook %0.1fs\n', toc(t1));
     catch
         S0 = [];
