@@ -13,8 +13,10 @@ function manual_(P, vcMode)
     [S0, P] = load_cached_(P);
     if ~isfield(S0, 'mrPos_spk')
         S0.mrPos_spk = spk_pos_(S0, trFet_spk);
-        set(0, 'UserData', S0);
     end
+
+    set(0, 'UserData', S0);
+
     fDebug_ui = 0;
     P.fGpu = 0; %do not use GPU for manual use
     set0_(fDebug_ui, P);
