@@ -15,7 +15,7 @@ classdef CurateController < handle
         hFigs;          % containers.Map of Figure objects
         hMenus;         % containers.Map of Menu handles
         isEnding;       % to prevent double prompting when endSession is called
-        maxAmp;         % 
+        maxAmp;         %
         projSites;      % current sites in FigProj
         selected;       % selected clusters, in order of selection
     end
@@ -117,27 +117,27 @@ classdef CurateController < handle
                     disp('Split: not implemented yet');
 %                     if numel(obj.selected) == 1
 %                         iCluster = obj.selected(1);
-% 
+%
 %                         hFigProj.addPlot('hPoly', @impoly)
 %                         polyPos = hFigProj.plotApply('hPoly', @getPosition);
-% 
+%
 %                         XData = hFigProj.plotApply('foreground', @get, 'XData');
 %                         YData = hFigProj.plotApply('foreground', @get, 'YData');
-% 
+%
 %                         retained = inpolygon(XData, YData, polyPos(:,1), polyPos(:,2));
 %                         jSites = unique(floor(XData(retained))) + 1;
 %                         iSites = unique(floor(YData(retained))) + 1;
-% 
+%
 %                         % return here
 %                         hFigProj.addPlot('hSplit', @line, XData(retained), YData(retained), ...
 %                                          'Color', obj.hCfg.mrColor_proj(3, :), ...
 %                                          'Marker', '.', 'LineStyle', 'none');
-% 
+%
 %                         dlgAns = questdlg('Split?', 'Confirmation', 'No');
-% 
+%
 %                         hFigProj.rmPlot('hPoly');
 %                         hFigProj.rmPlot('hSplit');
-% 
+%
 %                         if strcmp(dlgAns, 'Yes')
 %                             obj.splitCluster(iCluster, retained);
 %                         end
@@ -180,13 +180,13 @@ classdef CurateController < handle
 
                 case 'uparrow'
                     rescaleFigTime(hFigTime, sqrt(2)^-factor);
-                    
+
                 case 'downarrow' % change amp
                     rescaleFigTime(hFigTime, sqrt(2)^factor);
 
                 case 'b' % toggle background spikes
                     hFigTime.figData.doPlotBG = hFigTime.toggleVisible('background');
-                   
+
                 case 'c' % compare pca across channels
                     disp('channel pca');
 %                     hMsg = msgbox_('Plotting...');
@@ -194,7 +194,7 @@ classdef CurateController < handle
 %                     [mrWav_mean1, viSite1] = mrWav_int_mean_clu_(obj.selected(1));
 %                     [~, mrPv1] = pca(mrWav_mean1, 'NumComponents', P.nPc_dip, 'Center', 1);
 %                     mrPv1 = norm_mr_(mrPv1);
-% 
+%
 %                     if keyMod(event, 'control') %show chain of clusters
 %                         trPv1 = mrPv1;
 %                         iClu_next = get_next_clu_(S_clu, obj.selected(1));
@@ -206,7 +206,7 @@ classdef CurateController < handle
 %                             mrPv1 = flip_prinvec_(mrPv1a, mean(trPv1,3));
 %                             trPv1 = cat(3, trPv1, mrPv1);
 %                             viClu_track(end+1) = iClu_next;
-% 
+%
 %                             iClu_next = get_next_clu_(S_clu, iClu_next);
 %                         end
 %                         multiplot(plot(nan,nan,'k'), 1, 1:size(trPv1,1), trPv1);
@@ -452,7 +452,7 @@ classdef CurateController < handle
 %                 userData = struct('maxAmp', obj.hCfg.maxAmp);
 %             elseif ~isfield(userData, 'maxAmp')
 %                 userData.maxAmp = obj.hCfg.maxAmp;
-%             end 
+%             end
 
             hFigWav.multiplot(plotKey, obj.maxAmp, getXRange(iCluster, obj.hCfg), meanWf);
             hFigWav.plotApply(plotKey, @uistack, 'top');
@@ -652,7 +652,7 @@ classdef CurateController < handle
             uimenu(obj.hMenus('EditMenu'), 'Label', 'Auto split multi-chan', 'Callback', @(hO, hE) obj.autoSplit(true));
 
             obj.hMenus('ViewMenu') = uimenu(hFig, 'Label', 'View');
-%             uimenu(obj.hMenus('ViewMenu'),'Label', 'Show traces', 'Callback', @(hO, hE)traces_());
+            uimenu(obj.hMenus('ViewMenu'),'Label', 'Show traces', 'Callback', @(hO, hE) obj.showTraces());
             uimenu(obj.hMenus('ViewMenu'),'Label', 'View all [R]', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'r')));
             uimenu(obj.hMenus('ViewMenu'), 'Label', '[Z]oom selected', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'z')));
             uimenu(obj.hMenus('ViewMenu'), 'Label', '[W]aveform (toggle)', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'w')));
@@ -660,17 +660,17 @@ classdef CurateController < handle
             uimenu(obj.hMenus('ViewMenu'),'Label', 'Show raw waveform', 'Callback', @(hO, hE) obj.toggleRaw(hO))
 %             %uimenu(obj.hMenus('ViewMenu'),'Label', 'Threshold by sites', 'Callback', @(hO, hE)keyPressFcn_thresh_(hFig, 'n'));
             uimenu(obj.hMenus('ViewMenu'),'Label', 'Reset window positions', 'Callback', @(hO, hE) obj.resetPositions());
-% 
+%
             obj.hMenus('ProjMenu') = uimenu(hFig,'Label', 'Projection');
             uimenu(obj.hMenus('ProjMenu'), 'Label', 'vpp', 'Callback', @(hO, hE) obj.updateProjection('vpp'));
             uimenu(obj.hMenus('ProjMenu'), 'Label', 'pca', 'Callback', @(hO, hE) obj.updateProjection('pca'));
             uimenu(obj.hMenus('ProjMenu'), 'Label', 'ppca', 'Callback', @(hO, hE) obj.updateProjection('ppca'));
             % uimenu(obj.hMenus('ProjMenu'), 'Label', 'cov', 'Callback', @(hO, hE) obj.updateProjection('cov'));
-% 
+%
 %             mh_plot = uimenu(hFig,'Label','Plot');
 %             uimenu(mh_plot, 'Label', 'All unit firing rate vs. aux. input', 'Callback', @(hO, hE)plot_aux_rate_);
 %             uimenu(mh_plot, 'Label', 'Selected unit firing rate vs. aux. input', 'Callback', @(hO, hE)plot_aux_rate_(1));
-% 
+%
             obj.hMenus('InfoMenu') = uimenu(hFig, 'Label', '', 'Tag', 'InfoMenu');
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Annotate unit', 'Callback', @(hO, hE) obj.annotateUnit('', true));
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Single unit', 'Callback', @(hO, hE) obj.annotateUnit('single', false), 'Accelerator', '1');
@@ -678,7 +678,7 @@ classdef CurateController < handle
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Noise', 'Callback', @(hO, hE) obj.annotateUnit('noise', false));
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Clear annotation', 'Callback', @(hO, hE) obj.annotateUnit('', false));
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Equal to', 'Callback', @(hO, hE) obj.annotateUnit('=', true));
-% 
+%
 %             mh_help = uimenu(hFig,'Label','Help');
 %             uimenu(mh_help, 'Label', '[H]elp', 'Callback', @help_FigWav_);
 
@@ -987,6 +987,12 @@ classdef CurateController < handle
             obj.keyPressFigWav([], struct('Key', 'z')); % zoom in
         end
 
+        function showTraces(obj)
+            %SHOWTRACES
+            hTraces = jrclust.controllers.curate.TracesController(obj.hCfg);
+            hTraces.show([], false, obj.hClust);
+        end
+
         function spawnFigures(obj)
             %SPAWNFIGURES Create new figures
             obj.hFigs = doSpawnFigures(obj.hCfg);
@@ -1202,4 +1208,3 @@ classdef CurateController < handle
         end
     end
 end
-

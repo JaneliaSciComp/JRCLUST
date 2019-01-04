@@ -161,7 +161,7 @@ classdef JRC < handle & dynamicprops
             end
 
             % command sentinel
-            legalCmds = {'detect', 'sort', 'manual', 'full'};
+            legalCmds = {'detect', 'sort', 'manual', 'full', 'traces'};
             if ~any(strcmpi(obj.cmd, legalCmds))
                 obj.errMsg = sprintf('Command `%s` not recognized', obj.cmd);
                 errordlg(obj.errMsg, 'Unrecognized command');
@@ -322,6 +322,20 @@ classdef JRC < handle & dynamicprops
 
                 obj.hCurate = jrclust.controllers.curate.CurateController(obj.hClust);
                 obj.hCurate.beginSession();
+            end
+
+            % MISCELLANEOUS COMMANDS
+            if strcmp(obj.cmd, 'traces')
+                hTraces = jrclust.controllers.curate.TracesController(obj.hCfg);
+                if numel(obj.args) > 1
+                    recID = str2double(obj.args{2});
+                    if isnan(recID)
+                        recID = [];
+                    end
+                else
+                    recID = [];
+                end
+                hTraces.show(recID, false, obj.hClust);
             end
 
             % save our results for later

@@ -2,7 +2,7 @@ function doSaveFiles(hJRC)
     %DOSAVEFILES Save results structs and binary files to disk
     [~, sessionName, ~] = fileparts(hJRC.hCfg.configFile);
 
-    if hJRC.isDetect && ~isempty(hJRC.dRes)
+    if ~isempty(hJRC.dRes)
         filename = fullfile(hJRC.hCfg.outputDir, [sessionName '_detect.mat']);
         if hJRC.hCfg.verbose
             fprintf('Saving detection results to %s\n', filename);
@@ -11,7 +11,7 @@ function doSaveFiles(hJRC)
         jrclust.utils.saveStruct(hJRC.dRes, filename);
     end
 
-    if hJRC.isSort && ~isempty(hJRC.sRes)
+    if ~isempty(hJRC.sRes)
         filename = fullfile(hJRC.hCfg.outputDir, [sessionName '_sort.mat']);
         if hJRC.hCfg.verbose
             fprintf('Saving sorting results to %s\n', filename);
@@ -19,6 +19,7 @@ function doSaveFiles(hJRC)
 
         sRes = hJRC.sRes;
         sRes.hClust = hJRC.hClust;
+        sRes.hCfg = hJRC.hCfg;
         jrclust.utils.saveStruct(sRes, filename);
     end
 end

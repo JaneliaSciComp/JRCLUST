@@ -47,7 +47,7 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
         XData = ((hFigTraces.figData.windowBounds(1):hCfg.nSkip_show:hFigTraces.figData.windowBounds(end))-1) / hCfg.sampleRate;
         XLabel = 'Time (s)';
     else
-        XData = (0:(size(tracesFilt,1)-1)) / (hCfg.sampleRate / hCfg.nSkip_show) + (hFigTraces.figData.windowBounds(1)-1) / hCfg.sampleRate;
+        XData = (0:(size(tracesFilt, 2) - 1)) / (hCfg.sampleRate / hCfg.nSkip_show) + (hFigTraces.figData.windowBounds(1)-1) / hCfg.sampleRate;
         [multiBounds, multiRange, multiEdges] = sample_skip_(hFigTraces.figData.windowBounds, hFigTraces.figData.nSamplesTotal, hCfg.nTime_traces);
 
         tlim_show = (cellfun(@(x) x(1), multiBounds([1, end]))) / hCfg.sampleRate;
@@ -70,11 +70,11 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
     hFigTraces.axApply(@ylabel, 'Site #');
     hFigTraces.plotApply('hPlot', @set, 'Visible', hFigTraces.figData.traces);
 
-    % Delete spikes from other threads
-    if isfield(hFigTraces.figData, 'chSpk')
-        for iSite = 1:nSites
-            hFigTraces.rmPlot(sprintf('chSpk%d', iSite));
-        end
+    % Delete spikes from other threads (TODO: break this out into a function)
+    plotKeys = keys(hFigTraces.hPlots);
+    chSpk = plotKeys(startsWith(plotKeys, 'chSpk'));
+    if ~isempty(chSpk)
+        cellfun(@(plotKey) hFigTraces.rmPlot(plotKeys), chSpk);
     end
 
     % plot spikes
@@ -93,14 +93,14 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
 
         tStart = single(hFigTraces.figData.windowBounds(1) - 1)/hCfg.sampleRate;
         if hCfg.nTime_traces > 1
-            spikesInRange = find(inRange(recTimes, multiBounds));
+            spikesInRange = inRange(recTimes, multiBounds);
             spikeSites = hClust.spikeSites(spikesInRange);
-            spikeTimes = recTimes(spikesInRange);
+            spikeTimes = double(recTimes(spikesInRange));
             spikeTimes = round(whereMember(spikeTimes, multiRange) / hCfg.nSkip_show);
         else
-            spikesInRange = find(recTimes >= hFigTraces.figData.windowBounds(1) & recTimes < hFigTraces.figData.windowBounds(end));
+            spikesInRange = recTimes >= hFigTraces.figData.windowBounds(1) & recTimes < hFigTraces.figData.windowBounds(end);
             spikeSites = hClust.spikeSites(spikesInRange);
-            spikeTimes = recTimes(spikesInRange);
+            spikeTimes = double(recTimes(spikesInRange));
             spikeTimes = round((spikeTimes - hCfg.sampleRate*tStart) / hCfg.nSkip_show); % time offset
         end
 
@@ -144,21 +144,23 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
 
                 iTime = spikeTimes(iSpike);
                 iSite = spikeSites(iSpike);
-                iColor = spikeColors(iCluster,:);
+                iColor = spikeColors(iCluster, :);
                 iLinewidth = lineWidths(iCluster);
 
                 [mrY11, mrX11] = vr2mr3_(tracesFilt(iSite, :), iTime, evtWindowSamp); %display purpose x2
                 mrT11 = double(mrX11-1) / sampleRate + tStart;
                 
-                plotKey = sprintf('chSpk%d', iSite);
+                plotKey = sprintf('chSpk%d', iSpike);
                 hFigTraces.addPlot(plotKey, @line, ...
                                    nan, nan, 'Color', iColor, 'LineWidth', iLinewidth);
                 hFigTraces.multiplot(plotKey, hFigTraces.figData.maxAmp, mrT11, mrY11, iSite);
             end
         end
     else % remove cluster plots
-        for iSite = 1:nSites
-            hFigTraces.rmPlot(sprintf('chSpk%d', iSite));
+        plotKeys = keys(hFigTraces.hPlots);
+        chSpk = plotKeys(startsWith(plotKeys, 'chSpk'));
+        if ~isempty(chSpk)
+            cellfun(@(plotKey) hFigTraces.rmPlot(plotKeys), chSpk);
         end
     end
 

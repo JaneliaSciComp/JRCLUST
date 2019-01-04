@@ -45,6 +45,94 @@ classdef TracesController < handle
                     obj.hFigTraces.figData.maxAmp = obj.hFigTraces.figData.maxAmp*sqrt(2)^factor;
                     obj.updateFigTraces(false);
 
+                case {'leftarrow', 'rightarrow', 'j', 'home', 'end'}
+                    switch lower(hEvent.Key)
+                        case 'leftarrow'
+                            windowBounds = obj.hFigTraces.figData.windowBounds - (obj.hFigTraces.figData.windowWidth) * factor; %no overlap
+                            if windowBounds(1) < 1
+                                msgbox_('Beginning of file', 1);
+                                windowBounds = [1, obj.hFigTraces.figData.windowWidth];
+                            end
+
+                        case 'rightarrow'
+                            windowBounds = obj.hFigTraces.figData.windowBounds + (obj.hFigTraces.figData.windowWidth + 1) * factor; %no overlap
+                            if windowBounds(2) > obj.hFigTraces.figData.nSamplesTotal
+                                msgbox_('End of file', 1);
+                                windowBounds = [-obj.hFigTraces.figData.windowWidth+1, 0] + obj.hFigTraces.figData.nSamplesTotal;
+                            end
+
+                        case 'home' % beginning of file
+                            windowBounds = [1, obj.hFigTraces.figData.windowWidth];
+
+                        case 'end' % end of file
+                            windowBounds = [-obj.hFigTraces.figData.windowWidth+1, 0] + obj.hFigTraces.figData.nSamplesTotal;
+
+                        case 'j'
+                            dlgAns = inputdlg('Go to time (s)', 'Jump to time', 1, {'0'});
+
+                            if isempty(dlgAns)
+                                return;
+                            end
+
+                            try
+                                windowBounds = round(str2double(dlgAns)*obj.hCfg.sRateHz) + [1, obj.hFigTraces.figData.windowWidth];
+                            catch
+                                return;
+                            end
+                    end % switch
+
+                    nTimeTraces = obj.hCfg.nTime_traces;
+                    multiBounds = sample_skip_(windowBounds, obj.hFigTraces.figData.nSamplesTotal, nTimeTraces);
+
+                    tracesRaw_ = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', false);
+                    obj.tracesRaw = jrclust.utils.neCell2mat(tracesRaw_);
+
+                    obj.tracesRaw = u2i(obj.tracesRaw);
+                    obj.hFigTraces.figData.windowBounds = windowBounds;
+                    obj.updateFigTraces(true);
+
+                case 'c' % channel query
+                    msgbox_('Draw a rectangle', 1);
+                    obj.hFigTraces.addPlot('hRect', @imrect);
+                    ie = obj.hFigTraces.plotApply('hRect', @isempty);
+                    if ie
+                        return;
+                    end
+
+                    rectPos = obj.hFigTraces.plotApply('hRect', @getPosition);
+                    UserData = obj.hFigTraces.plotApply('hPlot', @get, 'UserData');
+
+                    XData = obj.hFigTraces.plotApply('hPlot', @get, 'XData');
+                    YData = obj.hFigTraces.plotApply('hPlot', @get, 'YData');
+                    inBounds = find(XData >= rectPos(1) & XData <= sum(rectPos([1, 3])) & YData >= rectPos(2) & YData <= sum(rectPos([2, 4])));
+
+                    if isempty(inBounds)
+                        obj.hFigTraces.rmPlot('hRect');
+                        return;
+                    end
+
+                    anchorPoint = round(median(inBounds));
+
+                    [~, iSite] = ind2sub(size(obj.tracesFilt'), anchorPoint);
+
+                    mrX = reshape(XData, UserData.shape);
+                    mrY = reshape(YData, UserData.shape);
+
+                    obj.hFigTraces.axApply(@hold, 'on');
+                    
+                    obj.hFigTraces.addPlot('hPoint', XData(anchorPoint), YData(anchorPoint), 'r*');
+                    obj.hFigTraces.addPlot('hLine', mrX(:, iSite), mrY(:, iSite), 'r-');
+
+                    obj.hFigTraces.axApply(@hold, 'off');
+
+                    iChan = obj.hCfg.siteMap(iSite);
+                    msgbox_(sprintf('Site: %d/ Chan: %d', iSite, iChan), 1);
+
+                    % clean up
+                    obj.hFigTraces.rmPlot('hRect');
+                    obj.hFigTraces.rmPlot('hLine');
+                    obj.hFigTraces.rmPlot('hPoint');
+
                 case 'e' %export current view
                     jrclust.utils.exportToWorkspace(struct('tracesRaw', obj.tracesRaw, 'tracesFilt', obj.tracesFilt), true);
 
@@ -89,77 +177,6 @@ classdef TracesController < handle
                 case 't' %show/hide traces
                     obj.toggleTraces();
             end % switch
-
-%             switch lower(hEvent.Key)
-%                 
-% 
-% 
-%                 case {'leftarrow', 'rightarrow', 'j', 'home', 'end'}
-%                 switch lower(hEvent.Key)
-%                     case 'leftarrow'
-%                     nlim_bin = obj.hFigTraces.figData.nlim_bin - (obj.hFigTraces.figData.nLoad_bin) * factor; %no overlap
-%                     if nlim_bin(1)<1
-%                         msgbox_('Beginning of file', 1);
-%                         nlim_bin = [1, obj.hFigTraces.figData.nLoad_bin];
-%                     end
-%                     case 'rightarrow'
-%                     nlim_bin = obj.hFigTraces.figData.nlim_bin + (obj.hFigTraces.figData.nLoad_bin + 1) * factor; %no overlap
-%                     if nlim_bin(2) > obj.hFigTraces.figData.nSamples_bin
-%                         msgbox_('End of file', 1);
-%                         nlim_bin = [-obj.hFigTraces.figData.nLoad_bin+1, 0] + obj.hFigTraces.figData.nSamples_bin;
-%                     end
-%                     case 'home' %beginning of file
-%                     nlim_bin = [1, obj.hFigTraces.figData.nLoad_bin];
-%                     case 'end' %end of file
-%                     nlim_bin = [-obj.hFigTraces.figData.nLoad_bin+1, 0] + obj.hFigTraces.figData.nSamples_bin;
-%                     case 'j'
-%                     vcAns = inputdlg('Go to time (s)', 'Jump to time', 1, {'0'});
-%                     if isempty(vcAns), return; end
-%                     try
-%                         nlim_bin = round(str2double(vcAns)*obj.hCfg.sRateHz) + [1, obj.hFigTraces.figData.nLoad_bin];
-%                     catch
-%                         return;
-%                     end
-%                 end %switch
-%                 nTime_traces = get_(obj.hCfg, 'nTime_traces');
-%                 [cvn_lim_bin, viRange_bin] = sample_skip_(nlim_bin, obj.hFigTraces.figData.nSamples_bin, nTime_traces);
-%                 if obj.hCfg.fTranspose_bin
-%                     fseek_(obj.hFigTraces.figData.fid_bin, nlim_bin(1), obj.hCfg);
-%                     if nTime_traces > 1
-%                         obj.tracesRaw = load_bin_multi_(obj.hFigTraces.figData.fid_bin, cvn_lim_bin, obj.hCfg)';
-%                     else
-%                         obj.tracesRaw = jrclust.utils.readBin(obj.hFigTraces.figData.fid_bin, obj.hCfg.vcDataType, [obj.hCfg.nChans, obj.hFigTraces.figData.nLoad_bin])';
-%                     end
-%                 else
-%                     obj.tracesRaw = obj.tracesFull(viRange_bin, :);
-%                 end
-%                 obj.tracesRaw = u2i(obj.tracesRaw);
-%                 obj.hFigTraces.figData.nlim_bin = nlim_bin;
-%                 doPlotFigTraces(1); %redraw
-% 
-% 
-%                 case 'c' %channel query
-%                 msgbox_('Draw a rectangle', 1);
-%                 obj.hRect = imrect_();
-%                 if isempty(obj.hRect), return ;end
-%                 vrPos_rect = getPosition(obj.hRect);
-%                 S_plot = get(obj.hFigTraces.figData.hPlot, 'UserData');
-%                 vrX = get(obj.hFigTraces.figData.hPlot, 'XData');
-%                 vrY = get(obj.hFigTraces.figData.hPlot, 'YData');
-%                 viIndex = find(vrX >= vrPos_rect(1) & vrX <= sum(vrPos_rect([1,3])) & vrY >= vrPos_rect(2) & vrY <= sum(vrPos_rect([2,4])));
-%                 if isempty(viIndex), delete_multi_(obj.hRect); return; end
-%                 index_plot = round(median(viIndex));
-%                 [~, iSite] = ind2sub(size(obj.tracesFilt), index_plot);
-%                 mrX = reshape(vrX, S_plot.dimm);
-%                 mrY = reshape(vrY, S_plot.dimm);
-%                 hold(obj.hFigTraces.figData.hAx, 'on');
-%                 hPoint = plot(vrX(index_plot), vrY(index_plot), 'r*');
-%                 hLine = plot(obj.hFigTraces.figData.hAx, mrX(:,iSite), mrY(:,iSite), 'r-');
-%                 hold(obj.hFigTraces.figData.hAx, 'off');
-%                 iChan = obj.hCfg.viSite2Chan(iSite);
-%                 msgbox_(sprintf('Site: %d/ Chan: %d', iSite, iChan), 1);
-%                 delete_multi_(obj.hRect, hLine, hPoint);
-%             end
         end
     end
 
@@ -209,7 +226,7 @@ classdef TracesController < handle
                 showLFP = false;
             end
             if nargin < 2
-                recID = '';
+                recID = 1;
             end
 
             obj.hClust = hClust;
@@ -219,17 +236,15 @@ classdef TracesController < handle
                 if isempty(recID)
                     arrayfun(@(i) fprintf('%d: %s\n', i, obj.hCfg.rawRecordings{i}), 1:numel(obj.hCfg.rawRecordings), 'UniformOutput', 0);
                     fprintf('---------------------------------------------\n');
-                    recID = input('Please specify File ID from the list above:', 's');
+                    recID = str2double(input('Please specify File ID from the list above:', 's'));
                 end
 
-                if isempty(recID)
+                if isnan(recID)
                     return;
                 end
 
-                iFile = str2double(recID);
-
                 try
-                    recFilename = obj.hCfg.rawRecordings{iFile};
+                    recFilename = obj.hCfg.rawRecordings{recID};
                 catch
                     return;
                 end
@@ -245,7 +260,7 @@ classdef TracesController < handle
         %         fprintf(2, '.bin file does not exist: %s\n', vcFile_bin);
         %         return;
         %     end
-        %     nSamples_bin = floor(nBytes_bin / bytesPerSample_(obj.hCfg.vcDataType) / obj.hCfg.nChans);
+        %     nSamplesTotal = floor(nBytes_bin / bytesPerSample_(obj.hCfg.vcDataType) / obj.hCfg.nChans);
             nSamplesTotal = obj.hRec.nSamples;
             windowWidth = min(floor(diff(obj.hCfg.dispTimeLimits) * obj.hCfg.sampleRate), nSamplesTotal);
 
@@ -282,7 +297,7 @@ classdef TracesController < handle
         %         obj.tracesFull = jrclust.utils.readBin(fid_bin, obj.hCfg.vcDataType, [nSamplesTotal, obj.hCfg.nChans]); %next keypress: update tlim_show
         %         fclose(fid_bin);
         %         fid_bin = [];
-        %         %obj.tracesRaw = obj.tracesFull((nlim_bin(1):nlim_bin(2)), :);
+        %         %obj.tracesRaw = obj.tracesFull((windowBounds(1):windowBounds(2)), :);
         %         obj.tracesRaw = obj.tracesFull(viRange_bin, :);
         %         disp('Entire raw traces are cached to RAM since fTranspose=0.');
         %     end %if
@@ -300,7 +315,7 @@ classdef TracesController < handle
                              'windowWidth', windowWidth);
 
             figData.maxAmp = obj.hCfg.maxAmp;
-            figData.title = '[H]elp; (Sft)[Up/Down]:Scale(%0.1f uV); (Sft)[Left/Right]:Time; [F]ilter; [J]ump T; [C]han. query; [R]eset view; [P]SD; [S]pike; [A]ux chan; [E]xport; [T]race; [G]rid';
+            figData.title = '[H]elp; (Sft)[Up/Down]:Scale(%0.1f uV); (Sft)[Left/Right]:Time; [F]ilter; [J]ump T; [C]han. query; [R]eset view; [P]SD; [S]pike; [E]xport; [T]race; [G]rid';
             figData.helpText = { ...
                 'Left/Right: change time (Shift: x4)', ...
                 '[J]ump T', ...
@@ -318,10 +333,9 @@ classdef TracesController < handle
                 '[T]races toggle', ...
                 '---------', ...
                 '[C]hannel query', ...
-                '[A]ux channel display', ...
                 '[P]ower spectrum', ...
                 '[E]xport to workspace', ...
-            };
+            }; % TODO: '[A]ux channel display'
 
             obj.showFilter = false;
             figData.filter = 'off';

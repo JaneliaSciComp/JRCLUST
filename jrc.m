@@ -210,9 +210,6 @@ end
 %             preview_(P, 1);
 %             gui_test_(P, 'Fig_preview');
 % 
-%         case 'traces'
-%             traces_(P, vcArg2);
-% 
 %         case 'traces-lfp'
 %             traces_lfp_(P)
 % 

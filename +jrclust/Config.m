@@ -1,4 +1,4 @@
-classdef Config < handle & dynamicprops
+classdef Config < dynamicprops
     %CONFIG JRCLUST session configuration
     % replacement for P struct
 
@@ -113,7 +113,7 @@ classdef Config < handle & dynamicprops
         nChans = 385;               % number of channels stored in recording
         probeFile;                  % probe file to use (.prb, .mat)
         probePad;                   %
-        rawRecordings;              % unified interface to singleRaw and multiRaw
+        rawRecordings;              % collection of recordings
         sampleRate = 30000;         % sample rate of the recording, in Hz
         shankMap;                   % index of shank to which a site belongs
         siteLoc;                    % x-y locations of channels on the probe, in microns
@@ -352,6 +352,10 @@ classdef Config < handle & dynamicprops
     methods
         function obj = Config(filename)
             %CONFIG Construct an instance of this class
+            if nargin == 0
+                return;
+            end
+
             obj.isLoaded = false;
             obj.isError = false;
 
@@ -413,6 +417,18 @@ classdef Config < handle & dynamicprops
                 % ignore configFile
                 if strcmp(fns{i}, 'configFile') || strcmp(fns{i}, 'vcFile_prm')
                     continue;
+                elseif strcmp(fns{i}, 'vcFile') % old single recording
+                    if ~isempty(s.vcFile)
+                        obj.setRawRecordings(s.vcFile);
+                    end
+
+                    continue;
+                elseif strcmp(fns{i}, 'csFile_merge')
+                    if ~isempty(s.csFile_merge)
+                        obj.setRawRecordings(s.csFile_merge);
+                    end
+
+                    continue;
                 end
 
                 % empty values in the param file take on their defaults
@@ -423,6 +439,10 @@ classdef Config < handle & dynamicprops
                     end
 
                     try
+                        if ismember(fns{i}, {'probe_file', 'probeFile'})
+                            s.(fns{i}) = jrclust.utils.absPath(s.(fns{i}), fileparts(obj.configFile));
+                        end
+
                         obj.(fns{i}) = s.(fns{i});
                     catch ME % error or not a property we support
                         errorProps{i, 1} = fns{i};
@@ -447,8 +467,8 @@ classdef Config < handle & dynamicprops
             end
 
             % check that exactly one of singleRaw and multiRaw is nonempty
-            if ~xor(isempty(obj.singleRaw), isempty(obj.multiRaw))
-                errordlg('Specify exactly one of singleRaw (vcFile) or multiRaw (csFile_merge)', 'Bad recording files');
+            if isempty(obj.rawRecordings)
+                errordlg('Specify rawRecordings (vcFile or csFile_merge)', 'Bad recording files');
                 obj.isError = true;
                 return;
             end
@@ -508,6 +528,53 @@ classdef Config < handle & dynamicprops
             else
                 obj.auxSites = [];
             end
+        end
+
+        function setRawRecordings(obj, rr)
+            if ischar(rr)
+                if ~isempty(dir(rr)) % first try current directory
+                    dmr = {dir(rr)};
+                    dmrDir = {dmr{1}.folder};
+                    dmrName = {dmr{1}.name};
+                    obj.rawRecordings = arrayfun(@(i) fullfile(dmrDir{i}, dmrName{i}), 1:numel(dmr{1}), 'UniformOutput', false);
+                elseif ~isempty(dir(fullfile(fileparts(obj.configFile), rr))) % try relative to configFile directory
+                    dmr = dir(fullfile(fileparts(obj.configFile), rr));
+                    dmrDir = {dmr.folder};
+                    dmrName = {dmr.name};
+                    obj.rawRecordings = arrayfun(@(i) fullfile(dmrDir{i}, dmrName{i}), 1:numel(dmr), 'UniformOutput', false);
+                else
+                    error('could not find file(s) ''%''', rr);
+                end
+            elseif iscell(rr)
+                % first try current directory
+                filesExist = cellfun(@(m) isfile(jrclust.utils.absPath(m)), rr);
+                if all(filesExist)
+                    obj.rawRecordings = rr;
+                    return;
+                elseif any(filesExist) && ~all(filesExist) % some found but not all
+                    errmsg = sprintf('The following recording files were specified but not found:\n    %s', ...
+                                  strjoin(rr(filesExist), '\n    '));
+                    errdlg(errmsg, 'Missing files');
+                    error(errmsg);
+                end
+
+                % we have either returned or errored if we found any files
+                % if we're still here, we have to look for them relative to
+                % configFile's directory
+                filesExist = cellfun(@(m) isfile(jrclust.utils.absPath(m, fileparts(obj.configFile))), rr);
+                if all(filesExist)
+                    obj.rawRecordings = rr;
+                    return;
+                elseif any(filesExist) && ~all(filesExist) % some found but not all
+                    errmsg = sprintf('The following recording files were specified but not found:\n    %s', ...
+                                  strjoin(rr(filesExist), '\n    '));
+                    errdlg(errmsg, 'Missing files');
+                    error(errmsg);
+                end
+            end
+
+            % natsort filenames
+            obj.rawRecordings = jrclust.utils.sortNat(obj.rawRecordings);
         end
 
         function validateParams(obj)
@@ -818,7 +885,7 @@ classdef Config < handle & dynamicprops
 
         % evtManualThreshuV/spkThresh_uV
         function set.evtManualThreshuV(obj, mt)
-            assert(jrclust.utils.isscalarnum(mt) && mt ~= 0); % TODO: positive or negative?
+            assert(isempty(mt) || (jrclust.utils.isscalarnum(mt) && mt ~= 0)); % TODO: positive or negative?
             obj.evtManualThreshuV = mt;
         end
         function mt = get.spkThresh_uV(obj)
@@ -988,9 +1055,13 @@ classdef Config < handle & dynamicprops
 
         % gtFile/vcFile_gt
         function set.gtFile(obj, gf)
-            gf_ = jrclust.utils.absPath(gf, fileparts(obj.configFile));
-            assert(isfile(gf_), 'could not find ground-truth file ''%s''', gf);
-            obj.gtFile = gf_;
+            if isempty(gf)
+                obj.gtFile = '';
+            else
+                gf_ = jrclust.utils.absPath(gf);
+                assert(isfile(gf_), 'could not find ground-truth file ''%s''', gf);
+                obj.gtFile = gf_;
+            end
         end
         function gf = get.vcFile_gt(obj)
             obj.logOldP('vcFile_gt');
@@ -1019,7 +1090,7 @@ classdef Config < handle & dynamicprops
         function set.ignoreSites(obj, ig)
             assert(jrclust.utils.ismatrixnum(ig) && all(ig > 0), 'degenerate ignoreSites');
             % don't manually ignore sites that are automatically ignored
-            obj.ignoreSites = ig(ig > numel(obj.siteMap));
+            obj.ignoreSites = ig;
         end
         function ig = get.viSiteZero(obj)
             obj.logOldP('viSiteZero');
@@ -1118,7 +1189,7 @@ classdef Config < handle & dynamicprops
 
         % maxSecLoad/MAX_LOAD_SEC
         function set.maxSecLoad(obj, ms)
-            assert(jrclust.utils.isscalarnum(ms) && ms > 0, 'maxSecLoad must be a positive scalar');
+            assert(isempty(ms) || (jrclust.utils.isscalarnum(ms) && ms > 0), 'maxSecLoad must be a positive scalar');
             obj.maxSecLoad = ms;
         end
         function ms = get.MAX_LOAD_SEC(obj)
@@ -1145,59 +1216,9 @@ classdef Config < handle & dynamicprops
         end
 
         % multiRaw/csFile_merge
-        function set.multiRaw(obj, mr)
-            if ischar(mr)
-                if ~isempty(dir(mr)) % first try current directory
-                    dmr = {dir(mr)};
-                    dmrDir = {dmr{1}.folder};
-                    dmrName = {dmr{1}.name};
-                    obj.multiRaw = arrayfun(@(i) fullfile(dmrDir{i}, dmrName{i}), 1:numel(dmr{1}), 'UniformOutput', false);
-                elseif ~isempty(dir(fullfile(fileparts(obj.configFile), mr))) % try relative to configFile directory
-                    dmr = dir(fullfile(fileparts(obj.configFile), mr));
-                    dmrDir = {dmr.folder};
-                    dmrName = {dmr.name};
-                    obj.multiRaw = arrayfun(@(i) fullfile(dmrDir{i}, dmrName{i}), 1:numel(dmr), 'UniformOutput', false);
-                else
-                    error('could not find file(s) ''%''', mr);
-                end
-            elseif iscell(mr)
-                % first try current directory
-                filesExist = cellfun(@(m) isfile(jrclust.utils.absPath(m)), mr);
-                if all(filesExist)
-                    obj.multiRaw = mr;
-                    return;
-                elseif any(filesExist) && ~all(filesExist) % some found but not all
-                    errmsg = sprintf('The following recording files were specified but not found:\n    %s', ...
-                                  strjoin(mr(filesExist), '\n    '));
-                    errdlg(errmsg, 'Missing files');
-                    error(errmsg);
-                end
-
-                % we have either returned or errored if we found any files
-                % if we're still here, we have to look for them relative to
-                % configFile's directory
-                filesExist = cellfun(@(m) isfile(jrclust.utils.absPath(m, fileparts(obj.configFile))), mr);
-                if all(filesExist)
-                    obj.multiRaw = mr;
-                    return;
-                elseif any(filesExist) && ~all(filesExist) % some found but not all
-                    errmsg = sprintf('The following recording files were specified but not found:\n    %s', ...
-                                  strjoin(mr(filesExist), '\n    '));
-                    errdlg(errmsg, 'Missing files');
-                    error(errmsg);
-                end
-            end
-
-            % natsort filenames
-            obj.multiRaw = jrclust.utils.sortNat(obj.multiRaw);
-        end
         function mr = get.csFile_merge(obj)
             obj.logOldP('csFile_merge');
             mr = obj.multiRaw;
-        end
-        function set.csFile_merge(obj, mr)
-            obj.logOldP('csFile_merge');
-            obj.multiRaw = mr;
         end
 
         % nFet_use
@@ -1285,10 +1306,8 @@ classdef Config < handle & dynamicprops
 
         % outputDir
         function set.outputDir(obj, od)
-            od_ = jrclust.utils.absPath(od, fileparts(obj.configFile));
-            if isempty(od_) % fall back to wherever configFile is stored
-                od_ = fileparts(obj.configFile);
-            elseif isfile(od_)
+            od_ = jrclust.utils.absPath(od);
+            if isfile(od_)
                 error('''%s'' is a file', od);
             end
             obj.outputDir = od_;
@@ -1297,7 +1316,7 @@ classdef Config < handle & dynamicprops
         % probeFile/probe_file
         function set.probeFile(obj, pf)
             % first check where the config file is located
-            pf_ = jrclust.utils.absPath(pf, fileparts(obj.configFile));
+            pf_ = jrclust.utils.absPath(pf);
             % if we can't find it there, try the standard location
             if isempty(pf_)
                 pf_ = jrclust.utils.absPath(pf, fullfile(jrclust.utils.basedir(), 'probes'));
@@ -1347,15 +1366,6 @@ classdef Config < handle & dynamicprops
             failMsg = 'randomSeed must be a nonnegative integer';
             assert(jrclust.utils.isscalarnum(rs) && rs == round(rs) && rs >= 0, failMsg);
             obj.randomSeed = rs;
-        end
-
-        % rawRecordings
-        function rr = get.rawRecordings(obj)
-            if isempty(obj.multiRaw)
-                rr = {obj.singleRaw};
-            else
-                rr = obj.multiRaw;
-            end
         end
 
         % refracIntms/spkRefrac_ms
@@ -1464,21 +1474,6 @@ classdef Config < handle & dynamicprops
             obj.showRaw = sr;
         end
 
-        % singleRaw/vcFile
-        function set.singleRaw(obj, rf)
-            rf_ = jrclust.utils.absPath(rf, fileparts(obj.configFile));
-            assert(isfile(rf_), 'could not find recording file ''%s''', rf);
-            obj.singleRaw = rf_;
-        end
-        function rf = get.vcFile(obj)
-            obj.logOldP('vcFile');
-            rf = obj.singleRaw;
-        end
-        function set.vcFile(obj, rf)
-            obj.logOldP('vcFile');
-            obj.singleRaw = rf;
-        end
-
         % siteCorrThresh/thresh_corr_bad_site
         function set.siteCorrThresh(obj, ct)
             assert(jrclust.utils.isscalarnum(ct) && ct >= 0 && ct < 1, 'bad siteCorrThresh');
@@ -1523,23 +1518,27 @@ classdef Config < handle & dynamicprops
 
         % siteNeighbors/miSites
         function set.siteNeighbors(obj, sn) % danger zone: don't set this manually
-            assert(jrclust.utils.ismatrixnum(sn) && all(size(sn) == [2*obj.nSiteDir + 1, numel(obj.siteMap)]), 'bad siteNeighbors');
+            assert(jrclust.utils.ismatrixnum(sn), 'siteNeighbors must be a numeric matrix');
             obj.siteNeighbors = sn;
         end
         function sn = get.miSites(obj)
-            obj.logOldP('viSite2Chan');
+            obj.logOldP('miSites');
             sn = obj.siteNeighbors;
         end
         function set.miSites(obj, sn)
-            obj.logOldP('viSite2Chan');
+            obj.logOldP('miSites');
             obj.siteNeighbors = sn;
         end
 
         % threshFile/vcFile_thresh
         function set.threshFile(obj, tf)
-            tf_ = jrclust.utils.absPath(tf, fileparts(obj.configFile));
-            assert(isfile(tf_), 'could not find threshold file ''%s''', tf);
-            obj.threshFile = tf_;
+            if isempty(tf)
+                obj.threshFile = '';
+            else
+                tf_ = jrclust.utils.absPath(tf);
+                assert(isfile(tf_), 'could not find threshold file ''%s''', tf);
+                obj.threshFile = tf_;
+            end
         end
         function gf = get.vcFile_thresh(obj)
             obj.logOldP('vcFile_thresh');

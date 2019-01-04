@@ -5,7 +5,7 @@ function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp)
     else
         waveforms = hClust.meanWfGlobal;
     end
-    
+
     [nSamples, nSites, nClusters] = size(waveforms);
     nSitesShow = size(hCfg.siteNeighbors, 1);
 
@@ -34,10 +34,10 @@ function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp)
         plotGroup(hFigWav, XData, YData, 'LineWidth', hCfg.getOr('LineWidth', 1));
     else
         %updateGroup(hFigWav, XData, YData); % this is broken
-        iGroup = 1;
-        while hFigWav.hasPlot(sprintf('hGroup%d', iGroup))
-            hFigWav.rmPlot(sprintf('hGroup%d', iGroup));
-            iGroup = iGroup + 1;
+        plotKeys = keys(hFigWav.hPlots);
+        hGroup = plotKeys(startsWith(plotKeys, 'hGroup'));
+        if ~isempty(hGroup)
+            cellfun(@(plotKey) hFigWav.rmPlot(plotKey), hGroup);
         end
         plotGroup(hFigWav, XData, YData, 'LineWidth', hCfg.getOr('LineWidth', 1));
     end
