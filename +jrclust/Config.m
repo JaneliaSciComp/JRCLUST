@@ -194,6 +194,10 @@ classdef Config < dynamicprops
         tLimFigProj = [];           % time range to display in feature view, in seconds
         um_per_pix = 20;            % 
 
+        % preview GUI params
+        nLoads_max_preview = 30;    % number of time segments to load for preview
+        sec_per_load_preview = 1;   % recording duration per continuous segment to preview (in sec)
+
         % to get to, eventually
         LineStyle = '';
         MAX_LOG = 5;
@@ -264,7 +268,6 @@ classdef Config < dynamicprops
         mrColor_proj = [213 219 235; 0 130 196; 240 119 22]/256;
         nBytes_file = [];
         nClu_show_aux = 10;
-        nLoads_max_preview = 30;
         nMinAmp_ms = 0;
         nPcPerChan = 1;
         nPc_dip = 3;
@@ -284,7 +287,6 @@ classdef Config < dynamicprops
         rms_filt_ms = 0;
         sRateHz_aux = [];
         sRateHz_rate = 1000;
-        sec_per_load_preview = 1;
         slopeLim_ms = [0.05 0.35];
         spkLim_ms_fet = [-0.25 0.75];
         tBin_track = 9;
@@ -440,7 +442,12 @@ classdef Config < dynamicprops
 
                     try
                         if ismember(fns{i}, {'probe_file', 'probeFile'})
-                            s.(fns{i}) = jrclust.utils.absPath(s.(fns{i}), fileparts(obj.configFile));
+                            % try same directory as config file first
+                            pf = jrclust.utils.absPath(s.(fns{i}), fileparts(obj.configFile));
+                            if isempty(pf) % fall back to default collection
+                                pf = jrclust.utils.absPath(s.(fns{i}), fullfile(jrclust.utils.basedir(), 'probes'));
+                            end
+                            obj.probeFile = pf;
                         end
 
                         obj.(fns{i}) = s.(fns{i});

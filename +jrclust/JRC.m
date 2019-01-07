@@ -325,6 +325,11 @@ classdef JRC < handle & dynamicprops
             end
 
             % MISCELLANEOUS COMMANDS
+            if strcmp(obj.cmd, 'preview')
+                hPreview = jrclust.controllers.curate.PreviewController(obj.hCfg);
+                
+            end
+
             if strcmp(obj.cmd, 'traces')
                 hTraces = jrclust.controllers.curate.TracesController(obj.hCfg);
                 if numel(obj.args) > 1

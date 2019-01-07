@@ -75,7 +75,7 @@ classdef TracesController < handle
                             end
 
                             try
-                                windowBounds = round(str2double(dlgAns)*obj.hCfg.sRateHz) + [1, obj.hFigTraces.figData.windowWidth];
+                                windowBounds = round(str2double(dlgAns)*obj.hCfg.sampleRate) + [1, obj.hFigTraces.figData.windowWidth];
                             catch
                                 return;
                             end
@@ -236,7 +236,7 @@ classdef TracesController < handle
                 if isempty(recID)
                     arrayfun(@(i) fprintf('%d: %s\n', i, obj.hCfg.rawRecordings{i}), 1:numel(obj.hCfg.rawRecordings), 'UniformOutput', 0);
                     fprintf('---------------------------------------------\n');
-                    recID = str2double(input('Please specify File ID from the list above:', 's'));
+                    recID = str2double(input('Please specify File ID from the list above: ', 's'));
                 end
 
                 if isnan(recID)
