@@ -1,7 +1,5 @@
 function res = computeDelta(dRes, res, hCfg)
     %COMPUTEDELTA Compute delta for spike features
-    nSites = numel(hCfg.siteMap);
-
     if hCfg.verbose
         fprintf('Computing delta\n\t');
         t2 = tic;
@@ -17,7 +15,7 @@ function res = computeDelta(dRes, res, hCfg)
     deltaCK.SharedMemorySize = 4 * chunkSize * (3 + nC_max + 2*hCfg.nThreads);
 
     spikeData = struct('spikeTimes', dRes.spikeTimes);
-    for iSite = 1:nSites
+    for iSite = 1:hCfg.nSites
         if isfield(dRes, 'spikesBySite')
             spikeData.spikes1 = dRes.spikesBySite{iSite};
         else

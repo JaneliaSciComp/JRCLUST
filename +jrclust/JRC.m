@@ -161,7 +161,7 @@ classdef JRC < handle & dynamicprops
             end
 
             % command sentinel
-            legalCmds = {'detect', 'sort', 'manual', 'full', 'traces'};
+            legalCmds = {'detect', 'sort', 'manual', 'full', 'traces', 'preview'};
             if ~any(strcmpi(obj.cmd, legalCmds))
                 obj.errMsg = sprintf('Command `%s` not recognized', obj.cmd);
                 errordlg(obj.errMsg, 'Unrecognized command');
@@ -327,7 +327,7 @@ classdef JRC < handle & dynamicprops
             % MISCELLANEOUS COMMANDS
             if strcmp(obj.cmd, 'preview')
                 hPreview = jrclust.controllers.curate.PreviewController(obj.hCfg);
-                
+                hPreview.preview();
             end
 
             if strcmp(obj.cmd, 'traces')

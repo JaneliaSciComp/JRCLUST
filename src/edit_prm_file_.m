@@ -11,7 +11,7 @@ function edit_prm_file_(P, vcFile_prm)
     for i=1:numel(csName)
         vcName = csName{i}; %find field name with
         if isstruct(csValue{i}), continue; end %do not write struct
-        vcValue = field2str_(csValue{i});
+        vcValue = jrclust.utils.field2str(csValue{i});
         iLine = find(strcmpi(csLines_var, vcName));
         if numel(iLine)>1 % more than one variable found
             error(['edit_prm_file_: Multiple copies of variables found: ' vcName]);

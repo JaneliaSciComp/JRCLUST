@@ -20,11 +20,11 @@ function delete_auto_()
     snr_max_thresh = str2double(csAns{2});
     count_thresh = round(str2double(csAns{3}));
     if any(isnan([snr_min_thresh, snr_max_thresh, count_thresh]))
-        msgbox_('Invalid criteria.'); return;
+        jrclust.utils.qMsgBox('Invalid criteria.'); return;
     end
     viClu_delete = find(S_clu.vrSnr_clu(:) < snr_min_thresh | S_clu.vnSpk_clu(:) < count_thresh | S_clu.vrSnr_clu(:) > snr_max_thresh);
-    if isempty(viClu_delete), msgbox_('No clusters deleted.'); return; end
-    if numel(viClu_delete) >= S_clu.nClu, msgbox_('Cannot delete all clusters.'); return; end
+    if isempty(viClu_delete), jrclust.utils.qMsgBox('No clusters deleted.'); return; end
+    if numel(viClu_delete) >= S_clu.nClu, jrclust.utils.qMsgBox('Cannot delete all clusters.'); return; end
 
     % Auto delete
     figure_wait_(1); drawnow;
@@ -33,6 +33,6 @@ function delete_auto_()
     S0 = gui_update_();
     figure_wait_(0);
 
-    msgbox_(sprintf('Deleted %d clusters <%0.1f SNR or <%d spikes/unit.', numel(viClu_delete), snr_min_thresh, count_thresh));
+    jrclust.utils.qMsgBox(sprintf('Deleted %d clusters <%0.1f SNR or <%d spikes/unit.', numel(viClu_delete), snr_min_thresh, count_thresh));
     save_log_(sprintf('delete-auto <%0.1f SNR or <%d spikes/unit', snr_min_thresh, count_thresh), S0);
 end %func

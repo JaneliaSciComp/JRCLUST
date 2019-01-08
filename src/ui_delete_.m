@@ -5,7 +5,7 @@ function S0 = ui_delete_(S0)
     if isempty(S0), S0 = get(0, 'UserData'); end
     P = S0.P;
     if ~isempty(S0.iCluPaste)
-        msgbox_('Must select one cluster', 1); return;
+        jrclust.utils.qMsgBox('Must select one cluster', 1); return;
     end
     figure_wait_(1);
 

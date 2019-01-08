@@ -15,5 +15,5 @@ function Fig_preview_fft_thresh_(hFig)
     if isnan(fft_thresh), return; end
 
     S_fig.fft_thresh = fft_thresh;
-    S_fig = Fig_preview_update_(hFig, S_fig, 1);
+    S_fig = doUpdateFigPreview(hFig, S_fig, 1);
 end %func

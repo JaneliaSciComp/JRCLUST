@@ -23,16 +23,16 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
     end
 
     hFigRD.addPlot('allSpikes', x, y, '.');
-    hFigRD.axApply(@hold, 'on');
+    hFigRD.axApply('default', @hold, 'on');
 
-    hFigRD.axis('tight');
-    hFigRD.axis([-4 -.5 -1 2]);
-    hFigRD.axApply(@set, 'XScale', 'linear', 'YScale', 'linear');
+    hFigRD.axApply('default', @axis, 'tight');
+    hFigRD.axApply('default', @axis, [-4 -.5 -1 2]);
+    hFigRD.axApply('default', @set, 'XScale', 'linear', 'YScale', 'linear');
 
     % show rho/delta cutoff lines
-    hFigRD.addPlot('RDCuts', hCfg.log10RhoCut * [1 1], hFigRD.axApply(@get, 'YLim'), 'r--', ...
-                   hFigRD.axApply(@get, 'XLim'), hCfg.log10DeltaCut*[1, 1], 'r--');
-    hFigRD.axApply(@grid, 'on');
+    hFigRD.addPlot('RDCuts', hCfg.log10RhoCut * [1 1], hFigRD.axApply('default', @get, 'YLim'), 'r--', ...
+                   hFigRD.axApply('default', @get, 'XLim'), hCfg.log10DeltaCut*[1, 1], 'r--');
+    hFigRD.axApply('default', @grid, 'on');
 
     % label cluster centers
     if ~isempty(hClust.clusterCenters)
@@ -43,13 +43,13 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
     hFigRD.addPlot('centers', centersX, centersY, 'r.');
 
     % set labels
-    hFigRD.axApply(@xlabel, 'log10 rho');
+    hFigRD.axApply('default', @xlabel, 'log10 rho');
     if fDetrend
-        hFigRD.axApply(@ylabel, 'log10 delta (detrended)');
+        hFigRD.axApply('default', @ylabel, 'log10 delta (detrended)');
     else
-        hFigRD.axApply(@ylabel, 'log10 delta');
+        hFigRD.axApply('default', @ylabel, 'log10 delta');
     end
-    hFigRD.axApply(@title, sprintf('rho-cut: %f, delta-cut: %f', hCfg.log10RhoCut, hCfg.log10DeltaCut));
+    hFigRD.axApply('default', @title, sprintf('rho-cut: %f, delta-cut: %f', hCfg.log10RhoCut, hCfg.log10DeltaCut));
 
     drawnow;
 end

@@ -6,7 +6,7 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
     % 2017/06/22 James Jun
     % 6/22 JJJ: added seperator lines, fixed the reset view and spike view
 
-    hBox = msgbox_('Plotting...', 0, 1);
+    hBox = jrclust.utils.qMsgBox('Plotting...', 0, 1);
 
     hFigTraces.wait(true);
 
@@ -41,8 +41,6 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
         filterToggle = 'off';
     end
 
-    nSites = numel(hCfg.siteMap);
-
     if hCfg.nTime_traces == 1
         XData = ((hFigTraces.figData.windowBounds(1):hCfg.nSkip_show:hFigTraces.figData.windowBounds(end))-1) / hCfg.sampleRate;
         XLabel = 'Time (s)';
@@ -54,20 +52,20 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
         XLabel = sprintf('Time (s), %d segments merged (%0.1f ~ %0.1f s, %0.2f s each)', hCfg.nTime_traces, tlim_show, diff(hCfg.tlim));
 
         mrX_edges = XData(repmat(multiEdges(:)', [3, 1]));
-        mrY_edges = repmat([0;numel(hCfg.siteMap)+1; nan], 1, numel(multiEdges));
+        mrY_edges = repmat([0; hCfg.nSites + 1; nan], 1, numel(multiEdges));
 
         hFigTraces.plotApply('hEdges', @set, 'XData', mrX_edges(:), 'YData', mrY_edges(:));
         csTime_bin = cellfun(@(x) sprintf('%0.1f', x(1)/hCfg.sampleRate), multiBounds, 'UniformOutput', 0);
-        hFigTraces.axApply(@set, {'XTick', 'XTickLabel'}, {XData(multiEdges), csTime_bin});
+        hFigTraces.axApply('default', @set, {'XTick', 'XTickLabel'}, {XData(multiEdges), csTime_bin});
     end
 
-    hFigTraces.multiplot('hPlot', hFigTraces.figData.maxAmp, XData, tracesFilt', 1:nSites);
+    hFigTraces.multiplot('hPlot', hFigTraces.figData.maxAmp, XData, tracesFilt', 1:hCfg.nSites);
 
-    hFigTraces.axApply(@grid, hFigTraces.figData.grid);
-    hFigTraces.axApply(@set, 'YTick', 1:nSites);
-    hFigTraces.axApply(@title, sprintf(hFigTraces.figData.title, hFigTraces.figData.maxAmp));
-    hFigTraces.axApply(@xlabel, XLabel);
-    hFigTraces.axApply(@ylabel, 'Site #');
+    hFigTraces.axApply('default', @grid, hFigTraces.figData.grid);
+    hFigTraces.axApply('default', @set, 'YTick', 1:hCfg.nSites);
+    hFigTraces.axApply('default', @title, sprintf(hFigTraces.figData.title, hFigTraces.figData.maxAmp));
+    hFigTraces.axApply('default', @xlabel, XLabel);
+    hFigTraces.axApply('default', @ylabel, 'Site #');
     hFigTraces.plotApply('hPlot', @set, 'Visible', hFigTraces.figData.traces);
 
     % Delete spikes from other threads (TODO: break this out into a function)
@@ -108,7 +106,7 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
 
         % check if clustered
         if isempty(hClust)
-            for iSite = 1:nSites % deal with subsample factor
+            for iSite = 1:hCfg.nSites % deal with subsample factor
                 onSite = find(spikeSites == iSite);
                 if isempty(onSite)
                     continue;

@@ -1,8 +1,6 @@
 function res = computeRho(dRes, res, hCfg)
     %COMPUTERHO Compute rho values for spike features
-    nSites = numel(hCfg.siteMap);
-
-    res.rhoCutSite = zeros(nSites, 1, 'single');
+    res.rhoCutSite = zeros(hCfg.nSites, 1, 'single');
     res.rhoCutGlobal = [];
 
     % compute rho cutoff globally
@@ -25,7 +23,7 @@ function res = computeRho(dRes, res, hCfg)
     rhoCK.SharedMemorySize = 4 * chunkSize * (2 + nC_max + 2*hCfg.nThreads);
 
     spikeData = struct('spikeTimes', dRes.spikeTimes);
-    for iSite = 1:nSites
+    for iSite = 1:hCfg.nSites
         if isfield(dRes, 'spikesBySite')
             spikeData.spikes1 = dRes.spikesBySite{iSite};
         else
@@ -117,11 +115,9 @@ function rhoCut = estRhoCutGlobal(dRes, hCfg, vlRedo_spk)
         t1 = tic;
     end
 
-    nSites = numel(hCfg.siteMap);
-
     % estimate rho cutoff for each site
-    siteCuts = nan(1, nSites);
-    for iSite = 1:nSites
+    siteCuts = nan(1, hCfg.nSites);
+    for iSite = 1:hCfg.nSites
         if isfield(dRes, 'spikesBySite')
             spikeData.spikes1 = dRes.spikesBySite{iSite};
         else

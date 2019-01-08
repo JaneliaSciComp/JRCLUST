@@ -14,47 +14,47 @@ function S_fig = preview_(P, fDebug_ui_)
         P = loadParam_(P);
     end
 
-    [mnWav_raw, S_preview] = load_preview_(P);
+    [tracesRaw, S_preview] = load_preview_(P);
     set0_(P);
-    nSites = size(mnWav_raw,2);
+    nSites = size(tracesRaw,2);
 
     % process signal, how about common mean?
 
     % Bad channel metrics, do it once
-    mrCorr_site = corr(single(mnWav_raw));
+    mrCorr_site = corr(single(tracesRaw));
     mrCorr_site(logical(eye(size(mrCorr_site)))) = 0;
-    vrCorr_max_site = max(mrCorr_site);
+    maxCorrSite = max(mrCorr_site);
 
     % Create a Figure
     gap = .05;
     hFig = create_figure_('Fig_preview', [0 0 .5 1], P.vcFile_prm, 1, 1); %plot a summary pannel
-    hAx_mean = axes('Parent', hFig, 'Position',      [gap        gap         3/4-gap         1/4-gap], 'NextPlot', 'add');
-    hAx_traces = axes('Parent', hFig, 'Position',    [gap        1/4+gap     3/4-gap         3/4-gap*2], 'NextPlot', 'add');
+    hAxMean = axes('Parent', hFig, 'Position',      [gap        gap         3/4-gap         1/4-gap], 'NextPlot', 'add');
+    hAxTraces = axes('Parent', hFig, 'Position',    [gap        1/4+gap     3/4-gap         3/4-gap*2], 'NextPlot', 'add');
     hAx_sites = axes('Parent', hFig, 'Position',     [3/4+gap,   0+gap       1/4-gap*1.5     2/3-gap*2], 'NextPlot', 'add');
-    hAx_psd = axes('Parent', hFig, 'Position',       [3/4+gap,   2/3+gap     1/4-gap*1.5     1/3-gap*2], 'NextPlot', 'add');
-    linkaxes([hAx_mean, hAx_traces], 'x');
+    hAxPSD = axes('Parent', hFig, 'Position',       [3/4+gap,   2/3+gap     1/4-gap*1.5     1/3-gap*2], 'NextPlot', 'add');
+    linkaxes([hAxMean, hAxTraces], 'x');
 
     % Callback functions
     Fig_preview_menu_(hFig);
     set(hFig, 'KeyPressFcn', @keyPressFcn_Fig_preview_, 'BusyAction', 'cancel');
-    mouse_figure(hFig, hAx_traces);
+    mouse_figure(hFig, hAxTraces);
 
     % Build S_fig
-    [nLoads, nSamples_bin, maxAmp] = deal(S_preview.nLoads, size(mnWav_raw,1), P.maxAmp);
-    % nLoad_bin = S_preview.nSamples_per_load;
-    % nLoad_bin = round(0.1 * P.sRateHz);
+    [nLoads, nSamplesTotal, maxAmp] = deal(S_preview.nLoads, size(tracesRaw,1), P.maxAmp);
+    % windowWidth = S_preview.nSamples_per_load;
+    % windowWidth = round(0.1 * P.sRateHz);
     if isfield(P, 'preview_window')
-        nLoad_bin = round(P.preview_window * P.sampleRateHz); % TW
+        windowWidth = round(P.preview_window * P.sampleRateHz); % TW
     else
-        nLoad_bin = S_preview.nSamples_per_load;
+        windowWidth = S_preview.nSamples_per_load;
     end
 
-    nlim_bin = [1, nLoad_bin];
+    windowBounds = [1, windowWidth];
     siteLim = [1, nSites];
-    [vcFilter, vcCommonRef, thresh_corr_bad_site, fft_thresh, qqFactor, blank_thresh, blank_period_ms, viSiteZero] = ...
-    get_(P, 'vcFilter', 'vcCommonRef', 'thresh_corr_bad_site', 'fft_thresh', 'qqFactor', 'blank_thresh', 'blank_period_ms', 'viSiteZero');
-    [fGrid, fFilter, fThresh_spk, fShow_spk] = deal(1, 1, 0, 1);
-    [vcSite_view, vcRef_view, vcPsd_view] = deal('Site correlation', 'binned', 'original');
+    [filterType, vcCommonRef, thresh_corr_bad_site, fft_thresh, qqFactor, blankThresh, blank_period_ms, viSiteZero] = ...
+    get_(P, 'filterType', 'vcCommonRef', 'thresh_corr_bad_site', 'fft_thresh', 'qqFactor', 'blankThresh', 'blank_period_ms', 'viSiteZero');
+    [fGrid, fFilter, fShowThresh, fShow_spk] = deal(1, 1, 0, 1);
+    [siteView, refView, psdView] = deal('Site correlation', 'binned', 'original');
     helpText = { ...
     'Left/Right: change time (Shift: x4)', ...
     '[Home/End]: go to beginning/end of file', ...
@@ -69,23 +69,23 @@ function S_fig = preview_(P, fDebug_ui_)
     'Gri[D] toggle', ...
     };
     S_fig = makeStruct_(...
-    vcFilter, vcCommonRef, thresh_corr_bad_site, fft_thresh, qqFactor, blank_thresh, blank_period_ms, viSiteZero, ...
-    nlim_bin, nLoad_bin, nLoads, nSamples_bin, maxAmp, ...
-    mnWav_raw, vrCorr_max_site, S_preview, helpText, ...
-    hAx_mean, hAx_traces, hAx_sites, hAx_psd, ...
-    fFilter, fGrid, fThresh_spk, siteLim, fShow_spk, ...
-    vcSite_view, vcRef_view, vcPsd_view);
+    filterType, vcCommonRef, thresh_corr_bad_site, fft_thresh, qqFactor, blankThresh, blank_period_ms, viSiteZero, ...
+    windowBounds, windowWidth, nLoads, nSamplesTotal, maxAmp, ...
+    tracesRaw, maxCorrSite, S_preview, helpText, ...
+    hAxMean, hAxTraces, hAx_sites, hAxPSD, ...
+    fFilter, fGrid, fShowThresh, siteLim, fShow_spk, ...
+    siteView, refView, psdView);
 
     % Exit
     set(hFig, 'UserData', S_fig);
     drawnow;
-    S_fig = Fig_preview_update_(hFig, S_fig, 0);
+    S_fig = doUpdateFigPreview(hFig, S_fig, 0);
 end %func
 
 %% local functions
 %--------------------------------------------------------------------------
 % 8/6/17 JJJ: Initial implementation, documented and tested
-function [mnWav_raw, S_preview] = load_preview_(P)
+function [tracesRaw, S_preview] = load_preview_(P)
     % Load the subsampled dataset
     % Useful for inspecting threshold and so on. filter and
     % S_preview: which file and where it came from
@@ -109,8 +109,8 @@ function [mnWav_raw, S_preview] = load_preview_(P)
     nSamples_per_load = round(sec_per_load_preview * P.sRateHz);
 
     % file loading loop
-    [mnWav_raw, cviLim_load, csFile_load] = deal({});
-    % [mnWav_raw, mnWav_filt] = deal({});
+    [tracesRaw, cviLim_load, csFile_load] = deal({});
+    % [tracesRaw, mnWav_filt] = deal({});
     P.fGpu = 0;
     for iFile = 1:numel(csFile_bin)
         try
@@ -139,8 +139,8 @@ function [mnWav_raw, S_preview] = load_preview_(P)
                 dshape_ = [P.nChans, diff(ilim_bin_) + 1];
                 offset_ = max(0, (iSample_bin-1) * P.nChans * bytesPerSample_(P.vcDataType) + get_set_(P, 'header_offset', 0));
 
-                % mnWav_raw{end+1} = load_file_(fid_bin_, diff(ilim_bin_) + 1, P);
-                mnWav_raw{end+1} = jrclust.utils.readRecording(fid_bin_, P.vcDataType, dshape_, offset_, P);
+                % tracesRaw{end+1} = load_file_(fid_bin_, diff(ilim_bin_) + 1, P);
+                tracesRaw{end+1} = jrclust.utils.readRecording(fid_bin_, P.vcDataType, dshape_, offset_, P);
                 cviLim_load{end+1} = ilim_bin_;
                 csFile_load{end+1} = vcFile_bin_;
             end
@@ -150,12 +150,12 @@ function [mnWav_raw, S_preview] = load_preview_(P)
         end
         fclose_(fid_bin_, 0);
     end
-    nLoads = numel(mnWav_raw);
-    mnWav_raw = cell2mat(mnWav_raw');
-    % if nargout>=2, mnWav_raw = cell2mat(mnWav_raw'); end
+    nLoads = numel(tracesRaw);
+    tracesRaw = cell2mat(tracesRaw');
+    % if nargout>=2, tracesRaw = cell2mat(tracesRaw'); end
     if nargout>=2
         S_preview = makeStruct_(nLoads_per_file, nLoads_max_preview, ...
-        sec_per_load_preview, nSamples_per_load, nLoads, csFile_load, cviLim_load);
+            sec_per_load_preview, nSamples_per_load, nLoads, csFile_load, cviLim_load);
     end
 end %func
 

@@ -5,10 +5,10 @@ function S0 = ui_merge_(S0)
     P = S0.P;
 
     if isempty(S0.iCluPaste)
-        msgbox_('Right-click a cluster to merge.', 1); return;
+        jrclust.utils.qMsgBox('Right-click a cluster to merge.', 1); return;
     end
     if S0.iCluCopy == S0.iCluPaste
-        msgbox_('Cannot merge to itself.', 1); return;
+        jrclust.utils.qMsgBox('Cannot merge to itself.', 1); return;
     end
 
     figure_wait_(1); drawnow;

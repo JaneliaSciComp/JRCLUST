@@ -11,6 +11,6 @@ function Fig_preview_save_threshold_(hFig)
     set0_(P);
     edit_prm_file_(P, P.vcFile_prm);
 
-    msgbox_(sprintf('Saved to %s and updated %s (vcFile_thresh)', ...
+    jrclust.utils.qMsgBox(sprintf('Saved to %s and updated %s (vcFile_thresh)', ...
     vcFile_thresh, P.vcFile_prm));
 end %func

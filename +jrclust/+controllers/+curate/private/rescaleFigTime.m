@@ -1,7 +1,7 @@
 function rescaleFigTime(hFigTime, timeScale)
     %set_fig_maxAmp_('FigTime', timeScale);
-    YLim = hFigTime.axApply(@get, 'YLim');
-    hFigTime.axApply(@set, 'YLim', [0, YLim(2)*timeScale]);
+    YLim = hFigTime.axApply('default', @get, 'YLim');
+    hFigTime.axApply('default', @set, 'YLim', [0, YLim(2)*timeScale]);
     imrect_set_(hFigTime, 'hRect', [], [0, YLim(2)*timeScale]);
 
     % switch lower(P.vcFet_show)

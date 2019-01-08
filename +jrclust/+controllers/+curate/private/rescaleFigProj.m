@@ -14,8 +14,8 @@ function rescaleFigProj(hFigProj, projScale, hCfg)
         YLabel = sprintf('Site # (%%0.0f %s)', hCfg.dispFeature);
     end
 
-    hFigProj.axApply(@xlabel, sprintf(XLabel, projScale));
-    hFigProj.axApply(@ylabel, sprintf(YLabel, projScale));
+    hFigProj.axApply('default', @xlabel, sprintf(XLabel, projScale));
+    hFigProj.axApply('default', @ylabel, sprintf(YLabel, projScale));
 end
 
 %% LOCAL FUNCTIONS

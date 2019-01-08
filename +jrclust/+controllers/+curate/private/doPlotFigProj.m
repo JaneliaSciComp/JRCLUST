@@ -18,8 +18,8 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, sitesToShow, selected, bound
 
     nSites = numel(sitesToShow);
     if isempty(hFigProj.figData)
-        hFigProj.axes();
-        hFigProj.axApply(@set, 'Position', [.1 .1 .85 .85], 'XLimMode', 'manual', 'YLimMode', 'manual');
+        hFigProj.addAxes('default');
+        hFigProj.axApply('default', @set, 'Position', [.1 .1 .85 .85], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
         hFigProj.addPlot('background', @line, nan, nan, 'Color', hCfg.mrColor_proj(1, :));
         hFigProj.addPlot('foreground', @line, nan, nan, 'Color', hCfg.mrColor_proj(2, :)); % placeholder
@@ -72,13 +72,13 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, sitesToShow, selected, bound
     end
 
     % Annotate axes
-    hFigProj.axis([0 nSites 0 nSites]);
+    hFigProj.axApply('default', @axis, [0 nSites 0 nSites]);
     hFigProj.axApply(@set, 'XTick', 0.5:1:nSites, 'YTick', 0.5:1:nSites, ...
                      'XTickLabel', sitesToShow, 'YTickLabel', sitesToShow, ...
                     'Box', 'off');
-    hFigProj.axApply(@xlabel, sprintf(XLabel, boundScale));
-    hFigProj.axApply(@ylabel, sprintf(YLabel, boundScale));
-    hFigProj.axApply(@title, figTitle);
+    hFigProj.axApply('default', @xlabel, sprintf(XLabel, boundScale));
+    hFigProj.axApply('default', @ylabel, sprintf(YLabel, boundScale));
+    hFigProj.axApply('default', @title, figTitle);
 
     hFigProj.figData.helpText = {'[D]raw polygon', ...
                     '[S]plit cluster', ...

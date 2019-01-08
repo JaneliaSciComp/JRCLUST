@@ -5,8 +5,8 @@ function Fig_preview_psd_plot_(hFig, vcMode, hMenu)
     switch vcMode
         %     case 'Power'
         %     case 'Detrended'
-        case 'Linear', set(S_fig.hAx_psd, 'XScale', 'linear');
-        case 'Log', set(S_fig.hAx_psd, 'XScale', 'log');
+        case 'Linear', set(S_fig.hAxPSD, 'XScale', 'linear');
+        case 'Log', set(S_fig.hAxPSD, 'XScale', 'log');
         otherwise, disperr_(vcMode);
     end %switch
     menu_checkbox_(hMenu, vcMode);

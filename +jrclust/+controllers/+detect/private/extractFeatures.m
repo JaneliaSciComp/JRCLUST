@@ -116,13 +116,12 @@ function spikeWindows = samplesToWindows2(samplesIn, spikeSites, spikeTimes, hCf
     %SAMPLESTOWINDOWS2 Get spatiotemporal windows around secondary peaking
     %events as 3D arrays
     nSpikes = numel(spikeSites);
-    nSites = numel(hCfg.siteMap);
     nSitesEvt = 1 + hCfg.nSiteDir*2; % includes ref sites
 
     % nSamples x nSites x nSpikes
     spikeWindows = zeros(diff(hCfg.evtWindowSamp) + 1, nSitesEvt, nSpikes, 'like', samplesIn);
 
-    for iSite = 1:nSites
+    for iSite = 1:hCfg.nSites
         siteSpikes = find(spikeSites == iSite);
         if isempty(siteSpikes)
             continue;

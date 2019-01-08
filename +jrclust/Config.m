@@ -3,11 +3,12 @@ classdef Config < dynamicprops
     % replacement for P struct
 
     %% OBJECT-LEVEL PROPERTIES
-    properties (Hidden, SetObservable, SetAccess=private)
-        isLoaded;
+    properties (Hidden, SetAccess=private, SetObservable)
         errMsg;
+        isLoaded;
         isError;
         oldPcount;
+        tempParams;
     end
 
     %% OLD-STYLE PARAMS, publicly settable (will be deprecated after a grace period)
@@ -339,6 +340,7 @@ classdef Config < dynamicprops
         evtManualThresh;            % evtManualThreshuV / bitScaling
         evtWindowRawSamp;           % interval around event to extract raw spike waveforms, in samples
         evtWindowSamp;              % interval around event to extract filtered spike waveforms, in samples
+        nSites;                     % numel(siteMap)
         nSitesEvt;                  % 2*nSiteDir + 1 - nSitesExcl
         refracIntSamp;              % spike refractory interval, in samples
         sessionName;                % name of prm file, without path or extensions
@@ -360,6 +362,8 @@ classdef Config < dynamicprops
 
             obj.isLoaded = false;
             obj.isError = false;
+
+            obj.tempParams = containers.Map();
 
             if ~isfile(filename)
                 emsg = sprintf('Cannot load config: file %s not found', filename);
@@ -656,6 +660,16 @@ classdef Config < dynamicprops
 
     %% USER METHODS
     methods
+        function edit(obj)
+            %EDIT Edit the config file
+            edit(obj.configFile);
+        end
+
+        function success = flush(obj)
+            %FLUSH Write stored values to file
+            success = true;
+        end
+
         function val = getOr(obj, fn, dv)
             %GETOR GET set value obj.(fn) OR default value dv if unset or empty
             if nargin < 3
@@ -666,6 +680,39 @@ classdef Config < dynamicprops
                 val = dv;
             else
                 val = obj.(fn);
+            end
+        end
+
+        function resetTemporaryParams(obj)
+            %RESETTEMPORARYPARAMS Reset temporary parameters
+            prmKeys = keys(obj.tempParams);
+
+            for i = 1:numel(prmKeys)
+                fn = prmKeys{i};
+                obj.(fn) = obj.tempParams(fn);
+                remove(obj.tempParams, fn);
+            end
+        end
+
+        function setTemporaryParams(obj, varargin)
+            %SETTEMPORARYPARAMS Set temporary parameters to reset later
+            prmKeys = varargin(1:2:end);
+            prmVals = varargin(2:2:end);
+
+            if numel(prmKeys) ~= numel(prmVals)
+                warning('number of property names not equal to values; skipping');
+                return;
+            end
+
+            for i = 1:numel(prmKeys)
+                fn = prmKeys{i};
+                try
+                    obj.tempParams(fn) = obj.(fn); % save old value for later
+                    obj.(fn) = prmVals{i};
+                catch ME
+                    remove(obj.tempParams, fn);
+                    warning(ME.identifier, 'failed to set %s: %s', fn, ME.message);
+                end
             end
         end
     end
@@ -1275,6 +1322,11 @@ classdef Config < dynamicprops
         function set.maxSite(obj, ns)
             obj.logOldP('maxSite');
             obj.nSiteDir = ns;
+        end
+
+        % nSites
+        function ns = get.nSites(obj)
+            ns = numel(obj.siteMap);
         end
 
         % nSitesEvt

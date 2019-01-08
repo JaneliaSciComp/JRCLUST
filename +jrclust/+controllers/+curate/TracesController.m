@@ -31,10 +31,9 @@ classdef TracesController < handle
 
     %% KEYPRESS/MOUSECLICK METHODS
     methods
-        function keyPressFigTraces(obj, hObject, hEvent)
-            % 2017/6/22 James Jun: Added nTime_traces multiview
+        function keyPressFigTraces(obj, ~, hEvent)
+            %KEYPRESSFIGTRACES 
             factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
-            nSites = numel(obj.hCfg.siteMap);
 
             switch hEvent.Key
                 case 'uparrow'
@@ -50,15 +49,15 @@ classdef TracesController < handle
                         case 'leftarrow'
                             windowBounds = obj.hFigTraces.figData.windowBounds - (obj.hFigTraces.figData.windowWidth) * factor; %no overlap
                             if windowBounds(1) < 1
-                                msgbox_('Beginning of file', 1);
+                                jrclust.utils.qMsgBox('Beginning of file', true);
                                 windowBounds = [1, obj.hFigTraces.figData.windowWidth];
                             end
 
                         case 'rightarrow'
                             windowBounds = obj.hFigTraces.figData.windowBounds + (obj.hFigTraces.figData.windowWidth + 1) * factor; %no overlap
                             if windowBounds(2) > obj.hFigTraces.figData.nSamplesTotal
-                                msgbox_('End of file', 1);
-                                windowBounds = [-obj.hFigTraces.figData.windowWidth+1, 0] + obj.hFigTraces.figData.nSamplesTotal;
+                                jrclust.utils.qMsgBox('End of file', true);
+                                windowBounds = [-obj.hFigTraces.figData.windowWidth + 1, 0] + obj.hFigTraces.figData.nSamplesTotal;
                             end
 
                         case 'home' % beginning of file
@@ -92,7 +91,7 @@ classdef TracesController < handle
                     obj.updateFigTraces(true);
 
                 case 'c' % channel query
-                    msgbox_('Draw a rectangle', 1);
+                    jrclust.utils.qMsgBox('Draw a rectangle', 1);
                     obj.hFigTraces.addPlot('hRect', @imrect);
                     ie = obj.hFigTraces.plotApply('hRect', @isempty);
                     if ie
@@ -118,15 +117,15 @@ classdef TracesController < handle
                     mrX = reshape(XData, UserData.shape);
                     mrY = reshape(YData, UserData.shape);
 
-                    obj.hFigTraces.axApply(@hold, 'on');
+                    obj.hFigTraces.axApply('default', @hold, 'on');
                     
                     obj.hFigTraces.addPlot('hPoint', XData(anchorPoint), YData(anchorPoint), 'r*');
                     obj.hFigTraces.addPlot('hLine', mrX(:, iSite), mrY(:, iSite), 'r-');
 
-                    obj.hFigTraces.axApply(@hold, 'off');
+                    obj.hFigTraces.axApply('default', @hold, 'off');
 
                     iChan = obj.hCfg.siteMap(iSite);
-                    msgbox_(sprintf('Site: %d/ Chan: %d', iSite, iChan), 1);
+                    jrclust.utils.qMsgBox(sprintf('Site: %d/ Chan: %d', iSite, iChan), 1);
 
                     % clean up
                     obj.hFigTraces.rmPlot('hRect');
@@ -143,10 +142,10 @@ classdef TracesController < handle
                     obj.toggleGrid();
 
                 case 'h'
-                    msgbox_(obj.hFigTraces.figData.helpText, 1);
+                    jrclust.utils.qMsgBox(obj.hFigTraces.figData.helpText, 1);
 
                 case 'p' % power spectrum
-                    iSite = inputdlgNum(sprintf('Site# to show (1-%d, 0 for all)', nSites), 'Site#', 0);
+                    iSite = inputdlgNum(sprintf('Site# to show (1-%d, 0 for all)', obj.hCfg.nSites), 'Site#', 0);
 
                     if isnan(iSite)
                         return;
@@ -196,7 +195,7 @@ classdef TracesController < handle
         function toggleGrid(obj)
             obj.showGrid = ~obj.showGrid;
             obj.hFigTraces.figData.grid = jrclust.utils.ifEq(obj.showGrid, 'on', 'off');
-            obj.hFigTraces.axApply(@grid, obj.hFigTraces.figData.grid);
+            obj.hFigTraces.axApply('default', @grid, obj.hFigTraces.figData.grid);
         end
 
         function toggleSpikes(obj)
@@ -304,10 +303,10 @@ classdef TracesController < handle
             obj.tracesRaw = u2i(obj.tracesRaw);
 
             obj.hFigTraces = jrclust.views.Figure('FigTraces', [0 0 .5 1], recFilename, false, true);
-            obj.hFigTraces.axes();
+            obj.hFigTraces.addAxes('default');
             obj.hFigTraces.addPlot('hLine', @line, nan, nan, 'Color', [1 1 1]*.5, 'LineWidth', .5);
             obj.hFigTraces.addPlot('hEdges', nan, nan, 'Color', [1 0 0]*.5, 'LineWidth', 1);
-            obj.hFigTraces.axApply(@set, 'Position', [.05 .05 .9 .9], 'XLimMode', 'manual', 'YLimMode', 'manual');
+            obj.hFigTraces.axApply('default', @set, 'Position', [.05 .05 .9 .9], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
             figData = struct('windowBounds', windowBounds, ...
                              'hRec', obj.hRec, ...

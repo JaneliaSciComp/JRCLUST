@@ -143,7 +143,7 @@ classdef DetectController < handle
             end
 
             % spikes by site
-            nSites = numel(obj.hCfg.siteMap);
+            nSites = obj.hCfg.nSites;
             res.spikesBySite = arrayfun(@(iSite) find(obj.centerSites(:, 1) == iSite), 1:nSites, 'UniformOutput', 0);
             if size(obj.centerSites, 2) >= 2
                 res.spikesBySite2 = arrayfun(@(iSite) find(obj.centerSites(:, 2) == iSite), 1:nSites, 'UniformOutput', 0);

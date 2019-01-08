@@ -1,4 +1,4 @@
-% function [vlKeep_ref, vrMad_ref] = carReject(vrWav_mean1, P)
+% function [vlKeep_ref, channelMeansMAD] = carReject(vrWav_mean1, P)
 function [keepMe, channelMeansMAD] = carReject(channelMeans, blankPerMs, blankThresh, sampleRate)
     %CARREJECT
 

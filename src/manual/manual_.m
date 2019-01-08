@@ -56,7 +56,7 @@ function manual_(P, vcMode)
     end % if
 
     % Create figures
-    hMsg = msgbox_('Plotting... (this closes automatically)'); t1=tic;
+    hMsg = jrclust.utils.qMsgBox('Plotting... (this closes automatically)'); t1=tic;
     set(0, 'UserData', S0);
     S0 = figures_manual_(P); %create figures for manual interface
 

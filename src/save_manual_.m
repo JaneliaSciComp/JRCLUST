@@ -10,7 +10,7 @@ function fExit = save_manual_(varargin)
     fExit = 1;
     switch lower(questdlg_(['Save to ', vcFile_jrc, ' ?'], 'Confirmation', 'Yes'))
         case 'yes'
-        hMsg = msgbox_('Saving... (this closes automatically)');
+        hMsg = jrclust.utils.qMsgBox('Saving... (this closes automatically)');
         save0_(vcFile_jrc); % 1 will skip figure saving
         fExit = 1;
         close_(hMsg);

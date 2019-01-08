@@ -24,7 +24,7 @@ function make_trial_(vcFile_prm, fImec)
     vcAns = questdlg_('TTL Edge', 'Select rising or falling edge for the TTL pulses', 'Rising edge', 'Falling edge', 'Rising edge');
     if isempty(vcAns), return; end
 
-    hMsg = msgbox_('Loading... (this closes automatically)');
+    hMsg = jrclust.utils.qMsgBox('Loading... (this closes automatically)');
     vrWav = load_bin_chan_(P, iChan);
     if isempty(vrWav), fprintf(2, 'File loading error: %s\n', P.vcFile_prm); return; end
     % fid = memmapfile(P.vcFile, 'Offset', 0, 'Format', P.vcDataType, 'Repeat', inf);

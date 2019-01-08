@@ -10,7 +10,7 @@ function unit_annotate_(hObject, event, vcLabel)
             if ~isempty(S0.iCluPaste)
                 vcLabel = sprintf('=%d', S0.iCluPaste);
             else
-                msgbox_('Right-click another unit to set equal to.');
+                jrclust.utils.qMsgBox('Right-click another unit to set equal to.');
                 return;
                 vcLabel = '';
             end

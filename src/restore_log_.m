@@ -6,7 +6,7 @@ function restore_log_(iMenu1)
     S_clu1 = cS_log{end - iMenu1 + 1}; % last ones shown first
     S_clu1.viClu = int32(miClu_log(:,iMenu1));
 
-    hMsg = msgbox_(sprintf('Restoring to %s (%s)', S_clu1.vcCmd, datestr(S_clu1.datenum)), 0);
+    hMsg = jrclust.utils.qMsgBox(sprintf('Restoring to %s (%s)', S_clu1.vcCmd, datestr(S_clu1.datenum)), 0);
     [S_clu, S0] = S_clu_new_(S_clu1);
 
     % Update checkbox

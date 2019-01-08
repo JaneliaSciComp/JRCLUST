@@ -18,14 +18,14 @@ function Fig_preview_trange_(hFig, vc_trange, mh)
 
     S_fig = get(hFig, 'UserData');
     P = get0_('P');
-    S_fig.nLoad_bin = round(trange * P.sRateHz);
-    nlim_bin = S_fig.nlim_bin(1) + [0, S_fig.nLoad_bin-1];
-    if nlim_bin(1)<1
-        nlim_bin = [1, S_fig.nLoad_bin];
-    elseif nlim_bin(2) > S_fig.nSamples_bin
-        nlim_bin = [-S_fig.nLoad_bin+1, 0] + S_fig.nSamples_bin;
+    S_fig.windowWidth = round(trange * P.sRateHz);
+    windowBounds = S_fig.windowBounds(1) + [0, S_fig.windowWidth-1];
+    if windowBounds(1)<1
+        windowBounds = [1, S_fig.windowWidth];
+    elseif windowBounds(2) > S_fig.nSamplesTotal
+        windowBounds = [-S_fig.windowWidth+1, 0] + S_fig.nSamplesTotal;
     end
-    S_fig.nlim_bin = nlim_bin;
+    S_fig.windowBounds = windowBounds;
     set(hFig, 'UserData', S_fig);
-    Fig_preview_plot_(P);
+    doPlotFigPreview(P);
 end %func

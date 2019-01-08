@@ -7,15 +7,15 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
     timeLimits = double([0, abs(hClust.spikeTimes(end))/hCfg.sampleRate]);
     % construct plot for the first time
     if isempty(hFigTime.figData)
-        hFigTime.axes();
-        hFigTime.axApply(@set, 'Position', [.05 .2 .9 .7], 'XLimMode', 'manual', 'YLimMode', 'manual');
+        hFigTime.addAxes('default');
+        hFigTime.axApply('default', @set, 'Position', [.05 .2 .9 .7], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
         % first time
         hFigTime.addPlot('background', @line, nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(1, :), 'MarkerSize', 5, 'LineStyle', 'none');
         hFigTime.addPlot('foreground', @line, nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(2, :), 'MarkerSize', 5, 'LineStyle', 'none');
         hFigTime.addPlot('foreground2', @line, nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(3, :), 'MarkerSize', 5, 'LineStyle', 'none');
-        hFigTime.axApply(@xlabel, 'Time (s)');
-        hFigTime.axApply(@grid, 'on');
+        hFigTime.axApply('default', @xlabel, 'Time (s)');
+        hFigTime.axApply('default', @grid, 'on');
 
         % rectangle plot
         rectPos = [timeLimits(1), maxAmp, diff(timeLimits), maxAmp];
@@ -25,7 +25,7 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
 
         hFigTime.setHideOnDrag('background'); % hide background spikes when dragging
         if ~isempty(hCfg.time_tick_show) % tick mark
-            hFigTime.axApply(@set, 'XTick', timeLimits(1):hCfg.time_tick_show:timeLimits(end));
+            hFigTime.axApply('default', @set, 'XTick', timeLimits(1):hCfg.time_tick_show:timeLimits(end));
         end
 
         hFigTime.figData.isPlotted = true;
@@ -61,9 +61,9 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
     end
 %     toggleVisible_(S_fig.hPlot0, S_fig.doPlotBG);
 
-    hFigTime.axis([timeLimits, vppLim]);
-    hFigTime.axApply(@title, figTitle);
-    hFigTime.axApply(@ylabel, YLabel);
+    hFigTime.axApply('default', @axis, [timeLimits, vppLim]);
+    hFigTime.axApply('default', @title, figTitle);
+    hFigTime.axApply('default', @ylabel, YLabel);
 
 %     S_fig = struct_merge_(S_fig, makeStruct_(iSite, timeLimits, hCfg, vpp_lim, clusterSpikes));
     hFigTime.figData.helpText = {'Up/Down: change channel', ...

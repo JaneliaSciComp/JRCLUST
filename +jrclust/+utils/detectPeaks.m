@@ -70,8 +70,7 @@ end
 %% LOCAL FUNCTIONS
 function [spikeSites] = groupByShank(spikeSites, hCfg)
     %GROUPBYSHANK Group all spike sites by shank
-    nSites = numel(hCfg.siteMap);
-    site2site = zeros([nSites, 1], 'like', spikeSites);
+    site2site = zeros([hCfg.nSites, 1], 'like', spikeSites);
 
     % remap
     [~, ia, ic] = unique(hCfg.shankMap);

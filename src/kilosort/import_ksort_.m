@@ -135,7 +135,7 @@ function import_ksort_(vcFile_prm)
 
     P.fft_thresh = get_set_(P, 'fft_thresh', 0);
     P.vcCommonRef = get_set_(P, 'vcCommonRef', 'mean');
-    P.blank_thresh = get_set_(P, 'blank_thresh', 0);
+    P.blankThresh = get_set_(P, 'blankThresh', 0);
     P.vcDataType = get_set_(P, 'vcDataType', 'int16'); % KS default
 
     P.tlim_load = get_set_(P, 'tlim_load', []);

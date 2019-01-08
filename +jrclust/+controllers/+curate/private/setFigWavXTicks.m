@@ -10,9 +10,9 @@ function hFigWav = setFigWavXTicks(hFigWav, hClust, displayCount)
                     'XTickLabel', xTickLabels, ...
                     'FontSize', 8);
     if displayCount
-        hFigWav.axApply(@set, 'XTickLabelRotation', -20);
+        hFigWav.axApply('default', @set, 'XTickLabelRotation', -20);
     else
-        hFigWav.axApply(@set, 'XTickLabelRotation', 0);
+        hFigWav.axApply('default', @set, 'XTickLabelRotation', 0);
     end
 
     hFigWav.figData.displayCount = displayCount;

@@ -42,7 +42,7 @@ function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp)
         plotGroup(hFigWav, XData, YData, 'LineWidth', hCfg.getOr('LineWidth', 1));
     end
 
-    hFigWav.axApply(@set, 'YTick', 1:nSites, 'XTick', 1:nClusters);
+    hFigWav.axApply('default', @set, 'YTick', 1:nSites, 'XTick', 1:nClusters);
 end
 
 %% LOCAL FUNCTIONS
@@ -63,7 +63,7 @@ function plotGroup(hFig, XData, YData, varargin)
     nGroups = min(size(colorMap, 2), size(XData, 2));
     colorMap = colorMap(:, 1:nGroups);
 
-    hFig.axApply(@hold, 'on');
+    hFig.axApply('default', @hold, 'on');
     for iGroup = 1:nGroups
         iXData = XData(:, iGroup:nGroups:end);
         iYData = YData(:, iGroup:nGroups:end);

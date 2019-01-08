@@ -15,23 +15,23 @@ function hFigHist = doPlotFigHist(hFigHist, hClust, hCfg, selected)
 
     % draw the plot
     if isempty(hFigHist.figData)
-        hFigHist.axes();
+        hFigHist.addAxes('default');
         hFigHist.addPlot('hPlot1', @stairs, nan, nan, 'Color', hCfg.mrColor_proj(2, :));
         hFigHist.addPlot('hPlot2', @stairs, nan, nan, 'Color', hCfg.mrColor_proj(3, :));
-        hFigHist.axApply(@set, 'XLim', [1 10000], 'XScale', 'log'); % ms
-        hFigHist.axApply(@grid, 'on');
-        hFigHist.axApply(@xlabel, 'ISI (ms)');
-        hFigHist.axApply(@ylabel, 'Prob. Density');
+        hFigHist.axApply('default', @set, 'XLim', [1 10000], 'XScale', 'log'); % ms
+        hFigHist.axApply('default', @grid, 'on');
+        hFigHist.axApply('default', @xlabel, 'ISI (ms)');
+        hFigHist.axApply('default', @ylabel, 'Prob. Density');
     end
 
     hFigHist.updatePlot('hPlot1', XData, YData1);
 
     if iCluster ~= jCluster
         YData2 = getISIHistogram(jCluster, XData, hClust, hCfg);
-        hFigHist.axApply(@title, sprintf('Cluster %d (black) vs. %d (red)', iCluster, jCluster));
+        hFigHist.axApply('default', @title, sprintf('Cluster %d (black) vs. %d (red)', iCluster, jCluster));
         hFigHist.updatePlot('hPlot2', XData, YData2);
     else
-        hFigHist.axApply(@title, sprintf('Cluster %d', iCluster));
+        hFigHist.axApply('default', @title, sprintf('Cluster %d', iCluster));
         hFigHist.hidePlot('hPlot2');
     end
 end

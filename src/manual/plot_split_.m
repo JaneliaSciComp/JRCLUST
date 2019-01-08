@@ -104,7 +104,7 @@ function [fSplit, vlIn] = plot_split_(S1)
     hFunc = makeConstrainToRectFcn('impoly',get(gca,'XLim'),get(gca,'YLim'));
     setPositionConstraintFcn(hPoly, hFunc);
 
-    hMsgbox = msgbox_('Press OK after adjusting polygon', 0);
+    hMsgbox = jrclust.utils.qMsgBox('Press OK after adjusting polygon', 0);
     uiwait(hMsgbox);
 
     vlIn = poly_mask_(hPoly, vxPlot, vyPlot);

@@ -99,38 +99,6 @@ end
 %         case 'test'
 %             varargout{1} = test_(vcArg1, vcArg2, vcArg3, vcArg4, vcArg5);
 % 
-%         case 'call'
-%             varargout{1} = call_(vcArg1, vcArg2, vcArg3);
-% 
-%         case 'export'
-%             export_(vcArg1, vcArg2, vcArg3);
-% 
-%         case {'dependencies', 'toolbox', 'toolboxes'}
-%             disp_dependencies_();
-% 
-%         otherwise, fExit = 0;
-%     end % switch
-%     if fExit
-%         return;
-%     end
-% 
-%     %-----
-%     % Command type B: Requires .prm file
-%     if nargin >= 2
-%         vcFile_prm = vcArg1;
-%         vcFile_prm_ = vcFile_prm;
-%     else
-%         vcFile_prm = vcFile_prm_;
-%     end
-% 
-%     if isempty(vcFile_prm)
-%         disp('Please specify .prm file.');
-%         return;
-%     end
-%     if isempty(vcArg1) && ~isempty(vcFile_prm)
-%         disp(['Working on ', vcFile_prm]);
-%     end
-% 
 %     fExit = 1;
 % 
 %     switch lower(vcCmd)
@@ -202,10 +170,7 @@ end
 %         return;
 %     end
 %     fError = 0;
-%     switch lower(vcCmd)
-%         case 'preview'
-%             preview_(P);
-% 
+%     switch lower(vcCmd) 
 %         case 'preview-test'
 %             preview_(P, 1);
 %             gui_test_(P, 'Fig_preview');
@@ -219,33 +184,6 @@ end
 %         case 'traces-test'
 %             traces_(P);
 %             traces_test_(P);
-% 
-%         case {'full', 'all'}
-%             fprintf('Performing "jrc detect", "jrc sort", "jrc manual" operations.\n');
-%             detect_(P);
-%             sort_(P, 0);
-%             describe_(P.vcFile_prm);
-%             manual_(P);
-%             return;
-% 
-%         case {'spikesort', 'detectsort', 'detect-sort', 'spikesort-verify', 'spikesort-validate', 'spikesort-manual', 'detectsort-manual'}
-%             fprintf('Performing "jrc detect", "jrc sort" operations.\n');
-%             detect_(P);
-%             sort_(P, 0);
-%             describe_(P.vcFile_prm);
-% 
-%         case {'detect', 'spikedetect'}
-%             detect_(P);
-%             describe_(P.vcFile_prm);
-% 
-%         case {'sort', 'cluster', 'clust', 'sort-verify', 'sort-validate', 'sort-manual'}
-%             if ~is_detected_(P)
-%                 detect_(P);
-%                 sort_(P,0);
-%             else
-%                 sort_(P);
-%             end
-%             describe_(P.vcFile_prm);
 % 
 %         case {'auto', 'auto-verify', 'auto-manual'}
 %             auto_(P);
@@ -333,8 +271,6 @@ end
 %             sort_(P);
 %         end
 %         validate_(P);
-%     elseif contains_(lower(vcCmd), {'manual',' gui', 'ui'})
-%         manual_(P);
 %     elseif contains_(lower(vcCmd), {'filter'})
 %         TWfilter_(P);
 %     elseif fError

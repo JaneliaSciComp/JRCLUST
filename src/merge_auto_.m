@@ -12,7 +12,7 @@ function merge_auto_(S0)
     % parse user input
     if isempty(csAns), return; end
     maxWavCor = str2double(csAns{1});
-    if isnan(maxWavCor), msgbox_('Invalid criteria.'); return; end
+    if isnan(maxWavCor), jrclust.utils.qMsgBox('Invalid criteria.'); return; end
 
     % Auto delete
     figure_wait_(1); drawnow;
@@ -30,6 +30,6 @@ function merge_auto_(S0)
 
     assert_(S_clu_valid_(S_clu), 'Cluster number is inconsistent after deleting');
     nClu_merge = nClu_prev - S_clu.nClu;
-    msgbox_(sprintf('Merged %d clusters >%0.2f maxWavCor.', nClu_merge, maxWavCor));
+    jrclust.utils.qMsgBox(sprintf('Merged %d clusters >%0.2f maxWavCor.', nClu_merge, maxWavCor));
     save_log_(sprintf('merge-auto <%0.2f maxWavCor', maxWavCor), S0);
 end %func

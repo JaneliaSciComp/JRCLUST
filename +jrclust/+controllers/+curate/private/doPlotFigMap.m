@@ -5,25 +5,24 @@ function hFigMap = doPlotFigMap(hFigMap, hClust, hCfg, selected)
     vpp = repmat(clusterVpp(:)', [4, 1]);
 
     if isempty(hFigMap.figData)
-        hFigMap.axes();
+        hFigMap.addAxes('default');
         [XData, YData] = getPadCoordinates(hCfg);
         hFigMap.addPlot('hPatch', @patch, XData, YData, vpp, 'EdgeColor', 'k', 'FaceColor', 'flat');
-        hFigMap.axis([min(XData(:)), max(XData(:)), min(YData(:)), max(YData(:))]);
+        hFigMap.axApply('default', @axis, [min(XData(:)), max(XData(:)), min(YData(:)), max(YData(:))]);
         % colormap jet;
         hFigMap.setMouseable();
-        nSites = numel(hCfg.siteMap);
         hFigMap.addPlot('hText', @text, hCfg.siteLoc(:, 1), hCfg.siteLoc(:, 2), ...
-                        arrayfun(@(i) num2str(i), 1:nSites, 'UniformOutput', false), ...
+                        arrayfun(@(i) num2str(i), 1:hCfg.nSites, 'UniformOutput', false), ...
                         'VerticalAlignment', 'bottom', ...
                         'HorizontalAlignment', 'left');
-        hFigMap.axApply(@xlabel, 'X Position (\mum)');
-        hFigMap.axApply(@ylabel, 'Y Position (\mum)');
+        hFigMap.axApply('default', @xlabel, 'X Position (\mum)');
+        hFigMap.axApply('default', @ylabel, 'Y Position (\mum)');
     else
         hFigMap.plotApply('hPatch', @set, 'CData', vpp);
     end
 
-    hFigMap.axApply(@title, sprintf('Max: %0.1f \\muVpp', max(clusterVpp)));
-    hFigMap.caxis([0, max(clusterVpp)]);
+    hFigMap.axApply('default', @title, sprintf('Max: %0.1f \\muVpp', max(clusterVpp)));
+    hFigMap.axApply('default', @caxis, [0, max(clusterVpp)]);
 end
 
 %% LOCAL FUNCTIONS

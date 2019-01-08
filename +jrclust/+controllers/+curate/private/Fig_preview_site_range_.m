@@ -14,7 +14,7 @@ function Fig_preview_site_range_(hFig)
     site_start = max(str2num(csAns{1}), 1);
     site_end = min(str2num(csAns{2}), nSites);
     S_fig = set_(S_fig, 'siteLim', [site_start, site_end]);
-    set(S_fig.hAx_traces, 'YLim', S_fig.siteLim + [-1, 1]);
+    set(S_fig.hAxTraces, 'YLim', S_fig.siteLim + [-1, 1]);
     set(S_fig.hAx_sites, 'YLim', S_fig.siteLim + [-1, 1]);
     set(hFig, 'UserData', S_fig);
 end %func

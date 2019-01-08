@@ -38,5 +38,5 @@ function export_quality_(varargin)
     sprintf('\tColumn 12: note: user comments')};
 
     cellfun(@(x)fprintf('%s\n',x), csMsg);
-    if fGui, msgbox_(csMsg); end
+    if fGui, jrclust.utils.qMsgBox(csMsg); end
 end %func

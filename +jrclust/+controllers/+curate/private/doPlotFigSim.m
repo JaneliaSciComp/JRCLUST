@@ -4,7 +4,7 @@ function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
 
     nClusters = hClust.nClusters;
     if isempty(hFigSim.figData) % create from scratch
-        hFigSim.axes();
+        hFigSim.addAxes('default');
         hFigSim.axApply(@set, 'Position', [.1 .1 .8 .8], ...
                         'XLimMode', 'manual', ...
                         'YLimMode', 'manual', ...
@@ -18,18 +18,18 @@ function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
             hFigSim.figData.figView = 'waveform';
         end
 
-        hFigSim.axis([0 nClusters 0 nClusters] + .5);
-        hFigSim.axis('xy')
-        hFigSim.axApply(@grid, 'on');
-        hFigSim.axApply(@xlabel, 'Cluster #');
-        hFigSim.axApply(@ylabel, 'Cluster #');
+        hFigSim.axApply('default', @axis, [0 nClusters 0 nClusters] + .5);
+        hFigSim.axApply('default', @axis, 'xy')
+        hFigSim.axApply('default', @grid, 'on');
+        hFigSim.axApply('default', @xlabel, 'Cluster #');
+        hFigSim.axApply('default', @ylabel, 'Cluster #');
 
         if strcmp(hFigSim.figData.figView, 'kilosort') && isprop(hClust, 'kSimScore')
             hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.kSimScore, hCfg.corrLim);
-            hFig.axApply(@title, '[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr');
+            hFig.axApply('default', @title, '[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr');
         else
             hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.simScore, hCfg.corrLim);
-            hFigSim.axApply(@title, '[S]plit; [M]erge; [D]elete');
+            hFigSim.axApply('default', @title, '[S]plit; [M]erge; [D]elete');
         end
 
         % selected cluster pair cursors
@@ -47,7 +47,7 @@ function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
             hFigSim.figApply(@set, 'Name', ['Waveform-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
         end
 
-        hFigSim.axApply(@set, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
+        hFigSim.axApply('default', @set, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
         hFigSim.addDiag('hDiag', [0, nClusters, 0.5], 'Color', [0 0 0], 'LineWidth', 1.5); % overwrites previous diag plot
     end
 

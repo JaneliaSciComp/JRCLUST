@@ -95,7 +95,7 @@ classdef CurateController < handle
                     end
 
                 case 'rightarrow' % go up one channel
-                    if obj.projSites(end) < numel(obj.hCfg.siteMap)
+                    if obj.projSites(end) < obj.hCfg.nSites
                         obj.projSites = obj.projSites + 1;
                         obj.updateFigProj(false);
                     end
@@ -156,7 +156,7 @@ classdef CurateController < handle
                     end
 
                 case 'h' % help
-                    msgbox_(hFigProj.figData.helpText, 1);
+                    jrclust.utils.qMsgBox(hFigProj.figData.helpText, 1);
             end % switch
         end
 
@@ -164,7 +164,6 @@ classdef CurateController < handle
             %KEYPRESSFIGTIME Handle callbacks for keys pressed in time view
             hFigTime = obj.hFigs('FigTime');
             factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
-            nSites = numel(obj.hCfg.siteMap);
 
             switch hEvent.Key
                 case 'leftarrow' % go down one channel
@@ -173,9 +172,9 @@ classdef CurateController < handle
 
                 case 'rightarrow' % go up one channel
 %                     if ~isVisible_(S_fig.hAx)
-%                         msgbox_('Channel switching is disabled in the position view'); return;
+%                         jrclust.utils.qMsgBox('Channel switching is disabled in the position view'); return;
 %                     end
-                    obj.currentSite = min(obj.currentSite + factor, nSites);
+                    obj.currentSite = min(obj.currentSite + factor, obj.hCfg.nSites);
                     obj.updateFigTime(false);
 
                 case 'uparrow'
@@ -189,7 +188,7 @@ classdef CurateController < handle
 
                 case 'c' % compare pca across channels
                     disp('channel pca');
-%                     hMsg = msgbox_('Plotting...');
+%                     hMsg = jrclust.utils.qMsgBox('Plotting...');
 %                     figure; hold on;
 %                     [mrWav_mean1, viSite1] = mrWav_int_mean_clu_(obj.selected(1));
 %                     [~, mrPv1] = pca(mrWav_mean1, 'NumComponents', P.nPc_dip, 'Center', 1);
@@ -248,7 +247,7 @@ classdef CurateController < handle
                     end
 
                 case 'h' % help
-                    msgbox_(hFigTime.figData.helpText, 1);
+                    jrclust.utils.qMsgBox(hFigTime.figData.helpText, 1);
 
                 case 'm' % merge
                     hFigTime.wait(true);
@@ -289,7 +288,7 @@ classdef CurateController < handle
             %KEYPRESSFIGWAV Handle callbacks for keys pressed in main view
             hFigWav = obj.hFigs('FigWav');
             factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
-            nSites = numel(obj.hCfg.siteMap);
+            nSites = obj.hCfg.nSites;
 
             switch hEvent.Key
                 case 'uparrow'
@@ -351,7 +350,7 @@ classdef CurateController < handle
 
                 case 'r' %reset view
                     hFigWav.wait(true);
-                    hFigWav.axis([0, obj.hClust.nClusters + 1, 0, numel(obj.hCfg.siteMap) + 1]);
+                    hFigWav.axApply('default', @axis, [0, obj.hClust.nClusters + 1, 0, obj.hCfg.nSites + 1]);
                     hFigWav.wait(false);
 
                 case 'w' % toggle individual spike waveforms
@@ -368,7 +367,7 @@ classdef CurateController < handle
 
 %                 case 'a', update_spikes_(S0); clu_info_(S0);
                 case 'h'
-                    msgbox_(hFigWav.figData.helpText, 1);
+                    jrclust.utils.qMsgBox(hFigWav.figData.helpText, 1);
 
                 case {'0', 'numpad0'}
                     obj.annotateUnit('to_delete', false); % TW
@@ -379,7 +378,7 @@ classdef CurateController < handle
                 case {'2', 'numpad2'}
                     obj.annotateUnit('multi', false); % TW
 %                 case 'p' %PSTH plot
-%                     if isempty(hCfg.vcFile_trial), msgbox_('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
+%                     if isempty(hCfg.vcFile_trial), jrclust.utils.qMsgBox('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
 %                     plot_raster_(S0, 1);
                 otherwise
                     hFigWav.wait(false); %stop waiting
@@ -484,11 +483,11 @@ classdef CurateController < handle
             hFigSim.plotApply('hCursorH', @set, 'Color', colorH);
 
             % center on this pair of clusters
-            hFigSim.axApply(@set, 'XLim', jrclust.utils.trimLim(iCluster + [-6, 6], 0.5 + [0, obj.hClust.nClusters]));
-            hFigSim.axApply(@set, 'YLim', jrclust.utils.trimLim(jCluster + [-6, 6], 0.5 + [0, obj.hClust.nClusters]));
+            hFigSim.axApply('default', @set, 'XLim', jrclust.utils.trimLim(iCluster + [-6, 6], 0.5 + [0, obj.hClust.nClusters]));
+            hFigSim.axApply('default', @set, 'YLim', jrclust.utils.trimLim(jCluster + [-6, 6], 0.5 + [0, obj.hClust.nClusters]));
 
             scoreij = obj.hClust.simScore(iCluster, jCluster);
-            hFigSim.axApply(@title, sprintf('Cluster %d vs. Cluster %d: %0.3f', iCluster, jCluster, scoreij));
+            hFigSim.axApply('default', @title, sprintf('Cluster %d vs. Cluster %d: %0.3f', iCluster, jCluster, scoreij));
         end
 
         function updateCursorFigWav(obj)
@@ -945,7 +944,7 @@ classdef CurateController < handle
             end
 
 %                 case 'p' %PSTH plot
-%                 if isempty(hCfg.vcFile_trial), msgbox_('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
+%                 if isempty(hCfg.vcFile_trial), jrclust.utils.qMsgBox('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
 %                 plot_raster_(S0, 1);
 
             % plot feature projection

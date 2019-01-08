@@ -3,6 +3,7 @@ classdef Figure < handle
     %   Base class for specific figure types
     properties (SetAccess=protected, Hidden, SetObservable)
         hFig;           % Figure object
+        hAxes;          % hashmap of current axes (return value of `axes`)
         hPlots;         % hashmap of current plots (return value of `plot`)
         hSubplots;      % hashmap of current subplots (return value of `subplot`)
     end
@@ -61,6 +62,7 @@ classdef Figure < handle
                 set(obj.hFig, 'MenuBar', 'none');
             end
 
+            obj.hAxes = containers.Map();
             obj.hPlots = containers.Map();
             obj.hSubplots = containers.Map();
 
@@ -73,10 +75,10 @@ classdef Figure < handle
 
     %% MOUSE METHODS
     methods (Access=private, Hidden)
-        function scrollZoom(obj, varargin)
+        function scrollZoom(obj, axKey, hEvent)
             %SCROLLZOOM Zoom with the scroll wheel
-            hAx = get(obj.hFig, 'CurrentAxes');
-            scrolls = varargin{2}.VerticalScrollCount;
+            hAx = obj.gca(axKey);
+            scrolls = hEvent.VerticalScrollCount;
 
             % get original limits
             XLim = get(hAx, 'XLim'); 
@@ -139,9 +141,9 @@ classdef Figure < handle
                 'CameraTargetMode', 'auto');
         end
 
-        function panClick(obj, varargin)
+        function panClick(obj, axKey)
             %PANCLICK Pan on mouse click
-            hAx = get(obj.hFig, 'CurrentAxes');
+            hAx = obj.gca(axKey);
 
             % select on click, pan on shift-click
             clickType = get(obj.hFig, 'SelectionType');
@@ -159,13 +161,13 @@ classdef Figure < handle
             end
         end
 
-        function panMotion(obj, varargin)
+        function panMotion(obj, axKey)
             %PANMOUSE Move the mouse (with button clicked)
             if isempty(obj.prevPoint) || isempty(obj.mouseStatus)
                 return
             end
 
-            hAx = get(obj.hFig, 'CurrentAxes');
+            hAx = obj.gca(axKey);
             % get current location (in pixels)
             curPoint = get(hAx, 'CurrentPoint');
             % get current XY-limits
@@ -187,7 +189,7 @@ classdef Figure < handle
             obj.prevPoint = get(hAx, 'CurrentPoint');
         end
 
-        function panRelease(obj, varargin)
+        function panRelease(obj)
             %PANRELEASE Release the mouse button after pan
             obj.showDrag();
             obj.mouseStatus = '';
@@ -213,6 +215,17 @@ classdef Figure < handle
 
     %% USER METHODS
     methods
+        function hAx = addAxes(obj, axKey, varargin)
+            %ADDAXES Create and store new axes for this figure
+            if ~obj.isReady
+                obj.hFig = figure();
+            end
+
+            hAx = axes(obj.hFig, varargin{:});
+            obj.hAxes(axKey) = hAx;
+            obj.axApply(axKey, @hold, 'on');
+        end
+
         function addDiag(obj, plotKey, lim, varargin)
             %ADDDIAG
             [XVals, YVals] = getDiagXY(lim);
@@ -225,18 +238,16 @@ classdef Figure < handle
                 varargin = [hFunPlot, varargin];
                 hFunPlot = @plot;
             end
+
             if obj.isReady
-                hAx = obj.gca();
-                if isempty(hAx)
-                    obj.toForeground();
-                    obj.hPlots(plotKey) = hFunPlot(varargin{:});
-                else
-                    obj.hPlots(plotKey) = hFunPlot(hAx, varargin{:});
+                if ~isempty(varargin) && isa(varargin{1}, 'matlab.graphics.axis.Axes')
+                    hAx = varargin{1}; % varargin{1} is an Axes
+                    varargin = varargin(2:end);
+                else % add to default axis
+                    hAx = obj.gca();
                 end
 
-                if obj.isMouseable
-                    obj.setMouseable();
-                end
+                obj.hPlots(plotKey) = hFunPlot(hAx, varargin{:});
             end
         end
 
@@ -259,10 +270,13 @@ classdef Figure < handle
             obj.addPlot(plotKey, [XData(1:end-1), fliplr(YData)], [YData(1:end-1), fliplr(XData)], varargin{:});
         end
 
-        function vals = axApply(obj, hFun, varargin)
+        function vals = axApply(obj, axKey, hFun, varargin)
             %AXAPPLY Apply a function to current axes
-            hAx = obj.gca();
+            if ~obj.hasAxes(axKey)
+                return;
+            end
 
+            hAx = obj.hAxes(axKey);
             if ~isempty(hAx) && isa(hFun, 'function_handle')
                 if strcmp(func2str(hFun), 'title') % default arguments to title
                     varargin = [varargin, {'Interpreter', 'none', 'FontWeight', 'normal'}];
@@ -279,36 +293,9 @@ classdef Figure < handle
             end
         end
 
-        function axes(obj, varargin)
-            %AXES Create new axes for this figure
-            if ~obj.isReady
-                obj.hFig = figure();
-            end
-
-            obj.clf();
-            axes(obj.hFig);
-            obj.axApply(@hold, 'on');
-        end
-
-        function axis(obj, varargin)
-            %AXIS Set axis limits and aspect ratios
-            hAx = obj.gca();
-            if ~isempty(hAx)
-                axis(hAx, varargin{:});
-            end
-        end
-
-        function caxis(obj, limits)
-            %CAXIS Set colormap limits for current axis
-            hAx = obj.gca();
-            if ~isempty(hAx)
-                caxis(hAx, limits);
-            end
-        end
-
         function cla(obj)
             %CLA Clear axes and remove all plots
-            obj.axApply(@cla);
+            obj.axApply('default', @cla);
             obj.hPlots = containers.Map();
         end
 
@@ -316,7 +303,11 @@ classdef Figure < handle
             %CLF Clear figure window and remove references to plots
             if obj.isReady
                 clf(obj.hFig);
-                obj.hPlots = containers.Map(); % reset mapping
+
+                 % reset mappings
+                obj.hAxes = containers.Map();
+                obj.hPlots = containers.Map();
+                obj.hSubplots = containers.Map();
             end
         end
 
@@ -346,6 +337,11 @@ classdef Figure < handle
             else
                 vals = [];
             end
+        end
+
+        function hp = hasAxes(obj, axKey)
+            %HASAXES Return true iff a plot exists with plotKey as label
+            hp = ischar(axKey) && isKey(obj.hAxes, axKey);
         end
 
         function hp = hasPlot(obj, plotKey)
@@ -456,8 +452,8 @@ classdef Figure < handle
                 return;
             end
 
-            delete(obj.hPlots(plotKey));
-            remove(obj.hPlots, plotKey);
+            delete(obj.hPlots(plotKey)); % delete the plot
+            remove(obj.hPlots, plotKey); % remove the key
         end
 
         function setHideOnDrag(obj, plotKey)
@@ -468,26 +464,30 @@ classdef Figure < handle
             obj.hideOnDrag{end+1} = plotKey;
         end
 
-        function setMouseable(obj, hFunClick)
+        function setMouseable(obj, hFunClick, axKey)
             %SETMOUSEABLE Set the figure to be mouseable
-            obj.isMouseable = true;
-            if nargin == 2 && ~isempty(hFunClick)
+            if nargin >= 2 && ~isempty(hFunClick)
                 obj.hFunClick = hFunClick;
-            end                
+            end
 
-            if obj.isReady
-                hAx = get(obj.hFig, 'CurrentAxes');
-                 % is2D might disappear in a future release...
+            if nargin < 3
+                axKey = 'default';
+            end
+
+            obj.isMouseable = true;
+            if obj.isReady && obj.hasAxes(axKey)
+                % is2D might disappear in a future release...
+                hAx = obj.hAxes(axKey);
                 if ~is2D(hAx) || isempty(hAx)
                     return;
                 end
 
                 % define zoom with scroll wheel, pan with left click
                 set(obj.hFig, ...
-                    'WindowScrollWheelFcn' , @obj.scrollZoom, ...
-                    'WindowButtonDownFcn'  , @obj.panClick, ...
-                    'WindowButtonUpFcn'    , @obj.panRelease, ...
-                    'WindowButtonMotionFcn', @obj.panMotion);
+                    'WindowScrollWheelFcn' , @(hO, hE) obj.scrollZoom(axKey, hE), ...
+                    'WindowButtonDownFcn'  , @(hO, hE) obj.panClick(axKey), ...
+                    'WindowButtonUpFcn'    , @(hO, hE) obj.panRelease(), ...
+                    'WindowButtonMotionFcn', @(hO, hE) obj.panMotion(axKey));
             end
         end
 
@@ -505,7 +505,7 @@ classdef Figure < handle
             xlim1 = jrclust.utils.trimLim(xlim1, xlim0);
             ylim1 = jrclust.utils.trimLim(ylim1, ylim0);
 
-            obj.axis([xlim1, ylim1]);
+            obj.axApply('default', @axis, [xlim1, ylim1]);
 
             figure(lastFocused);
         end
@@ -644,13 +644,17 @@ classdef Figure < handle
 
     %% UTILITY METHODS
     methods (Access=protected, Hidden)
-        function hAx = gca(obj)
-            %GCA Get current axes
-            if obj.isReady
-                hAx = get(obj.hFig, 'CurrentAxes');
-                if isempty(hAx)
-                    obj.axes();
-                    hAx = get(obj.hFig, 'CurrentAxes');
+        function hAx = gca(obj, axKey)
+            %GCA Get current axes, optionally specifying a key
+            if nargin < 2
+                axKey = 'default';
+            end
+
+            if obj.isReady 
+                if ~obj.hasAxes(axKey)
+                    hAx = obj.addAxes(axKey);
+                else
+                    hAx = obj.hAxes(axKey);
                 end
             else
                 hAx = [];

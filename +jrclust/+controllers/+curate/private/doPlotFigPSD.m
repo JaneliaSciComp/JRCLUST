@@ -24,16 +24,16 @@ function hFigPSD = doPlotFigPSD(hFigPSD, tracesFilt, hCfg)
 
     vrPow = filterq_(ones([nSmooth, 1]), nSmooth, vrPow);
 
-    hFigPSD.addPlot('hFreq', vrFreq, pow2db_(vrPow), 'k-');
+    hFigPSD.addPlot('hFreq', vrFreq, jrclust.utils.pow2db(vrPow), 'k-');
     %     set(gca, 'YScale', 'log');
     %     set(gca, 'XScale', 'linear');
-    hFigPSD.axApply(@xlabel, 'Frequency (Hz)');
-    hFigPSD.axApply(@ylabel, YLabel);
+    hFigPSD.axApply('default', @xlabel, 'Frequency (Hz)');
+    hFigPSD.axApply('default', @ylabel, YLabel);
     % xlim_([0 sRateHz/2]);
-    hFigPSD.axApply(@grid, 'on');
+    hFigPSD.axApply('default', @grid, 'on');
 
     try
-        hFigPSD.axApply(@xlim, vrFreq([1, end]));
+        hFigPSD.axApply('default', @xlim, vrFreq([1, end]));
         hFigPSD.figApply(@set, 'Color', 'w');
     catch
     end

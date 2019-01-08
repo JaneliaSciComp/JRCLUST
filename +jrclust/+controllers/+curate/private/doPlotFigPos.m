@@ -6,11 +6,11 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
     end
 
     if isempty(hFigPos.figData)
-        hFigPos.axes();
+        hFigPos.addAxes('default');
         hFigPos.figData.isPlotted = true;
     else
         hFigPos.cla();
-        hFigPos.axApply(@hold, 'on');
+        hFigPos.axApply('default', @hold, 'on');
     end
 
     plotPosUnit(c1Data, hFigPos, hCfg, false, maxAmp);
@@ -34,7 +34,7 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
             c1Data.cluster, c2Data.cluster, nSpikes, nSpikes2, ...
             [clusterPos(1), clusterPos2(1), clusterPos(2), clusterPos2(2)]);
     end
-    hFigPos.axApply(@title, figTitle);
+    hFigPos.axApply('default', @title, figTitle);
 end
 
 %% LOCAL FUNCTIONS
@@ -80,9 +80,9 @@ function plotPosUnit(cData, hFigPos, hCfg, fSecondary, maxAmp)
                         'Color', cmap, 'LineWidth', lineWidth);
     end
 
-    hFigPos.axApply(@xlabel, 'X pos [pix]');
-    hFigPos.axApply(@ylabel, 'Z pos [pix]');
-    hFigPos.axApply(@grid, 'on');
-    hFigPos.axApply(@set, 'XLim', [min(XBase(:)), max(XBase(:))] + median(siteXData));
-    hFigPos.axApply(@set, 'YLim', [floor(min(YData(:))-1), ceil(max(YData(:))+1)]);
+    hFigPos.axApply('default', @xlabel, 'X pos [pix]');
+    hFigPos.axApply('default', @ylabel, 'Z pos [pix]');
+    hFigPos.axApply('default', @grid, 'on');
+    hFigPos.axApply('default', @set, 'XLim', [min(XBase(:)), max(XBase(:))] + median(siteXData));
+    hFigPos.axApply('default', @set, 'YLim', [floor(min(YData(:))-1), ceil(max(YData(:))+1)]);
 end

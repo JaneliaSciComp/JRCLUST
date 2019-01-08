@@ -14,7 +14,7 @@ function export_prm_(vcFile_prm, vcFile_out_prm, fShow)
     vcMsg = sprintf('Full parameter settings are exported to %s', vcFile_out_prm);
     fprintf('%s\n', vcMsg);
     if fShow
-        msgbox_(vcMsg);
+        jrclust.utils.qMsgBox(vcMsg);
         edit(vcFile_out_prm);
     end
 end %func

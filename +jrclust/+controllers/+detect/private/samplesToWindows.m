@@ -2,7 +2,6 @@ function [spikesRaw, spikesFilt, spikeTimes] = samplesToWindows(samplesRaw, samp
     %SAMPLESTOWINDOWS Get spatiotemporal windows around spiking events as 3D arrays
     %   returns spikesRaw nSamples x nSites x nSpikes
     nSpikes = numel(spikeTimes);
-    nSites = numel(hCfg.siteMap);
     nSitesEvt = 1 + hCfg.nSiteDir*2; % includes ref sites
 
     % tensors, nSamples{Raw, Filt} x nSites x nSpikes
@@ -19,7 +18,7 @@ function [spikesRaw, spikesFilt, spikeTimes] = samplesToWindows(samplesRaw, samp
         spikesRaw = permute(jrclust.utils.extractWindows(samplesRaw, hCfg.evtWindowRawSamp, spikeTimes), [1, 3, 2]);
         spikesFilt = permute(jrclust.utils.extractWindows(samplesFilt, hCfg.evtWindowSamp, spikeTimes), [1, 3, 2]);
     else
-        for iSite = 1:nSites
+        for iSite = 1:hCfg.nSites
             siteSpikes = find(spikeSites == iSite);
             if isempty(siteSpikes)
                 continue;

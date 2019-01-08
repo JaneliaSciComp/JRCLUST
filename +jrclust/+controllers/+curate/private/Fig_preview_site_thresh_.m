@@ -14,12 +14,12 @@ function Fig_preview_site_thresh_(hFig)
     if isempty(csAns), return; end
     thresh_corr_bad_site = str2num(csAns{1});
     if thresh_corr_bad_site>=1 || thresh_corr_bad_site<0 || isnan(thresh_corr_bad_site)
-        msgbox_('Invalid range');
+        jrclust.utils.qMsgBox('Invalid range');
         return;
     end
 
     S_fig.thresh_corr_bad_site = thresh_corr_bad_site;
     set(hFig, 'UserData', S_fig);
-    Fig_preview_update_(hFig, S_fig, 1);
+    doUpdateFigPreview(hFig, S_fig, 1);
 
 end %func

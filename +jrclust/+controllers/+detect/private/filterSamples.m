@@ -36,12 +36,12 @@ function [samplesOut, keepMe] = filterSamples(samplesIn, windowPre, windowPost, 
     clear samplesIn_;
 
     % common mode rejection
-    if hCfg.blank_thresh > 0
+    if hCfg.blankThresh > 0
         if isempty(channelMeans) % carMode=='whiten'
             channelMeans = jrclust.utils.getCAR(samplesOut, hCfg.carMode, hCfg.ignoreSites);
         end
 
-        keepMe = jrclust.utils.carReject(channelMeans(:), hCfg.blank_period_ms, hCfg.blank_thresh, hCfg.sampleRate);
+        keepMe = jrclust.utils.carReject(channelMeans(:), hCfg.blank_period_ms, hCfg.blankThresh, hCfg.sampleRate);
         if hCfg.verbose
             fprintf('!! rejecting %0.3f %% of time due to motion !!', (1 - mean(keepMe))*100);
         end

@@ -63,7 +63,7 @@ function S0 = keyPressFcn_FigWav_(hFigWav, hEvent, S0) %amp dist
         case 'v', plot_FigIsi_(S0);
         case 'a', update_spikes_(S0); clu_info_(S0);
         case 'f', clu_info_(S0);
-        case 'h', msgbox_(figData.helpText, 1);
+        case 'h', jrclust.utils.qMsgBox(figData.helpText, 1);
         case '0', unit_annotate_([],[], 'to_delete'); % TW
         case '1', unit_annotate_([],[], 'single'); % TW
         case '2', unit_annotate_([],[], 'multi'); % TW
@@ -80,7 +80,7 @@ function S0 = keyPressFcn_FigWav_(hFigWav, hEvent, S0) %amp dist
         case 'e', plot_FigMap_(S0);
         case 'u', update_FigCor_(S0);
         case 'p' %PSTH plot
-        if isempty(hCfg.vcFile_trial), msgbox_('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
+        if isempty(hCfg.vcFile_trial), jrclust.utils.qMsgBox('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
         plot_raster_(S0, 1);
         otherwise, figure_wait_(0); %stop waiting
     end

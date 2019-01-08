@@ -7,10 +7,10 @@ function auto_split_(fMulti, S0)
     if isempty(S0), S0 = get(0, 'UserData'); end
     [P, S_clu] = deal(S0.P, S0.S_clu);
 
-    if ~isempty(S0.iCluPaste), msgbox_('Select one cluster'); return; end
-    if S_clu.vnSpk_clu(S0.iCluCopy)<2, msgbox_('At least two spikes required for splitting'); return; end
+    if ~isempty(S0.iCluPaste), jrclust.utils.qMsgBox('Select one cluster'); return; end
+    if S_clu.vnSpk_clu(S0.iCluCopy)<2, jrclust.utils.qMsgBox('At least two spikes required for splitting'); return; end
 
-    hMsg = msgbox_('Splitting... (this closes automatically)');
+    hMsg = jrclust.utils.qMsgBox('Splitting... (this closes automatically)');
     iClu1 = S0.iCluCopy;
     iSite1 = S_clu.viSite_clu(iClu1);
     if fMulti
@@ -51,7 +51,7 @@ function auto_split_(fMulti, S0)
                 otherwise
                 close(hFigTemp); return;
             end
-            %             msgbox_(sprintf('Draw a polygon in PC%d vs PC%d', iAx1, iAx2), 1);
+            %             jrclust.utils.qMsgBox(sprintf('Draw a polygon in PC%d vs PC%d', iAx1, iAx2), 1);
             axes(hAx_); cla(hAx_);
             [vrX1, vrY1] = deal(mrFet_split(:,iAx1), mrFet_split(:,iAx2));
             plot(hAx_, vrX1, vrY1, 'k.');

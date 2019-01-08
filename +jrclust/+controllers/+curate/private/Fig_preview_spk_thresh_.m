@@ -10,5 +10,5 @@ function Fig_preview_spk_thresh_(hFig)
     qqFactor = str2num(vcAns{1});
     if isnan(qqFactor) || isempty(qqFactor), return; end
 
-    S_fig = Fig_preview_update_(hFig, setfield(S_fig, 'qqFactor', qqFactor), 1);
+    S_fig = doUpdateFigPreview(hFig, setfield(S_fig, 'qqFactor', qqFactor), 1);
 end %func

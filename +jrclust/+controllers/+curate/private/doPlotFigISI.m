@@ -10,24 +10,24 @@ function hFigISI = doPlotFigISI(hFigISI, hClust, hCfg, selected)
 
     [iIsiK, iIsiK1] = getReturnMap(iCluster, hClust, hCfg);
     if isempty(hFigISI.figData)
-        hFigISI.axes();
+        hFigISI.addAxes('default');
         hFigISI.addPlot('foreground', nan, nan, 'Color', hCfg.mrColor_proj(2, :), 'Marker', 'o', 'LineStyle', 'none');
         hFigISI.addPlot('foreground2', nan, nan, 'Color', hCfg.mrColor_proj(3, :), 'Marker', 'o', 'LineStyle', 'none');
 
-        hFigISI.axApply(@set, 'XScale','log', 'YScale','log');
+        hFigISI.axApply('default', @set, 'XScale','log', 'YScale','log');
 
-        hFigISI.axApply(@xlabel, 'ISI_{k} (ms)');
-        hFigISI.axApply(@ylabel, 'ISI_{k+1} (ms)');
+        hFigISI.axApply('default', @xlabel, 'ISI_{k} (ms)');
+        hFigISI.axApply('default', @ylabel, 'ISI_{k+1} (ms)');
 
         %axis_(S_fig.hAx, [1 10000 1 10000]);
-        hFigISI.axis([1 10000 1 10000]);
-        hFigISI.axApply(@grid, 'on');
+        hFigISI.axApply('default', @axis, [1 10000 1 10000]);
+        hFigISI.axApply('default', @grid, 'on');
 
         % show refractory line
         %line(get(S_fig.hAx,'XLim'), hCfg.spkRefrac_ms*[1 1], 'Color', [1 0 0]);
-        hFigISI.addPlot('refracLine1', @line, hFigISI.axApply(@get, 'XLim'), hCfg.refracIntms*[1 1], 'Color', [1 0 0]);
+        hFigISI.addPlot('refracLine1', @line, hFigISI.axApply('default', @get, 'XLim'), hCfg.refracIntms*[1 1], 'Color', [1 0 0]);
         %line(hCfg.spkRefrac_ms*[1 1], get(S_fig.hAx,'YLim'), 'Color', [1 0 0]);
-        hFigISI.addPlot('refracLine2', @line, hCfg.refracIntms*[1 1], hFigISI.axApply(@get, 'YLim'), 'Color', [1 0 0]);
+        hFigISI.addPlot('refracLine2', @line, hCfg.refracIntms*[1 1], hFigISI.axApply('default', @get, 'YLim'), 'Color', [1 0 0]);
     end
 
     hFigISI.updatePlot('foreground', iIsiK, iIsiK1);

@@ -7,7 +7,7 @@ function save_fig_(vcFile_png, hFig, fClose);
 
     % vcFile_png = strrep(P.vcFile_prm, '.prm', '.png');
     try
-        hMsg = msgbox_('Saving figure... (this closes automaticall)');
+        hMsg = jrclust.utils.qMsgBox('Saving figure... (this closes automaticall)');
         drawnow;
         saveas(hFig, vcFile_png);
         fprintf('Saved figure to %s.\n', vcFile_png);

@@ -15,6 +15,6 @@ function exportToWorkspace(vals, verbose)
         varsAssigned = varsAssigned(cellfun(@(va) ~isempty(va), varsAssigned));
         msg = 'The following have been assigned to workspace:';
         msg = sprintf('%s\n\t* %s', msg, strjoin(varsAssigned, '\n\t* '));
-        msgbox_(msg);
+        jrclust.utils.qMsgBox(msg);
     end
 end

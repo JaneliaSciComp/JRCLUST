@@ -4,5 +4,5 @@ function export_rate_()
     mrRate_clu = clu_rate_(S_clu);
     csMsg = assignWorkspace_(mrRate_clu);
     fprintf(csMsg);
-    msgbox_(csMsg, 1);
+    jrclust.utils.qMsgBox(csMsg, 1);
 end %func

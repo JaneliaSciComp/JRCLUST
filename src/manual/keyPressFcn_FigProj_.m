@@ -38,7 +38,7 @@ function keyPressFcn_FigProj_(hFig, event)
         case 's' %split
             figure_wait_(0);
             if ~isempty(S0.iCluPaste)
-                msgbox_('Select one cluster to split'); return;
+                jrclust.utils.qMsgBox('Select one cluster to split'); return;
             end
             S_plot1 = select_polygon_(S_fig.hPlot1);
             if ~isempty(S_plot1)
@@ -93,7 +93,7 @@ function keyPressFcn_FigProj_(hFig, event)
             toggleVisible_(S_fig.hPlot0);
 
         case 'h' % help
-            msgbox_(S_fig.helpText, 1);
+            jrclust.utils.qMsgBox(S_fig.helpText, 1);
     end % switch
 
     % drawnow;
