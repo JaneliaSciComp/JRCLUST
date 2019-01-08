@@ -11,12 +11,21 @@ function plot_FigProj_(S0)
     %---------------
     % Compute
     iSite1 = S_clu.viSite_clu(iClu1);
+    nSitesFigProj = get_set_(P, 'nSitesFigProj', 5); % by request
+    nSites = min(nSitesFigProj, size(P.miSites, 1));
     % miSites = P.miSites;
     if ~isfield(P, 'viSites_show')
-        P.viSites_show = sort(P.miSites(:, iSite1), 'ascend');
+        if nSites < size(P.miSites, 1)
+            P.viSites_show = iSite1:iSite1 + nSites - 1;
+            if P.viSites_show(end) > max(P.viSite2Chan) % correct for overshooting
+                P.viSites_show = P.viSites_show - max(P.viSites_show) + max(P.viSite2Chan);
+            end
+        else
+            P.viSites_show = sort(P.miSites(:, iSite1), 'ascend');
+        end
     end
     viSites_show = P.viSites_show;
-    nSites = numel(P.viSites_show);
+
     cell_plot = {'Marker', 'o', 'MarkerSize', 1, 'LineStyle', 'none'};
     switch lower(P.vcFet_show)
         case {'vpp', 'vmin', 'vmax'}
