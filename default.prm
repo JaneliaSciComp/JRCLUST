@@ -43,6 +43,7 @@ nShow = 200;                % Maximum number of traces to show [D?# spikes to sh
 corrLim = [.9 1];           % Correlation color plot range
 nSpk_show = 30;             % show spike waveforms for manual clustering
 nShow_proj = 500;           % Max. number of spikes to show in the projection view
+nSitesFigProj = 5;          % number of sites to show in feature projection view
 vcFet_show = 'vpp';         % Feature to show in time plot {'vpp', 'cov', 'pca'} (*)
 mrColor_proj = [.75 .75 .75; 0 0 0; 1 0 0];     % background, selected, comparison color
 vcFilter_show = '';         % Filter to apply in the "traces" view. Choices: {'', 'bandpass', 'sgdiff'}. '' uses vcFilter setting.
