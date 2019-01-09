@@ -18,7 +18,7 @@ function export_diff_(P)
     P1.vcFile_prm = strrep(P.vcFile_prm, '.prm', '_diff.prm');
     P1.probe_file = strrep(P.vcFile_prm, '.prm', '_diff.prb');
     P1.fTranspose_bin = 0;
-    P1.vcCommonRef = 'none';
+    P1.carMode = 'none';
     P1.fDetectBipolar = 1;
     P1.nSites_ref = 0;
 

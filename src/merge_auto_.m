@@ -28,7 +28,7 @@ function merge_auto_(S0)
     S0 = gui_update_();
     figure_wait_(0);
 
-    assert_(S_clu_valid_(S_clu), 'Cluster number is inconsistent after deleting');
+    jrclust.utils.dlgAssert(S_clu_valid_(S_clu), 'Cluster number is inconsistent after deleting');
     nClu_merge = nClu_prev - S_clu.nClu;
     jrclust.utils.qMsgBox(sprintf('Merged %d clusters >%0.2f maxWavCor.', nClu_merge, maxWavCor));
     save_log_(sprintf('merge-auto <%0.2f maxWavCor', maxWavCor), S0);

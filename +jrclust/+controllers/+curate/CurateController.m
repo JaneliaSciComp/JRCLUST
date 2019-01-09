@@ -413,7 +413,6 @@ classdef CurateController < handle
 
             hFig = obj.hFigs('FigWav');
             hFig.wait(true);
-            % S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'j','t','c','i','v','e','f'}, S0); %'z'
             % plot_raster_(S0);
             hFig.wait(false);
         end

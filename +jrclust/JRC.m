@@ -233,12 +233,13 @@ classdef JRC < handle & dynamicprops
             % try to load sort and detect results
             if obj.isCurate && ~obj.isSort
                 [dRes_, sRes_] = obj.loadFiles();
-                if isempty(dRes_)
-                    obj.isDetect = true;
-                    obj.isSort = true;
-                elseif isempty(sRes_)
-                    obj.dRes = dRes_;
-                    obj.isSort = true;
+                if isempty(sRes_) || isempty(dRes_)
+                    dlgAns = questdlg('Could not find all required data. Sort?', 'Sorting required', 'No');
+                    if strcmp(dlgAns, 'Yes')
+                        obj.isSort = true;
+                    else
+                        return;
+                    end
                 else
                     obj.dRes = dRes_;
                     obj.sRes = sRes_;

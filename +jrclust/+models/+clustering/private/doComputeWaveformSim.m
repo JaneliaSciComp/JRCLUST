@@ -221,7 +221,7 @@ function maxCor = maxCorPearson(iWaveforms, jWaveforms, shifts1, shifts2, fMode_
 end
 
 function minDist = minNormDist(iWaveforms, jWaveforms) % TW
-    assert_(numel(iWaveforms) == numel(jWaveforms), 'minNormDist: numel must be the same');
+    jrclust.utils.dlgAssert(numel(iWaveforms) == numel(jWaveforms), 'minNormDist: numel must be the same');
 
     if numel(iWaveforms) == 1
         x = reshape(iWaveforms{1}, [], 1);

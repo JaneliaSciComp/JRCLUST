@@ -24,7 +24,7 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     if isempty(vcTemplate_prm)
         vcTemplate_prm = default_prm_path_();
     end
-    assert_(exist_file_(vcTemplate_prm), sprintf('Template file does not exist: %s', vcTemplate_prm));
+    jrclust.utils.dlgAssert(exist_file_(vcTemplate_prm), sprintf('Template file does not exist: %s', vcTemplate_prm));
 
     % Write to a .prm file
     try

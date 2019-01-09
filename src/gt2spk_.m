@@ -28,7 +28,7 @@ function [S_gt, tnWav_spk, tnWav_raw] = gt2spk_(S_gt, P, snr_thresh)
         [mnWav, ~] = jrclust.filters.filtCAR(mnWav, P);
         %     mnWav = mnWav_filt_(mnWav, P); % Apply filtering in RAM
         if fSubtract_nmean % Apply nmean CAR to ground truth spikes (previous standard)
-            P1=P; P1.vcCommonRef = 'nmean'; mnWav = wav_car_(mnWav, P1);
+            P1=P; P1.carMode = 'nmean'; mnWav = wav_car_(mnWav, P1);
         end
         tnWav_spk = permute(mn2tn_gpu_(mnWav, P.spkLim, viTime_spk), [1,3,2]);
         vrVrms_site = jrclust.utils.tryGather(jrclust.utils.estimateRMS(mnWav, 1e5));

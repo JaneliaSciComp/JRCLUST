@@ -20,6 +20,6 @@ function autoScaleFigTime(hFigTime, hClust, selected)
 
     timeScale = max(cellfun(@(x) quantile(x(:), autoscalePct), timeData));
     hFigTime.axApply('default', @set, 'YLim', [0, 1]*timeScale);
-    imrect_set_(hFigTime, 'hRect', [], [0, timeScale]);
+    imrectSetPosition(hFigTime, 'hRect', [], [0, timeScale]);
 end
 

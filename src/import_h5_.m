@@ -11,7 +11,7 @@ function import_h5_(vcFile_h5)
 
     P = struct('vcFile', strrep(vcFile_h5, '.h5', '.bin'), 'qqFactor', 5, ...
     'maxDist_site_um', 50, 'maxDist_site_spk_um', 70, 'uV_per_bit', .195, ...
-    'max_bursting_index', 3, 'nTime_clu', 4, 'fft_thresh', 0); % set to [] to disable
+    'max_bursting_index', 3, 'nTime_clu', 4, 'fftThreshMAD', 0); % set to [] to disable
     S_gt = struct();
     S_gt.probe_layout           = h5readatt(vcFile_h5, '/','probelayout');
     try P.viChanZero           = h5readatt(vcFile_h5, '/','badchannels'); catch, end

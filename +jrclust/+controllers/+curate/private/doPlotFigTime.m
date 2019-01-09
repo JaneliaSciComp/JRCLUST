@@ -49,7 +49,7 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
     hFigTime.updatePlot('background', bgTimes, bgFeatures);
     hFigTime.updatePlot('foreground', fgTimes, fgFeatures);
     hFigTime.updatePlot('foreground2', fgTimes2, fgFeatures2);
-    imrect_set_(hFigTime, 'hRect', timeLimits, vppLim);
+    imrectSetPosition(hFigTime, 'hRect', timeLimits, vppLim);
 
 %     if isfield(S_fig, 'vhAx_track')
 %         toggleVisible_({S_fig.vhAx_track, S_fig.hPlot0_track, S_fig.hPlot1_track, S_fig.hPlot2_track}, 0);

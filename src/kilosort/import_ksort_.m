@@ -13,7 +13,7 @@ function import_ksort_(vcFile_prm)
     if ~isfield(P, 'template_file')
         P.template_file = '';
     elseif ~isempty(P.template_file)
-        assert_(exist_file_(P.template_file), sprintf('template file does not exist: %s', P.template_file));
+        jrclust.utils.dlgAssert(exist_file_(P.template_file), sprintf('template file does not exist: %s', P.template_file));
         P = struct_merge_(file2struct_(P.template_file), P);
     end
     P.vcFile_prm = vcFile_prm;
@@ -133,8 +133,8 @@ function import_ksort_(vcFile_prm)
     P.vcFilter = get_set_(P, 'vcFilter', 'bandpass');
     P.freqLim = get_set_(P, 'freqLim', [500, .475 * P.sRateHz]);
 
-    P.fft_thresh = get_set_(P, 'fft_thresh', 0);
-    P.vcCommonRef = get_set_(P, 'vcCommonRef', 'mean');
+    P.fftThreshMAD = get_set_(P, 'fftThreshMAD', 0);
+    P.carMode = get_set_(P, 'carMode', 'mean');
     P.blankThresh = get_set_(P, 'blankThresh', 0);
     P.vcDataType = get_set_(P, 'vcDataType', 'int16'); % KS default
 
@@ -196,7 +196,7 @@ function import_ksort_(vcFile_prm)
     S_clu = S_clu_update_(S_clu, 1:nClu, P);
     S_clu = sim_score_(S_clu);
 
-    assert_(S_clu_valid_(S_clu), 'Import failed: inconsistent clusters.');
+    jrclust.utils.dlgAssert(S_clu_valid_(S_clu), 'Import failed: inconsistent clusters.');
     S0.S_clu = S_clu;
 
     % Save

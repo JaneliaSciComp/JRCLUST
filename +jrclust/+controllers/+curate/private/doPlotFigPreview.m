@@ -1,45 +1,39 @@
-% @TODO: run spike detection and show detected spikes, or below threshold values
-%function [hFigPreview, hFigPreview.figData] = doPlotFigPreview(hCfg, fKeepView)
-function hFigPreview = doPlotFigPreview(hFigPreview, hCfg, fKeepView)
+function hFigPreview = doPlotFigPreview(hFigPreview, figData, fKeepView, hCfg)
     %DOPLOTFIGPREVIEW
-    if nargin < 2
-        fKeepView = 0;
-    end
     hWait = jrclust.utils.qMsgBox('Plotting...', 0, 1);
 
-    nSites = size(hFigPreview.figData.tracesFilt, 2);
+    nSites = size(figData.tracesFilt, 2);
 
-    viPlot = hFigPreview.figData.windowBounds(1):hFigPreview.figData.windowBounds(2);
-    XData = viPlot / hCfg.sampleRate;
-    tlim_sec = (hFigPreview.figData.windowBounds + [-1 1]) / hCfg.sampleRate;
+    XDataSamp = figData.windowBounds(1):figData.windowBounds(2);
+    XData = XDataSamp / hCfg.sampleRate;
+    tlimSecs = (figData.windowBounds + [-1 1]) / hCfg.sampleRate;
 
-    %-----
-    % Mean plot
+    %% Mean plot
     if ~hFigPreview.hasPlot('hPlotMean')
         hFigPreview.addPlot('hPlotMean', @plot, hFigPreview.hAxes('hAxMean'), nan, nan, 'k');
         hFigPreview.addPlot('hPlotMeanThresh', @plot, hFigPreview.hAxes('hAxMean'), nan, nan, 'r');
     end
 
-    if strcmp(hFigPreview.figData.refView, 'original')
-        YData = hFigPreview.figData.vrWav_filt_mean(viPlot); % TODO: vrWav_filt_mean is never set
+    if strcmp(figData.refView, 'original')
+        YData = figData.tracesCAR(XDataSamp);
     else % binned
-        YData = hFigPreview.figData.channelMeansMAD(viPlot);
+        YData = figData.channelMeansMAD(XDataSamp);
     end
 
     hFigPreview.plotApply('hPlotMean', @set, 'XData', XData, 'YData', YData);
     hFigPreview.axApply('hAxMean', @set, 'YLim', [0, 100]);
     hFigPreview.axApply('hAxMean', @xlabel, 'Time (sec)');
-    hFigPreview.axApply('hAxMean', @ylabel, sprintf('Common ref. (MAD, %s)', hFigPreview.figData.refView));
+    hFigPreview.axApply('hAxMean', @ylabel, sprintf('Common ref. (MAD, %s)', figData.refView));
 
-    fThreshRef = strcmpi(hFigPreview.figData.refView, 'binned') && ~isempty(hFigPreview.figData.blankThresh) && hFigPreview.figData.blankThresh ~= 0;
+    fThreshRef = strcmpi(figData.refView, 'binned') && ~isempty(figData.blankThresh) && figData.blankThresh ~= 0;
     if fThreshRef
-        hFigPreview.plotApply('hPlotMeanThresh', @set, 'XData', XData([1, end]), 'YData', repmat(hFigPreview.figData.blankThresh, [1, 2]));
+        hFigPreview.plotApply('hPlotMeanThresh', @set, 'XData', XData([1, end]), 'YData', repmat(figData.blankThresh, [1, 2]));
     else
         hFigPreview.hidePlot('hPlotMeanThresh');
     end
+    hFigPreview.axApply('hAxMean', @grid, jrclust.utils.ifEq(figData.fGrid, 'on', 'off'));
 
-    %-----
-    % Traces plot
+    %% Traces plot
     if ~hFigPreview.hasPlot('hPlotTraces')
         hFigPreview.addPlot('hPlotTraces', @plot, hFigPreview.hAxes('hAxTraces'), nan, nan, 'Color', [1 1 1]*.5);
         hFigPreview.addPlot('hPlot_traces_spk', @plot, hFigPreview.hAxes('hAxTraces'), nan, nan, 'm.-', 'LineWidth', 1.5);
@@ -48,121 +42,128 @@ function hFigPreview = doPlotFigPreview(hFigPreview, hCfg, fKeepView)
         hFigPreview.addPlot('hPlotTracesBad', @plot, hFigPreview.hAxes('hAxTraces'), nan, nan, 'r');
     end
 
-    if hFigPreview.figData.fFilter
-        hCfg.setTemporaryParams('filterType', hFigPreview.figData.filterType);
-        mrWav_ = jrclust.utils.bit2uV(hFigPreview.figData.tracesFilt(viPlot, :), hCfg);
+    if figData.fFilter
+        hCfg.setTemporaryParams('filterType', figData.filterType);
+        traces = jrclust.utils.bit2uV(figData.tracesFilt(XDataSamp, :), hCfg);
         hCfg.resetTemporaryParams();
     else
-        mrWav_ = jrclust.utils.meanSubtract(single(hFigPreview.figData.tracesClean(viPlot, :))*hCfg.bitScaling);
+        traces = jrclust.utils.meanSubtract(single(figData.tracesClean(XDataSamp, :))*hCfg.bitScaling);
     end
 
-    hFigPreview.multiplot('hPlotTraces', hFigPreview.figData.maxAmp, XData, mrWav_, 1:nSites);
+    hFigPreview.multiplot('hPlotTraces', figData.maxAmp, XData, traces, 1:nSites);
 
     % plot bad sites in red
-    if ~isempty(hFigPreview.figData.ignoreSites)
-        hFigPreview.multiplot('hPlotTracesBad', hFigPreview.figData.maxAmp, XData, mrWav_(:, hFigPreview.figData.ignoreSites), hFigPreview.figData.ignoreSites);
+    if ~isempty(figData.ignoreSites)
+        hFigPreview.multiplot('hPlotTracesBad', figData.maxAmp, XData, traces(:, figData.ignoreSites), figData.ignoreSites);
     else
         hFigPreview.hidePlot('hPlotTracesBad');
     end
 
-    if hFigPreview.figData.fShow_spk
-        inBounds = hFigPreview.figData.spikeTimes >= hFigPreview.figData.windowBounds(1) & hFigPreview.figData.spikeTimes <= hFigPreview.figData.windowBounds(end);
-        spikeTimes = single(hFigPreview.figData.spikeTimes(inBounds) - hFigPreview.figData.windowBounds(1)+1);
-        spikeTimesSec = single(hFigPreview.figData.spikeTimes(inBounds)) / hCfg.sampleRate;
-        spikeSites = single(hFigPreview.figData.spikeSites(inBounds));
+    if figData.fShowSpikes
+        inBounds = figData.spikeTimes >= figData.windowBounds(1) & figData.spikeTimes <= figData.windowBounds(end);
+        spikeTimes = single(figData.spikeTimes(inBounds) - figData.windowBounds(1)+1);
+        spikeTimesSec = single(figData.spikeTimes(inBounds)) / hCfg.sampleRate;
+        spikeSites = single(figData.spikeSites(inBounds));
     else
         spikeTimes = [];
     end
 
     if isempty(spikeTimes)
         hFigPreview.hidePlot('hPlot_traces_spk1');
-        %menu_label_('menu_preview_view_spike', 'Show [S]pikes');
     else
-        hFigPreview.multiplot('hPlot_traces_spk1', hFigPreview.figData.maxAmp, spikeTimesSec, jrclust.utils.rowColSelect(mrWav_, spikeTimes, spikeSites), spikeSites, 1);
-        %menu_label_('menu_preview_view_spike', 'Hide [S]pikes');
+        hFigPreview.multiplot('hPlot_traces_spk1', figData.maxAmp, spikeTimesSec, jrclust.utils.rowColSelect(traces, spikeTimes, spikeSites), spikeSites, 1);
     end
 
-    hCfg.setTemporaryParams('filterType', hFigPreview.figData.filterType);
-    siteThreshuV = jrclust.utils.bit2uV(-hFigPreview.figData.siteThresh(:), hCfg);
+    hCfg.setTemporaryParams('filterType', figData.filterType);
+    siteThreshuV = jrclust.utils.bit2uV(-figData.siteThresh(:), hCfg);
     hCfg.resetTemporaryParams();
-    siteThreshuV(hFigPreview.figData.ignoreSites) = nan;
+    siteThreshuV(figData.ignoreSites) = nan;
 
-    if hFigPreview.figData.fShowThresh && hFigPreview.figData.fFilter
-        hFigPreview.multiplot('hPlotTracesThresh', hFigPreview.figData.maxAmp, XData([1,end,end])', repmat(siteThreshuV, [1, 3])');
-        hFigPreview.multiplot('hPlot_traces_spk', hFigPreview.figData.maxAmp, XData, ...
-            mr_set_(mrWav_, ~hFigPreview.figData.isThreshCrossing(viPlot, :), nan)); % show spikes
-        %menu_label_('menu_preview_view_threshold', 'Hide spike [T]threshold');
+    if figData.fShowThresh && figData.fFilter
+        hFigPreview.multiplot('hPlotTracesThresh', figData.maxAmp, XData([1,end,end])', repmat(siteThreshuV, [1, 3])');
+        hFigPreview.multiplot('hPlot_traces_spk', figData.maxAmp, XData, ...
+            mrSet(traces, ~figData.isThreshCrossing(XDataSamp, :), nan)); % show spikes
     else
         hFigPreview.hidePlot('hPlotTracesThresh');
         hFigPreview.hidePlot('hPlot_traces_spk');
-        %menu_label_('menu_preview_view_threshold', 'Show spike [T]hreshold');
     end
 
     hFigPreview.axApply('hAxTraces', @ylabel, 'Site #');
-    vcFilter_ = jrclust.utils.ifEq(hFigPreview.figData.fFilter, sprintf('Filter=%s', hFigPreview.figData.filterType), 'Filter off');
-    set(hFigPreview, 'Name', sprintf('%s; %s; CommonRef=%s', hCfg.vcFile_prm, vcFilter_, hFigPreview.figData.vcCommonRef));
+    filterLabel = jrclust.utils.ifEq(figData.fFilter, sprintf('Filter=%s', figData.filterType), 'Filter off');
+    hFigPreview.figApply(@set, 'Name', sprintf('%s; %s; CommonRef=%s', hCfg.configFile, filterLabel, figData.carMode));
 
-    title_(hFigPreview.figData.hAxTraces, sprintf('Scale: %0.1f uV', hFigPreview.figData.maxAmp));
-    menu_label_('menu_preview_view_filter', jrclust.utils.ifEq(hFigPreview.figData.fFilter, 'Show raw traces [F]', 'Show [F]iltered traces'));
-    menu_label_('menu_preview_view_grid', jrclust.utils.ifEq(hFigPreview.figData.fGrid, 'Hide [G]rid', 'Show [G]rid'));
+    hFigPreview.axApply('hAxTraces', @title, sprintf('Scale: %0.1f uV', figData.maxAmp));
+
     if ~fKeepView
-        set(hFigPreview.figData.hAxTraces, 'YTick', 1:nSites, 'YLim', hFigPreview.figData.siteLim + [-1,1], 'XLim', tlim_sec);
+        hFigPreview.axApply('hAxTraces', @set, 'YTick', 1:nSites, 'YLim', figData.siteLim + [-1, 1], 'XLim', tlimSecs);
+    end
+    hFigPreview.axApply('hAxTraces', @grid, jrclust.utils.ifEq(figData.fGrid, 'on', 'off'));
+
+    %% Site plot
+    if ~hFigPreview.hasPlot('hPlotSite')
+        hFigPreview.addPlot('hPlotSite', @barh, hFigPreview.hAxes('hAxSites'), nan, nan, 1);
+        hFigPreview.addPlot('hPlotSiteBad', @barh, hFigPreview.hAxes('hAxSites'), nan, nan, 1, 'r');
+        hFigPreview.addPlot('hPlotSiteThresh', @plot, hFigPreview.hAxes('hAxSites'), nan, nan, 'r');
     end
 
+    switch figData.siteView
+        case 'Site correlation'
+            YData = figData.maxCorrSite;
 
-    %-----
-    % Site plot
-    if isempty(get_(hFigPreview.figData, 'hPlot_site'))
-        hFigPreview.figData.hPlot_site = barh(hFigPreview.figData.hAx_sites, nan, nan, 1);
-        hFigPreview.figData.hPlot_site_bad = barh(hFigPreview.figData.hAx_sites, nan, nan, 1, 'r');
-        hFigPreview.figData.hPlot_site_thresh = plot(hFigPreview.figData.hAx_sites, nan, nan, 'r');
-    end
-    switch hFigPreview.figData.siteView
-        case 'Site correlation', vrPlot_site = hFigPreview.figData.maxCorrSite;
-        case 'Spike threshold', vrPlot_site = single(hFigPreview.figData.siteThresh);
-        case 'Event rate (Hz)', vrPlot_site = hFigPreview.figData.siteEventRate;
-        case 'Event SNR (median)', vrPlot_site = hFigPreview.figData.siteEventSNR;
-    end
-    set(hFigPreview.figData.hPlot_site, 'XData', 1:nSites, 'YData', vrPlot_site); %switch statement
-    xylabel_(hFigPreview.figData.hAx_sites, hFigPreview.figData.siteView, 'Site #');
-    set(hFigPreview.figData.hAx_sites, 'YLim', hFigPreview.figData.siteLim + [-1,1]);
-    if isempty(hFigPreview.figData.thresh_corr_bad_site) || ~strcmpi(hFigPreview.figData.siteView, 'Site correlation')
-        hide_plot_(hFigPreview.figData.hPlot_site_thresh);
+        case 'Spike threshold'
+            YData = single(figData.siteThresh);
+
+        case 'Event rate (Hz)'
+            YData = figData.siteEventRate;
+
+        case 'Event SNR (median)'
+            YData = figData.siteEventSNR;
+    end % switch
+
+    hFigPreview.plotApply('hPlotSite', @set, 'XData', 1:nSites, 'YData', YData);
+    hFigPreview.axApply('hAxSites', @set, 'YLim', figData.siteLim + [-1,1]);
+    hFigPreview.axApply('hAxPSD', @grid, jrclust.utils.ifEq(figData.fGrid, 'on', 'off'));
+
+    if isempty(figData.siteCorrThresh) || ~strcmpi(figData.siteView, 'Site correlation')
+        hFigPreview.hidePlot('hPlotSiteThresh');
     else
-        set(hFigPreview.figData.hPlot_site_thresh, 'XData', hFigPreview.figData.thresh_corr_bad_site *[1,1], 'YData', [0, nSites+1]);
+        hFigPreview.plotApply('hPlotSiteThresh', @set, 'XData', figData.siteCorrThresh *[1,1], 'YData', [0, nSites+1]);
     end
-    if ~isempty(hFigPreview.figData.ignoreSites);
-        vrPlot_site_bad = vrPlot_site;
-        vrPlot_site_bad(~hFigPreview.figData.vlSite_bad) = 0;
-        set(hFigPreview.figData.hPlot_site_bad, 'XData', 1:nSites, 'YData', vrPlot_site_bad); %switch statement
+    if ~isempty(figData.ignoreSites)
+        YData(~figData.ignoreMe) = 0;
+        hFigPreview.plotApply('hPlotSiteBad', @set, 'XData', 1:nSites, 'YData', YData); %switch statement
     else
-        hide_plot_(hFigPreview.figData.hPlot_site_bad);
+        hFigPreview.hidePlot('hPlotSiteBad');
     end
-    title_(hFigPreview.figData.hAx_sites, sprintf('thresh_corr_bad_site=%0.4f', hFigPreview.figData.thresh_corr_bad_site));
 
+    hFigPreview.axApply('hAxSites', @xlabel, figData.siteView);
+    hFigPreview.axApply('hAxSites', @ylabel, 'Site #');
+    hFigPreview.axApply('hAxSites', @title, sprintf('siteCorrThresh=%0.4f', figData.siteCorrThresh));
 
-    %-----
-    % PSD plot
-    if isempty(get_(hFigPreview.figData, 'hPlot_psd'))
-        hFigPreview.figData.hPlot_psd = plot(hFigPreview.figData.hAxPSD, nan, nan, 'k');
-        hFigPreview.figData.hPlot_clean_psd = plot(hFigPreview.figData.hAxPSD, nan, nan, 'g');
-        hFigPreview.figData.hPlot_psd_thresh = plot(hFigPreview.figData.hAxPSD, nan, nan, 'r');
+    %% PSD plot
+    if ~hFigPreview.hasPlot('hPlotPSD')
+        hFigPreview.addPlot('hPlotPSD', @plot, hFigPreview.hAxes('hAxPSD'), nan, nan, 'k');
+        hFigPreview.addPlot('hPlotCleanPSD', @plot, hFigPreview.hAxes('hAxPSD'), nan, nan, 'g');
+        hFigPreview.addPlot('hPlotPSDThresh', @plot, hFigPreview.hAxes('hAxPSD'), nan, nan, 'r');
     end
-    set(hFigPreview.figData.hPlot_psd, 'XData', hFigPreview.figData.vrFreq_psd, 'YData', hFigPreview.figData.vrPower_psd);
-    set(hFigPreview.figData.hPlot_clean_psd, 'XData', hFigPreview.figData.vrFreq_psd, 'YData', hFigPreview.figData.vrPower_clean_psd);
-    xylabel_(hFigPreview.figData.hAxPSD, 'Frequency (Hz)', 'Power [dB]', 'TODO: before and after cleaning');
-    set(hFigPreview.figData.hAxPSD, 'XLim', [0, hCfg.sampleRate/2]);
-    title_(hFigPreview.figData.hAxPSD, sprintf('fft_thresh=%s', num2str(hFigPreview.figData.fft_thresh)));
 
-    grid_([hFigPreview.figData.hAxTraces, hFigPreview.figData.hAxMean, hFigPreview.figData.hAx_sites, hFigPreview.figData.hAxPSD], hFigPreview.figData.fGrid);
+    hFigPreview.plotApply('hPlotPSD', @set, 'XData', figData.psdFreq, 'YData', figData.psdPower);
+    hFigPreview.plotApply('hPlotCleanPSD', @set, 'XData', figData.psdFreq, 'YData', figData.psdPowerClean);
 
-    % Exit
-    set(hFigPreview, 'UserData', hFigPreview.figData);
-    figure_wait_(0, hFigPreview);
-    close_(hWait);
-end %func
+    hFigPreview.axApply('hAxPSD', @set, 'XLim', [0, hCfg.sampleRate/2]);
+    hFigPreview.axApply('hAxPSD', @grid, jrclust.utils.ifEq(figData.fGrid, 'on', 'off'));
+
+    hFigPreview.axApply('hAxPSD', @xlabel, 'Frequency (Hz)');
+    hFigPreview.axApply('hAxPSD', @ylabel, 'Power [dB]');
+    hFigPreview.axApply('hAxPSD', @title, sprintf('fftThreshMAD=%s', num2str(figData.fftThreshMAD)));
+
+
+    %% finish up
+    hFigPreview.wait(false);
+    close(hWait);
+end
 
 %% LOCAL FUNCTIONS
-function mr = mr_set_(mr, ml, val)
-    mr(ml)=val;
-end %func
+function mr = mrSet(mr, ml, val)
+    mr(ml) = val;
+end

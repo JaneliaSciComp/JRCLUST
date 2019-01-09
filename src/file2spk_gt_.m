@@ -8,7 +8,7 @@ function [tnWav_spk, vrVrms_site] = file2spk_gt_(P, viTime_spk0)
     % [tnWav_raw, tnWav_spk, S0] = file2spk_(P, viTime_spk, viSite_spk)
     %   construct spike waveforms from previous time markers
     % 6/29/17 JJJ: Added support for the matched filter
-    P.fft_thresh = 0; %disable for GT
+    P.fftThreshMAD = 0; %disable for GT
     [tnWav_spk, vnThresh_site] = deal({});
     nSamples1 = 0;
     [fid1, nBytes_file1] = fopen_(P.vcFile, 'r');

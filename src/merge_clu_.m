@@ -13,6 +13,6 @@ function S_clu = merge_clu_(S_clu, iClu1, iClu2, P)
         S_clu = sim_score_(S_clu);
     end
 
-    assert_(S_clu_valid_(S_clu), 'Cluster number is inconsistent after merging');
+    jrclust.utils.dlgAssert(S_clu_valid_(S_clu), 'Cluster number is inconsistent after merging');
     fprintf('%s [W] merging Clu %d and %d\n', datestr(now, 'HH:MM:SS'), iClu1, iClu2);
 end %func
