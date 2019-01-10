@@ -186,59 +186,6 @@ classdef CurateController < handle
                 case 'b' % toggle background spikes
                     hFigTime.figData.doPlotBG = hFigTime.toggleVisible('background');
 
-                case 'c' % compare pca across channels
-                    disp('channel pca');
-%                     hMsg = jrclust.utils.qMsgBox('Plotting...');
-%                     figure; hold on;
-%                     [mrWav_mean1, viSite1] = mrWav_int_mean_clu_(obj.selected(1));
-%                     [~, mrPv1] = pca(mrWav_mean1, 'NumComponents', P.nPc_dip, 'Center', 1);
-%                     mrPv1 = norm_mr_(mrPv1);
-%
-%                     if keyMod(event, 'control') %show chain of clusters
-%                         trPv1 = mrPv1;
-%                         iClu_next = get_next_clu_(S_clu, obj.selected(1));
-%                         viClu_track = obj.selected(1);
-%                         while ~isempty(iClu_next)
-%                             [mrWav_mean1, viSite1] = mrWav_int_mean_clu_(iClu_next);
-%                             [~, mrPv1a] = pca(mrWav_mean1, 'NumComponents', P.nPc_dip, 'Center', 1);
-%                             mrPv1a = norm_mr_(mrPv1a);
-%                             mrPv1 = flip_prinvec_(mrPv1a, mean(trPv1,3));
-%                             trPv1 = cat(3, trPv1, mrPv1);
-%                             viClu_track(end+1) = iClu_next;
-%
-%                             iClu_next = get_next_clu_(S_clu, iClu_next);
-%                         end
-%                         multiplot(plot(nan,nan,'k'), 1, 1:size(trPv1,1), trPv1);
-%             %             mr2plot(norm_mr_(mrPv1), 'scale', 1, 'LineStyle', 'k');
-%                         vcTitle = sprintf('PCA across chan: Clu %s', sprintf('%d,', viClu_track));
-%                     elseif ~isempty(S0.iCluPaste)
-%                         [mrWav_mean2, viSite1] = mrWav_int_mean_clu_(S0.iCluPaste);
-%                         [~, mrPv2] = pca(mrWav_mean2, 'NumComponents', P.nPc_dip);
-%                         mrPv2 = match_mrPv_(mrPv2, mrPv1);
-%             %             mrPv2 = flip_prinvec_(mrPv2, mrPv1);
-%                         mr2plot(norm_mr_(mrPv1), 'scale', 1, 'LineStyle', 'k');
-%                         mr2plot(norm_mr_(mrPv2), 'scale', 1, 'LineStyle', 'r--');
-%                         vcTitle = sprintf('PCA across chan: Clu %d vs %d', obj.selected(1), S0.iCluPaste);
-%                     else
-%                         mr2plot(norm_mr_(mrPv1), 'scale', 1, 'LineStyle', 'r');
-%                         vcTitle = sprintf('PCA across chan: Clu %d', obj.selected(1));
-%                     end
-%             %         mr2plot(mrPv1, 'scale', 1, 'LineStyle', 'k');
-%                     grid on;
-%                     title_(vcTitle);
-%             %         if ~isempty(S0.iCluPaste)
-%             %             compare_interp_(Sclu, obj.selected(1), S0.iCluPaste);
-%             %         end
-%                     try close(hMsg); catch; end
-
-                case 'e' % export selected to workspace
-                    disp('export');
-%                     eval(sprintf('mrFet_clu%d = getDispFeaturesCluster(obj.selected(1));', obj.selected(1)));
-%                     mrDist1 = squareform(pdist(mrFet1'));
-%                     vrFet1 = sqrt(sum(mrFet1.^2));
-%                     mrDist1 = bsxfun(@rdivide, mrDist1, vrFet1); %norm
-%                     eval(sprintf('assignWorkspace_(mrFet_clu%d);', obj.selected(1)));
-
                 case 'f' % toggle feature display
                     if strcmp(obj.hCfg.dispFeature, 'vpp')
                         obj.updateProjection(obj.hCfg.clusterFeature);
@@ -281,7 +228,7 @@ classdef CurateController < handle
                             obj.splitCluster(iCluster, retained);
                         end
                     end
-            end
+            end % switch
         end
 
         function keyPressFigWav(obj, hObject, hEvent)
@@ -365,7 +312,10 @@ classdef CurateController < handle
                         hFigWav.setWindow(iCluster + [-1, 1]*6, iSite + [-1, 1]*(obj.hCfg.maxSite*2+1), [0 obj.hClust.nClusters+1], [0 nSites+1]);
                     end
 
-%                 case 'a', update_spikes_(S0); clu_info_(S0);
+                case 'a'
+                    obj.updateFigWav();
+                    obj.updateSelect(obj.selected);
+
                 case 'h'
                     jrclust.utils.qMsgBox(hFigWav.figData.helpText, 1);
 
@@ -628,47 +578,48 @@ classdef CurateController < handle
             hFig.figApply(@set, 'MenuBar','None');
 
             obj.hMenus('FileMenu') = hFig.uimenu('Label', 'File');
-            uimenu(obj.hMenus('FileMenu'), 'Label', 'Save', 'Callback', @obj.saveFiles); % save_manual_
-            uimenu(obj.hMenus('FileMenu'), 'Label', 'Save figures as .fig', 'Callback', @(hO, hE) obj.saveFigures('.fig')); % save_figures_
-            uimenu(obj.hMenus('FileMenu'), 'Label', 'Save figures as .png', 'Callback', @(hO, hE) obj.saveFigures('.png')); % save_figures_
-%             uimenu(obj.hMenus('FileMenu'), 'Label', 'Export units to csv', 'Callback', @export_csv_, 'Separator', 'on');
-%             uimenu(obj.hMenus('FileMenu'), 'Label', 'Export unit qualities to csv', 'Callback', @(hO, hE)export_quality_);
-%             uimenu(obj.hMenus('FileMenu'), 'Label', 'Export all mean unit waveforms', 'Callback', @export_tmrWav_clu_);
-%             uimenu(obj.hMenus('FileMenu'), 'Label', 'Export selected mean unit waveforms', 'Callback', @(hO, hE)export_mrWav_clu_);
-%             uimenu(obj.hMenus('FileMenu'), 'Label', 'Export all waveforms from the selected unit', 'Callback', @(hO, hE)export_tnWav_spk_);
-%             uimenu(obj.hMenus('FileMenu'), 'Label', 'Export firing rate for all units', 'Callback', @(hO, hE)export_rate_);
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Save', 'Callback', @obj.saveFiles);
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Save figures as .fig', 'Callback', @(hO, hE) obj.saveFigures('.fig'));
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Save figures as .png', 'Callback', @(hO, hE) obj.saveFigures('.png'));
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Export units to csv', 'Callback', @(hO, hE) obj.hClust.exportToCSV(), 'Separator', 'on');
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Export unit qualities to csv', 'Callback', @(hO, hE) obj.hClust.exportQualityScores());
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Export all mean unit waveforms to workspace', 'Callback', @(hO, hE) obj.exportMeanWf(true));
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Export selected mean unit waveforms to workspace', 'Callback', @(hO, hE) obj.exportMeanWf(false));
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Export all traces from the selected unit', 'Callback', @(hO, hE) obj.exportTraces());
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Export firing rate for all units', 'Callback', @(hO, hE) obj.exportFiringRate());
             uimenu(obj.hMenus('FileMenu'), 'Label', 'Exit', 'Callback', @(hO, hE) obj.endSession(), 'Separator', 'on', 'Accelerator', 'Q');
 
             obj.hMenus('EditMenu') = hFig.uimenu('Label', 'Edit');
             uimenu(obj.hMenus('EditMenu'), 'Label', '[M]erge', 'Callback', @(hO, hE) obj.mergeSelected());
-%             uimenu(obj.hMenus('EditMenu'),'Label', 'Merge auto', 'Callback', @(hO, hE) merge_auto_());
+            uimenu(obj.hMenus('EditMenu'), 'Label', 'Merge auto', 'Callback', @(hO, hE) obj.autoMerge());
             uimenu(obj.hMenus('EditMenu'), 'Label', '[D]elete', 'Callback', @(hO, hE) obj.deleteClusters(), 'Separator', 'on');
-%             uimenu(obj.hMenus('EditMenu'),'Label', 'Delete auto', 'Callback', @(hO, hE) delete_auto_());
+            uimenu(obj.hMenus('EditMenu'), 'Label', 'Delete auto', 'Callback', @(hO, hE) obj.autoDelete());
             uimenu(obj.hMenus('EditMenu'), 'Label', 'Delete annotated', 'Callback', @(hO, hE) obj.deleteAnnotated()); % TW
             uimenu(obj.hMenus('EditMenu'), 'Label', '[S]plit', 'Callback', @(hO, hE) obj.autoSplit(true), 'Separator', 'on');
             uimenu(obj.hMenus('EditMenu'), 'Label', 'Auto split max-chan', 'Callback', @(hO, hE) obj.autoSplit(false));
             uimenu(obj.hMenus('EditMenu'), 'Label', 'Auto split multi-chan', 'Callback', @(hO, hE) obj.autoSplit(true));
 
             obj.hMenus('ViewMenu') = uimenu(hFig, 'Label', 'View');
-            uimenu(obj.hMenus('ViewMenu'),'Label', 'Show traces', 'Callback', @(hO, hE) obj.showTraces());
-            uimenu(obj.hMenus('ViewMenu'),'Label', 'View all [R]', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'r')));
+            uimenu(obj.hMenus('ViewMenu'), 'Label', 'Show traces', 'Callback', @(hO, hE) obj.showTraces());
+            uimenu(obj.hMenus('ViewMenu'), 'Label', 'View all [R]', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'r')));
             uimenu(obj.hMenus('ViewMenu'), 'Label', '[Z]oom selected', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'z')));
             uimenu(obj.hMenus('ViewMenu'), 'Label', '[W]aveform (toggle)', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'w')));
-            uimenu(obj.hMenus('ViewMenu'),'Label', '[N]umbers (toggle)', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'n')));
-            uimenu(obj.hMenus('ViewMenu'),'Label', 'Show raw waveform', 'Callback', @(hO, hE) obj.toggleRaw(hO))
-%             %uimenu(obj.hMenus('ViewMenu'),'Label', 'Threshold by sites', 'Callback', @(hO, hE)keyPressFcn_thresh_(hFig, 'n'));
-            uimenu(obj.hMenus('ViewMenu'),'Label', 'Reset window positions', 'Callback', @(hO, hE) obj.resetPositions());
-%
-            obj.hMenus('ProjMenu') = uimenu(hFig,'Label', 'Projection');
+            uimenu(obj.hMenus('ViewMenu'), 'Label', '[N]umbers (toggle)', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'n')));
+            uimenu(obj.hMenus('ViewMenu'), 'Label', 'Show raw waveform', 'Callback', @(hO, hE) obj.toggleRaw(hO))
+            %uimenu(obj.hMenus('ViewMenu'), 'Label', 'Threshold by sites', 'Callback', @(hO, hE) keyPressFcn_thresh_(hFig, 'n'));
+            uimenu(obj.hMenus('ViewMenu'), 'Label', 'Reset window positions', 'Callback', @(hO, hE) obj.resetPositions());
+            uimenu(obj.hMenus('ViewMenu'), 'Label', 'Show config file', 'Callback', @(hO, hE) obj.hCfg.edit());
+
+            obj.hMenus('ProjMenu') = uimenu(hFig, 'Label', 'Projection');
             uimenu(obj.hMenus('ProjMenu'), 'Label', 'vpp', 'Callback', @(hO, hE) obj.updateProjection('vpp'));
             uimenu(obj.hMenus('ProjMenu'), 'Label', 'pca', 'Callback', @(hO, hE) obj.updateProjection('pca'));
             uimenu(obj.hMenus('ProjMenu'), 'Label', 'ppca', 'Callback', @(hO, hE) obj.updateProjection('ppca'));
             % uimenu(obj.hMenus('ProjMenu'), 'Label', 'cov', 'Callback', @(hO, hE) obj.updateProjection('cov'));
-%
-%             mh_plot = uimenu(hFig,'Label','Plot');
-%             uimenu(mh_plot, 'Label', 'All unit firing rate vs. aux. input', 'Callback', @(hO, hE)plot_aux_rate_);
-%             uimenu(mh_plot, 'Label', 'Selected unit firing rate vs. aux. input', 'Callback', @(hO, hE)plot_aux_rate_(1));
-%
+
+            obj.hMenus('PlotMenu') = uimenu(hFig, 'Label', 'Plot');
+            uimenu(mh_plot, 'Label', 'Firing rate vs. aux. input (all units)', 'Callback', @(hO, hE) obj.plotAuxRate(false));
+            uimenu(mh_plot, 'Label', 'Firing rate vs. aux. input (selected unit)', 'Callback', @(hO, hE) obj.plotAuxRate(true));
+
             obj.hMenus('InfoMenu') = uimenu(hFig, 'Label', '', 'Tag', 'InfoMenu');
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Annotate unit', 'Callback', @(hO, hE) obj.annotateUnit('', true));
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Single unit', 'Callback', @(hO, hE) obj.annotateUnit('single', false), 'Accelerator', '1');
@@ -676,8 +627,8 @@ classdef CurateController < handle
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Noise', 'Callback', @(hO, hE) obj.annotateUnit('noise', false));
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Clear annotation', 'Callback', @(hO, hE) obj.annotateUnit('', false));
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Equal to', 'Callback', @(hO, hE) obj.annotateUnit('=', true));
-%
-%             mh_help = uimenu(hFig,'Label','Help');
+
+%             mh_help = uimenu(hFig, 'Label','Help');
 %             uimenu(mh_help, 'Label', '[H]elp', 'Callback', @help_FigWav_);
 
             drawnow;
@@ -714,13 +665,102 @@ classdef CurateController < handle
             obj.updateMenu();
         end
 
+        function autoDelete(obj)
+            %AUTODELETE Automatically delete clusters by SNR/spike count
+            hFigDelete = jrclust.views.Figure('', [.5 .7 .35 .3], ['Delete Auto: ', obj.hCfg.sessionName], false, false);
+
+            hFigDelete.addPlot('hPlotSNR', obj.hClust.unitSNR(:), obj.hClust.unitCount(:), '.'); % show cluster SNR and spike count
+            hFigDelete.axApply('default', @xlabel, 'Unit SNR');
+            hFigDelete.axApply('default', @ylabel, '# spikes/unit');
+            hFigDelete.axApply('default', @grid, 'on');
+            hFigDelete.axApply('default', @set, 'YScale', 'log');
+
+            % ask user which clusters to delete
+            dlgAns = inputdlg({'Min Unit SNR:', 'Max Unit SNR:', 'Minimum # spikes/unit'}, 'Auto-deletion based on SNR', 1, {'5', 'inf', '0'}); % also ask about # spikes/unit (or firing rate) @TODO
+            hFigDelete.close();
+
+            % parse user input
+            if isempty(dlgAns)
+                return;
+            end
+
+            snrMin = str2double(dlgAns{1});
+            snrMax = str2double(dlgAns{2});
+            minCount = round(str2double(dlgAns{3}));
+
+            if any(isnan([snrMin, snrMax, minCount]))
+                jrclust.utils.qMsgBox('Invalid criteria.');
+                return;
+            end
+
+            deleteMe = find(obj.hClust.unitSNR(:) < snrMin | obj.hClust.unitCount(:) < minCount | obj.hClust.unitSNR(:) > snrMax);
+            if isempty(deleteMe)
+                jrclust.utils.qMsgBox('No units deleted.');
+                return;
+            end
+            if numel(deleteMe) >= obj.hClust.nClusters
+                jrclust.utils.qMsgBox('Cannot delete all units.');
+                return;
+            end
+
+            % delete and update
+            obj.deleteClusters(deleteMe);
+            jrclust.utils.qMsgBox(sprintf('Deleted %d units <%0.1f SNR or <%d spikes/unit.', numel(deleteMe), snrMin, minCount));
+            % TODO: add a note in hClust.history to this effect
+            % save_log_(sprintf('delete-auto <%0.1f SNR or <%d spikes/unit', snrMin, minCount), S0);
+        end
+
+        function autoMerge(obj)
+            %AUTOMERGE
+            % snr_thresh = inputdlgNum('SNR threshold: ', 'Auto-deletion based on SNR', 10); % also ask about # spikes/unit (or firing rate) @TODO
+            dlgAns = inputdlg('Waveform correlation threshold (0-1):', 'Auto-merge based on waveform threshold', 1, {num2str(obj.hCfg.maxWavCor)});
+
+            % parse user input
+            if isempty(dlgAns)
+                return;
+            end
+
+            mwc = str2double(dlgAns{1});
+            if isnan(mwc) || mwc <= 0 || mwc > 1
+                jrclust.utils.qMsgBox('Invalid criteria.');
+                return;
+            end
+
+            % auto merge
+            if obj.hasFig('FigWav')
+                hFigWav = obj.hFigs('FigWav');
+                hFigWav.wait(true);
+            end
+
+            nClustersOld = obj.hClust.nClusters;
+
+            hBox = jrclust.utils.qMsgBox('Merging...', false, true);
+            if obj.hClust.autoMerge(mwc) % success; replot
+                jrclust.utils.tryClose(hBox);
+                obj.updateFigWav();
+                obj.updateFigRD(); % centers changed, need replotting
+                obj.updateFigSim();
+                obj.updateSelect(obj.selected);
+
+                jrclust.utils.qMsgBox(sprintf('Merged %d clusters >%0.2f maxWavCor.', nClustersOld - obj.hClust.nClusters, mwc));
+            else
+                jrclust.utils.tryClose(hBox);
+                jrclust.utils.qMsgBox('Auto merge failed.');
+            end
+
+            if obj.hasFig('FigWav')
+                hFigWav = obj.hFigs('FigWav');
+                hFigWav.wait(false);
+            end
+        end
+
         function autoSplit(obj, fMultisite)
             %AUTOSPLIT
             if numel(obj.selected) > 1
                 return;
             end
 
-            if obj.hClust.clusterCounts(obj.selected) < 2
+            if obj.hClust.unitCount(obj.selected) < 2
                 msgbox('At least two spikes required for splitting');
                 return;
             end
@@ -741,7 +781,7 @@ classdef CurateController < handle
             sampledSpikes = jrclust.utils.filtTouV(sampledSpikes, obj.hCfg);
             sampledSpikes = reshape(sampledSpikes, [], size(sampledSpikes, 3));
 
-            % get vpp of cluster spikes on current site (in FigTime)
+            % get Vpp of cluster spikes on current site (in FigTime)
             localSpikes = jrclust.utils.getSampledWindows(obj.hClust, iSpikes, obj.currentSite);
             localSpikes = squeeze(jrclust.utils.filtTouV(localSpikes, obj.hCfg)); % TW calculate amplitudes on the fly
             localVpp = max(localSpikes) - min(localSpikes); % TW calculate amplitudes on the fly
@@ -880,8 +920,61 @@ classdef CurateController < handle
                 obj.updateFigWav();
                 obj.updateFigRD(); % centers changed, need replotting
                 obj.updateFigSim();
-                obj.updateSelect(min(deleteMe));
+                if numel(deleteMe) == 1 && deleteMe == obj.selected(1)
+                    obj.updateSelect(deleteMe);
+                else
+                    obj.updateSelect(obj.selected);
+                end
             end
+        end
+
+        function exportFiringRate(obj)
+            %EXPORTFIRINGRATE
+            firingRates = obj.hClust.firingRates();
+            jrclust.utils.exportToWorkspace(struct('firingRates', firingRates), obj.hCfg.verbose);
+        end
+
+        function exportMeanWf(obj, exportAll)
+            %EXPORTMEANWF Export mean waveforms to workspace
+            if exportAll
+                jrclust.utils.exportToWorkspace(struct('meanWfGlobal', obj.hClust.meanWfGlobal), obj.hCfg.verbose);
+            elseif ~isempty(obj.selected)
+                mwf = obj.hClust.meanWfGlobal;
+
+                primarySites = obj.hCfg.siteNeighbors(:, obj.hClust.clusterSites(obj.selected(1)));
+                selectedWf = mwf(:, primarySites, obj.selected(1));
+                if numel(obj.selected) == 2
+                    primarySites2 = obj.hCfg.siteNeighbors(:, obj.hClust.clusterSites(obj.selected(2)));
+                    selectedWf2 = mwf(:, primarySites2, obj.selected(2));
+                    jrclust.utils.exportToWorkspace(struct('selectedWf', selectedWf, 'selectedWf2', selectedWf2), obj.hCfg.verbose);
+                else
+                    jrclust.utils.exportToWorkspace(struct('selectedWf', selectedWf), obj.hCfg.verbose);
+                end
+            end
+        end
+
+        function exportTraces(obj)
+            %EXPORTTRACES Export traces from selected cluster to workspace
+            spikesFilt = obj.hClust.spikesFilt;
+            spikesRaw = obj.hClust.spikesRaw;
+            iCluster = obj.selected(1);
+            clusterSpikes = obj.hClust.spikesByCluster{iCluster};
+            nSpikes = numel(clusterSpikes);
+
+            shapeFilt = [size(spikesFilt, 1), obj.hCfg.nSites, nSpikes];
+            shapeRaw = [size(spikesRaw, 1), obj.hCfg.nSites, nSpikes];
+
+            iSpikesFilt = zeros(shapeFilt, 'like', spikesFilt);
+            iSpikesRaw = zeros(shapeRaw, 'like', spikesRaw);
+            spikeNeighbors = obj.hCfg.siteNeighbors(:, obj.hClust.spikeSites);
+
+            for jSpike = 1:nSpikes
+                iSpikesFilt(:, spikeNeighbors(:, jSpike), jSpike) = spikesFilt(:, :, clusterSpikes(jSpike));
+                iSpikesRaw(:, spikeNeighbors(:, jSpike), jSpike) = spikesRaw(:, :, clusterSpikes(jSpike));
+            end
+
+            jrclust.utils.exportToWorkspace(struct(sprintf('spikesFilt%d', iCluster), iSpikesFilt, ...
+                                                   sprintf('spikesRaw%d', iCluster), iSpikesRaw), obj.hCfg.verbose);
         end
 
         function res = figApply(obj, hFun, varargin)
@@ -922,6 +1015,18 @@ classdef CurateController < handle
                 obj.updateFigSim();
                 obj.updateSelect(min(obj.selected));
             end
+        end
+
+        function plotAuxRate(obj, fSelected)
+            %PLOTAUXRATE
+            [vrWav_aux, vrTime_aux] = load_aux_(P);
+            if isempty(vrWav_aux), jrclust.utils.qMsgBox('Aux input is not found'); return; end
+            mrRate_clu = S_clu.firingRates([], numel(vrWav_aux));
+            vrCorr_aux_clu = arrayfun(@(i)corr(vrWav_aux, mrRate_clu(:,i), 'type', 'Pearson'), 1:size(mrRate_clu,2));
+            if ~fSelected, iCluCopy = []; end
+            plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluCopy);
+            vcMsg = assignWorkspace_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux);
+            % jrclust.utils.qMsgBox(vcMsg);
         end
 
         function plotAllFigures(obj)
@@ -1041,7 +1146,7 @@ classdef CurateController < handle
         end
 
         function updateMenu(obj)
-            % update menu entry to indicate selected clusters
+            %UPDATEMENU update menu entry to indicate selected clusters
             if numel(obj.selected) > 1 && obj.hasMenu('InfoMenu')
                 menuLabel = sprintf('Unit %d "%s" vs. Unit %d "%s"', obj.selected(1), ...
                                     obj.hClust.clusterNotes{obj.selected(1)}, obj.selected(2), ...
@@ -1149,7 +1254,7 @@ classdef CurateController < handle
         function res = endSession(obj)
             %ENDSESSION Finish curating and return results
             if nargout == 0
-                obj.saveFiles(); % ask
+                obj.saveFiles();
             end
             obj.isEnding = true;
             obj.closeFigures();
@@ -1173,15 +1278,62 @@ classdef CurateController < handle
 
         function resetPositions(obj)
             obj.figApply(@(hFig) hFig.resetPos());
+            obj.allToForeground();
         end
 
         function saveFigures(obj, ext)
-            fprintf('saving figs as %s\n', ext);
+            %SAVEFIGURES Save figures
+            prefix = sprintf('jrc4_%s_', datestr(now, 'yyyy-mm-dd-HHMM'));
+            dlgAns = inputdlg('Figure name prefix', 'Save figure set', 1, {prefix});
+            if isempty(dlgAns)
+                return;
+            end
+            prefix = dlgAns{1};
+
+            if obj.hCfg.verbose
+                fprintf('Saving figures...\n');
+                t1 = tic;
+            end
+
+            figKeys = keys(obj.hFigs);
+            for iFig = 1:numel(figKeys)
+                hFig = obj.hFigs(figKeys{iFig});
+                if ~hFig.isReady
+                    continue;
+                end
+
+                filename = fullfile(obj.hCfg.outputDir, [prefix, hFig.figApply(@get, 'Tag'), ext]);
+                if strcmpi(ext, '.fig')
+                    savefig(hFig.hFig, filename, 'compact');
+                else
+                    saveas(hFig.hFig, filename, ext(2:end));
+                end
+
+                if obj.hCfg.verbose
+                    fprintf('\t%s\n', filename);
+                end
+            end
+
+            if obj.hCfg.verbose
+                fprintf('\ttook %0.1fs\n', toc(t1));
+            end
         end
 
-        function saveFiles(obj)
+        function success = saveFiles(obj)
             %SAVEFILES Save files to disk
-            disp('saveFiles');
+            curateFile = jrclust.utils.subsExt(obj.hCfg.configFile, '_curate.mat');
+            dlgAns = questdlg(['Save to ', curateFile, ' ?'], 'Confirmation', 'Yes');
+
+            if strcmp(dlgAns, 'Yes')
+                hMsg = jrclust.utils.qMsgBox('Saving... (this closes automatically)');
+                jrclust.utils.saveStruct(obj.cRes, curateFile);
+                success = 1;
+                jrclust.utils.tryClose(hMsg);
+            elseif strcmp(dlgAns, 'No')
+                success = 1;
+            else
+                success = 0;
+            end
         end
     end
 

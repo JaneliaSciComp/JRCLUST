@@ -20,5 +20,5 @@ function auto_(P)
                        'spikePositions', S0.mrPos_spk);
     [S_clu, S0] = jrclust.cluster.autoMerge(S_clu, spikeData, P);
     S0 = clear_log_(S0);
-    save0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
+    save0_(jrclust.utils.subsExt(P.vcFile_prm, '_jrc.mat'));
 end %func

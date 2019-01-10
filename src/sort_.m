@@ -23,5 +23,5 @@ function S0 = sort_(P, fLoad)
     S0 = set0_(runtime_sort, P);
     S0 = clear_log_(S0);
 
-    save0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
+    save0_(jrclust.utils.subsExt(P.vcFile_prm, '_jrc.mat'));
 end %func

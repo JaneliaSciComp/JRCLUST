@@ -31,6 +31,6 @@ function restore_log_(iMenu1)
     % S0 = update_FigCor_(S0);
     % S0 = button_CluWav_simulate_(S0.iCluCopy, [], S0);
     % set(0, 'UserData', S0);
-    close_(hMsg);
+    jrclust.utils.tryClose(hMsg);
     figure_wait_(0);
 end %func

@@ -29,12 +29,15 @@ classdef Config < dynamicprops
         fEllip;                     % => useElliptic
         fft_thresh;                 % => fftThreshMad
         fGpu;                       % => useGPU
+        filter_sec_rate;            % => firingRatePeriodSec
+        filter_shape_rate;          % => firingRateFilterShape
         fImportKilosort;            % => fImportKsort
         fRepeat_clu;                % => repeatLower
         fVerbose;                   % => verbose
         fWav_raw_show;              % => showRaw
         gain_boost;                 % => gainBoost
         header_offset;              % => headerOffset
+        iChan_aux;                  % => auxChan
         MAX_BYTES_LOAD;             % => maxBytesLoad
         MAX_LOAD_SEC;               % => maxSecLoad
         maxCluPerSite;              % => maxClustersSite
@@ -60,7 +63,9 @@ classdef Config < dynamicprops
         spkThresh;                  % => evtManualThresh
         spkThresh_uV;               % => evtManualThreshuV
         sRateHz;                    % => sampleRate
+        sRateHz_aux;                % => auxSampleRate
         sRateHz_lfp;                % => lfpSampleRate
+        sRateHz_rate;               % => firingRateSampleRate
         thresh_corr_bad_site;       % => siteCorrThresh
         thresh_mad_clu;             % => outlierThresh
         tlim;                       % => dispTimeLimits
@@ -72,17 +77,18 @@ classdef Config < dynamicprops
         vcFet;                      % => clusterFeature
         vcFet_show;                 % => dispFeature
         vcFile;                     % => singleRaw
+        vcFile_aux;                 % => auxFile
         vcFile_gt;                  % => gtFile
         vcFile_prm;                 % => configFile
         vcFile_thresh;              % => threshFile
         vcFilter;                   % => filterType
         vcFilter_show;              % => dispFilter
-        viChan_aux;                 % => auxSites
         viShank_site;               % => shankMap
         vnFilter_user;              % => userFiltKernel
         vrSiteHW;                   % => probePad
         viSite2Chan;                % => siteMap
         viSiteZero;                 % => ignoreSites
+        vrScale_aux;                % => auxScale
     end
 
     %% OLD-STLYE PARAMS, not publicly settable
@@ -103,7 +109,6 @@ classdef Config < dynamicprops
         outputDir = '';             % directory in which to place output files
 
         % recording params
-        auxSites;                   %
         bitScaling = 0.30518;       % bit scaling factor (uV/bit)
         configFile;                 % parameter file
         dtype = 'int16';            % raw data binary format
@@ -164,40 +169,52 @@ classdef Config < dynamicprops
         time_feature_factor;        % undocumented
 
         % clustering params
-        autoMergeBy = 'xcorr';      % metric to use when automerging clusters
-        dc_percent = 2;             % percentile at which to cut off distance in rho computation
-        fDrift_merge = true;        % compute multiple waveforms at three drift locations based on the spike position if true
-        log10DeltaCut = 0.6;        % the base-10 log of the delta cutoff value
-        log10RhoCut = -2.5;         % the base-10 log of the rho cutoff value
-        maxClustersSite = 20;       % maximum number of clusters per site if local detrending is used
-        minClusterSize = 30;        % minimum cluster size (set to 2*#features if lower)
-        nInterp_merge = 1;          % Interpolation factor for the mean unit waveforms, set to 1 to disable
-        nPassesMerge = 10;          % number of passes for unit mean raw waveform-based merging
-        outlierThresh = 7.5;        % threshold to remove outlier spikes for each cluster, in MAD
-        nTime_clu = 1;              % number of time periods over which to cluster separately (later to be merged after clustering)
-        repeatLower = false;        % repeat clustering for the bottom half of the cluster amplitudes if true
-        rlDetrendMode = 'global';   % 
-        spkLim_factor_merge = 1;    % Waveform range for computing the correlation. spkLim_factor_merge <= spkLim_raw_factor_merge. circa v3.1.8
+        autoMergeBy = 'xcorr';              % metric to use when automerging clusters
+        dc_percent = 2;                     % percentile at which to cut off distance in rho computation
+        fDrift_merge = true;                % compute multiple waveforms at three drift locations based on the spike position if true
+        log10DeltaCut = 0.6;                % the base-10 log of the delta cutoff value
+        log10RhoCut = -2.5;                 % the base-10 log of the rho cutoff value
+        maxClustersSite = 20;               % maximum number of clusters per site if local detrending is used
+        minClusterSize = 30;                % minimum cluster size (set to 2*#features if lower)
+        maxWavCor = 0.98;                   %
+        nInterp_merge = 1;                  % Interpolation factor for the mean unit waveforms, set to 1 to disable
+        nPassesMerge = 10;                  % number of passes for unit mean raw waveform-based merging
+        outlierThresh = 7.5;                % threshold to remove outlier spikes for each cluster, in MAD
+        nTime_clu = 1;                      % number of time periods over which to cluster separately (later to be merged after clustering)
+        repeatLower = false;                % repeat clustering for the bottom half of the cluster amplitudes if true
+        rlDetrendMode = 'global';           % 
+        spkLim_factor_merge = 1;            % Waveform range for computing the correlation. spkLim_factor_merge <= spkLim_raw_factor_merge. circa v3.1.8
 
         % display params
-        dispFeature = 'vpp';        % feature to display in time/projection views
-        dispFilter = '';            % 
-        dispTimeLimits = [0 0.2];   % time range to display (in seconds)
-        fText = true;               % 
-        nShow = 200;                % maximum number of traces to show [D?# spikes to show]
-        nShow_proj = 500;           % maximum number of features to show in projection
-        nSitesFigProj = 5;          % number of sites to display in the feature projection view
-        nTime_traces = 1;           % number of time segments to display. Set to 1 to show one continuous time segment
-        nSpk_show = 30;             % show spike waveforms for manual clustering
-        pcPair = [1 2];             % PC projection to show (1 vs 2; 1 vs 3; 2 vs 3), can be toggled
-        showRaw = false;            % show raw waveforms in main view if true
-        time_tick_show = [];        % 
-        tLimFigProj = [];           % time range to display in feature view, in seconds
-        um_per_pix = 20;            % 
+        dispFeature = 'vpp';                % feature to display in time/projection views
+        dispFilter = '';                    % 
+        dispTimeLimits = [0 0.2];           % time range to display (in seconds)
+        fText = true;                       % 
+        nShow = 200;                        % maximum number of traces to show [D?# spikes to show]
+        nShow_proj = 500;                   % maximum number of features to show in projection
+        nSitesFigProj = 5;                  % number of sites to display in the feature projection view
+        nTime_traces = 1;                   % number of time segments to display. Set to 1 to show one continuous time segment
+        nSpk_show = 30;                     % show spike waveforms for manual clustering
+        pcPair = [1 2];                     % PC projection to show (1 vs 2; 1 vs 3; 2 vs 3), can be toggled
+        showRaw = false;                    % show raw waveforms in main view if true
+        time_tick_show = [];                % 
+        tLimFigProj = [];                   % time range to display in feature view, in seconds
+        um_per_pix = 20;                    % 
 
         % preview GUI params
-        nLoads_max_preview = 30;    % number of time segments to load for preview
-        sec_per_load_preview = 1;   % recording duration per continuous segment to preview (in sec)
+        nLoads_max_preview = 30;            % number of time segments to load for preview
+        sec_per_load_preview = 1;           % recording duration per continuous segment to preview (in sec)
+
+        % parameters for estimating firing rate
+        firingRatePeriodSec = 2;            % time period to determine the firing rate
+        firingRateFilterShape = 'triangle'; % {'triangle', 'rectangle'} kernel shape for temporal averaging
+        firingRateSampleRate = 1000;        % Resampled rate for the firing rate
+
+        % aux-file parameters
+        auxChan;                            % aux channel # to correlate with the unit firing rate    
+        auxFile = '';                       % aux channel file
+        auxSampleRate = [];                 % sampling rate for aux file
+        auxScale = 1;               		% scale factor for aux input
 
         % to get to, eventually
         LineStyle = '';
@@ -209,7 +226,6 @@ classdef Config < dynamicprops
         dc_factor = 1;
         dc_frac = [];
         dinput_imec_trial = 1;
-        duration_file = [];
         fAddCommonRef = false;
         fAverageTrial_psth = true;
         fCacheRam = true;
@@ -246,15 +262,12 @@ classdef Config < dynamicprops
         fUseCache_track = false;
         fUseLfp_track = true;
         fWhiten_traces = false;
-        filter_sec_rate = 2;
-        filter_shape_rate = 'triangle';
         flim_vid = [];
         freqLimNotch_lfp = [];
         freqLim_corr = [15 150];
         freqLim_excl_track = [58 62];
         freqLim_lfp = [];
         freqLim_track = [15 150];
-        iChan_aux = [];
         iChan_vid = [];
         iClu_show = [];
         iGpu = 1;
@@ -264,7 +277,6 @@ classdef Config < dynamicprops
         maxDist_site_merge_um = 35;
         maxLfpSdZ = 4.5;
         maxSite_track = [2 3 4 5 6 7 8];
-        maxWavCor = 0.98;
         max_shift_track = [];
         mrColor_proj = [213 219 235; 0 130 196; 240 119 22]/256;
         nBytes_file = [];
@@ -286,8 +298,6 @@ classdef Config < dynamicprops
         rateLim_psth = [];
         refrac_factor = 2;
         rms_filt_ms = 0;
-        sRateHz_aux = [];
-        sRateHz_rate = 1000;
         slopeLim_ms = [0.05 0.35];
         spkLim_ms_fet = [-0.25 0.75];
         tBin_track = 9;
@@ -309,7 +319,6 @@ classdef Config < dynamicprops
         vcCluWavMode = 'mean';
         vcDate_file = '';
         vcDc_clu = 'distr';
-        vcFile_aux = '';
         vcFile_bonsai = '';
         vcFile_lfp = '';
         vcFile_trial = '';
@@ -324,7 +333,6 @@ classdef Config < dynamicprops
         viDepth_excl_track = [];
         viDepth_track = [];
         viSite_bad_track = [];
-        vrScale_aux = 1;
         xtick_psth = 0.2;
         ybin_drift = 2;
     end
@@ -533,12 +541,6 @@ classdef Config < dynamicprops
             else
                 obj.shankMap = pstr.shank;
             end
-
-            if ~isempty(obj.nChans)
-                obj.auxSites = setdiff(1:obj.nChans, 1:max(obj.siteMap));
-            else
-                obj.auxSites = [];
-            end
         end
 
         function setRawRecordings(obj, rr)
@@ -640,7 +642,7 @@ classdef Config < dynamicprops
             % try to infer a ground-truth file
             if isempty(obj.gtFile)
                 try
-                    obj.gtFile = strrep(obj.configFile, '.prm', '_gt.mat');
+                    obj.gtFile = jrclust.utils.subsExt(obj.configFile, '_gt.mat');
                 catch % does not exist, leave empty
                 end
             end
@@ -650,7 +652,7 @@ classdef Config < dynamicprops
                 % set in units of samples (will set ms units automatically)
                 obj.evtWindowRawSamp = obj.evtWindowRawFactor * obj.evtWindowSamp;
             end
-            
+
             obj.siteNeighbors = jrclust.utils.findSiteNeighbors(obj.siteLoc, 2*obj.nSiteDir + 1, obj.ignoreSites, obj.shankMap);
 
             % boost that gain
@@ -668,10 +670,42 @@ classdef Config < dynamicprops
         function success = flush(obj)
             %FLUSH Write stored values to file
             success = true;
+
+            % first back up the old config file
+            backupFile = jrclust.utils.subsExt(obj.configFile, '.prm.bak');
+            try
+                copyfile(obj.configFile, backupFile);
+            catch ME % cowardly back out
+                warning(ME.identifier, 'Could not back up old config file: %s', ME.message);
+                success = false;
+                return;
+            end
+
+            try
+                fid = fopen(obj.configFile, 'w');
+            catch ME
+                warning(ME.identifier, 'Could not open config file for writing: %s', ME.message);
+                success = false;
+                return;
+            end
+
+            % TODO: read description from JSON file and organize by group
+            fieldNames = sort(fieldnames(obj));
+            for i = 1:numel(fieldNames)
+                fn = fieldNames{i};
+                % skip dependent properties as they can be computed on the fly
+                p = findprop(obj, fn);
+                if p.Dependent
+                    continue;
+                end
+                fprintf(fid, '%s = %s;\n', fn, jrclust.utils.field2str(obj.(fn)));
+            end
+
+            fclose(fid);
         end
 
         function val = getOr(obj, fn, dv)
-            %GETOR GET set value obj.(fn) OR default value dv if unset or empty
+            %GETOR GET set value `obj.(fn)` OR default value `dv` if unset or empty
             if nargin < 3
                 dv = [];
             end
@@ -683,9 +717,30 @@ classdef Config < dynamicprops
             end
         end
 
-        function resetTemporaryParams(obj)
+        function rd = recDurationSec(obj, recID)
+            %RECDURATIONSECS Get duration of recording file(s) in seconds
+            if nargin < 2 || isempty(recID)
+                hRecs = cellfun(@(fn) jrclust.models.recording.Recording(fn, obj), obj.rawRecordings, 'UniformOutput', false);
+                rd = sum(cellfun(@(hR) hR.nSamples, hRecs))/obj.sampleRate;
+            elseif recID < 1 || recID > numel(obj.rawRecordings)
+                error('recording ID %d is invalid (there are %d recordings)', recID, numel(obj.rawRecordings));
+            else
+                hRec = jrclust.models.recording.Recording(obj.rawRecordings{recID}, obj);
+                rd = hRec.nSamples/obj.sampleRate;
+            end
+        end
+
+        function resetTemporaryParams(obj, prmKeys)
             %RESETTEMPORARYPARAMS Reset temporary parameters
-            prmKeys = keys(obj.tempParams);
+            if nargin < 2 || isempty(prmKeys)
+                prmKeys = keys(obj.tempParams);
+            elseif nargin == 2
+                if ischar(prmKeys)
+                    prmKeys = {prmKeys};
+                end
+                % only try to reset parameters we actually have
+                prmKeys = intersect(prmKeys, keys(obj.tempParams));
+            end
 
             for i = 1:numel(prmKeys)
                 fn = prmKeys{i};
@@ -705,13 +760,19 @@ classdef Config < dynamicprops
             end
 
             for i = 1:numel(prmKeys)
-                fn = prmKeys{i};
+                prmKey = prmKeys{i};
+
+                % already set a temporary value for this parameter, reset
+                % it or we'll lose the original
+                if isKey(obj.tempParams, prmKey)
+                    obj.resetTemporaryParams(prmKey);
+                end
                 try
-                    obj.tempParams(fn) = obj.(fn); % save old value for later
-                    obj.(fn) = prmVals{i};
+                    obj.tempParams(prmKey) = obj.(prmKey); % save old value for later
+                    obj.(prmKey) = prmVals{i};
                 catch ME
-                    remove(obj.tempParams, fn);
-                    warning(ME.identifier, 'failed to set %s: %s', fn, ME.message);
+                    remove(obj.tempParams, prmKey);
+                    warning(ME.identifier, 'failed to set %s: %s', prmKey, ME.message);
                 end
             end
         end
@@ -735,18 +796,68 @@ classdef Config < dynamicprops
             obj.autoMergeBy = am;
         end
 
-        % auxSites/viChan_aux
-        function set.auxSites(obj, ac)
-            assert(jrclust.utils.ismatrixnum(ac) && all(ac > 0), 'malformed auxSites');
-            obj.auxSites = ac;
+        % auxChan/iChan_aux
+        function set.auxChan(obj, ac)
+            assert(jrclust.utils.ismatrixnum(ac) && all(ac > 0), 'malformed auxChan');
+            obj.auxChan = ac;
         end
-        function ac = get.viChan_aux(obj)
-            obj.logOldP('viChan_aux');
-            ac = obj.auxSites;
+        function ac = get.iChan_aux(obj)
+            obj.logOldP('iChan_aux');
+            ac = obj.auxChan;
         end
-        function set.viChan_aux(obj, ac)
-            obj.logOldP('viChan_aux');
-            obj.auxSites = ac;
+        function set.iChan_aux(obj, ac)
+            obj.logOldP('iChan_aux');
+            obj.auxChan = ac;
+        end
+
+        % auxFile/vcFile_aux
+        function set.auxFile(obj, af)
+            if isempty(af)
+                obj.auxFile = '';
+            else
+                af_ = jrclust.utils.absPath(af);
+                assert(isfile(af_), 'could not find aux file ''%s''', af);
+                obj.auxFile = af_;
+            end
+        end
+        function af = get.vcFile_aux(obj)
+            obj.logOldP('vcFile_aux');
+            af = obj.auxFile;
+        end
+        function set.vcFile_aux(obj, af)
+            obj.logOldP('vcFile_aux');
+            obj.auxFile = af;
+        end
+
+        % auxSampleRate/sRateHz_aux
+        function set.auxSampleRate(obj, ar)
+            failMsg = 'auxSampleRate must be a positive integer';
+            assert(jrclust.utils.isscalarnum(ar) && ar == round(ar) && ar > 0, failMsg);
+            obj.auxSampleRate = ar;
+        end
+        function ar = get.sRateHz_aux(obj)
+            obj.logOldP('sRateHz_aux');
+            ar = obj.auxSampleRate;
+        end
+        function set.sRateHz_aux(obj, ar)
+            obj.logOldP('sRateHz_aux');
+            obj.auxSampleRate = ar;
+        end
+
+        % auxScale/vrScale_aux
+        function set.auxScale(obj, as)
+            failMsg = 'auxScale must be a positive scalar';
+            assert(jrclust.utils.isscalarnum(as) && as > 0, failMsg);
+            assert(jrclust.utils.isscalarnum(as) && as > 0, failMsg);
+            obj.auxScale = as;
+        end
+        function as = get.vrScale_aux(obj)
+            obj.logOldP('vrScale_aux');
+            as = obj.auxScale;
+        end
+        function set.vrScale_aux(obj, as)
+            obj.logOldP('vrScale_aux');
+            obj.auxScale = as;
         end
 
         % bitScaling/uV_per_bit
@@ -1087,6 +1198,52 @@ classdef Config < dynamicprops
             obj.fImportKilosort = fi;
         end
 
+        % firingRateFilterShape/filter_shape_rate
+        function set.firingRateFilterShape(obj, fr)
+            legalTypes = {'triangle', 'rectangle'};
+            failMsg = sprintf('legal firingRateFilterShapes are %s', strjoin(legalTypes, ', '));
+            assert(ismember(fr, legalTypes), failMsg);
+            obj.firingRateFilterShape = fr;
+        end
+        function fr = get.filter_shape_rate(obj)
+            obj.logOldP('filter_shape_rate');
+            fr = obj.firingRateFilterShape;
+        end
+        function set.filter_shape_rate(obj, fr)
+            obj.logOldP('filter_shape_rate');
+            obj.firingRateFilterShape = fr;
+        end
+
+        % firingRatePeriodSec/filter_sec_rate
+        function set.firingRatePeriodSec(obj, fr)
+            failMsg = 'firingRatePeriodSec must be a positive scalar';
+            assert(jrclust.utils.isscalarnum(fr) && fr > 0, failMsg);
+            obj.firingRatePeriodSec = fr;
+        end
+        function fr = get.filter_sec_rate(obj)
+            obj.logOldP('filter_sec_rate');
+            fr = obj.firingRatePeriodSec;
+        end
+        function set.filter_sec_rate(obj, fr)
+            obj.logOldP('filter_sec_rate');
+            obj.firingRatePeriodSec = fr;
+        end
+
+        % firingRateSampleRate/sRateHz_rate
+        function set.firingRateSampleRate(obj, fr)
+            failMsg = 'firingRateSampleRate must be a positive integer';
+            assert(jrclust.utils.isscalarnum(fr) && fr == round(fr) && fr > 0, failMsg);
+            obj.firingRateSampleRate = fr;
+        end
+        function fr = get.sRateHz_rate(obj)
+            obj.logOldP('sRateHz_rate');
+            fr = obj.firingRateSampleRate;
+        end
+        function set.sRateHz_rate(obj, fr)
+            obj.logOldP('sRateHz_rate');
+            obj.firingRateSampleRate = fr;
+        end
+
         % freqLim
         function set.freqLim(obj, fl)
             assert(jrclust.utils.ismatrixnum(fl) && all(size(fl) == [1 2]) && all(fl >= 0), 'bad freqLim');
@@ -1214,7 +1371,7 @@ classdef Config < dynamicprops
 
         % maxBytesLoad/MAX_BYTES_LOAD
         function set.maxBytesLoad(obj, mb)
-            assert(jrclust.utils.isscalarnum(mb) && mb > 0, 'maxBytesLoad must be a positive scalar');
+            assert(isempty(mb) || jrclust.utils.isscalarnum(mb) && mb > 0, 'maxBytesLoad must be a positive scalar');
             obj.maxBytesLoad = mb;
         end
         function mb = get.MAX_BYTES_LOAD(obj)
@@ -1253,6 +1410,13 @@ classdef Config < dynamicprops
         function set.MAX_LOAD_SEC(obj, ms)
             obj.logOldP('MAX_LOAD_SEC');
             obj.maxSecLoad = ms;
+        end
+
+        % maxWavCor
+        function set.maxWavCor(obj, mw)
+            failMsg = 'maxWavCor must be between 0 and 1';
+            assert(jrclust.utils.isscalarnum(mw) && mw >= 0 && mw <= 1, failMsg);
+            obj.maxWavCor = mw;
         end
 
         % minClusterSize/min_count

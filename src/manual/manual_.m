@@ -84,13 +84,13 @@ function manual_(P, vcMode)
     %%%%%%%%%%%%%%%%%%%%
 
     % hFigProj, hFigHist, hFigIsi, hFigCorr, hFigPos, hFigMap, hFigTime
-    close_(get_fig_('FigTrial')); %close previous FigTrial figure
-    close_(get_fig_('FigTrial_b')); %close previous FigTrial figure
+    jrclust.utils.tryClose(get_fig_('FigTrial')); %close previous FigTrial figure
+    jrclust.utils.tryClose(get_fig_('FigTrial_b')); %close previous FigTrial figure
     S0 = button_CluWav_simulate_(1, [], S0); %select first clu
     autoScaleProjTime(S0);
     S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'z'}, S0); %zoom
-    %S0.cS_log = load_(strrep(P.vcFile_prm, '.prm', '_log.mat'), 'cS_log', 0);
-    S_log = load_(strrep(P.vcFile_prm, '.prm', '_log.mat'), [], 0);
+    %S0.cS_log = load_(jrclust.utils.subsExt(P.vcFile_prm, '_log.mat'), 'cS_log', 0);
+    S_log = load_(jrclust.utils.subsExt(P.vcFile_prm, '_log.mat'), [], 0);
 
     if ~isempty(S_log)
         S0.cS_log = {S_log};
@@ -98,6 +98,6 @@ function manual_(P, vcMode)
     save_log_('start', S0); %crash proof log
 
     % Finish up
-    close_(hMsg);
+    jrclust.utils.tryClose(hMsg);
     fprintf('UI creation took %0.1fs\n', toc(t1));
 end %func

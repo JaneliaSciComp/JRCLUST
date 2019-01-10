@@ -20,7 +20,7 @@ function S0 = ui_delete_(S0)
     % set(0, 'UserData', S0);
     button_CluWav_simulate_(S0.iCluCopy);
 
-    % close_(hMsg);
+    % jrclust.utils.tryClose(hMsg);
     figure_wait_(0);
     fprintf('%s [W] deleted Clu %d\n', datestr(now, 'HH:MM:SS'), iClu_del);
     S0 = save_log_(sprintf('delete %d', iClu_del), S0);

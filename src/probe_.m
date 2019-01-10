@@ -4,7 +4,7 @@ function probe_(vcFile_prb)
 
     % set prb file
     if matchFileExt_(vcFile_prb, {'.bin', '.dat'})
-        vcFile_prb = subsFileExt_(vcFile_prb, '.prm');
+        vcFile_prb = jrclust.utils.subsExt(vcFile_prb, '.prm');
     end
     if matchFileExt_(vcFile_prb, '.prm')
         vcFile_prm = vcFile_prb;

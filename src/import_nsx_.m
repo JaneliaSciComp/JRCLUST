@@ -20,7 +20,7 @@ function vcFile_prm = import_nsx_(vcFile_nsx, vcFile_prb, vcTemplate_prm)
     P.vcFile = vcFile_nsx;
     % mnWav = mnWav * -1; %inverse polarity
     [~, vcFile_prb_] = fileparts(vcFile_prb);
-    vcFile_prm = subsFileExt_(P.vcFile, sprintf('_%s.prm', vcFile_prb_));
+    vcFile_prm = jrclust.utils.subsExt(P.vcFile, sprintf('_%s.prm', vcFile_prb_));
     if isempty(vcTemplate_prm)
         vcTemplate_prm = default_prm_path_();
     end

@@ -14,7 +14,7 @@ function hFigHist = doPlotFigHist(hFigHist, hClust, hCfg, selected)
     YData1 = getISIHistogram(iCluster, XData, hClust, hCfg);
 
     % draw the plot
-    if isempty(hFigHist.figData)
+    if ~hFigHist.hasAxes('default')
         hFigHist.addAxes('default');
         hFigHist.addPlot('hPlot1', @stairs, nan, nan, 'Color', hCfg.mrColor_proj(2, :));
         hFigHist.addPlot('hPlot2', @stairs, nan, nan, 'Color', hCfg.mrColor_proj(3, :));

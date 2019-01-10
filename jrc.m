@@ -20,16 +20,18 @@ function hJRC_ = jrc(varargin)
         return;
     end
 
-    addpath(fullfile(fileparts(which('jrc')), 'src'));
+    addpath(fullfile(fileparts(which('jrc')), 'src')); % temporary
 
     if hJRC.inProgress()
-        set(0, 'UserData', []); % clear pesky UserData values not yet eliminated
+        set(0, 'UserData', []); % temporary; clear pesky UserData values not yet eliminated
         hJRC.hCfg.verbose = true;
         hJRC.run();
     end
 
     if nargout > 0
         hJRC_ = hJRC;
+    else
+        jrclust.utils.exportToWorkspace(struct('hJRC', hJRC), false);
     end
 
     return;
@@ -93,9 +95,6 @@ end
 %         case 'unit-test'
 %             unit_test_(vcArg1);
 % 
-%         case 'compile'
-%             compile_cuda_(vcArg1);
-% 
 %         case 'test'
 %             varargout{1} = test_(vcArg1, vcArg2, vcArg3, vcArg4, vcArg5);
 % 
@@ -138,13 +137,6 @@ end
 %         case 'export-prm'
 %             export_prm_(vcFile_prm, vcArg2);
 % 
-%         case 'dir'
-%             if any(vcFile_prm=='*')
-%                 dir_files_(vcFile_prm, vcArg2, vcArg3);
-%             else
-%                 fExit = 0;
-%             end
-% 
 %         otherwise
 %             fExit = 0;
 %     end
@@ -178,9 +170,6 @@ end
 %         case 'traces-lfp'
 %             traces_lfp_(P)
 % 
-%         case 'dir'
-%             dir_files_(P.csFile_merge);
-% 
 %         case 'traces-test'
 %             traces_(P);
 %             traces_test_(P);
@@ -205,12 +194,12 @@ end
 % 
 %         case 'export-spk'
 %             S0 = get(0, 'UserData');
-%             trSpkWav = jrclust.utils.readBin(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
+%             trSpkWav = jrclust.utils.readBin(jrclust.utils.subsExt(P.vcFile_prm, '_spkwav.jrc'), 'int16', S0.dimm_spk);
 %             assignWorkspace_(trSpkWav);
 % 
 %         case 'export-raw'
 %             S0 = get(0, 'UserData');
-%             trWav_raw = jrclust.utils.readBin(strrep(P.vcFile_prm, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_spk);
+%             trWav_raw = jrclust.utils.readBin(jrclust.utils.subsExt(P.vcFile_prm, '_spkraw.jrc'), 'int16', S0.dimm_spk);
 %             assignWorkspace_(trWav_raw);
 % 
 %         case {'export-spkwav', 'spkwav'}

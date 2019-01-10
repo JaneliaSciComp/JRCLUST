@@ -123,7 +123,7 @@ function [fSplit, vlIn] = plot_split_(S1)
 
     if isempty(viIn) || isempty(viOut)
         fSplit = 0;
-        close_(hFig);
+        jrclust.utils.tryClose(hFig);
         return;
     end
 
@@ -142,5 +142,5 @@ function [fSplit, vlIn] = plot_split_(S1)
     else
         fSplit = 0;
     end
-    close_(hFig);
+    jrclust.utils.tryClose(hFig);
 end %func

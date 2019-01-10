@@ -7,7 +7,7 @@ classdef Recording < handle & dynamicprops
 
     properties (SetAccess=private, SetObservable, Hidden, Transient)
         errMsg;
-        isError;        
+        isError;
         isOpen;
     end
 

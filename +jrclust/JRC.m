@@ -73,8 +73,8 @@ classdef JRC < handle & dynamicprops
             nargs = nargs - 1;
 
             switch obj.cmd
-                % deprecated commands; may be removed in a future release
-                case {'compile-ksort', 'edit', 'git-pull', 'issue', 'import-kilosort-sort', ...
+                % deprecated commands; will be removed in a future release
+                case {'compile-ksort', 'dir', 'edit', 'git-pull', 'issue', 'import-kilosort-sort', ...
                       'import-ksort-sort', 'kilosort', 'kilosort-verify', 'ksort', 'ksort-verify' ...
                       'which', 'wiki', 'wiki-download'}
                     jrclust.utils.depWarn(obj.cmd);
@@ -160,8 +160,16 @@ classdef JRC < handle & dynamicprops
                     return;
             end
 
-            % command sentinel
-            legalCmds = {'detect', 'sort', 'manual', 'full', 'traces', 'preview'};
+            % command sentinel            
+            detectCmds = {'detect', 'full'};
+            sortCmds   = {'sort', 'spikesort', 'full'};
+            curateCmds = {'manual', 'full'};
+            previewCmds = {'preview', 'traces'};
+
+            legalCmds = union(detectCmds, sortCmds);
+            legalCmds = union(legalCmds, curateCmds);
+            legalCmds = union(legalCmds, previewCmds);
+
             if ~any(strcmpi(obj.cmd, legalCmds))
                 obj.errMsg = sprintf('Command `%s` not recognized', obj.cmd);
                 errordlg(obj.errMsg, 'Unrecognized command');
@@ -170,10 +178,6 @@ classdef JRC < handle & dynamicprops
             end
 
             % determine which commands in the pipeline to run
-            detectCmds = {'detect', 'full'};
-            sortCmds   = {'sort', 'spikesort', 'full'};
-            curateCmds = {'manual', 'full'};
-
             if any(strcmp(obj.cmd, curateCmds))
                 obj.isCurate = true;
             end
@@ -221,6 +225,16 @@ classdef JRC < handle & dynamicprops
             end
         end
 
+        function rerun(obj)
+            %RERUN Rerun commands
+            if obj.isError
+                error(obj.errMsg);
+            else
+                obj.isCompleted = false;
+                obj.run();
+            end
+        end
+
         function run(obj)
             %RUN Run commands
             if obj.isError
@@ -228,6 +242,14 @@ classdef JRC < handle & dynamicprops
             elseif obj.isCompleted
                 warning('command ''%s'' completed successfully; to rerun, use rerun()', obj.cmd);
                 return;
+            end
+
+            % try to warm up the local parallel pool before taking a swim
+            if obj.hCfg.fParfor
+                try
+                    parpool('local');
+                catch
+                end
             end
 
             % try to load sort and detect results
@@ -345,18 +367,11 @@ classdef JRC < handle & dynamicprops
             end
 
             % save our results for later
-            obj.saveFiles();
-            obj.isCompleted = true;
-        end
-
-        function rerun(obj)
-            %RERUN Rerun commands
-            if obj.isError
-                error(obj.errMsg);
-            else
-                obj.isCompleted = false;
-                obj.run();
+            if obj.isDetect || obj.isSort
+                obj.saveFiles();
             end
+
+            obj.isCompleted = true;
         end
 
         function saveFiles(obj)

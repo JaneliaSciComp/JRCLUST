@@ -54,8 +54,8 @@ function export_spkwav_(P, vcArg2, fDiff)
         eval(sprintf('trWav_clu%d = ctrWav_clu{iClu};', iClu));
         eval(sprintf('viSites_clu%d = miSite_clu(:,iClu);', iClu));
         eval(sprintf('assignWorkspace_(trWav_clu%d, viSites_clu%d);', iClu, iClu));
-        %     if get_set_([], 'fDebug_ui', 0), close_(hFig); end
-        if fDebug_ui==1, close_(hFig); end
+        %     if get_set_([], 'fDebug_ui', 0), jrclust.utils.tryClose(hFig); end
+        if fDebug_ui==1, jrclust.utils.tryClose(hFig); end
     else
         assignWorkspace_(ctrWav_clu, miSite_clu);
     end

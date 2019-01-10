@@ -1,6 +1,6 @@
 function hFigWav = doPlotFigWav(hFigWav, hClust, hCfg, maxAmp)
     %DOPLOTFIGWAV Plot the main view (FigWav)
-    if isempty(hFigWav.figData) % construct from scratch
+    if ~hFigWav.hasAxes('default') % construct from scratch
         hFigWav.addAxes('default');
         hFigWav.axApply('default', @set, 'Position', [.05 .05 .9 .9], 'XLimMode', 'manual', 'YLimMode', 'manual');
         hFigWav.axApply('default', @xlabel, 'Cluster #');
@@ -14,7 +14,6 @@ function hFigWav = doPlotFigWav(hFigWav, hClust, hCfg, maxAmp)
         hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp);
         hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp);
         hFigWav.setHideOnDrag('hSpkAll');
-        hFigWav.figData.isPlotted = true;
     else
         hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp);
         % clear mean waveforms

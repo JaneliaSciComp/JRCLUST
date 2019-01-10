@@ -15,8 +15,8 @@ function export_diff_(P)
     % fields to update, copy and save
     P1 = P;
     P1.vcFile = strrep(P.vcFile, '.bin', '_diff.bin');
-    P1.vcFile_prm = strrep(P.vcFile_prm, '.prm', '_diff.prm');
-    P1.probe_file = strrep(P.vcFile_prm, '.prm', '_diff.prb');
+    P1.vcFile_prm = jrclust.utils.subsExt(P.vcFile_prm, '_diff.prm');
+    P1.probe_file = jrclust.utils.subsExt(P.vcFile_prm, '_diff.prb');
     P1.fTranspose_bin = 0;
     P1.carMode = 'none';
     P1.fDetectBipolar = 1;

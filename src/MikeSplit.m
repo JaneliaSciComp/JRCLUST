@@ -71,10 +71,10 @@ end
 cs = guidata(3918);
  
 if ishandle(cs.fig)
-    close(cs.fig);
+    jrclust.utils.tryClose(cs.fig);
 end
 if ishandle(3918)
-    close(3918);
+    jrclust.utils.tryClose(3918);
 end
 
 inClust = false(size(h.mrSpkWav, 1), 1);
@@ -219,7 +219,7 @@ cs = guidata(fig);
 cs.keep = get(cs.ClustList, 'Value');
 
 if ishandle(fig)
-    close(fig);
+    jrclust.utils.tryClose(fig);
 end
 fig = figure(3918);
 

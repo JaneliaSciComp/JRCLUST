@@ -190,7 +190,7 @@ function hCFig = RDPreview(hClust)
         plotWaves();
 
         hCFig.wait(false);
-        close(hBox);
+        jrclust.utils.tryClose(hBox);
         set(handles, 'Enable', 'on');
     end
 
@@ -219,7 +219,7 @@ function hCFig = RDPreview(hClust)
 
         hFigRD.close();
         hFigWav.close();
-        close(hBox);
+        jrclust.utils.tryClose(hBox);
         delete(hObject);
     end
 

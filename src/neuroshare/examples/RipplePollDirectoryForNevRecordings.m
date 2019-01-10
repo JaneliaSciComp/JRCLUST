@@ -159,7 +159,7 @@ while(1)
            &&  (recordingSizes(recordingName) == latestSize) 
             
             % close all current plots
-            close('all');
+            jrclust.utils.tryClose('all');
             
             % run the neuroshare demo
             disp(['Visualizing NEV recording: ' recordingName]);

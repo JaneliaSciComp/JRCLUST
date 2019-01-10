@@ -7,7 +7,7 @@ function plot_aux_rate_(fSelectedUnit)
     P = loadParam_(P.vcFile_prm);
     [vrWav_aux, vrTime_aux] = load_aux_(P);
     if isempty(vrWav_aux), jrclust.utils.qMsgBox('Aux input is not found'); return; end
-    mrRate_clu = clu_rate_(S_clu, [], numel(vrWav_aux));
+    mrRate_clu = S_clu.clusterRate([], numel(vrWav_aux));
     vrCorr_aux_clu = arrayfun(@(i)corr(vrWav_aux, mrRate_clu(:,i), 'type', 'Pearson'), 1:size(mrRate_clu,2));
     if ~fSelectedUnit, iCluCopy = []; end
     plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluCopy);

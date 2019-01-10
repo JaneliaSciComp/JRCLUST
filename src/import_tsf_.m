@@ -11,7 +11,7 @@ function import_tsf_(vcFile_tsf)
     fprintf('\n\ttook %0.1fs.\n', toc(t1));
 
     % write .meta file
-    vcFile_meta = subsFileExt_(vcFile_tsf, '.meta');
+    vcFile_meta = jrclust.utils.subsExt(vcFile_tsf, '.meta');
     fid = fopen(vcFile_meta, 'W');
     fprintf(fid, 'niMNGain=200\n');
     fprintf(fid, 'niSampRate=%d\n', Sfile.sRateHz); %intan hardware default. in Smeta.header

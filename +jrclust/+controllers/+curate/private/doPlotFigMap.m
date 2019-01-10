@@ -4,7 +4,7 @@ function hFigMap = doPlotFigMap(hFigMap, hClust, hCfg, selected)
     clusterVpp = squeeze(max(iWaveforms) - min(iWaveforms));
     vpp = repmat(clusterVpp(:)', [4, 1]);
 
-    if isempty(hFigMap.figData)
+    if ~hFigMap.hasAxes('default')
         hFigMap.addAxes('default');
         [XData, YData] = getPadCoordinates(hCfg);
         hFigMap.addPlot('hPatch', @patch, XData, YData, vpp, 'EdgeColor', 'k', 'FaceColor', 'flat');

@@ -11,7 +11,7 @@ function [clusterData, vlKeep_clu] = S_clu_refresh_(clusterData, spikeSites, fRe
     %cviSpk_clu
     clusterData.spikesByCluster = arrayfun(@(iC) find(clusterData.spikeClusters == iC), 1:nClusters, 'UniformOutput', 0);
     %vnSpk_clu
-    clusterData.clusterCounts = cellfun(@numel, clusterData.spikesByCluster);
+    clusterData.unitCount = cellfun(@numel, clusterData.spikesByCluster);
     %viSite_clu
     clusterData.clusterSites = double(arrayfun(@(iC) mode(spikeSites(clusterData.spikesByCluster{iC})), 1:nClusters));
 

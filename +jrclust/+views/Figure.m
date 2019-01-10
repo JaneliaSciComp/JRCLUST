@@ -221,6 +221,10 @@ classdef Figure < handle
                 obj.hFig = figure();
             end
 
+            if obj.hasAxes(axKey)
+                return;
+            end
+
             hAx = axes(obj.hFig, varargin{:});
             obj.hAxes(axKey) = hAx;
             obj.axApply(axKey, @hold, 'on');
@@ -279,7 +283,7 @@ classdef Figure < handle
             hAx = obj.hAxes(axKey);
             if ~isempty(hAx) && isa(hFun, 'function_handle')
                 if strcmp(func2str(hFun), 'title') % default arguments to title
-                    varargin = [varargin, {'Interpreter', 'none', 'FontWeight', 'normal'}];
+                    varargin = [varargin, {'FontWeight', 'normal'}];
                 end
 
                 % apply hFun
@@ -295,8 +299,10 @@ classdef Figure < handle
 
         function cla(obj)
             %CLA Clear axes and remove all plots
-            obj.axApply('default', @cla);
+            cellfun(@(axKey) cla(obj.hAxes(axKey)), keys(obj.hAxes));
+            obj.hAxes = containers.Map();
             obj.hPlots = containers.Map();
+            obj.hSubplots = containers.Map();
         end
 
         function clf(obj)
@@ -314,15 +320,7 @@ classdef Figure < handle
         function close(obj)
             %CLOSE Close the figure
             if obj.isReady
-                close(obj.hFig);
-            end
-        end
-
-        function colorbar(obj, varargin)
-            %COLORBAR Colorbar showing color scale
-            if obj.isReady
-                hAx = get(obj.hFig, 'CurrentAxes');
-                colorbar(hAx);
+                jrclust.utils.tryClose(obj.hFig);
             end
         end
 
@@ -753,7 +751,7 @@ classdef Figure < handle
 
         % isReady
         function ir = get.isReady(obj)
-            ir = (~isempty(obj.hFig) && isvalid(obj.hFig));
+            ir = (~isempty(obj.hFig) && ishandle(obj.hFig));
         end
 
         % outerPosition

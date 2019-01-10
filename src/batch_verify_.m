@@ -30,7 +30,7 @@ function batch_verify_(vcFile_batch, vcCommand)
     for iFile=1:numel(csFiles_prm)
         try
             vcFile_prm_ = csFiles_prm{iFile};
-            S_score1 = load(strrep(vcFile_prm_, '.prm', '_score.mat'));
+            S_score1 = load(jrclust.utils.subsExt(vcFile_prm_, '_score.mat'));
             P = loadParam_(vcFile_prm_);
             set0_(P);
             S_ = S_score1.S_score_clu;

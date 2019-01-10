@@ -97,7 +97,7 @@ function vrDatenum = file_created_meta_(csFiles, vcDateMode)
     for iFile=1:numel(csFiles)
         vcFile_ = csFiles{iFile};
         try
-            vcFile_meta_ = subsFileExt_(vcFile_, '.meta');
+            vcFile_meta_ = jrclust.utils.subsExt(vcFile_, '.meta');
             if exist(vcFile_meta_, 'file')
                 S_meta_ = text2struct_(vcFile_meta_);
                 vcDatenum_ = S_meta_.fileCreateTime;

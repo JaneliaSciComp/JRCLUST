@@ -5,18 +5,14 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
         c2Data = hClust.exportUnitInfo(selected(2));
     end
 
-    if isempty(hFigPos.figData)
+    if ~hFigPos.hasAxes('default')
         hFigPos.addAxes('default');
-        hFigPos.figData.isPlotted = true;
-    else
-        hFigPos.cla();
-        hFigPos.axApply('default', @hold, 'on');
     end
 
     plotPosUnit(c1Data, hFigPos, hCfg, false, maxAmp);
 
     clusterPos = hClust.clusterCentroids(c1Data.cluster, :)/hCfg.um_per_pix;
-    nSpikes = hClust.clusterCounts(c1Data.cluster);
+    nSpikes = hClust.unitCount(c1Data.cluster);
 
     if numel(selected) == 1
         figTitle = sprintf('Unit %d: %d spikes; (X=%0.1f, Y=%0.1f) [um]', c1Data.cluster, nSpikes, clusterPos);
@@ -26,7 +22,7 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
         catch
         end
     else
-        nSpikes2 = hClust.clusterCounts(c2Data.cluster);
+        nSpikes2 = hClust.unitCount(c2Data.cluster);
         clusterPos2 = hClust.clusterCentroids(c2Data.cluster, :)/hCfg.um_per_pix;
         plotPosUnit(c2Data, hFigPos, hCfg, true, maxAmp);
 

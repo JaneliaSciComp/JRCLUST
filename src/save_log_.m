@@ -27,9 +27,9 @@ function S0 = save_log_(vcCmd, S0)
     end
     miClu_log(:, 2:end) = miClu_log(:, 1:end-1);
     miClu_log(:, 1) = int16(S_clu.viClu);
-    %jrclust.utils.saveStruct(strrep(P.vcFile_prm, '.prm', '_log.mat'), 'cS_log', cS_log);
+    %jrclust.utils.saveStruct(jrclust.utils.subsExt(P.vcFile_prm, '_log.mat'), 'cS_log', cS_log);
     S_log.viClu = int16(S_clu.viClu);
-    jrclust.utils.saveStruct(S_log, strrep(P.vcFile_prm, '.prm', '_log.mat'));
+    jrclust.utils.saveStruct(S_log, jrclust.utils.subsExt(P.vcFile_prm, '_log.mat'));
     S0.cS_log = cS_log;
     S0.miClu_log = miClu_log;
 

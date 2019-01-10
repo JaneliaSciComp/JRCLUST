@@ -169,7 +169,7 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
     hFigTraces.figApply(@set, 'Name', sprintf('%s: filter: %s', hCfg.configFile, filterToggle));
     hFigTraces.wait(false);
 
-    close(hBox);
+    jrclust.utils.tryClose(hBox);
 end
 
 %% LOCAL FUNCTIONS

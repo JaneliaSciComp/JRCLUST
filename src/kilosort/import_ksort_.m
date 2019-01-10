@@ -4,7 +4,7 @@ function import_ksort_(vcFile_prm)
 
     % short-circuit standard param loading
     P = file2struct_(vcFile_prm);
-    vcName_session = strrep(vcFile_prm, '.prm', '');
+    vcName_session = jrclust.utils.subsExt(vcFile_prm, '');
 
     if isempty(P)
         P = struct();
@@ -124,7 +124,6 @@ function import_ksort_(vcFile_prm)
         P.viSite2Chan = P.viSite2Chan(rez.connected);
         P.mrSiteXY = P.mrSiteXY(rez.connected(:), :);
     end
-    P.viChan_aux = setdiff(1:P.nChans, 1:max(P.viSite2Chan));
 
     % loading settings
     P.MAX_LOAD_SEC = get_set_(P, 'MAX_LOAD_SEC', []);

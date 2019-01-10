@@ -14,7 +14,7 @@ function import_silico_(vcFile_prm, fSort)
     P = loadParam_(vcFile_prm); %makeParam_kilosort_
     if isempty(P), return; end
 
-    S_gt = load(strrep(vcFile_prm, '.prm', '_gt.mat')); %must contain viTime, viSite, viClu
+    S_gt = load(jrclust.utils.subsExt(vcFile_prm, '_gt.mat')); %must contain viTime, viSite, viClu
     % vnSpk = cellfun(@numel, S.a);
     % viClu = int32(jrclust.utils.neCell2mat(arrayfun(@(n)n*ones(1, vnSpk(n)), 1:numel(vnSpk), 'UniformOutput', 0)));
     % viTime = int32(jrclust.utils.neCell2mat(S.a) * 20); % Convert to sample # (saved in ms unit & sampling rate =20KHZ)
@@ -27,9 +27,9 @@ function import_silico_(vcFile_prm, fSort)
     set(0, 'UserData', S0);
 
     % Save to file
-    write_bin_(strrep(P.vcFile_prm, '.prm', '_spkraw.jrc'), tnWav_raw);
-    write_bin_(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), tnWav_spk);
-    write_bin_(strrep(P.vcFile_prm, '.prm', '_spkfet.jrc'), trFet_spk);
+    write_bin_(jrclust.utils.subsExt(P.vcFile_prm, '_spkraw.jrc'), tnWav_raw);
+    write_bin_(jrclust.utils.subsExt(P.vcFile_prm, '_spkwav.jrc'), tnWav_spk);
+    write_bin_(jrclust.utils.subsExt(P.vcFile_prm, '_spkfet.jrc'), trFet_spk);
 
     % cluster and describe
     S0 = sort_(P);
@@ -39,6 +39,6 @@ function import_silico_(vcFile_prm, fSort)
     set(0, 'UserData', S0);
 
     % Save
-    save0_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
+    save0_(jrclust.utils.subsExt(P.vcFile_prm, '_jrc.mat'));
     describe_(S0);
 end %func

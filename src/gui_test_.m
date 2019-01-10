@@ -9,7 +9,7 @@ function gui_test_(P, vcFig, csMenu_skip)
     menu_test_(hFig, csMenu_skip);
 
     try
-        close(hFig); %close traces figure. other figures may remain
+        jrclust.utils.tryClose(hFig); %close traces figure. other figures may remain
     catch
         ;
     end

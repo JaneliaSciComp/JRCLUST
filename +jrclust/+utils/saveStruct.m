@@ -1,11 +1,11 @@
-function saveStruct(S, filename)
+function saveStruct(S, filename) %#ok<INUSL>
     %SAVESTRUCT Save a struct to file in a robust way
-    nRetry = 3;
+    nRetries = 3;
     verYear = version('-release');
     verYear = str2double(verYear(1:end-1));
 
     if verYear >= 2017
-        for iRetry = 1:nRetry
+        for iRetry = 1:nRetries
             try
                 save(filename, '-struct', 'S', '-v7.3', '-nocompression');
                 break;
@@ -16,7 +16,7 @@ function saveStruct(S, filename)
             warning('Could not save: %s', filename);
         end
     else
-        for iRetry = 1:nRetry
+        for iRetry = 1:nRetries
             try
                 save(filename, '-struct', 'S', '-v7.3');
                 break;

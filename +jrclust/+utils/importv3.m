@@ -63,7 +63,7 @@ function hClust = importv3(filename)
 
     % load spkraw, spkwav, spkfet
     try
-        fid = fopen(strrep(prmFile, '.prm', '_spkraw.jrc'), 'r');
+        fid = fopen(jrclust.utils.subsExt(prmFile, '_spkraw.jrc'), 'r');
         dRes.spikesRaw = fread(fid, inf, '*int16');
         dRes.spikesRaw = reshape(dRes.spikesRaw, S0.dimm_raw);
         fclose(fid);
@@ -72,7 +72,7 @@ function hClust = importv3(filename)
     end
 
     try
-        fid = fopen(strrep(prmFile, '.prm', '_spkwav.jrc'), 'r');
+        fid = fopen(jrclust.utils.subsExt(prmFile, '_spkwav.jrc'), 'r');
         dRes.spikesFilt = fread(fid, inf, '*int16');
         dRes.spikesFilt = reshape(dRes.spikesFilt, S0.dimm_spk);
         fclose(fid);
@@ -81,7 +81,7 @@ function hClust = importv3(filename)
     end
 
     try
-        fid = fopen(strrep(prmFile, '.prm', '_spkfet.jrc'), 'r');
+        fid = fopen(jrclust.utils.subsExt(prmFile, '_spkfet.jrc'), 'r');
         dRes.spikeFeatures = fread(fid, inf, '*single');
         dRes.spikeFeatures = reshape(dRes.spikeFeatures, S0.dimm_fet);
         fclose(fid);
@@ -149,7 +149,7 @@ function hClust = importv3(filename)
                 sRes.nSitesOverThresh = S_clu.vnSite_clu;
             end
             if isfield(S_clu, 'vnSpk_clu')
-                sRes.clusterCounts = S_clu.vnSpk_clu;
+                sRes.unitCount = S_clu.vnSpk_clu;
             end
             if isfield(S_clu, 'vrDc2_site')
                 sRes.rhoCuts = S_clu.vrDc2_site;

@@ -32,7 +32,7 @@ function [S0, P] = load_cached_(P, fLoadWav)
             fLoad0 = 1;
         end
 
-        vcFile_jrc = strrep(P.vcFile_prm, '.prm', '_jrc.mat');
+        vcFile_jrc = jrclust.utils.subsExt(P.vcFile_prm, '_jrc.mat');
         if ~exist_file_(vcFile_jrc), S0.P=P; return; end
         if fLoad0, S0 = load0_(vcFile_jrc); end
         if isempty(S0), S0.P = []; end
@@ -42,11 +42,11 @@ function [S0, P] = load_cached_(P, fLoadWav)
             if isempty(S0), return; end %no info
             try
                 if get_set_(P, 'fRamCache', 1)
-                    trFet_spk = jrclust.utils.readBin(strrep(P.vcFile_prm, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
-                    tnWav_spk = jrclust.utils.readBin(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), 'int16', S0.dimm_spk);
-                    tnWav_raw = jrclust.utils.readBin(strrep(P.vcFile_prm, '.prm', '_spkraw.jrc'), 'int16', S0.dimm_raw);
+                    trFet_spk = jrclust.utils.readBin(jrclust.utils.subsExt(P.vcFile_prm, '_spkfet.jrc'), 'single', S0.dimm_fet);
+                    tnWav_spk = jrclust.utils.readBin(jrclust.utils.subsExt(P.vcFile_prm, '_spkwav.jrc'), 'int16', S0.dimm_spk);
+                    tnWav_raw = jrclust.utils.readBin(jrclust.utils.subsExt(P.vcFile_prm, '_spkraw.jrc'), 'int16', S0.dimm_raw);
                 else
-                    trFet_spk = jrclust.utils.readBin(strrep(P.vcFile_prm, '.prm', '_spkfet.jrc'), 'single', S0.dimm_fet);
+                    trFet_spk = jrclust.utils.readBin(jrclust.utils.subsExt(P.vcFile_prm, '_spkfet.jrc'), 'single', S0.dimm_fet);
                 end
             catch
                 disperr_();

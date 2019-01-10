@@ -17,7 +17,7 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, sitesToShow, selected, bound
     figTitle = '[H]elp; [S]plit; [B]ackground; (Sft)[Up/Down]:Scale; [Left/Right]:Sites; [M]erge; [F]eature';
 
     nSites = numel(sitesToShow);
-    if isempty(hFigProj.figData)
+    if ~hFigProj.hasAxes('default')
         hFigProj.addAxes('default');
         hFigProj.axApply('default', @set, 'Position', [.1 .1 .85 .85], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
@@ -36,7 +36,6 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, sitesToShow, selected, bound
         hFigProj.setHideOnDrag('background');
 
         % save for later
-        hFigProj.figData.isPlotted = true;
         hFigProj.figData.boundScale = boundScale;
     end
 
@@ -73,7 +72,7 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, sitesToShow, selected, bound
 
     % Annotate axes
     hFigProj.axApply('default', @axis, [0 nSites 0 nSites]);
-    hFigProj.axApply(@set, 'XTick', 0.5:1:nSites, 'YTick', 0.5:1:nSites, ...
+    hFigProj.axApply('default', @set, 'XTick', 0.5:1:nSites, 'YTick', 0.5:1:nSites, ...
                      'XTickLabel', sitesToShow, 'YTickLabel', sitesToShow, ...
                     'Box', 'off');
     hFigProj.axApply('default', @xlabel, sprintf(XLabel, boundScale));

@@ -252,7 +252,7 @@ end
 S_gui = guidata(hObject);
 set(S_gui.Fig_gui, 'Name', vcFile_prm);
 enable_(S_gui, {'EditPrm', 'Spikesort', 'Probe', 'Preview', 'Traces', 'Detect', 'ClearPrm'}, 1);
-if ~isempty(dir(strrep(vcFile_prm, '.prm', '_jrc.mat')))    
+if ~isempty(dir(jrclust.utils.subsExt(vcFile_prm, '_jrc.mat')))    
     enable_(S_gui, {'Manual', 'Describe', 'Drift', 'Sort', 'Auto'}, 1);
 end
 edit(vcFile_prm);

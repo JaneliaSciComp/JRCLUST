@@ -10,7 +10,7 @@ function csDesc = describe_(vcFile_prm)
     elseif isstruct(vcFile_prm)
         S0 = vcFile_prm;
     else
-        S0 = load(strrep(vcFile_prm, '.prm', '_jrc.mat'));
+        S0 = load(jrclust.utils.subsExt(vcFile_prm, '_jrc.mat'));
     end
     P = S0.P;
 

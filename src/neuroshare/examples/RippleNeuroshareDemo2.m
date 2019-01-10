@@ -139,7 +139,7 @@ position = [ SCREEN_L_MARGIN SCREEN_FOOTER ...
 % if this script has been run before close the figure 
 % associated with this section.
 if exist('spikeHandle', 'var')
-    close(spikeHandle)
+    jrclust.utils.tryClose(spikeHandle)
 end
 % open spike figure
 spikeHandle = figure('Position', position, 'NumberTitle', 'off', ...
@@ -173,7 +173,7 @@ position = [ SCREEN_L_MARGIN+SCREEN_SIZE(3)/3 SCREEN_FOOTER ...
 % if this script has been run before close the figure 
 % associated with this section.
 if exist('histHandle', 'var')
-    close(histHandle)
+    jrclust.utils.tryClose(histHandle)
 end
 % open spike histogram figure
 histHandle = figure('Position', position, 'NumberTitle', 'off', ...
@@ -248,7 +248,7 @@ lfpPoints = 20*1000; % number of LFP points at 1kHz
 % if this script has been run before close the figure 
 % associated with this section.
 if exist('analogHandle', 'var')
-    close(analogHandle)
+    jrclust.utils.tryClose(analogHandle)
 end
 % open the analog figure  
 analogHandle = figure('Position', position, 'NumberTitle', 'off', ...

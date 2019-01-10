@@ -27,7 +27,7 @@ function export_csv_msort_(varargin)
     vrTime = double(S0.viTime_spk);
     viSite = double(S0.viSite_spk) - fZeroIndex; %zero base
 
-    vcFile_csv = subsFileExt_(P.vcFile_prm, '_msort.csv');
+    vcFile_csv = jrclust.utils.subsExt(P.vcFile_prm, '_msort.csv');
     dlmwrite(vcFile_csv, [vrTime(:), viClu(:)], 'precision', 9);
     fprintf('wrote to %s\n', vcFile_csv);
     fprintf('\ttime\tclu# (starts with 1)\n');

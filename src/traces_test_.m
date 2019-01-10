@@ -9,8 +9,8 @@ function traces_test_(P)
     hFig = get_fig_('Fig_traces');
     keyPress_fig_(hFig, get_keyPress_('all'));
     try
-        close(hFig); %close traces figure. other figures may remain
-        close(get_fig_('FigPsd'));
+        jrclust.utils.tryClose(hFig); %close traces figure. other figures may remain
+        jrclust.utils.tryClose(get_fig_('FigPsd'));
     catch
     end
 end %func

@@ -69,5 +69,5 @@ function make_trial_(vcFile_prm, fImec)
     plot(get(gca, 'XLim'), double(thresh) * [1 1], 'm-');
     xylabel_(gca, 'Time (s)', sprintf('Chan %d', iChan), vcTitle);
     ylim([minV, maxV]); grid on;
-    close_(hMsg);
+    jrclust.utils.tryClose(hMsg);
 end

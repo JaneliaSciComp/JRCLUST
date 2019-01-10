@@ -6,18 +6,18 @@ function validate_(P)
     % snr_thresh_score = 10;
     snr_thresh_stat = get_set_(P, 'snr_thresh_gt', 7);
 
-    S0 = load_(strrep(P.vcFile_prm, '.prm', '_jrc.mat'));
+    S0 = load_(jrclust.utils.subsExt(P.vcFile_prm, '_jrc.mat'));
     % if isempty(tnWav_spk)
-    %     tnWav_spk = jrclust.utils.readBin(strrep(P.vcFile_prm, '.prm', '_spkwav.jrc'), P.vcDataType, S0.dimm_spk);
+    %     tnWav_spk = jrclust.utils.readBin(jrclust.utils.subsExt(P.vcFile_prm, '_spkwav.jrc'), P.vcDataType, S0.dimm_spk);
     % end
     S_clu = S0.S_clu;
 
     % Load ground truth file
-    if ~exist(P.vcFile_gt, 'file'), P.vcFile_gt = subsFileExt_(P.vcFile, '_gt.mat'); end
+    if ~exist(P.vcFile_gt, 'file'), P.vcFile_gt = jrclust.utils.subsExt(P.vcFile, '_gt.mat'); end
     if ~strcmpi(vcFile_prm_, P.vcFile_prm), vcFile_prm_=[]; end
     if isempty(vcFile_prm_) || isempty(S_gt) % cache ground truth result
         vcFile_prm_ = P.vcFile_prm;
-        vcFile_gt1 = strrep(P.vcFile_prm, '.prm', '_gt1.mat');
+        vcFile_gt1 = jrclust.utils.subsExt(P.vcFile_prm, '_gt1.mat');
         if exist_file_(vcFile_gt1)
             S_gt = load(vcFile_gt1);
         else
@@ -50,7 +50,7 @@ function validate_(P)
     fprintf('SNR_gt (Vp/Vrms): %s\n', sprintf('%0.1f ', S_score.vrSnr_gt));
     fprintf('nSites>thresh (GT): %s\n', sprintf('%d ', S_score.vnSite_gt));
 
-    write_struct_(strrep(P.vcFile_prm, '.prm', '_score.mat'), S_score);
+    write_struct_(jrclust.utils.subsExt(P.vcFile_prm, '_score.mat'), S_score);
 
     set0_(S_score);
     assignWorkspace_(S_score); %put in workspace

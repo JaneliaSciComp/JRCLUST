@@ -26,7 +26,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
         vcFile_bin = strrep(vcFile_bin, '*', '');
     elseif isTextFile_(vcFile_bin)
         P.csFile_merge = vcFile_bin;
-        %     vcFile_bin = subsFileExt_(vcFile_bin, '.bin');
+        %     vcFile_bin = jrclust.utils.subsExt(vcFile_bin, '.bin');
     else
         if ~exist_file_(vcFile_bin)
             vcFile_bin_ = fullfile(basedir, vcFile_bin);
@@ -46,13 +46,13 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
 
     % Load meta file
     if isempty(P.csFile_merge)
-        vcFile_meta = subsFileExt_(vcFile_bin, '.meta');
+        vcFile_meta = jrclust.utils.subsExt(vcFile_bin, '.meta');
     else
         csFiles_bin = filter_files_(P.csFile_merge);
         if isempty(csFiles_bin)
             vcFile_meta = '';
         else
-            vcFile_meta = subsFileExt_(csFiles_bin{1}, '.meta');
+            vcFile_meta = jrclust.utils.subsExt(csFiles_bin{1}, '.meta');
         end
     end
     
@@ -94,7 +94,7 @@ function [P, vcPrompt] = create_prm_file_(vcFile_bin, vcFile_prb, vcFile_templat
 
     % Assign prm file name
     [~,vcPostfix,~] = fileparts(vcFile_prb);
-    P.vcFile_prm = subsFileExt_(vcFile_bin, ['_', vcPostfix, '.prm']);
+    P.vcFile_prm = jrclust.utils.subsExt(vcFile_bin, ['_', vcPostfix, '.prm']);
     P.probe_file = vcFile_prb;
     try
         S_prb = file2struct_(find_prb_(vcFile_prb));

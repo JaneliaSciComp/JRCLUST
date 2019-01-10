@@ -49,7 +49,6 @@ function sRes = doAssignClusters(dRes, sRes, hCfg)
 
     % assign spikes to clusters
     for iRepeat = 1:nRepeatMax % repeat 1000 times max
-        % [sRes.spikeClusters, sRes.clusterCenters] = assignCluster_(sRes.spikeClusters, sRes.ordRho, sRes.nneigh, sRes.clusterCenters);
         nSpikes = numel(sRes.ordRho);
         nClusters = numel(sRes.clusterCenters);
 
@@ -94,11 +93,11 @@ function sRes = doAssignClusters(dRes, sRes, hCfg)
 
         % count spikes in clusters
         sRes.spikesByCluster = arrayfun(@(iC) find(sRes.spikeClusters == iC), 1:nClusters, 'UniformOutput', 0);
-        sRes.clusterCounts = cellfun(@numel, sRes.spikesByCluster);
+        sRes.unitCount = cellfun(@numel, sRes.spikesByCluster);
         sRes.clusterSites = double(arrayfun(@(iC) mode(dRes.spikeSites(sRes.spikesByCluster{iC})), 1:nClusters));
 
         % remove small clusters
-        smallClusters = find(sRes.clusterCounts <= hCfg.minClusterSize);
+        smallClusters = find(sRes.unitCount <= hCfg.minClusterSize);
         if isempty(smallClusters) % done!
             break;
         end

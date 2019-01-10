@@ -26,7 +26,7 @@ function TWfilter_(P, vcMode)
 		fprintf('Deleting cluster %d\n', i_clu); 
     end
     set(0, 'UserData', S0);
-	save0_(subsFileExt_(S0.P.vcFile_prm, '_jrc.mat'),1); % 1 will skip figure saving
+	save0_(jrclust.utils.subsExt(S0.P.vcFile_prm, '_jrc.mat'),1); % 1 will skip figure saving
 
 end %func;
 

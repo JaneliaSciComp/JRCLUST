@@ -12,7 +12,7 @@ function import_lfp_(P)
     % catch
     %     disp('Merge LFP file error for IMEC3.');
     % end
-    P.vcFile_lfp = strrep(P.vcFile_prm, '.prm', '.lfp.jrc');
+    P.vcFile_lfp = jrclust.utils.subsExt(P.vcFile_prm, '.lfp.jrc');
     t1 = tic;
     if isempty(P.csFile_merge)
         % single file
