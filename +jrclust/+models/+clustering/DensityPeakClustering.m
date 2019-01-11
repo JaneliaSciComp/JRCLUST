@@ -1,6 +1,6 @@
 classdef DensityPeakClustering < jrclust.interfaces.Clustering
     %DENSITYPEAKCLUSTERING A Rodriguez-Laio clustering of spike data
-    properties (SetAccess=protected, SetObservable)
+    properties (Hidden, SetObservable)
         hCfg;               % Config object
     end
 
@@ -1099,11 +1099,14 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 %             end
         end
 
-        function reassign(obj)
+        function reassign(obj, recompute)
             %REASSIGN Reassign clusters, e.g., after a change of parameters
             if obj.nEdits ~= obj.editPos % not at tip of edit history, back out
                 warning('cannot branch from history; use revert() first');
                 return;
+            end
+            if nargin < 2
+                recompute = ~isempty(obj.meanWfGlobal); % don't recompute mean waveforms if we didn't have them already
             end
 
             obj.sRes = jrclust.cluster.densitypeaks.assignClusters(obj.dRes, obj.sRes, obj.hCfg);
@@ -1120,16 +1123,13 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             obj.clearNotes();
             obj.refresh(true, []);
 
-            obj.orderClusters('clusterSites');
-            if ~isempty(obj.meanWfGlobal) % only compute mean waveforms if we already had them
+            if recompute
                 obj.updateWaveforms();
-            end
-            if ~isempty(obj.clusterCentroids)
                 obj.computeCentroids();
-            end
-            if ~isempty(obj.unitISIRatio)
                 obj.computeQualityScores();
             end
+
+            obj.orderClusters('clusterSites');
             obj.clearNotes();
 
             commitMsg = sprintf('%s;reassign', datestr(now, 31));

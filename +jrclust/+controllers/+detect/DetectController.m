@@ -169,7 +169,7 @@ classdef DetectController < handle
 
             % summarize
             res.runtime = toc(t0);
-            res.completedAt = now();
+            res.detectedOn = now();
         end
     end
 end

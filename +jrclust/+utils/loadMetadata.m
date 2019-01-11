@@ -1,6 +1,6 @@
 function S = loadMetadata(metafile)
     %LOADMETADATA convert SpikeGLX metadata to struct
-    % TODO: build into Config workflow to cut down on specified parameters
+    %   TODO: build into Config workflow to cut down on specified parameters
 
     % get absolute path of metafile
     metafile_ = jrclust.utils.absPath(metafile);
@@ -70,7 +70,7 @@ function S = loadMetadata(metafile)
     end
 end
 
-%% local functions
+%% LOCALFUNCTIONS
 function S_imec3 = imec3_imroTbl_(S)
     % Smeta has imroTbl
     vcDir_probe = 'C:\Dropbox (HHMI)\IMEC\SpikeGLX_Probe_Cal_Data\'; %this may crash. probe calibaration folder
@@ -118,4 +118,4 @@ function S_imec3 = imec3_imroTbl_(S)
     end
     S_imec3.mrScale_ap = mrScale_ap;
     S_imec3.mrScale_lf = mrScale_lf;
-end %func
+end

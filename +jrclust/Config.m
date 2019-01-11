@@ -24,7 +24,7 @@ classdef Config < dynamicprops
         % rejectSpk_mean_thresh;    % appears to be synonymous with blankThresh/blank_thresh
         autoMergeCriterion;         % => autoMergeBy
         blank_thresh;               % => blankThresh
-        csFile_merge;               % => multiRaw
+        csFile_merge;               % => rawRecordings
         delta1_cut;                 % => log10DeltaCut
         fEllip;                     % => useElliptic
         fft_thresh;                 % => fftThreshMad
@@ -46,6 +46,7 @@ classdef Config < dynamicprops
         maxSite;                    % => nSiteDir
         min_count;                  % => minClusterSize
         mrSiteXY;                   % => siteLoc
+        nClu_show_aux;              % => nClustersShowAux
         nLoads_gpu;                 % => ramToGPUFactor
         nPad_filt;                  % => nSamplesPad
         nRepeat_merge;              % => nPassesMerge
@@ -83,6 +84,7 @@ classdef Config < dynamicprops
         vcFile_thresh;              % => threshFile
         vcFilter;                   % => filterType
         vcFilter_show;              % => dispFilter
+        vcLabel_aux;                % => auxLabel
         viShank_site;               % => shankMap
         vnFilter_user;              % => userFiltKernel
         vrSiteHW;                   % => probePad
@@ -98,6 +100,8 @@ classdef Config < dynamicprops
     
     %% NEW-STYLE PARAMS, publicly settable
     properties (SetObservable)
+        batchMode = false;          % suppress *all* messages if true
+
         % computation params
         gpuLoadFactor = 5;          % GPU memory usage factor (4x means 1/4 of GPU memory can be loaded)
         randomSeed = 0;             % random seed
@@ -169,7 +173,7 @@ classdef Config < dynamicprops
         time_feature_factor;        % undocumented
 
         % clustering params
-        autoMergeBy = 'xcorr';              % metric to use when automerging clusters
+        autoMergeBy = 'pearson';            % metric to use when automerging clusters
         dc_percent = 2;                     % percentile at which to cut off distance in rho computation
         fDrift_merge = true;                % compute multiple waveforms at three drift locations based on the spike position if true
         log10DeltaCut = 0.6;                % the base-10 log of the delta cutoff value
@@ -213,8 +217,10 @@ classdef Config < dynamicprops
         % aux-file parameters
         auxChan;                            % aux channel # to correlate with the unit firing rate    
         auxFile = '';                       % aux channel file
+        auxLabel = '';                      % label for the aux channel
         auxSampleRate = [];                 % sampling rate for aux file
         auxScale = 1;               		% scale factor for aux input
+        nClustersShowAux = 10;            % 
 
         % to get to, eventually
         LineStyle = '';
@@ -280,7 +286,6 @@ classdef Config < dynamicprops
         max_shift_track = [];
         mrColor_proj = [213 219 235; 0 130 196; 240 119 22]/256;
         nBytes_file = [];
-        nClu_show_aux = 10;
         nMinAmp_ms = 0;
         nPcPerChan = 1;
         nPc_dip = 3;
@@ -324,7 +329,6 @@ classdef Config < dynamicprops
         vcFile_trial = '';
         vcFile_vid = '';
         vcFilter_detect = '';
-        vcLabel_aux = '';
         vcMode_track = 'mt_cpsd2_mr';
         vcSpatialFilter = 'none';
         vcSpkRef = 'nmean';
@@ -364,8 +368,13 @@ classdef Config < dynamicprops
     methods
         function obj = Config(filename)
             %CONFIG Construct an instance of this class
-            if nargin == 0
-                return;
+            if nargin == 0 || isempty(filename)
+                success = obj.makeCfg();
+                if ~success
+                    return;
+                end
+
+                filename = obj.configFile;
             end
 
             obj.isLoaded = false;
@@ -374,9 +383,7 @@ classdef Config < dynamicprops
             obj.tempParams = containers.Map();
 
             if ~isfile(filename)
-                emsg = sprintf('Cannot load config: file %s not found', filename);
-                errordlg(emsg, 'Missing config file');
-                obj.isError = true;
+                obj.error(sprintf('Cannot load config: file %s not found', filename), 'Missing config file');
                 return;
             elseif isempty(which(filename))
                 obj.configFile = filename;
@@ -394,6 +401,16 @@ classdef Config < dynamicprops
 
     %% UTILITY METHODS
     methods(Access=protected, Hidden)
+        function error(obj, emsg, varargin)
+            %ERROR Raise an error
+            obj.isError = true;
+            if obj.batchMode
+                error(emsg);
+            else
+                errordlg(emsg, varargin{:});
+            end
+        end
+
         function logOldP(obj, prm)
             %LOGOLDP Increment the old-style parameter counter
             %   collect stats on usage of old parameters
@@ -416,9 +433,8 @@ classdef Config < dynamicprops
                         t.(fns{i}) = s.(fns{i});
                     end
                     s = t;
-                catch
-                    wmsg = sprintf('Could not find template file %s', s.template_file);
-                    warndlg(wmsg, 'Missing template file');
+                catch ME
+                    obj.warning(sprintf('Could not set template file %s: %s ', s.template_file, ME.message), 'Missing template file');
                 end
             end
 
@@ -472,143 +488,92 @@ classdef Config < dynamicprops
 
             % warn user of unrecognized props
             uu = cellfun(@(u) ~isempty(u), unusedProps);
-            if any(uu)
-                warnmsg = sprintf('The following properties were not recognized (possibly deprecated) and will be ignored:\n    %s', ...
-                                  strjoin(unusedProps(uu), '\n    '));
-                warndlg(warnmsg, 'Unrecognized properties');
+            if any(uu) && ~obj.batchMode
+                wmsg = sprintf('The following properties were not recognized (possibly deprecated) and will be ignored:\n    %s', ...
+                               strjoin(unusedProps(uu), '\n    '));
+                obj.warning(wmsg, 'Unrecognized properties');
             end
 
             ee = cellfun(@(e) ~isempty(e), errorProps(:, 1));
-            if any(ee)
+            if any(ee) && ~obj.batchMode
                 emsgs = arrayfun(@(i) strjoin(errorProps(i, :), ': '), find(ee), 'UniformOutput', false);
-                warnmsg = sprintf('These properties were not set due to errors:\n* %s', strjoin(emsgs, '\n\n * '));
-                warndlg(warnmsg, 'Unset properties');
+                wmsg = sprintf('These properties were not set due to errors:\n* %s', strjoin(emsgs, '\n\n * '));
+                obj.warning(wmsg, 'Unset properties');
             end
 
             % check that exactly one of singleRaw and multiRaw is nonempty
             if isempty(obj.rawRecordings)
-                errordlg('Specify rawRecordings (vcFile or csFile_merge)', 'Bad recording files');
-                obj.isError = true;
+                obj.error('Specify rawRecordings (vcFile or csFile_merge)', 'Bad recording files');
                 return;
             end
 
             % load probe from file
             if isempty(obj.probeFile)
-                errordlg('Specify a probe file', 'Missing probe file');
-                obj.isError = true;
+                obj.error('Specify a probe file', 'Missing probe file');
                 return;
             end
             try
                 obj.loadProbe();
             catch ME
-                errordlg(ME.message, 'Error loading probe file');
-                obj.isError = true;
+                obj.error(sprintf('%s', ME.message), 'Error loading probe file');
                 return;
             end
         end
 
+        % TODO: deprecate probe file and incorporate directly into config
         function loadProbe(obj)
-            %LOADPROBE Load probe construct from .mat or .m
-            try % first try to load probe from mat file
-                pstr = load(obj.probeFile, '-mat');
-            catch
-                pstr = jrclust.utils.mToStruct(obj.probeFile);
-            end
+            %LOADPROBE Load probe construct from .mat or .prb
+            probe = doLoadProbe(obj.probeFile);
+            fieldNames = fieldnames(probe);
 
-            assert(isfield(pstr, 'channels'), 'missing `channels` field');
-            obj.siteMap = pstr.channels;            
-
-            assert(isfield(pstr, 'geometry'), 'missing `geometry` field');
-            obj.siteLoc = pstr.geometry;
-
-            assert(isfield(pstr, 'pad'), 'missing `pad` field');
-            obj.probePad = pstr.pad;
-
-            if ~isfield(pstr, 'shank')
-                pstr.shank = [];
-            end
-            if ~isfield(pstr, 'cviShank')
-                pstr.cviShank = [];
-            end
-
-            if isempty(pstr.shank) && ~isempty(pstr.cviShank)
-                pstr.shank = pstr.cviShank;
-            end
-            if isempty(pstr.shank)
-                obj.shankMap = ones(size(pstr.channels));
-            elseif iscell(pstr.shank)
-                obj.shankMap = cell2mat(arrayfun(@(i) i*ones(size(pstr.shank{i})), 1:numel(shank), 'UniformOutput', false));
-            else
-                obj.shankMap = pstr.shank;
+            for i = 1:numel(fieldNames)
+                fn = fieldNames{i};
+                obj.(fn) = probe.(fn);
             end
         end
 
         function setRawRecordings(obj, rr)
+            %SETRAWRECORDINGS Set rawRecordings field (depends on nonempty
+            %   configFile)
             if ischar(rr)
-                if ~isempty(dir(rr)) % first try current directory
-                    dmr = {dir(rr)};
-                    dmrDir = {dmr{1}.folder};
-                    dmrName = {dmr{1}.name};
-                    obj.rawRecordings = arrayfun(@(i) fullfile(dmrDir{i}, dmrName{i}), 1:numel(dmr{1}), 'UniformOutput', false);
-                elseif ~isempty(dir(fullfile(fileparts(obj.configFile), rr))) % try relative to configFile directory
-                    dmr = dir(fullfile(fileparts(obj.configFile), rr));
-                    dmrDir = {dmr.folder};
-                    dmrName = {dmr.name};
-                    obj.rawRecordings = arrayfun(@(i) fullfile(dmrDir{i}, dmrName{i}), 1:numel(dmr), 'UniformOutput', false);
-                else
-                    error('could not find file(s) ''%''', rr);
+                rr_ = jrclust.utils.absPath(rr, fileparts(obj.configFile));
+                if ischar(rr_)
+                    rr_ = {rr_};
                 end
             elseif iscell(rr)
-                % first try current directory
-                filesExist = cellfun(@(m) isfile(jrclust.utils.absPath(m)), rr);
-                if all(filesExist)
-                    obj.rawRecordings = rr;
-                    return;
-                elseif any(filesExist) && ~all(filesExist) % some found but not all
-                    errmsg = sprintf('The following recording files were specified but not found:\n    %s', ...
-                                  strjoin(rr(filesExist), '\n    '));
-                    errdlg(errmsg, 'Missing files');
-                    error(errmsg);
+                rr_ = cellfun(@(rf) jrclust.utils.absPath(rf, fileparts(obj.configFile)), rr);
+                rr_ = rr(~cellfun(@isempty, rr_));
+            end
+
+            if isempty(rr_)
+                if iscell(rr)
+                    rr = strjoin(rr, ', ');
                 end
 
-                % we have either returned or errored if we found any files
-                % if we're still here, we have to look for them relative to
-                % configFile's directory
-                filesExist = cellfun(@(m) isfile(jrclust.utils.absPath(m, fileparts(obj.configFile))), rr);
-                if all(filesExist)
-                    obj.rawRecordings = rr;
-                    return;
-                elseif any(filesExist) && ~all(filesExist) % some found but not all
-                    errmsg = sprintf('The following recording files were specified but not found:\n    %s', ...
-                                  strjoin(rr(filesExist), '\n    '));
-                    errdlg(errmsg, 'Missing files');
-                    error(errmsg);
-                end
+                obj.error(sprintf('Could not find recording(s): %s', rr));
+                return;
             end
 
             % natsort filenames
-            obj.rawRecordings = jrclust.utils.sortNat(obj.rawRecordings);
+            obj.rawRecordings = jrclust.utils.sortNat(rr_);
         end
 
         function validateParams(obj)
             %VALIDATEPARAMS Ensure parameters make sense
             % check probe is consistent
             if ~(jrclust.utils.ismatrixnum(obj.siteMap) && all(obj.siteMap > 0))
-                errordlg('Malformed channel map', 'Bad probe configuration');
-                obj.isError = true;
+                obj.error('Malformed channel map', 'Bad probe configuration');
                 return;
             end
 
             nc = numel(obj.siteMap);
             if ~(ismatrix(obj.siteLoc) && size(obj.siteLoc, 1) == nc)
-                errordlg('Malformed probe geometry', 'Bad probe configuration');
-                obj.isError = true;
+                obj.error('Malformed probe geometry', 'Bad probe configuration');
                 return;
             end
 
             if numel(obj.shankMap) ~= nc
-                errordlg('Malformed shank indexing', 'Bad probe configuration');
-                obj.isError = true;
+                obj.error('Malformed shank indexing', 'Bad probe configuration');
                 return;
             end
 
@@ -635,8 +600,7 @@ classdef Config < dynamicprops
             end
 
             if obj.nSitesEvt <= 0
-                errordlg('nSitesExcl is too large or nSiteDir is too small', 'Bad configuration');
-                obj.isError = true;
+                obj.error('nSitesExcl is too large or nSiteDir is too small', 'Bad configuration');
             end
 
             % try to infer a ground-truth file
@@ -657,6 +621,15 @@ classdef Config < dynamicprops
 
             % boost that gain
             obj.bitScaling = obj.bitScaling/obj.gainBoost;
+        end
+
+        function warning(obj, wmsg, varargin)
+            %WARNING Raise a warning
+            if obj.batchMode
+                warning(wmsg);
+            else
+                warndlg(wmsg, varargin{:});
+            end
         end
     end
 
@@ -715,6 +688,90 @@ classdef Config < dynamicprops
             else
                 val = obj.(fn);
             end
+        end
+
+        function success = makeCfg(obj, outputDir, binFiles, probeFile, templateFile, fAsk)
+            %MAKECFG Make a config file
+            success = false;
+            if obj.batchMode % no interactivity permitted
+                return;
+            end
+
+            if nargin < 2
+                outputDir = '';
+            end
+            if nargin < 3
+                binFiles = {};
+            end
+            if nargin < 3
+                probeFile = '';
+            end
+            if nargin < 4
+                templateFile = '';
+            end
+            if nargin < 5
+                fAsk = true;
+            end
+
+            % set outputDir
+            if isempty(outputDir)
+                outputDir = uigetdir('', 'Select a directory to save your config file');
+            end
+
+            % set binFiles
+            if ischar(binFiles)
+                binFiles = {binFiles};
+            end
+            binFiles = cellfun(@jrclust.utils.absPath, binFiles, 'UniformOutput', false);
+
+            % absPath can return a cell if given a wildcard; handle mixed
+            % output
+            isWildcard = cellfun(@iscell, binFiles);
+            if any(isWildcard)
+                wildcards = binFiles(isWildcard);
+                binFiles = binFiles(~isWildcard);
+                for i = 1:numel(wildcards)
+                    binFiles = [binFiles, wildcards{i}]; %#ok<AGROW>
+                end
+            end
+            binFiles = unique(binFiles(~cellfun(@isempty, binFiles)));
+
+            if isempty(binFiles)
+                [fnames, fdir] = uigetfile({'*.bin'; '*.dat'}, 'Select a recording or recordings', 'MultiSelect', 'on');
+                if ~ischar(fdir) % abort
+                    return;
+                end
+
+                binFiles = fullfile(fdir, fnames);
+                if ischar(binFiles)
+                    binFiles = {binFiles};
+                end
+            end
+
+            % TODO: deprecate probe file and incorporate directly into config
+            probeFile = jrclust.utils.absPath(probeFile);
+            if isempty(probeFile)
+                [fname, fdir] = uigetfile({'*.prb'; '*.mat'}, 'Select a probe file');
+                if ~ischar(fdir) % abort
+                    return;
+                end
+
+                probeFile = fullfile(fdir, fname);
+            end
+
+            % data file, template, and probe found; make the parameter file
+            P = doCreateConfigFile(outputDir, binFiles, probeFile, templateFile, fAsk);
+            if isempty(P)
+                return;
+            end
+
+            fieldNames = intersect(fieldnames(obj),  fieldnames(P));
+            for i = 1:numel(fieldNames)
+                obj.(fieldNames{i}) = P.(fieldNames{i});
+            end
+
+            obj.flush(); % write to file
+            success = true;
         end
 
         function rd = recDurationSec(obj, recID)
@@ -798,7 +855,7 @@ classdef Config < dynamicprops
 
         % auxChan/iChan_aux
         function set.auxChan(obj, ac)
-            assert(jrclust.utils.ismatrixnum(ac) && all(ac > 0), 'malformed auxChan');
+            assert(isempty(ac) || jrclust.utils.ismatrixnum(ac) && all(ac > 0), 'malformed auxChan');
             obj.auxChan = ac;
         end
         function ac = get.iChan_aux(obj)
@@ -829,10 +886,25 @@ classdef Config < dynamicprops
             obj.auxFile = af;
         end
 
+        % auxLabel/vcLabel_aux
+        function set.auxLabel(obj, al)
+            failMsg = 'auxLabel must be a string';
+            assert(ischar(al), failMsg);
+            obj.auxLabel = al;
+        end
+        function al = get.vcLabel_aux(obj)
+            obj.logOldP('vcLabel_aux');
+            al = obj.auxLabel;
+        end
+        function set.vcLabel_aux(obj, al)
+            obj.logOldP('vcLabel_aux');
+            obj.auxLabel = al;
+        end
+
         % auxSampleRate/sRateHz_aux
         function set.auxSampleRate(obj, ar)
             failMsg = 'auxSampleRate must be a positive integer';
-            assert(jrclust.utils.isscalarnum(ar) && ar == round(ar) && ar > 0, failMsg);
+            assert(isempty(ar) || jrclust.utils.isscalarnum(ar) && ar == round(ar) && ar > 0, failMsg);
             obj.auxSampleRate = ar;
         end
         function ar = get.sRateHz_aux(obj)
@@ -1433,10 +1505,25 @@ classdef Config < dynamicprops
             obj.minClusterSize = mc;
         end
 
-        % multiRaw/csFile_merge
+        % csFile_merge
         function mr = get.csFile_merge(obj)
             obj.logOldP('csFile_merge');
-            mr = obj.multiRaw;
+            mr = obj.rawRecordings;
+        end
+
+        % nClustersShowAux/nClu_show_aux
+        function set.nClustersShowAux(obj, nc)
+            failMsg = 'nClustersShowAux must be a positive integer';
+            assert(jrclust.utils.isscalarnum(nc) && nc == round(nc) && nc > 0, failMsg);
+            obj.nClustersShowAux = nc;
+        end
+        function nc = get.nClu_show_aux(obj)
+            obj.logOldP('nClu_show_aux');
+            nc = obj.nClustersShowAux;
+        end
+        function set.nClu_show_aux(obj, nc)
+            obj.logOldP('nClu_show_aux');
+            obj.nClustersShowAux = nc;
         end
 
         % nFet_use
@@ -1528,11 +1615,17 @@ classdef Config < dynamicprops
         end
 
         % outputDir
-        function set.outputDir(obj, od)
-            od_ = jrclust.utils.absPath(od);
-            if isfile(od_)
-                error('''%s'' is a file', od);
+        function od = get.outputDir(obj)
+            if isempty(obj.outputDir)
+                od = fileparts(obj.configFile);
+            else
+                od = obj.outputDir;
             end
+        end
+        function set.outputDir(obj, od)
+            failMsg = 'outputDir must be a directory';
+            od_ = jrclust.utils.absPath(od);
+            assert(isempty(od) || isdir(od_), failMsg);
             obj.outputDir = od_;
         end
 
@@ -1817,6 +1910,9 @@ classdef Config < dynamicprops
         end
 
         % verbose/fVerbose
+        function vb = get.verbose(obj)
+            vb = obj.verbose && ~obj.batchMode;
+        end
         function set.verbose(obj, vb)
             obj.verbose = true && vb;
         end

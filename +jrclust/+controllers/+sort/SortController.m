@@ -55,17 +55,13 @@ classdef SortController < handle
 
             res.hClust = hClust;
 
-%             if obj.hCfg.repeatLower
-%                 
-%             end
-
             % if get_set_(P, 'fCorrect_overlap', 0) % correct waveforms and features after correcting clusters
             %     S_clu = sort_overlap_(S0, S_clu, P);
             % end
 
             % summarize
             res.runtime = toc(t0);
-            res.completedAt = now();
+            res.sortedOn = now();
         end
     end
 end

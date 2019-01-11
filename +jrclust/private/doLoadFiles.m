@@ -1,31 +1,18 @@
-function [dRes, sRes, cRes] = doLoadFiles(obj)
-    %DOLOADFILES Load results structs
-    [dRes, sRes, cRes] = deal([]);
+function res = doLoadFiles(hCfg)
+    %DOLOADFILES Load results struct
+    res = struct();
 
-    [~, sessionName, ~] = fileparts(obj.hCfg.configFile);
-    if nargout >= 1
-        filename = fullfile(obj.hCfg.outputDir, [sessionName '_detect.mat']);
-        try
-            dRes = load(filename);
-        catch ME
-            warning(ME.identifier, 'detect data not loaded: %s', ME.message);
-        end
+    [~, sessionName, ~] = fileparts(hCfg.configFile);
+    filename = fullfile(hCfg.outputDir, [sessionName '_res.mat']);
+    if ~isfile(filename)
+        warning('%s does not exist', filename);
+        return;
     end
-    if nargout >= 2
-        filename = fullfile(obj.hCfg.outputDir, [sessionName '_sort.mat']);
-        try
-            sRes = load(filename);
-        catch ME
-            warning(ME.identifier, 'sort data not loaded: %s', ME.message);
-        end
-    end
-    if nargout >= 3
-        filename = fullfile(obj.hCfg.outputDir, [sessionName '_curate.mat']);
-        try
-            cRes = load(filename);
-        catch ME
-            warning(ME.identifier, 'curate data not loaded: %s', ME.message);
-        end
+
+    try
+        res = load(filename);
+    catch ME
+        warning(ME.identifier, 'failed to load %s: %s', ME.message);
     end
 end
 

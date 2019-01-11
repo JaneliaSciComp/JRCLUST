@@ -617,8 +617,8 @@ classdef CurateController < handle
             % uimenu(obj.hMenus('ProjMenu'), 'Label', 'cov', 'Callback', @(hO, hE) obj.updateProjection('cov'));
 
             obj.hMenus('PlotMenu') = uimenu(hFig, 'Label', 'Plot');
-            uimenu(mh_plot, 'Label', 'Firing rate vs. aux. input (all units)', 'Callback', @(hO, hE) obj.plotAuxRate(false));
-            uimenu(mh_plot, 'Label', 'Firing rate vs. aux. input (selected unit)', 'Callback', @(hO, hE) obj.plotAuxRate(true));
+            uimenu(obj.hMenus('PlotMenu'), 'Label', 'Firing rate vs. aux. input (all units)', 'Callback', @(hO, hE) obj.plotAuxRate(false));
+            uimenu(obj.hMenus('PlotMenu'), 'Label', 'Firing rate vs. aux. input (selected unit)', 'Callback', @(hO, hE) obj.plotAuxRate(true));
 
             obj.hMenus('InfoMenu') = uimenu(hFig, 'Label', '', 'Tag', 'InfoMenu');
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Annotate unit', 'Callback', @(hO, hE) obj.annotateUnit('', true));
@@ -628,8 +628,8 @@ classdef CurateController < handle
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Clear annotation', 'Callback', @(hO, hE) obj.annotateUnit('', false));
             uimenu(obj.hMenus('InfoMenu'), 'Label', 'Equal to', 'Callback', @(hO, hE) obj.annotateUnit('=', true));
 
-%             mh_help = uimenu(hFig, 'Label','Help');
-%             uimenu(mh_help, 'Label', '[H]elp', 'Callback', @help_FigWav_);
+            obj.hMenus('HelpMenu') = uimenu(hFig, 'Label', 'Help');
+            uimenu(obj.hMenus('HelpMenu'), 'Label', '[H]elp', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'h')));
 
             drawnow;
             hFig.outerPosition = outerPosition;
@@ -765,7 +765,7 @@ classdef CurateController < handle
                 return;
             end
 
-%             hBox = msgbox('Splitting... (this closes automatically)');
+            hBox = msgbox('Splitting... (this closes automatically)');
             iCluster = obj.selected(1);
             iSite = obj.hClust.clusterSites(iCluster);
 
@@ -792,6 +792,8 @@ classdef CurateController < handle
             % create split figure
             hFigSplit = jrclust.views.Figure('FigSplit', [.5 0 .5 1], 'Split', false, false);
             hFigSplit.addSubplot('pcPlots', 2, 2);
+
+            jrclust.utils.tryClose(hBox);
 
             while true
                 splitOff = ~retained;
@@ -992,7 +994,9 @@ classdef CurateController < handle
                 obj.endSession(); % we'll be back
             end
 
-            delete(hFig);
+            if obj.isEnding
+                delete(hFig);
+            end
         end
 
         function mergeSelected(obj)
@@ -1019,14 +1023,24 @@ classdef CurateController < handle
 
         function plotAuxRate(obj, fSelected)
             %PLOTAUXRATE
-            [vrWav_aux, vrTime_aux] = load_aux_(P);
-            if isempty(vrWav_aux), jrclust.utils.qMsgBox('Aux input is not found'); return; end
-            mrRate_clu = S_clu.firingRates([], numel(vrWav_aux));
-            vrCorr_aux_clu = arrayfun(@(i)corr(vrWav_aux, mrRate_clu(:,i), 'type', 'Pearson'), 1:size(mrRate_clu,2));
-            if ~fSelected, iCluCopy = []; end
-            plot_aux_corr_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux, iCluCopy);
-            vcMsg = assignWorkspace_(mrRate_clu, vrWav_aux, vrCorr_aux_clu, vrTime_aux);
-            % jrclust.utils.qMsgBox(vcMsg);
+            [auxSamples, auxTimes] = loadAuxChannel(obj.hCfg);
+            if isempty(auxSamples)
+                jrclust.utils.qMsgBox('Aux input is not found');
+                return;
+            end
+
+            firingRates = obj.hClust.firingRates([], numel(auxSamples));
+            auxChanCorr = arrayfun(@(i) corr(auxSamples, firingRates(:,i), 'type', 'Pearson'), 1:size(firingRates, 2));
+            if ~fSelected
+                doPlotAuxCorr(obj.hClust, firingRates, auxSamples, auxChanCorr, auxTimes, []);
+            else
+                doPlotAuxCorr(obj.hClust, firingRates, auxSamples, auxChanCorr, auxTimes, obj.selected(1));
+            end
+            
+            jrclust.utils.exportToWorkspace(struct('firingRates', firingRates, ...
+                                                   'auxSamples', auxSamples, ...
+                                                   'auxChanCorr', auxChanCorr, ...
+                                                   'auxTimes', auxTimes), obj.hCfg.verbose);
         end
 
         function plotAllFigures(obj)
@@ -1226,8 +1240,6 @@ classdef CurateController < handle
 
             % update menu
             obj.updateMenu();
-
-            %obj.keyPressFigWav([], struct('Key', 'z'));
         end
     end
 
@@ -1254,7 +1266,10 @@ classdef CurateController < handle
         function res = endSession(obj)
             %ENDSESSION Finish curating and return results
             if nargout == 0
-                obj.saveFiles();
+                success = obj.saveFiles();
+                if ~success
+                    return;
+                end
             end
             obj.isEnding = true;
             obj.closeFigures();
@@ -1321,18 +1336,29 @@ classdef CurateController < handle
 
         function success = saveFiles(obj)
             %SAVEFILES Save files to disk
-            curateFile = jrclust.utils.subsExt(obj.hCfg.configFile, '_curate.mat');
-            dlgAns = questdlg(['Save to ', curateFile, ' ?'], 'Confirmation', 'Yes');
+            [~, sessionName, ~] = fileparts(obj.hCfg.configFile);
+            filename = fullfile(obj.hCfg.outputDir, [sessionName '_res.mat']);
 
+            dlgAns = questdlg(['Save clustering to ', filename, ' ?'], 'Confirmation', 'Yes');
             if strcmp(dlgAns, 'Yes')
+                obj.cRes.curatedOn = now();
+
                 hMsg = jrclust.utils.qMsgBox('Saving... (this closes automatically)');
-                jrclust.utils.saveStruct(obj.cRes, curateFile);
-                success = 1;
+                try
+                    res = load(filename, '-mat');
+                    res = jrclust.utils.mergeStructs(res, obj.cRes);
+                catch
+                    res = obj.cRes;
+                end
+
+                jrclust.utils.saveStruct(res, filename);
+                success = true;
+
                 jrclust.utils.tryClose(hMsg);
             elseif strcmp(dlgAns, 'No')
-                success = 1;
+                success = true;
             else
-                success = 0;
+                success = false;
             end
         end
     end

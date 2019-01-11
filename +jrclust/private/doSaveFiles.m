@@ -1,26 +1,23 @@
-function doSaveFiles(hJRC)
+function doSaveFiles(res, hCfg)
     %DOSAVEFILES Save results structs and binary files to disk
-    [~, sessionName, ~] = fileparts(hJRC.hCfg.configFile);
+    [~, sessionName, ~] = fileparts(hCfg.configFile);
 
-    if ~isempty(hJRC.dRes)
-        filename = fullfile(hJRC.hCfg.outputDir, [sessionName '_detect.mat']);
-        if hJRC.hCfg.verbose
-            fprintf('Saving detection results to %s\n', filename);
-        end
-
-        jrclust.utils.saveStruct(hJRC.dRes, filename);
+    if isempty(res)
+        return;
     end
 
-    if ~isempty(hJRC.sRes)
-        filename = fullfile(hJRC.hCfg.outputDir, [sessionName '_sort.mat']);
-        if hJRC.hCfg.verbose
-            fprintf('Saving sorting results to %s\n', filename);
+    filename = fullfile(hCfg.outputDir, [sessionName '_res.mat']);
+    if isfile(filename) % don't overwrite without explicit permission
+        question = sprintf('%s already exists. Overwrite?', filename);
+        dlgAns = questdlg(question, 'Confirm overwrite', 'No');
+        if isempty(dlgAns) || ismember(dlgAns, {'No', 'Cancel'})
+            return;
         end
-
-        sRes = hJRC.sRes;
-        sRes.hClust = hJRC.hClust;
-        sRes.hCfg = hJRC.hCfg;
-        jrclust.utils.saveStruct(sRes, filename);
     end
+
+    if hCfg.verbose
+        fprintf('Saving results to %s\n', filename);
+    end
+    jrclust.utils.saveStruct(res, filename);
 end
 

@@ -28,6 +28,10 @@ function hJRC_ = jrc(varargin)
         hJRC.run();
     end
 
+    if hJRC.isError
+        error(hJRC.errMsg);
+    end
+
     if nargout > 0
         hJRC_ = hJRC;
     else
@@ -46,22 +50,6 @@ end
 %     % Command type A: supporting functions
 %     fExit = 1;
 %     switch lower(vcCmd)
-% 
-%         case {'makeprm', 'createprm', 'makeprm-all'}
-%             vcFile_prm_ = makeprm_(vcArg1, vcArg2, 1, vcArg3);
-%             if nargout > 0
-%                 varargout{1} = vcFile_prm_;
-%             end
-%             if isempty(vcFile_prm_)
-%                 return;
-%             end
-%             if strcmpi(vcCmd, 'makeprm-all')
-%                 jrc('all', vcFile_prm_);
-%             end
-% 
-%         case 'makeprm-f'
-%             makeprm_(vcArg1, vcArg2, 0, vcArg3);
-% 
 %         case 'import-tsf'
 %             import_tsf_(vcArg1);
 % 
@@ -84,10 +72,6 @@ end
 %         case 'load-nsx'
 %             load_nsx_(vcArg1);
 %             return;
-% 
-%         case 'load-bin'
-%             mnWav = jrclust.utils.readBin(vcArg1, vcArg2);
-%             assignWorkspace_(mnWav);
 % 
 %         case 'import-gt'
 %             import_gt_silico_(vcArg1);
@@ -147,20 +131,6 @@ end
 % 
 %     %-----
 %     % Command type C: Requires P structure (loaded from .prm)
-%     if ~matchFileExt_(vcFile_prm, '.prm')
-%         fprintf(2, 'Must provide .prm file\n');
-%         return;
-%     end
-%     if ~exist_file_(vcFile_prm)
-%         fprintf(2, 'File does not exist: %s\n', vcFile_prm);
-%         return;
-%     end
-% 
-%     P = loadParam_(vcFile_prm);
-% 
-%     if isempty(P)
-%         return;
-%     end
 %     fError = 0;
 %     switch lower(vcCmd) 
 %         case 'preview-test'
@@ -174,10 +144,6 @@ end
 %             traces_(P);
 %             traces_test_(P);
 % 
-%         case {'auto', 'auto-verify', 'auto-manual'}
-%             auto_(P);
-%             describe_(P.vcFile_prm);
-% 
 %         case 'manual-test'
 %             manual_(P, 'debug');
 %             manual_test_(P);
@@ -187,10 +153,6 @@ end
 %             manual_(P, 'debug');
 %             manual_test_(P, 'Menu');
 %             return;
-% 
-%         case {'export-wav', 'wav'} % load raw and assign workspace
-%             mnWav = load_file_(P.vcFile, [], P);
-%             assignWorkspace_(mnWav);
 % 
 %         case 'export-spk'
 %             S0 = get(0, 'UserData');
@@ -225,9 +187,6 @@ end
 % 
 %         case {'export-csv-msort', 'exportcsv-msort'}
 %             export_csv_msort_(P);
-% 
-%         case {'activity', 'plot-activity'}
-%             plot_activity_(P);
 % 
 %         case {'export-fet', 'export-features', 'export-feature'}
 %             export_fet_(P);

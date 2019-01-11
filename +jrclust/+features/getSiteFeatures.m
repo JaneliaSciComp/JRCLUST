@@ -4,7 +4,7 @@ function [siteFeatures, spikes, n1, n2, spikeOrder] = getSiteFeatures(spikeFeatu
     [siteFeatures, spikes, n1, n2, spikeOrder] = deal([]);
 
     nFet_use = hCfg.nFet_use; % or maybe size(spikeFeatures, 2) ? 
-    time_feature_factor = get_set_(hCfg, 'time_feature_factor', 0); % TW
+    time_feature_factor = hCfg.getOr('time_feature_factor', 0); % TW
 
     if isfield(spikeData, 'spikes1') && ~isempty(spikeData.spikes1)
         spikes1 = int32(spikeData.spikes1);
@@ -71,15 +71,15 @@ function [siteFeatures, spikes, n1, n2, spikeOrder] = getSiteFeatures(spikeFeatu
 
 %     % DEPRECATED?
 %     % use sqrt of feature magnitudes, preserving signs
-%     if get_set_(hCfg, 'fSqrt_fet', false)
+%     if hCfg.getOr('fSqrt_fet', false)
 %         siteFeatures = sign(siteFeatures) .* sqrt(abs(siteFeatures));
 %     end
 %     % use log of feature magnitudes, preserving signs
-%     if get_set_(hCfg, 'fLog_fet', false)
+%     if hCfg.getOr('fLog_fet', false)
 %         siteFeatures = sign(siteFeatures) .* log(abs(siteFeatures + eps()));
 %     end
 %     % use square of features
-%     if get_set_(hCfg, 'fSquare_fet', false)
+%     if hCfg.getOr('fSquare_fet', false)
 %         siteFeatures = (siteFeatures).^2;
 %     end
 

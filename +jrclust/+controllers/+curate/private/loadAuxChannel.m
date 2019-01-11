@@ -1,5 +1,6 @@
-function [auxTraces, auxTime] = load_aux_(hCfg)
-    [auxTraces, auxTime] = deal([]);
+function [auxSamples, auxTimes] = loadAuxChannel(hCfg)
+    %LOADAUXCHANNEL Load the aux channel 
+    [auxSamples, auxTimes] = deal([]);
     if numel(hCfg.rawRecordings) > 1
         jrclust.utils.qMsgBox('Multi-file mode is currently not supported');
         return;
@@ -12,19 +13,16 @@ function [auxTraces, auxTime] = load_aux_(hCfg)
         if strcmpi(ext, '.ns5')
             try
                 hCfg.auxFile = jrclust.utils.subsExt(hCfg.rawRecordings{1}, '.ns2');
-            catch ME
-                fprintf(2, '%s\n', ME.message);
+            catch
                 return;
             end
         elseif ismember(lower(ext), {'.bin', '.dat'})
             try
                 hCfg.auxFile = hCfg.rawRecordings{1};
-            catch ME
-                fprintf(2, '%s\n', ME.message);
+            catch
                 return;
             end
         else
-            fprintf(2, 'Unable to determine the aux file. Please set "auxFile" in %s.\n', hCfg.configFile);
             return;
         end
     end
@@ -40,7 +38,7 @@ function [auxTraces, auxTime] = load_aux_(hCfg)
         case '.mat'
             auxData = load(hCfg.auxFile);
             auxDataFields = fieldnames(auxData);
-            auxTraces = auxData.(auxDataFields{1});
+            auxSamples = auxData.(auxDataFields{1});
             auxRate = hCfg.getOr('auxRate', hCfg.sampleRate);
         case {'.dat', '.bin'}
             if isempty(hCfg.auxChan)
@@ -48,14 +46,14 @@ function [auxTraces, auxTime] = load_aux_(hCfg)
             end
 
             hRec = jrclust.models.recording.Recording(hCfg.auxFile, hCfg);
-            auxTraces = single(hRec.readROI(hCfg.auxChan, 1:hRec.nSamples))*hCfg.bitScaling*hCfg.auxScale;
+            auxSamples = single(hRec.readROI(hCfg.auxChan, 1:hRec.nSamples))*hCfg.bitScaling*hCfg.auxScale;
             auxRate = hCfg.getOr('auxRate', hCfg.sampleRate);
         otherwise
-            fprintf(2, 'hCfg.auxFile: unsupported file format: %s\n', auxExt);
+            jrclust.utils.qMsgBox(sprintf('hCfg.auxFile: unsupported file format: %s\n', auxExt));
         return;
     end % switch
 
     if nargout >= 2
-        auxTime = single(1:numel(auxTraces))' / auxRate;
+        auxTimes = single(1:numel(auxSamples))'/auxRate;
     end
-end %func
+end
