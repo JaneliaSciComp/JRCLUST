@@ -133,7 +133,7 @@ classdef JRC < handle & dynamicprops
                     jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.cmd = 'detect';
 
-                case {'cluster', 'clust', 'sort-verify', 'sort-validate', 'sort'}
+                case {'cluster', 'clust', 'sort-verify', 'sort-validate'}
                     imsg = 'Please use ''sort'' in the future';
                     jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.cmd = 'sort';
