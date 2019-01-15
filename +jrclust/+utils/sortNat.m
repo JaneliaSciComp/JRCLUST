@@ -77,8 +77,8 @@ function [cs,index] = sortNat(c,mode)
 
     % Compute which columns in the composite matrix get chars.
     charcols = true(1,max_len + 2*n);
-    charcols(numcols) = false;
-    charcols(ndigcols) = false;
+    charcols(numcols) = 0;
+    charcols(ndigcols) = 0;
 
     % Create and fill composite matrix, comp.
     comp = zeros(num_str,max_len + 2*n);

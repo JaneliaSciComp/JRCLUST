@@ -7,7 +7,7 @@ function sampledWindows = getSampledWindows(hClust, sampledSpikes, sites, showRa
     %   output: sampledWindows is nSamples x nSites x nSpikes
     hCfg = hClust.hCfg;
     if nargin < 4
-        showRaw = hCfg.getOr('showRaw', false);
+        showRaw = hCfg.getOr('showRaw', 0);
     end
 
     % don't repeat ourselves if we have duplicate sites

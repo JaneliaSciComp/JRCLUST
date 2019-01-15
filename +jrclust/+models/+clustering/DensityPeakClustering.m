@@ -145,7 +145,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
             if ~isImport
                 obj.clearNotes();
-                obj.refresh(true, []);
+                obj.refresh(1, []);
                 commitMsg = sprintf('%s;initial commit', datestr(now, 31));
                 obj.commit(commitMsg);
             end
@@ -223,7 +223,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
             good = obj.spikeClusters > 0;
             obj.spikeClusters(good) = int32(mapTo(obj.spikeClusters(good))); % translate cluster number
-            obj.refresh(false, updateMe); % empty clusters removed later
+            obj.refresh(0, updateMe); % empty clusters removed later
 
             arrayfun(@obj.rmRefracSpikes, updateMe); % remove refrac spikes
 
@@ -241,7 +241,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
         function postOp(obj, updateMe)
             %POSTOP Call this after a merge or split operation
             % update counts, center sites, remove empty clusters
-            obj.refresh(true, updateMe);
+            obj.refresh(1, updateMe);
 
             if ~isempty(updateMe)
                 arrayfun(@obj.rmRefracSpikes, updateMe);
@@ -376,7 +376,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
                 % any summary fields empty? refresh
                 if any(cellfun(@(f) isempty(obj.(f)), sumFields))
-                    obj.refresh(true, []);
+                    obj.refresh(1, []);
                 end
 
                 % any quality scores empty? recompute
@@ -386,9 +386,9 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 commitMsg = sprintf('%s;initial import', datestr(now, 31));
                 obj.commit(commitMsg);
 
-                success = true;
+                success = 1;
             else
-                success = false;
+                success = 0;
             end
         end
     end
@@ -406,7 +406,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
         function success = autoMerge(obj, maxWavCor)
             %AUTOMERGE Automatically merge clusters
-            success = false;
+            success = 0;
 
             if obj.nEdits ~= obj.editPos % not at tip of edit history, back out
                 warning('cannot branch from history; use revert() first');
@@ -422,13 +422,13 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 end
             end
 
-            obj.refresh(true, []);
+            obj.refresh(1, []);
             obj.orderClusters('clusterSites');
             obj.clearNotes();
 
             obj.rmOutlierSpikes();
             obj.doWaveformMerge();
-            obj.refresh(true, []);
+            obj.refresh(1, []);
             obj.orderClusters('clusterSites');
             obj.updateWaveforms();
 
@@ -442,12 +442,12 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 obj.hCfg.resetTemporaryParams('maxWavCor');
             end
 
-            success = true;
+            success = 1;
         end
 
         function clearNotes(obj)
             %CLEARNOTES Remove all cluster notes
-            obj.clusterNotes = arrayfun(@(~) '', 1:obj.nClusters, 'UniformOutput', false);
+            obj.clusterNotes = arrayfun(@(~) '', 1:obj.nClusters, 'UniformOutput', 0);
         end
 
         function rates = firingRates(obj, clusters, nSamples)
@@ -618,7 +618,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 updateMe = [];
             end
             if nargin < 3
-                useRaw = true;
+                useRaw = 1;
             end
 
             results = doComputeMeanWaveforms(obj, updateMe, useRaw);
@@ -668,7 +668,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
         function success = deleteClusters(obj, deleteMe)
             %DELETECLUSTERS Delete clusters
-            success = true;
+            success = 1;
 
             clustersBak = obj.spikeClusters; % in case we need to restore
 
@@ -699,8 +699,8 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             if ~isempty(obj.selfConsistent)
                 warning('Cluster data is inconsistent after deleting %d', deleteMe);
                 obj.spikeClusters = clustersBak;
-                success = false;
-                obj.refresh(true, []);
+                success = 0;
+                obj.refresh(1, []);
             end
         end
 
@@ -779,7 +779,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             end
             obj.spikeClusters = spikeClusters_;
 
-            obj.refresh(false, []);
+            obj.refresh(0, []);
             if ~isempty(obj.meanWfGlobal) % only compute mean waveforms if we already had them
                 obj.updateWaveforms();
             end
@@ -792,7 +792,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
         function success = exportToCSV(obj, zeroIndex)
             %EXPORTTOCSV Export spike times, sites, and clusters to CSV
             if nargin < 2
-                zeroIndex = false;
+                zeroIndex = 0;
             end
 
             spikeTimes_ = double(obj.spikeTimes) / obj.hCfg.sampleRate;
@@ -807,7 +807,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 fclose(fid);
             catch ME
                 warning(ME.identifier, 'Failed to export: %s', ME.message);
-                success = false;
+                success = 0;
                 return;
             end
 
@@ -821,16 +821,16 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 fprintf('\tColumn 3: Site# (starts with 1)\n');
             end
 
-            success = true;
+            success = 1;
         end
 
         function success = exportQualityScores(obj, zeroIndex, fGui)
             %EXPORTQUALITYSCORES Export cluster quality scores to CSV
             if nargin < 2
-                zeroIndex = false;
+                zeroIndex = 0;
             end
             if nargin < 3
-                fGui = false;
+                fGui = 0;
             end
             
             ID = (1:obj.nClusters)';
@@ -853,7 +853,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 writetable(table_, filename);
             catch ME
                 warning(ME.identifier, 'Failed to export: %s', ME.message);
-                success = false;
+                success = 0;
                 return;
             end
 
@@ -879,7 +879,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 end
             end
 
-            success = true;
+            success = 1;
         end
 
         function uInfo = exportUnitInfo(obj, iCluster)
@@ -942,7 +942,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
         function success = mergeClusterPair(obj, iCluster, jCluster)
             %MERGECLUSTERPAIR Merge a pair of clusters
-            success = false;
+            success = 0;
             if iCluster == jCluster || numel(intersect([iCluster, jCluster], obj.spikeClusters)) < 2
                 return;
             end
@@ -971,10 +971,10 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             if ~isempty(obj.selfConsistent)
                 warning('Cluster data is inconsistent after merging %d and %d', iCluster, jCluster);
                 obj.spikeClusters = clustersBak;
-                success = false;
-                obj.refresh(true, []);
+                success = 0;
+                obj.refresh(1, []);
             else
-                success = true;
+                success = 1;
                 obj.postOp(iCluster);
                 obj.orderClusters('clusterSites');
             end
@@ -1121,7 +1121,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             obj.clusterCentroids = [];
 
             obj.clearNotes();
-            obj.refresh(true, []);
+            obj.refresh(1, []);
 
             if recompute
                 obj.updateWaveforms();
@@ -1139,14 +1139,14 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
         function refresh(obj, doRemoveEmpty, updateMe)
             %REFRESH Recount and store spikes by cluster, optionally removing empty clusters
             if nargin < 2
-                doRemoveEmpty = false;
+                doRemoveEmpty = 0;
             end
             if nargin < 3
                 updateMe = [];
             end
 
             if isempty(updateMe)
-                obj.spikesByCluster = arrayfun(@(iC) find(obj.spikeClusters == iC), 1:obj.nClusters, 'UniformOutput', false);
+                obj.spikesByCluster = arrayfun(@(iC) find(obj.spikeClusters == iC), 1:obj.nClusters, 'UniformOutput', 0);
                 obj.unitCount = cellfun(@numel, obj.spikesByCluster);
                 if ~isempty(obj.spikeSites)
                     obj.clusterSites = double(arrayfun(@(iC) mode(obj.spikeSites(obj.spikesByCluster{iC})), 1:obj.nClusters));
@@ -1154,7 +1154,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                     obj.clusterSites = [];
                 end
             else
-                obj.spikesByCluster(updateMe) = arrayfun(@(iC) find(obj.spikeClusters == iC), updateMe, 'UniformOutput', false);
+                obj.spikesByCluster(updateMe) = arrayfun(@(iC) find(obj.spikeClusters == iC), updateMe, 'UniformOutput', 0);
                 obj.unitCount(updateMe) = cellfun(@numel, obj.spikesByCluster(updateMe));
                 if ~isempty(obj.spikeSites)
                     obj.clusterSites(updateMe) = double(arrayfun(@(iC) mode(obj.spikeSites(obj.spikesByCluster{iC})), updateMe));
@@ -1284,7 +1284,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                         break;
                     end
 
-                    keepMe(iKeepMe(inRefrac(1:nSkipRefrac:end))) = false;
+                    keepMe(iKeepMe(inRefrac(1:nSkipRefrac:end))) = 0;
                 end
 
                 nRemoved = sum(~keepMe);
@@ -1297,7 +1297,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
         function [success, retained] = splitCluster(obj, iCluster, retained)
             %SPLITCLUSTER Split a cluster
-            success = false;
+            success = 0;
             if iCluster < 1 || iCluster > obj.nClusters
                 return;
             end
@@ -1368,15 +1368,15 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             end
 
             if isempty(obj.selfConsistent())
-                success = true;
+                success = 1;
                 obj.postOp([iCluster, iCluster + 1]);
                 obj.orderClusters('clusterSites');
             else
                 warning('Cluster data is inconsistent after splitting %d', iCluster);
                 obj.spikeClusters = clustersBak;
-                success = false;
+                success = 0;
                 obj.subsetFields([1:iCluster iCluster+1:obj.nClusters+1]);
-                obj.refresh(true, []);
+                obj.refresh(1, []);
             end
         end
 

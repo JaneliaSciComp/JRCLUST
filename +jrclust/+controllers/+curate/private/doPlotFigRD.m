@@ -8,18 +8,18 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
 %     end
 
     if strcmp(hCfg.rlDetrendMode, 'global')
-        [centers, x, y] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, false, hCfg);
+        [centers, x, y] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 0, hCfg);
         y = jrclust.utils.nanlog10(y);
-        fDetrend = true;
+        fDetrend = 1;
     elseif strcmp(hCfg.rlDetrendMode, 'local')
-        [centers, x, y] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, true, hCfg);
+        [centers, x, y] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 1, hCfg);
         y = jrclust.utils.nanlog10(y);
-        fDetrend = true;
+        fDetrend = 1;
     else
         centers = find(hClust.spikeRho(:) > 10^(hCfg.log10RhoCut) & hClust.spikeDelta(:) > 10^(hCfg.log10DeltaCut));
         x = jrclust.utils.nanlog10(hClust.spikeRho(:));
         y = jrclust.utils.nanlog10(hClust.spikeDelta(:));
-        fDetrend = false;
+        fDetrend = 0;
     end
 
     hFigRD.addPlot('allSpikes', x, y, '.');

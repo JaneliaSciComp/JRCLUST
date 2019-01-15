@@ -15,7 +15,7 @@ function [samplesOut, keepMe] = filterSamples(samplesIn, windowPre, windowPost, 
             samplesIn = jrclust.filters.fftClean(samplesIn, hCfg.fftThreshMAD, hCfg.ramToGPUFactor);
         end
     catch ME % GPU denoising failed, retry in CPU
-        hCfg.useGPU = false;
+        hCfg.useGPU = 0;
 
         samplesIn = samplesIn_;
         if hCfg.fftThreshMAD > 0
@@ -25,12 +25,12 @@ function [samplesOut, keepMe] = filterSamples(samplesIn, windowPre, windowPost, 
 
     % filter spikes; samples go in padded and come out padded
     try
-        [samplesOut, channelMeans] = jrclust.filters.filtCAR(samplesIn, [], [], false, hCfg);
+        [samplesOut, channelMeans] = jrclust.filters.filtCAR(samplesIn, [], [], 0, hCfg);
     catch ME % GPU filtering failed, retry in CPU
-        hCfg.useGPU = false;
+        hCfg.useGPU = 0;
 
         samplesIn = samplesIn_;
-        [samplesOut, channelMeans] = jrclust.filters.filtCAR(samplesIn, [], [], false, hCfg);
+        [samplesOut, channelMeans] = jrclust.filters.filtCAR(samplesIn, [], [], 0, hCfg);
     end
 
     clear samplesIn_;

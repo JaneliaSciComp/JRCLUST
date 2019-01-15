@@ -9,13 +9,13 @@ end
 function sRes = computeCenters(dRes, sRes, hCfg)
     %COMPUTECENTERS Find cluster centers
     if ~isfield(dRes, 'spikesBySite')
-        dRes.spikesBySite = arrayfun(@(iSite) dRes.spikes(dRes.spikeSites==iSite), hCfg.siteMap, 'UniformOutput', false);
+        dRes.spikesBySite = arrayfun(@(iSite) dRes.spikes(dRes.spikeSites==iSite), hCfg.siteMap, 'UniformOutput', 0);
     end
 
     if strcmp(hCfg.rlDetrendMode, 'local')      % perform detrending site by site
-        sRes.clusterCenters = jrclust.cluster.densitypeaks.detrendRhoDelta(sRes, dRes.spikesBySite, true, hCfg);
+        sRes.clusterCenters = jrclust.cluster.densitypeaks.detrendRhoDelta(sRes, dRes.spikesBySite, 1, hCfg);
     elseif strcmp(hCfg.rlDetrendMode, 'global') % detrend over all sites
-        sRes.clusterCenters = jrclust.cluster.densitypeaks.detrendRhoDelta(sRes, dRes.spikesBySite, false, hCfg);
+        sRes.clusterCenters = jrclust.cluster.densitypeaks.detrendRhoDelta(sRes, dRes.spikesBySite, 0, hCfg);
     elseif strcmp(hCfg.rlDetrendMode, 'logz')   % identify centers with sufficiently high z-scores
         % sRes.clusterCenters = log_ztran_(sRes.spikeRho, sRes.spikeDelta, hCfg.log10RhoCut, 4 + hCfg.log10DeltaCut);
         x = log10(sRes.spikeRho(:));
@@ -27,9 +27,9 @@ function sRes = computeCenters(dRes, sRes, hCfg)
         % from postCluster_: 4+P.delta1_cut
         sRes.clusterCenters = find(x >= hCfg.log10RhoCut & y >= 4 + hCfg.log10DeltaCut);
     elseif strcmp(hCfg.rlDetrendMode, 'hidehiko') % Hide's regression method
-        sRes.clusterCenters = jrclust.cluster.densitypeaks.regressCenters(sRes, dRes.spikesBySite, hCfg.log10DeltaCut); 
+        sRes.clusterCenters = jrclust.cluster.densitypeaks.regressCenters(sRes, dRes.spikesBySite, hCfg.log10DeltaCut);
     else                                            % don't detrend
-        sRes.clusterCenters = find(sRes.spikeRho(:) > 10^(hCfg.log10RhoCut) & sRes.spikeDelta(:) > 10^(hCfg.log10DeltaCut));                
+        sRes.clusterCenters = find(sRes.spikeRho(:) > 10^(hCfg.log10RhoCut) & sRes.spikeDelta(:) > 10^(hCfg.log10DeltaCut));
     end
 end
 

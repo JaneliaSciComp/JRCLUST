@@ -2,7 +2,7 @@ function S = metaToStruct(filename)
     %METATOSTRUCT read a SpikeGLX meta file and convert to struct
 
     fid = fopen(filename, 'r');
-    keysvals = textscan(fid, '%s%s', 'Delimiter', '=',  'ReturnOnError', false);
+    keysvals = textscan(fid, '%s%s', 'Delimiter', '=',  'ReturnOnError', 0);
     fclose(fid);
 
     keys = keysvals{1};

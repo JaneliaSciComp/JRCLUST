@@ -68,8 +68,8 @@ classdef Figure < handle
 
             obj.hideOnDrag = {};
             obj.hideOnDragOff = {};
-            obj.isMouseable = false;
-            obj.isWaiting = false;
+            obj.isMouseable = 0;
+            obj.isWaiting = 0;
         end
     end
 
@@ -201,13 +201,13 @@ classdef Figure < handle
                 return;
             end
 
-            obj.toggleVisible(obj.hideOnDrag, false);
+            obj.toggleVisible(obj.hideOnDrag, 0);
         end
 
         function showDrag(obj)
             %SHOWDRAG Show figures after drag release
             try 
-                obj.toggleVisible(obj.hideOnDrag, true);
+                obj.toggleVisible(obj.hideOnDrag, 1);
             catch
             end
         end
@@ -368,7 +368,7 @@ classdef Figure < handle
             end
 
             if nargin < 7
-                fScatter = false;
+                fScatter = 0;
             end
 
             if isa(YData, 'gpuArray')
@@ -418,7 +418,7 @@ classdef Figure < handle
             if isfield(UserData, 'fScatter')
                 fScatter = UserData.fScatter; 
             else
-                fScatter = false;
+                fScatter = 0;
             end
 
             if fScatter
@@ -472,7 +472,7 @@ classdef Figure < handle
                 axKey = 'default';
             end
 
-            obj.isMouseable = true;
+            obj.isMouseable = 1;
             if obj.isReady && obj.hasAxes(axKey)
                 % is2D might disappear in a future release...
                 hAx = obj.hAxes(axKey);
@@ -605,10 +605,10 @@ classdef Figure < handle
             oldXData = get(hPlot, 'XData');
             oldYData = get(hPlot, 'YData');
 
-            doUpdate = true;
+            doUpdate = 1;
             if (numel(oldXData) == numel(newXData)) && (numel(oldYData) == numel(newYData))
                 if all(oldXData(:) - newXData(:) == 0) && all(oldYData(:) - newYData(:) == 0)
-                    doUpdate = false;
+                    doUpdate = 0;
                 end
             end
 
@@ -624,9 +624,9 @@ classdef Figure < handle
             %WAIT Toggle waiting status and set pointer to reflect
             if obj.isReady
                 if nargin == 2 && doWait
-                    obj.isWaiting = true;
+                    obj.isWaiting = 1;
                 elseif nargin == 2 % ~doWait
-                    obj.isWaiting = false;
+                    obj.isWaiting = 0;
                 else % nargin == 0, toggle on/off
                     obj.isWaiting = ~obj.isWaiting;
                 end

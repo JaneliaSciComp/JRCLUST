@@ -17,7 +17,8 @@ niMNChans1=0:5
 niMNGain=200
 niMuxFactor=32
 niSampRate=25000
-niSyncEnable=true
+niSyncEnable=1
+
 niSyncLine=Dev1/port0/line0
 niXAChans1=
 niXDChans1=

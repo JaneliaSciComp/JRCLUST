@@ -71,15 +71,15 @@ function [siteFeatures, spikes, n1, n2, spikeOrder] = getSiteFeatures(spikeFeatu
 
 %     % DEPRECATED?
 %     % use sqrt of feature magnitudes, preserving signs
-%     if hCfg.getOr('fSqrt_fet', false)
+%     if hCfg.getOr('fSqrt_fet', 0)
 %         siteFeatures = sign(siteFeatures) .* sqrt(abs(siteFeatures));
 %     end
 %     % use log of feature magnitudes, preserving signs
-%     if hCfg.getOr('fLog_fet', false)
+%     if hCfg.getOr('fLog_fet', 0)
 %         siteFeatures = sign(siteFeatures) .* log(abs(siteFeatures + eps()));
 %     end
 %     % use square of features
-%     if hCfg.getOr('fSquare_fet', false)
+%     if hCfg.getOr('fSquare_fet', 0)
 %         siteFeatures = (siteFeatures).^2;
 %     end
 

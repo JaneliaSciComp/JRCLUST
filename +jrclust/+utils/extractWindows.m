@@ -6,7 +6,7 @@ function [windows, timeRanges] = extractWindows(samplesIn, windowLim, spTimes, s
         spSites = [];
     end
     if nargin < 5
-        fMeanSubt = false;
+        fMeanSubt = 0;
     end
 
     if isempty(spTimes)

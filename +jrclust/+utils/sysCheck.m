@@ -1,13 +1,13 @@
 function ok = sysCheck()
     %SYSCHECK Check for required toolboxes
-    ok = true;
+    ok = 1;
     boxen = {'Signal', 'Image', 'Statistics'};
     reqs = cellfun(@(b) logical(license('test', [b '_Toolbox'])), boxen);
 
     if ~all(reqs)
         errmsg = ['You are missing the following toolboxes: ', strjoin(boxen(~reqs), ', ')]; 
         errordlg(errmsg, 'Missing system requirements');
-        ok = false;
+        ok = 0;
     end
     
     if ~license('test', 'Distrib_Computing_Toolbox')

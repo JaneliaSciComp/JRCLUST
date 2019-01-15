@@ -33,7 +33,7 @@ function doPlotActivity(hCfg, spikeData)
     leftEdge = hCfg.siteLoc(:, 1) == 0; % the leftmost column on the probe
     YLocs = hCfg.siteLoc(:, 2);
 
-    hFigActivity = jrclust.views.Figure('FigActivity', [0 0 .5 1], hCfg.sessionName, true, true);
+    hFigActivity = jrclust.views.Figure('FigActivity', [0 0 .5 1], hCfg.sessionName, 1, 1);
     hFigActivity.addSubplot('hActivity', 1, 2);
 
     hFigActivity.subplotApply('hActivity', 1, @imagesc, amp90(leftEdge, :), 'XData', (1:nBins) * tBin, 'YData', YLocs(leftEdge));

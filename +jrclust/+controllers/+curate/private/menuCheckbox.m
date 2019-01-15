@@ -1,7 +1,7 @@
 function hMenu = menuCheckbox(menuTag, label, fUncheckOthers)
     %MENUCHECKBOX Check the label selected, optionally uncheck the rest
     if nargin < 3
-        fUncheckOthers = true;
+        fUncheckOthers = 1;
     end
 
     hMenu = [];

@@ -78,7 +78,7 @@ if ishandle(3918)
 end
 
 inClust = false(size(h.mrSpkWav, 1), 1);
-inClust(cs.toTestNum(ismember(cs.clustnum, cs.keep))) = true;
+inClust(cs.toTestNum(ismember(cs.clustnum, cs.keep))) = 1;
 
 
 
@@ -91,7 +91,7 @@ keep = get(cs.ClustList, 'Value');
 clrs = get(gca,'ColorOrder');
 
 inClust = false(size(h.mrSpkWav, 1), 1);
-inClust(cs.toTestNum(ismember(cs.clustnum, keep))) = true;
+inClust(cs.toTestNum(ismember(cs.clustnum, keep))) = 1;
 
 ISI = diff([cs.spk.time(inClust); inf]);
 % ISI(diff(h.spk.trial(inClust))~=0) = inf;

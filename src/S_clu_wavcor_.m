@@ -4,13 +4,13 @@ function mrWavCor = waveformSim(hClust, hCfg, updateMe_)
         updateMe_ = [];
     end
 
-    hCfg.useGPU = false;
+    hCfg.useGPU = 0;
 
     % not in default param set, but can be overridden if you really want
-    fUsePeak2 = hCfg.getOr('fUsePeak2', false);
-    fWaveform_raw = hCfg.getOr('fWavRaw_merge', true); % revert TW: get_set_(P, 'fWavRaw_merge', 0);
-    fZeroStart_raw = hCfg.getOr('fZeroStart_raw', false);
-    fRankCorr_merge = hCfg.getOr('fRankCorr_merge', false);
+    fUsePeak2 = hCfg.getOr('fUsePeak2', 0);
+    fWaveform_raw = hCfg.getOr('fWavRaw_merge', 1); % revert TW: get_set_(P, 'fWavRaw_merge', 0);
+    fZeroStart_raw = hCfg.getOr('fZeroStart_raw', 0);
+    fRankCorr_merge = hCfg.getOr('fRankCorr_merge', 0);
     fMode_cor = hCfg.getOr('fMode_cor', 1); % 0: pearson, 1: no mean subt pearson
 
     if hCfg.verbose
@@ -62,13 +62,13 @@ function mrWavCor = waveformSim(hClust, hCfg, updateMe_)
     if isempty(updateMe_)
         updateMe = true(hClust.nClusters, 1);
         mrWavCorOld = [];
-        fParfor = true;
+        fParfor = 1;
     else
-        fParfor = false;
+        fParfor = 0;
         updateMe = false(hClust.nClusters, 1);
-        updateMe(updateMe_) = true;
+        updateMe(updateMe_) = 1;
         mrWavCorOld = hClust.mrWavCor;
-        updateMe((1:hClust.nClusters) > size(mrWavCorOld, 1)) = true;
+        updateMe((1:hClust.nClusters) > size(mrWavCorOld, 1)) = 1;
     end
 
     corrData = struct('updateMe', updateMe, ...
@@ -88,7 +88,7 @@ function mrWavCor = waveformSim(hClust, hCfg, updateMe_)
             end
         catch
             fprintf('S_clu_wavcor_: parfor failed. retrying for loop\n');
-            fParfor = false;
+            fParfor = 0;
         end
     end
 

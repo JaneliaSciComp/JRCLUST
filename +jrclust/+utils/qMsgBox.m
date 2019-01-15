@@ -3,10 +3,10 @@ function hMsgbox = qMsgBox(msg, fBlock, fModal)
     hMsgbox = [];
 
     if nargin < 2
-        fBlock = false;
+        fBlock = 0;
     end
     if nargin < 3
-        fModal = false;
+        fModal = 0;
     end
 
     if fBlock

@@ -36,7 +36,7 @@ classdef DetectController < handle
             obj.importTimes = importTimes(:);
             obj.importSites = importSites(:);
 
-            obj.isError = false;
+            obj.isError = 0;
         end
     end
 
@@ -45,10 +45,6 @@ classdef DetectController < handle
         function res = detect(obj)
             res = struct();
             t0 = tic();
-
-            dtype = obj.hCfg.dtype;
-            nChans = obj.hCfg.nChans;
-            headerOffset = obj.hCfg.headerOffset;
 
             % get manually-set spike thresholds
             if ~isempty(obj.hCfg.threshFile)

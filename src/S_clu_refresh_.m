@@ -2,7 +2,7 @@
 function [clusterData, vlKeep_clu] = S_clu_refresh_(clusterData, spikeSites, fRemoveEmpty)
     %
     if nargin < 3
-        fRemoveEmpty = true;
+        fRemoveEmpty = 1;
     end
 
     nClusters = double(max(clusterData.spikeClusters));

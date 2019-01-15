@@ -5,7 +5,7 @@ function S = str2struct(strval)
     strval = strval';
     strval = strval(:)';
 
-    keysVals = textscan(strtrim(strval), '%s%s', 'Delimiter', '=;',  'ReturnOnError', false);
+    keysVals = textscan(strtrim(strval), '%s%s', 'Delimiter', '=;',  'ReturnOnError', 0);
     structKeys = keysVals{1};
     structVals = keysVals{2};
 

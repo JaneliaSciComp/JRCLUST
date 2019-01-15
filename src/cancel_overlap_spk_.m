@@ -41,7 +41,7 @@ end %func
 function [viSpk_ol_spk, vnDelay_ol_spk] = findPotentialOverlaps(spikeTimes, spikeSites, hCfg)
 
     nSites = max(spikeSites);
-    spikesBySite = arrayfun(@(iSite) int32(find(spikeSites == iSite)), 1:nSites, 'UniformOutput', false);
+    spikesBySite = arrayfun(@(iSite) int32(find(spikeSites == iSite)), 1:nSites, 'UniformOutput', 0);
     spikeTimes = jrclust.utils.tryGather(spikeTimes);
     [viSpk_ol_spk, vnDelay_ol_spk] = deal(zeros(size(spikeSites), 'int32'));
 

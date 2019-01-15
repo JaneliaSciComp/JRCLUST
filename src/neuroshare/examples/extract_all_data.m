@@ -15,7 +15,7 @@ dataChannel = 1;   % A-1 starts at 1, A-2 starts at 33,
                    % Analog I/O starts at 10241
                    % Digital is 1 to 4 or 'parallel'
                    
-plotStatus = true; % Whether or not to plot the data
+plotStatus = 1; % Whether or not to plot the data
 
 
 completeFilePath = 'Y:\Isaac\SampleGrapevineData\SampleGrapevineData.nev';

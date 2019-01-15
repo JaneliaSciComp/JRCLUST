@@ -10,7 +10,7 @@ function [samplesIn, channelMeans] = filtCAR(samplesIn, windowPre, windowPost, t
         windowPost = [];
     end
     if nargin < 5
-        trimPad = true;
+        trimPad = 1;
     end
 
     nPadPre = size(windowPre, 1);

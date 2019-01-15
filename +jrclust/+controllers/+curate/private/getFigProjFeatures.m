@@ -40,7 +40,7 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
     if strcmp(dispFeature, 'pca')
         % compute first 2 principal vectors (on each of sitesToShow) from
         % all spikes in iCluster
-        sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, hClust.spikesByCluster{iCluster}, sitesToShow, false), [1, 3, 2]);
+        sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, hClust.spikesByCluster{iCluster}, sitesToShow, 0), [1, 3, 2]);
         if all(hCfg.pcPair == [1 2])
             [prVecs1, prVecs2] = jrclust.features.getPVSpikes(sampledWindows);
         elseif all(hCfg.pcPair == [1 3])
@@ -50,14 +50,14 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
         end
 
         % project background and foreground spikes onto principal vectors
-        bgWindows = permute(jrclust.utils.getSampledWindows(hClust, bgSpikes, sitesToShow, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+        bgWindows = permute(jrclust.utils.getSampledWindows(hClust, bgSpikes, sitesToShow, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
         [bgYData, bgXData] = jrclust.features.pcProjectSpikes(bgWindows, prVecs1, prVecs2);
 
-        fgWindows = permute(jrclust.utils.getSampledWindows(hClust, fgSpikes, sitesToShow, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+        fgWindows = permute(jrclust.utils.getSampledWindows(hClust, fgSpikes, sitesToShow, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
         [fgYData, fgXData] = jrclust.features.pcProjectSpikes(fgWindows, prVecs1, prVecs2);
 
         if ~isempty(jCluster)
-            fgWindows2 = permute(jrclust.utils.getSampledWindows(hClust, fgSpikes2, sitesToShow, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+            fgWindows2 = permute(jrclust.utils.getSampledWindows(hClust, fgSpikes2, sitesToShow, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
             [fg2YData, fg2XData] = jrclust.features.pcProjectSpikes(fgWindows2, prVecs1, prVecs2);
         end
     elseif strcmp(dispFeature, 'ppca')
@@ -66,14 +66,14 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
         [prVecs1, prVecs2] = jrclust.features.getPVClusters(hClust, sitesToShow, iCluster, jCluster);
 
         % project background and foreground spikes onto principal vectors
-        bgWindows = permute(jrclust.utils.getSampledWindows(hClust, bgSpikes, sitesToShow, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+        bgWindows = permute(jrclust.utils.getSampledWindows(hClust, bgSpikes, sitesToShow, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
         [bgYData, bgXData] = jrclust.features.pcProjectSpikes(bgWindows, prVecs1, prVecs2);
 
-        fgWindows = permute(jrclust.utils.getSampledWindows(hClust, fgSpikes, sitesToShow, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+        fgWindows = permute(jrclust.utils.getSampledWindows(hClust, fgSpikes, sitesToShow, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
         [fgYData, fgXData] = jrclust.features.pcProjectSpikes(fgWindows, prVecs1, prVecs2);
 
         if ~isempty(jCluster)
-            fgWindows2 = permute(jrclust.utils.getSampledWindows(hClust, fgSpikes2, sitesToShow, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+            fgWindows2 = permute(jrclust.utils.getSampledWindows(hClust, fgSpikes2, sitesToShow, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
             [fg2YData, fg2XData] = jrclust.features.pcProjectSpikes(fgWindows2, prVecs1, prVecs2);
         end
     elseif strcmp(dispFeature, 'cov')
@@ -84,16 +84,16 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
             [fg2YData, fg2XData] = getSpikeCov(hClust, fgSpikes2, sitesToShow);
         end
     elseif strcmp(dispFeature, 'vpp') % minimum vs maximum voltage
-        bgWindows = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(hClust, bgSpikes, sitesToShow, false), hCfg);
+        bgWindows = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(hClust, bgSpikes, sitesToShow, 0), hCfg);
         bgYData = abs(permute(min(bgWindows), [2, 3, 1]));
         bgXData = abs(permute(max(bgWindows), [2, 3, 1]));
 
-        fgWindows = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(hClust, fgSpikes, sitesToShow, false), hCfg);
+        fgWindows = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(hClust, fgSpikes, sitesToShow, 0), hCfg);
         fgYData = abs(permute(min(fgWindows), [2, 3, 1]));
         fgXData = abs(permute(max(fgWindows), [2, 3, 1]));
 
         if ~isempty(jCluster)
-            fgWindows2 = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(hClust, fgSpikes2, sitesToShow, false), hCfg);
+            fgWindows2 = jrclust.utils.filtTouV(jrclust.utils.getSampledWindows(hClust, fgSpikes2, sitesToShow, 0), hCfg);
             fg2YData = abs(permute(min(fgWindows2), [2, 3, 1]));
             fg2XData = abs(permute(max(fgWindows2), [2, 3, 1]));
         end

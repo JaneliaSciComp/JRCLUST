@@ -27,7 +27,7 @@ function [vals, inds] = subsampleVec(vals, k)
     if isempty(k) || k >= numel(vals)
         inds = 1:numel(vals);
     else
-        inds = sort(randsample(1:numel(vals), k, false));
+        inds = sort(randsample(1:numel(vals), k, 0));
     end
 
     vals = vals(inds);
@@ -38,7 +38,7 @@ function [vals, inds] = subsampleNd(vals, k, dim)
     if isempty(k) || k >= size(vals, dim)
         inds = 1:size(vals, dim);
     else
-        inds = sort(randsample(1:size(vals, dim), k, false));
+        inds = sort(randsample(1:size(vals, dim), k, 0));
     end
 
     if dim == 1

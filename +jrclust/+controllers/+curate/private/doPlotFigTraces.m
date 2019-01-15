@@ -8,7 +8,7 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
 
     hBox = jrclust.utils.qMsgBox('Plotting...', 0, 1);
 
-    hFigTraces.wait(true);
+    hFigTraces.wait(1);
 
     sampleRate = hCfg.sampleRate / hCfg.nSkip_show;
     viSamples1 = 1:hCfg.nSkip_show:size(tracesRaw, 2);
@@ -21,20 +21,20 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
 
         % temporarily alter settings to send traces through a filter
         hCfg.sampleRate = sampleRate;
-        hCfg.useGPU = false;
+        hCfg.useGPU = 0;
         hCfg.filterType = hCfg.dispFilter;
 
         if hCfg.fftThreshMAD > 0
             tracesRaw = jrclust.filters.fftClean(tracesRaw, hCfg);
         end
 
-        tracesFilt = jrclust.filters.filtCAR(tracesRaw(:, viSamples1), [], [], false, hCfg);
+        tracesFilt = jrclust.filters.filtCAR(tracesRaw(:, viSamples1), [], [], 0, hCfg);
         tracesFilt = jrclust.utils.bit2uV(tracesFilt, hCfg);
         filterToggle = hCfg.filterType;
 
         % restore old settings
         hCfg.sampleRate = sampleRateOld;
-        hCfg.useGPU = true;
+        hCfg.useGPU = 1;
         hCfg.filterType = filterTypeOld;
     else
         tracesFilt = jrclust.utils.meanSubtract(single(tracesRaw(:, viSamples1))) * hCfg.bitScaling;
@@ -83,7 +83,7 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
         else
             % find all recordings coming before hRec and sum up nSamples
             % for each
-            hRecs = arrayfun(@(iRec) jrclust.models.recording.Recording(hCfg.rawRecordings{iRec}, hCfg), 1:(recPos-1), 'UniformOutput', false);
+            hRecs = arrayfun(@(iRec) jrclust.models.recording.Recording(hCfg.rawRecordings{iRec}, hCfg), 1:(recPos-1), 'UniformOutput', 0);
             offset = sum(cellfun(@(hR) hR.nSamples, hRecs));
         end
 
@@ -167,7 +167,7 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
     end
 
     hFigTraces.figApply(@set, 'Name', sprintf('%s: filter: %s', hCfg.configFile, filterToggle));
-    hFigTraces.wait(false);
+    hFigTraces.wait(0);
 
     jrclust.utils.tryClose(hBox);
 end

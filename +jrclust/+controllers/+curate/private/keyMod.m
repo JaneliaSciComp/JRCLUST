@@ -3,6 +3,6 @@ function flag = keyMod(hEvent, kMod)
     try
         flag = any(strcmpi(hEvent.Modifier, kMod));
     catch
-        flag = false;
+        flag = 0;
     end
 end

@@ -30,7 +30,7 @@ function probe = doLoadProbe(probeFile)
     if isempty(pstr.shank)
         probe.shankMap = ones(size(pstr.channels));
     elseif iscell(pstr.shank)
-        probe.shankMap = cell2mat(arrayfun(@(i) i*ones(size(pstr.shank{i})), 1:numel(shank), 'UniformOutput', false));
+        probe.shankMap = cell2mat(arrayfun(@(i) i*ones(size(pstr.shank{i})), 1:numel(shank), 'UniformOutput', 0));
     else
         probe.shankMap = pstr.shank;
     end

@@ -1,4 +1,3 @@
-%--------------------------------------------------------------------------
 function mnWav2 = ndistFilter(mnWav2, ndist_filt)
 
     vnFilt_ = jrclust.utils.tryGpuArray(ones(ndist_filt,1,'single'), isa(mnWav2, 'gpuArray'));
@@ -6,7 +5,7 @@ function mnWav2 = ndistFilter(mnWav2, ndist_filt)
     [n1, nChans] = deal(round((ndist_filt-1)/2) , size(mnWav_,2));
     n2 = ndist_filt - n1;
     mnWav_ = [zeros([n1, nChans], 'like', mnWav_); mnWav_; zeros([n2, nChans], 'like', mnWav_)];
-    vcDataType_ = class_(mnWav2);
+    vcDataType_ = jrclust.utils.trueClass(mnWav2);
     for iChan = 1:nChans
         vn_ = cast(sqrt(conv(single(mnWav_(:,iChan)).^2, vnFilt_, 'same')), vcDataType_);
         vn_ = median(vn_(1:10:end)) - vn_;

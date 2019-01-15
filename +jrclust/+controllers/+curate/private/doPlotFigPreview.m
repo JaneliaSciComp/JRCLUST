@@ -159,7 +159,7 @@ function hFigPreview = doPlotFigPreview(hFigPreview, figData, fKeepView, hCfg)
 
 
     %% finish up
-    hFigPreview.wait(false);
+    hFigPreview.wait(0);
     jrclust.utils.tryClose(hWait);
 end
 

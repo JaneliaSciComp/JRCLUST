@@ -32,8 +32,8 @@ function results = doComputeMeanWaveforms(hClust, updateMe, useRaw)
     if ~isempty(updateMe) && ~isempty(hClust.meanWfLocal)
         % visit all clusters explicitly requested or not previously seen
         visitMe = false(hClust.nClusters, 1);
-        visitMe(updateMe) = true;
-        visitMe((1:hClust.nClusters) > size(hClust.meanWfLocal, 3)) = true;
+        visitMe(updateMe) = 1;
+        visitMe((1:hClust.nClusters) > size(hClust.meanWfLocal, 3)) = 1;
 
         meanWfLocal_ = hClust.meanWfLocal;
         meanWfGlobal_ = hClust.meanWfGlobal;

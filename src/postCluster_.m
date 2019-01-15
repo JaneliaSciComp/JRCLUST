@@ -11,14 +11,14 @@ function S_clu = postCluster_(S_clu, P)
         %             S_clu.icl = selec_rho_delta_with_slope(S_clu, P.delta1_cut);
         case 'local' %
             S0 = get0();
-            S_clu.icl = jrclust.cluster.densitypeaks.detrendRhoDelta(S_clu, S0.cviSpk_site, true, P);
+            S_clu.icl = jrclust.cluster.densitypeaks.detrendRhoDelta(S_clu, S0.cviSpk_site, 1, P);
 
         case 'none'
             S_clu.icl = find(S_clu.rho(:) > 10^(P.rho_cut) & S_clu.delta(:) > 10^(P.delta1_cut));
 
         case 'global'
             S0 = get0();
-            S_clu.icl = jrclust.cluster.densitypeaks.detrendRhoDelta(S_clu, S0.cviSpk_site, false, P);
+            S_clu.icl = jrclust.cluster.densitypeaks.detrendRhoDelta(S_clu, S0.cviSpk_site, 0, P);
 
         case 'logz'
             S_clu.icl = log_ztran_(S_clu.rho, S_clu.delta, P.rho_cut, 4+P.delta1_cut);

@@ -12,7 +12,7 @@ function doPlotAuxCorr(hClust, firingRates, auxSamples, auxChanCorr, auxTimes, s
         argsort = selected;
     end
 
-    hFigAux = jrclust.views.Figure('FigAux', [.5 0 .5 1], hCfg.sessionName, true, true);
+    hFigAux = jrclust.views.Figure('FigAux', [.5 0 .5 1], hCfg.sessionName, 1, 1);
     hTabGroup = hFigAux.figApply(@uitabgroup);
 
     for iiCluster = 1:nClustersShow

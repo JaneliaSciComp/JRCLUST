@@ -4,7 +4,7 @@ function samplesOut = bandpassFilter(samplesIn, filtOpts)
         samplesOut = filtfiltChain(single(samplesIn), filtOpts);
     catch
         fprintf('!! GPU processing failed, retrying on CPU !!');
-        filtOps.useGPUFilt = false;
+        filtOps.useGPUFilt = 0;
         samplesOut = filtfiltChain(single(samplesIn), filtOpts);
     end
 

@@ -63,7 +63,7 @@ function [features1, features2, features3] = projectInterp(spikeWindows, prVecs,
         features3 = [];
     end
 
-    if ~hCfg.getOr('fInterp_fet', false)
+    if ~hCfg.getOr('fInterp_fet', 0)
         return;
     end
 

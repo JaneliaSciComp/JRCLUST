@@ -12,7 +12,7 @@ function spikeData = findPeaks(spikeData, hCfg)
         try
             siteThresh = jrclust.utils.tryGather(int16(jrclust.utils.estimateRMS(samplesFilt, 1e5)*hCfg.qqFactor));
         catch ME
-            hCfg.useGPU = false;
+            hCfg.useGPU = 0;
             siteThresh = int16(jrclust.utils.estimateRMS(jrclust.utils.tryGather(samplesFilt), 1e5)*hCfg.qqFactor);
         end
     end

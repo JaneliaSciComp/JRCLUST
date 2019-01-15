@@ -124,7 +124,7 @@ classdef PreviewController < handle
 
                     if ~all(newBounds == obj.windowBounds) % don't update if there's no change
                         obj.windowBounds = newBounds;
-                        doPlotFigPreview(obj.hFigPreview, obj.figData, false, obj.hCfg);
+                        doPlotFigPreview(obj.hFigPreview, obj.figData, 0, obj.hCfg);
                     end
 
                 case 'e' % export to workspace
@@ -132,7 +132,7 @@ classdef PreviewController < handle
 
                 case 'f' % apply filter
                     obj.fFilter = ~obj.fFilter;
-                    doPlotFigPreview(obj.hFigPreview, obj.figData, true, obj.hCfg);
+                    doPlotFigPreview(obj.hFigPreview, obj.figData, 1, obj.hCfg);
 
                 case 'g' % grid toggle on/off
                     obj.fGrid = ~obj.fGrid;
@@ -149,11 +149,11 @@ classdef PreviewController < handle
 
                 case 's' % show/hide spikes
                     obj.fShowSpikes = ~obj.fShowSpikes;
-                    doPlotFigPreview(obj.hFigPreview, obj.figData, true, obj.hCfg);
+                    doPlotFigPreview(obj.hFigPreview, obj.figData, 1, obj.hCfg);
 
                 case 't' % toggle spike threshold
                     obj.fShowThresh = ~obj.fShowThresh;
-                    doPlotFigPreview(obj.hFigPreview, obj.figData, true, obj.hCfg);
+                    doPlotFigPreview(obj.hFigPreview, obj.figData, 1, obj.hCfg);
 
             end %switch
         end %func
@@ -218,7 +218,7 @@ classdef PreviewController < handle
         function exportTraces(obj)
             %EXPORTTRACES Export raw and filtered traces
             jrclust.utils.exportToWorkspace(struct('tracesFilt', obj.tracesFilt, ...
-                                                   'tracesRaw', obj.tracesRaw), true);
+                                                   'tracesRaw', obj.tracesRaw), 1);
         end
 
         function loadPreview(obj)
@@ -232,7 +232,7 @@ classdef PreviewController < handle
             obj.nLoadsPerFile = floor(nLoadsMax / nFiles);
             obj.nSamplesPerLoad = ceil(nSecsLoad*obj.hCfg.sampleRate);
 
-            obj.hCfg.useGPU = false;
+            obj.hCfg.useGPU = 0;
 
             tracesRaw_ = cell(nFiles, 1);
 
@@ -339,7 +339,7 @@ classdef PreviewController < handle
             obj.blankThresh = blankThresh_;
             obj.blank_period_ms = blank_period_ms_;
 
-            obj.updateFigPreview(true);
+            obj.updateFigPreview(1);
         end
 
         function setCARMode(obj, label, hMenu)
@@ -347,7 +347,7 @@ classdef PreviewController < handle
             menuCheckbox(hMenu, label);
             obj.carMode = label;
 
-            obj.updateFigPreview(true);
+            obj.updateFigPreview(1);
         end
 
         function setFftThreshMAD(obj)
@@ -369,16 +369,16 @@ classdef PreviewController < handle
             end
 
             obj.fftThreshMAD = fftThreshMAD_;
-            obj.updateFigPreview(true);
+            obj.updateFigPreview(1);
         end
 
         function setFilter(obj, label, hMenu)
             %SETFILTER Update filter
             menuCheckbox(hMenu, label);
             obj.filterType = label;
-            obj.fFilter = true;
+            obj.fFilter = 1;
 
-            obj.updateFigPreview(true);
+            obj.updateFigPreview(1);
         end
 
         function setFreqScale(obj, label, hMenu)
@@ -408,14 +408,14 @@ classdef PreviewController < handle
             end
 
             obj.qqFactor = qqFactor_;
-            obj.updateFigPreview(true);
+            obj.updateFigPreview(1);
         end
 
         function setRefView(obj, label, hMenu)
             %SETREFVIEW
             obj.refView = label;
             menuCheckbox(hMenu, label);
-            doPlotFigPreview(obj.hFigPreview, obj.figData, true, obj.hCfg);
+            doPlotFigPreview(obj.hFigPreview, obj.figData, 1, obj.hCfg);
         end
 
         function setSiteCorrThresh(obj)
@@ -438,7 +438,7 @@ classdef PreviewController < handle
             end
 
             obj.siteCorrThresh = siteCorrThresh_;
-            obj.updateFigPreview(true);
+            obj.updateFigPreview(1);
         end
 
         function setSiteRange(obj)
@@ -463,7 +463,7 @@ classdef PreviewController < handle
             %SETSITEVIEW
             obj.siteView = label;
             menuCheckbox(hMenu, label);
-            doPlotFigPreview(obj.hFigPreview, obj.figData, true, obj.hCfg);
+            doPlotFigPreview(obj.hFigPreview, obj.figData, 1, obj.hCfg);
         end
 
         function setTimeRange(obj, label, hMenu)
@@ -490,12 +490,12 @@ classdef PreviewController < handle
 
             obj.windowWidth = round(tRange * obj.hCfg.sampleRate);
             obj.windowBounds = obj.windowBounds(1) + [0, obj.windowWidth - 1];
-            doPlotFigPreview(obj.hFigPreview, obj.figData, false, obj.hCfg);
+            doPlotFigPreview(obj.hFigPreview, obj.figData, 0, obj.hCfg);
         end
 
         function updateFigPreview(obj, fKeepView)
             %UPDATEFIGPREVIEW Update parameters and replot
-            obj.hFigPreview.wait(true);
+            obj.hFigPreview.wait(1);
 
             if obj.fftThreshMAD > 0
                 obj.tracesClean = jrclust.filters.fftClean(obj.tracesRaw, obj.fftThreshMAD, obj.hCfg.ramToGPUFactor); % fft filter
@@ -516,7 +516,7 @@ classdef PreviewController < handle
             % filter and CAR
             obj.hCfg.setTemporaryParams('carMode', 'none', 'useGPU', 0, 'filterType', obj.filterType, ...
                 'blank_period_ms', obj.blank_period_ms, 'blankThresh', obj.blankThresh, 'fParfor', 0);
-            obj.tracesFilt = jrclust.filters.filtCAR(obj.tracesClean, [], [], false, obj.hCfg);
+            obj.tracesFilt = jrclust.filters.filtCAR(obj.tracesClean, [], [], 0, obj.hCfg);
             obj.tracesCAR = jrclust.utils.getCAR(obj.tracesFilt, obj.carMode, obj.ignoreSites);
 
             if ~strcmpi(obj.carMode, 'none')
@@ -538,7 +538,7 @@ classdef PreviewController < handle
             obj.siteThresh(obj.ignoreMe) = 0;
 
             obj.isThreshCrossing = bsxfun(@lt, obj.tracesFilt, -abs(obj.siteThresh));
-            obj.isThreshCrossing(:, obj.ignoreMe) = false; % ignore threshold crossings on bad sites
+            obj.isThreshCrossing(:, obj.ignoreMe) = 0; % ignore threshold crossings on bad sites
 
             % Spike detection
             [obj.keepMe, obj.channelMeansMAD] = jrclust.utils.carReject(obj.tracesCAR, obj.hCfg.blank_period_ms, obj.hCfg.blankThresh, obj.hCfg.sampleRate);
@@ -552,7 +552,7 @@ classdef PreviewController < handle
             obj.hCfg.resetTemporaryParams();
 
             doPlotFigPreview(obj.hFigPreview, obj.figData, fKeepView, obj.hCfg);
-            obj.hFigPreview.wait(false);
+            obj.hFigPreview.wait(0);
         end
     end
 
@@ -569,7 +569,7 @@ classdef PreviewController < handle
 
             % Create a Figure
             gap = .05;
-            obj.hFigPreview = jrclust.views.Figure('FigPreview', [0 0 .5 1], obj.hCfg.configFile, true, true); %plot a summary pannel
+            obj.hFigPreview = jrclust.views.Figure('FigPreview', [0 0 .5 1], obj.hCfg.configFile, 1, 1); %plot a summary pannel
             obj.hFigPreview.addAxes('hAxMean', 'Position', [gap, gap, 3/4-gap, 1/4-gap], 'NextPlot', 'add');
             obj.hFigPreview.addAxes('hAxTraces', 'Position', [gap, 1/4+gap, 3/4-gap, 3/4-gap*2], 'NextPlot', 'add');
             obj.hFigPreview.addAxes('hAxSites', 'Position', [3/4+gap, gap, 1/4-gap*1.5, 2/3-gap*2], 'NextPlot', 'add');
@@ -592,16 +592,16 @@ classdef PreviewController < handle
             obj.blank_period_ms = obj.hCfg.blank_period_ms;
 
             ignoreMe_ = false(size(obj.hCfg.siteMap));
-            ignoreMe_(obj.hCfg.ignoreSites) = true;
+            ignoreMe_(obj.hCfg.ignoreSites) = 1;
             obj.ignoreMe = ignoreMe_;
 
             obj.maxAmp = obj.hCfg.maxAmp;
             obj.maxCorrSite = max(siteCorr);
             obj.siteLim = [1 nSites];
-            obj.fFilter = true;
-            obj.fGrid = true;
-            obj.fShowThresh = false;
-            obj.fShowSpikes = true;
+            obj.fFilter = 1;
+            obj.fGrid = 1;
+            obj.fShowThresh = 0;
+            obj.fShowSpikes = 1;
             obj.siteView = 'Site correlation';
             obj.refView = 'binned';
             obj.psdView = 'original';
@@ -626,7 +626,7 @@ classdef PreviewController < handle
                                 '[G]rid toggle'};
 
             drawnow;
-            obj.updateFigPreview(false);
+            obj.updateFigPreview(0);
         end
     end
 

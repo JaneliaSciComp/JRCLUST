@@ -41,5 +41,5 @@ function samplesOut = fftdOP(samplesIn, freqLim)
     npow2 = 2^nextpow2(n);
     w = single(pi*1i)*single([linspace(0, 1, n1), linspace(1, -1, npow2-2*n1), linspace(-1, 0, n1)]');
     samplesOut = real(ifft(bsxfun(@times, fft(single(samplesIn), npow2), w), 'symmetric'));
-    samplesOut = cast(samplesOut(1:n,:), class_(samplesIn));
+    samplesOut = cast(samplesOut(1:n,:), jrclust.utils.trueClass(samplesIn));
 end

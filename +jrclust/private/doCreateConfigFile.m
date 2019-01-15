@@ -10,7 +10,7 @@ function P = doCreateConfigFile(outputDir, binFiles, probeFile, templateFile, fA
     P.rawRecordings = binFiles;
 
     % load meta file
-    metaFiles = cellfun(@(bf) jrclust.utils.subsExt(bf, '.meta'), binFiles, 'UniformOutput', false);
+    metaFiles = cellfun(@(bf) jrclust.utils.subsExt(bf, '.meta'), binFiles, 'UniformOutput', 0);
     metaFiles = metaFiles(cellfun(@isfile, metaFiles));
     if ~isempty(metaFiles)
         metaFile = metaFiles{1}; % just take the first one

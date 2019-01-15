@@ -1,10 +1,10 @@
 function simScore = doComputeWaveformSim(hClust, updateMe)
     %COMPWFSIM Compute waveform-based similarity scores for all clusters
     % these guys are not in the default param set, but can be overridden if you really want
-    fUsePeak2 = hClust.hCfg.getOr('fUsePeak2', false);
-    fWaveform_raw = hClust.hCfg.getOr('fWavRaw_merge', true); % revert TW: get_set_(P, 'fWavRaw_merge', 0);
-    fZeroStart_raw = hClust.hCfg.getOr('fZeroStart_raw', false);
-    fRankCorr_merge = hClust.hCfg.getOr('fRankCorr_merge', false);
+    fUsePeak2 = hClust.hCfg.getOr('fUsePeak2', 0);
+    fWaveform_raw = hClust.hCfg.getOr('fWavRaw_merge', 1); % revert TW: get_set_(P, 'fWavRaw_merge', 0);
+    fZeroStart_raw = hClust.hCfg.getOr('fZeroStart_raw', 0);
+    fRankCorr_merge = hClust.hCfg.getOr('fRankCorr_merge', 0);
     fMode_cor = hClust.hCfg.getOr('fMode_cor', 1); % 0: Pearson, 1: non mean-subtracted Pearson
 
     if hClust.hCfg.verbose
@@ -57,15 +57,15 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
                       'cviShift2', {cviShift2}, ...
                       'fMode_cor', fMode_cor);
     if isempty(updateMe)
-        fParfor = true;
+        fParfor = 1;
         scoreData.updateMe = true(hClust.nClusters, 1);
         scoreData.simScoreOld = [];
     else
-        fParfor = false;
+        fParfor = 0;
         scoreData.updateMe = false(hClust.nClusters, 1);
-        scoreData.updateMe(updateMe) = true;
+        scoreData.updateMe(updateMe) = 1;
         scoreData.simScoreOld = hClust.simScore;
-        scoreData.updateMe((1:hClust.nClusters) > size(scoreData.simScoreOld, 1)) = true;
+        scoreData.updateMe((1:hClust.nClusters) > size(scoreData.simScoreOld, 1)) = 1;
     end
                     
     if fParfor
@@ -83,7 +83,7 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
             end
         catch ME
             warning(ME.identifier, 'computeWaveformSim: parfor failed: %s', ME.messsage);
-            fParfor = false;
+            fParfor = 0;
         end
     end
 
@@ -116,12 +116,12 @@ function corScores = clusterWaveformSim(meanWfSet, clusterSites, hCfg, scoreData
 
     if numel(clusterSites) == 1
         sites = clusterSites{1};
-        fUsePeak2 = false;
+        fUsePeak2 = 0;
     else
         sites = clusterSites{1};
         sites2 = clusterSites{2};
         sites3 = clusterSites{3};
-        fUsePeak2 = true;
+        fUsePeak2 = 1;
     end
 
     nClusters = numel(sites);

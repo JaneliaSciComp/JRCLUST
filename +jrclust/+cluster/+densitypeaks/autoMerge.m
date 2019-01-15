@@ -1,7 +1,7 @@
 function autoMerge(hClust, hCfg, doAssign)
     %AUTOMERGE Automatically merge clusters
     if nargin < 4
-        doAssign = true;
+        doAssign = 1;
     end
 
 %     if doAssign

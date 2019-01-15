@@ -33,7 +33,7 @@ function spikeData = extractFeatures(spikeData, hCfg)
     end
 
     % Cancel overlap
-    if hCfg.getOr('fCancel_overlap', false)
+    if hCfg.getOr('fCancel_overlap', 0)
         try
             [windowsFilt, windowsFilt2] = cancel_overlap_spk_(windowsFilt, windowsFilt2, spikeTimes, spikeSites, spikeSites2, siteThresh, hCfg);
         catch ME

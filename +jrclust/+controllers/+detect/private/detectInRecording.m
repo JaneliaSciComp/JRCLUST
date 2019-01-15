@@ -20,9 +20,6 @@ function recData = detectInRecording(hRec, impTimes, impSites, presetThresh, hCf
     spikesFilt = cell(nLoads, 1);
     spikeFeatures = cell(nLoads, 1);
 
-%     if isempty(presetThresh) && (isempty(impTimes) || isempty(impSites)) % need threshold
-%     end
-
     for iLoad = 1:nLoads
         if hCfg.verbose
             t1 = tic;
@@ -59,7 +56,7 @@ function recData = detectInRecording(hRec, impTimes, impSites, presetThresh, hCf
         end
 
         % denoise and filter samples
-        [samplesFilt, keepMe] = filterSamples(samplesRaw, windowPre, windowPost, hCfg);
+        [samplesFilt, keepLower] = filterSamples(samplesRaw, windowPre, windowPost, hCfg);
 
         % detect spikes in filtered samples
         [intTimes, intSites] = deal([]);
@@ -76,7 +73,7 @@ function recData = detectInRecording(hRec, impTimes, impSites, presetThresh, hCf
         % detect spikes
         loadData = struct('samplesRaw', samplesRaw, ...
                           'samplesFilt', samplesFilt, ...
-                          'keepMe', keepMe, ...
+                          'keepMe', keepLower, ...
                           'spikeTimes', intTimes, ...
                           'spikeSites', intSites, ...
                           'siteThresh', presetThresh, ...
@@ -89,6 +86,26 @@ function recData = detectInRecording(hRec, impTimes, impSites, presetThresh, hCf
         % extract features
         % adds centerSites, spikesRaw, spikesFilt, spikeFeatures
         loadData = extractFeatures(loadData, hCfg);
+
+        % detect spikes which occur at the same time and have swapped
+        % primary/secondary peaks
+%         if size(loadData.centerSites, 2) > 1
+%             tDiffs = diff(loadData.spikeTimes);
+%             sameTimes = find(tDiffs == 0);
+%             isSwap = all(loadData.centerSites(sameTimes, 1:2) == fliplr(loadData.centerSites(sameTimes + 1, 1:2)), 2);
+%             swaps = sameTimes(isSwap);
+%             nextSwaps = swaps + 1;
+%             keepLower = loadData.centerSites(swaps, 1) < loadData.centerSites(swaps + 1, 1);
+%             toRemove = [swaps(~keepLower); nextSwaps(keepLower)];
+% 
+%             loadData.spikeTimes(toRemove) = [];
+%             loadData.spikeAmps(toRemove) = [];
+%             loadData.spikeSites(toRemove) = [];
+%             loadData.centerSites(toRemove, :) = [];
+%             loadData.spikesRaw(:, :, toRemove) = [];
+%             loadData.spikesFilt(:, :, toRemove) = [];
+%             loadData.spikeFeatures(:, :, toRemove) = [];
+%         end
 
         % unpack loadData
         siteThresh{iLoad} = loadData.siteThresh;

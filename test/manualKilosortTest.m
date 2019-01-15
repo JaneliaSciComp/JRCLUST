@@ -68,7 +68,7 @@ spikesBefore = S_clu_before.cviSpk_clu;
 % split cluster 1 clean in half
 clusterSpikes = spikesBefore{1};
 vlIn = true(size(clusterSpikes));
-vlIn(floor(numel(clusterSpikes) / 2):end) = false;
+vlIn(floor(numel(clusterSpikes) / 2):end) = 0;
 
 S_clu_after = split_clu_(1, vlIn);
 simsAfter = S_clu_after.mrSim_clu;

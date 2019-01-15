@@ -2,10 +2,10 @@ function [retained, spikeFeatures] = doAutoSplit(sampledSpikes, spikeFeatures, n
     %DOAUTOSPLIT
     % TODO: ask users number of clusters and split multi-way
     %Make automatic split of clusters using PCA + kmeans clustering
-    [~, pcaFeatures, ~] = pca(double(sampledSpikes'), 'Centered', true, 'NumComponents', 3);
+    [~, pcaFeatures, ~] = pca(double(sampledSpikes'), 'Centered', 1, 'NumComponents', 3);
     spikeFeatures = double([spikeFeatures pcaFeatures]);
 
-    if hCfg.getOr('fUseMikeSplit', false)
+    if hCfg.getOr('fUseMikeSplit', 0)
         inClust = MikeSplit(sampledSpikes, spikeFeatures, nSplits);
     end
 
@@ -22,14 +22,14 @@ function [retained, spikeFeatures] = doAutoSplit(sampledSpikes, spikeFeatures, n
             fprintf('MAD distance: %f\n', d12);
         end
 
-        if hCfg.getOr('fUseMikeSplit', false)
+        if hCfg.getOr('fUseMikeSplit', 0)
             retained = inClust;
         else
             retained = (kmAssigns == 1);
         end
     catch % not enough features for k-means to automatically split
         retained = false(nSpikes, 1);
-        retained(1:end/2) = true;
+        retained(1:end/2) = 1;
     end
 end
 

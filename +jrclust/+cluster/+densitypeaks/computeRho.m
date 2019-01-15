@@ -4,7 +4,7 @@ function res = computeRho(dRes, res, hCfg)
     res.rhoCutGlobal = [];
 
     % compute rho cutoff globally
-    if hCfg.getOr('fDc_global', true)
+    if hCfg.getOr('fDc_global', 1)
         res.rhoCutGlobal = estRhoCutGlobal(dRes, hCfg);
     end
 
@@ -177,7 +177,7 @@ function rhoCut = estRhoCutSite(siteFeatures, spikeOrder, n1, n2, hCfg)
         end
     end
 
-    if hCfg.getOr('fDc_subsample_mode', false)
+    if hCfg.getOr('fDc_subsample_mode', 0)
         featureDists(featureDists <= 0) = nan;
         rhoCut = quantile(featureDists(~isnan(featureDists)), hCfg.dc_percent/100);
     else

@@ -17,7 +17,7 @@ classdef SortController < handle
         function obj = SortController(hCfg)
             %SORTCONTROLLER Constructor
             obj.hCfg = hCfg;
-            obj.isError = false;
+            obj.isError = 0;
         end
     end
 
@@ -30,7 +30,7 @@ classdef SortController < handle
 
             if ~isfield(dRes, 'spikeFeatures')
                 obj.errMsg = 'cannot sort without features';
-                obj.isError = true;
+                obj.isError = 1;
                 return;
             end
 

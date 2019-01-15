@@ -46,9 +46,9 @@ classdef CurateController < handle
 
             switch hEvent.Key
                 case {'d', 'backspace', 'delete'} % delete
-                    hFigSim.wait(true);
+                    hFigSim.wait(1);
                     obj.deleteClusters();
-                    hFigSim.wait(false);
+                    hFigSim.wait(0);
 
                 case 'k' % kilosort template similarity view
                     if obj.hCfg.fImportKsort && strcmp(hFigSim.figData.figView, 'waveform')
@@ -57,14 +57,14 @@ classdef CurateController < handle
                     end
 
                 case 'm' % merge
-                    hFigSim.wait(true);
+                    hFigSim.wait(1);
                     obj.mergeSelected();
-                    hFigSim.wait(false);
+                    hFigSim.wait(0);
 
                 case 's' % split
-                    hFigSim.wait(true);
-                    obj.autoSplit(true);
-                    hFigSim.wait(false);
+                    hFigSim.wait(1);
+                    obj.autoSplit(1);
+                    hFigSim.wait(0);
 
                 case 'w' % waveform-based sim view
                     if obj.hCfg.fImportKsort && strcmp(hFigSim.figData.figView, 'kilosort')
@@ -91,13 +91,13 @@ classdef CurateController < handle
                 case 'leftarrow' % go down one channel
                     if obj.projSites(1) > 1
                         obj.projSites = obj.projSites - 1;
-                        obj.updateFigProj(false);
+                        obj.updateFigProj(0);
                     end
 
                 case 'rightarrow' % go up one channel
                     if obj.projSites(end) < obj.hCfg.nSites
                         obj.projSites = obj.projSites + 1;
-                        obj.updateFigProj(false);
+                        obj.updateFigProj(0);
                     end
 
                 case 'b' % background spikes
@@ -111,7 +111,7 @@ classdef CurateController < handle
                     end
 
                 case 'r' %reset view
-                    obj.updateFigProj(true);
+                    obj.updateFigProj(1);
 
                 case 's' %split
                     disp('Split: not implemented yet');
@@ -144,15 +144,15 @@ classdef CurateController < handle
 %                     end
 
                 case 'm' % merge clusters
-                    hFigProj.wait(true);
+                    hFigProj.wait(1);
                     obj.mergeSelected();
-                    hFigProj.wait(false);
+                    hFigProj.wait(0);
 
                 case 'p' % toggle PCi v. PCj
                     if strcmp(obj.hCfg.dispFeature, 'pca')
                         % [1, 2] => [1, 3] => [2, 3] => [1, 2] => ...
                         obj.hCfg.pcPair = sort(mod(obj.hCfg.pcPair + 1, 3) + 1);
-                        obj.updateFigProj(false);
+                        obj.updateFigProj(0);
                     end
 
                 case 'h' % help
@@ -168,14 +168,14 @@ classdef CurateController < handle
             switch hEvent.Key
                 case 'leftarrow' % go down one channel
                     obj.currentSite = max(obj.currentSite - factor, 1);
-                    obj.updateFigTime(false);
+                    obj.updateFigTime(0);
 
                 case 'rightarrow' % go up one channel
 %                     if ~isVisible_(S_fig.hAx)
 %                         jrclust.utils.qMsgBox('Channel switching is disabled in the position view'); return;
 %                     end
                     obj.currentSite = min(obj.currentSite + factor, obj.hCfg.nSites);
-                    obj.updateFigTime(false);
+                    obj.updateFigTime(0);
 
                 case 'uparrow'
                     rescaleFigTime(hFigTime, sqrt(2)^-factor);
@@ -197,12 +197,12 @@ classdef CurateController < handle
                     jrclust.utils.qMsgBox(hFigTime.figData.helpText, 1);
 
                 case 'm' % merge
-                    hFigTime.wait(true);
+                    hFigTime.wait(1);
                     obj.mergeSelected();
-                    hFigTime.wait(false);
+                    hFigTime.wait(0);
 
                 case 'r' % reset view
-                    obj.updateFigTime(true);
+                    obj.updateFigTime(1);
 
                 case 's' % split
                     if numel(obj.selected) == 1
@@ -271,14 +271,14 @@ classdef CurateController < handle
                     obj.keyPressFigWav([], struct('Key', 'z')); % zoom in
 
                 case {'d', 'backspace', 'delete'}
-                    hFigWav.wait(true);
+                    hFigWav.wait(1);
                     obj.deleteClusters();
-                    hFigWav.wait(false);
+                    hFigWav.wait(0);
 
                 case 'm' % merge clusters
-                    hFigWav.wait(true);
+                    hFigWav.wait(1);
                     obj.mergeSelected();
-                    hFigWav.wait(false);
+                    hFigWav.wait(0);
 
                 case 'n' % toggle spike count in clusters
                     obj.hCfg.fText = ~obj.hCfg.fText;
@@ -291,14 +291,14 @@ classdef CurateController < handle
                     obj.updateSelect([obj.selected(1), nextBest]);
 
                 case 's' % split
-                    hFigWav.wait(true);
-                    obj.autoSplit(true);
-                    hFigWav.wait(false);
+                    hFigWav.wait(1);
+                    obj.autoSplit(1);
+                    hFigWav.wait(0);
 
                 case 'r' %reset view
-                    hFigWav.wait(true);
+                    hFigWav.wait(1);
                     hFigWav.axApply('default', @axis, [0, obj.hClust.nClusters + 1, 0, obj.hCfg.nSites + 1]);
-                    hFigWav.wait(false);
+                    hFigWav.wait(0);
 
                 case 'w' % toggle individual spike waveforms
                     hFigWav.toggleVisible('hSpkAll');
@@ -320,18 +320,18 @@ classdef CurateController < handle
                     jrclust.utils.qMsgBox(hFigWav.figData.helpText, 1);
 
                 case {'0', 'numpad0'}
-                    obj.annotateUnit('to_delete', false); % TW
+                    obj.annotateUnit('to_delete', 0); % TW
 
                 case {'1', 'numpad1'}
-                    obj.annotateUnit('single', false); % TW
+                    obj.annotateUnit('single', 0); % TW
 
                 case {'2', 'numpad2'}
-                    obj.annotateUnit('multi', false); % TW
+                    obj.annotateUnit('multi', 0); % TW
 %                 case 'p' %PSTH plot
 %                     if isempty(hCfg.vcFile_trial), jrclust.utils.qMsgBox('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
 %                     plot_raster_(S0, 1);
                 otherwise
-                    hFigWav.wait(false); %stop waiting
+                    hFigWav.wait(0); %stop waiting
             end
 
             hFigWav.toForeground(); %change the focus back to the current object
@@ -362,9 +362,9 @@ classdef CurateController < handle
             end
 
             hFig = obj.hFigs('FigWav');
-            hFig.wait(true);
+            hFig.wait(1);
             % plot_raster_(S0);
-            hFig.wait(false);
+            hFig.wait(0);
         end
     end
 
@@ -508,7 +508,7 @@ classdef CurateController < handle
             end
 
             if nargin < 2
-                doAutoscale = true;
+                doAutoscale = 1;
             end
 
             hFigProj = obj.hFigs('FigProj');
@@ -549,7 +549,7 @@ classdef CurateController < handle
             end
 
             if nargin < 2
-                doAutoscale = true;
+                doAutoscale = 1;
             end
 
             hFigTime = obj.hFigs('FigTime');
@@ -583,8 +583,8 @@ classdef CurateController < handle
             uimenu(obj.hMenus('FileMenu'), 'Label', 'Save figures as .png', 'Callback', @(hO, hE) obj.saveFigures('.png'));
             uimenu(obj.hMenus('FileMenu'), 'Label', 'Export units to csv', 'Callback', @(hO, hE) obj.hClust.exportToCSV(), 'Separator', 'on');
             uimenu(obj.hMenus('FileMenu'), 'Label', 'Export unit qualities to csv', 'Callback', @(hO, hE) obj.hClust.exportQualityScores());
-            uimenu(obj.hMenus('FileMenu'), 'Label', 'Export all mean unit waveforms to workspace', 'Callback', @(hO, hE) obj.exportMeanWf(true));
-            uimenu(obj.hMenus('FileMenu'), 'Label', 'Export selected mean unit waveforms to workspace', 'Callback', @(hO, hE) obj.exportMeanWf(false));
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Export all mean unit waveforms to workspace', 'Callback', @(hO, hE) obj.exportMeanWf(1));
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Export selected mean unit waveforms to workspace', 'Callback', @(hO, hE) obj.exportMeanWf(0));
             uimenu(obj.hMenus('FileMenu'), 'Label', 'Export all traces from the selected unit', 'Callback', @(hO, hE) obj.exportTraces());
             uimenu(obj.hMenus('FileMenu'), 'Label', 'Export firing rate for all units', 'Callback', @(hO, hE) obj.exportFiringRate());
             uimenu(obj.hMenus('FileMenu'), 'Label', 'Exit', 'Callback', @(hO, hE) obj.endSession(), 'Separator', 'on', 'Accelerator', 'Q');
@@ -595,9 +595,9 @@ classdef CurateController < handle
             uimenu(obj.hMenus('EditMenu'), 'Label', '[D]elete', 'Callback', @(hO, hE) obj.deleteClusters(), 'Separator', 'on');
             uimenu(obj.hMenus('EditMenu'), 'Label', 'Delete auto', 'Callback', @(hO, hE) obj.autoDelete());
             uimenu(obj.hMenus('EditMenu'), 'Label', 'Delete annotated', 'Callback', @(hO, hE) obj.deleteAnnotated()); % TW
-            uimenu(obj.hMenus('EditMenu'), 'Label', '[S]plit', 'Callback', @(hO, hE) obj.autoSplit(true), 'Separator', 'on');
-            uimenu(obj.hMenus('EditMenu'), 'Label', 'Auto split max-chan', 'Callback', @(hO, hE) obj.autoSplit(false));
-            uimenu(obj.hMenus('EditMenu'), 'Label', 'Auto split multi-chan', 'Callback', @(hO, hE) obj.autoSplit(true));
+            uimenu(obj.hMenus('EditMenu'), 'Label', '[S]plit', 'Callback', @(hO, hE) obj.autoSplit(1), 'Separator', 'on');
+            uimenu(obj.hMenus('EditMenu'), 'Label', 'Auto split max-chan', 'Callback', @(hO, hE) obj.autoSplit(0));
+            uimenu(obj.hMenus('EditMenu'), 'Label', 'Auto split multi-chan', 'Callback', @(hO, hE) obj.autoSplit(1));
 
             obj.hMenus('ViewMenu') = uimenu(hFig, 'Label', 'View');
             uimenu(obj.hMenus('ViewMenu'), 'Label', 'Show traces', 'Callback', @(hO, hE) obj.showTraces());
@@ -617,16 +617,16 @@ classdef CurateController < handle
             % uimenu(obj.hMenus('ProjMenu'), 'Label', 'cov', 'Callback', @(hO, hE) obj.updateProjection('cov'));
 
             obj.hMenus('PlotMenu') = uimenu(hFig, 'Label', 'Plot');
-            uimenu(obj.hMenus('PlotMenu'), 'Label', 'Firing rate vs. aux. input (all units)', 'Callback', @(hO, hE) obj.plotAuxRate(false));
-            uimenu(obj.hMenus('PlotMenu'), 'Label', 'Firing rate vs. aux. input (selected unit)', 'Callback', @(hO, hE) obj.plotAuxRate(true));
+            uimenu(obj.hMenus('PlotMenu'), 'Label', 'Firing rate vs. aux. input (all units)', 'Callback', @(hO, hE) obj.plotAuxRate(0));
+            uimenu(obj.hMenus('PlotMenu'), 'Label', 'Firing rate vs. aux. input (selected unit)', 'Callback', @(hO, hE) obj.plotAuxRate(1));
 
             obj.hMenus('InfoMenu') = uimenu(hFig, 'Label', '', 'Tag', 'InfoMenu');
-            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Annotate unit', 'Callback', @(hO, hE) obj.annotateUnit('', true));
-            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Single unit', 'Callback', @(hO, hE) obj.annotateUnit('single', false), 'Accelerator', '1');
-            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Multi unit', 'Callback', @(hO, hE) obj.annotateUnit('multi', false), 'Accelerator', '2');
-            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Noise', 'Callback', @(hO, hE) obj.annotateUnit('noise', false));
-            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Clear annotation', 'Callback', @(hO, hE) obj.annotateUnit('', false));
-            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Equal to', 'Callback', @(hO, hE) obj.annotateUnit('=', true));
+            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Annotate unit', 'Callback', @(hO, hE) obj.annotateUnit('', 1));
+            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Single unit', 'Callback', @(hO, hE) obj.annotateUnit('single', 0), 'Accelerator', '1');
+            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Multi unit', 'Callback', @(hO, hE) obj.annotateUnit('multi', 0), 'Accelerator', '2');
+            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Noise', 'Callback', @(hO, hE) obj.annotateUnit('noise', 0));
+            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Clear annotation', 'Callback', @(hO, hE) obj.annotateUnit('', 0));
+            uimenu(obj.hMenus('InfoMenu'), 'Label', 'Equal to', 'Callback', @(hO, hE) obj.annotateUnit('=', 1));
 
             obj.hMenus('HelpMenu') = uimenu(hFig, 'Label', 'Help');
             uimenu(obj.hMenus('HelpMenu'), 'Label', '[H]elp', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'h')));
@@ -667,7 +667,7 @@ classdef CurateController < handle
 
         function autoDelete(obj)
             %AUTODELETE Automatically delete clusters by SNR/spike count
-            hFigDelete = jrclust.views.Figure('', [.5 .7 .35 .3], ['Delete Auto: ', obj.hCfg.sessionName], false, false);
+            hFigDelete = jrclust.views.Figure('', [.5 .7 .35 .3], ['Delete Auto: ', obj.hCfg.sessionName], 0, 0);
 
             hFigDelete.addPlot('hPlotSNR', obj.hClust.unitSNR(:), obj.hClust.unitCount(:), '.'); % show cluster SNR and spike count
             hFigDelete.axApply('default', @xlabel, 'Unit SNR');
@@ -729,12 +729,12 @@ classdef CurateController < handle
             % auto merge
             if obj.hasFig('FigWav')
                 hFigWav = obj.hFigs('FigWav');
-                hFigWav.wait(true);
+                hFigWav.wait(1);
             end
 
             nClustersOld = obj.hClust.nClusters;
 
-            hBox = jrclust.utils.qMsgBox('Merging...', false, true);
+            hBox = jrclust.utils.qMsgBox('Merging...', 0, 1);
             if obj.hClust.autoMerge(mwc) % success; replot
                 jrclust.utils.tryClose(hBox);
                 obj.updateFigWav();
@@ -750,7 +750,7 @@ classdef CurateController < handle
 
             if obj.hasFig('FigWav')
                 hFigWav = obj.hFigs('FigWav');
-                hFigWav.wait(false);
+                hFigWav.wait(0);
             end
         end
 
@@ -790,12 +790,13 @@ classdef CurateController < handle
             [retained, splitFeatures] = doAutoSplit(sampledSpikes, [clusterTimes localVpp'], 2, obj.hCfg); %TW
 
             % create split figure
-            hFigSplit = jrclust.views.Figure('FigSplit', [.5 0 .5 1], 'Split', false, false);
+            hFigSplit = jrclust.views.Figure('FigSplit', [.5 0 .5 1], 'Split', 0, 0);
             hFigSplit.addSubplot('pcPlots', 2, 2);
 
             jrclust.utils.tryClose(hBox);
 
-            while true
+            while 1
+
                 splitOff = ~retained;
                 % plot PC2 vs. PC1
                 hFigSplit.subplotApply('pcPlots', 1, @plot, ...
@@ -914,7 +915,7 @@ classdef CurateController < handle
             success = obj.hClust.deleteClusters(deleteMe);
             if success
                 % save the new clustering
-                deleted = strjoin(arrayfun(@num2str, deleteMe, 'UniformOutput', false), ', ');
+                deleted = strjoin(arrayfun(@num2str, deleteMe, 'UniformOutput', 0), ', ');
                 commitMsg = sprintf('%s;delete;%s', datestr(now, 31), deleted);
                 obj.hClust.commit(commitMsg);
 
@@ -1107,7 +1108,7 @@ classdef CurateController < handle
         function showTraces(obj)
             %SHOWTRACES
             hTraces = jrclust.controllers.curate.TracesController(obj.hCfg);
-            hTraces.show([], false, obj.hClust);
+            hTraces.show([], 0, obj.hClust);
         end
 
         function spawnFigures(obj)
@@ -1122,7 +1123,7 @@ classdef CurateController < handle
             [success, retained] = obj.hClust.splitCluster(iCluster, iSpikes(retained));
             if success
                 % save the new clustering
-                retained = strjoin(arrayfun(@num2str, retained, 'UniformOutput', false), ',');
+                retained = strjoin(arrayfun(@num2str, retained, 'UniformOutput', 0), ',');
                 commitMsg = sprintf('%s;split;%d;%s', datestr(now, 31), iCluster, retained);
                 obj.hClust.commit(commitMsg);
 
@@ -1138,11 +1139,11 @@ classdef CurateController < handle
             showRaw = ~obj.hCfg.showRaw;
             if obj.hasFig('FigWav')
                 hFigWav = obj.hFigs('FigWav');
-                hFigWav.wait(true);
+                hFigWav.wait(1);
             end
 
             if showRaw && isempty(obj.hClust.meanWfGlobalRaw)
-                obj.hClust.computeMeanWaveforms([], true);
+                obj.hClust.computeMeanWaveforms([], 1);
             end
 
             set(hMenu, 'Checked', jrclust.utils.ifEq(showRaw, 'on', 'off'));
@@ -1155,7 +1156,7 @@ classdef CurateController < handle
 
             if obj.hasFig('FigWav')
                 hFigWav = obj.hFigs('FigWav');
-                hFigWav.wait(false);
+                hFigWav.wait(0);
             end
         end
 
@@ -1190,8 +1191,8 @@ classdef CurateController < handle
                 end
             end
 
-            obj.updateFigProj(true);
-            obj.updateFigTime(true);
+            obj.updateFigProj(1);
+            obj.updateFigTime(1);
         end
 
         function updateSelect(obj, iClusters)
@@ -1231,8 +1232,8 @@ classdef CurateController < handle
             obj.updateFigISI();
             obj.updateFigMap();
             obj.updateFigPos();
-            obj.updateFigProj(true);
-            obj.updateFigTime(true);
+            obj.updateFigProj(1);
+            obj.updateFigTime(1);
 
             % update cursors
             obj.updateCursorFigWav();
@@ -1255,7 +1256,7 @@ classdef CurateController < handle
             if ~isempty(obj.hFigs) % session already running
                 return;
             end
-            obj.isEnding = false;
+            obj.isEnding = 0;
             obj.cRes = struct('hClust', obj.hClust);
             obj.selected = 1;
             obj.currentSite = obj.hClust.clusterSites(1);
@@ -1271,14 +1272,14 @@ classdef CurateController < handle
                     return;
                 end
             end
-            obj.isEnding = true;
+            obj.isEnding = 1;
             obj.closeFigures();
 
             obj.currentSite = [];
             obj.selected = [];
             res = obj.cRes;
             obj.cRes = [];
-            obj.isEnding = false; % ended
+            obj.isEnding = 0; % ended
         end
 
         function hf = hasFig(obj, figKey)
@@ -1352,13 +1353,13 @@ classdef CurateController < handle
                 end
 
                 jrclust.utils.saveStruct(res, filename);
-                success = true;
+                success = 1;
 
                 jrclust.utils.tryClose(hMsg);
             elseif strcmp(dlgAns, 'No')
-                success = true;
+                success = 1;
             else
-                success = false;
+                success = 0;
             end
         end
     end

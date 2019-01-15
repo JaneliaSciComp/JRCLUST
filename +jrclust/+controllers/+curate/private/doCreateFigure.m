@@ -7,10 +7,10 @@ function hFig = doCreateFigure(figTag, figPos, figName, figToolbar, figMenubar)
         figName = '';
     end
     if nargin < 4
-        figToolbar = false;
+        figToolbar = 0;
     end
     if nargin < 5
-        figMenubar = false;
+        figMenubar = 0;
     end
 
     hFig = jrclust.views.Figure(figTag, figPos, figName, figToolbar, figMenubar);

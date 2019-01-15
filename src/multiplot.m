@@ -15,7 +15,7 @@ function [hPlot, viY] = multiplot(hPlot, scale, vrX, mrY, viY, fScatter)
         end
     end
     if nargin < 6
-        fScatter = false;
+        fScatter = 0;
     end
 
     if nargin > 2 %create

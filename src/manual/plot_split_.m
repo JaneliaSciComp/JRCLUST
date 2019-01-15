@@ -53,7 +53,7 @@ function [fSplit, vlIn] = plot_split_(S1)
             [prVecs1, prVecs2] = jrclust.features.getPVClusters(hClust, site12, S0.iCluCopy, S0.iCluPaste);
             [mrAmin12, mrAmax12] = jrclust.features.pcProjectSpikes(hClust.spikesByCluster{iClu1}, site12, prVecs1, prVecs2);
         else
-            sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, hClust.spikesByCluster{iClu1}, site12, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+            sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, hClust.spikesByCluster{iClu1}, site12, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
             [prVecs1, prVecs2, prVecs3] = jrclust.features.getPVSpikes(sampledWindows);
             [mrAmin12, mrAmax12] = jrclust.features.pcProjectSpikes(sampledWindows, prVecs1, prVecs2, prVecs3);
             %[mrAmin12, mrAmax12] = jrclust.features.pcProjectSpikes(hClust.spikesByCluster{iClu1}, site12);

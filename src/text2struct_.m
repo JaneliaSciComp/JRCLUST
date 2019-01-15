@@ -4,7 +4,7 @@ function S = text2struct_(vcFname)
     % Convert text file to struct
 
     fid = fopen(vcFname, 'r');
-    mcFileMeta = textscan(fid, '%s%s', 'Delimiter', '=',  'ReturnOnError', false);
+    mcFileMeta = textscan(fid, '%s%s', 'Delimiter', '=',  'ReturnOnError', 0);
     fclose(fid);
     csName = mcFileMeta{1};
     csValue = mcFileMeta{2};

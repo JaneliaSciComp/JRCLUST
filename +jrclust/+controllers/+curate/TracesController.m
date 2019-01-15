@@ -38,25 +38,25 @@ classdef TracesController < handle
             switch hEvent.Key
                 case 'uparrow'
                     obj.hFigTraces.figData.maxAmp = obj.hFigTraces.figData.maxAmp*sqrt(2)^-factor;
-                    obj.updateFigTraces(false);
+                    obj.updateFigTraces(0);
 
                 case 'downarrow'
                     obj.hFigTraces.figData.maxAmp = obj.hFigTraces.figData.maxAmp*sqrt(2)^factor;
-                    obj.updateFigTraces(false);
+                    obj.updateFigTraces(0);
 
                 case {'leftarrow', 'rightarrow', 'j', 'home', 'end'}
                     switch lower(hEvent.Key)
                         case 'leftarrow'
                             windowBounds = obj.hFigTraces.figData.windowBounds - (obj.hFigTraces.figData.windowWidth) * factor; %no overlap
                             if windowBounds(1) < 1
-                                jrclust.utils.qMsgBox('Beginning of file', true);
+                                jrclust.utils.qMsgBox('Beginning of file', 1);
                                 windowBounds = [1, obj.hFigTraces.figData.windowWidth];
                             end
 
                         case 'rightarrow'
                             windowBounds = obj.hFigTraces.figData.windowBounds + (obj.hFigTraces.figData.windowWidth + 1) * factor; %no overlap
                             if windowBounds(2) > obj.hFigTraces.figData.nSamplesTotal
-                                jrclust.utils.qMsgBox('End of file', true);
+                                jrclust.utils.qMsgBox('End of file', 1);
                                 windowBounds = [-obj.hFigTraces.figData.windowWidth + 1, 0] + obj.hFigTraces.figData.nSamplesTotal;
                             end
 
@@ -83,12 +83,12 @@ classdef TracesController < handle
                     nTimeTraces = obj.hCfg.nTime_traces;
                     multiBounds = sample_skip_(windowBounds, obj.hFigTraces.figData.nSamplesTotal, nTimeTraces);
 
-                    tracesRaw_ = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', false);
+                    tracesRaw_ = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', 0);
                     obj.tracesRaw = jrclust.utils.neCell2mat(tracesRaw_);
 
                     obj.tracesRaw = u2i(obj.tracesRaw);
                     obj.hFigTraces.figData.windowBounds = windowBounds;
-                    obj.updateFigTraces(true);
+                    obj.updateFigTraces(1);
 
                 case 'c' % channel query
                     jrclust.utils.qMsgBox('Draw a rectangle', 1);
@@ -133,7 +133,7 @@ classdef TracesController < handle
                     obj.hFigTraces.rmPlot('hPoint');
 
                 case 'e' %export current view
-                    jrclust.utils.exportToWorkspace(struct('tracesRaw', obj.tracesRaw, 'tracesFilt', obj.tracesFilt), true);
+                    jrclust.utils.exportToWorkspace(struct('tracesRaw', obj.tracesRaw, 'tracesFilt', obj.tracesFilt), 1);
 
                 case 'f' % toggle filter
                     obj.toggleFilter();
@@ -151,7 +151,7 @@ classdef TracesController < handle
                         return;
                     end
 
-                    obj.hFigPSD = jrclust.views.Figure('FigPsd', [.5 0 .5 1], obj.hCfg.configFile, true, true); % show to the right
+                    obj.hFigPSD = jrclust.views.Figure('FigPsd', [.5 0 .5 1], obj.hCfg.configFile, 1, 1); % show to the right
 
                     % ask user which channels to plot
                     if iSite > 0
@@ -165,7 +165,7 @@ classdef TracesController < handle
                 case 'r' % reset view
                     if obj.hFigTraces.figData.maxAmp ~= obj.hCfg.maxAmp
                         obj.hFigTraces.figData.maxAmp = obj.hCfg.maxAmp;
-                        obj.updateFigTraces(true);
+                        obj.updateFigTraces(1);
                     else
                         resetFigTraces(obj.hFigTraces, obj.tracesRaw, obj.hCfg);
                     end
@@ -189,7 +189,7 @@ classdef TracesController < handle
         function toggleFilter(obj)
             obj.showFilter = ~obj.showFilter;
             obj.hFigTraces.figData.filter = jrclust.utils.ifEq(obj.showFilter, 'on', 'off');
-            obj.updateFigTraces(false);
+            obj.updateFigTraces(0);
         end
 
         function toggleGrid(obj)
@@ -201,13 +201,13 @@ classdef TracesController < handle
         function toggleSpikes(obj)
             obj.showSpikes = ~obj.showSpikes;
             obj.hFigTraces.figData.spikes = jrclust.utils.ifEq(obj.showSpikes, 'on', 'off');
-            obj.updateFigTraces(false);
+            obj.updateFigTraces(0);
         end
 
         function toggleTraces(obj)
             obj.showTraces = ~obj.showTraces;
             obj.hFigTraces.figData.traces = jrclust.utils.ifEq(obj.showTraces, 'on', 'off');
-            obj.updateFigTraces(false);
+            obj.updateFigTraces(0);
         end
 
         function updateFigTraces(obj, resetAxes)
@@ -222,7 +222,7 @@ classdef TracesController < handle
                 hClust = [];
             end
             if nargin < 3
-                showLFP = false;
+                showLFP = 0;
             end
             if nargin < 2
                 recID = 1;
@@ -280,7 +280,7 @@ classdef TracesController < handle
             multiBounds = sample_skip_(windowBounds, nSamplesTotal, obj.hCfg.nTime_traces);
 
             obj.tracesFull = [];
-            tracesRaw_ = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', false);
+            tracesRaw_ = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', 0);
             obj.tracesRaw = jrclust.utils.neCell2mat(tracesRaw_);
 
         %     if obj.hCfg.fTranspose_bin
@@ -302,7 +302,7 @@ classdef TracesController < handle
         %     end %if
             obj.tracesRaw = u2i(obj.tracesRaw);
 
-            obj.hFigTraces = jrclust.views.Figure('FigTraces', [0 0 .5 1], recFilename, false, true);
+            obj.hFigTraces = jrclust.views.Figure('FigTraces', [0 0 .5 1], recFilename, 0, 1);
             obj.hFigTraces.addAxes('default');
             obj.hFigTraces.addPlot('hLine', @line, nan, nan, 'Color', [1 1 1]*.5, 'LineWidth', .5);
             obj.hFigTraces.addPlot('hEdges', nan, nan, 'Color', [1 0 0]*.5, 'LineWidth', 1);
@@ -336,16 +336,16 @@ classdef TracesController < handle
                 '[E]xport to workspace', ...
             }; % TODO: '[A]ux channel display'
 
-            obj.showFilter = false;
+            obj.showFilter = 0;
             figData.filter = 'off';
 
-            obj.showGrid = true;
+            obj.showGrid = 1;
             figData.grid = 'on';
 
-            obj.showSpikes = false;
+            obj.showSpikes = 0;
             figData.spikes = 'off';
 
-            obj.showTraces = true;
+            obj.showTraces = 1;
             figData.traces = 'on';
 
             obj.hFigTraces.figData = figData;
@@ -354,7 +354,7 @@ classdef TracesController < handle
             obj.hFigTraces.hFunKey = @obj.keyPressFigTraces;
             obj.hFigTraces.setMouseable();
 
-            obj.tracesFilt = doPlotFigTraces(obj.hFigTraces, obj.hCfg, obj.tracesRaw, true, obj.hClust);
+            obj.tracesFilt = doPlotFigTraces(obj.hFigTraces, obj.hCfg, obj.tracesRaw, 1, obj.hClust);
         end
     end
 end

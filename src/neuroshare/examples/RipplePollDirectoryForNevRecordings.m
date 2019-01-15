@@ -76,10 +76,10 @@ end
 
 % get the current contents of the poll dir
 items = dir(pollDirPath);
-processedDirExists = false;
+processedDirExists = 0;
 for i=1:length(items)
     if (items(i).isdir) && (strcmp(items(i).name, 'processed'))
-        processedDirExists = true;
+        processedDirExists = 1;
         break;
     end
 end

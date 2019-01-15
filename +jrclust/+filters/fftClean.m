@@ -28,7 +28,7 @@ function [samplesOut, useGPU] = fftClean(samplesIn, fftThreshMAD, ramToGPUFactor
             try
                 samplesOut(rows, :) = doFFTClean(samplesOut_, fftThreshMAD);
             catch
-                useGPU = false;
+                useGPU = 0;
             end
         end
 

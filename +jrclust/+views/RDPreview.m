@@ -1,5 +1,5 @@
 function hCFig = RDPreview(hClust)
-    hCFig = jrclust.views.ControlFigure('FigRLPreview', [0.05 0.0 0.5 1], 'RL Preview', true, false);
+    hCFig = jrclust.views.ControlFigure('FigRLPreview', [0.05 0.0 0.5 1], 'RL Preview', 1, 0);
     set(gcf, 'CloseRequestFcn', @finalize);
 
     hCFig.addAxes('default');
@@ -9,7 +9,7 @@ function hCFig = RDPreview(hClust)
                        'String', 'Site #', ...
                        'Position', [10, 0, 30, 25]);
     hSite = hCFig.addUicontrol('siteNo', 'Style', 'popup', ...
-                               'String', arrayfun(@(n) num2str(n), 1:numel(hClust.spikesBySite), 'UniformOutput', false), ...
+                               'String', arrayfun(@(n) num2str(n), 1:numel(hClust.spikesBySite), 'UniformOutput', 0), ...
                                'Position', [45, 0, 50, 30], ...
                                'Callback', @setSite);
 
@@ -38,9 +38,9 @@ function hCFig = RDPreview(hClust)
                                'Position', [175, 0, 100, 30], ...
                                'Callback', @setProjection);
     hCFig.axApply('default', @title, 'Projections of spikes onto features');
-    hFigRD = jrclust.views.Figure('FigRD', [0.55 0 0.4 0.5], ['Cluster rho-delta: ', hClust.hCfg.sessionName], false, false);
+    hFigRD = jrclust.views.Figure('FigRD', [0.55 0 0.4 0.5], ['Cluster rho-delta: ', hClust.hCfg.sessionName], 0, 0);
 
-    hFigWav = jrclust.views.Figure('FigWav', [0.55 0.5 0.4 0.5], ['Filtered traces: ', hClust.hCfg.sessionName], false, false);
+    hFigWav = jrclust.views.Figure('FigWav', [0.55 0.5 0.4 0.5], ['Filtered traces: ', hClust.hCfg.sessionName], 0, 0);
 
 
     % populate the detrend option dropdown
@@ -181,7 +181,7 @@ function hCFig = RDPreview(hClust)
     function doReassign()
         set(handles, 'Enable', 'off');
         hBox = msgbox('Reassigning clusters...please wait');
-        hCFig.wait(true);
+        hCFig.wait(1);
         hClust.reassign();
         updateSiteClusters();
 
@@ -189,7 +189,7 @@ function hCFig = RDPreview(hClust)
         plotRD();
         plotWaves();
 
-        hCFig.wait(false);
+        hCFig.wait(0);
         jrclust.utils.tryClose(hBox);
         set(handles, 'Enable', 'on');
     end
@@ -199,7 +199,7 @@ function hCFig = RDPreview(hClust)
         siteSpikes = hClust.spikesBySite{currentSite};
         uniqueClusters = unique(hClust.spikeClusters(siteSpikes));
         uniqueClusters = uniqueClusters(uniqueClusters > 0);
-        ucStr = arrayfun(@(iC) sprintf('Cluster %d', iC), uniqueClusters, 'UniformOutput', false);
+        ucStr = arrayfun(@(iC) sprintf('Cluster %d', iC), uniqueClusters, 'UniformOutput', 0);
 
         set(hSiteClusters, 'Value', 1, 'String', '');
 
@@ -259,7 +259,7 @@ function hCFig = RDPreview(hClust)
             hCFig.axApply('default', @ylabel, cproj{1});
         end
 
-        uniqueClusters = cellfun(@(c) str2double(strrep(c, 'Cluster ', '')), ucStr, 'UniformOutput', true);
+        uniqueClusters = cellfun(@(c) str2double(strrep(c, 'Cluster ', '')), ucStr, 'UniformOutput', 1);
         uniqueClusters = uniqueClusters(selectedClusters);
         for iCluster = 1:numel(uniqueClusters)
             cluster = uniqueClusters(iCluster);
@@ -276,18 +276,18 @@ function hCFig = RDPreview(hClust)
         hFigRD.cla();
 
         if strcmp(hClust.hCfg.rlDetrendMode, 'global')
-            [centers, rho, delta] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, false, hClust.hCfg);
+            [centers, rho, delta] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 0, hClust.hCfg);
             delta = jrclust.utils.nanlog10(delta);
-            fDetrend = true;
+            fDetrend = 1;
         elseif strcmp(hClust.hCfg.rlDetrendMode, 'local')
-            [centers, rho, delta] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, true, hClust.hCfg);
+            [centers, rho, delta] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 1, hClust.hCfg);
             delta = jrclust.utils.nanlog10(delta);
-            fDetrend = true;
+            fDetrend = 1;
         else
             centers = find(hClust.spikeRho(:) > 10^(hClust.hCfg.log10RhoCut) & hClust.spikeDelta(:) > 10^(hClust.hCfg.log10DeltaCut));
             rho = jrclust.utils.nanlog10(hClust.spikeRho(:));
             delta = jrclust.utils.nanlog10(hClust.spikeDelta(:));
-            fDetrend = false;
+            fDetrend = 0;
         end
 
         mask = jrclust.utils.subsample(1:numel(rho), ceil(3*numel(rho)/5));
@@ -334,7 +334,7 @@ function hCFig = RDPreview(hClust)
         siteSpikes = hClust.spikesBySite{currentSite};
         spikeClusters = hClust.spikeClusters(siteSpikes);
 
-        uniqueClusters = cellfun(@(c) str2double(strrep(c, 'Cluster ', '')), ucStr, 'UniformOutput', true);
+        uniqueClusters = cellfun(@(c) str2double(strrep(c, 'Cluster ', '')), ucStr, 'UniformOutput', 1);
         uniqueClusters = uniqueClusters(selectedClusters);
 
         YData = squeeze(hClust.spikesFilt(:, 1, siteSpikes));

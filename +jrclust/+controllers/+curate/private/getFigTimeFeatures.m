@@ -45,11 +45,11 @@ function [sampledFeatures, sampledSpikes] = getClusterFeaturesSite(hClust, iSite
     elseif strcmp(hCfg.dispFeature, 'cov')
         sampledFeatures = getSpikeCov(hClust, sampledSpikes, iSite);
     elseif strcmp(hCfg.dispFeature, 'pca') || (strcmp(hCfg.dispFeature, 'ppca') && isempty(iCluster)) % TODO: need a better mech for bg spikes
-        sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, sampledSpikes, iSite, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+        sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, sampledSpikes, iSite, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
         prVecs1 = jrclust.features.getPVSpikes(sampledWindows);
         sampledFeatures = jrclust.features.pcProjectSpikes(sampledWindows, prVecs1);
     elseif strcmp(hCfg.dispFeature, 'ppca')
-        sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, sampledSpikes, iSite, false), [1, 3, 2]); % nSamples x nSpikes x nSites
+        sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, sampledSpikes, iSite, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
         prVecs1 = jrclust.features.getPVClusters(hClust, iSite, iCluster);
         sampledFeatures = jrclust.features.pcProjectSpikes(sampledWindows, prVecs1);
     % elseif strcmp(hCfg.dispFeature, 'kilosort')

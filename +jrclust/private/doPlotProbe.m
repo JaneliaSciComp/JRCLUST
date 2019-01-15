@@ -2,7 +2,7 @@ function doPlotProbe(probeFile)
     %DOPLOTPROBE Plot a figure representing a probe
     probeData = doLoadProbe(probeFile);
 
-    hFigProbe = jrclust.views.Figure('FigProbe', [0 0 .5 1], probeFile, false, false);
+    hFigProbe = jrclust.views.Figure('FigProbe', [0 0 .5 1], probeFile, 0, 0);
 
     vrX = [0 0 1 1] * probeData.probePad(2);
     vrY = [0 1 1 0] * probeData.probePad(1);

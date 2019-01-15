@@ -9,7 +9,7 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
         hFigPos.addAxes('default');
     end
 
-    plotPosUnit(c1Data, hFigPos, hCfg, false, maxAmp);
+    plotPosUnit(c1Data, hFigPos, hCfg, 0, maxAmp);
 
     clusterPos = hClust.clusterCentroids(c1Data.cluster, :)/hCfg.um_per_pix;
     nSpikes = hClust.unitCount(c1Data.cluster);
@@ -24,7 +24,7 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
     else
         nSpikes2 = hClust.unitCount(c2Data.cluster);
         clusterPos2 = hClust.clusterCentroids(c2Data.cluster, :)/hCfg.um_per_pix;
-        plotPosUnit(c2Data, hFigPos, hCfg, true, maxAmp);
+        plotPosUnit(c2Data, hFigPos, hCfg, 1, maxAmp);
 
         figTitle = sprintf('Unit %d(black)/%d(red); (%d/%d) spikes\n(X=%0.1f/%0.1f, Y=%0.1f/%0.1f) [um]', ...
             c1Data.cluster, c2Data.cluster, nSpikes, nSpikes2, ...

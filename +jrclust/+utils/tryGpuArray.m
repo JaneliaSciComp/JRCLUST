@@ -6,14 +6,14 @@ function [val, success] = tryGpuArray(val, useGPU)
 
     try
         val = gpuArray(val);
-        success = true;
+        success = 1;
     catch
         try % reset GPU memory and try again
             gpuDevice(1);
             val = gpuArray(val);
-            success = true;
+            success = 1;
         catch % no GPU device found
-            success = false;
+            success = 0;
         end
     end
 end

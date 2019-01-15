@@ -1,6 +1,6 @@
 function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
     %DOPLOTFIGSIM Display cluster similarity scores
-    hFigSim.wait(true);
+    hFigSim.wait(1);
 
     nClusters = hClust.nClusters;
     if ~hFigSim.hasAxes('default') % create from scratch
@@ -51,5 +51,5 @@ function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
         hFigSim.addDiag('hDiag', [0, nClusters, 0.5], 'Color', [0 0 0], 'LineWidth', 1.5); % overwrites previous diag plot
     end
 
-    hFigSim.wait(false);
+    hFigSim.wait(0);
 end

@@ -3,7 +3,7 @@ function [spikeTimes, spikeAmps, spikeSites] = mergePeaks(spikesBySite, ampsBySi
     nSites = numel(spikesBySite);
     spikeTimes = jrclust.utils.neCell2mat(spikesBySite);
     spikeAmps = jrclust.utils.neCell2mat(ampsBySite);
-    spikeSites = jrclust.utils.neCell2mat(cellfun(@(vi, i) repmat(i, size(vi)), spikesBySite, num2cell((1:nSites)'), 'UniformOutput', false));
+    spikeSites = jrclust.utils.neCell2mat(cellfun(@(vi, i) repmat(i, size(vi)), spikesBySite, num2cell((1:nSites)'), 'UniformOutput', 0));
 
     [spikeTimes, argsort] = sort(spikeTimes);
     spikeAmps = spikeAmps(argsort);
@@ -12,25 +12,24 @@ function [spikeTimes, spikeAmps, spikeSites] = mergePeaks(spikesBySite, ampsBySi
 
     [mergedTimes, mergedAmps, mergedSites] = deal(cell(nSites,1));
 
-    try
-        parfor iSite = 1:nSites %parfor speedup: 2x %parfor
-            try
-                [mergedTimes{iSite}, mergedAmps{iSite}, mergedSites{iSite}] = ...
-                    mergeSpikesSite(spikeTimes, spikeAmps, spikeSites, iSite, hCfg);
-            catch
-                disperr_();
-            end
-        end
-    catch % parfor failure
+%     try
+%         parfor iSite = 1:nSites
+%             try
+%                 [mergedTimes{iSite}, mergedAmps{iSite}, mergedSites{iSite}] = ...
+%                     mergeSpikesSite(spikeTimes, spikeAmps, spikeSites, iSite, hCfg);
+%             catch % don't try to display an error here
+%             end
+%         end
+%     catch % parfor failure
         for iSite = 1:nSites
             try
                 [mergedTimes{iSite}, mergedAmps{iSite}, mergedSites{iSite}] = ...
                     mergeSpikesSite(spikeTimes, spikeAmps, spikeSites, iSite, hCfg);
-            catch
-                disperr_();
+            catch ME
+                warning(ME.identifier, 'failed to merge spikes on site %d: %s', iSite, ME.message);
             end
         end
-    end
+%     end
 
     % merge parfor output and sort
     spikeTimes = jrclust.utils.neCell2mat(mergedTimes);
@@ -47,49 +46,65 @@ function [timesOut, ampsOut, sitesOut] = mergeSpikesSite(spikeTimes, spikeAmps, 
     %MERGESPIKESSITE Merge spikes in the refractory period
     nLims = int32(abs(hCfg.refracIntSamp));
 
-    % find spikes on iSite
-    onSite = int32(find(spikeSites == iSite)); % pre-cache
-    onSiteTimes = spikeTimes(onSite);
-    onSiteAmps = spikeAmps(onSite);
-
     % find neighboring spikes
     nearbySites = jrclust.utils.findNearbySites(hCfg.siteLoc, iSite, hCfg.evtMergeRad); % includes iSite
-    onNearSite = int32(find(ismember(spikeSites, nearbySites)));
-    neighborTimes = spikeTimes(onNearSite);
-    neighborAmps = spikeAmps(onNearSite);
-    neighborSites = spikeSites(onNearSite);
+    spikesBySite = arrayfun(@(jSite) find(spikeSites == jSite), nearbySites, 'UniformOutput', 0);
+    timesBySite = arrayfun(@(jSite) spikeTimes(spikesBySite{jSite}), 1:numel(nearbySites), 'UniformOutput', 0);
+    ampsBySite = arrayfun(@(jSite) spikeAmps(spikesBySite{jSite}), 1:numel(nearbySites), 'UniformOutput', 0);
+
+    iiSite = (nearbySites == iSite);
+    iSpikes = spikesBySite{iiSite};
+    iTimes = timesBySite{iiSite};
+    iAmps = ampsBySite{iiSite};
 
     % search over peaks on neighboring sites and in refractory period to
     % see which peaks on this site to keep
-    keepMe = true(size(onSite));
-    for iDelay = -nLims:nLims
-        [isNearby, locNearby] = ismember(neighborTimes, onSiteTimes + iDelay);
-        isNearby = find(isNearby);
+    keepMe = true(size(iSpikes));
+    for jjSite = 1:numel(spikesBySite)
+        jSite = nearbySites(jjSite);
 
-        if iDelay == 0 % remove self if zero delay
-            isNearby(onNearSite(isNearby) == onSite(locNearby(isNearby))) = [];
+        jSpikes = spikesBySite{jjSite};
+        jTimes = timesBySite{jjSite};
+        jAmps = ampsBySite{jjSite};
+
+        if iSite == jSite
+            delays = [-nLims:-1, 1:nLims]; % skip 0 delay
+        else
+            delays = -nLims:nLims;
         end
 
-        % ignore nearby spikes which have smaller ("less negative") magnitudes
-        isNearby(neighborAmps(isNearby) > onSiteAmps(locNearby(isNearby))) = [];
-        
-        % flag equal-amplitude nearby spikes
-        ampsEqual = (neighborAmps(isNearby) == onSiteAmps(locNearby(isNearby)));
-        if any(ampsEqual)
-            if iDelay > 0 % spk1 occurs before spk12, thus keep
-                isNearby(ampsEqual) = [];
-            elseif iDelay == 0 % keep only if site is lower
-                ampsEqual(iSite > neighborSites(isNearby(ampsEqual))) = 0;
-                isNearby(ampsEqual) = []; % same site/time/amp
+        for iiDelay = 1:numel(delays)
+            iDelay = delays(iiDelay);
+
+            [jLocs, iLocs] = ismember(jTimes, iTimes + iDelay);
+            if ~any(jLocs)
+                continue;
+            end
+
+            % jLocs: index into j{Spikes,Times,Amps}
+            % iLocs: (1st) corresponding index into i{Spikes,Times,Amps}/keepMe
+            jLocs = find(jLocs);
+            iLocs = iLocs(jLocs);
+
+            % drop spikes on iSite where spikes on jSite have larger
+            % magnitudes
+            nearbyLarger = abs(jAmps(jLocs)) > abs(iAmps(iLocs));
+            keepMe(iLocs(nearbyLarger)) = 0;
+
+            % flag equal-amplitude nearby spikes
+            ampsEqual = (jAmps(jLocs) == iAmps(iLocs));
+            if any(ampsEqual)
+                if iDelay < 0 % drop spikes on iSite occurring later than those on jSite
+                    keepMe(iLocs(ampsEqual)) = 0;
+                elseif iDelay == 0 && jSite < iSite % drop spikes on iSite if jSite is of lower index
+                    keepMe(iLocs(ampsEqual)) = 0;
+                end
             end
         end
-
-        % discard spikes on this site which have not passed our tests
-        keepMe(locNearby(isNearby)) = 0;
-    end %for
+    end
 
     % keep the peak spikes only
-    timesOut = onSiteTimes(keepMe);
-    ampsOut = onSiteAmps(keepMe);
+    timesOut = iTimes(keepMe);
+    ampsOut = iAmps(keepMe);
     sitesOut = repmat(int32(iSite), size(timesOut));
 end

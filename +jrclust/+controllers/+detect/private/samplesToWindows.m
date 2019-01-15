@@ -41,7 +41,7 @@ function [spikesRaw, spikesFilt, spikeTimes] = samplesToWindows(samplesRaw, samp
                 spikesRaw(:, :, siteSpikes) = permute(jrclust.utils.extractWindows(samplesRaw, hCfg.evtWindowRawSamp, siteTimes, neighbors), [1, 3, 2]);
             catch ME
                 obj.errMsg = ME.message;
-                obj.isError = true;
+                obj.isError = 1;
             end
         end
     end

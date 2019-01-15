@@ -55,7 +55,7 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
 %     end
 % 
     if ~isfield(hFigTime.figData, 'doPlotBG')
-        hFigTime.figData.doPlotBG = true;
+        hFigTime.figData.doPlotBG = 1;
     end
 %     toggleVisible_(S_fig.hPlot0, S_fig.doPlotBG);
 

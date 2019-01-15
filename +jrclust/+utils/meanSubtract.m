@@ -36,6 +36,6 @@ function flag = reallyisa(val, clsname)
             flag = isa(val, clsname);
         end
     catch
-        flag = false;
+        flag = 0;
     end
 end

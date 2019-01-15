@@ -100,14 +100,14 @@ classdef Config < dynamicprops
     
     %% NEW-STYLE PARAMS, publicly settable
     properties (SetObservable)
-        batchMode = false;          % suppress *all* messages if true
+        batchMode = 0;          % suppress *all* messages if true
 
         % computation params
         gpuLoadFactor = 5;          % GPU memory usage factor (4x means 1/4 of GPU memory can be loaded)
         randomSeed = 0;             % random seed
         ramToGPUFactor = 8;         % ratio: RAM / (GPU memory) (increase this number if GPU memory error)
-        useGPU = true;              % use GPU in computation if true
-        verbose = true;             % be chatty while processing
+        useGPU = 1;              % use GPU in computation if true
+        verbose = 1;             % be chatty while processing
 
         % file location params
         outputDir = '';             % directory in which to place output files
@@ -130,7 +130,7 @@ classdef Config < dynamicprops
         siteMap;                    % channel mapping; row i in the data corresponds to channel `siteMap(i)`
 
         % preprocessing params
-        useElliptic = true;         % use elliptic filter if true (and only if filterType='bandpass')
+        useElliptic = 1;         % use elliptic filter if 1 (and only if filterType='bandpass')
         fftThreshMAD = 0;           % automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
         filtOrder = 3;              % bandpass filter order
         filterType = 'ndiff';       % filter to use {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
@@ -153,7 +153,7 @@ classdef Config < dynamicprops
         evtWindowms = [-0.25 0.75]; % interval around event to extract filtered spike waveforms, in ms
         evtWindowRawms;             % interval around event to extract raw spike waveforms, in ms
         evtWindowRawFactor = 2;     % ratio of raw samples to filtered samples to extract if evtWindowRawms is not set
-        fGroup_shank = false;       % group all sites in the same shank if true
+        fGroup_shank = 0;       % group all sites in the same shank if true
         ignoreSites = [];           % sites to manually ignore in the sorting
         nDiff_filt = 2;             % Differentiation filter for filterType='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
         nneigh_min_detect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
@@ -166,8 +166,8 @@ classdef Config < dynamicprops
 
         % feature extraction params
         clusterFeature = 'pca';     % feature to use in clustering
-        fInterp_fet = true;         % interpolate waveforms for feature projection to find optimal delay (2x interp) if true
-        fSpatialMask_clu = false;   % apply spatial mask calculated from the distances between sites to the peak site (half-scale: evtDetectRad)
+        fInterp_fet = 1;         % interpolate waveforms for feature projection to find optimal delay (2x interp) if true
+        fSpatialMask_clu = 0;   % apply spatial mask calculated from the distances between sites to the peak site (half-scale: evtDetectRad)
         min_sites_mask = 5;         % minimum number of sites to have to apply spatial mask
         nFet_use = 2;               % undocumented
         time_feature_factor;        % undocumented
@@ -175,7 +175,7 @@ classdef Config < dynamicprops
         % clustering params
         autoMergeBy = 'pearson';            % metric to use when automerging clusters
         dc_percent = 2;                     % percentile at which to cut off distance in rho computation
-        fDrift_merge = true;                % compute multiple waveforms at three drift locations based on the spike position if true
+        fDrift_merge = 1;                % compute multiple waveforms at three drift locations based on the spike position if true
         log10DeltaCut = 0.6;                % the base-10 log of the delta cutoff value
         log10RhoCut = -2.5;                 % the base-10 log of the rho cutoff value
         maxClustersSite = 20;               % maximum number of clusters per site if local detrending is used
@@ -185,7 +185,7 @@ classdef Config < dynamicprops
         nPassesMerge = 10;                  % number of passes for unit mean raw waveform-based merging
         outlierThresh = 7.5;                % threshold to remove outlier spikes for each cluster, in MAD
         nTime_clu = 1;                      % number of time periods over which to cluster separately (later to be merged after clustering)
-        repeatLower = false;                % repeat clustering for the bottom half of the cluster amplitudes if true
+        repeatLower = 0;                % repeat clustering for the bottom half of the cluster amplitudes if true
         rlDetrendMode = 'global';           % 
         spkLim_factor_merge = 1;            % Waveform range for computing the correlation. spkLim_factor_merge <= spkLim_raw_factor_merge. circa v3.1.8
 
@@ -193,14 +193,14 @@ classdef Config < dynamicprops
         dispFeature = 'vpp';                % feature to display in time/projection views
         dispFilter = '';                    % 
         dispTimeLimits = [0 0.2];           % time range to display (in seconds)
-        fText = true;                       % 
+        fText = 1;                       % 
         nShow = 200;                        % maximum number of traces to show [D?# spikes to show]
         nShow_proj = 500;                   % maximum number of features to show in projection
         nSitesFigProj = 5;                  % number of sites to display in the feature projection view
         nTime_traces = 1;                   % number of time segments to display. Set to 1 to show one continuous time segment
         nSpk_show = 30;                     % show spike waveforms for manual clustering
         pcPair = [1 2];                     % PC projection to show (1 vs 2; 1 vs 3; 2 vs 3), can be toggled
-        showRaw = false;                    % show raw waveforms in main view if true
+        showRaw = 0;                    % show raw waveforms in main view if true
         time_tick_show = [];                % 
         tLimFigProj = [];                   % time range to display in feature view, in seconds
         um_per_pix = 20;                    % 
@@ -232,42 +232,42 @@ classdef Config < dynamicprops
         dc_factor = 1;
         dc_frac = [];
         dinput_imec_trial = 1;
-        fAddCommonRef = false;
-        fAverageTrial_psth = true;
-        fCacheRam = true;
-        fCheckSites = false;
-        fDetectBipolar = false;
-        fDiscard_count = true;
-        fInverse_file = false;
-        fImportKsort = false;
-        fLoad_lfp = false;
-        fMeanSite = true;
-        fMeanSiteRef = false;
-        fMeanSite_drift = false;
-        fMinNorm_wav = false;
-        fNormRhoDelta = true;
-        fParfor = true;
-        fPcaDetect = false;
-        fProcessEven = false;
-        fProcessOdd = false;
-        fProcessReverseOrder = false;
-        fProj_sort = false;
-        fRamCache = true;
-        fRejectSpk_vpp = false;
-        fRms_detect = false;
-        fRun = true;
-        fSaveEvt = true;
-        fSavePlot_RD = true;
-        fSaveRawSpk = false;
-        fSaveSpk = true;
-        fShowAllSites = false;
-        fSingleColumn_track = true;
-        fSmooth_track = true;
-        fSpike_show = true;
-        fTranspose_bin = true;
-        fUseCache_track = false;
-        fUseLfp_track = true;
-        fWhiten_traces = false;
+        fAddCommonRef = 0;
+        fAverageTrial_psth = 1;
+        fCacheRam = 1;
+        fCheckSites = 0;
+        fDetectBipolar = 0;
+        fDiscard_count = 1;
+        fInverse_file = 0;
+        fImportKsort = 0;
+        fLoad_lfp = 0;
+        fMeanSite = 1;
+        fMeanSiteRef = 0;
+        fMeanSite_drift = 0;
+        fMinNorm_wav = 0;
+        fNormRhoDelta = 1;
+        fParfor = 1;
+        fPcaDetect = 0;
+        fProcessEven = 0;
+        fProcessOdd = 0;
+        fProcessReverseOrder = 0;
+        fProj_sort = 0;
+        fRamCache = 1;
+        fRejectSpk_vpp = 0;
+        fRms_detect = 0;
+        fRun = 1;
+        fSaveEvt = 1;
+        fSavePlot_RD = 1;
+        fSaveRawSpk = 0;
+        fSaveSpk = 1;
+        fShowAllSites = 0;
+        fSingleColumn_track = 1;
+        fSmooth_track = 1;
+        fSpike_show = 1;
+        fTranspose_bin = 1;
+        fUseCache_track = 0;
+        fUseLfp_track = 1;
+        fWhiten_traces = 0;
         flim_vid = [];
         freqLimNotch_lfp = [];
         freqLim_corr = [15 150];
@@ -377,8 +377,8 @@ classdef Config < dynamicprops
                 filename = obj.configFile;
             end
 
-            obj.isLoaded = false;
-            obj.isError = false;
+            obj.isLoaded = 0;
+            obj.isError = 0;
 
             obj.tempParams = containers.Map();
 
@@ -403,7 +403,7 @@ classdef Config < dynamicprops
     methods(Access=protected, Hidden)
         function error(obj, emsg, varargin)
             %ERROR Raise an error
-            obj.isError = true;
+            obj.isError = 1;
             if obj.batchMode
                 error(emsg);
             else
@@ -496,7 +496,7 @@ classdef Config < dynamicprops
 
             ee = cellfun(@(e) ~isempty(e), errorProps(:, 1));
             if any(ee) && ~obj.batchMode
-                emsgs = arrayfun(@(i) strjoin(errorProps(i, :), ': '), find(ee), 'UniformOutput', false);
+                emsgs = arrayfun(@(i) strjoin(errorProps(i, :), ': '), find(ee), 'UniformOutput', 0);
                 wmsg = sprintf('These properties were not set due to errors:\n* %s', strjoin(emsgs, '\n\n * '));
                 obj.warning(wmsg, 'Unset properties');
             end
@@ -642,7 +642,7 @@ classdef Config < dynamicprops
 
         function success = flush(obj)
             %FLUSH Write stored values to file
-            success = true;
+            success = 1;
 
             % first back up the old config file
             backupFile = jrclust.utils.subsExt(obj.configFile, '.prm.bak');
@@ -650,7 +650,7 @@ classdef Config < dynamicprops
                 copyfile(obj.configFile, backupFile);
             catch ME % cowardly back out
                 warning(ME.identifier, 'Could not back up old config file: %s', ME.message);
-                success = false;
+                success = 0;
                 return;
             end
 
@@ -658,7 +658,7 @@ classdef Config < dynamicprops
                 fid = fopen(obj.configFile, 'w');
             catch ME
                 warning(ME.identifier, 'Could not open config file for writing: %s', ME.message);
-                success = false;
+                success = 0;
                 return;
             end
 
@@ -692,7 +692,7 @@ classdef Config < dynamicprops
 
         function success = makeCfg(obj, outputDir, binFiles, probeFile, templateFile, fAsk)
             %MAKECFG Make a config file
-            success = false;
+            success = 0;
             if obj.batchMode % no interactivity permitted
                 return;
             end
@@ -710,7 +710,7 @@ classdef Config < dynamicprops
                 templateFile = '';
             end
             if nargin < 5
-                fAsk = true;
+                fAsk = 1;
             end
 
             % set outputDir
@@ -722,7 +722,7 @@ classdef Config < dynamicprops
             if ischar(binFiles)
                 binFiles = {binFiles};
             end
-            binFiles = cellfun(@jrclust.utils.absPath, binFiles, 'UniformOutput', false);
+            binFiles = cellfun(@jrclust.utils.absPath, binFiles, 'UniformOutput', 0);
 
             % absPath can return a cell if given a wildcard; handle mixed
             % output
@@ -771,13 +771,13 @@ classdef Config < dynamicprops
             end
 
             obj.flush(); % write to file
-            success = true;
+            success = 1;
         end
 
         function rd = recDurationSec(obj, recID)
             %RECDURATIONSECS Get duration of recording file(s) in seconds
             if nargin < 2 || isempty(recID)
-                hRecs = cellfun(@(fn) jrclust.models.recording.Recording(fn, obj), obj.rawRecordings, 'UniformOutput', false);
+                hRecs = cellfun(@(fn) jrclust.models.recording.Recording(fn, obj), obj.rawRecordings, 'UniformOutput', 0);
                 rd = sum(cellfun(@(hR) hR.nSamples, hRecs))/obj.sampleRate;
             elseif recID < 1 || recID > numel(obj.rawRecordings)
                 error('recording ID %d is invalid (there are %d recordings)', recID, numel(obj.rawRecordings));
@@ -1259,7 +1259,7 @@ classdef Config < dynamicprops
 
         % fImportKsort/fImportKilosort
         function set.fImportKsort(obj, fi)
-            obj.fImportKsort = true && fi;
+            obj.fImportKsort = 1 && fi;
         end
         function fi = get.fImportKilosort(obj)
             obj.logOldP('fImportKilosort');
@@ -1716,7 +1716,7 @@ classdef Config < dynamicprops
 
         % repeatLower/fRepeat_clu
         function set.repeatLower(obj, rl)
-            rl = rl && true;
+            rl = rl && 1;
             obj.repeatLower = rl;
         end
         function rl = get.fRepeat_clu(obj)
@@ -1779,7 +1779,7 @@ classdef Config < dynamicprops
 
         % showRaw/fWav_raw_show
         function set.showRaw(obj, sr)
-            obj.showRaw = true && sr;
+            obj.showRaw = 1 && sr;
         end
         function sr = get.fWav_raw_show(obj)
             obj.logOldP('fWav_raw_show');
@@ -1914,7 +1914,7 @@ classdef Config < dynamicprops
             vb = obj.verbose && ~obj.batchMode;
         end
         function set.verbose(obj, vb)
-            obj.verbose = true && vb;
+            obj.verbose = 1 && vb;
         end
         function vb = get.fVerbose(obj)
             obj.logOldP('fVerbose');

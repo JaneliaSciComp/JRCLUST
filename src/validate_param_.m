@@ -48,9 +48,9 @@ function flag = validate_param_(P)
 
 
     if isempty(csError)
-        flag = true;
+        flag = 1;
     else
         cellfun(@(vc_)fprintf(2, '%s\n', vc_), csError);
-        flag = false;
+        flag = 0;
     end
 end %func

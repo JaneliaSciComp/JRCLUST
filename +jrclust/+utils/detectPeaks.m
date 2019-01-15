@@ -30,7 +30,7 @@ function [spikeTimes, spikeAmps, spikeSites] = detectPeaks(samplesIn, siteThresh
     end
 
     % Group spiking events using vrWav_mean1. already sorted by time
-    if hCfg.getOr('fMerge_spk', true)
+    if hCfg.getOr('fMerge_spk', 1)
         if hCfg.verbose
             fprintf('\tMerging spikes...');
             t2 = tic;

@@ -25,7 +25,7 @@ end
 %% local functions
 function lines = stripComments(lines)
     lines = lines(cellfun(@(ln) ~isempty(ln), lines));
-    lines = cellfun(@(ln) strtrim(ln), lines, 'UniformOutput', false);
+    lines = cellfun(@(ln) strtrim(ln), lines, 'UniformOutput', 0);
     lines = lines(cellfun(@(ln) ln(1) ~= '%', lines));
 
     % remove comments in the middle

@@ -40,15 +40,15 @@ classdef JRC < handle & dynamicprops
         function obj = JRC(varargin)
             %JRC Construct an instance of this class
             obj.args = varargin;
-            obj.isCompleted = false;
-            obj.isError = false;
-            obj.isDetect = false;
-            obj.isSort = false;
-            obj.isCurate = false;
+            obj.isCompleted = 0;
+            obj.isError = 0;
+            obj.isDetect = 0;
+            obj.isSort = 0;
+            obj.isCurate = 0;
 
             if ~jrclust.utils.sysCheck()
                 obj.errMsg = 'system requirements not met';
-                obj.isError = true;
+                obj.isError = 1;
             elseif nargin > 0
                 % handle arguments (legacy mode)
                 obj.processArgs();
@@ -70,55 +70,61 @@ classdef JRC < handle & dynamicprops
             obj.args = obj.args(2:end);
             nargs = nargs - 1;
 
+            % paired manual commands
+            if contains(obj.cmd, '-manual')
+                obj.cmd = strrep(obj.cmd, '-manual', '');
+                obj.isCurate = 1;
+            end
+
             switch obj.cmd
                 % deprecated commands; will be removed in a future release
                 case {'compile-ksort', 'dir', 'edit', 'git-pull', 'issue', 'import-kilosort-sort', ...
                       'import-ksort-sort', 'kilosort', 'kilosort-verify', 'ksort', 'ksort-verify' ...
                       'which', 'wiki', 'wiki-download'}
                     jrclust.utils.depWarn(obj.cmd);
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 case {'doc', 'doc-edit'}
                     imsg = 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki';
                     jrclust.utils.depWarn(obj.cmd, imsg);
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 case 'download'
                     imsg = 'You can find sample.bin and sample.meta at https://drive.google.com/drive/folders/1-UTasZWB0TwFFFV49jSrpRPHmtve34O0?usp=sharing';
                     jrclust.utils.depWarn(obj.cmd, imsg);
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 case 'gui'
                     imsg = 'GUI is not implemented yet, but eventually you can just use `jrc`';
                     jrclust.utils.depWarn(obj.cmd, imsg);
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 case 'install'
                     imsg = 'You might be looking for `compile` instead';
                     jrclust.utils.depWarn(obj.cmd, imsg);
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 case {'set', 'setprm', 'set-prm'}
                     imsg = 'Create a new JRC handle instead';
                     jrclust.utils.depWarn(obj.cmd, imsg);
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 case 'update'
                     imsg = 'Please check the repository at https://github.com/JaneliaSciComp/JRCLUST for updates';
                     jrclust.utils.depWarn(obj.cmd, imsg);
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 case {'load-bin', 'export-wav', 'wav'}
                     imsg = 'Please use jrclust.models.recordings.Recording instead';
                     jrclust.utils.depWarn(obj.cmd, imsg);
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 % deprecated synonyms, warn but proceed
@@ -127,13 +133,12 @@ classdef JRC < handle & dynamicprops
                     jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.cmd = 'detect';
 
-                case {'cluster', 'clust', 'sort-verify', 'sort-validate', 'sort-manual'}
+                case {'cluster', 'clust', 'sort-verify', 'sort-validate', 'sort'}
                     imsg = 'Please use ''sort'' in the future';
                     jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.cmd = 'sort';
 
-                case {'detectsort', 'detect-sort', 'spikesort-verify', ...
-                      'spikesort-validate', 'spikesort-manual', 'detectsort-manual'}
+                case {'detectsort', 'detect-sort', 'spikesort-verify', 'spikesort-validate'}
                     imsg = 'Please use ''spikesort'' in the future';
                     jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.cmd = 'spikesort';
@@ -154,32 +159,32 @@ classdef JRC < handle & dynamicprops
                     verstr = sprintf('%s v%s', md.program, jrclust.utils.version());
                     abstr = jrclust.utils.about();
                     msgbox(abstr, verstr);
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 case 'help'
                     disp(jrclust.utils.help());
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 case 'version'
                     md = jrclust.utils.info();
                     fprintf('%s v%s\n', md.program, jrclust.utils.version());
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 % workflow commands
                 case {'makeprm', 'createprm'}
                     obj.hCfg = jrclust.Config();
                     jrclust.utils.qMsgBox(sprintf('Parameter file created at %s', obj.hCfg.configFile));
-                    obj.isCompleted = true;
+                    obj.isCompleted = 1;
                     return;
 
                 % preview commands
                 case 'probe'
                     if nargs == 0
                         obj.errMsg = 'Specify a probe file or config file';
-                        obj.isError = true;
+                        obj.isError = 1;
                         return;
                     end
 
@@ -188,19 +193,14 @@ classdef JRC < handle & dynamicprops
                         probeFile_ = jrclust.utils.absPath(probeFile, fullfile(jrclust.utils.basedir(), 'probes'));
                         if isempty(probeFile_)
                             obj.errMsg = sprintf('Could not find probe file: %s', probeFile);
-                            obj.isError = true;
+                            obj.isError = 1;
                             return;
                         end
 
                         doPlotProbe(probeFile_);
-                        obj.isCompleted = true;
+                        obj.isCompleted = 1;
                         return;
                     end
-
-                % paired manual commands
-                case 'auto-manual'
-                    obj.cmd = 'auto';
-                    obj.isCurate = true;
             end
 
             % command sentinel            
@@ -214,28 +214,28 @@ classdef JRC < handle & dynamicprops
             if ~any(strcmpi(obj.cmd, legalCmds))
                 obj.errMsg = sprintf('Command `%s` not recognized', obj.cmd);
                 errordlg(obj.errMsg, 'Unrecognized command');
-                obj.isError = true;
+                obj.isError = 1;
                 return;
             end
 
             % determine which commands in the pipeline to run
             if any(strcmp(obj.cmd, curateCmds))
-                obj.isCurate = true;
+                obj.isCurate = 1;
             end
 
             if any(strcmp(obj.cmd, sortCmds))
-                obj.isSort = true;
+                obj.isSort = 1;
             end
 
             if any(strcmp(obj.cmd, detectCmds))
-                obj.isDetect = true;
+                obj.isDetect = 1;
             end
 
             % commands from here on out require a parameter file
             if nargs < 1
                 obj.errMsg = sprintf('Command `%s` requires a parameter file', obj.cmd);
                 errordlg(obj.errMsg, 'Missing parameter file');
-                obj.isError = true;
+                obj.isError = 1;
                 return;
             end
 
@@ -271,7 +271,7 @@ classdef JRC < handle & dynamicprops
             if obj.isError
                 error(obj.errMsg);
             else
-                obj.isCompleted = false;
+                obj.isCompleted = 0;
                 obj.run();
             end
         end
@@ -304,7 +304,7 @@ classdef JRC < handle & dynamicprops
                 if ~isfield(obj.res, 'hClust')
                     dlgAns = questdlg('Could not find all required data. Sort?', 'Sorting required', 'No');
                     if strcmp(dlgAns, 'Yes')
-                        obj.isSort = true;
+                        obj.isSort = 1;
                     else
                         return;
                     end
@@ -313,7 +313,7 @@ classdef JRC < handle & dynamicprops
 
             if obj.isSort && ~obj.isDetect
                 if ~isfield(obj.res, 'spikeTimes')
-                    obj.isDetect = true;
+                    obj.isDetect = 1;
                 end
             end
 
@@ -366,9 +366,9 @@ classdef JRC < handle & dynamicprops
                     obj.res.hClust.reassign();
                     obj.res.hClust.autoMerge();
                     obj.res.sortedOn = now();
-                    doSave = true;
+                    doSave = 1;
                 else
-                    obj.isError = true;
+                    obj.isError = 1;
                     obj.errMsg = 'hClust not found';
                     return;
                 end
@@ -387,7 +387,7 @@ classdef JRC < handle & dynamicprops
                 else
                     recID = [];
                 end
-                hTraces.show(recID, false, obj.hClust);
+                hTraces.show(recID, 0, obj.hClust);
             end
 
             % DETECT SPIKES
@@ -436,7 +436,7 @@ classdef JRC < handle & dynamicprops
                 obj.hCurate.beginSession();
             end
 
-            obj.isCompleted = true;
+            obj.isCompleted = 1;
         end
 
         function saveFiles(obj)

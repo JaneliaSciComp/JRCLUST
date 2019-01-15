@@ -63,7 +63,7 @@ classdef Recording < handle & dynamicprops
             nSamples = (d.bytes - obj.headerOffset) / hCfg.nChans / jrclust.utils.typeBytes(obj.dtype);
             if ceil(nSamples) ~= nSamples % must be an integer or we don't have a complete recording
                 obj.errMsg = 'incomplete recording';
-                obj.isError = true;
+                obj.isError = 1;
                 return;
             end
             obj.dshape = [hCfg.nChans nSamples];
@@ -82,11 +82,11 @@ classdef Recording < handle & dynamicprops
                 obj.hCfg = hCfg;
             catch ME
                 obj.errMsg = ME.message;
-                obj.isError = true;
+                obj.isError = 1;
                 return;
             end
 
-            obj.isOpen = false;
+            obj.isOpen = 0;
         end
     end
 
@@ -101,7 +101,7 @@ classdef Recording < handle & dynamicprops
             obj.rawData = memmapfile(obj.binpath, 'Offset', obj.headerOffset, ...
                                      'Format', {obj.dtype, obj.dshape, 'Data'}, ...
                                      'Writable', false);
-            obj.isOpen = true;
+            obj.isOpen = 1;
         end
 
         function close(obj)
@@ -110,7 +110,7 @@ classdef Recording < handle & dynamicprops
                 return;
             end
             obj.rawData = [];
-            obj.isOpen = false;
+            obj.isOpen = 0;
         end
 
         function roi = readROI(obj, rows, cols)
@@ -126,10 +126,10 @@ classdef Recording < handle & dynamicprops
             assert(colPred, 'malformed cols');
 
             if obj.isOpen % already open, don't close after read
-                doClose = false;
+                doClose = 0;
             else
                 obj.open();
-                doClose = true;
+                doClose = 1;
             end
 
             roi = obj.rawData(rows, cols);

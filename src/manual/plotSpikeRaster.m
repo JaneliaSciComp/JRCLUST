@@ -371,9 +371,9 @@ else % Equivalent to elseif iscell(spikes).
     limitsToSet = isnan(xLimForCell);
     if sum(limitsToSet) > 0
         % First find range of spike times
-        minTimes = cellfun(@min,spikes,'UniformOutput',false);
+        minTimes = cellfun(@min,spikes,'UniformOutput',0);
         minTime = min( [ minTimes{:} ] );
-        maxTimes = cellfun(@max,spikes,'UniformOutput',false);
+        maxTimes = cellfun(@max,spikes,'UniformOutput',0);
         maxTime = max( [ maxTimes{:} ] );
         timeRange = maxTime - minTime;
         

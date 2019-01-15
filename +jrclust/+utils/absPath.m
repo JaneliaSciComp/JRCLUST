@@ -17,7 +17,7 @@ function ap = absPath(pathname, basedir)
         if ~isempty(d)
             dfolder = {d.folder};
             dname = {d.name};
-            ap = arrayfun(@(i) fullfile(dfolder{i}, dname{i}), 1:numel(d), 'UniformOutput', false); % cell array
+            ap = arrayfun(@(i) fullfile(dfolder{i}, dname{i}), 1:numel(d), 'UniformOutput', 0); % cell array
         else % try with basedir hint
             d = dir(fullfile(basedir, pathname));
             ap = fullfile(basedir, {d.name});
