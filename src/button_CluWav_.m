@@ -21,6 +21,6 @@ function button_CluWav_(xyPos, vcButton)
     S0 = keyPressFcn_cell_(get_fig_cache_('FigWav'), {'j','t','c','i','v','e','f'}, S0); %'z'
     autoScaleProjTime(S0);
     set(0, 'UserData', S0);
-    plot_raster_(S0);
+    doPlotFigPSTH(S0);
     figure_wait_(0);
 end %func

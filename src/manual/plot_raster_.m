@@ -1,6 +1,6 @@
 %--------------------------------------------------------------------------
 % 122917 JJJ: Got rid of Tab which is slow
-function plot_raster_(S0, fNewFig)
+function plot_raster_(hClust, fNewFig, selected)
     %plot_raster_()
     %   plot if window open using curretnly selected clusters
     %plot_raster_(P, iClu, S_clu)
@@ -9,19 +9,24 @@ function plot_raster_(S0, fNewFig)
     persistent hFig hFig_b
     if nargin<2, fNewFig = 0; end
     % import  trial time
-    % P = loadParam(vcFile_prm);
     if ~isvalid_(hFig) && ~fNewFig, return; end
-    if nargin<1, S0 = get(0, 'UserData'); end
-    [P, S_clu, iCluCopy, iCluPaste] = deal(S0.P, S0.S_clu, S0.iCluCopy, S0.iCluPaste);
-    if isfield(P, 'vcFile_psth'), P.vcFile_trial = P.vcFile_psth; end % old field name
+    if nargin<1, hClust = get(0, 'UserData'); end
+    [P, S_clu] = deal(hClust.hCfg, hClust);%, selected(1), hClust.iCluPaste);
+
+    iCluCopy = selected(1);
+    if numel(selected) == 2
+        iCluPaste = selected(2);
+    else
+        iCluPaste = [];
+    end
 
     try
         % begin TW block
         if isempty(P.vcFile_trial)
-            if exist(strrep(P.vcFile_prm,".prm",".starts.mat"),'file')
-                P.vcFile_trial=char(strrep(P.vcFile_prm,".prm",".starts.mat"));
-            elseif exist(strrep(P.vcFile_prm,".prm",".mat"),'file')
-                P.vcFile_trial=char(strrep(P.vcFile_prm,".prm",".mat"));
+            if exist(strrep(P.vcFile_prm,'.prm','.starts.mat'), 'file')
+                P.vcFile_trial=strrep(P.vcFile_prm,'.prm', '.starts.mat');
+            elseif exist(strrep(P.vcFile_prm,'.prm','.mat'),'file')
+                P.vcFile_trial=strrep(P.vcFile_prm,'.prm','.mat');
             else
                 jrclust.utils.qMsgBox('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return;
             end

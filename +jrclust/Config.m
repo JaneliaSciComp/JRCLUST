@@ -82,6 +82,7 @@ classdef Config < dynamicprops
         vcFile_gt;                  % => gtFile
         vcFile_prm;                 % => configFile
         vcFile_thresh;              % => threshFile
+        vcFile_trial;               % => trialFile
         vcFilter;                   % => filterType
         vcFilter_show;              % => dispFilter
         vcLabel_aux;                % => auxLabel
@@ -220,7 +221,19 @@ classdef Config < dynamicprops
         auxLabel = '';                      % label for the aux channel
         auxSampleRate = [];                 % sampling rate for aux file
         auxScale = 1;               		% scale factor for aux input
-        nClustersShowAux = 10;            % 
+        nClustersShowAux = 10;              % 
+
+        % trial parameters
+        trialFile = '';                     % .mat or .csv file containing timestamp in seconds unit. use any variable name.
+        thresh_trial = [];                  % Threshold to detect trial event timing from the TTL pulse. If empty, half between min and max is used.
+        tRefrac_trial = .001;               % Trial timestamp refractory period (sec), disable duplicate events
+        tlim_psth = [-1 5];                 % Time range to display PSTH (in seconds)
+        tbin_psth = .01;                    % Time bin for the PSTH histogram (in seconds)
+        xtick_psth = .2;                    % PSTH time tick mark spacing
+        fAverageTrial_psth = 1;             % Plot PSTH for averaged trial if set to 1, otherwise plot individual trials (opens multiple tabs)
+        nSmooth_ms_psth = 50;               % PSTH smoothing time window (in milliseconds)
+        rateLim_psth = [];                  % range range in Hz
+        dinput_imec_trial = 1;              % IMEC digital input channel number (1-16) to generate trial file (vcFile_trial) using 'maketrial-imec' command.
 
         % to get to, eventually
         LineStyle = '';
@@ -231,9 +244,7 @@ classdef Config < dynamicprops
         cviShank = [];
         dc_factor = 1;
         dc_frac = [];
-        dinput_imec_trial = 1;
         fAddCommonRef = 0;
-        fAverageTrial_psth = 1;
         fCacheRam = 1;
         fCheckSites = 0;
         fDetectBipolar = 0;
@@ -292,7 +303,6 @@ classdef Config < dynamicprops
         nSites_excl_ref = 6;
         nSkip_show = 1;
         nSkip_whiten = 10;
-        nSmooth_ms_psth = 50;
         nT_drift = [];
         nThreads = 128;
         nw_lcm_track = 1;
@@ -300,25 +310,20 @@ classdef Config < dynamicprops
         pix_per_sec_track = [];
         qqFactor = 5;
         qqSample = 4;
-        rateLim_psth = [];
         refrac_factor = 2;
         rms_filt_ms = 0;
         slopeLim_ms = [0.05 0.35];
         spkLim_ms_fet = [-0.25 0.75];
         tBin_track = 9;
-        tRefrac_trial = 0.001;
         tbin_drift = [];
-        tbin_psth = 0.01;
         template_file = '';
         thresh_automerge_pca = [];
         thresh_corr_track = [];
         thresh_merge_clu = 0;
         thresh_sd_ref = 5;
         thresh_split_clu = 0;
-        thresh_trial = [];
         tlim_clu = [];
         tlim_lfp = [0 5];
-        tlim_psth = [-1 5];
         tlim_vid = [];
         vcCluDist = 'eucldist';
         vcCluWavMode = 'mean';
@@ -326,7 +331,6 @@ classdef Config < dynamicprops
         vcDc_clu = 'distr';
         vcFile_bonsai = '';
         vcFile_lfp = '';
-        vcFile_trial = '';
         vcFile_vid = '';
         vcFilter_detect = '';
         vcMode_track = 'mt_cpsd2_mr';
@@ -337,7 +341,6 @@ classdef Config < dynamicprops
         viDepth_excl_track = [];
         viDepth_track = [];
         viSite_bad_track = [];
-        xtick_psth = 0.2;
         ybin_drift = 2;
     end
 
@@ -1851,8 +1854,9 @@ classdef Config < dynamicprops
             if isempty(tf)
                 obj.threshFile = '';
             else
+                failMsg = sprintf('could not find threshold file ''%s''', tf);
                 tf_ = jrclust.utils.absPath(tf);
-                assert(isfile(tf_), 'could not find threshold file ''%s''', tf);
+                assert(isfile(tf_), failMsg);
                 obj.threshFile = tf_;
             end
         end
@@ -1863,6 +1867,26 @@ classdef Config < dynamicprops
         function set.vcFile_thresh(obj, gf)
             obj.logOldP('vcFile_thresh');
             obj.threshFile = gf;
+        end
+
+        % trialFile/vcFile_trial
+        function set.trialFile(obj, tf)
+            if isempty(tf)
+                obj.trialFile = tf;
+            else
+                failMsg = sprintf('could not find trial file ''%s''', tf);
+                tf_ = jrclust.utils.absPath(tf);
+                assert(isfile(tf_), failMsg);
+                obj.trialFile = tf_;
+            end
+        end
+        function tf = get.vcFile_trial(obj)
+            obj.logOldP('vcFile_trial');
+            tf = obj.trialFile;
+        end
+        function set.vcFile_trial(obj, tf)
+            obj.logOldP('vcFile_trial');
+            obj.trialFile = tf;
         end
 
         % useElliptic/fEllip

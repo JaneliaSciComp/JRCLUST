@@ -290,6 +290,13 @@ classdef CurateController < handle
                     [~, nextBest] = max(simScore(:, obj.selected(1)));
                     obj.updateSelect([obj.selected(1), nextBest]);
 
+                case 'p' %PSTH plot
+                    if isempty(obj.hCfg.trialFile)
+                        jrclust.utils.qMsgBox('''trialFile'' not set. Reload .prm file after setting (under "File menu")');
+                        return;
+                    end
+                    plot_raster_(obj.hClust, [], [], obj.selected);
+
                 case 's' % split
                     hFigWav.wait(1);
                     obj.autoSplit(1);
@@ -327,9 +334,7 @@ classdef CurateController < handle
 
                 case {'2', 'numpad2'}
                     obj.annotateUnit('multi', 0); % TW
-%                 case 'p' %PSTH plot
-%                     if isempty(hCfg.vcFile_trial), jrclust.utils.qMsgBox('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
-%                     plot_raster_(S0, 1);
+
                 otherwise
                     hFigWav.wait(0); %stop waiting
             end
@@ -363,7 +368,7 @@ classdef CurateController < handle
 
             hFig = obj.hFigs('FigWav');
             hFig.wait(1);
-            % plot_raster_(S0);
+            % doPlotFigPSTH(S0);
             hFig.wait(0);
         end
     end
@@ -1063,8 +1068,8 @@ classdef CurateController < handle
             end
 
 %                 case 'p' %PSTH plot
-%                 if isempty(hCfg.vcFile_trial), jrclust.utils.qMsgBox('''vcFile_trial'' not set. Reload .prm file after setting (under "File menu")'); return; end
-%                 plot_raster_(S0, 1);
+%                 if isempty(hCfg.trialFile), jrclust.utils.qMsgBox('''trialFile'' not set. Reload .prm file after setting (under "File menu")'); return; end
+%                 doPlotFigPSTH(S0, 1);
 
             % plot feature projection
             if obj.hasFig('FigProj')

@@ -12,6 +12,6 @@ function S0 = button_CluWav_simulate_(iCluCopy, iCluPaste, S0)
     set(0, 'UserData', S0);
 
     autoScaleProjTime(S0);
-    plot_raster_(S0); %psth
+    doPlotFigPSTH(S0); %psth
     figure_wait_(0, hFig);
 end

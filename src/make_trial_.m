@@ -12,11 +12,11 @@ function make_trial_(vcFile_prm, fImec)
     iChan = str2double(csAns{1});
 
     % get output file
-    vcFile_trial = subsFileExt(P.vcFile_prm,  sprintf('_ch%d_trial.mat', iChan));
+    trialFile = subsFileExt(P.vcFile_prm,  sprintf('_ch%d_trial.mat', iChan));
     try
-        [FileName,PathName,FilterIndex] = uiputfile(vcFile_trial, 'Save file name');
+        [FileName,PathName,FilterIndex] = uiputfile(trialFile, 'Save file name');
         if ~FilterIndex, return; end %cancelled
-        vcFile_trial = [PathName, FileName];
+        trialFile = [PathName, FileName];
     catch
         fprintf('uiputfile error (old Matlab version). Accepting default');
     end
@@ -51,17 +51,17 @@ function make_trial_(vcFile_prm, fImec)
     vrT = viT / P.sRateHz;
 
     % save
-    save(vcFile_trial, 'vrT');
-    disp(['Saved to ', vcFile_trial]);
+    save(trialFile, 'vrT');
+    disp(['Saved to ', trialFile]);
     vcTitle = sprintf('%d events detected (%s)\n', numel(vrT), lower(vcAns));
 
     % edit .prm file
-    P_trial.vcFile_trial = vcFile_trial;
+    P_trial.trialFile = trialFile;
     edit_prm_file_(P_trial, vcFile_prm);
-    fprintf('Parameter file updated: %s\n\tvcFile_trial = ''%s''\n', vcFile_prm, vcFile_trial);
+    fprintf('Parameter file updated: %s\n\tvcFile_trial = ''%s''\n', vcFile_prm, trialFile);
 
     % plot
-    hFig = create_figure_('Trial timing', [0 0 .5 1], vcFile_trial, 1, 1); hold on;
+    hFig = create_figure_('Trial timing', [0 0 .5 1], trialFile, 1, 1); hold on;
     % vlOver = vr_set_(vrWav >= thresh, [viT_rising(:) - 1; viT_falling(:) + 1], 1);
     vlOver = vrWav >= thresh;
     plot(find(vlOver)/P.sRateHz, vrWav(vlOver), 'b.');
