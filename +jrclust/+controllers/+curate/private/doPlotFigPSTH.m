@@ -32,10 +32,10 @@ function [hFigTrial1, hFigTrial2] = doPlotFigPSTH(hClust, hFigTrial1, hFigTrial2
     nStims = numel(trialTimes);
 
     %% plot primary/secondary figures
-    axOffset = 0.8;
+    axOffset = 0.08;
     axLen = 1/nStims;
 
-    if ~jrclust.utils.isvalid(hFigTrial1)
+    if ~jrclust.utils.isvalid(hFigTrial1) || ~hFigTrial1.isReady
         hFigTrial1 = jrclust.views.Figure('FigTrial1', [.5  .5 .5 .5], hCfg.trialFile, 0, 0);
 %         [vhAx1, vhAx2] = deal(nan(nStims, 1));
         for iStim = 1:nStims
@@ -51,7 +51,7 @@ function [hFigTrial1, hFigTrial2] = doPlotFigPSTH(hClust, hFigTrial1, hFigTrial2
     end
     plot_figure_psth_(hFigTrial1, selected(1), trialTimes, hClust, hCfg);
 
-    if ~jrclust.utils.isvalid(hFigTrial2)
+    if ~jrclust.utils.isvalid(hFigTrial2) || ~hFigTrial2.isReady
         hFigTrial2 = jrclust.views.Figure('FigTrial2', [.5  0 .5 .5], hCfg.trialFile, 0, 0);
         hFigTrial2.figApply(@set, 'Visible', 'off');
 %         [vhAx1, vhAx2] = deal(nan(nStims, 1));
@@ -104,50 +104,52 @@ end
 function plot_figure_psth_(hFigTrial, iCluster, trialTimes, hClust, hCfg)
 %     [vhAx1, vhAx2] = deal(S_fig.vhAx1, S_fig.vhAx2, S_fig.vcColor);
     hAxes = keys(hFigTrial.hAxes);
+    nStims = numel(hAxes)/2;
 
-    for iStim = 1:n
-        cla(vhAx1(iStim));
-        cla(vhAx2(iStim));
-        vrTime_trial = trialTimes{iStim}; %(:,1);
-        nTrials = numel(vrTime_trial);
-        viTime_clu1 = S_clu_time_(hClust, iCluster);
-        plot_raster_clu_(viTime_clu1, vrTime_trial, hCfg, vhAx1(iStim));
-        plot_psth_clu_(viTime_clu1, vrTime_trial, hCfg, vhAx2(iStim), hFigTrial.figData.color);
-        title(vhAx2(iStim), sprintf('Cluster %d; %d trials', iCluster, nTrials));
+    for iStim = 1:nStims
+        axKey1 = sprintf('stim%d1', iStim); hAx1 = hFigTrial.hAxes(axKey1);
+        axKey2 = sprintf('stim%d2', iStim); hAx2 = hFigTrial.hAxes(axKey2);
+
+        cla(hAx1);
+        cla(hAx2);
+        iTrialTimes = trialTimes{iStim}; %(:,1);
+        nTrials = numel(iTrialTimes);
+        clusterTimes = hClust.spikeTimes(hClust.spikesByCluster{iCluster});
+        plot_raster_clu_(clusterTimes, iTrialTimes, hCfg, hAx1);
+        plot_psth_clu_(clusterTimes, iTrialTimes, hCfg, hAx2, hFigTrial.figData.color);
+        hFigTrial.axApply(axKey2, @title, sprintf('Cluster %d; %d trials', iCluster, nTrials));
     end
     %     offset = offset + nTrials;
-    if numel(vhAx1)>2
-        set(vhAx1(2:end),'xticklabel',{});
-        for ax = vhAx1(2:end)
-            xlabel(ax, '')
-        end
-    end % end
-end %func
+    if nStims > 1
+        arrayfun(@(i) hFigTrial.axApply(sprintf('stim%d1', i), @set, 'XTickLabel', {}), 2:nStims);
+        arrayfun(@(i) hFigTrial.axApply(sprintf('stim%d1', i), @xlabel, ''), 2:nStims);
+        %set(vhAx1(2:end),'xticklabel',{});
+%         for ax = vhAx1(2:end)
+%             xlabel(ax, '')
+%         end
+    end
+end
 
-function plot_raster_clu_(viTime_clu, vrTime_trial, P, hAx)
-    if nargin<4, hAx=gca; end
-
-    trialLength = diff(P.tlim_psth); % seconds
-    nTrials = numel(vrTime_trial);
+function plot_raster_clu_(clusterTimes, trialTimes, hCfg, hAx)
+    trialLength = diff(hCfg.tlim_psth); % seconds
+    nTrials = numel(trialTimes);
     spikeTimes = cell(nTrials, 1);
-    t0 = -P.tlim_psth(1);
+    t0 = -hCfg.tlim_psth(1);
     for iTrial = 1:nTrials
-        rTime_trial1 = vrTime_trial(iTrial);
-        vrTime_lim1 = rTime_trial1 + P.tlim_psth;
-        vrTime_clu1 = double(viTime_clu) / P.sRateHz;
+        rTime_trial1 = trialTimes(iTrial);
+        vrTime_lim1 = rTime_trial1 + hCfg.tlim_psth;
+        vrTime_clu1 = double(clusterTimes) / hCfg.sampleRate;
         vrTime_clu1 = vrTime_clu1(vrTime_clu1>=vrTime_lim1(1) & vrTime_clu1<vrTime_lim1(2));
         vrTime_clu1 = (vrTime_clu1 - rTime_trial1 + t0) / trialLength;
         spikeTimes{iTrial} = vrTime_clu1';
     end
 
     % Plot
-    % hAx_pre = axes_(hAx);
     plotSpikeRaster(spikeTimes,'PlotType','vertline','RelSpikeStartTime',0,'XLimForCell',[0 1], ...
-    'LineFormat', struct('LineWidth', 1.5), 'hAx', hAx);
-    % axes_(hAx_pre);
+        'LineFormat', struct('LineWidth', 1.5), 'hAx', hAx);
     ylabel(hAx, 'Trial #')
     % title('Vertical Lines With Spike Offset of 10ms (Not Typical; for Demo Purposes)');
-    vrXTickLabel = P.tlim_psth(1):(P.xtick_psth):P.tlim_psth(2);
+    vrXTickLabel = hCfg.tlim_psth(1):(hCfg.xtick_psth):hCfg.tlim_psth(2);
     vrXTick = linspace(0,1,numel(vrXTickLabel));
     set(hAx, {'XTick', 'XTickLabel'}, {vrXTick, vrXTickLabel});
     grid(hAx, 'on');
@@ -156,26 +158,23 @@ function plot_raster_clu_(viTime_clu, vrTime_trial, P, hAx)
     xlabel(hAx, 'Time (s)');
 end
 
-function plot_psth_clu_(viTime_clu, vrTime_trial, P, hAx, vcColor)
-    if nargin<4, hAx=gca; end
-    if nargin<5, vcColor = 'k'; end
+function plot_psth_clu_(clusterTimes, trialTimes, hCfg, hAx, vcColor)
+    tbin = hCfg.tbin_psth;
+    nbin = round(tbin * hCfg.sampleRate);
+    nlim = round(hCfg.tlim_psth/tbin);
+    viTime_Trial = round(trialTimes / tbin);
 
-    tbin = P.tbin_psth;
-    nbin = round(tbin * P.sRateHz);
-    nlim = round(P.tlim_psth/tbin);
-    viTime_Trial = round(vrTime_trial / tbin);
-
-    vlTime1=zeros(0);
-    vlTime1(ceil(double(viTime_clu)/nbin))=1;
+    vlTime1 = zeros(0);
+    vlTime1(ceil(double(clusterTimes)/nbin)) = 1;
     mr1 = vr2mr2_(double(vlTime1), viTime_Trial, nlim);
     vnRate = mean(mr1,2) / tbin;
     vrTimePlot = (nlim(1):nlim(end))*tbin + tbin/2;
     bar(hAx, vrTimePlot, vnRate, 1, 'EdgeColor', 'none', 'FaceColor', vcColor);
-    vrXTick = P.tlim_psth(1):(P.xtick_psth):P.tlim_psth(2);
+    vrXTick = hCfg.tlim_psth(1):(hCfg.xtick_psth):hCfg.tlim_psth(2);
     set(hAx, 'XTick', vrXTick, 'XTickLabel', []);
     grid(hAx, 'on');
     hold(hAx, 'on');
-    plot(hAx, [0 0], get(hAx,'YLim'), 'r-');
+    plot(hAx, [0 0], get(hAx, 'YLim'), 'r-');
     ylabel(hAx, 'Rate (Hz)');
-    xlim_(hAx, P.tlim_psth);
+    xlim(hAx, hCfg.tlim_psth);
 end

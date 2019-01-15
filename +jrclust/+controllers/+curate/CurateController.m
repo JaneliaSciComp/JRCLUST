@@ -290,12 +290,13 @@ classdef CurateController < handle
                     [~, nextBest] = max(simScore(:, obj.selected(1)));
                     obj.updateSelect([obj.selected(1), nextBest]);
 
-                case 'p' %PSTH plot
+                case 'p' % PSTH plot
                     if isempty(obj.hCfg.trialFile)
                         jrclust.utils.qMsgBox('''trialFile'' not set. Reload .prm file after setting (under "File menu")');
                         return;
                     end
-                    doPlotFigPSTH(obj.hClust, [], [], obj.selected);
+
+                    obj.updateFigPSTH(1);
 
                 case 's' % split
                     hFigWav.wait(1);
@@ -368,7 +369,6 @@ classdef CurateController < handle
 
             hFig = obj.hFigs('FigWav');
             hFig.wait(1);
-            % doPlotFigPSTH(S0);
             hFig.wait(0);
         end
     end
@@ -562,6 +562,26 @@ classdef CurateController < handle
             if doAutoscale
                 autoScaleFigTime(hFigTime, obj.hClust, obj.selected);
             end
+        end
+
+        function updateFigPSTH(obj, fCreate)
+            if ~fCreate && (~obj.hasFig('FigTrial1') || ~obj.hasFig('FigTrial2'))
+                return;
+            end
+
+            if fCreate
+                [hFigTrial1, hFigTrial2] = doPlotFigPSTH(obj.hClust, [], [], obj.selected);
+            else
+                hFigTrial1 = obj.hFigs('FigTrial1');
+                if ~hFigTrial1.isReady % plot is closed
+                    return;
+                end
+                hFigTrial2 = obj.hFigs('FigTrial2');
+                [hFigTrial1, hFigTrial2] = doPlotFigPSTH(obj.hClust, hFigTrial1, hFigTrial2, obj.selected);
+            end
+
+            obj.hFigs('FigTrial1') = hFigTrial1;
+            obj.hFigs('FigTrial2') = hFigTrial2;
         end
 
         function updateFigWav(obj)
@@ -1067,10 +1087,6 @@ classdef CurateController < handle
                 obj.updateFigSim();
             end
 
-%                 case 'p' %PSTH plot
-%                 if isempty(hCfg.trialFile), jrclust.utils.qMsgBox('''trialFile'' not set. Reload .prm file after setting (under "File menu")'); return; end
-%                 doPlotFigPSTH(S0, 1);
-
             % plot feature projection
             if obj.hasFig('FigProj')
                 % set key and mouse handles
@@ -1239,6 +1255,7 @@ classdef CurateController < handle
             obj.updateFigPos();
             obj.updateFigProj(1);
             obj.updateFigTime(1);
+            obj.updateFigPSTH(0);
 
             % update cursors
             obj.updateCursorFigWav();
