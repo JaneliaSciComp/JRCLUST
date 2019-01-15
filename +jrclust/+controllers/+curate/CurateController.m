@@ -295,7 +295,7 @@ classdef CurateController < handle
                         jrclust.utils.qMsgBox('''trialFile'' not set. Reload .prm file after setting (under "File menu")');
                         return;
                     end
-                    plot_raster_(obj.hClust, [], [], obj.selected);
+                    doPlotFigPSTH(obj.hClust, [], [], obj.selected);
 
                 case 's' % split
                     hFigWav.wait(1);
