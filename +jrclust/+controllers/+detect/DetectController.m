@@ -158,7 +158,7 @@ classdef DetectController < handle
             res.spikeFeatures = cat(3, obj.spikeFeatures{:});
 
             % spike positions
-            res.spikePositions = jrclust.utils.spikePos(res.spikeSites, res.spikeFeatures, obj.hCfg);
+            res.spikePositions = spikePos(res.spikeSites, res.spikeFeatures, obj.hCfg);
 
             % recordings for inspection
             res.hRecs = hRecs;
@@ -169,4 +169,3 @@ classdef DetectController < handle
         end
     end
 end
-

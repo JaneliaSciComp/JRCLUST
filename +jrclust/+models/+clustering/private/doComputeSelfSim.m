@@ -4,7 +4,7 @@ function selfcorr = doComputeSelfSim(hClust, iCluster)
     MAX_SAMPLE = 4000;
 
     clusterSpikes_ = hClust.getCenteredSpikes(iCluster);
-    clusterSpikes_ = randomSelect_(clusterSpikes_, MAX_SAMPLE);
+    clusterSpikes_ = jrclust.utils.subsample(clusterSpikes_, MAX_SAMPLE);
 
     centeredWf = hClust.spikesRaw(:, :, clusterSpikes_);
     centeredVpp = squeeze(squeeze(max(centeredWf(:, 1, :)) - min(centeredWf(:, 1, :))));

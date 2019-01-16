@@ -15,7 +15,7 @@ classdef CurateController < handle
         hFigs;          % containers.Map of Figure objects
         hMenus;         % containers.Map of Menu handles
         isEnding;       % to prevent double prompting when endSession is called
-        maxAmp;         %
+        maxAmp;         % scaling factor for 
         projSites;      % current sites in FigProj
         selected;       % selected clusters, in order of selection
     end

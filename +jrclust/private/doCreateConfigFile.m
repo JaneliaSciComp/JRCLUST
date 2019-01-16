@@ -1,5 +1,5 @@
 function P = doCreateConfigFile(outputDir, binFiles, probeFile, templateFile, fAsk)
-    %DOCREATECONFIGFILE 
+    %DOCREATECONFIGFILE
     templateFile = jrclust.utils.absPath(templateFile);
     if ~isempty(templateFile)
         P0 = jrclust.utils.mToStruct(templateFile); % a struct on success or [] on failure
@@ -29,7 +29,7 @@ function P = doCreateConfigFile(outputDir, binFiles, probeFile, templateFile, fA
     P.probeFile = probeFile;
 
     if exist(P.configFile, 'file') && fAsk
-        dlgAns = questdlg_('File already exists. Overwrite prm file?', 'Warning', 'Yes', 'No', 'No');
+        dlgAns = questdlg('File already exists. Overwrite prm file?', 'Warning', 'Yes', 'No', 'No');
         if ~strcmp(dlgAns, 'Yes')
             P = [];
             return;

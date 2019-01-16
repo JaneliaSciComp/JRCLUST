@@ -37,35 +37,29 @@ function [hFigTrial1, hFigTrial2] = doPlotFigPSTH(hClust, hFigTrial1, hFigTrial2
 
     if ~jrclust.utils.isvalid(hFigTrial1) || ~hFigTrial1.isReady
         hFigTrial1 = jrclust.views.Figure('FigTrial1', [.5  .5 .5 .5], hCfg.trialFile, 0, 0);
-%         [vhAx1, vhAx2] = deal(nan(nStims, 1));
         for iStim = 1:nStims
             iOffset = axOffset + (iStim-1) * axLen;
-            hFigTrial1.addAxes(sprintf('stim%d1', iStim), 'Position', [.08 iOffset .9 axLen*.68]);
-            hFigTrial1.addAxes(sprintf('stim%d2', iStim), 'Position', [.08 iOffset + axLen*.68 .9 axLen*.2]);
-            % vhAx1(iStim) = axes('Parent', hFigTrial1, 'Position', [.08 iOffset .9 axLen*.68]);
-            % vhAx2(iStim) = axes('Parent', hFigTrial1, 'Position', [.08 iOffset + axLen*.68 .9 axLen*.2]);
+            hFigTrial1.addAxes(sprintf('stim%d1', iStim), 'Position', [axOffset iOffset .9 axLen*.68]);
+            hFigTrial1.addAxes(sprintf('stim%d2', iStim), 'Position', [axOffset iOffset + axLen*.68 .9 axLen*.2]);
         end
+
         hFigTrial1.figData.color = 'k';
-%         vcColor = 'k';
-%         set(hFigTrial1, 'UserData', makeStruct_(vhAx1, vhAx2, vcColor));
     end
     plot_figure_psth_(hFigTrial1, selected(1), trialTimes, hClust, hCfg);
 
     if ~jrclust.utils.isvalid(hFigTrial2) || ~hFigTrial2.isReady
         hFigTrial2 = jrclust.views.Figure('FigTrial2', [.5  0 .5 .5], hCfg.trialFile, 0, 0);
         hFigTrial2.figApply(@set, 'Visible', 'off');
-%         [vhAx1, vhAx2] = deal(nan(nStims, 1));
         for iStim = 1:nStims
             iOffset = axOffset + (iStim-1) * axLen;
-            hFigTrial2.addAxes(sprintf('stim%d1', iStim), 'Position', [.08 iOffset .9 axLen*.68]);
-            hFigTrial2.addAxes(sprintf('stim%d2', iStim), 'Position', [.08 iOffset + axLen*.68 .9 axLen*.2]);
-            % vhAx1(iStim) = axes('Parent', hFigTrial1, 'Position', [.08 iOffset .9 axLen*.68]);
-            % vhAx2(iStim) = axes('Parent', hFigTrial1, 'Position', [.08 iOffset + axLen*.68 .9 axLen*.2]);
+            hFigTrial2.addAxes(sprintf('stim%d1', iStim), 'Position', [axOffset iOffset .9 axLen*.68]);
+            hFigTrial2.addAxes(sprintf('stim%d2', iStim), 'Position', [axOffset iOffset + axLen*.68 .9 axLen*.2]);
         end
+
         hFigTrial2.figData.color = 'r';
-%         vcColor = 'r';
-%         set(hFigTrial2, 'UserData', makeStruct_(vhAx1, vhAx2, vcColor));
     end
+
+    % show this plot iff we have a second selected cluster
     if numel(selected) == 2
         hFigTrial2.figApply(@set, 'Visible', 'on');
         plot_figure_psth_(hFigTrial2, selected(2), trialTimes, hClust, hCfg);
@@ -107,11 +101,9 @@ function plot_figure_psth_(hFigTrial, iCluster, trialTimes, hClust, hCfg)
     nStims = numel(hAxes)/2;
 
     for iStim = 1:nStims
-        axKey1 = sprintf('stim%d1', iStim); hAx1 = hFigTrial.hAxes(axKey1);
-        axKey2 = sprintf('stim%d2', iStim); hAx2 = hFigTrial.hAxes(axKey2);
+        axKey1 = sprintf('stim%d1', iStim); hAx1 = hFigTrial.hAxes(axKey1); cla(hAx1);
+        axKey2 = sprintf('stim%d2', iStim); hAx2 = hFigTrial.hAxes(axKey2); cla(hAx2);
 
-        cla(hAx1);
-        cla(hAx2);
         iTrialTimes = trialTimes{iStim}; %(:,1);
         nTrials = numel(iTrialTimes);
         clusterTimes = hClust.spikeTimes(hClust.spikesByCluster{iCluster});
@@ -119,14 +111,10 @@ function plot_figure_psth_(hFigTrial, iCluster, trialTimes, hClust, hCfg)
         plot_psth_clu_(clusterTimes, iTrialTimes, hCfg, hAx2, hFigTrial.figData.color);
         hFigTrial.axApply(axKey2, @title, sprintf('Cluster %d; %d trials', iCluster, nTrials));
     end
-    %     offset = offset + nTrials;
+
     if nStims > 1
         arrayfun(@(i) hFigTrial.axApply(sprintf('stim%d1', i), @set, 'XTickLabel', {}), 2:nStims);
         arrayfun(@(i) hFigTrial.axApply(sprintf('stim%d1', i), @xlabel, ''), 2:nStims);
-        %set(vhAx1(2:end),'xticklabel',{});
-%         for ax = vhAx1(2:end)
-%             xlabel(ax, '')
-%         end
     end
 end
 
@@ -177,4 +165,23 @@ function plot_psth_clu_(clusterTimes, trialTimes, hCfg, hAx, vcColor)
     plot(hAx, [0 0], get(hAx, 'YLim'), 'r-');
     ylabel(hAx, 'Rate (Hz)');
     xlim(hAx, hCfg.tlim_psth);
+end
+
+function mr = vr2mr2_(vr, viRow, spkLim, viCol)
+    if nargin<4, viCol = []; end
+    % JJJ 2015 Dec 24
+    % vr2mr2: quick version and doesn't kill index out of range
+    % assumes vi is within range and tolerates spkLim part of being outside
+    % works for any datatype
+
+    % prepare indices
+    if size(viRow,2)==1, viRow=viRow'; end %row
+    viSpk = int32(spkLim(1):spkLim(end))';
+    miRange = bsxfun(@plus, viSpk, int32(viRow));
+    miRange = min(max(miRange, 1), numel(vr));
+    if isempty(viCol)
+        mr = vr(miRange); %2x faster
+    else
+        mr = vr(miRange, viCol); %matrix passed to save time
+    end
 end

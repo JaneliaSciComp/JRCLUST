@@ -91,7 +91,7 @@ function [samplesIn, channelMeans] = applyCAR(samplesIn, hCfg)
     elseif strcmpi(hCfg.carMode, 'median')
         channelMedians = medianExcluding(samplesIn, hCfg.ignoreSites);
         samplesIn = bsxfun(@minus, samplesIn, channelMedians);
-    elseif strcmpi(hCfg.carMode, 'whiten')  
+    elseif strcmpi(hCfg.carMode, 'whiten')
         samplesIn = whiten(samplesIn, hCfg.ignoreSites, hCfg.ramToGPUFactor);
     end
 
@@ -142,9 +142,8 @@ function samplesOut = whiten(samplesIn, ignoreSites, ramToGPUFactor)
 
     fprintf('Whitening\n\t');
     tw = tic;
-    
-    % TODO: address subsample_mr_
-    subsamplesIn = subsample_mr_(samplesIn, nSamplesMax, 1);
+
+    subsamplesIn = jrclust.utils.subsample(samplesIn, nSamplesMax, 1);
 
     goodSites = setdiff(1:size(samplesIn, 2), ignoreSites);
     if ~isempty(ignoreSites)

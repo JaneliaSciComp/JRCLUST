@@ -32,7 +32,7 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
     bgSpikes = jrclust.utils.subsample(spikesToShow, 2*hCfg.nShow_proj);
     fgSpikes = jrclust.utils.subsample(spikesToShow(spikeClustersShow == iCluster), hCfg.nShow_proj);
     if ~isempty(jCluster)
-        fgSpikes2 = randomSelect_(spikesToShow(spikeClustersShow == jCluster), hCfg.nShow_proj);
+        fgSpikes2 = jrclust.utils.subsample(spikesToShow(spikeClustersShow == jCluster), hCfg.nShow_proj);
     else
         [fg2YData, fg2XData] = deal([]);
     end

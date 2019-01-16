@@ -3,7 +3,7 @@ function positions = spikePos(spikeSites, spikeFeatures, hCfg)
     %SPIKEPOS
     nSites_spk = 1 + hCfg.maxSite*2 - hCfg.nSites_ref;
 
-    mrVp = squeeze_(spikeFeatures(1:nSites_spk, 1, :)) .^ 2;
+    mrVp = squeeze(spikeFeatures(1:nSites_spk, 1, :)) .^ 2;
     vrVp = sum(mrVp);
 
     miSites_spk = single(hCfg.miSites(1:nSites_spk, spikeSites));

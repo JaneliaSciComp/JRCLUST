@@ -35,11 +35,11 @@ function [tnWav_spk_out, tnWav_spk2_out] = cancel_overlap_spk_(spikeWindows, spi
     end
 
     % set no overthreshold zone based on the delay, set it to half. only set superthreshold spikes to zero
-end %func
+end
 
 %% LOCAL FUNCTIONS
 function [viSpk_ol_spk, vnDelay_ol_spk] = findPotentialOverlaps(spikeTimes, spikeSites, hCfg)
-
+    %FINDPOTENTIALOVERLAPS
     nSites = max(spikeSites);
     spikesBySite = arrayfun(@(iSite) int32(find(spikeSites == iSite)), 1:nSites, 'UniformOutput', 0);
     spikeTimes = jrclust.utils.tryGather(spikeTimes);
