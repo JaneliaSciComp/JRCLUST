@@ -1,7 +1,6 @@
 function [windows, timeRanges] = extractWindows(samplesIn, windowLim, spTimes, spSites, fMeanSubt)
     %EXTRACTWINDOWS Isolate windows around spiking events from matrix of samples
     %   returns nSamples x nSpikes x nSites
-
     if nargin < 4
         spSites = [];
     end

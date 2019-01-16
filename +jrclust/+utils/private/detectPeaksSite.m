@@ -46,7 +46,7 @@ end
 %% LOCAL FUNCTIONS
 function peaks = findPeaks(samplesIn, thresh, nneighBelow)
     %FINDPEAKS Find samples which exceed threshold
-    if nargin < 3 || isempty(nneighBelow)
+    if isempty(nneighBelow)
         nneighBelow = 1;
     end
 
@@ -54,8 +54,6 @@ function peaks = findPeaks(samplesIn, thresh, nneighBelow)
     if isempty(samplesIn)
         return;
     end
-
-    
 
     exceedsThresh = jrclust.utils.tryGather(samplesIn < -abs(thresh));
     peakLocs = find(exceedsThresh);

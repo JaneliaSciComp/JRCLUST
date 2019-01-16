@@ -68,7 +68,7 @@ function recData = detectInRecording(hRec, impTimes, impSites, presetThresh, hCf
             if ~isempty(impSites)
                 intSites = impSites(inInterval);
             end
-        end    
+        end
 
         % detect spikes
         loadData = struct('samplesRaw', samplesRaw, ...
@@ -86,26 +86,6 @@ function recData = detectInRecording(hRec, impTimes, impSites, presetThresh, hCf
         % extract features
         % adds centerSites, spikesRaw, spikesFilt, spikeFeatures
         loadData = extractFeatures(loadData, hCfg);
-
-        % detect spikes which occur at the same time and have swapped
-        % primary/secondary peaks
-%         if size(loadData.centerSites, 2) > 1
-%             tDiffs = diff(loadData.spikeTimes);
-%             sameTimes = find(tDiffs == 0);
-%             isSwap = all(loadData.centerSites(sameTimes, 1:2) == fliplr(loadData.centerSites(sameTimes + 1, 1:2)), 2);
-%             swaps = sameTimes(isSwap);
-%             nextSwaps = swaps + 1;
-%             keepLower = loadData.centerSites(swaps, 1) < loadData.centerSites(swaps + 1, 1);
-%             toRemove = [swaps(~keepLower); nextSwaps(keepLower)];
-% 
-%             loadData.spikeTimes(toRemove) = [];
-%             loadData.spikeAmps(toRemove) = [];
-%             loadData.spikeSites(toRemove) = [];
-%             loadData.centerSites(toRemove, :) = [];
-%             loadData.spikesRaw(:, :, toRemove) = [];
-%             loadData.spikesFilt(:, :, toRemove) = [];
-%             loadData.spikeFeatures(:, :, toRemove) = [];
-%         end
 
         % unpack loadData
         siteThresh{iLoad} = loadData.siteThresh;

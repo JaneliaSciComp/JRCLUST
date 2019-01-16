@@ -154,7 +154,7 @@ classdef Config < dynamicprops
         evtWindowms = [-0.25 0.75]; % interval around event to extract filtered spike waveforms, in ms
         evtWindowRawms;             % interval around event to extract raw spike waveforms, in ms
         evtWindowRawFactor = 2;     % ratio of raw samples to filtered samples to extract if evtWindowRawms is not set
-        fGroup_shank = 0;       % group all sites in the same shank if true
+        fGroup_shank = 0;           % group all sites in the same shank if true
         ignoreSites = [];           % sites to manually ignore in the sorting
         nDiff_filt = 2;             % Differentiation filter for filterType='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
         nneigh_min_detect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]

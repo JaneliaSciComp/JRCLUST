@@ -14,7 +14,7 @@ classdef JRC < handle & dynamicprops
         args;           %
         cmd;            %
         hCfg;           %
-        hDet;           %
+        hDetect;        %
         hSort;          %
         hCurate;        %
     end
@@ -98,7 +98,7 @@ classdef JRC < handle & dynamicprops
                     return;
 
                 case 'gui'
-                    imsg = 'GUI is not implemented yet, but eventually you can just use `jrc`';
+                    imsg = 'GUI is not implemented yet';
                     jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.isCompleted = 1;
                     return;
@@ -129,29 +129,29 @@ classdef JRC < handle & dynamicprops
 
                 % deprecated synonyms, warn but proceed
                 case 'spikedetect'
-                    imsg = 'Please use ''detect'' in the future';
-                    jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.cmd = 'detect';
+                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
+                    jrclust.utils.depWarn(obj.cmd, imsg);
 
                 case {'cluster', 'clust', 'sort-verify', 'sort-validate'}
-                    imsg = 'Please use ''sort'' in the future';
-                    jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.cmd = 'sort';
-
-                case {'detectsort', 'detect-sort', 'spikesort-verify', 'spikesort-validate'}
-                    imsg = 'Please use ''spikesort'' in the future';
+                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
                     jrclust.utils.depWarn(obj.cmd, imsg);
-                    obj.cmd = 'spikesort';
+
+                case {'detectsort', 'spikesort', 'spikesort-verify', 'spikesort-validate'}
+                    obj.cmd = 'detect-sort';
+                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
+                    jrclust.utils.depWarn(obj.cmd, imsg);
 
                 case 'all'
-                    imsg = 'Please use ''full'' in the future';
-                    jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.cmd = 'full';
+                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
+                    jrclust.utils.depWarn(obj.cmd, imsg);
                 
                 case 'plot-activity'
-                    imsg = 'Please use ''activity'' in the future';
-                    jrclust.utils.depWarn(obj.cmd, imsg);
                     obj.cmd = 'activity';
+                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
+                    jrclust.utils.depWarn(obj.cmd, imsg);
 
                 % info commands
                 case 'about'
@@ -393,11 +393,11 @@ classdef JRC < handle & dynamicprops
             % DETECT SPIKES
             gpuDetect = obj.hCfg.useGPU; % save this in case useGPU is disabled during detection step
             if obj.isDetect
-                obj.hDet = jrclust.controllers.detect.DetectController(obj.hCfg);
-                dRes = obj.hDet.detect();
+                obj.hDetect = jrclust.controllers.detect.DetectController(obj.hCfg);
+                dRes = obj.hDetect.detect();
 
-                if obj.hDet.isError
-                    error(obj.hDet.errMsg);
+                if obj.hDetect.isError
+                    error(obj.hDetect.errMsg);
                 elseif obj.hCfg.verbose
                     fprintf('Detection completed in %0.2f seconds\n', dRes.runtime);
                 end
@@ -475,8 +475,8 @@ classdef JRC < handle & dynamicprops
             if ~isempty(obj.hCfg) % pick up error in Config
                 ie = ie || obj.hCfg.isError;
             end
-            if ~isempty(obj.hDet) % pick up error in hDet
-                ie = ie || obj.hDet.isError;
+            if ~isempty(obj.hDetect) % pick up error in hDetect
+                ie = ie || obj.hDetect.isError;
             end
             if ~isempty(obj.hSort) % pick up error in hSort
                 ie = ie || obj.hSort.isError;

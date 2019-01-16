@@ -24,7 +24,7 @@ function S = loadMetadata(metafile)
         S.sampleRate = S.niSampRate;
         S.rangeMax = S.niAiRangeMax;
         S.rangeMin = S.niAiRangeMin;
-        S.auxGain = S.niMNGain;
+        S.gain = S.niMNGain;
         try
             S.outputFile = S.fileName;
             S.sha1 = S.fileSHA1;
@@ -44,8 +44,8 @@ function S = loadMetadata(metafile)
         imroTable = textscan(S.imroTbl, '%d', 'Delimiter', '( ),');
         imroTable = imroTable{1};
 
-        S.auxGain = double(imroTable(9)); % hard code for now
-        S.auxGainLFP = double(imroTable(10)); % hard code for now
+        S.gain = double(imroTable(9)); % hard code for now
+        S.gainLFP = double(imroTable(10)); % hard code for now
 
         S.probe = sprintf('imec3_opt%d', imroTable(3));
         S.nSites = imroTable(4);
@@ -59,14 +59,14 @@ function S = loadMetadata(metafile)
 
     %number of bits of ADC [was 16 in Chongxi original]
     try
-        S.scale = ((S.rangeMax - S.rangeMin)/(2^S.adcBits))/S.auxGain * 1e6; %uVolts
+        S.scale = ((S.rangeMax - S.rangeMin)/(2^S.adcBits))/S.gain * 1e6; %uVolts
     catch
         S.scale = 1;
     end
 
     S.bitScaling = S.scale;
-    if isfield(S, 'auxGainLFP')
-        S.bitScalingLFP = S.scale * S.auxGain / S.auxGainLFP;
+    if isfield(S, 'gainLFP')
+        S.bitScalingLFP = S.scale * S.gain / S.gainLFP;
     end
 end
 

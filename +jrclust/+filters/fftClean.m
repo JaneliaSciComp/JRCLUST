@@ -43,7 +43,6 @@ end
 %% LOCAL FUNCTIONS
 function samplesOut = doFFTClean(samplesIn, fftThresh)
     %DOFFTCLEAN Actually perform the FFT clean
-
     nBins = 20;
     nSkipMed = 4; % skip this many samples when estimating median
     nw = 3;       % frequency neighbors to set to zero

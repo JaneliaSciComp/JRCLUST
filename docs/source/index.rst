@@ -9,20 +9,24 @@ Welcome to JRCLUST's documentation!
 JRCLUST is a scalable and customizable package for `spike sorting`_ written in `MATLAB`_ and `CUDA`_.
 JRCLUST runs on a local workstation (it is recommended that you have a GPU).
 
+The original JRCLUST paper by Jun, et al., may be found on the `bioRxiv <https://www.biorxiv.org/content/early/2017/01/30/101030>`_.
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Table of contents
    :name: indextoc
 
+   usage/index
    pipeline/index
+   parameters/index
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. Indices and tables
+.. ==================
+..
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`
 
 .. _`spike sorting`: http://www.scholarpedia.org/article/Spike_sorting
 .. _`MATLAB`: https://www.mathworks.com/products/matlab.html

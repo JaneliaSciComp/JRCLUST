@@ -74,13 +74,13 @@ function spikeWindows = interpPeaks(spikeWindows, hCfg)
 end
 
 function [spikeWindows, spikeTimes] = carRealign(spikeWindows, samplesIn, spikeTimes, neighbors, hCfg)
-    %CARREALIGN Realign spike peaks 
+    %CARREALIGN Realign spike peaks
     if ~strcmpi(hCfg.vcSpkRef, 'nmean')
         return;
     end
 
     % find where true peaks are not in the correct place after applying CAR
-    spikeWindowsCAR = jrclust.utils.carWindows(single(spikeWindows), hCfg); % apply CAR
+    spikeWindowsCAR = jrclust.utils.carWindows(single(spikeWindows), hCfg); % apply LCAR
     [shiftMe, shiftBy] = findShifted(spikeWindowsCAR, hCfg);
 
     if isempty(shiftMe)
