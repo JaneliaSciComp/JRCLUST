@@ -9,7 +9,7 @@ sample*.prm
 sample*.csv
 
 # docs
-doc/build
+docs/build
 
 # Misc
 *.mat
