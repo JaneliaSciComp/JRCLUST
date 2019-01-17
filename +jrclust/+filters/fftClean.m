@@ -4,7 +4,7 @@ function [samplesOut, useGPU] = fftClean(samplesIn, fftThreshMAD, ramToGPUFactor
         samplesOut = samplesIn;
         return;
     end
-    
+
     useGPU = isa(samplesIn, 'gpuArray');
 
     fprintf('Applying FFT cleanup...');
@@ -80,7 +80,7 @@ function samplesOut = doFFTClean(samplesIn, fftThresh)
     % find frequency outliers
     n1 = nSamplesPad/2; % previous power of 2
     viFreq = (1:n1)';
-    vrFft = mean(bsxfun(@times, abs(samplesOut(1+viFreq,:)), viFreq), 2);    
+    vrFft = mean(bsxfun(@times, abs(samplesOut(1+viFreq,:)), viFreq), 2);
     n2 = round(n1/nBins);
 
     for iBin = 1:nBins

@@ -12,15 +12,15 @@ function [spikeTimes, spikeAmps, spikeSites] = mergePeaks(spikesBySite, ampsBySi
 
     [mergedTimes, mergedAmps, mergedSites] = deal(cell(nSites,1));
 
-%     try
-%         parfor iSite = 1:nSites
-%             try
-%                 [mergedTimes{iSite}, mergedAmps{iSite}, mergedSites{iSite}] = ...
-%                     mergeSpikesSite(spikeTimes, spikeAmps, spikeSites, iSite, hCfg);
-%             catch % don't try to display an error here
-%             end
-%         end
-%     catch % parfor failure
+    try
+        parfor iSite = 1:nSites
+            try
+                [mergedTimes{iSite}, mergedAmps{iSite}, mergedSites{iSite}] = ...
+                    mergeSpikesSite(spikeTimes, spikeAmps, spikeSites, iSite, hCfg);
+            catch % don't try to display an error here
+            end
+        end
+    catch % parfor failure
         for iSite = 1:nSites
             try
                 [mergedTimes{iSite}, mergedAmps{iSite}, mergedSites{iSite}] = ...
@@ -29,7 +29,7 @@ function [spikeTimes, spikeAmps, spikeSites] = mergePeaks(spikesBySite, ampsBySi
                 warning(ME.identifier, 'failed to merge spikes on site %d: %s', iSite, ME.message);
             end
         end
-%     end
+    end
 
     % merge parfor output and sort
     spikeTimes = jrclust.utils.neCell2mat(mergedTimes);

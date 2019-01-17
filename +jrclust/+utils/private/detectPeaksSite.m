@@ -76,7 +76,7 @@ function peaks = findPeaks(samplesIn, thresh, nneighBelow)
     end
 
     peakCenters = samplesIn(peakLocs);
-    % take only peaks whose sample neighbors are not larger
+    % take only "peaks" whose sample neighbors are not larger
     peaks = peakLocs(peakCenters <= samplesIn(peakLocs + 1) & peakCenters <= samplesIn(peakLocs - 1));
     if isempty(peaks)
         return;

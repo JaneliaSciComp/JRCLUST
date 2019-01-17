@@ -60,7 +60,6 @@ function res = computeRho(dRes, res, hCfg)
         rhoCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
         siteRho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, siteCut, rhoCK, hCfg);
 
-%                 if ~isempty(vlRedo_spk), viSpk_site_ = viSpk_site_(vlRedo_spk(viSpk_site_)); end
         res.spikeRho(spikeData.spikes1) = jrclust.utils.tryGather(siteRho);
         res.rhoCutSite(iSite) = jrclust.utils.tryGather(siteCut);
         clear siteFeatures spikeOrder siteRho;

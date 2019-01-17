@@ -153,6 +153,11 @@ classdef JRC < handle & dynamicprops
                     imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
                     jrclust.utils.depWarn(obj.cmd, imsg);
 
+                case {'makeprm', 'createprm'}
+                    obj.cmd = 'bootstrap';
+                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
+                    jrclust.utils.depWarn(obj.cmd, imsg);
+
                 % info commands
                 case 'about'
                     md = jrclust.utils.info();
@@ -174,8 +179,8 @@ classdef JRC < handle & dynamicprops
                     return;
 
                 % workflow commands
-                case {'makeprm', 'createprm'}
-                    obj.hCfg = jrclust.Config();
+                case 'bootstrap'
+                    obj.hCfg = jrclust.Config(); % opens a dialog
                     jrclust.utils.qMsgBox(sprintf('Parameter file created at %s', obj.hCfg.configFile));
                     obj.isCompleted = 1;
                     return;
@@ -189,7 +194,11 @@ classdef JRC < handle & dynamicprops
                     end
 
                     probeFile = obj.args{1};
-                    if ~endsWith(probeFile, '.prm') % not a config file
+                    
+                    if endsWith(probeFile, '.prm')
+                        hCfg_ = jrclust.Config(probeFile);
+                        doPlotProbe(hCfg_.probeFile);
+                    else % not a config file
                         probeFile_ = jrclust.utils.absPath(probeFile, fullfile(jrclust.utils.basedir(), 'probes'));
                         if isempty(probeFile_)
                             obj.errMsg = sprintf('Could not find probe file: %s', probeFile);
@@ -198,18 +207,44 @@ classdef JRC < handle & dynamicprops
                         end
 
                         doPlotProbe(probeFile_);
-                        obj.isCompleted = 1;
-                        return;
                     end
+
+                    obj.isCompleted = 1;
+                    return;
+
+                case 'preview'
+                    hCfg_ = jrclust.Config(obj.args{1});
+                    hPreview = jrclust.controllers.curate.PreviewController(hCfg_);
+                    hPreview.preview();
+
+                    obj.isCompleted = 1;
+                    return;
+
+                    
+                case 'traces'
+                    hCfg_ = jrclust.Config(obj.args{1});
+                    hTraces = jrclust.controllers.curate.TracesController(hCfg_);
+                    if numel(obj.args) > 1
+                        recID = str2double(obj.args{2});
+                        if isnan(recID)
+                            recID = [];
+                        end
+                    else
+                        recID = [];
+                    end
+                    hTraces.show(recID, 0, obj.hClust);
+
+                    obj.isCompleted = 1;
+                    return;                    
             end
 
-            % command sentinel            
+            % command sentinel
             detectCmds = {'detect', 'spikesort', 'full'};
             sortCmds   = {'sort', 'spikesort', 'full'};
             curateCmds = {'manual', 'full'};
-            miscCmds = {'activity', 'auto', 'makeprm', 'preview', 'probe', 'traces'};
+            miscCmds = {'activity', 'auto'};
 
-            legalCmds = unique([detectCmds, sortCmds curateCmds, miscCmds]);
+            legalCmds = unique([detectCmds, sortCmds curateCmds miscCmds]);
 
             if ~any(strcmpi(obj.cmd, legalCmds))
                 obj.errMsg = sprintf('Command `%s` not recognized', obj.cmd);
@@ -354,7 +389,7 @@ classdef JRC < handle & dynamicprops
                 parallel.gpu.rng(obj.hCfg.randomSeed);
             end
 
-            % MISCELLANEOUS COMMANDS
+            % PLOT ACTIVITY OR RECLUSTER
             if strcmp(obj.cmd, 'activity')
                 if ~isempty(obj.res) && all(cellfun(@(f) ismember(f, fieldnames(obj.res)), ...
                                                     {'spikeTimes', 'spikeSites', 'spikeAmps'}))
@@ -372,22 +407,6 @@ classdef JRC < handle & dynamicprops
                     obj.errMsg = 'hClust not found';
                     return;
                 end
-            elseif strcmp(obj.cmd, 'preview')
-                hPreview = jrclust.controllers.curate.PreviewController(obj.hCfg);
-                hPreview.preview();
-            elseif strcmp(obj.cmd, 'probe')
-                doPlotProbe(obj.hCfg.probeFile);
-            elseif strcmp(obj.cmd, 'traces')
-                hTraces = jrclust.controllers.curate.TracesController(obj.hCfg);
-                if numel(obj.args) > 1
-                    recID = str2double(obj.args{2});
-                    if isnan(recID)
-                        recID = [];
-                    end
-                else
-                    recID = [];
-                end
-                hTraces.show(recID, 0, obj.hClust);
             end
 
             % DETECT SPIKES

@@ -98,7 +98,7 @@ classdef Config < dynamicprops
     properties (Dependent, SetAccess=private, Hidden)
         miSites;                    % => siteNeighbors
     end
-    
+
     %% NEW-STYLE PARAMS, publicly settable
     properties (SetObservable)
         batchMode = 0;          % suppress *all* messages if true
@@ -187,14 +187,14 @@ classdef Config < dynamicprops
         outlierThresh = 7.5;                % threshold to remove outlier spikes for each cluster, in MAD
         nTime_clu = 1;                      % number of time periods over which to cluster separately (later to be merged after clustering)
         repeatLower = 0;                % repeat clustering for the bottom half of the cluster amplitudes if true
-        rlDetrendMode = 'global';           % 
+        rlDetrendMode = 'global';           %
         spkLim_factor_merge = 1;            % Waveform range for computing the correlation. spkLim_factor_merge <= spkLim_raw_factor_merge. circa v3.1.8
 
         % display params
         dispFeature = 'vpp';                % feature to display in time/projection views
-        dispFilter = '';                    % 
+        dispFilter = '';                    %
         dispTimeLimits = [0 0.2];           % time range to display (in seconds)
-        fText = 1;                       % 
+        fText = 1;                       %
         nShow = 200;                        % maximum number of traces to show [D?# spikes to show]
         nShow_proj = 500;                   % maximum number of features to show in projection
         nSitesFigProj = 5;                  % number of sites to display in the feature projection view
@@ -202,9 +202,9 @@ classdef Config < dynamicprops
         nSpk_show = 30;                     % show spike waveforms for manual clustering
         pcPair = [1 2];                     % PC projection to show (1 vs 2; 1 vs 3; 2 vs 3), can be toggled
         showRaw = 0;                    % show raw waveforms in main view if true
-        time_tick_show = [];                % 
+        time_tick_show = [];                %
         tLimFigProj = [];                   % time range to display in feature view, in seconds
-        um_per_pix = 20;                    % 
+        um_per_pix = 20;                    %
 
         % preview GUI params
         nLoads_max_preview = 30;            % number of time segments to load for preview
@@ -216,12 +216,12 @@ classdef Config < dynamicprops
         firingRateSampleRate = 1000;        % Resampled rate for the firing rate
 
         % aux-file parameters
-        auxChan;                            % aux channel # to correlate with the unit firing rate    
+        auxChan;                            % aux channel # to correlate with the unit firing rate
         auxFile = '';                       % aux channel file
         auxLabel = '';                      % label for the aux channel
         auxSampleRate = [];                 % sampling rate for aux file
         auxScale = 1;               		% scale factor for aux input
-        nClustersShowAux = 10;              % 
+        nClustersShowAux = 10;              %
 
         % trial parameters
         trialFile = '';                     % .mat or .csv file containing timestamp in seconds unit. use any variable name.
@@ -754,7 +754,9 @@ classdef Config < dynamicprops
             % TODO: deprecate probe file and incorporate directly into config
             probeFile = jrclust.utils.absPath(probeFile);
             if isempty(probeFile)
-                [fname, fdir] = uigetfile({'*.prb'; '*.mat'}, 'Select a probe file');
+                [fname, fdir] = uigetfile({'*.prb'; '*.mat'}, ...
+                                           'Select a probe file', ...
+                                           fullfile(jrclust.utils.basedir(), 'probes'));
                 if ~ischar(fdir) % abort
                     return;
                 end
@@ -970,9 +972,9 @@ classdef Config < dynamicprops
 
         % carMode/vcCommonRef
         function set.carMode(obj, cm)
-            legalTypes = {'mean', 'median', 'whiten', 'none'};
+            legalTypes = {'mean', 'median', 'none'};
             failMsg = sprintf('legal carModes are %s', strjoin(legalTypes, ', '));
-            assert(sum(strcmp(cm, legalTypes)) == 1, failMsg);
+            assert(ismember(cm, legalTypes), failMsg);
             obj.carMode = cm;
         end
         function cm = get.vcCommonRef(obj)
@@ -1021,7 +1023,7 @@ classdef Config < dynamicprops
 
         % dispFilter/vcFilter_show
         function set.dispFilter(obj, ft)
-            legalTypes = {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'};
+            legalTypes = {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'none'};
             failMsg = sprintf('legal filterTypes are: %s or ''''', strjoin(legalTypes, ', '));
             assert((ischar(ft) && isempty(ft)) || sum(strcmp(ft, legalTypes)) == 1, failMsg);
             obj.dispFilter = ft;
@@ -1247,7 +1249,7 @@ classdef Config < dynamicprops
 
         % filterType/vcFilter
         function set.filterType(obj, ft)
-            legalTypes = {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'};
+            legalTypes = {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'none'};
             assert(sum(strcmp(ft, legalTypes)) == 1, 'legal filterTypes are: %s', strjoin(legalTypes, ', '));
             obj.filterType = ft;
         end

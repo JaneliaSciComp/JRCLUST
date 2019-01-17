@@ -12,13 +12,14 @@ JRCLUST runs on a local workstation (it is recommended that you have a GPU).
 The original JRCLUST paper by Jun, et al., may be found on the `bioRxiv <https://www.biorxiv.org/content/early/2017/01/30/101030>`_.
 
 .. toctree::
-   :maxdepth: 1
+   :glob:
+   :maxdepth: 2
    :caption: Table of contents
    :name: indextoc
 
-   usage/index
+   usage/*
    pipeline/index
-   parameters/index
+   parameters/*
 
 
 .. Indices and tables
