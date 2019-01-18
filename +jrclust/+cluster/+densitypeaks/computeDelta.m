@@ -53,8 +53,6 @@ function res = computeDelta(dRes, res, hCfg)
             error(ME.identifier, 'Error at site %d: %s', iSite, ME.message);
         end
 
-        % if ~isempty(vlRedo_spk), viSpk_site_ = viSpk_site_(vlRedo_spk(viSpk_site_)); end
-
         res.spikeDelta(spikeData.spikes1) = siteDelta;
         res.spikeNeigh(spikeData.spikes1) = spikes(siteNN);
         [~, ~, ~] = jrclust.utils.tryGather(siteFeatures, rhoOrder, spikeOrder);
@@ -96,7 +94,7 @@ function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, 
         end
     end
 
-    dists = pdist2(siteFeatures', siteFeatures(:,1:n1)').^2;
+    dists = pdist2(siteFeatures', siteFeatures(:, 1:n1)').^2;
     nearby = bsxfun(@lt, rhoOrder, rhoOrder(1:n1)') & abs(bsxfun(@minus, spikeOrder, spikeOrder(1:n1)')) <= dn_max;
     dists(~nearby) = nan;
     [delta, nNeigh] = min(dists);

@@ -55,10 +55,10 @@ classdef Config < dynamicprops
         probe_file;                 % => probeFile
         rho_cut;                    % => log10RhoCut
         spkLim;                     % => evtWindowSamp
-        spkLim_ms;                  % => evtWindowms
+        spkLim_ms;                  % => evtWindow
         spkLim_raw;                 % => evtWindowRawSamp
         spkLim_raw_factor;          % => evtWindowRawFactor
-        spkLim_raw_ms;              % => evtWindowRawms
+        spkLim_raw_ms;              % => evtWindowRaw
         spkRefrac;                  % => refracIntSamp
         spkRefrac_ms;               % => refracIntms
         spkThresh;                  % => evtManualThresh
@@ -131,7 +131,7 @@ classdef Config < dynamicprops
         siteMap;                    % channel mapping; row i in the data corresponds to channel `siteMap(i)`
 
         % preprocessing params
-        useElliptic = 1;         % use elliptic filter if 1 (and only if filterType='bandpass')
+        useElliptic = 1;            % use elliptic filter if 1 (and only if filterType='bandpass')
         fftThreshMAD = 0;           % automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
         filtOrder = 3;              % bandpass filter order
         filterType = 'ndiff';       % filter to use {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
@@ -151,9 +151,9 @@ classdef Config < dynamicprops
         evtDetectRad = 75;          % radius for extracting waveforms, in microns (used if nSiteDir and nSitesExcl are empty)
         evtManualThreshuV = [];     % manual spike detection threshold, in microvolts
         evtMergeRad = 50;           % radius of spike event merging, in microns
-        evtWindowms = [-0.25 0.75]; % interval around event to extract filtered spike waveforms, in ms
-        evtWindowRawms;             % interval around event to extract raw spike waveforms, in ms
-        evtWindowRawFactor = 2;     % ratio of raw samples to filtered samples to extract if evtWindowRawms is not set
+        evtWindow = [-0.25 0.75];   % interval around event to extract filtered spike waveforms, in ms
+        evtWindowRaw;               % interval around event to extract raw spike waveforms, in ms
+        evtWindowRawFactor = 2;     % ratio of raw samples to filtered samples to extract if evtWindowRaw is not set
         fGroup_shank = 0;           % group all sites in the same shank if true
         ignoreSites = [];           % sites to manually ignore in the sorting
         nDiff_filt = 2;             % Differentiation filter for filterType='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
@@ -167,8 +167,8 @@ classdef Config < dynamicprops
 
         % feature extraction params
         clusterFeature = 'pca';     % feature to use in clustering
-        fInterp_fet = 1;         % interpolate waveforms for feature projection to find optimal delay (2x interp) if true
-        fSpatialMask_clu = 0;   % apply spatial mask calculated from the distances between sites to the peak site (half-scale: evtDetectRad)
+        fInterp_fet = 1;            % interpolate waveforms for feature projection to find optimal delay (2x interp) if true
+        fSpatialMask_clu = 0;       % apply spatial mask calculated from the distances between sites to the peak site (half-scale: evtDetectRad)
         min_sites_mask = 5;         % minimum number of sites to have to apply spatial mask
         nFet_use = 2;               % undocumented
         time_feature_factor;        % undocumented
@@ -176,7 +176,7 @@ classdef Config < dynamicprops
         % clustering params
         autoMergeBy = 'pearson';            % metric to use when automerging clusters
         dc_percent = 2;                     % percentile at which to cut off distance in rho computation
-        fDrift_merge = 1;                % compute multiple waveforms at three drift locations based on the spike position if true
+        fDrift_merge = 1;                   % compute multiple waveforms at three drift locations based on the spike position if true
         log10DeltaCut = 0.6;                % the base-10 log of the delta cutoff value
         log10RhoCut = -2.5;                 % the base-10 log of the rho cutoff value
         maxClustersSite = 20;               % maximum number of clusters per site if local detrending is used
@@ -185,10 +185,11 @@ classdef Config < dynamicprops
         nInterp_merge = 1;                  % Interpolation factor for the mean unit waveforms, set to 1 to disable
         nPassesMerge = 10;                  % number of passes for unit mean raw waveform-based merging
         outlierThresh = 7.5;                % threshold to remove outlier spikes for each cluster, in MAD
-        nTime_clu = 1;                      % number of time periods over which to cluster separately (later to be merged after clustering)
-        repeatLower = 0;                % repeat clustering for the bottom half of the cluster amplitudes if true
+        nTime_clu = 4;                      % number of time periods over which to cluster separately (later to be merged after clustering)
+        repeatLower = 0;                    % repeat clustering for the bottom half of the cluster amplitudes if true
         rlDetrendMode = 'global';           %
         spkLim_factor_merge = 1;            % Waveform range for computing the correlation. spkLim_factor_merge <= spkLim_raw_factor_merge. circa v3.1.8
+        useGlobalDistCut = 1;               % use a global distance cutoff for all sites if true; otherwise use different cutoff values for each site
 
         % display params
         dispFeature = 'vpp';                % feature to display in time/projection views
@@ -615,7 +616,7 @@ classdef Config < dynamicprops
             end
 
             % compute raw window limits if not given
-            if isempty(obj.evtWindowRawms)
+            if isempty(obj.evtWindowRaw)
                 % set in units of samples (will set ms units automatically)
                 obj.evtWindowRawSamp = obj.evtWindowRawFactor * obj.evtWindowSamp;
             end
@@ -1102,7 +1103,7 @@ classdef Config < dynamicprops
             obj.dtype = dt;
         end
 
-        % evtDetectRad/maxDist_site_um
+        % evtDetectRad/maxDist_site_spk_um
         function set.evtDetectRad(obj, ed)
             assert(jrclust.utils.isscalarnum(ed) && ed > 0, 'evtDetectRad must be a positive scalar');
             obj.evtDetectRad = ed;
@@ -1153,18 +1154,18 @@ classdef Config < dynamicprops
             obj.evtMergeRad = em;
         end
 
-        % evtWindowms/spkLim_ms
-        function set.evtWindowms(obj, ew)
-            assert(ismatrix(ew) && all(size(ew) == [1 2]) && ew(1) < 0 && ew(2) > 0, 'degenerate evtWindowms');
-            obj.evtWindowms = ew;
+        % evtWindow/spkLim_ms
+        function set.evtWindow(obj, ew)
+            assert(ismatrix(ew) && all(size(ew) == [1 2]) && ew(1) < 0 && ew(2) > 0, 'degenerate evtWindow');
+            obj.evtWindow = ew;
         end
         function ew = get.spkLim_ms(obj)
             obj.logOldP('spkLim_ms');
-            ew = obj.evtWindowms;
+            ew = obj.evtWindow;
         end
         function set.spkLim_ms(obj, ew)
             obj.logOldP('spkLim_ms');
-            obj.evtWindowms = ew;
+            obj.evtWindow = ew;
         end
 
         % evtWindowRawFactor/spkLim_raw_factor
@@ -1181,26 +1182,26 @@ classdef Config < dynamicprops
             obj.evtWindowRawFactor = ef;
         end
 
-        % evtWindowRawms/spkLim_raw_ms
-        function set.evtWindowRawms(obj, ew)
-            assert(ismatrix(ew) && all(size(ew) == [1 2]) && ew(1) < 0 && ew(2) > 0, 'degenerate evtWindowRawms');
-            obj.evtWindowRawms = ew;
+        % evtWindowRaw/spkLim_raw_ms
+        function set.evtWindowRaw(obj, ew)
+            assert(ismatrix(ew) && all(size(ew) == [1 2]) && ew(1) < 0 && ew(2) > 0, 'degenerate evtWindowRaw');
+            obj.evtWindowRaw = ew;
         end
         function ew = get.spkLim_raw_ms(obj)
             obj.logOldP('spkLim_raw_ms');
-            ew = obj.evtWindowRawms;
+            ew = obj.evtWindowRaw;
         end
         function set.spkLim_raw_ms(obj, ew)
             obj.logOldP('spkLim_raw_ms');
-            obj.evtWindowRawms = ew;
+            obj.evtWindowRaw = ew;
         end
 
         % evtWindowRawSamp/spkLim_raw
         function ew = get.evtWindowRawSamp(obj)
-            ew = round(obj.evtWindowRawms * obj.sampleRate / 1000);
+            ew = round(obj.evtWindowRaw * obj.sampleRate / 1000);
         end
         function set.evtWindowRawSamp(obj, ew)
-            obj.evtWindowRawms = ew * 1000 / obj.sampleRate;
+            obj.evtWindowRaw = ew * 1000 / obj.sampleRate;
         end
         function ew = get.spkLim_raw(obj)
             obj.logOldP('spkLim_raw');
@@ -1213,10 +1214,10 @@ classdef Config < dynamicprops
 
         % evtWindowSamp/spkLim
         function ew = get.evtWindowSamp(obj)
-            ew = round(obj.evtWindowms * obj.sampleRate / 1000);
+            ew = round(obj.evtWindow * obj.sampleRate / 1000);
         end
         function set.evtWindowSamp(obj, ew)
-            obj.evtWindowms = ew * 1000 / obj.sampleRate;
+            obj.evtWindow = ew * 1000 / obj.sampleRate;
         end
         function ew = get.spkLim(obj)
             obj.logOldP('spkLim');

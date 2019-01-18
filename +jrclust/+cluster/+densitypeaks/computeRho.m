@@ -4,7 +4,7 @@ function res = computeRho(dRes, res, hCfg)
     res.rhoCutGlobal = [];
 
     % compute rho cutoff globally
-    if hCfg.getOr('fDc_global', 1)
+    if hCfg.useGlobalDistCut
         res.rhoCutGlobal = estRhoCutGlobal(dRes, hCfg);
     end
 

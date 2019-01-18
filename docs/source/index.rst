@@ -7,7 +7,7 @@ Welcome to JRCLUST's documentation!
 ===================================
 
 JRCLUST is a scalable and customizable package for `spike sorting`_ written in `MATLAB`_ and `CUDA`_.
-JRCLUST runs on a local workstation (it is recommended that you have a GPU).
+JRCLUST runs on a local workstation (it is recommended, but not required, that you have a GPU).
 
 The original JRCLUST paper by Jun, et al., may be found on the `bioRxiv <https://www.biorxiv.org/content/early/2017/01/30/101030>`_.
 

@@ -1,10 +1,6 @@
 Spike detection
 ===============
 
-Summary
--------
-.. include:: ../detect-summary.rst
-
 .. _denoising:
 
 Denoising
@@ -98,6 +94,34 @@ If peaks are found within this window, then the following operations are perform
 Extract spatiotemporal windows around spiking events
 ----------------------------------------------------
 
+For each spiking event, JRCLUST will save raw and filtered samples as :math:`n_{\text{sites}} \times n_{\text{samples}}` matrices.
+:math:`n_{\text{sites}}` is ``nSitesEvt`` (determined from :ref:`nSiteDir`),
+and :math:`n_{\text{samples}} depends on ``evtWindow`` and ``evtWindowRaw`` for filtered and raw samples, respectively.
+Each of these matrices is stored in an :math:`n_{\text{sites}} \times n_{\text{samples}} \times c_{\text{spikes}}`
+array and are used for feature extraction, automatically merging clusters, and display in the curation GUI.
 
+At this point, :ref:`if you specify <fRealign_spk>`, JRCLUST may either subtract a local common average reference from the windows
+and realign the spike waveforms; or interpolate the spike waveforms between samples to determine if the true peak maxima are at
+subpixels, taking the interpolant if this is found to be the case.
+
+.. _compute-features:
+
+Compute features from extracted waveforms
+-----------------------------------------
+
+JRCLUST subtracts the local common-average reference from the spike waveforms extracted above
+and then computes features from these according to the :ref:`feature you specify <clusterFeature>`.
+For more detailed descriptions of your options in features, see below.
+
+Additionally, :ref:`if you specify <nFet_use>`, JRCLUST finds an alternate location for each spike
+within that spike's spatiotemporal window.
+JRCLUST will extract a window around this secondary peak in order to compute features.
+This is done in order to accommodate necessary alterations to the clustering algorithm due to
+resource constraints.
+
+.. toctree::
+    :maxdepth: 2
+
+    features
 
 .. _MAD: https://en.wikipedia.org/wiki/Median_absolute_deviation

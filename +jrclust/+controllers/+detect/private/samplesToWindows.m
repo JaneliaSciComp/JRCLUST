@@ -80,7 +80,7 @@ function [spikeWindows, spikeTimes] = carRealign(spikeWindows, samplesIn, spikeT
     end
 
     % find where true peaks are not in the correct place after applying CAR
-    spikeWindowsCAR = jrclust.utils.carWindows(single(spikeWindows), hCfg); % apply LCAR
+    spikeWindowsCAR = jrclust.utils.localCAR(single(spikeWindows), hCfg); % apply LCAR
     [shiftMe, shiftBy] = findShifted(spikeWindowsCAR, hCfg);
 
     if isempty(shiftMe)

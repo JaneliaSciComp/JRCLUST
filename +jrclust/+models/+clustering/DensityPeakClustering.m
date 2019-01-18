@@ -196,7 +196,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
         end
 
         function nMerged = mergeBySim(obj)
-            %AUTOMERGEBYSIM Automatically merge clusters by similarity score
+            %MERGEBYSIM Automatically merge clusters by similarity score
             simScore_ = obj.simScore;
             nClusters_ = size(simScore_, 2);
 

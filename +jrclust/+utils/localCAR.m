@@ -1,5 +1,5 @@
-function [spikeWindows, carTraces] = carWindows(spikeWindows, hCfg, nSitesEvt, refSites)
-    %CARWINDOWS Apply CAR to spike windows
+function [spikeWindows, carTraces] = localCAR(spikeWindows, hCfg, nSitesEvt, refSites)
+    %LOCALCAR Subtract local common-average reference from spike windows
     %   spikeWindows: nSamples x nSpikes x nSites, single
     if nargin < 3
         nSitesEvt = [];
