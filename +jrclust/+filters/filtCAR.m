@@ -55,26 +55,15 @@ function [samplesIn, channelMeans] = applyCAR(samplesIn, hCfg)
     %APPLYCAR Perform common average referencing (CAR) on filtered traces
     channelMeans = [];
 
-    if strcmp(hCfg.carMode, 'mean')
+    if strcmp(hCfg.CARMode, 'mean')
         channelMeans = meanExcluding(samplesIn, hCfg.ignoreSites);
         samplesIn = bsxfun(@minus, samplesIn, channelMeans);
-    elseif strcmp(hCfg.carMode, 'median')
+    elseif strcmp(hCfg.CARMode, 'median')
         channelMedians = medianExcluding(samplesIn, hCfg.ignoreSites);
         samplesIn = bsxfun(@minus, samplesIn, channelMedians);
     end
 
     samplesIn(:, hCfg.ignoreSites) = 0; % TW do not repair with fMeanSite_drift
-
-    % TODO: evaluate this code
-    % % ignoreSites should be treated carefully. try to repair using nearest sites?
-    % if get_(hCfg, 'fMeanSite_drift')
-    %     mnWav1 = meanSite_drift_(mnWav1, hCfg);
-    % elseif fRepairSites
-    %     mnWav1 = meanSite_drift_(mnWav1, hCfg, hCfg.ignoreSites);
-    % else
-    %     mnWav1(:, hCfg.ignoreSites) = 0;
-    % end
-    % fprintf('\n\ttook %0.1fs.\n', toc(t1));
 end
 
 function means = meanExcluding(samplesIn, ignoreSites)

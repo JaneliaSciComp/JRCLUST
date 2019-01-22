@@ -90,7 +90,7 @@ function hFigPreview = doPlotFigPreview(hFigPreview, figData, fKeepView, hCfg)
 
     hFigPreview.axApply('hAxTraces', @ylabel, 'Site #');
     filterLabel = jrclust.utils.ifEq(figData.fFilter, sprintf('Filter=%s', figData.filterType), 'Filter off');
-    hFigPreview.figApply(@set, 'Name', sprintf('%s; %s; CommonRef=%s', hCfg.configFile, filterLabel, figData.carMode));
+    hFigPreview.figApply(@set, 'Name', sprintf('%s; %s; CommonRef=%s', hCfg.configFile, filterLabel, figData.CARMode));
 
     hFigPreview.axApply('hAxTraces', @title, sprintf('Scale: %0.1f uV', figData.maxAmp));
 
@@ -155,7 +155,7 @@ function hFigPreview = doPlotFigPreview(hFigPreview, figData, fKeepView, hCfg)
 
     hFigPreview.axApply('hAxPSD', @xlabel, 'Frequency (Hz)');
     hFigPreview.axApply('hAxPSD', @ylabel, 'Power [dB]');
-    hFigPreview.axApply('hAxPSD', @title, sprintf('fftThreshMAD=%s', num2str(figData.fftThreshMAD)));
+    hFigPreview.axApply('hAxPSD', @title, sprintf('fftThresh=%s', num2str(figData.fftThresh)));
 
 
     %% finish up

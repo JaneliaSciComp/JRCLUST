@@ -1,6 +1,6 @@
 function [nLoads, nSamplesLoad, nSamplesFinal] = planLoad(nBytesFile, hCfg)
     %PLANLOAD Get number of samples to load in each chunk of a file
-    bps = jrclust.utils.typeBytes(hCfg.dtype);
+    bps = jrclust.utils.typeBytes(hCfg.dataType);
 
     % nColumns in data matrix
     nSamples = floor(nBytesFile / bps / hCfg.nChans);

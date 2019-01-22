@@ -1,6 +1,6 @@
-function n = typeBytes(dtype)
-    %TYPEBYTES Get number of bytes in dtype
-    switch dtype
+function n = typeBytes(dataType)
+    %TYPEBYTES Get number of bytes in dataType
+    switch dataType
         case {'char', 'byte', 'int8', 'uint8'}
             n = 1;
 

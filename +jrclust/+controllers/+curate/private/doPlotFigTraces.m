@@ -24,7 +24,7 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
         hCfg.useGPU = 0;
         hCfg.filterType = hCfg.dispFilter;
 
-        if hCfg.fftThreshMAD > 0
+        if hCfg.fftThresh > 0
             tracesRaw = jrclust.filters.fftClean(tracesRaw, hCfg);
         end
 

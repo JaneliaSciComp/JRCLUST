@@ -9,12 +9,12 @@ classdef PreviewController < handle
     end
 
     properties (Dependent)
-        blank_period_ms;
+        blankPeriod;
         blankThresh;
-        carMode;
+        CARMode;
         channelMeansMAD;
         fFilter;
-        fftThreshMAD;
+        fftThresh;
         fGrid;
         filterType;
         fShowSpikes;
@@ -269,13 +269,13 @@ classdef PreviewController < handle
             end
 
             % Select variables to export
-            newPrms = struct('fftThreshMAD', obj.fftThreshMAD, ...
+            newPrms = struct('fftThresh', obj.fftThresh, ...
                              'ignoreSites', find(obj.ignoreMe), ...
                              'qqFactor', obj.qqFactor, ...
                              'filterType', obj.filterType, ...
-                             'carMode', obj.carMode, ...
+                             'CARMode', obj.CARMode, ...
                              'blankThresh', obj.blankThresh, ...
-                             'blank_period_ms', obj.blank_period_ms);
+                             'blankPeriod', obj.blankPeriod);
 
             % preview and edit variables in the edit box
             strNewPrms = jrclust.utils.struct2str(newPrms);
@@ -290,13 +290,13 @@ classdef PreviewController < handle
                 return;
             end
 
-            obj.hCfg.fftThreshMAD = newPrms.fftThreshMAD;
+            obj.hCfg.fftThresh = newPrms.fftThresh;
             obj.hCfg.ignoreSites = newPrms.ignoreSites;
             obj.hCfg.qqFactor = newPrms.qqFactor;
             obj.hCfg.filterType = newPrms.filterType;
-            obj.hCfg.carMode = newPrms.carMode;
+            obj.hCfg.CARMode = newPrms.CARMode;
             obj.hCfg.blankThresh = newPrms.blankThresh;
-            obj.hCfg.blank_period_ms = newPrms.blank_period_ms;
+            obj.hCfg.blankPeriod = newPrms.blankPeriod;
 
             obj.hCfg.flush();
             obj.hCfg.edit();
@@ -319,9 +319,9 @@ classdef PreviewController < handle
         function setBlankThresh(obj)
             %SETREFTHRESH
             blankThresh_ = num2str(obj.blankThresh);
-            blank_period_ms_ = num2str(obj.blank_period_ms);
+            blank_period_ms_ = num2str(obj.blankPeriod);
 
-            dlgAns = inputdlg({'blankThresh (MAD)', 'blank_period_ms (millisecond)'}, 'Common reference threshold', 1, {blankThresh_, blank_period_ms_});
+            dlgAns = inputdlg({'blankThresh (MAD)', 'blankPeriod (millisecond)'}, 'Common reference threshold', 1, {blankThresh_, blank_period_ms_});
             if isempty(dlgAns)
                 return;
             end
@@ -337,7 +337,7 @@ classdef PreviewController < handle
             end
 
             obj.blankThresh = blankThresh_;
-            obj.blank_period_ms = blank_period_ms_;
+            obj.blankPeriod = blank_period_ms_;
 
             obj.updateFigPreview(1);
         end
@@ -345,30 +345,30 @@ classdef PreviewController < handle
         function setCARMode(obj, label, hMenu)
             %SETCARMODE Update CAR mode
             menuCheckbox(hMenu, label);
-            obj.carMode = label;
+            obj.CARMode = label;
 
             obj.updateFigPreview(1);
         end
 
         function setFftThreshMAD(obj)
             %SETFFTTHRESHMAD
-            if isempty(obj.fftThreshMAD)
-                fftThreshMAD_ = '0';
+            if isempty(obj.fftThresh)
+                fftThresh_ = '0';
             else
-                fftThreshMAD_ = num2str(obj.fftThreshMAD);
+                fftThresh_ = num2str(obj.fftThresh);
             end
 
-            dlgAns = inputdlg('Set a threshold for FFT cleanup (0 to disable)', 'fftThreshMAD (20 recommended)', 1, {fftThreshMAD_});
+            dlgAns = inputdlg('Set a threshold for FFT cleanup (0 to disable)', 'fftThresh (20 recommended)', 1, {fftThresh_});
             if isempty(dlgAns)
                 return;
             end
 
-            fftThreshMAD_ = str2double(dlgAns{1});
-            if isnan(fftThreshMAD_)
+            fftThresh_ = str2double(dlgAns{1});
+            if isnan(fftThresh_)
                 return;
             end
 
-            obj.fftThreshMAD = fftThreshMAD_;
+            obj.fftThresh = fftThresh_;
             obj.updateFigPreview(1);
         end
 
@@ -497,8 +497,8 @@ classdef PreviewController < handle
             %UPDATEFIGPREVIEW Update parameters and replot
             obj.hFigPreview.wait(1);
 
-            if obj.fftThreshMAD > 0
-                obj.tracesClean = jrclust.filters.fftClean(obj.tracesRaw, obj.fftThreshMAD, obj.hCfg.ramToGPUFactor); % fft filter
+            if obj.fftThresh > 0
+                obj.tracesClean = jrclust.filters.fftClean(obj.tracesRaw, obj.fftThresh, obj.hCfg.ramToGPUFactor); % fft filter
             else
                 obj.tracesClean = obj.tracesRaw;
             end
@@ -514,12 +514,12 @@ classdef PreviewController < handle
             end
 
             % filter and CAR
-            obj.hCfg.setTemporaryParams('carMode', 'none', 'useGPU', 0, 'filterType', obj.filterType, ...
-                'blank_period_ms', obj.blank_period_ms, 'blankThresh', obj.blankThresh, 'fParfor', 0);
+            obj.hCfg.setTemporaryParams('CARMode', 'none', 'useGPU', 0, 'filterType', obj.filterType, ...
+                'blankPeriod', obj.blankPeriod, 'blankThresh', obj.blankThresh, 'useParfor', 0);
             obj.tracesFilt = jrclust.filters.filtCAR(obj.tracesClean, [], [], 0, obj.hCfg);
-            obj.tracesCAR = jrclust.utils.getCAR(obj.tracesFilt, obj.carMode, obj.ignoreSites);
+            obj.tracesCAR = jrclust.utils.getCAR(obj.tracesFilt, obj.CARMode, obj.ignoreSites);
 
-            if ~strcmpi(obj.carMode, 'none')
+            if ~strcmpi(obj.CARMode, 'none')
                 obj.tracesFilt = bsxfun(@minus, obj.tracesFilt, int16(obj.tracesCAR));
             end
 
@@ -541,7 +541,7 @@ classdef PreviewController < handle
             obj.isThreshCrossing(:, obj.ignoreMe) = 0; % ignore threshold crossings on bad sites
 
             % Spike detection
-            [obj.keepMe, obj.channelMeansMAD] = jrclust.utils.carReject(obj.tracesCAR, obj.hCfg.blank_period_ms, obj.hCfg.blankThresh, obj.hCfg.sampleRate);
+            [obj.keepMe, obj.channelMeansMAD] = jrclust.utils.carReject(obj.tracesCAR, obj.hCfg.blankPeriod, obj.hCfg.blankThresh, obj.hCfg.sampleRate);
             [obj.spikeTimes, obj.spikeAmps, obj.spikeSites] = jrclust.utils.detectPeaks(obj.tracesFilt, obj.siteThresh, obj.keepMe, obj.hCfg);
 
             durationSecs = size(obj.tracesFilt, 1) / obj.hCfg.sampleRate;
@@ -584,12 +584,12 @@ classdef PreviewController < handle
 
             % Build figData
             obj.filterType = obj.hCfg.filterType;
-            obj.carMode = obj.hCfg.carMode;
+            obj.CARMode = obj.hCfg.CARMode;
             obj.siteCorrThresh = obj.hCfg.siteCorrThresh;
-            obj.fftThreshMAD = obj.hCfg.fftThreshMAD;
+            obj.fftThresh = obj.hCfg.fftThresh;
             obj.qqFactor = obj.hCfg.qqFactor;
             obj.blankThresh = obj.hCfg.blankThresh;
-            obj.blank_period_ms = obj.hCfg.blank_period_ms;
+            obj.blankPeriod = obj.hCfg.blankPeriod;
 
             ignoreMe_ = false(size(obj.hCfg.siteMap));
             ignoreMe_(obj.hCfg.ignoreSites) = 1;
@@ -644,28 +644,28 @@ classdef PreviewController < handle
             obj.figData.blankThresh = bt;
         end
 
-        % blank_period_ms
-        function bp = get.blank_period_ms(obj)
-            if isempty(obj.figData) || ~isfield(obj.figData, 'blank_period_ms')
+        % blankPeriod
+        function bp = get.blankPeriod(obj)
+            if isempty(obj.figData) || ~isfield(obj.figData, 'blankPeriod')
                 bp = [];
             else
-                bp = obj.figData.blank_period_ms;
+                bp = obj.figData.blankPeriod;
             end
         end
-        function set.blank_period_ms(obj, bp)
-            obj.figData.blank_period_ms = bp;
+        function set.blankPeriod(obj, bp)
+            obj.figData.blankPeriod = bp;
         end
 
-        % carMode
-        function cm = get.carMode(obj)
-            if isempty(obj.figData) || ~isfield(obj.figData, 'carMode')
+        % CARMode
+        function cm = get.CARMode(obj)
+            if isempty(obj.figData) || ~isfield(obj.figData, 'CARMode')
                 cm = [];
             else
-                cm = obj.figData.carMode;
+                cm = obj.figData.CARMode;
             end
         end
-        function set.carMode(obj, cm)
-            obj.figData.carMode = cm;
+        function set.CARMode(obj, cm)
+            obj.figData.CARMode = cm;
         end
 
         % channelMeansMAD
@@ -692,16 +692,16 @@ classdef PreviewController < handle
             obj.figData.fFilter = ff;
         end
 
-        % fftThreshMAD
-        function ft = get.fftThreshMAD(obj)
-            if isempty(obj.figData) || ~isfield(obj.figData, 'fftThreshMAD')
+        % fftThresh
+        function ft = get.fftThresh(obj)
+            if isempty(obj.figData) || ~isfield(obj.figData, 'fftThresh')
                 ft = [];
             else
-                ft = obj.figData.fftThreshMAD;
+                ft = obj.figData.fftThresh;
             end
         end
-        function set.fftThreshMAD(obj, ft)
-            obj.figData.fftThreshMAD = ft;
+        function set.fftThresh(obj, ft)
+            obj.figData.fftThresh = ft;
         end
 
         % fGrid

@@ -27,7 +27,7 @@ classdef Recording < handle & dynamicprops
         startTime;    % beginning of recording, in samples
         endTime;      % end of recording, in samples
 
-        dtype;        % data type contained in file
+        dataType;        % data type contained in file
         dshape;       % shape of data (rows x columns), in samples
         fSizeBytes;   % size of the file, in bytes
         headerOffset; % number of bytes at the beginning of the file to skip
@@ -40,7 +40,7 @@ classdef Recording < handle & dynamicprops
 
     %% LIFECYCLE
     methods
-        function obj = Recording(filename, hCfg) % dtype, nChans, headerOffset, 
+        function obj = Recording(filename, hCfg) % dataType, nChans, headerOffset, 
             %RECORDING Construct an instance of this class
             % check filename exists
             obj.binpath = jrclust.utils.absPath(filename); % returns empty if not found
@@ -51,7 +51,7 @@ classdef Recording < handle & dynamicprops
             end
 
             % set object data type
-            obj.dtype = hCfg.dtype;
+            obj.dataType = hCfg.dataType;
 
             % set headerOffset
             obj.headerOffset = hCfg.headerOffset;
@@ -60,7 +60,7 @@ classdef Recording < handle & dynamicprops
             d = dir(obj.binpath);
             obj.fSizeBytes = d.bytes;
 
-            nSamples = (d.bytes - obj.headerOffset) / hCfg.nChans / jrclust.utils.typeBytes(obj.dtype);
+            nSamples = (d.bytes - obj.headerOffset) / hCfg.nChans / jrclust.utils.typeBytes(obj.dataType);
             if ceil(nSamples) ~= nSamples % must be an integer or we don't have a complete recording
                 obj.errMsg = 'incomplete recording';
                 obj.isError = 1;
@@ -99,7 +99,7 @@ classdef Recording < handle & dynamicprops
             end
 
             obj.rawData = memmapfile(obj.binpath, 'Offset', obj.headerOffset, ...
-                                     'Format', {obj.dtype, obj.dshape, 'Data'}, ...
+                                     'Format', {obj.dataType, obj.dshape, 'Data'}, ...
                                      'Writable', false);
             obj.isOpen = 1;
         end

@@ -14,7 +14,7 @@ function S = loadMetadata(metafile)
         error('could not read meta file %s: %s', metafile, ME.message);
     end
 
-    S.dtype = 'int16'; % whisper standard
+    S.dataType = 'int16'; % whisper standard
     S.adcBits = 16;
     S.probe = '';
 

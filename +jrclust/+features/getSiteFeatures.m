@@ -69,20 +69,6 @@ function [siteFeatures, spikes, n1, n2, spikeOrder] = getSiteFeatures(spikeFeatu
         warning('error in distWeight: ''%s'', using unweighted features', ME.message);
     end
 
-%     % DEPRECATED?
-%     % use sqrt of feature magnitudes, preserving signs
-%     if hCfg.getOr('fSqrt_fet', 0)
-%         siteFeatures = sign(siteFeatures) .* sqrt(abs(siteFeatures));
-%     end
-%     % use log of feature magnitudes, preserving signs
-%     if hCfg.getOr('fLog_fet', 0)
-%         siteFeatures = sign(siteFeatures) .* log(abs(siteFeatures + eps()));
-%     end
-%     % use square of features
-%     if hCfg.getOr('fSquare_fet', 0)
-%         siteFeatures = (siteFeatures).^2;
-%     end
-
     spikeOrder = jrclust.utils.rankorder(spikes, 'ascend');
 end
 

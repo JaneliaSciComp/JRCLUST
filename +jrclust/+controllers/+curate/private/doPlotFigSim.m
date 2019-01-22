@@ -12,8 +12,8 @@ function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
                         'XTick', 1:nClusters, ...
                         'YTick', 1:nClusters);
 
-        if hCfg.fImportKsort
-            hFigSim.figData.figView = 'kilosort';
+        if isa(hClust, 'jrclust.sort.KilosortClustering')
+            hFigSim.figData.figView = 'template';
         else
             hFigSim.figData.figView = 'waveform';
         end
@@ -25,16 +25,16 @@ function hFigSim = doPlotFigSim(hFigSim, hClust, hCfg)
         hFigSim.axApply('default', @ylabel, 'Cluster #');
 
         if strcmp(hFigSim.figData.figView, 'kilosort') && isprop(hClust, 'kSimScore')
-            hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.kSimScore, hCfg.corrLim);
+            hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.kSimScore, hCfg.corrRange);
             hFig.axApply('default', @title, '[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr');
         else
-            hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.simScore, hCfg.corrLim);
+            hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.simScore, hCfg.corrRange);
             hFigSim.axApply('default', @title, '[S]plit; [M]erge; [D]elete');
         end
 
         % selected cluster pair cursors
-        hFigSim.addPlot('hCursorV', @line, [1 1], [.5 nClusters + .5], 'Color', hCfg.mrColor_proj(2, :), 'LineWidth', 1.5);
-        hFigSim.addPlot('hCursorH', @line, [.5 nClusters + .5], [1 1], 'Color', hCfg.mrColor_proj(3, :), 'LineWidth', 1.5);
+        hFigSim.addPlot('hCursorV', @line, [1 1], [.5 nClusters + .5], 'Color', hCfg.colorMap(2, :), 'LineWidth', 1.5);
+        hFigSim.addPlot('hCursorH', @line, [.5 nClusters + .5], [1 1], 'Color', hCfg.colorMap(3, :), 'LineWidth', 1.5);
 
         hFigSim.axApply('default', @colorbar);
         hFigSim.addDiag('hDiag', [0, nClusters, 0.5], 'Color', [0 0 0], 'LineWidth', 1.5);

@@ -21,9 +21,9 @@ function hFigProj = doPlotFigProj(hFigProj, hClust, sitesToShow, selected, bound
         hFigProj.addAxes('default');
         hFigProj.axApply('default', @set, 'Position', [.1 .1 .85 .85], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
-        hFigProj.addPlot('background', @line, nan, nan, 'Color', hCfg.mrColor_proj(1, :));
-        hFigProj.addPlot('foreground', @line, nan, nan, 'Color', hCfg.mrColor_proj(2, :)); % placeholder
-        hFigProj.addPlot('foreground2', @line,  nan, nan, 'Color', hCfg.mrColor_proj(3, :)); % placeholder
+        hFigProj.addPlot('background', @line, nan, nan, 'Color', hCfg.colorMap(1, :));
+        hFigProj.addPlot('foreground', @line, nan, nan, 'Color', hCfg.colorMap(2, :)); % placeholder
+        hFigProj.addPlot('foreground2', @line,  nan, nan, 'Color', hCfg.colorMap(3, :)); % placeholder
         
         plotStyle = {'Marker', 'o', 'MarkerSize', 1, 'LineStyle', 'none'};
         hFigProj.plotApply('background', @set, plotStyle{:});

@@ -11,9 +11,9 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
         hFigTime.axApply('default', @set, 'Position', [.05 .2 .9 .7], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
         % first time
-        hFigTime.addPlot('background', @line, nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(1, :), 'MarkerSize', 5, 'LineStyle', 'none');
-        hFigTime.addPlot('foreground', @line, nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(2, :), 'MarkerSize', 5, 'LineStyle', 'none');
-        hFigTime.addPlot('foreground2', @line, nan, nan, 'Marker', '.', 'Color', hCfg.mrColor_proj(3, :), 'MarkerSize', 5, 'LineStyle', 'none');
+        hFigTime.addPlot('background', @line, nan, nan, 'Marker', '.', 'Color', hCfg.colorMap(1, :), 'MarkerSize', 5, 'LineStyle', 'none');
+        hFigTime.addPlot('foreground', @line, nan, nan, 'Marker', '.', 'Color', hCfg.colorMap(2, :), 'MarkerSize', 5, 'LineStyle', 'none');
+        hFigTime.addPlot('foreground2', @line, nan, nan, 'Marker', '.', 'Color', hCfg.colorMap(3, :), 'MarkerSize', 5, 'LineStyle', 'none');
         hFigTime.axApply('default', @xlabel, 'Time (s)');
         hFigTime.axApply('default', @grid, 'on');
 

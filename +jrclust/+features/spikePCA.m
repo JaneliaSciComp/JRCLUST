@@ -63,7 +63,7 @@ function [features1, features2, features3] = projectInterp(spikeWindows, prVecs,
         features3 = [];
     end
 
-    if ~hCfg.getOr('fInterp_fet', 0)
+    if ~hCfg.interpPC
         return;
     end
 
@@ -89,7 +89,7 @@ function [features1, features2, features3] = projectInterp(spikeWindows, prVecs,
             continue;
         end
 
-        mrWav_spk2 = reshape(spikeWindows(:, viSpk2,:), shape(1), []);
+        mrWav_spk2 = reshape(spikeWindows(:, viSpk2, :), shape(1), []);
         features1(:, viSpk2) = reshape(mrPv1(:, iShift)'*mrWav_spk2, [], shape(3))';
     end
 end

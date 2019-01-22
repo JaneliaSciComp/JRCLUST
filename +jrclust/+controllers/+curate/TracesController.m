@@ -160,7 +160,7 @@ classdef TracesController < handle
                         tracesFilt_ = obj.tracesFilt;
                     end
 
-                    doPlotFigPSD(obj.hFigPSD, tracesFilt_, obj.hCfg); %obj.hCfg.sampleRate/obj.hCfg.nSkip_show, 'ignoreSites', obj.hCfg.ignoreSites));
+                    doPlotFigPSD(obj.hFigPSD, tracesFilt_, obj.hCfg);
 
                 case 'r' % reset view
                     if obj.hFigTraces.figData.maxAmp ~= obj.hCfg.maxAmp

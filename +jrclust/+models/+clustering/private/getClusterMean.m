@@ -12,7 +12,7 @@ function [clusterMean, siteNeighbors, clusterMeanLow, clusterMeanHigh] = getClus
         return;
     end
 
-    if ~hClust.hCfg.fDrift_merge || isempty(hClust.spikePositions)
+    if ~hClust.hCfg.driftMerge || isempty(hClust.spikePositions)
         middlemost = spk_select_mid_(clusterSpikes, hClust.spikeTimes, hClust.hCfg.nTime_clu);
         clusterMean = mean(single(spikeWindows(:, :, middlemost)), 3);
         clusterMean = jrclust.utils.meanSubtract(clusterMean);

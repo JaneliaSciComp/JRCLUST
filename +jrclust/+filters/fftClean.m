@@ -1,6 +1,6 @@
-function [samplesOut, useGPU] = fftClean(samplesIn, fftThreshMAD, ramToGPUFactor)
+function [samplesOut, useGPU] = fftClean(samplesIn, fftThresh, ramToGPUFactor)
     %FFTCLEAN Remove high-frequency noise from samples
-    if fftThreshMAD == 0 || isempty(samplesIn)
+    if fftThresh == 0 || isempty(samplesIn)
         samplesOut = samplesIn;
         return;
     end
@@ -26,14 +26,14 @@ function [samplesOut, useGPU] = fftClean(samplesIn, fftThreshMAD, ramToGPUFactor
 
         if useGPU
             try
-                samplesOut(rows, :) = doFFTClean(samplesOut_, fftThreshMAD);
+                samplesOut(rows, :) = doFFTClean(samplesOut_, fftThresh);
             catch
                 useGPU = 0;
             end
         end
 
         if ~useGPU
-            samplesOut(rows, :) = doFFTClean(jrclust.utils.tryGather(samplesOut_), fftThreshMAD);
+            samplesOut(rows, :) = doFFTClean(jrclust.utils.tryGather(samplesOut_), fftThresh);
         end
     end % for
 

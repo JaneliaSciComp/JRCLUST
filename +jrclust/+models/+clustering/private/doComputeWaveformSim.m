@@ -18,7 +18,7 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
         meanWfGlobal_ = hClust.meanWfGlobal;
     end
 
-    if hClust.hCfg.fDrift_merge && fWaveform_raw % only works on raw
+    if hClust.hCfg.driftMerge && fWaveform_raw % only works on raw
         meanWfRawLow_ = trimRawWaveforms(hClust.meanWfRawLow, hClust.hCfg);
         meanWfRawHigh_ = trimRawWaveforms(hClust.meanWfRawHigh, hClust.hCfg);
         meanWfSet = {meanWfGlobal_, meanWfRawLow_, meanWfRawHigh_};
@@ -57,18 +57,18 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
                       'cviShift2', {cviShift2}, ...
                       'fMode_cor', fMode_cor);
     if isempty(updateMe)
-        fParfor = 1;
+        useParfor = 1;
         scoreData.updateMe = true(hClust.nClusters, 1);
         scoreData.simScoreOld = [];
     else
-        fParfor = 0;
+        useParfor = 0;
         scoreData.updateMe = false(hClust.nClusters, 1);
         scoreData.updateMe(updateMe) = 1;
         scoreData.simScoreOld = hClust.simScore;
         scoreData.updateMe((1:hClust.nClusters) > size(scoreData.simScoreOld, 1)) = 1;
     end
                     
-    if fParfor
+    if useParfor
         % avoid sending the entire hCfg object out to workers
         cfgSub = struct('siteNeighbors', hClust.hCfg.siteNeighbors, ...
                         'siteLoc', hClust.hCfg.siteLoc, ...
@@ -84,11 +84,11 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
             end
         catch ME
             warning(ME.identifier, 'computeWaveformSim: parfor failed: %s', ME.messsage);
-            fParfor = 0;
+            useParfor = 0;
         end
     end
 
-    if ~fParfor
+    if ~useParfor
         for iCluster = 1:hClust.nClusters
             pwCor = clusterWaveformSim(meanWfSet, clusterSites_, hClust.hCfg, scoreData, iCluster);
 

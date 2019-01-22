@@ -39,9 +39,9 @@ function plotPosUnit(cData, hFigPos, hCfg, fSecondary, maxAmp)
         return;
     end
     if fSecondary
-        cmapMean = hCfg.mrColor_proj(3, :); % red
+        cmapMean = hCfg.colorMap(3, :); % red
     else
-        cmapMean = hCfg.mrColor_proj(2, :); % black
+        cmapMean = hCfg.colorMap(2, :); % black
     end
 
     % plot individual unit

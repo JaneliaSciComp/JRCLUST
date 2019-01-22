@@ -28,7 +28,7 @@ Determining :math:`d`
 
 The best cutoff distance in feature space is generally not known *a priori*.
 In order to determine a good cutoff distance, we instead estimate a
-:ref:`percentile you specify <dc_percent>` (the 2nd percentile by default),
+:ref:`percentile you specify <distCut>` (the 2nd percentile by default),
 call it :math:`d_i`, of the pairwise distances between spike features on each
 site :math:`i`.
 We then take the median of the :math:`d_i` as our global cutoff distance.

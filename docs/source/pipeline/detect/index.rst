@@ -6,8 +6,8 @@ Spike detection
 Denoising
 ---------
 
-JRCLUST constructs an adaptive notch filter which cleans narrow-band noise peaks exceeding a threshold you supply :ref:`threshold you supply <fftThreshMAD>`.
-(Set this parameter (``fftThreshMAD``) to 0 to skip this step.)
+JRCLUST constructs an adaptive notch filter which cleans narrow-band noise peaks exceeding a threshold you supply :ref:`threshold you supply <fftThresh>`.
+(Set this parameter (``fftThresh``) to 0 to skip this step.)
 
 The time-domain signal is converted to the frequency domain via fast Fourier transform (FFT).
 After this, the average power across channels is computed.
@@ -27,7 +27,7 @@ Filtering
 
 This step filters the raw samples depending on the :ref:`filter type <filterType>` you specify.
 Additionally, JRCLUST computes the common average reference and subtracts it from the filtered samples.
-(The meaning of "average" in "common average reference" is controlled by the :ref:`CAR mode <carMode>` you specify.)
+(The meaning of "average" in "common average reference" is controlled by the :ref:`CAR mode <CARMode>` you specify.)
 
 .. _compute-threshold:
 
@@ -96,8 +96,8 @@ Extract spatiotemporal windows around spiking events
 
 For each spiking event, JRCLUST will save raw and filtered samples as :math:`n_{\text{sites}} \times n_{\text{samples}}` matrices.
 :math:`n_{\text{sites}}` is ``nSitesEvt`` (determined from :ref:`nSiteDir`),
-and :math:`n_{\text{samples}} depends on ``evtWindow`` and ``evtWindowRaw`` for filtered and raw samples, respectively.
-Each of these matrices is stored in an :math:`n_{\text{sites}} \times n_{\text{samples}} \times c_{\text{spikes}}`
+and :math:`n_{\text{samples}}` depends on ``evtWindow`` and ``evtWindowRaw`` for filtered and raw samples, respectively.
+Each of these matrices is stored in an :math:`n_{\text{sites}} \times n_{\text{samples}} \times n_{\text{spikes}}`
 array and are used for feature extraction, automatically merging clusters, and display in the curation GUI.
 
 At this point, :ref:`if you specify <fRealign_spk>`, JRCLUST may either subtract a local common average reference from the windows

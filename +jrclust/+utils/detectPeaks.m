@@ -62,7 +62,7 @@ function [spikeTimes, spikeAmps, spikeSites] = detectPeaks(samplesIn, siteThresh
     spikeAmps = jrclust.utils.tryGather(spikeAmps);
 
     % Group all sites in the same shank
-    if hCfg.fGroup_shank
+    if hCfg.groupShank
         spikeSites = groupByShank(spikeSites, hCfg); % change the site location to the shank center
     end
 end

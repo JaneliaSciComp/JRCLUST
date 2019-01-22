@@ -13,25 +13,14 @@ classdef Config < dynamicprops
 
     %% OLD-STYLE PARAMS, publicly settable (will be deprecated after a grace period)
     properties (SetObservable, Dependent, Hidden, Transient)
-        % cvrDepth_drift;           % doesn't appear to be used (was {})
-        % maxSite_detect;           % doesn't appear to be used (was 1.5)
-        % maxSite_dip;              % doesn't appear to be used (was [])
-        % maxSite_fet;              % doesn't appear to be used (was [])
-        % maxSite_merge;            % doesn't appear to be used (was [])
-        % maxSite_pix;              % doesn't appear to be used (was 4.5)
-        % maxSite_show;             % appears to be synonymous with nSiteDir/maxSite
-        % maxSite_sort;             % doesn't appear to be used (was [])
-        % rejectSpk_mean_thresh;    % appears to be synonymous with blankThresh/blank_thresh
         autoMergeCriterion;         % => autoMergeBy
         blank_thresh;               % => blankThresh
         csFile_merge;               % => rawRecordings
         delta1_cut;                 % => log10DeltaCut
-        fEllip;                     % => useElliptic
         fft_thresh;                 % => fftThreshMad
         fGpu;                       % => useGPU
         filter_sec_rate;            % => firingRatePeriodSec
         filter_shape_rate;          % => firingRateFilterShape
-        fImportKilosort;            % => fImportKsort
         fRepeat_clu;                % => repeatLower
         fVerbose;                   % => verbose
         fWav_raw_show;              % => showRaw
@@ -41,7 +30,7 @@ classdef Config < dynamicprops
         MAX_BYTES_LOAD;             % => maxBytesLoad
         MAX_LOAD_SEC;               % => maxSecLoad
         maxCluPerSite;              % => maxClustersSite
-        maxDist_site_um             % => evtMergeRad
+        maxDist_site_um;            % => evtMergeRad
         maxDist_site_spk_um;        % => evtDetectRad
         maxSite;                    % => nSiteDir
         min_count;                  % => minClusterSize
@@ -57,12 +46,11 @@ classdef Config < dynamicprops
         spkLim;                     % => evtWindowSamp
         spkLim_ms;                  % => evtWindow
         spkLim_raw;                 % => evtWindowRawSamp
-        spkLim_raw_factor;          % => evtWindowRawFactor
         spkLim_raw_ms;              % => evtWindowRaw
         spkRefrac;                  % => refracIntSamp
         spkRefrac_ms;               % => refracIntms
-        spkThresh;                  % => evtManualThresh
-        spkThresh_uV;               % => evtManualThreshuV
+        spkThresh;                  % => evtManualThreshSamp
+        spkThresh_uV;               % => evtManualThresh
         sRateHz;                    % => sampleRate
         sRateHz_aux;                % => auxSampleRate
         sRateHz_lfp;                % => lfpSampleRate
@@ -72,12 +60,11 @@ classdef Config < dynamicprops
         tlim;                       % => dispTimeLimits
         tlim_load;                  % => loadTimeLimits
         uV_per_bit;                 % => bitScaling
-        vcCommonRef;                % => carMode
-        vcDataType;                 % => dtype
+        vcCommonRef;                % => CARMode
+        vcDataType;                 % => dataType
         vcDetrend_postclu;          % => rlDetrendMode
         vcFet;                      % => clusterFeature
         vcFet_show;                 % => dispFeature
-        vcFile;                     % => singleRaw
         vcFile_aux;                 % => auxFile
         vcFile_gt;                  % => gtFile
         vcFile_prm;                 % => configFile
@@ -101,14 +88,16 @@ classdef Config < dynamicprops
 
     %% NEW-STYLE PARAMS, publicly settable
     properties (SetObservable)
-        batchMode = 0;          % suppress *all* messages if true
+        batchMode = 0;              % suppress *all* messages if true
+        verbose = 1;                % be chatty while processing
 
         % computation params
+        useParfor = 1;                % use parfor where appropriate
         gpuLoadFactor = 5;          % GPU memory usage factor (4x means 1/4 of GPU memory can be loaded)
+        nThreads = 128;             % number of gpu threads
         randomSeed = 0;             % random seed
         ramToGPUFactor = 8;         % ratio: RAM / (GPU memory) (increase this number if GPU memory error)
-        useGPU = 1;              % use GPU in computation if true
-        verbose = 1;             % be chatty while processing
+        useGPU = 1;                 % use GPU in computation if true
 
         % file location params
         outputDir = '';             % directory in which to place output files
@@ -116,7 +105,7 @@ classdef Config < dynamicprops
         % recording params
         bitScaling = 0.30518;       % bit scaling factor (uV/bit)
         configFile;                 % parameter file
-        dtype = 'int16';            % raw data binary format
+        dataType = 'int16';            % raw data binary format
         gainBoost = 1;              % multiply the raw recording by this gain to boost uV/bit
         gtFile = '';                % ground truth file (default: SESSION_NAME_gt.mat) (TODO: specify format)
         headerOffset = 0;           % file header offset, in bytes
@@ -132,51 +121,53 @@ classdef Config < dynamicprops
 
         % preprocessing params
         useElliptic = 1;            % use elliptic filter if 1 (and only if filterType='bandpass')
-        fftThreshMAD = 0;           % automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
+        fftThresh = 0;              % automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
         filtOrder = 3;              % bandpass filter order
         filterType = 'ndiff';       % filter to use {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
         freqLim = [300 3000];       % frequency cut-off limit for filterType='bandpass' (ignored otherwise)
         freqLimNotch = [];
         freqLimStop = [];
+        fTranspose_bin = 1;
         loadTimeLimits = [];        % time range of recording to load, in s (use whole range if empty)
         maxBytesLoad = [];          % default memory loading block size (bytes)
         maxSecLoad = [];            % maximum loading duration (seconds) (overrides 'maxBytesLoad')
-        ndist_filt = 5;             % undocumented
         nSamplesPad = 100;          % number of samples to overlap between multiple loading (filter edge safe)
         userFiltKernel = [];        % custom filter kernel (optional unless filterType='user')
-        carMode = 'mean';           % common average referencing mode (one of 'none', 'mean', 'median', or 'whiten')
+        CARMode = 'mean';           % common average referencing mode (one of 'none', 'mean', 'median')
 
         % spike detection params
+        blankPeriod = 5;        % (miliseconds) Duration of blanking when the common mean exceeds a threhold (blank_thresh)
         blankThresh = [];           % reject spikes exceeding the channel mean after filtering (MAD unit), ignored if [] or 0
         evtDetectRad = 75;          % radius for extracting waveforms, in microns (used if nSiteDir and nSitesExcl are empty)
-        evtManualThreshuV = [];     % manual spike detection threshold, in microvolts
+        evtManualThresh = [];     % manual spike detection threshold, in microvolts
         evtMergeRad = 50;           % radius of spike event merging, in microns
         evtWindow = [-0.25 0.75];   % interval around event to extract filtered spike waveforms, in ms
-        evtWindowRaw;               % interval around event to extract raw spike waveforms, in ms
-        evtWindowRawFactor = 2;     % ratio of raw samples to filtered samples to extract if evtWindowRaw is not set
-        fGroup_shank = 0;           % group all sites in the same shank if true
+        evtWindowRaw = [-0.5 1.5];  % interval around event to extract raw spike waveforms, in ms
+        groupShank = 0;           % group all sites in the same shank if true
         ignoreSites = [];           % sites to manually ignore in the sorting
         nDiff_filt = 2;             % Differentiation filter for filterType='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
         nneigh_min_detect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
         nSiteDir;                   % number of neighboring sites to group in each direction (TODO: deprecate this)
         nSitesExcl;                 % number of sites to exclude from the spike waveform group
+        qqFactor = 5;
         refracIntms = 0.25;         % spike refractory interval, in ms
         siteCorrThresh = 0;         % reject bad sites based on max correlation with neighboring sites, using raw waveforms; ignored if 0
         spkThresh_max_uV = [];      % maximum absolute amp. allowed
         threshFile = '';            % path to .mat file storing spike detection thresholds (created by 'preview' GUI)
 
         % feature extraction params
-        clusterFeature = 'pca';     % feature to use in clustering
-        fInterp_fet = 1;            % interpolate waveforms for feature projection to find optimal delay (2x interp) if true
-        fSpatialMask_clu = 0;       % apply spatial mask calculated from the distances between sites to the peak site (half-scale: evtDetectRad)
-        min_sites_mask = 5;         % minimum number of sites to have to apply spatial mask
-        nFet_use = 2;               % undocumented
-        time_feature_factor;        % undocumented
+        clusterFeature = 'pca';             % feature to use in clustering
+        interpPC = 1;                    % interpolate waveforms for feature projection to find optimal delay (2x interp) if true
+        fSpatialMask_clu = 0;               % apply spatial mask calculated from the distances between sites to the peak site (half-scale: evtDetectRad)
+        min_sites_mask = 5;                 % minimum number of sites to have to apply spatial mask
+        nFet_use = 2;                       % undocumented
+        nPcPerChan = 1;
+        time_feature_factor;                % undocumented
 
         % clustering params
         autoMergeBy = 'pearson';            % metric to use when automerging clusters
-        dc_percent = 2;                     % percentile at which to cut off distance in rho computation
-        fDrift_merge = 1;                   % compute multiple waveforms at three drift locations based on the spike position if true
+        distCut = 2;                        % percentile at which to cut off distance in rho computation
+        driftMerge = 1;                   % compute multiple waveforms at three drift locations based on the spike position if true
         log10DeltaCut = 0.6;                % the base-10 log of the delta cutoff value
         log10RhoCut = -2.5;                 % the base-10 log of the rho cutoff value
         maxClustersSite = 20;               % maximum number of clusters per site if local detrending is used
@@ -192,17 +183,24 @@ classdef Config < dynamicprops
         useGlobalDistCut = 1;               % use a global distance cutoff for all sites if true; otherwise use different cutoff values for each site
 
         % display params
+        corrRange = [0.9 1];
         dispFeature = 'vpp';                % feature to display in time/projection views
         dispFilter = '';                    %
         dispTimeLimits = [0 0.2];           % time range to display (in seconds)
-        fText = 1;                       %
+        figList;                            % figure handles to display in manual view
+        showSpikeCount = 1;                          %
+        maxAmp = 250;
+        colorMap = [213 219 235; ...
+                    0   130 196; ...
+                    240 119 22]/256;
         nShow = 200;                        % maximum number of traces to show [D?# spikes to show]
         nShow_proj = 500;                   % maximum number of features to show in projection
         nSitesFigProj = 5;                  % number of sites to display in the feature projection view
+        nSkip_show = 1;
         nTime_traces = 1;                   % number of time segments to display. Set to 1 to show one continuous time segment
         nSpk_show = 30;                     % show spike waveforms for manual clustering
         pcPair = [1 2];                     % PC projection to show (1 vs 2; 1 vs 3; 2 vs 3), can be toggled
-        showRaw = 0;                    % show raw waveforms in main view if true
+        showRaw = 0;                        % show raw waveforms in main view if true
         time_tick_show = [];                %
         tLimFigProj = [];                   % time range to display in feature view, in seconds
         um_per_pix = 20;                    %
@@ -226,123 +224,9 @@ classdef Config < dynamicprops
 
         % trial parameters
         trialFile = '';                     % .mat or .csv file containing timestamp in seconds unit. use any variable name.
-        thresh_trial = [];                  % Threshold to detect trial event timing from the TTL pulse. If empty, half between min and max is used.
-        tRefrac_trial = .001;               % Trial timestamp refractory period (sec), disable duplicate events
         tlim_psth = [-1 5];                 % Time range to display PSTH (in seconds)
         tbin_psth = .01;                    % Time bin for the PSTH histogram (in seconds)
         xtick_psth = .2;                    % PSTH time tick mark spacing
-        fAverageTrial_psth = 1;             % Plot PSTH for averaged trial if set to 1, otherwise plot individual trials (opens multiple tabs)
-        nSmooth_ms_psth = 50;               % PSTH smoothing time window (in milliseconds)
-        rateLim_psth = [];                  % range range in Hz
-        dinput_imec_trial = 1;              % IMEC digital input channel number (1-16) to generate trial file (vcFile_trial) using 'maketrial-imec' command.
-
-        % to get to, eventually
-        LineStyle = '';
-        MAX_LOG = 5;
-        S_imec3 = [];
-        blank_period_ms = 5;
-        corrLim = [0.9 1];
-        cviShank = [];
-        dc_factor = 1;
-        dc_frac = [];
-        fAddCommonRef = 0;
-        fCacheRam = 1;
-        fCheckSites = 0;
-        fDetectBipolar = 0;
-        fDiscard_count = 1;
-        fInverse_file = 0;
-        fImportKsort = 0;
-        fLoad_lfp = 0;
-        fMeanSite = 1;
-        fMeanSiteRef = 0;
-        fMeanSite_drift = 0;
-        fMinNorm_wav = 0;
-        fNormRhoDelta = 1;
-        fParfor = 1;
-        fPcaDetect = 0;
-        fProcessEven = 0;
-        fProcessOdd = 0;
-        fProcessReverseOrder = 0;
-        fProj_sort = 0;
-        fRamCache = 1;
-        fRejectSpk_vpp = 0;
-        fRms_detect = 0;
-        fRun = 1;
-        fSaveEvt = 1;
-        fSavePlot_RD = 1;
-        fSaveRawSpk = 0;
-        fSaveSpk = 1;
-        fShowAllSites = 0;
-        fSingleColumn_track = 1;
-        fSmooth_track = 1;
-        fSpike_show = 1;
-        fTranspose_bin = 1;
-        fUseCache_track = 0;
-        fUseLfp_track = 1;
-        fWhiten_traces = 0;
-        flim_vid = [];
-        freqLimNotch_lfp = [];
-        freqLim_corr = [15 150];
-        freqLim_excl_track = [58 62];
-        freqLim_lfp = [];
-        freqLim_track = [15 150];
-        iChan_vid = [];
-        iClu_show = [];
-        iGpu = 1;
-        load_fraction_track = [];
-        maxAmp = 250;
-        maxAmp_lfp = 1000;
-        maxDist_site_merge_um = 35;
-        maxLfpSdZ = 4.5;
-        maxSite_track = [2 3 4 5 6 7 8];
-        max_shift_track = [];
-        mrColor_proj = [213 219 235; 0 130 196; 240 119 22]/256;
-        nBytes_file = [];
-        nMinAmp_ms = 0;
-        nPcPerChan = 1;
-        nPc_dip = 3;
-        nSites_excl_ref = 6;
-        nSkip_show = 1;
-        nSkip_whiten = 10;
-        nT_drift = [];
-        nThreads = 128;
-        nw_lcm_track = 1;
-        offset_sec_preview = 0;
-        pix_per_sec_track = [];
-        qqFactor = 5;
-        qqSample = 4;
-        refrac_factor = 2;
-        rms_filt_ms = 0;
-        slopeLim_ms = [0.05 0.35];
-        spkLim_ms_fet = [-0.25 0.75];
-        tBin_track = 9;
-        tbin_drift = [];
-        template_file = '';
-        thresh_automerge_pca = [];
-        thresh_corr_track = [];
-        thresh_merge_clu = 0;
-        thresh_sd_ref = 5;
-        thresh_split_clu = 0;
-        tlim_clu = [];
-        tlim_lfp = [0 5];
-        tlim_vid = [];
-        vcCluDist = 'eucldist';
-        vcCluWavMode = 'mean';
-        vcDate_file = '';
-        vcDc_clu = 'distr';
-        vcFile_bonsai = '';
-        vcFile_lfp = '';
-        vcFile_vid = '';
-        vcFilter_detect = '';
-        vcMode_track = 'mt_cpsd2_mr';
-        vcSpatialFilter = 'none';
-        vcSpkRef = 'nmean';
-        viChan_bin = [];
-        viChan_show = [];
-        viDepth_excl_track = [];
-        viDepth_track = [];
-        viSite_bad_track = [];
-        ybin_drift = 2;
     end
 
     %% NEW-STYLE PARAMS, not publicly settable
@@ -353,19 +237,13 @@ classdef Config < dynamicprops
     %% COMPUTED PARAMS
     properties (SetObservable, Dependent)
         bytesPerSample;             % byte count for each discrete sample
-        evtManualThresh;            % evtManualThreshuV / bitScaling
+        evtManualThreshSamp;        % evtManualThresh / bitScaling
         evtWindowRawSamp;           % interval around event to extract raw spike waveforms, in samples
         evtWindowSamp;              % interval around event to extract filtered spike waveforms, in samples
         nSites;                     % numel(siteMap)
         nSitesEvt;                  % 2*nSiteDir + 1 - nSitesExcl
         refracIntSamp;              % spike refractory interval, in samples
         sessionName;                % name of prm file, without path or extensions
-    end
-
-    % here to ease the transition (use rawRecordings to access both)
-    properties (Access=private, Hidden, SetObservable)
-        multiRaw;                   % list of recording files to merge (empty if single file is used)
-        singleRaw;                  % raw recording file path (empty if multiple files are sorted together)
     end
 
     %% LIFECYCLE
@@ -448,8 +326,8 @@ classdef Config < dynamicprops
 
             % loop through all user-defined parameters
             for i = 1:numel(fns)
-                % ignore configFile
-                if strcmp(fns{i}, 'configFile') || strcmp(fns{i}, 'vcFile_prm')
+                % ignore configFile/template_file
+                if ismember(fns{i}, {'configFile', 'vcFile_prm', 'template_file'})
                     continue;
                 elseif strcmp(fns{i}, 'vcFile') % old single recording
                     if ~isempty(s.vcFile)
@@ -505,9 +383,8 @@ classdef Config < dynamicprops
                 obj.warning(wmsg, 'Unset properties');
             end
 
-            % check that exactly one of singleRaw and multiRaw is nonempty
             if isempty(obj.rawRecordings)
-                obj.error('Specify rawRecordings (vcFile or csFile_merge)', 'Bad recording files');
+                obj.error('Specify rawRecordings', 'No recording files');
                 return;
             end
 
@@ -613,12 +490,6 @@ classdef Config < dynamicprops
                     obj.gtFile = jrclust.utils.subsExt(obj.configFile, '_gt.mat');
                 catch % does not exist, leave empty
                 end
-            end
-
-            % compute raw window limits if not given
-            if isempty(obj.evtWindowRaw)
-                % set in units of samples (will set ms units automatically)
-                obj.evtWindowRawSamp = obj.evtWindowRawFactor * obj.evtWindowSamp;
             end
 
             obj.siteNeighbors = jrclust.utils.findSiteNeighbors(obj.siteLoc, 2*obj.nSiteDir + 1, obj.ignoreSites, obj.shankMap);
@@ -968,23 +839,23 @@ classdef Config < dynamicprops
 
         % bytesPerSample
         function bp = get.bytesPerSample(obj)
-            bp = jrclust.utils.typeBytes(obj.dtype);
+            bp = jrclust.utils.typeBytes(obj.dataType);
         end
 
-        % carMode/vcCommonRef
-        function set.carMode(obj, cm)
+        % CARMode/vcCommonRef
+        function set.CARMode(obj, cm)
             legalTypes = {'mean', 'median', 'none'};
             failMsg = sprintf('legal carModes are %s', strjoin(legalTypes, ', '));
             assert(ismember(cm, legalTypes), failMsg);
-            obj.carMode = cm;
+            obj.CARMode = cm;
         end
         function cm = get.vcCommonRef(obj)
             obj.logOldP('vcCommonRef');
-            cm = obj.carMode;
+            cm = obj.CARMode;
         end
         function set.vcCommonRef(obj, cm)
             obj.logOldP('vcCommonRef');
-            obj.carMode = cm;
+            obj.CARMode = cm;
         end
 
         % clusterFeature/vcFet
@@ -1087,20 +958,20 @@ classdef Config < dynamicprops
             obj.dispTimeLimits = tl;
         end
 
-        % dtype/vcDataType
-        function set.dtype(obj, dt)
+        % dataType/vcDataType
+        function set.dataType(obj, dt)
             legalTypes = {'int16', 'uint16', 'int32', 'uint32', 'single', 'double'};
             failMsg = sprintf('legal dtypes are: %s', strjoin(legalTypes, ', '));
             assert(ismember(dt, legalTypes), failMsg);
-            obj.dtype = dt;
+            obj.dataType = dt;
         end
         function dt = get.vcDataType(obj)
             obj.logOldP('vcDataType');
-            dt = obj.dtype;
+            dt = obj.dataType;
         end
         function set.vcDataType(obj, dt)
             obj.logOldP('vcDataType');
-            obj.dtype = dt;
+            obj.dataType = dt;
         end
 
         % evtDetectRad/maxDist_site_spk_um
@@ -1117,27 +988,27 @@ classdef Config < dynamicprops
             obj.evtDetectRad = ed;
         end
 
-        % evtManualThresh/spkThresh
-        function mt = get.evtManualThresh(obj)
-            mt = obj.evtManualThreshuV / obj.bitScaling;
+        % evtManualThreshSamp/spkThresh
+        function mt = get.evtManualThreshSamp(obj)
+            mt = obj.evtManualThresh / obj.bitScaling;
         end
         function mt = get.spkThresh(obj)
             obj.logOldP('spkThresh');
-            mt = obj.evtManualThresh;
+            mt = obj.evtManualThreshSamp;
         end
 
-        % evtManualThreshuV/spkThresh_uV
-        function set.evtManualThreshuV(obj, mt)
+        % evtManualThresh/spkThresh_uV
+        function set.evtManualThresh(obj, mt)
             assert(isempty(mt) || (jrclust.utils.isscalarnum(mt) && mt ~= 0)); % TODO: positive or negative?
-            obj.evtManualThreshuV = mt;
+            obj.evtManualThresh = mt;
         end
         function mt = get.spkThresh_uV(obj)
             obj.logOldP('spkThresh_uV');
-            mt = obj.evtManualThreshuV;
+            mt = obj.evtManualThresh;
         end
         function set.spkThresh_uV(obj, mt)
             obj.logOldP('spkThresh_uV');
-            obj.evtManualThreshuV = mt;
+            obj.evtManualThresh = mt;
         end
 
         % evtMergeRad/maxDist_site_um
@@ -1166,20 +1037,6 @@ classdef Config < dynamicprops
         function set.spkLim_ms(obj, ew)
             obj.logOldP('spkLim_ms');
             obj.evtWindow = ew;
-        end
-
-        % evtWindowRawFactor/spkLim_raw_factor
-        function set.evtWindowRawFactor(obj, ef)
-            assert(jrclust.utils.isscalarnum(ef) && ef > 0, 'evtWindowRawFactor must be a positive scalar');
-            obj.evtWindowRawFactor = ef;
-        end
-        function ef = get.spkLim_raw_factor(obj)
-            obj.logOldP('spkLim_raw_factor');
-            ef = obj.evtWindowRawFactor;
-        end
-        function set.spkLim_raw_factor(obj, ef)
-            obj.logOldP('spkLim_raw_factor');
-            obj.evtWindowRawFactor = ef;
         end
 
         % evtWindowRaw/spkLim_raw_ms
@@ -1228,18 +1085,18 @@ classdef Config < dynamicprops
             obj.evtWindowSamp = ew;
         end
 
-        % fftThreshMAD/fft_thresh
-        function set.fftThreshMAD(obj, ft)
-            assert(jrclust.utils.isscalarnum(ft) && ft >= 0, 'fftThreshMAD must be a nonnegative scalar');
-            obj.fftThreshMAD = ft;
+        % fftThresh/fft_thresh
+        function set.fftThresh(obj, ft)
+            assert(jrclust.utils.isscalarnum(ft) && ft >= 0, 'fftThresh must be a nonnegative scalar');
+            obj.fftThresh = ft;
         end
         function ft = get.fft_thresh(obj)
             obj.logOldP('fft_thresh');
-            ft = obj.fftThreshMAD;
+            ft = obj.fftThresh;
         end
         function set.fft_thresh(obj, ft)
             obj.logOldP('fft_thresh');
-            obj.fftThreshMAD = ft;
+            obj.fftThresh = ft;
         end
 
         % filtOrder
@@ -1261,19 +1118,6 @@ classdef Config < dynamicprops
         function set.vcFilter(obj, ft)
             obj.logOldP('vcFilter');
             obj.filterType = ft;
-        end
-
-        % fImportKsort/fImportKilosort
-        function set.fImportKsort(obj, fi)
-            obj.fImportKsort = 1 && fi;
-        end
-        function fi = get.fImportKilosort(obj)
-            obj.logOldP('fImportKilosort');
-            fi = obj.fImportKsort;
-        end
-        function set.fImportKilosort(obj, fi)
-            obj.logOldP('fImportKilosort');
-            obj.fImportKilosort = fi;
         end
 
         % firingRateFilterShape/filter_shape_rate
@@ -1890,21 +1734,6 @@ classdef Config < dynamicprops
         function set.vcFile_trial(obj, tf)
             obj.logOldP('vcFile_trial');
             obj.trialFile = tf;
-        end
-
-        % useElliptic/fEllip
-        function set.useElliptic(obj, ue)
-            assert(isscalar(ue));
-            ue = logical(ue);
-            obj.useElliptic = ue;
-        end
-        function ue = get.fEllip(obj)
-            obj.logOldP('fEllip');
-            ue = obj.useElliptic;
-        end
-        function set.fEllip(obj, ue)
-            obj.logOldP('fEllip');
-            obj.useElliptic = ue;
         end
 
         % useGPU/fGpu

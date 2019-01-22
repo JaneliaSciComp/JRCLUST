@@ -1,0 +1,944 @@
+{
+    "common parameters": {
+        "bitScaling": {
+            "comment": "ADC bit scaling factor",
+            "description": "Conversion factor for ADC bit values to μV",
+            "default_value": 0.30518,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": "spike detection;display"
+        },
+        "clusterFeature": {
+            "comment": "The feature to extract from your spike waveforms in order to cluster them",
+            "description": "",
+            "default_value": "pca",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "cov",
+                    "energy",
+                    "pca",
+                    "vmin",
+                    "vminmax",
+                    "vpp"
+                ]
+            },
+            "section": "feature extraction;clustering"
+        },
+        "dataType": {
+            "comment": "Format of raw recordings",
+            "description": "",
+            "default_value": "int16",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "int16",
+                    "uint16",
+                    "int32",
+                    "uint32",
+                    "single",
+                    "double"
+                ]
+            },
+            "section": "spike detection"
+        }
+    },
+    "advanced parameters": {
+        "autoMergeBy": {
+            "comment": "Metric to use for automerging clusters",
+            "description": "",
+            "default_value": "pearson",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "pearson",
+                    "dist"
+                ]
+            },
+            "section": "clustering;curation"
+        },
+        "auxChan": {
+            "comment": "Auxiliary channel index",
+            "description": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": "curation"
+        },
+        "auxFile": {
+            "comment": "Path to file containing auxiliary channel",
+            "description": "",
+            "default_value": "",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"]
+            },
+            "section": "curation"
+        },
+        "auxLabel": {
+            "comment": "Label for auxiliary channel data",
+            "description": "",
+            "default_value": "Aux channel",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"]
+            },
+            "section": "curation"
+        },
+        "auxSampleRate": {
+            "comment": "Sample rate for auxiliary file",
+            "description": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": "curation"
+        },
+        "auxScale": {
+            "comment": "Scale factor for aux data",
+            "description": "",
+            "default_value": 1,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": "curation"
+        },
+        "batchMode": {
+            "comment": "Suppress all output if true",
+            "description": "",
+            "default_value": false,
+            "validation": {
+                "classes": ["logical"],
+                "attributes": ["scalar"]
+            },
+            "section": "logging"
+        },
+        "blankThresh": {
+            "comment": "Threshold (in MADs) above which to reject samples exceeding channel median after filtering",
+            "description": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": "spike detection"
+        },
+        "blankPeriod": {
+            "comment": "Duration of blanking period (in ms) when the common mean exceeds blankThresh",
+            "description": "",
+            "default_value": 5,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": "spike detection"
+        },
+        "CARMode": {
+            "comment": "The meaning of 'average' in 'common average reference'",
+            "description": "",
+            "default_value": "mean",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "mean",
+                    "median",
+                    "none"
+                ]
+            },
+            "section": "spike detection"
+        },
+        "colorMap": {
+            "comment": "RGB color map for background, primary selected, and secondary selected spikes",
+            "description": "The first three values are the R values, the next three are the G values, and the last three are the B values.",
+            "default_value": [0.83203, 0, 0.9375, 0.85547, 0.50781, 0.46484, 0.91797, 0.76563, 0.085938],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "nonnegative",
+                    "numel", 9
+                ],
+                "postvalidate": "@(x) reshape(x, 3, 3)"
+            },
+            "section": "display"
+        },
+        "corrRange": {
+            "comment": "Correlation score range to distinguish by color map",
+            "description": "",
+            "default_value": [0.9, 1],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "nonnegative",
+                    "numel", 2,
+                    "<=", 1
+                ]
+            },
+            "section": "display"
+        },
+        "dispFeature": {
+            "comment": "Feature to display in the feature projection plot",
+            "description": "",
+            "default_value": "vpp",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "cov",
+                    "pca",
+                    "ppca",
+                    "vpp"
+                ]
+            },
+            "section": "display"
+        },
+        "dispFilter": {
+            "comment": "Filter to apply in traces plot",
+            "description": "",
+            "default_value": "none",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "ndiff",
+                    "sgdiff",
+                    "bandpass",
+                    "fir1",
+                    "user",
+                    "none"
+                ]
+            },
+            "section": "display"
+        },
+        "dispTimeLimits": {
+            "comment": "Time range (in ms) to display in traces plot",
+            "description": "",
+            "default_value": [0, 0.2],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "nonnegative"
+                ]
+            },
+            "section": "display"
+        },
+        "distCut": {
+            "comment": "Percentile of pairwise distances between spikes on a site to use as a cutoff distance",
+            "description": "",
+            "default_value": 2,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "nonnegative",
+                    "<=", 100
+                ]
+            },
+            "section": "clustering"
+        },
+        "driftMerge": {
+            "comment": "Compute multiple waveforms at three drift locations based on the spike position if true",
+            "description": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical"],
+                "attributes": ["scalar"]
+            },
+            "section": "clustering;curation"
+        },
+        "evtDetectRad": {
+            "comment": "Maximum distance (in μm) for extracting spike waveforms",
+            "description": "",
+            "default_value": 75,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": "spike detection;feature extraction"
+        },
+        "evtManualThresh": {
+            "comment": "Manually-set spike detection threshold (in μV)",
+            "description": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real"
+                ]
+            },
+            "section": "spike detection"
+        },
+        "evtMergeRad": {
+            "comment": "Maximum distance (in μm) for merging spike waveforms",
+            "description": "",
+            "default_value": 50,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": "spike detection"
+        },
+        "evtWindow": {
+            "comment": "Time range (in ms) of filtered spike waveforms, centered at the peak",
+            "description": "",
+            "default_value": [-0.25, 0.75],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "increasing",
+                    "numel", 2
+                ],
+                "postassert": "@(x) diff(x) >= x(2)"
+            },
+            "section": "spike detection;feature extraction;display"
+        },
+        "evtWindowRaw": {
+            "comment": "Time range (in ms) of raw spike waveforms, centered at the peak",
+            "description": "",
+            "default_value": [-0.5, 1.5],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "increasing",
+                    "numel", 2
+                ],
+                "postassert": "@(x) diff(x) >= x(2)"
+            },
+            "section": "spike detection;feature extraction;display"
+        },
+        "fftThresh": {
+            "comment": "Threshold (in MADs of power-frequency product) above which to remove frequency outliers",
+            "description": "",
+            "default_value": 0,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "scalar",
+                    "nonnegative"
+                ]
+            },
+            "section": "spike detection"
+        },
+        "figList": {
+            "comment": "List of tags of figures to display in feature view",
+            "description": "",
+            "default_value": [
+                "FigCorr",
+                "FigHist",
+                "FigISI",
+                "FigMap",
+                "FigPos",
+                "FigProj",
+                "FigRD",
+                "FigSim",
+                "FigTime",
+                "FigWav"
+            ],
+            "validation": {
+                "classes": ["cell"],
+                "attributes": [
+                    "nonempty"
+                ],
+                "values": [
+                    "FigCorr",
+                    "FigHist",
+                    "FigISI",
+                    "FigMap",
+                    "FigPos",
+                    "FigProj",
+                    "FigRD",
+                    "FigSim",
+                    "FigTime",
+                    "FigWav"
+                ]
+            },
+            "section": "curation;display"
+        },
+        "filtOrder": {
+            "comment": "Bandpass filter order",
+            "description": "",
+            "default_value": 3,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": "spike detection"
+        },
+        "groupShank": {
+            "comment": "Group all sites on the same shank if true",
+            "description": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical"],
+                "attributes": ["scalar"]
+            },
+            "section": "spike detection"
+        },
+        "interpPC": {
+            "comment": "Interpolate 1st principal vector to maximize projection of spikes if true",
+            "description": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical"],
+                "attributes": ["scalar"]
+            },
+            "section": "feature extraction"
+        },
+        "showSpikeCount": {
+            "comment": "Show spike count per unit in waveform plot",
+            "description": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical"],
+                "attributes": ["scalar"]
+            }
+        },
+        "tallSkinny": {
+            "comment": "Recording will be interpreted as nChannels x nSamples if true",
+            "description": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical"],
+                "attributes": ["scalar"]
+            }
+        },
+        "useParfor": {
+            "comment": "Use parform where appropriate",
+            "description": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical"],
+                "attributes": ["scalar"]
+            },
+            "section": "execution"
+        }
+    },
+
+    "fSpatialMask_clu": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "filterType": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "firingRateFilterShape": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "firingRatePeriodSec": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "firingRateSampleRate": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "freqLim": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "freqLimNotch": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "freqLimStop": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "gainBoost": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "gpuLoadFactor": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "gtFile": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "headerOffset": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "ignoreSites": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "lfpSampleRate": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "loadTimeLimits": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "log10DeltaCut": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "log10RhoCut": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "maxAmp": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "maxBytesLoad": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "maxClustersSite": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "maxSecLoad": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "maxWavCor": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "minClusterSize": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "min_sites_mask": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nChans": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nClustersShowAux": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nDiff_filt": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nFet_use": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nInterp_merge": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nLoads_max_preview": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nPassesMerge": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nPcPerChan": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nSamplesPad": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nShow": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nShow_proj": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nSiteDir": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nSitesExcl": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nSitesFigProj": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nSkip_show": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nSpk_show": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nThreads": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nTime_clu": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nTime_traces": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "nneigh_min_detect": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "outlierThresh": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "outputDir": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "pcPair": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "probeFile": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "probePad": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "qqFactor": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "ramToGPUFactor": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "randomSeed": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "rawRecordings": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "refracIntms": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "repeatLower": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "rlDetrendMode": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "sampleRate": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "sec_per_load_preview": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "shankMap": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "showRaw": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "siteCorrThresh": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "siteLoc": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "siteMap": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "spkLim_factor_merge": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "spkThresh_max_uV": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "tLimFigProj": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "tbin_psth": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "threshFile": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "time_feature_factor": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "time_tick_show": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "tlim_psth": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "trialFile": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "um_per_pix": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "useElliptic": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "useGPU": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "useGlobalDistCut": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "userFiltKernel": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "verbose": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    },
+    "xtick_psth": {
+        "comment": "",
+        "description": "",
+        "default_value": "",
+        "validation": ""
+    }
+}

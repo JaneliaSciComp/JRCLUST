@@ -11,8 +11,8 @@ function hFigISI = doPlotFigISI(hFigISI, hClust, hCfg, selected)
     [iIsiK, iIsiK1] = getReturnMap(iCluster, hClust, hCfg);
     if ~hFigISI.hasAxes('default')
         hFigISI.addAxes('default');
-        hFigISI.addPlot('foreground', nan, nan, 'Color', hCfg.mrColor_proj(2, :), 'Marker', 'o', 'LineStyle', 'none');
-        hFigISI.addPlot('foreground2', nan, nan, 'Color', hCfg.mrColor_proj(3, :), 'Marker', 'o', 'LineStyle', 'none');
+        hFigISI.addPlot('foreground', nan, nan, 'Color', hCfg.colorMap(2, :), 'Marker', 'o', 'LineStyle', 'none');
+        hFigISI.addPlot('foreground2', nan, nan, 'Color', hCfg.colorMap(3, :), 'Marker', 'o', 'LineStyle', 'none');
 
         hFigISI.axApply('default', @set, 'XScale','log', 'YScale','log');
 

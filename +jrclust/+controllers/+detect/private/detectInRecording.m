@@ -131,12 +131,12 @@ function nBytesLoad = subsetBytes(hRec, loadTimeLimits)
 
     loadLimits = min(max(loadTimeLimits, 1), hRec.nSamples);
     nSamplesLoad = diff(loadLimits) + 1;
-    nBytesLoad = nSamplesLoad * jrclust.utils.typeBytes(hRec.dtype) * hRec.nChans;
+    nBytesLoad = nSamplesLoad * jrclust.utils.typeBytes(hRec.dataType) * hRec.nChans;
 end
 
 function samplesRaw = regularize(samplesRaw, hCfg)
     %REGULARIZE Convert samplesRaw to int16
-    switch(hCfg.dtype)
+    switch(hCfg.dataType)
         case 'uint16'
             samplesRaw = int16(single(samplesRaw) - 2^15);
 
@@ -145,7 +145,7 @@ function samplesRaw = regularize(samplesRaw, hCfg)
     end
 
     % flip the polarity
-    if hCfg.fInverse_file
+    if hCfg.getOr('fInverse_file', 0)
         samplesRaw = -samplesRaw;
     end
 

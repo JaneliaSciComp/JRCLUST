@@ -11,15 +11,15 @@ function [samplesOut, keepMe] = filterSamples(samplesIn, windowPre, windowPost, 
     try
         samplesIn = jrclust.utils.tryGpuArray(samplesIn, hCfg.useGPU);
 
-        if hCfg.fftThreshMAD > 0
-            samplesIn = jrclust.filters.fftClean(samplesIn, hCfg.fftThreshMAD, hCfg.ramToGPUFactor);
+        if hCfg.fftThresh > 0
+            samplesIn = jrclust.filters.fftClean(samplesIn, hCfg.fftThresh, hCfg.ramToGPUFactor);
         end
     catch ME % GPU denoising failed, retry in CPU
         hCfg.useGPU = 0;
 
         samplesIn = samplesIn_;
-        if hCfg.fftThreshMAD > 0
-            samplesIn = jrclust.filters.fftClean(samplesIn, hCfg.fftThreshMAD, hCfg.ramToGPUFactor);
+        if hCfg.fftThresh > 0
+            samplesIn = jrclust.filters.fftClean(samplesIn, hCfg.fftThresh, hCfg.ramToGPUFactor);
         end
     end
 
@@ -37,11 +37,11 @@ function [samplesOut, keepMe] = filterSamples(samplesIn, windowPre, windowPost, 
 
     % common mode rejection
     if hCfg.blankThresh > 0
-        if isempty(channelMeans) % carMode=='whiten'
-            channelMeans = jrclust.utils.getCAR(samplesOut, hCfg.carMode, hCfg.ignoreSites);
+        if isempty(channelMeans) % CARMode=='whiten'
+            channelMeans = jrclust.utils.getCAR(samplesOut, hCfg.CARMode, hCfg.ignoreSites);
         end
 
-        keepMe = jrclust.utils.carReject(channelMeans(:), hCfg.blank_period_ms, hCfg.blankThresh, hCfg.sampleRate);
+        keepMe = jrclust.utils.carReject(channelMeans(:), hCfg.blankPeriod, hCfg.blankThresh, hCfg.sampleRate);
         if hCfg.verbose
             fprintf('!! rejecting %0.3f %% of time due to motion !!', (1 - mean(keepMe))*100);
         end

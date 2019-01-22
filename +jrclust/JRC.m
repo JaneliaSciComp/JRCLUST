@@ -321,7 +321,7 @@ classdef JRC < handle & dynamicprops
             end
 
             % try to warm up the local parallel pool before taking a swim
-            if obj.hCfg.fParfor && (obj.isDetect || obj.isSort || obj.isSort)
+            if obj.hCfg.useParfor && (obj.isDetect || obj.isSort || obj.isSort)
                 try
                     parpool('local');
                 catch

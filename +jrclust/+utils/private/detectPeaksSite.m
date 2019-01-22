@@ -3,8 +3,8 @@ function [peakLocs, peaks, siteThresh] = detectPeaksSite(samplesIn, siteThresh, 
 
     % determine threshold if it has still escaped us
     MAX_SAMPLE_QQ = 300000;
-    if ~isempty(hCfg.spkThresh)
-        siteThresh = hCfg.spkThresh;
+    if ~isempty(hCfg.evtManualThreshSamp)
+        siteThresh = hCfg.evtManualThreshSamp;
     end
     if siteThresh == 0 % bad site
         [peakLocs, peaks] = deal([]);

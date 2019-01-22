@@ -150,7 +150,7 @@ end
 function rhoCut = estRhoCutSite(siteFeatures, spikeOrder, n1, n2, hCfg)
     %ESTRHOCUTSITE Estimate site-wise rho cutoff
     if hCfg.getOr('fDc_spk', 0)
-        rhoCut = (hCfg.dc_percent/100).^2;
+        rhoCut = (hCfg.distCut/100).^2;
         return;
     end
 
@@ -178,14 +178,14 @@ function rhoCut = estRhoCutSite(siteFeatures, spikeOrder, n1, n2, hCfg)
 
     if hCfg.getOr('fDc_subsample_mode', 0)
         featureDists(featureDists <= 0) = nan;
-        rhoCut = quantile(featureDists(~isnan(featureDists)), hCfg.dc_percent/100);
+        rhoCut = quantile(featureDists(~isnan(featureDists)), hCfg.distCut/100);
     else
         featureDists = jrclust.utils.tryGather(featureDists);
         featureDists(featureDists <=0) = nan;
-        rhoCut = nanmedian(quantile(featureDists, hCfg.dc_percent/100));
+        rhoCut = nanmedian(quantile(featureDists, hCfg.distCut/100));
 
         if isnan(rhoCut) % featureDists was completely nan
-            rhoCut = quantile(featureDists(:), hCfg.dc_percent/100);
+            rhoCut = quantile(featureDists(:), hCfg.distCut/100);
         end
     end
 

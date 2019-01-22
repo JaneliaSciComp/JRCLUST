@@ -6,9 +6,9 @@ JRCLUST parameters
 Common parameters
 -----------------
 
-.. _carMode:
+.. _CARMode:
 
-``carMode``
+``CARMode``
 ^^^^^^^^^^^
 
 The meaning of "average" in "common average reference".
@@ -68,7 +68,7 @@ This distance is used to determine the number of sites to extract features if :r
 ``evtWindow``
 ^^^^^^^^^^^^^
 
-Time range (in ms) of (filtered) spike waveforms, centered at the peak.
+Time range (in ms) of filtered spike waveforms, centered at the peak.
 
 Must be an array with 2 elements, the first negative and the second positive.
 For example, if ``evtWindow`` is set to [-0.5, 0.5], then 1/2 ms worth of samples
@@ -81,7 +81,7 @@ are extracted before and after the spiking event.
 ``evtWindowRaw``
 ^^^^^^^^^^^^^^^^
 
-Time range (in ms) of (raw) spike waveforms, centered at the peak.
+Time range (in ms) of raw spike waveforms, centered at the peak.
 
 Must be an array with 2 elements, the first negative and the second positive.
 For example, if ``evtWindowRaw`` is set to [-1, 1], then 1 ms worth of samples
@@ -89,9 +89,9 @@ are extracted before and after the spiking event.
 
 **Default**: [-0.5, 1.5]
 
-.. _fftThreshMAD:
+.. _fftThresh:
 
-``fftThreshMAD``
+``fftThresh``
 ^^^^^^^^^^^^^^^^
 
 The threshold, in units of `MAD`_, to apply to the power-frequency product of your samples when :ref:`denoising <denoising>`.
@@ -181,9 +181,9 @@ Advanced parameters
 
 The following parameters can be safely ignored.
 
-.. _dc_percent:
+.. _distCut:
 
-``dc_percent``
+``distCut``
 ^^^^^^^^^^^^^^^
 
 The percentile to use when

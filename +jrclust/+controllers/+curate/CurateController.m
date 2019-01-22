@@ -51,7 +51,7 @@ classdef CurateController < handle
                     hFigSim.wait(0);
 
                 case 'k' % kilosort template similarity view
-                    if obj.hCfg.fImportKsort && strcmp(hFigSim.figData.figView, 'waveform')
+                    if isa(obj.hClust, 'jrclust.sort.KilosortClustering') && strcmp(hFigSim.figData.figView, 'waveform')
                         hFigSim.figData.figView = 'kilosort';
                         obj.updateFigSim();
                     end
@@ -67,7 +67,7 @@ classdef CurateController < handle
                     hFigSim.wait(0);
 
                 case 'w' % waveform-based sim view
-                    if obj.hCfg.fImportKsort && strcmp(hFigSim.figData.figView, 'kilosort')
+                    if isa(obj.hClust, 'jrclust.sort.KilosortClustering') && strcmp(hFigSim.figData.figView, 'template')
                         hFigSim.figData.figView = 'waveform';
                         obj.updateFigSim();
                     end
@@ -130,7 +130,7 @@ classdef CurateController < handle
 %
 %                         % return here
 %                         hFigProj.addPlot('hSplit', @line, XData(retained), YData(retained), ...
-%                                          'Color', obj.hCfg.mrColor_proj(3, :), ...
+%                                          'Color', obj.hCfg.colorMap(3, :), ...
 %                                          'Marker', '.', 'LineStyle', 'none');
 %
 %                         dlgAns = questdlg('Split?', 'Confirmation', 'No');
@@ -216,7 +216,7 @@ classdef CurateController < handle
 
                         retained = inpolygon(XData, YData, polyPos(:,1), polyPos(:,2));
                         hFigTime.addPlot('hSplit', @line, XData(retained), YData(retained), ...
-                                         'Color', obj.hCfg.mrColor_proj(3, :), ...
+                                         'Color', obj.hCfg.colorMap(3, :), ...
                                          'Marker', '.', 'LineStyle', 'none');
 
                         dlgAns = questdlg('Split?', 'Confirmation', 'No');
@@ -281,8 +281,8 @@ classdef CurateController < handle
                     hFigWav.wait(0);
 
                 case 'n' % toggle spike count in clusters
-                    obj.hCfg.fText = ~obj.hCfg.fText;
-                    setFigWavXTicks(hFigWav, obj.hClust, obj.hCfg.fText);
+                    obj.hCfg.showSpikeCount = ~obj.hCfg.showSpikeCount;
+                    setFigWavXTicks(hFigWav, obj.hClust, obj.hCfg.showSpikeCount);
 
                 case 'space' % select most similar to currently selected
                     simScore = obj.hClust.simScore;
@@ -381,9 +381,9 @@ classdef CurateController < handle
             hFigWav = obj.hFigs('FigWav');
 
             if strcmp(plotKey, 'selected2')
-                colorMap = obj.hCfg.mrColor_proj(3, :); % red
+                colorMap = obj.hCfg.colorMap(3, :); % red
             elseif strcmp(plotKey, 'selected1')
-                colorMap = obj.hCfg.mrColor_proj(2, :); % black
+                colorMap = obj.hCfg.colorMap(2, :); % black
             else
                 return; % maybe some day we support selected3, 4, ...
             end
@@ -429,9 +429,9 @@ classdef CurateController < handle
             % update crosshair cursor
             hFigSim.updatePlot('hCursorV', iCluster*[1, 1], 0.5 + [0, obj.hClust.nClusters]);
             if iCluster == jCluster
-                colorH = obj.hCfg.mrColor_proj(2, :); % black
+                colorH = obj.hCfg.colorMap(2, :); % black
             else
-                colorH = obj.hCfg.mrColor_proj(3, :); % red
+                colorH = obj.hCfg.colorMap(3, :); % red
             end
             hFigSim.updatePlot('hCursorH', 0.5 + [0, obj.hClust.nClusters], jCluster*[1, 1]);
             hFigSim.plotApply('hCursorH', @set, 'Color', colorH);
@@ -1134,7 +1134,7 @@ classdef CurateController < handle
 
         function spawnFigures(obj)
             %SPAWNFIGURES Create new figures
-            obj.hFigs = doSpawnFigures(obj.hCfg);
+            obj.hFigs = doSpawnFigures(obj.hCfg, isa(obj.hClust, 'jrclust.sort.KilosortClustering'));
         end
 
         function splitCluster(obj, iCluster, retained)

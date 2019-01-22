@@ -16,8 +16,8 @@ function hFigHist = doPlotFigHist(hFigHist, hClust, hCfg, selected)
     % draw the plot
     if ~hFigHist.hasAxes('default')
         hFigHist.addAxes('default');
-        hFigHist.addPlot('hPlot1', @stairs, nan, nan, 'Color', hCfg.mrColor_proj(2, :));
-        hFigHist.addPlot('hPlot2', @stairs, nan, nan, 'Color', hCfg.mrColor_proj(3, :));
+        hFigHist.addPlot('hPlot1', @stairs, nan, nan, 'Color', hCfg.colorMap(2, :));
+        hFigHist.addPlot('hPlot2', @stairs, nan, nan, 'Color', hCfg.colorMap(3, :));
         hFigHist.axApply('default', @set, 'XLim', [1 10000], 'XScale', 'log'); % ms
         hFigHist.axApply('default', @grid, 'on');
         hFigHist.axApply('default', @xlabel, 'ISI (ms)');

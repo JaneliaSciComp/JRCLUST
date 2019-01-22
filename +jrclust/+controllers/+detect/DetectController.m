@@ -105,7 +105,7 @@ classdef DetectController < handle
 
                 t1 = toc(t1);
                 nBytesFile = recData.nBytesFile;
-                tr = (nBytesFile/jrclust.utils.typeBytes(obj.hCfg.dtype)/obj.hCfg.nChans)/obj.hCfg.sampleRate;
+                tr = (nBytesFile/jrclust.utils.typeBytes(obj.hCfg.dataType)/obj.hCfg.nChans)/obj.hCfg.sampleRate;
 
                 if obj.hCfg.verbose
                     fprintf('File %d/%d took %0.1fs (%0.1f MB, %0.1f MB/s, x%0.1f realtime)\n', ...
