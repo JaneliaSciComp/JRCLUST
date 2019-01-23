@@ -16,8 +16,8 @@ function samplesIn = filtfiltChain(samplesIn, filtOpts)
     %FILTFILTCHAIN Construct a filter chain
     [cvrA, cvrB] = deal({});
 
-    if ~isempty(filtOpts.freqLim)
-       [cvrB{end+1}, cvrA{end+1}] = makeFilt_(filtOpts.freqLim, 'bandpass', filtOpts);
+    if ~isempty(filtOpts.freqLimBP)
+       [cvrB{end+1}, cvrA{end+1}] = makeFilt_(filtOpts.freqLimBP, 'bandpass', filtOpts);
     end
 
     if ~isempty(filtOpts.freqLimStop)
@@ -63,33 +63,33 @@ function samplesIn = filtfiltChain(samplesIn, filtOpts)
     samplesIn = filt_pad_('remove', samplesIn, filtOpts.nSamplesPad); % slow    
 end
 
-function [vrFiltB, vrFiltA] = makeFilt_(freqLim, vcType, filtOpts)
+function [vrFiltB, vrFiltA] = makeFilt_(freqLimBP, vcType, filtOpts)
     if nargin < 2
         vcType = 'bandpass';
     end
 
-    freqLim = freqLim / filtOpts.sampleRate * 2;
+    freqLimBP = freqLimBP / filtOpts.sampleRate * 2;
 
     if ~strcmpi(vcType, 'notch')
         if filtOpts.useElliptic  % copied from wave_clus
-            if isinf(freqLim(1)) || freqLim(1) <= 0
-                [vrFiltB, vrFiltA]=ellip(filtOpts.filtOrder,0.1,40, freqLim(2), 'low');
-            elseif isinf(freqLim(2))
-                [vrFiltB, vrFiltA]=ellip(filtOpts.filtOrder,0.1,40, freqLim(1), 'high');
+            if isinf(freqLimBP(1)) || freqLimBP(1) <= 0
+                [vrFiltB, vrFiltA]=ellip(filtOpts.filtOrder,0.1,40, freqLimBP(2), 'low');
+            elseif isinf(freqLimBP(2))
+                [vrFiltB, vrFiltA]=ellip(filtOpts.filtOrder,0.1,40, freqLimBP(1), 'high');
             else
-                [vrFiltB, vrFiltA]=ellip(filtOpts.filtOrder,0.1,40, freqLim, vcType);
+                [vrFiltB, vrFiltA]=ellip(filtOpts.filtOrder,0.1,40, freqLimBP, vcType);
             end    
         else
-            if isinf(freqLim(1)) || freqLim(1) <= 0
-                [vrFiltB, vrFiltA] = butter(filtOpts.filtOrder, freqLim(2),'low');        
-            elseif isinf(freqLim(2))
-                [vrFiltB, vrFiltA] = butter(filtOpts.filtOrder, freqLim(1),'high');
+            if isinf(freqLimBP(1)) || freqLimBP(1) <= 0
+                [vrFiltB, vrFiltA] = butter(filtOpts.filtOrder, freqLimBP(2),'low');        
+            elseif isinf(freqLimBP(2))
+                [vrFiltB, vrFiltA] = butter(filtOpts.filtOrder, freqLimBP(1),'high');
             else
-                [vrFiltB, vrFiltA] = butter(filtOpts.filtOrder, freqLim, vcType);    
+                [vrFiltB, vrFiltA] = butter(filtOpts.filtOrder, freqLimBP, vcType);    
             end
         end
     else
-        [vrFiltB, vrFiltA] = iirNotch(mean(freqLim), diff(freqLim));
+        [vrFiltB, vrFiltA] = iirNotch(mean(freqLimBP), diff(freqLimBP));
     end
 
     if filtOpts.useGPUFilt  

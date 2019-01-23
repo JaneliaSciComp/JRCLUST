@@ -456,14 +456,14 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 clusters = 1:obj.nClusters;
             end
             if nargin < 3 || isempty(nSamples)
-                nSamples = round(obj.hCfg.recDurationSec()*obj.hCfg.sRateHz_rate);
+                nSamples = round(obj.hCfg.recDurationSec()*obj.hCfg.frSampleRate);
             end
 
-            nFilt = round(obj.hCfg.sRateHz_rate * obj.hCfg.filter_sec_rate / 2);
-            if strcmp(obj.hCfg.filter_shape_rate, 'triangle')
-                filtKernel = ([1:nFilt, nFilt-1:-1:1]'/nFilt*2/obj.hCfg.filter_sec_rate);
-            elseif strctmp(obj.hCfg.filter_shape_rate, 'rectangle')
-                filtKernel = (ones(nFilt*2, 1) / obj.hCfg.filter_sec_rate);
+            nFilt = round(obj.hCfg.frSampleRate * obj.hCfg.frPeriod / 2);
+            if strcmp(obj.hCfg.frFilterShape, 'triangle')
+                filtKernel = ([1:nFilt, nFilt-1:-1:1]'/nFilt*2/obj.hCfg.frPeriod);
+            elseif strctmp(obj.hCfg.frFilterShape, 'rectangle')
+                filtKernel = (ones(nFilt*2, 1) / obj.hCfg.frPeriod);
             end % switch
 
             filtKernel = single(filtKernel);
@@ -474,7 +474,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 clusterSpikes = obj.spikesByCluster{iCluster};
                 clusterTimes = obj.spikeTimes(clusterSpikes);
 
-                dsTimes = round(obj.hCfg.sRateHz_rate*double(clusterTimes)/obj.hCfg.sampleRate);
+                dsTimes = round(obj.hCfg.frSampleRate*double(clusterTimes)/obj.hCfg.sampleRate);
                 dsTimes = max(min(dsTimes, nSamples), 1);
 
                 rates(dsTimes, iiCluster) = 1;

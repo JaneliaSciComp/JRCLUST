@@ -19,8 +19,8 @@ classdef Config < dynamicprops
         delta1_cut;                 % => log10DeltaCut
         fft_thresh;                 % => fftThreshMad
         fGpu;                       % => useGPU
-        filter_sec_rate;            % => firingRatePeriodSec
-        filter_shape_rate;          % => firingRateFilterShape
+        filter_sec_rate;            % => frPeriod
+        filter_shape_rate;          % => frFilterShape
         fRepeat_clu;                % => repeatLower
         fVerbose;                   % => verbose
         fWav_raw_show;              % => showRaw
@@ -54,7 +54,7 @@ classdef Config < dynamicprops
         sRateHz;                    % => sampleRate
         sRateHz_aux;                % => auxSampleRate
         sRateHz_lfp;                % => lfpSampleRate
-        sRateHz_rate;               % => firingRateSampleRate
+        sRateHz_rate;               % => frSampleRate
         thresh_corr_bad_site;       % => siteCorrThresh
         thresh_mad_clu;             % => outlierThresh
         tlim;                       % => dispTimeLimits
@@ -124,7 +124,7 @@ classdef Config < dynamicprops
         fftThresh = 0;              % automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
         filtOrder = 3;              % bandpass filter order
         filterType = 'ndiff';       % filter to use {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
-        freqLim = [300 3000];       % frequency cut-off limit for filterType='bandpass' (ignored otherwise)
+        freqLimBP = [300 3000];       % frequency cut-off limit for filterType='bandpass' (ignored otherwise)
         freqLimNotch = [];
         freqLimStop = [];
         fTranspose_bin = 1;
@@ -210,9 +210,9 @@ classdef Config < dynamicprops
         sec_per_load_preview = 1;           % recording duration per continuous segment to preview (in sec)
 
         % parameters for estimating firing rate
-        firingRatePeriodSec = 2;            % time period to determine the firing rate
-        firingRateFilterShape = 'triangle'; % {'triangle', 'rectangle'} kernel shape for temporal averaging
-        firingRateSampleRate = 1000;        % Resampled rate for the firing rate
+        frPeriod = 2;            % time period to determine the firing rate
+        frFilterShape = 'triangle'; % {'triangle', 'rectangle'} kernel shape for temporal averaging
+        frSampleRate = 1000;        % Resampled rate for the firing rate
 
         % aux-file parameters
         auxChan;                            % aux channel # to correlate with the unit firing rate
@@ -1120,56 +1120,56 @@ classdef Config < dynamicprops
             obj.filterType = ft;
         end
 
-        % firingRateFilterShape/filter_shape_rate
-        function set.firingRateFilterShape(obj, fr)
+        % frFilterShape/filter_shape_rate
+        function set.frFilterShape(obj, fr)
             legalTypes = {'triangle', 'rectangle'};
-            failMsg = sprintf('legal firingRateFilterShapes are %s', strjoin(legalTypes, ', '));
+            failMsg = sprintf('legal frFilterShapes are %s', strjoin(legalTypes, ', '));
             assert(ismember(fr, legalTypes), failMsg);
-            obj.firingRateFilterShape = fr;
+            obj.frFilterShape = fr;
         end
         function fr = get.filter_shape_rate(obj)
             obj.logOldP('filter_shape_rate');
-            fr = obj.firingRateFilterShape;
+            fr = obj.frFilterShape;
         end
         function set.filter_shape_rate(obj, fr)
             obj.logOldP('filter_shape_rate');
-            obj.firingRateFilterShape = fr;
+            obj.frFilterShape = fr;
         end
 
-        % firingRatePeriodSec/filter_sec_rate
-        function set.firingRatePeriodSec(obj, fr)
-            failMsg = 'firingRatePeriodSec must be a positive scalar';
+        % frPeriod/filter_sec_rate
+        function set.frPeriod(obj, fr)
+            failMsg = 'frPeriod must be a positive scalar';
             assert(jrclust.utils.isscalarnum(fr) && fr > 0, failMsg);
-            obj.firingRatePeriodSec = fr;
+            obj.frPeriod = fr;
         end
         function fr = get.filter_sec_rate(obj)
             obj.logOldP('filter_sec_rate');
-            fr = obj.firingRatePeriodSec;
+            fr = obj.frPeriod;
         end
         function set.filter_sec_rate(obj, fr)
             obj.logOldP('filter_sec_rate');
-            obj.firingRatePeriodSec = fr;
+            obj.frPeriod = fr;
         end
 
-        % firingRateSampleRate/sRateHz_rate
-        function set.firingRateSampleRate(obj, fr)
-            failMsg = 'firingRateSampleRate must be a positive integer';
+        % frSampleRate/sRateHz_rate
+        function set.frSampleRate(obj, fr)
+            failMsg = 'frSampleRate must be a positive integer';
             assert(jrclust.utils.isscalarnum(fr) && fr == round(fr) && fr > 0, failMsg);
-            obj.firingRateSampleRate = fr;
+            obj.frSampleRate = fr;
         end
         function fr = get.sRateHz_rate(obj)
             obj.logOldP('sRateHz_rate');
-            fr = obj.firingRateSampleRate;
+            fr = obj.frSampleRate;
         end
         function set.sRateHz_rate(obj, fr)
             obj.logOldP('sRateHz_rate');
-            obj.firingRateSampleRate = fr;
+            obj.frSampleRate = fr;
         end
 
-        % freqLim
-        function set.freqLim(obj, fl)
-            assert(jrclust.utils.ismatrixnum(fl) && all(size(fl) == [1 2]) && all(fl >= 0), 'bad freqLim');
-            obj.freqLim = fl;
+        % freqLimBP
+        function set.freqLimBP(obj, fl)
+            assert(jrclust.utils.ismatrixnum(fl) && all(size(fl) == [1 2]) && all(fl >= 0), 'bad freqLimBP');
+            obj.freqLimBP = fl;
         end
 
         % gainBoost/gain_boost
