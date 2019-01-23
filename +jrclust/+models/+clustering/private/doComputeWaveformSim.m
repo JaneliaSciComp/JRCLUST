@@ -45,12 +45,10 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
         clusterSites_ = {hClust.clusterSites};
     end
 
-    % simScore = jrclust.utils.tryGpuArray(zeros(hClust.nClusters), hClust.hCfg.useGPU);
     simScore = zeros(hClust.nClusters);
 
     % shift waveforms up to some multiple (nInterp_merge) of the refractory period
-    nShifts = ceil(hClust.hCfg.nInterp_merge * hClust.hCfg.refracIntms*hClust.hCfg.sampleRate/1000);
-    % [cviShift1, cviShift2] = jrclust.utils.shiftRange(jrclust.utils.tryGpuArray(int32(size(meanWfGlobal, 1)), obj.hCfg.useGPU), nShifts);
+    nShifts = ceil(hClust.hCfg.nInterp_merge*hClust.hCfg.refracInt*hClust.hCfg.sampleRate/1000);
     [cviShift1, cviShift2] = jrclust.utils.shiftRange(int32(size(meanWfGlobal_, 1)), nShifts);
 
     scoreData = struct('cviShift1', {cviShift1}, ...
@@ -296,7 +294,7 @@ end
 function meanWf = trimRawWaveforms(meanWf, hCfg)
     %TRIMRAWWAVEFORMS Pare raw waveforms down to the size of filtered waveforms
     nSamplesRaw = diff(hCfg.evtWindowRawSamp) + 1;
-    spkLimMerge = round(hCfg.evtWindowSamp * hCfg.spkLim_factor_merge);
+    spkLimMerge = round(hCfg.evtWindowSamp * hCfg.evtWindowMergeFactor);
     nSamplesRawMerge = diff(spkLimMerge) + 1;
 
     if size(meanWf, 1) <= nSamplesRawMerge

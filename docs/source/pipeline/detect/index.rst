@@ -74,7 +74,7 @@ A putative peak must also exceed its immediate neighbors in magnitude, i.e., the
         |\myAmp(t_j)| &> |\myAmp(t_{j+1})|
     \end{align*}
 
-You may also impose :ref:`additional constraints <nneigh_min_detect>` on peak detection.
+You may also impose :ref:`additional constraints <minNeighborsDetect>` on peak detection.
 
 .. _merge-peaks:
 
@@ -113,7 +113,7 @@ JRCLUST subtracts the local common-average reference from the spike waveforms ex
 and then computes features from these according to the :ref:`feature you specify <clusterFeature>`.
 For more detailed descriptions of your options in features, see below.
 
-Additionally, :ref:`if you specify <nFet_use>`, JRCLUST finds an alternate location for each spike
+Additionally, :ref:`if you specify <nPeaksFeatures>`, JRCLUST finds an alternate location for each spike
 within that spike's spatiotemporal window.
 JRCLUST will extract a window around this secondary peak in order to compute features.
 This is done in order to accommodate necessary alterations to the clustering algorithm due to

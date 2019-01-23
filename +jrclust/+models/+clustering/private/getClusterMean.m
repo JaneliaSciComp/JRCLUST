@@ -13,7 +13,7 @@ function [clusterMean, siteNeighbors, clusterMeanLow, clusterMeanHigh] = getClus
     end
 
     if ~hClust.hCfg.driftMerge || isempty(hClust.spikePositions)
-        middlemost = spk_select_mid_(clusterSpikes, hClust.spikeTimes, hClust.hCfg.nTime_clu);
+        middlemost = spk_select_mid_(clusterSpikes, hClust.spikeTimes, hClust.hCfg.nClusterIntervals);
         clusterMean = mean(single(spikeWindows(:, :, middlemost)), 3);
         clusterMean = jrclust.utils.meanSubtract(clusterMean);
         return;
@@ -73,10 +73,10 @@ function mrWav_clu1 = nanmeanInt16(spikeWindows, iSite, sites, hCfg)
     mrWav_clu1 = jrclust.utils.meanSubtract(mrWav_clu1); %122717 JJJ
 end
 
-function subSpikes = spk_select_mid_(spikes, spikeTimes, nTime_clu)
+function subSpikes = spk_select_mid_(spikes, spikeTimes, nClusterIntervals)
     % viTime_spk = get0_('viTime_spk');
     iSpikeMid = round(numel(spikeTimes)/2); % index of the middlest spike
     nearestToCenter = jrclust.utils.rankorder(abs(spikes - iSpikeMid), 'ascend');
-    nSpikesInterval = round(numel(spikes) / nTime_clu);
+    nSpikesInterval = round(numel(spikes) / nClusterIntervals);
     subSpikes = spikes(nearestToCenter <= nSpikesInterval);
 end

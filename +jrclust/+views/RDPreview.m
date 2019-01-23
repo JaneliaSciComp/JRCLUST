@@ -16,7 +16,7 @@ function hCFig = RDPreview(hClust)
     % populate the feature projection dropdown
     projections = {'amp vs. time'};
     if strcmp(hClust.hCfg.clusterFeature, 'pca')
-        nPCs = hClust.hCfg.nPcPerChan;
+        nPCs = hClust.hCfg.nPCsPerSite;
         for i = 1:nPCs
             projections{end+1} = sprintf('PC%d vs. amp', i);
         end
@@ -48,7 +48,7 @@ function hCFig = RDPreview(hClust)
     hCFig.addUicontrol('detrendLabel', 'Style', 'text', ...
                        'String', 'Detrend mode', ...
                        'Position', [285, 0, 50, 30]);
-    currentDetrend = find(strcmp(detrendOptions, hClust.hCfg.rlDetrendMode));
+    currentDetrend = find(strcmp(detrendOptions, hClust.hCfg.RDDetrendMode));
     hDet = hCFig.addUicontrol('projection', 'Style', 'popup', ...
                               'String', detrendOptions, ...
                               'Value', currentDetrend, ...
@@ -102,7 +102,7 @@ function hCFig = RDPreview(hClust)
     handles = [hSite, hProj, hDet, hRho, hRhoVal, hDelta, hDeltaVal, hSiteClusters];
 
     % initial state
-    initialSettings = struct('rlDetrendMode', hClust.hCfg.rlDetrendMode, ...
+    initialSettings = struct('RDDetrendMode', hClust.hCfg.RDDetrendMode, ...
                              'position', size(hClust.history, 1) - 1, ...
                              'rhoCut', hClust.hCfg.log10RhoCut, ...
                              'deltaCut', hClust.hCfg.log10DeltaCut);
@@ -144,7 +144,7 @@ function hCFig = RDPreview(hClust)
             return;
         end
         currentDetrend = detrendOptions{uic.Value};
-        hClust.hCfg.rlDetrendMode = currentDetrend;
+        hClust.hCfg.RDDetrendMode = currentDetrend;
         doReassign();
     end
 
@@ -214,7 +214,7 @@ function hCFig = RDPreview(hClust)
 
         hClust.hCfg.log10RhoCut = initialSettings.rhoCut;
         hClust.hCfg.log10DeltaCut = initialSettings.deltaCut;
-        hClust.hCfg.rlDetrendMode = initialSettings.rlDetrendMode;
+        hClust.hCfg.RDDetrendMode = initialSettings.RDDetrendMode;
         hClust.revert(initialSettings.position);
 
         hFigRD.close();
@@ -275,11 +275,11 @@ function hCFig = RDPreview(hClust)
     function plotRD()
         hFigRD.cla();
 
-        if strcmp(hClust.hCfg.rlDetrendMode, 'global')
+        if strcmp(hClust.hCfg.RDDetrendMode, 'global')
             [centers, rho, delta] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 0, hClust.hCfg);
             delta = jrclust.utils.nanlog10(delta);
             fDetrend = 1;
-        elseif strcmp(hClust.hCfg.rlDetrendMode, 'local')
+        elseif strcmp(hClust.hCfg.RDDetrendMode, 'local')
             [centers, rho, delta] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 1, hClust.hCfg);
             delta = jrclust.utils.nanlog10(delta);
             fDetrend = 1;

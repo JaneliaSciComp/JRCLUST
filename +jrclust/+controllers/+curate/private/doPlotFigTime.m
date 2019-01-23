@@ -24,9 +24,6 @@ function hFigTime = doPlotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSit
         hFigTime.plotApply('hRect', @setPositionConstraintFcn, makeConstrainToRectFcn('imrect', timeLimits, [-4000 4000]));
 
         hFigTime.setHideOnDrag('background'); % hide background spikes when dragging
-        if ~isempty(hCfg.time_tick_show) % tick mark
-            hFigTime.axApply('default', @set, 'XTick', timeLimits(1):hCfg.time_tick_show:timeLimits(end));
-        end
     end
 
     [bgFeatures, bgTimes] = getFigTimeFeatures(hClust, iSite); % plot background

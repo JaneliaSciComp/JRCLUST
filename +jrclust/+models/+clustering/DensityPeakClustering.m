@@ -206,7 +206,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
             % keep clusters whose maximum similarity to some other cluster
             % is LESS than our threshold
-            keepMe_ = scoresMax < obj.hCfg.maxWavCor;
+            keepMe_ = scoresMax < obj.hCfg.maxUnitSim;
 
             if all(keepMe_)
                 nMerged = 0;
@@ -404,7 +404,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             obj.clusterNotes{iCluster} = note;
         end
 
-        function success = autoMerge(obj, maxWavCor)
+        function success = autoMerge(obj, maxUnitSim)
             %AUTOMERGE Automatically merge clusters
             success = 0;
 
@@ -415,7 +415,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
             if nargin == 2
                 try
-                    obj.hCfg.setTemporaryParams('maxWavCor', maxWavCor);
+                    obj.hCfg.setTemporaryParams('maxUnitSim', maxUnitSim);
                 catch ME
                     warning(ME.identifier, 'autoMerge aborted: %s', ME.message);
                     return;
@@ -439,7 +439,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             obj.commit(commitMsg);
 
             if nargin == 2
-                obj.hCfg.resetTemporaryParams('maxWavCor');
+                obj.hCfg.resetTemporaryParams('maxUnitSim');
             end
 
             success = 1;
@@ -721,8 +721,8 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 end
             end
 
-            if nargin == 2 && ~isempty(maxWavCor) % restore old maxWavCor
-                obj.hCfg.maxWavCor = mwcOld;
+            if nargin == 2 && ~isempty(maxUnitSim) % restore old maxUnitSim
+                obj.hCfg.maxUnitSim = mwcOld;
             end
         end
 
@@ -892,10 +892,10 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             iSite = obj.clusterSites(iCluster);
             iNeighbors = obj.hCfg.siteNeighbors(:, iSite);
 
-            pos = sprintf('Unit %d (x,y):(%0.1f, %0.1f)[pix]', iCluster, obj.clusterCentroids/obj.hCfg.um_per_pix);
+            pos = sprintf('Unit %d (x,y):(%0.1f, %0.1f)[pix]', iCluster, obj.clusterCentroids/obj.hCfg.umPerPix);
 
             % subsample some (raw or filtered) waveforms
-            iSubset = jrclust.utils.subsample(obj.getCenteredSpikes(iCluster), obj.hCfg.nSpk_show);
+            iSubset = jrclust.utils.subsample(obj.getCenteredSpikes(iCluster), obj.hCfg.nSpikesFigWav);
             if obj.hCfg.showRaw
                 meanWf = obj.meanWfGlobalRaw(:, iNeighbors, iCluster);
                 sampleWf = jrclust.utils.rawTouV(obj.spikesRaw(:, :, iSubset), obj.hCfg);

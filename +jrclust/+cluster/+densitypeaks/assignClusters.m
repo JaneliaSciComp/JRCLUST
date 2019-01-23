@@ -12,11 +12,11 @@ function sRes = computeCenters(dRes, sRes, hCfg)
         dRes.spikesBySite = arrayfun(@(iSite) dRes.spikes(dRes.spikeSites==iSite), hCfg.siteMap, 'UniformOutput', 0);
     end
 
-    if strcmp(hCfg.rlDetrendMode, 'local')      % perform detrending site by site
+    if strcmp(hCfg.RDDetrendMode, 'local')      % perform detrending site by site
         sRes.clusterCenters = jrclust.cluster.densitypeaks.detrendRhoDelta(sRes, dRes.spikesBySite, 1, hCfg);
-    elseif strcmp(hCfg.rlDetrendMode, 'global') % detrend over all sites
+    elseif strcmp(hCfg.RDDetrendMode, 'global') % detrend over all sites
         sRes.clusterCenters = jrclust.cluster.densitypeaks.detrendRhoDelta(sRes, dRes.spikesBySite, 0, hCfg);
-    elseif strcmp(hCfg.rlDetrendMode, 'logz')   % identify centers with sufficiently high z-scores
+    elseif strcmp(hCfg.RDDetrendMode, 'logz')   % identify centers with sufficiently high z-scores
         % sRes.clusterCenters = log_ztran_(sRes.spikeRho, sRes.spikeDelta, hCfg.log10RhoCut, 4 + hCfg.log10DeltaCut);
         x = log10(sRes.spikeRho(:));
         y = log10(sRes.spikeDelta(:));
@@ -26,7 +26,7 @@ function sRes = computeCenters(dRes, sRes, hCfg)
 
         % from postCluster_: 4+P.delta1_cut
         sRes.clusterCenters = find(x >= hCfg.log10RhoCut & y >= 4 + hCfg.log10DeltaCut);
-    elseif strcmp(hCfg.rlDetrendMode, 'hidehiko') % Hide's regression method
+    elseif strcmp(hCfg.RDDetrendMode, 'hidehiko') % Hide's regression method
         sRes.clusterCenters = jrclust.cluster.densitypeaks.regressCenters(sRes, dRes.spikesBySite, hCfg.log10DeltaCut);
     else                                            % don't detrend
         sRes.clusterCenters = find(sRes.spikeRho(:) > 10^(hCfg.log10RhoCut) & sRes.spikeDelta(:) > 10^(hCfg.log10DeltaCut));
@@ -89,7 +89,6 @@ function sRes = doAssignClusters(dRes, sRes, hCfg)
         end
 
         hCfg.minClusterSize = max(hCfg.minClusterSize, 2*size(dRes.spikeFeatures, 1));
-        % http://scikit-learn.org/stable/modules/lda_qda.html
 
         % count spikes in clusters
         sRes.spikesByCluster = arrayfun(@(iC) find(sRes.spikeClusters == iC), 1:nClusters, 'UniformOutput', 0);

@@ -7,11 +7,11 @@ function hFigRD = doPlotFigRD(hFigRD, hClust, hCfg)
 %         return;
 %     end
 
-    if strcmp(hCfg.rlDetrendMode, 'global')
+    if strcmp(hCfg.RDDetrendMode, 'global')
         [centers, x, y] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 0, hCfg);
         y = jrclust.utils.nanlog10(y);
         fDetrend = 1;
-    elseif strcmp(hCfg.rlDetrendMode, 'local')
+    elseif strcmp(hCfg.RDDetrendMode, 'local')
         [centers, x, y] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 1, hCfg);
         y = jrclust.utils.nanlog10(y);
         fDetrend = 1;

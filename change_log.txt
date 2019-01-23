@@ -582,7 +582,7 @@ Faster merging and splitting
 Improved visualization for the cluster correlation matrix (FigWavCor)
 
 [2017/4/26]
-'nneigh_min_detect' parameter is introduced. This sets the minimum number of neighbors around spikes
+'minNeighborsDetect' parameter is introduced. This sets the minimum number of neighbors around spikes
   below the negative detection threshold. Set between [0,1,2]. 1 is recommended.
   Previous version used hard-coded value of 2 which lead to missing spikes.
 

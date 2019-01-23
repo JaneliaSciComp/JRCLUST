@@ -26,7 +26,7 @@
 __global__ void jrc_cuda_rho(float * vrRho1, const float * mrFet12, const int * viiSpk12_ord, const int *  vnConst, const float dc2){
 //__global__ void jrc_cuda_rho(int *vnRho1, int *vnComp1, float const *mrFet12, int const *viiSpk12_ord, int const *vnC4, float const dc2){
     int i1 = (blockIdx.x + blockIdx.y * gridDim.x) * CHUNK;   // base index of i1    
-    int tx = threadIdx.x; //nThreads for i12 index    
+    int tx = threadIdx.x; //nThreadsGPU for i12 index    
     int i1_tx = i1+tx;
     int n1 = vnConst[0];
     int n12 = vnConst[1];

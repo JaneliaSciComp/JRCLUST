@@ -223,8 +223,8 @@ classdef PreviewController < handle
 
         function loadPreview(obj)
             %LOADPREVIEW
-            nLoadsMax = obj.hCfg.nLoads_max_preview;
-            nSecsLoad = obj.hCfg.sec_per_load_preview;
+            nLoadsMax = obj.hCfg.nLoadsMaxPreview;
+            nSecsLoad = obj.hCfg.nSecsLoadPreview;
 
             % load files
             rawRecordings = jrclust.utils.subsample(obj.hCfg.rawRecordings, nLoadsMax);

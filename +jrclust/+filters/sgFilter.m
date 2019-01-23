@@ -1,4 +1,4 @@
-function samplesOut = sgFilter(samplesIn, nDiff_filt)
+function samplesOut = sgFilter(samplesIn, nDiffOrder)
     %SGFILTER Savitzky-Golay filter
     % works for a vector, matrix and tensor
     fInvert_filter = 0;
@@ -8,26 +8,26 @@ function samplesOut = sgFilter(samplesIn, nDiff_filt)
         n1 = size(samplesIn,2); 
     end
 
-    if nDiff_filt == 0
+    if nDiffOrder == 0
         samplesOut = samplesIn;
         return;
     end
 
-    [miA, miB] = sgfilt_init_(n1, nDiff_filt, fGpu);
+    [miA, miB] = sgfilt_init_(n1, nDiffOrder, fGpu);
 
     if isvector(samplesIn)
         samplesOut = samplesIn(miA(:,1)) - samplesIn(miB(:,1));
-        for i = 2:nDiff_filt
+        for i = 2:nDiffOrder
             samplesOut = samplesOut + i * (samplesIn(miA(:,i)) - samplesIn(miB(:,i)));
         end
     elseif ismatrix(samplesIn)
         samplesOut = samplesIn(miA(:,1),:) - samplesIn(miB(:,1),:);
-        for i = 2:nDiff_filt
+        for i = 2:nDiffOrder
             samplesOut = samplesOut + i * (samplesIn(miA(:,i),:) - samplesIn(miB(:,i),:));
         end
     else
         samplesOut = samplesIn(miA(:,1),:,:) - samplesIn(miB(:,1),:,:);
-        for i = 2:nDiff_filt
+        for i = 2:nDiffOrder
             samplesOut = samplesOut + i * (samplesIn(miA(:,i),:,:) - samplesIn(miB(:,i),:,:));
         end
     end

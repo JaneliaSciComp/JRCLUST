@@ -738,7 +738,7 @@ classdef CurateController < handle
         function autoMerge(obj)
             %AUTOMERGE
             % snr_thresh = inputdlgNum('SNR threshold: ', 'Auto-deletion based on SNR', 10); % also ask about # spikes/unit (or firing rate) @TODO
-            dlgAns = inputdlg('Waveform correlation threshold (0-1):', 'Auto-merge based on waveform threshold', 1, {num2str(obj.hCfg.maxWavCor)});
+            dlgAns = inputdlg('Waveform correlation threshold (0-1):', 'Auto-merge based on waveform threshold', 1, {num2str(obj.hCfg.maxUnitSim)});
 
             % parse user input
             if isempty(dlgAns)
@@ -767,7 +767,7 @@ classdef CurateController < handle
                 obj.updateFigSim();
                 obj.updateSelect(obj.selected);
 
-                jrclust.utils.qMsgBox(sprintf('Merged %d clusters >%0.2f maxWavCor.', nClustersOld - obj.hClust.nClusters, mwc));
+                jrclust.utils.qMsgBox(sprintf('Merged %d clusters >%0.2f maxUnitSim.', nClustersOld - obj.hClust.nClusters, mwc));
             else
                 jrclust.utils.tryClose(hBox);
                 jrclust.utils.qMsgBox('Auto merge failed.');

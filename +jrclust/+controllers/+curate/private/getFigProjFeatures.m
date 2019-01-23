@@ -20,8 +20,8 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
     timesToShow = hClust.spikeTimes(spikesToShow);
 
     % if we're only interested in a subset of time, just plot those spikes
-    if ~isempty(hCfg.tLimFigProj)
-        timeBound = round(hCfg.tLimFigProj*hCfg.sampleRate);
+    if ~isempty(hCfg.projTimeLimits)
+        timeBound = round(hCfg.projTimeLimits*hCfg.sampleRate);
         inLimit = (timesToShow >= timeBound(1) & timesToShow <= timeBound(end));
         spikesToShow = spikesToShow(inLimit);
     end
@@ -29,10 +29,10 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
     % get cluster assignments of spikes to show
     spikeClustersShow = hClust.spikeClusters(spikesToShow);
 
-    bgSpikes = jrclust.utils.subsample(spikesToShow, 2*hCfg.nShow_proj);
-    fgSpikes = jrclust.utils.subsample(spikesToShow(spikeClustersShow == iCluster), hCfg.nShow_proj);
+    bgSpikes = jrclust.utils.subsample(spikesToShow, 2*hCfg.nSpikesFigProj);
+    fgSpikes = jrclust.utils.subsample(spikesToShow(spikeClustersShow == iCluster), hCfg.nSpikesFigProj);
     if ~isempty(jCluster)
-        fgSpikes2 = jrclust.utils.subsample(spikesToShow(spikeClustersShow == jCluster), hCfg.nShow_proj);
+        fgSpikes2 = jrclust.utils.subsample(spikesToShow(spikeClustersShow == jCluster), hCfg.nSpikesFigProj);
     else
         [fg2YData, fg2XData] = deal([]);
     end

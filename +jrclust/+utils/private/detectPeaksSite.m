@@ -16,10 +16,10 @@ function [peakLocs, peaks, siteThresh] = detectPeaksSite(samplesIn, siteThresh, 
     siteThresh = cast(siteThresh, 'like', samplesIn);
 
     % detect turning point in waveforms exceeding threshold
-    peakLocs = findPeaks(samplesIn, siteThresh, hCfg.nneigh_min_detect);
+    peakLocs = findPeaks(samplesIn, siteThresh, hCfg.minNeighborsDetect);
 
     if hCfg.fDetectBipolar % detect positive peaks
-        peakLocs = [peakLocs; findPeaks(-samplesIn, siteThresh, hCfg.nneigh_min_detect)];
+        peakLocs = [peakLocs; findPeaks(-samplesIn, siteThresh, hCfg.minNeighborsDetect)];
         peakLocs = sort(peakLocs);
     end
 
@@ -30,8 +30,8 @@ function [peakLocs, peaks, siteThresh] = detectPeaksSite(samplesIn, siteThresh, 
         peaks = samplesIn(peakLocs);
 
         % remove overlarge spikes
-        if ~isempty(hCfg.spkThresh_max_uV)
-            threshMax = cast(abs(hCfg.spkThresh_max_uV)/hCfg.bitScaling, 'like', peaks);
+        if ~isempty(hCfg.spikeThreshMax)
+            threshMax = cast(abs(hCfg.spikeThreshMax)/hCfg.bitScaling, 'like', peaks);
             keepMe = (abs(peaks) < abs(threshMax));
             peakLocs = peakLocs(keepMe);
             peaks = peaks(keepMe);

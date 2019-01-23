@@ -29,7 +29,7 @@ The feature to extract from your spike waveforms in order to cluster them.
 One of the following:
 
 - ``gpca``: :ref:`"Global" PCA <gpca>`.
-   :ref:`nPcPerChan` sets the number of components per channel (default: 1).
+   :ref:`nPCsPerSite` sets the number of components per channel (default: 1).
    .. warning:: This feature is currently disabled due to an issue in formulation.
 - ``pca``: Projection of spike waveforms onto :ref:`principal components <pca>`.
 - ``cov``: Covariance feature.
@@ -132,9 +132,9 @@ One of the following:
 ``log10RhoCut``
 ^^^^^^^^^^^^^^^
 
-.. _maxWavCor:
+.. _maxUnitSim:
 
-``maxWavCor``
+``maxUnitSim``
 ^^^^^^^^^^^^^
 
 .. _nDiff_filt:
@@ -203,9 +203,9 @@ Must be 0 or 1.
 ``fRealign_spk``
 ^^^^^^^^^^^^^^^^
 
-.. _nFet_use:
+.. _nPeaksFeatures:
 
-``nFet_use``
+``nPeaksFeatures``
 ^^^^^^^^^^^^
 
 .. _nPassesMerge:
@@ -215,60 +215,60 @@ Must be 0 or 1.
 
 .. _nneigh_min_detect:
 
-``nneigh_min_detect``
+``minNeighborsDetect``
 ^^^^^^^^^^^^^^^^^^^^^
 
 Number of sample neighbors exceeding the detection threshold required for a sample
 to be considered a peak.
 For example, consider a putative peak occurring at sample :math:`t_i`.
-If ``nneigh_min_detect`` is set to 1, then **either** sample :math:`t_{i-1}` or :math:`t_{i+1}`
+If ``minNeighborsDetect`` is set to 1, then **either** sample :math:`t_{i-1}` or :math:`t_{i+1}`
 must also exceed the detection threshold.
-If ``nneigh_min_detect`` is set to 2, then **both** sample :math:`t_{i-1}` and :math:`t_{i+1}`
+If ``minNeighborsDetect`` is set to 2, then **both** sample :math:`t_{i-1}` and :math:`t_{i+1}`
 must also exceed the detection threshold.
-If ``nneigh_min_detect`` is set to 0, then samples :math:`t_{i-1}` and :math:`t_{i+1}`
+If ``minNeighborsDetect`` is set to 0, then samples :math:`t_{i-1}` and :math:`t_{i+1}`
 are not considered.
 
 Must be one of 0, 1, or 2.
 **Default** is 0.
 
-.. _nPcPerChan:
+.. _nPCsPerSite:
 
-``nPcPerChan``
+``nPCsPerSite``
 ^^^^^^^^^^^^^^
 
 Number of principal components to take per site.
 **Default** is 1.
 
-.. _nTime_clu:
+.. _nClusterIntervals:
 
-``nTime_clu``
+``nClusterIntervals``
 ^^^^^^^^^^^^^
 
-When clustering, take the :math:`\frac{1}{\text{nTime_clu}}` fraction of all
+When clustering, take the :math:`\frac{1}{\text{nClusterIntervals}}` fraction of all
 spikes around a spiking event to compute distance.
 
-For example, if ``nTime_clu`` = 1, all spikes will be used;
-if ``nTime_clu`` = 2, JRCLUST will take the half of all spikes which are closest
+For example, if ``nClusterIntervals`` = 1, all spikes will be used;
+if ``nClusterIntervals`` = 2, JRCLUST will take the half of all spikes which are closest
 in time to compute distances.
 Increasing this value will take fewer and fewer spikes to compare at the risk of
 oversplitting clusters (you might want to do this if you observe fast drift in your
 recording).
-However, automated merging based on the :ref:`waveform correlation <maxWavCor>`
+However, automated merging based on the :ref:`waveform correlation <maxUnitSim>`
 can merge most of the units initially split by drift.
 
 **Default** is 4.
 
-.. _refracIntms:
+.. _refracInt:
 
-``refracIntms``
+``refracInt``
 ^^^^^^^^^^^^^^^
 
 Spike refractory period, in milliseconds.
 **Default** is 25.
 
-.. _rlDetrendMode:
+.. _RDDetrendMode:
 
-``rlDetrendMode``
+``RDDetrendMode``
 ^^^^^^^^^^^^^^^^^
 
 .. _useGlobalDistCut:

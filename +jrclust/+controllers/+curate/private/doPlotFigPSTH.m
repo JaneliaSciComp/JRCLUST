@@ -119,13 +119,13 @@ function plot_figure_psth_(hFigTrial, iCluster, trialTimes, hClust, hCfg)
 end
 
 function plot_raster_clu_(clusterTimes, trialTimes, hCfg, hAx)
-    trialLength = diff(hCfg.tlim_psth); % seconds
+    trialLength = diff(hCfg.psthTimeLimits); % seconds
     nTrials = numel(trialTimes);
     spikeTimes = cell(nTrials, 1);
-    t0 = -hCfg.tlim_psth(1);
+    t0 = -hCfg.psthTimeLimits(1);
     for iTrial = 1:nTrials
         rTime_trial1 = trialTimes(iTrial);
-        vrTime_lim1 = rTime_trial1 + hCfg.tlim_psth;
+        vrTime_lim1 = rTime_trial1 + hCfg.psthTimeLimits;
         vrTime_clu1 = double(clusterTimes) / hCfg.sampleRate;
         vrTime_clu1 = vrTime_clu1(vrTime_clu1>=vrTime_lim1(1) & vrTime_clu1<vrTime_lim1(2));
         vrTime_clu1 = (vrTime_clu1 - rTime_trial1 + t0) / trialLength;
@@ -137,7 +137,7 @@ function plot_raster_clu_(clusterTimes, trialTimes, hCfg, hAx)
         'LineFormat', struct('LineWidth', 1.5), 'hAx', hAx);
     ylabel(hAx, 'Trial #')
     % title('Vertical Lines With Spike Offset of 10ms (Not Typical; for Demo Purposes)');
-    vrXTickLabel = hCfg.tlim_psth(1):(hCfg.xtick_psth):hCfg.tlim_psth(2);
+    vrXTickLabel = hCfg.psthTimeLimits(1):(hCfg.psthXTick):hCfg.psthTimeLimits(2);
     vrXTick = linspace(0,1,numel(vrXTickLabel));
     set(hAx, {'XTick', 'XTickLabel'}, {vrXTick, vrXTickLabel});
     grid(hAx, 'on');
@@ -147,9 +147,9 @@ function plot_raster_clu_(clusterTimes, trialTimes, hCfg, hAx)
 end
 
 function plot_psth_clu_(clusterTimes, trialTimes, hCfg, hAx, vcColor)
-    tbin = hCfg.tbin_psth;
+    tbin = hCfg.psthTimeBin;
     nbin = round(tbin * hCfg.sampleRate);
-    nlim = round(hCfg.tlim_psth/tbin);
+    nlim = round(hCfg.psthTimeLimits/tbin);
     viTime_Trial = round(trialTimes / tbin);
 
     vlTime1 = zeros(0);
@@ -158,13 +158,13 @@ function plot_psth_clu_(clusterTimes, trialTimes, hCfg, hAx, vcColor)
     vnRate = mean(mr1,2) / tbin;
     vrTimePlot = (nlim(1):nlim(end))*tbin + tbin/2;
     bar(hAx, vrTimePlot, vnRate, 1, 'EdgeColor', 'none', 'FaceColor', vcColor);
-    vrXTick = hCfg.tlim_psth(1):(hCfg.xtick_psth):hCfg.tlim_psth(2);
+    vrXTick = hCfg.psthTimeLimits(1):(hCfg.psthXTick):hCfg.psthTimeLimits(2);
     set(hAx, 'XTick', vrXTick, 'XTickLabel', []);
     grid(hAx, 'on');
     hold(hAx, 'on');
     plot(hAx, [0 0], get(hAx, 'YLim'), 'r-');
     ylabel(hAx, 'Rate (Hz)');
-    xlim(hAx, hCfg.tlim_psth);
+    xlim(hAx, hCfg.psthTimeLimits);
 end
 
 function mr = vr2mr2_(vr, viRow, spkLim, viCol)

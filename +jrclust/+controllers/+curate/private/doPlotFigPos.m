@@ -11,7 +11,7 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
 
     plotPosUnit(c1Data, hFigPos, hCfg, 0, maxAmp);
 
-    clusterPos = hClust.clusterCentroids(c1Data.cluster, :)/hCfg.um_per_pix;
+    clusterPos = hClust.clusterCentroids(c1Data.cluster, :)/hCfg.umPerPix;
     nSpikes = hClust.unitCount(c1Data.cluster);
 
     if numel(selected) == 1
@@ -23,7 +23,7 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
         end
     else
         nSpikes2 = hClust.unitCount(c2Data.cluster);
-        clusterPos2 = hClust.clusterCentroids(c2Data.cluster, :)/hCfg.um_per_pix;
+        clusterPos2 = hClust.clusterCentroids(c2Data.cluster, :)/hCfg.umPerPix;
         plotPosUnit(c2Data, hFigPos, hCfg, 1, maxAmp);
 
         figTitle = sprintf('Unit %d(black)/%d(red); (%d/%d) spikes\n(X=%0.1f/%0.1f, Y=%0.1f/%0.1f) [um]', ...
@@ -55,8 +55,8 @@ function plotPosUnit(cData, hFigPos, hCfg, fSecondary, maxAmp)
         sampleWf = cData.sampleWf;
     end
 
-    siteXData = hCfg.siteLoc(cData.neighbors, 1) / hCfg.um_per_pix;
-    siteYData = hCfg.siteLoc(cData.neighbors, 2) / hCfg.um_per_pix;
+    siteXData = hCfg.siteLoc(cData.neighbors, 1) / hCfg.umPerPix;
+    siteYData = hCfg.siteLoc(cData.neighbors, 2) / hCfg.umPerPix;
 
     % show example traces
     for iWav = size(sampleWf, 3):-1:0

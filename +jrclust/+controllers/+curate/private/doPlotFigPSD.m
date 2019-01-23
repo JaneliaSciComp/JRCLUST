@@ -1,8 +1,7 @@
-%function [vrPow, vrFreq] = doPlotFigPSD(hFigPSD, tracesFilt, hCfg)
 function hFigPSD = doPlotFigPSD(hFigPSD, tracesFilt, hCfg)
     nSmooth = 3;
     ignoreSites = hCfg.ignoreSites;
-    sampleRate = hCfg.sampleRate/hCfg.nSkip_show;
+    sampleRate = hCfg.sampleRate/hCfg.nSkip;
 
     %warning off;
 

@@ -7,7 +7,7 @@ function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
 
     for iCluster = 1:hClust.nClusters
         try
-            iSpikes = jrclust.utils.subsample(hClust.getCenteredSpikes(iCluster), hCfg.nSpk_show);
+            iSpikes = jrclust.utils.subsample(hClust.getCenteredSpikes(iCluster), hCfg.nSpikesFigWav);
             iSites = siteNeighbors(:, iCluster);
 
             if hCfg.showRaw

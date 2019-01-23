@@ -27,9 +27,9 @@ function [features1, features2, features3, spikeWindows] = computeFeatures(spike
     end
 
     if nargout == 1
-        if hCfg.nPcPerChan == 2
+        if hCfg.nPCsPerSite == 2
             features1 = cat(1, features1, features2);
-        elseif hCfg.nPcPerChan == 3
+        elseif hCfg.nPCsPerSite == 3
             features1 = cat(1, features1, features2, features3);
         end
     end

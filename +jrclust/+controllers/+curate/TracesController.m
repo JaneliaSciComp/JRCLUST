@@ -80,7 +80,7 @@ classdef TracesController < handle
                             end
                     end % switch
 
-                    nTimeTraces = obj.hCfg.nTime_traces;
+                    nTimeTraces = obj.hCfg.nSegmentsTraces;
                     multiBounds = sample_skip_(windowBounds, obj.hFigTraces.figData.nSamplesTotal, nTimeTraces);
 
                     tracesRaw_ = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', 0);
@@ -277,7 +277,7 @@ classdef TracesController < handle
                 windowBounds = [-windowWidth + 1, 0] + nSamplesTotal;
             end
 
-            multiBounds = sample_skip_(windowBounds, nSamplesTotal, obj.hCfg.nTime_traces);
+            multiBounds = sample_skip_(windowBounds, nSamplesTotal, obj.hCfg.nSegmentsTraces);
 
             obj.tracesFull = [];
             tracesRaw_ = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', 0);
@@ -286,7 +286,7 @@ classdef TracesController < handle
         %     if obj.hCfg.fTranspose_bin
         %         obj.tracesFull = [];
         %         fseek_(fid_bin, iSampleOffset, obj.hCfg);
-        %         if obj.hCfg.nTime_traces > 1
+        %         if obj.hCfg.nSegmentsTraces > 1
         %             obj.tracesRaw = load_bin_multi_(fid_bin, cvn_lim_bin, obj.hCfg)';
         %         else
         %             obj.tracesRaw = jrclust.utils.readBin(fid_bin, obj.hCfg.vcDataType, [obj.hCfg.nChans, windowWidth])'; %next keypress: update tlim_show

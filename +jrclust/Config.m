@@ -21,7 +21,6 @@ classdef Config < dynamicprops
         fGpu;                       % => useGPU
         filter_sec_rate;            % => frPeriod
         filter_shape_rate;          % => frFilterShape
-        fRepeat_clu;                % => repeatLower
         fVerbose;                   % => verbose
         fWav_raw_show;              % => showRaw
         gain_boost;                 % => gainBoost
@@ -48,7 +47,7 @@ classdef Config < dynamicprops
         spkLim_raw;                 % => evtWindowRawSamp
         spkLim_raw_ms;              % => evtWindowRaw
         spkRefrac;                  % => refracIntSamp
-        spkRefrac_ms;               % => refracIntms
+        spkRefrac_ms;               % => refracInt
         spkThresh;                  % => evtManualThreshSamp
         spkThresh_uV;               % => evtManualThresh
         sRateHz;                    % => sampleRate
@@ -62,7 +61,7 @@ classdef Config < dynamicprops
         uV_per_bit;                 % => bitScaling
         vcCommonRef;                % => CARMode
         vcDataType;                 % => dataType
-        vcDetrend_postclu;          % => rlDetrendMode
+        vcDetrend_postclu;          % => RDDetrendMode
         vcFet;                      % => clusterFeature
         vcFet_show;                 % => dispFeature
         vcFile_aux;                 % => auxFile
@@ -94,7 +93,7 @@ classdef Config < dynamicprops
         % computation params
         useParfor = 1;                % use parfor where appropriate
         gpuLoadFactor = 5;          % GPU memory usage factor (4x means 1/4 of GPU memory can be loaded)
-        nThreads = 128;             % number of gpu threads
+        nThreadsGPU = 128;             % number of gpu threads
         randomSeed = 0;             % random seed
         ramToGPUFactor = 8;         % ratio: RAM / (GPU memory) (increase this number if GPU memory error)
         useGPU = 1;                 % use GPU in computation if true
@@ -145,12 +144,12 @@ classdef Config < dynamicprops
         evtWindowRaw = [-0.5 1.5];  % interval around event to extract raw spike waveforms, in ms
         groupShank = 0;           % group all sites in the same shank if true
         ignoreSites = [];           % sites to manually ignore in the sorting
-        nDiff_filt = 2;             % Differentiation filter for filterType='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
-        nneigh_min_detect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
+        nDiffOrder = 2;             % Differentiation filter for filterType='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
+        minNeighborsDetect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
         nSiteDir;                   % number of neighboring sites to group in each direction (TODO: deprecate this)
         nSitesExcl;                 % number of sites to exclude from the spike waveform group
         qqFactor = 5;
-        refracIntms = 0.25;         % spike refractory interval, in ms
+        refracInt = 0.25;         % spike refractory interval, in ms
         siteCorrThresh = 0;         % reject bad sites based on max correlation with neighboring sites, using raw waveforms; ignored if 0
         spkThresh_max_uV = [];      % maximum absolute amp. allowed
         threshFile = '';            % path to .mat file storing spike detection thresholds (created by 'preview' GUI)
@@ -159,10 +158,10 @@ classdef Config < dynamicprops
         clusterFeature = 'pca';             % feature to use in clustering
         interpPC = 1;                    % interpolate waveforms for feature projection to find optimal delay (2x interp) if true
         fSpatialMask_clu = 0;               % apply spatial mask calculated from the distances between sites to the peak site (half-scale: evtDetectRad)
-        min_sites_mask = 5;                 % minimum number of sites to have to apply spatial mask
-        nFet_use = 2;                       % undocumented
-        nPcPerChan = 1;
-        time_feature_factor;                % undocumented
+        minSitesWeightFeatures = 5;                 % minimum number of sites to have to apply spatial mask
+        nPeaksFeatures = 2;                       % undocumented
+        nPCsPerSite = 1;
+        timeFeatureFactor;                % undocumented
 
         % clustering params
         autoMergeBy = 'pearson';            % metric to use when automerging clusters
@@ -172,15 +171,14 @@ classdef Config < dynamicprops
         log10RhoCut = -2.5;                 % the base-10 log of the rho cutoff value
         maxClustersSite = 20;               % maximum number of clusters per site if local detrending is used
         minClusterSize = 30;                % minimum cluster size (set to 2*#features if lower)
-        maxWavCor = 0.98;                   %
+        maxUnitSim = 0.98;                   %
         nInterp_merge = 1;                  % Interpolation factor for the mean unit waveforms, set to 1 to disable
         nPassesMerge = 10;                  % number of passes for unit mean raw waveform-based merging
         outlierThresh = 7.5;                % threshold to remove outlier spikes for each cluster, in MAD
-        nTime_clu = 4;                      % number of time periods over which to cluster separately (later to be merged after clustering)
-        repeatLower = 0;                    % repeat clustering for the bottom half of the cluster amplitudes if true
-        rlDetrendMode = 'global';           %
-        spkLim_factor_merge = 1;            % Waveform range for computing the correlation. spkLim_factor_merge <= spkLim_raw_factor_merge. circa v3.1.8
-        useGlobalDistCut = 1;               % use a global distance cutoff for all sites if true; otherwise use different cutoff values for each site
+        nClusterIntervals = 4;                      % number of time periods over which to cluster separately (later to be merged after clustering)
+        RDDetrendMode = 'global';           %
+        evtWindowMergeFactor = 1;            % Waveform range for computing the correlation. evtWindowMergeFactor <= spkLim_raw_factor_merge. circa v3.1.8
+        useGlobalDistCut = 0;               % use a global distance cutoff for all sites if true; otherwise use different cutoff values for each site
 
         % display params
         corrRange = [0.9 1];
@@ -194,20 +192,19 @@ classdef Config < dynamicprops
                     0   130 196; ...
                     240 119 22]/256;
         nShow = 200;                        % maximum number of traces to show [D?# spikes to show]
-        nShow_proj = 500;                   % maximum number of features to show in projection
+        nSpikesFigProj = 500;                   % maximum number of features to show in projection
         nSitesFigProj = 5;                  % number of sites to display in the feature projection view
-        nSkip_show = 1;
-        nTime_traces = 1;                   % number of time segments to display. Set to 1 to show one continuous time segment
-        nSpk_show = 30;                     % show spike waveforms for manual clustering
+        nSkip = 1;
+        nSegmentsTraces = 1;                   % number of time segments to display. Set to 1 to show one continuous time segment
+        nSpikesFigWav = 30;                     % show spike waveforms for manual clustering
         pcPair = [1 2];                     % PC projection to show (1 vs 2; 1 vs 3; 2 vs 3), can be toggled
         showRaw = 0;                        % show raw waveforms in main view if true
-        time_tick_show = [];                %
-        tLimFigProj = [];                   % time range to display in feature view, in seconds
-        um_per_pix = 20;                    %
+        projTimeLimits = [];                   % time range to display in feature view, in seconds
+        umPerPix = 20;                    %
 
         % preview GUI params
-        nLoads_max_preview = 30;            % number of time segments to load for preview
-        sec_per_load_preview = 1;           % recording duration per continuous segment to preview (in sec)
+        nLoadsMaxPreview = 30;            % number of time segments to load for preview
+        nSecsLoadPreview = 1;           % recording duration per continuous segment to preview (in sec)
 
         % parameters for estimating firing rate
         frPeriod = 2;            % time period to determine the firing rate
@@ -224,9 +221,9 @@ classdef Config < dynamicprops
 
         % trial parameters
         trialFile = '';                     % .mat or .csv file containing timestamp in seconds unit. use any variable name.
-        tlim_psth = [-1 5];                 % Time range to display PSTH (in seconds)
-        tbin_psth = .01;                    % Time bin for the PSTH histogram (in seconds)
-        xtick_psth = .2;                    % PSTH time tick mark spacing
+        psthTimeLimits = [-1 5];                 % Time range to display PSTH (in seconds)
+        psthTimeBin = .01;                    % Time bin for the PSTH histogram (in seconds)
+        psthXTick = .2;                    % PSTH time tick mark spacing
     end
 
     %% NEW-STYLE PARAMS, not publicly settable
@@ -1334,11 +1331,11 @@ classdef Config < dynamicprops
             obj.maxSecLoad = ms;
         end
 
-        % maxWavCor
-        function set.maxWavCor(obj, mw)
-            failMsg = 'maxWavCor must be between 0 and 1';
+        % maxUnitSim
+        function set.maxUnitSim(obj, mw)
+            failMsg = 'maxUnitSim must be between 0 and 1';
             assert(jrclust.utils.isscalarnum(mw) && mw >= 0 && mw <= 1, failMsg);
-            obj.maxWavCor = mw;
+            obj.maxUnitSim = mw;
         end
 
         % minClusterSize/min_count
@@ -1376,10 +1373,10 @@ classdef Config < dynamicprops
             obj.nClustersShowAux = nc;
         end
 
-        % nFet_use
-        function set.nFet_use(obj, nf)
-            assert(jrclust.utils.isscalarnum(nf) && ~isempty(intersect(nf, [1 2 3])), 'nFet_use must be 1, 2, or 3');
-            obj.nFet_use = nf;
+        % nPeaksFeatures
+        function set.nPeaksFeatures(obj, nf)
+            assert(jrclust.utils.isscalarnum(nf) && ~isempty(intersect(nf, [1 2 3])), 'nPeaksFeatures must be 1, 2, or 3');
+            obj.nPeaksFeatures = nf;
         end
 
         % nPassesMerge/nRepeat_merge
@@ -1534,26 +1531,26 @@ classdef Config < dynamicprops
             obj.randomSeed = rs;
         end
 
-        % refracIntms/spkRefrac_ms
-        function set.refracIntms(obj, ri)
+        % refracInt/spkRefrac_ms
+        function set.refracInt(obj, ri)
             assert(jrclust.utils.isscalarnum(ri) && ri > 0, 'refractory interval must be a positive scalar');
-            obj.refracIntms = ri;
+            obj.refracInt = ri;
         end
         function ri = get.spkRefrac_ms(obj)
             obj.logOldP('spkRefrac_ms');
-            ri = obj.refracIntms;
+            ri = obj.refracInt;
         end
         function set.spkRefrac_ms(obj, ri)
             obj.logOldP('spkRefrac_ms');
-            obj.refracIntms = ri;
+            obj.refracInt = ri;
         end
 
         % refracIntSamp/spkRefrac
         function ri = get.refracIntSamp(obj)
-            ri = round(obj.refracIntms * obj.sampleRate / 1000);
+            ri = round(obj.refracInt * obj.sampleRate / 1000);
         end
         function set.refracIntSamp(obj, ri)
-            obj.refracIntms = ri * 1000 / obj.sampleRate;
+            obj.refracInt = ri * 1000 / obj.sampleRate;
         end
         function ri = get.spkRefrac(obj)
             obj.logOldP('spkRefrac');
@@ -1564,34 +1561,20 @@ classdef Config < dynamicprops
             obj.refracIntSamp = ri;
         end
 
-        % repeatLower/fRepeat_clu
-        function set.repeatLower(obj, rl)
-            rl = rl && 1;
-            obj.repeatLower = rl;
-        end
-        function rl = get.fRepeat_clu(obj)
-            obj.logOldP('fRepeat_clu');
-            rl = obj.repeatLower;
-        end
-        function set.fRepeat_clu(obj, rl)
-            obj.logOldP('fRepeat_clu');
-            obj.repeatLower = rl;
-        end
-
-        % rlDetrendMode/vcDetrend_postclu
-        function set.rlDetrendMode(obj, dm)
+        % RDDetrendMode/vcDetrend_postclu
+        function set.RDDetrendMode(obj, dm)
             legalTypes = {'global', 'local', 'logz', 'hidehiko', 'none'};
-            failMsg = sprintf('legal rlDetrendModes are %s', strjoin(legalTypes, ', '));
+            failMsg = sprintf('legal RDDetrendModes are %s', strjoin(legalTypes, ', '));
             assert(sum(strcmp(dm, legalTypes)) == 1, failMsg);
-            obj.rlDetrendMode = dm;
+            obj.RDDetrendMode = dm;
         end
         function dm = get.vcDetrend_postclu(obj)
             obj.logOldP('vcDetrend_postclu');
-            dm = obj.rlDetrendMode;
+            dm = obj.RDDetrendMode;
         end
         function set.vcDetrend_postclu(obj, dm)
             obj.logOldP('vcDetrend_postclu');
-            obj.rlDetrendMode = dm;
+            obj.RDDetrendMode = dm;
         end
 
         % sampleRate/sRateHz

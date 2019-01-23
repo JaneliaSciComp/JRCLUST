@@ -24,9 +24,9 @@ function [samplesIn, channelMeans] = filtCAR(samplesIn, windowPre, windowPost, t
     elseif strcmp(hCfg.filterType, 'fir1')
         samplesIn = jrclust.filters.fir1Filter(samplesIn, ceil(5*hCfg.sampleRate/1000), 2*hCfg.freqLimBP/hCfg.sampleRate);
     elseif strcmp(hCfg.filterType, 'ndiff')
-        samplesIn = jrclust.filters.ndiffFilter(samplesIn, hCfg.nDiff_filt);
+        samplesIn = jrclust.filters.ndiffFilter(samplesIn, hCfg.nDiffOrder);
     elseif strcmp(hCfg.filterType, 'sgdiff')
-        samplesIn = jrclust.filters.sgFilter(samplesIn, hCfg.nDiff_filt);
+        samplesIn = jrclust.filters.sgFilter(samplesIn, hCfg.nDiffOrder);
     elseif strcmp(hCfg.filterType, 'bandpass')
         filtOpts = struct('filtOrder', hCfg.filtOrder, ...
                           'sampleRate', hCfg.sampleRate, ...
@@ -37,7 +37,7 @@ function [samplesIn, channelMeans] = filtCAR(samplesIn, windowPre, windowPost, t
                           'nSamplesPad', hCfg.nSamplesPad, ...
                           'useGPUFilt', hCfg.useGPU, ...
                           'gainBoost', hCfg.gainBoost, ...
-                          'nDiff_filt', hCfg.nDiff_filt);
+                          'nDiffOrder', hCfg.nDiffOrder);
         samplesIn = jrclust.filters.bandpassFilter(samplesIn, filtOpts);
     end
 

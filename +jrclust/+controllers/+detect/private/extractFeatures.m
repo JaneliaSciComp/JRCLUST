@@ -21,11 +21,11 @@ function spikeData = extractFeatures(spikeData, hCfg)
     end
 
     % get secondary/tertiary peaks and extract windows from them to compute features
-    if hCfg.nFet_use >= 2
+    if hCfg.nPeaksFeatures >= 2
         [spikeSites2, spikeSites3] = findSecondaryPeaks(windowsFilt, spikeSites_, hCfg);
         windowsFilt2 = samplesToWindows2(samplesFilt, spikeSites2, spikeTimes, hCfg);
 
-        if hCfg.nFet_use == 3
+        if hCfg.nPeaksFeatures == 3
             windowsFilt3 = samplesToWindows2(samplesFilt, spikeSites3, spikeTimes, hCfg);
         end
     else
@@ -41,7 +41,7 @@ function spikeData = extractFeatures(spikeData, hCfg)
         end
     end
 
-    if hCfg.nFet_use == 1
+    if hCfg.nPeaksFeatures == 1
         features1 = jrclust.features.computeFeatures(windowsFilt, hCfg);
         if hCfg.verbose
             fprintf('.');
@@ -49,7 +49,7 @@ function spikeData = extractFeatures(spikeData, hCfg)
 
         spikeFeatures = permute(features1, [1, 3, 2]); % nSites x nFeatures x nSpikes
         centerSites_ = spikeSites_(:);
-    elseif hCfg.nFet_use == 2
+    elseif hCfg.nPeaksFeatures == 2
         features1 = jrclust.features.computeFeatures(windowsFilt, hCfg);
         if hCfg.verbose
             fprintf('.');
@@ -62,7 +62,7 @@ function spikeData = extractFeatures(spikeData, hCfg)
 
         spikeFeatures = permute(cat(3, features1, features2), [1, 3, 2]); % nSites x nFeatures x nSpikes
         centerSites_ = [spikeSites_(:), spikeSites2(:)]; % nSpikes x nFeatures
-    else % hCfg.nFet_use == 3
+    else % hCfg.nPeaksFeatures == 3
         features1 = jrclust.features.computeFeatures(windowsFilt, hCfg);
         if hCfg.verbose
             fprintf('.');

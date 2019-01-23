@@ -25,9 +25,9 @@ function hFigISI = doPlotFigISI(hFigISI, hClust, hCfg, selected)
 
         % show refractory line
         %line(get(S_fig.hAx,'XLim'), hCfg.spkRefrac_ms*[1 1], 'Color', [1 0 0]);
-        hFigISI.addPlot('refracLine1', @line, hFigISI.axApply('default', @get, 'XLim'), hCfg.refracIntms*[1 1], 'Color', [1 0 0]);
+        hFigISI.addPlot('refracLine1', @line, hFigISI.axApply('default', @get, 'XLim'), hCfg.refracInt*[1 1], 'Color', [1 0 0]);
         %line(hCfg.spkRefrac_ms*[1 1], get(S_fig.hAx,'YLim'), 'Color', [1 0 0]);
-        hFigISI.addPlot('refracLine2', @line, hCfg.refracIntms*[1 1], hFigISI.axApply('default', @get, 'YLim'), 'Color', [1 0 0]);
+        hFigISI.addPlot('refracLine2', @line, hCfg.refracInt*[1 1], hFigISI.axApply('default', @get, 'YLim'), 'Color', [1 0 0]);
     end
 
     hFigISI.updatePlot('foreground', iIsiK, iIsiK1);
@@ -51,7 +51,7 @@ function [isiK, isiK1] = getReturnMap(iCluster, hClust, hCfg)
     %isiK = clusterISIMs(1:end-1);
     %isiK1 = clusterISIMs(2:end);
     %subset = randperm(numel(isiK), min(hCfg.nShow, numel(isiK)));
-    subset = randperm(numel(clusterISIMs) - 1, min(hCfg.nShow, numel(clusterISIMs) - 1));
+    subset = randperm(numel(clusterISIMs) - 1, min(hCfg.nSpikesFigISI, numel(clusterISIMs) - 1));
     %isiK = isiK(subset);
     isiK = clusterISIMs(subset);
     %isiK1 = isiK1(subset);

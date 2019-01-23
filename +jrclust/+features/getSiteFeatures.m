@@ -3,8 +3,8 @@ function [siteFeatures, spikes, n1, n2, spikeOrder] = getSiteFeatures(spikeFeatu
     %GETSITEFEATURES Get features occurring on primary and secondary (optionally tertiary) sites
     [siteFeatures, spikes, n1, n2, spikeOrder] = deal([]);
 
-    nFet_use = hCfg.nFet_use; % or maybe size(spikeFeatures, 2) ? 
-    time_feature_factor = hCfg.getOr('time_feature_factor', 0); % TW
+    nPeaksFeatures = hCfg.nPeaksFeatures; % or maybe size(spikeFeatures, 2) ? 
+    timeFeatureFactor = hCfg.getOr('timeFeatureFactor', 0); % TW
 
     if isfield(spikeData, 'spikes1') && ~isempty(spikeData.spikes1)
         spikes1 = int32(spikeData.spikes1);
@@ -16,7 +16,7 @@ function [siteFeatures, spikes, n1, n2, spikeOrder] = getSiteFeatures(spikeFeatu
         spikes2 = int32(spikeData.spikes2);
     else
         spikes2 = [];
-        nFet_use = 1;
+        nPeaksFeatures = 1;
     end
 
     if isfield(spikeData, 'spikes3') && ~isempty(spikeData.spikes3)
@@ -35,19 +35,19 @@ function [siteFeatures, spikes, n1, n2, spikeOrder] = getSiteFeatures(spikeFeatu
     n2 = numel(spikes2);
 
     % get features for each site
-    if nFet_use == 1
+    if nPeaksFeatures == 1
         siteFeatures = [squeeze(spikeFeatures(:, 1, spikes1)); single(spikeData.spikeTimes(spikes1))']; % TW
-        siteFeatures(end, :) = time_feature_factor*std(siteFeatures(1, :)).*siteFeatures(end, :)./std(siteFeatures(end, :)); % TW
+        siteFeatures(end, :) = timeFeatureFactor*std(siteFeatures(1, :)).*siteFeatures(end, :)./std(siteFeatures(end, :)); % TW
 
         spikes = spikes1;
-    elseif nFet_use == 2
+    elseif nPeaksFeatures == 2
         siteFeatures = [squeeze(spikeFeatures(:, 1, spikes1)), squeeze(spikeFeatures(:, 2, spikes2)); single(spikeData.spikeTimes([spikes1; spikes2]))']; % TW
-        siteFeatures(end, :) = time_feature_factor*std(siteFeatures(1, :)).*siteFeatures(end, :)./std(siteFeatures(end, :)); % TW
+        siteFeatures(end, :) = timeFeatureFactor*std(siteFeatures(1, :)).*siteFeatures(end, :)./std(siteFeatures(end, :)); % TW
 
         spikes = [spikes1; spikes2];
-    else % nFet_use == 3
+    else % nPeaksFeatures == 3
         siteFeatures = [squeeze(spikeFeatures(:, 1, spikes1)), squeeze(spikeFeatures(:, 2, spikes2)), squeeze(spikeFeatures(:, 3, spikes3)); single(spikeData.spikeTimes([spikes1; spikes2; spikes3]))'];
-        siteFeatures(end, :) = time_feature_factor*std(siteFeatures(1, :)).*siteFeatures(end, :)./std(siteFeatures(end, :)); % TW
+        siteFeatures(end, :) = timeFeatureFactor*std(siteFeatures(1, :)).*siteFeatures(end, :)./std(siteFeatures(end, :)); % TW
 
         spikes = [spikes1; spikes2; spikes3];
         n2 = n2 + numel(spikes3);
@@ -57,7 +57,7 @@ function [siteFeatures, spikes, n1, n2, spikeOrder] = getSiteFeatures(spikeFeatu
     try
         nSites = hCfg.nSitesEvt;
 
-        if hCfg.fSpatialMask_clu && nSites >= hCfg.min_sites_mask
+        if hCfg.fSpatialMask_clu && nSites >= hCfg.minSitesWeightFeatures
             nFeaturesPerSite = size(siteFeatures, 1) / nSites;
 
             weights = distWeight(site, nSites, hCfg);

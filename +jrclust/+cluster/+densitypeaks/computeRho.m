@@ -19,8 +19,8 @@ function res = computeRho(dRes, res, hCfg)
     ptxFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.ptx');
     cuFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.cu');
     rhoCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
-    rhoCK.ThreadBlockSize = [hCfg.nThreads, 1];
-    rhoCK.SharedMemorySize = 4 * chunkSize * (2 + nC_max + 2*hCfg.nThreads);
+    rhoCK.ThreadBlockSize = [hCfg.nThreadsGPU, 1];
+    rhoCK.SharedMemorySize = 4 * chunkSize * (2 + nC_max + 2*hCfg.nThreadsGPU);
 
     spikeData = struct('spikeTimes', dRes.spikeTimes);
     for iSite = 1:hCfg.nSites
@@ -77,7 +77,7 @@ end
 function rho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, rhoCut, rhoCK, hCfg)
     %COMPUTERHOSITE Compute site-wise rho for spike features
     [nC, n12] = size(siteFeatures); % nc is constant with the loop
-    dn_max = int32(round((n1 + n2) / hCfg.nTime_clu));
+    dn_max = int32(round((n1 + n2) / hCfg.nClusterIntervals));
 
     rhoCut = single(rhoCut);
     if hCfg.useGPU
@@ -169,7 +169,7 @@ function rhoCut = estRhoCutSite(siteFeatures, spikeOrder, n1, n2, hCfg)
         try
             featureDists = pdist2(siteFeatures', featuresPrimary').^2;
 
-            fSubset = abs(bsxfun(@minus, spikeOrder, spikeOrderPrimary')) < (n1 + n2) / hCfg.nTime_clu;
+            fSubset = abs(bsxfun(@minus, spikeOrder, spikeOrderPrimary')) < (n1 + n2) / hCfg.nClusterIntervals;
             featureDists(~fSubset) = nan;
         catch ME
             siteFeatures = jrclust.utils.tryGather(siteFeatures);

@@ -15,7 +15,7 @@ So instead of computing the distance between a spike and *every* other spike, we
 restrict our comparison of spikes on site :math:`K` to spikes which either
 also peak on site :math:`K`, or have a :ref:`secondary peak <compute-features>`
 on site :math:`K`.
-Additionally, :ref:`if you specify <nTime_clu>`, we also restrict our comparison
+Additionally, :ref:`if you specify <nClusterIntervals>`, we also restrict our comparison
 to spikes occurring nearby in time (you might want to do this if you observe
 drift in your recording).
 This has a tendency to oversplit clusters, but they can be
@@ -49,7 +49,7 @@ You must :ref:`specify <log10RhoCut>` the :ref:`thresholds <log10DeltaCut>` to
 determine a cluster center.
 In particular, a spike :math:`i` must have :math:`\log_{10}(\rho_i) > \text{log10RhoCut}` ("sufficiently dense")
 and :math:`\log_{10}(\delta_i) > \text{log10DeltaCut}` ("sufficiently far").
-If :ref:`you specify <rlDetrendMode>`, this comparison may be made against a
+If :ref:`you specify <RDDetrendMode>`, this comparison may be made against a
 detrended plot, as in the images below.
 
 .. image:: /.static/rdPlot.png
@@ -78,7 +78,7 @@ Additionally, a time shift is applied between each pair to find the maximum cros
 The similarity score is taken as the maximum score from the resulting
 :math:`3 \times 3` correlation matrix for each unit pair.
 Any cluster pair whose maximum similarity exceeds a threshold
-:ref:`you specify <maxWavCor>` is merged.
+:ref:`you specify <maxUnitSim>` is merged.
 
 This process is repeated :ref:`some number of times <nPassesMerge>` and the resulting clustering
 is output for inspection.

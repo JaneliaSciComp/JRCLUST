@@ -1,6 +1,6 @@
 function resetFigTraces(hFigTraces, rawTraces, hCfg)
     %RESETFIGTRACES
-    if hCfg.nTime_traces > 1
+    if hCfg.nSegmentsTraces > 1
         tlim1 = ([0, size(rawTraces, 2)] + hFigTraces.figData.windowBounds(1) - 1) / hCfg.sampleRate;
         tlim1 = round(tlim1*1000)/1000;
 

@@ -10,9 +10,9 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
 
     hFigTraces.wait(1);
 
-    sampleRate = hCfg.sampleRate / hCfg.nSkip_show;
-    viSamples1 = 1:hCfg.nSkip_show:size(tracesRaw, 2);
-    evtWindowSamp = round(hCfg.evtWindowSamp / hCfg.nSkip_show); %show 2x of range
+    sampleRate = hCfg.sampleRate / hCfg.nSkip;
+    viSamples1 = 1:hCfg.nSkip:size(tracesRaw, 2);
+    evtWindowSamp = round(hCfg.evtWindowSamp / hCfg.nSkip); %show 2x of range
 
     if strcmpi(hFigTraces.figData.filter, 'on')
         % back up old settings
@@ -41,15 +41,15 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
         filterToggle = 'off';
     end
 
-    if hCfg.nTime_traces == 1
-        XData = ((hFigTraces.figData.windowBounds(1):hCfg.nSkip_show:hFigTraces.figData.windowBounds(end))-1) / hCfg.sampleRate;
+    if hCfg.nSegmentsTraces == 1
+        XData = ((hFigTraces.figData.windowBounds(1):hCfg.nSkip:hFigTraces.figData.windowBounds(end))-1) / hCfg.sampleRate;
         XLabel = 'Time (s)';
     else
-        XData = (0:(size(tracesFilt, 2) - 1)) / (hCfg.sampleRate / hCfg.nSkip_show) + (hFigTraces.figData.windowBounds(1)-1) / hCfg.sampleRate;
-        [multiBounds, multiRange, multiEdges] = sample_skip_(hFigTraces.figData.windowBounds, hFigTraces.figData.nSamplesTotal, hCfg.nTime_traces);
+        XData = (0:(size(tracesFilt, 2) - 1)) / (hCfg.sampleRate / hCfg.nSkip) + (hFigTraces.figData.windowBounds(1)-1) / hCfg.sampleRate;
+        [multiBounds, multiRange, multiEdges] = sample_skip_(hFigTraces.figData.windowBounds, hFigTraces.figData.nSamplesTotal, hCfg.nSegmentsTraces);
 
         tlim_show = (cellfun(@(x) x(1), multiBounds([1, end]))) / hCfg.sampleRate;
-        XLabel = sprintf('Time (s), %d segments merged (%0.1f ~ %0.1f s, %0.2f s each)', hCfg.nTime_traces, tlim_show, diff(hCfg.tlim));
+        XLabel = sprintf('Time (s), %d segments merged (%0.1f ~ %0.1f s, %0.2f s each)', hCfg.nSegmentsTraces, tlim_show, diff(hCfg.tlim));
 
         mrX_edges = XData(repmat(multiEdges(:)', [3, 1]));
         mrY_edges = repmat([0; hCfg.nSites + 1; nan], 1, numel(multiEdges));
@@ -90,16 +90,16 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
         recTimes = hClust.spikeTimes - int32(offset);
 
         tStart = single(hFigTraces.figData.windowBounds(1) - 1)/hCfg.sampleRate;
-        if hCfg.nTime_traces > 1
+        if hCfg.nSegmentsTraces > 1
             spikesInRange = inRange(recTimes, multiBounds);
             spikeSites = hClust.spikeSites(spikesInRange);
             spikeTimes = double(recTimes(spikesInRange));
-            spikeTimes = round(whereMember(spikeTimes, multiRange) / hCfg.nSkip_show);
+            spikeTimes = round(whereMember(spikeTimes, multiRange) / hCfg.nSkip);
         else
             spikesInRange = recTimes >= hFigTraces.figData.windowBounds(1) & recTimes < hFigTraces.figData.windowBounds(end);
             spikeSites = hClust.spikeSites(spikesInRange);
             spikeTimes = double(recTimes(spikesInRange));
-            spikeTimes = round((spikeTimes - hCfg.sampleRate*tStart) / hCfg.nSkip_show); % time offset
+            spikeTimes = round((spikeTimes - hCfg.sampleRate*tStart) / hCfg.nSkip); % time offset
         end
 
         spikeSites = single(spikeSites);

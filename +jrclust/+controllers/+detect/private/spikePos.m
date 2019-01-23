@@ -1,7 +1,7 @@
 % function positions = spk_pos_(S0, trFet_spk)
 function positions = spikePos(spikeSites, spikeFeatures, hCfg)
     %SPIKEPOS
-    nSites_spk = 1 + hCfg.maxSite*2 - hCfg.nSites_ref;
+    nSites_spk = 1 + hCfg.maxSite*2 - hCfg.nSitesExcl;
 
     mrVp = squeeze(spikeFeatures(1:nSites_spk, 1, :)) .^ 2;
     vrVp = sum(mrVp);

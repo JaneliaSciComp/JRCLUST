@@ -52,12 +52,12 @@ function [features1, features2, features3] = projectInterp(spikeWindows, prVecs,
     % project spikes onto first PC
     features1 = reshape(prVecs(:, 1)'*spikeWaveforms, shape(2:3))';
 
-    if hCfg.nPcPerChan >= 2 % project spikes onto second PC
+    if hCfg.nPCsPerSite >= 2 % project spikes onto second PC
         features2 = reshape(prVecs(:, 2)'*spikeWaveforms, shape(2:3))';
     else
         features2 = [];
     end
-    if hCfg.nPcPerChan == 3 % project spikes onto third PC
+    if hCfg.nPCsPerSite == 3 % project spikes onto third PC
         features3 = reshape(prVecs(:, 3)'*spikeWaveforms, shape(2:3))';
     else
         features3 = [];
