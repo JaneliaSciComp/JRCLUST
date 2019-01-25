@@ -675,6 +675,19 @@
             },
             "section": ["display"]
         },
+        "detectBipolar": {
+            "description": "Detect positive as well as negative peaks",
+            "comment": "",
+            "default_value": false,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": [
+                "spike detection"
+            ]
+        },
         "dispFeature": {
             "description": "Feature to display in the feature projection plot",
             "comment": "",

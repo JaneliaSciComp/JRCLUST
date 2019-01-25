@@ -4,82 +4,123 @@ classdef Config < dynamicprops
 
     %% OBJECT-LEVEL PROPERTIES
     properties (Hidden, SetAccess=private, SetObservable)
+        configFile;
         errMsg;
         isLoaded;
         isError;
         oldPcount;
         paramSet;
+        probeFile;
         oldParamSet;
         tempParams;
     end
 
     %% OLD-STYLE PARAMS, publicly settable (will be deprecated after a grace period)
     properties (SetObservable, Dependent, Hidden, Transient)
-        autoMergeCriterion;         % => autoMergeBy
-        blank_thresh;               % => blankThresh
-        csFile_merge;               % => rawRecordings
-        delta1_cut;                 % => log10DeltaCut
-        fft_thresh;                 % => fftThreshMad
-        fGpu;                       % => useGPU
-        filter_sec_rate;            % => frPeriod
-        filter_shape_rate;          % => frFilterShape
-        fVerbose;                   % => verbose
-        fWav_raw_show;              % => showRaw
-        gain_boost;                 % => gainBoost
-        header_offset;              % => headerOffset
-        iChan_aux;                  % => auxChan
-        MAX_BYTES_LOAD;             % => maxBytesLoad
-        MAX_LOAD_SEC;               % => maxSecLoad
-        maxCluPerSite;              % => maxClustersSite
-        maxDist_site_um;            % => evtMergeRad
-        maxDist_site_spk_um;        % => evtDetectRad
-        maxSite;                    % => nSiteDir
-        min_count;                  % => minClusterSize
-        mrSiteXY;                   % => siteLoc
-        nClu_show_aux;              % => nClustersShowAux
-        nLoads_gpu;                 % => ramToGPUFactor
-        nPad_filt;                  % => nSamplesPad
-        nRepeat_merge;              % => nPassesMerge
-        nSites_ref;                 % => nSitesExcl
-        nSkip_lfp;                  % => lfpDsFactor
-        probe_file;                 % => probeFile
-        rho_cut;                    % => log10RhoCut
-        spkLim;                     % => evtWindowSamp
-        spkLim_ms;                  % => evtWindow
-        spkLim_raw;                 % => evtWindowRawSamp
-        spkLim_raw_ms;              % => evtWindowRaw
-        spkRefrac;                  % => refracIntSamp
-        spkRefrac_ms;               % => refracInt
-        spkThresh;                  % => evtManualThreshSamp
-        spkThresh_uV;               % => evtManualThresh
-        sRateHz;                    % => sampleRate
-        sRateHz_aux;                % => auxSampleRate
-        sRateHz_lfp;                % => lfpSampleRate
-        sRateHz_rate;               % => frSampleRate
-        thresh_corr_bad_site;       % => siteCorrThresh
-        thresh_mad_clu;             % => outlierThresh
-        tlim;                       % => dispTimeLimits
-        tlim_load;                  % => loadTimeLimits
-        uV_per_bit;                 % => bitScaling
-        vcCommonRef;                % => CARMode
-        vcDataType;                 % => dataType
-        vcDetrend_postclu;          % => RDDetrendMode
-        vcFet;                      % => clusterFeature
-        vcFet_show;                 % => dispFeature
-        vcFile_aux;                 % => auxFile
-        vcFile_gt;                  % => gtFile
-        vcFile_prm;                 % => configFile
-        vcFile_thresh;              % => threshFile
-        vcFile_trial;               % => trialFile
-        vcFilter;                   % => filterType
-        vcFilter_show;              % => dispFilter
-        vcLabel_aux;                % => auxLabel
-        viShank_site;               % => shankMap
-        vnFilter_user;              % => userFiltKernel
-        vrSiteHW;                   % => probePad
-        viSite2Chan;                % => siteMap
-        viSiteZero;                 % => ignoreSites
-        vrScale_aux;                % => auxScale
+        MAX_BYTES_LOAD; % => maxBytesLoad
+        MAX_LOAD_SEC; % => maxSecLoad
+        autoMergeCriterion; % => autoMergeBy
+        blank_period_ms; % => blankPeriod
+        blank_thresh; % => blankThresh
+        corrLim; % => corrRange
+        csFile_merge; % => multiRaw
+        dc_percent; % => distCut
+        delta1_cut; % => log10DeltaCut
+        fDc_global; % => useGlobalDistCut
+        fDetectBipolar; % => detectBipolar
+        fDrift_merge; % => driftMerge
+        fEllip; % => useElliptic
+        fGpu; % => useGPU
+        fGroup_shank; % => groupShank
+        fInterp_fet; % => interpPC
+        fParfor; % => useParfor
+        fSpatialMask_clu; % => weightFeatures
+        fText; % => showSpikeCount
+        fTranspose_bin; % => tallSkinny
+        fVerbose; % => verbose
+        fWav_raw_show; % => showRaw
+        fft_thresh; % => fftThreshMad
+        filter_sec_rate; % => frPeriod
+        filter_shape_rate; % => frFilterShape
+        freqLim; % => freqLimBP
+        gain_boost; % => gainBoost
+        header_offset; % => headerOffset
+        iChan_aux; % => auxChan
+        maxCluPerSite; % => maxClustersSite
+        maxDist_site_spk_um; % => evtDetectRad
+        maxDist_site_um; % => evtMergeRad
+        maxSite; % => nSiteDir
+        maxWavCor; % => maxUnitSim
+        min_count; % => minClusterSize
+        min_sites_mask; % => minSitesWeightFeatures
+        mrColor_proj; % => colorMap
+        mrSiteXY; % => siteLoc
+        nClu_show_aux; % => nClustersShowAux
+        nDiff_filt; % => nDiffOrder
+        nFet_use; % => nPeaksFeatures
+        nInterp_merge; % => meanInterpFactor
+        nLoads_gpu; % => ramToGPUFactor
+        nLoads_max_preview; % => nLoadsMaxPreview
+        nPad_filt; % => nSamplesPad
+        nPcPerChan; % => nPCsPerSite
+        nRepeat_merge; % => nPassesMerge
+        nShow_proj; % => nSpikesFigProj
+        nSites_ref; % => nSitesExcl
+        nSkip_lfp; % => lfpDsFactor
+        nSkip_show; % => nSkip
+        nSpk_show; % => nSpikesFigWav
+        nThreads; % => nThreadsGPU
+        nTime_clu; % => nClusterIntervals
+        nTime_traces; % => nSegmentsTraces
+        nneigh_min_detect; % => minNeighborsDetect
+        probe_file; % => probeFile
+        rho_cut; % => log10RhoCut
+        sRateHz; % => sampleRate
+        sRateHz_aux; % => auxSampleRate
+        sRateHz_lfp; % => lfpSampleRate
+        sRateHz_rate; % => frSampleRate
+        sec_per_load_preview; % => nSecsLoadPreview
+        spkLim; % => evtWindowSamp
+        spkLim_factor_merge; % => evtWindowMergeFactor
+        spkLim_ms; % => evtWindow
+        spkLim_raw; % => evtWindowRawSamp
+        spkLim_raw_ms; % => evtWindowRaw
+        spkRefrac; % => refracIntSamp
+        spkRefrac_ms; % => refracInt
+        spkThresh; % => evtManualThreshSamp
+        spkThresh_max_uV; % => spikeThreshMax
+        spkThresh_uV; % => evtManualThresh
+        tLimFigProj; % => projTimeLimits
+        tbin_psth; % => psthTimeBin
+        thresh_corr_bad_site; % => siteCorrThresh
+        thresh_mad_clu; % => outlierThresh
+        time_feature_factor; % => timeFeatureFactor
+        tlim; % => dispTimeLimits
+        tlim_load; % => loadTimeLimits
+        tlim_psth; % => psthTimeLimits
+        uV_per_bit; % => bitScaling
+        um_per_pix; % => umPerPix
+        vcCommonRef; % => CARMode
+        vcDataType; % => dataType
+        vcDetrend_postclu; % => RDDetrendMode
+        vcFet; % => clusterFeature
+        vcFet_show; % => dispFeature
+        vcFile; % => singleRaw
+        vcFile_aux; % => auxFile
+        vcFile_gt; % => gtFile
+        vcFile_prm; % => configFile
+        vcFile_thresh; % => threshFile
+        vcFile_trial; % => trialFile
+        vcFilter; % => filterType
+        vcFilter_show; % => dispFilter
+        vcLabel_aux; % => auxLabel
+        viShank_site; % => shankMap
+        viSite2Chan; % => siteMap
+        viSiteZero; % => ignoreSites
+        vnFilter_user; % => userFiltKernel
+        vrScale_aux; % => auxScale
+        vrSiteHW; % => probePad
+        xtick_psth; % => psthXTick
     end
 
     %% OLD-STLYE PARAMS, not publicly settable
@@ -89,143 +130,146 @@ classdef Config < dynamicprops
 
     %% NEW-STYLE PARAMS, publicly settable
     properties (SetObservable)
-        batchMode = 0;              % suppress *all* messages if true
-        verbose = 1;                % be chatty while processing
+        % USAGE PARAMETERS
+        batchMode = true; % Suppress message boxes in favor of console messages
+        outputDir = ''; % Directory in which to place output files
+        verbose = true; % Be chatty when processing
 
-        % computation params
-        useParfor = 1;                % use parfor where appropriate
-        gpuLoadFactor = 5;          % GPU memory usage factor (4x means 1/4 of GPU memory can be loaded)
-        nThreadsGPU = 128;             % number of gpu threads
-        randomSeed = 0;             % random seed
-        ramToGPUFactor = 8;         % ratio: RAM / (GPU memory) (increase this number if GPU memory error)
-        useGPU = 1;                 % use GPU in computation if true
+        % EXECUTION PARAMETERS
+        gpuLoadFactor = 5; % GPU memory usage factor
+        maxBytesLoad = []; % Maximum number of bytes to load into memory
+        maxSecLoad = []; % Maximum sample duration (in s) to load into memory
+        nThreadsGPU = 128; % Number of GPU threads to use for clustering
+        ramToGPUFactor = 8; % Ratio of RAM to GPU memory
+        randomSeed = 0; % Seed for the random number generator
+        useGPU = true; % Use GPU where appropriate
+        useParfor = true; % Use parfor where appropriate
 
-        % file location params
-        outputDir = '';             % directory in which to place output files
+        % PROBE PARAMETERS
+        probePad = []; % Recording contact pad size (in ?m)
+        shankMap = []; % Shank ID of each site
+        siteLoc = []; % Site locations (in ?m)
+        siteMap = []; % Map of channel index to site ID
 
-        % recording params
-        bitScaling = 0.30518;       % bit scaling factor (uV/bit)
-        configFile;                 % parameter file
-        dataType = 'int16';            % raw data binary format
-        gainBoost = 1;              % multiply the raw recording by this gain to boost uV/bit
-        gtFile = '';                % ground truth file (default: SESSION_NAME_gt.mat) (TODO: specify format)
-        headerOffset = 0;           % file header offset, in bytes
-        lfpSampleRate = 2500;       % sample rate of the LFP recording, in Hz
-        nChans = 385;               % number of channels stored in recording
-        probeFile;                  % probe file to use (.prb, .mat)
-        probePad;                   %
-        rawRecordings;              % collection of recordings
-        sampleRate = 30000;         % sample rate of the recording, in Hz
-        shankMap;                   % index of shank to which a site belongs
-        siteLoc;                    % x-y locations of channels on the probe, in microns
-        siteMap;                    % channel mapping; row i in the data corresponds to channel `siteMap(i)`
+        % RECORDING FILE PARAMETERS
+        bitScaling = 0.30518; % ADC bit scaling factor
+        dataType = 'int16'; % Format of raw recordings
+        headerOffset = 0; % Recording file header offset (in bytes)
+        nChans = 384; % Number of channels stored in recording file
+        rawRecordings = {}; % Path or paths to raw recordings to sort
+        sampleRate = 30000; % Sampling rate (in Hz) of raw recording
+        tallSkinny = true; % Recording will be interpreted as nChannels x nSamples if true
 
-        % preprocessing params
-        useElliptic = 1;            % use elliptic filter if 1 (and only if filterType='bandpass')
-        fftThresh = 0;              % automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
-        filtOrder = 3;              % bandpass filter order
-        filterType = 'ndiff';       % filter to use {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
-        freqLimBP = [300 3000];       % frequency cut-off limit for filterType='bandpass' (ignored otherwise)
-        freqLimNotch = [];
-        freqLimStop = [];
-        fTranspose_bin = 1;
-        loadTimeLimits = [];        % time range of recording to load, in s (use whole range if empty)
-        maxBytesLoad = [];          % default memory loading block size (bytes)
-        maxSecLoad = [];            % maximum loading duration (seconds) (overrides 'maxBytesLoad')
-        nSamplesPad = 100;          % number of samples to overlap between multiple loading (filter edge safe)
-        userFiltKernel = [];        % custom filter kernel (optional unless filterType='user')
-        CARMode = 'mean';           % common average referencing mode (one of 'none', 'mean', 'median')
+        % PREPROCESSING PARAMETERS
+        ignoreSites = []; % Sites to ignore manually
+        loadTimeLimits = []; % Time range (in s) of samples to load at once
+        nDiffOrder = 2; % Order for differentiator filter
+        nSamplesPad = 100; % Number of samples to overlap between chunks in large files
+        useElliptic = true; % Use elliptic (bandpass) filter if true
+        userFiltKernel = []; % User-specified filter kernel
 
-        % spike detection params
-        blankPeriod = 5;        % (miliseconds) Duration of blanking when the common mean exceeds a threhold (blank_thresh)
-        blankThresh = [];           % reject spikes exceeding the channel mean after filtering (MAD unit), ignored if [] or 0
-        evtDetectRad = 75;          % radius for extracting waveforms, in microns (used if nSiteDir and nSitesExcl are empty)
-        evtManualThresh = [];     % manual spike detection threshold, in microvolts
-        evtMergeRad = 50;           % radius of spike event merging, in microns
-        evtWindow = [-0.25 0.75];   % interval around event to extract filtered spike waveforms, in ms
-        evtWindowRaw = [-0.5 1.5];  % interval around event to extract raw spike waveforms, in ms
-        groupShank = 0;           % group all sites in the same shank if true
-        ignoreSites = [];           % sites to manually ignore in the sorting
-        nDiffOrder = 2;             % Differentiation filter for filterType='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
-        minNeighborsDetect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
-        nSiteDir;                   % number of neighboring sites to group in each direction (TODO: deprecate this)
-        nSitesExcl;                 % number of sites to exclude from the spike waveform group
-        qqFactor = 5;
-        refracInt = 0.25;         % spike refractory interval, in ms
-        siteCorrThresh = 0;         % reject bad sites based on max correlation with neighboring sites, using raw waveforms; ignored if 0
-        spkThresh_max_uV = [];      % maximum absolute amp. allowed
-        threshFile = '';            % path to .mat file storing spike detection thresholds (created by 'preview' GUI)
+        % SPIKE DETECTION PARAMETERS
+        CARMode = 'mean'; % The meaning of 'average' in 'common average reference'
+        blankPeriod = 5; % Duration of blanking period (in ms) when the common mean exceeds blankThresh
+        blankThresh = []; % Threshold (in MADs) above which to reject samples exceeding channel median after filtering
+        detectBipolar = false; % Detect positive as well as negative peaks
+        evtDetectRad = 75; % Maximum distance (in ?m) for extracting spike waveforms
+        evtManualThresh = []; % Manually-set spike detection threshold (in ?V)
+        evtMergeRad = 50; % Maximum distance (in ?m) for merging spike waveforms
+        evtWindow = [-0.25, 0.75]; % Time range (in ms) of filtered spike waveforms, centered at the peak
+        evtWindowRaw = [-0.5, 1.5]; % Time range (in ms) of raw spike waveforms, centered at the peak
+        fftThresh = 0; % Threshold (in MADs of power-frequency product) above which to remove frequency outliers
+        filtOrder = 3; % Bandpass filter order
+        filterType = 'ndiff'; % Type of filter to use on raw data
+        freqLimBP = [300, 3000]; % Frequency cutoffs for bandpass filter
+        freqLimNotch = []; % Frequency ranges to exclude for notch filter
+        freqLimStop = []; % Frequency range to exclude for band-stop filter
+        gainBoost = 1; % Scale factor to boost gain in raw recording
+        groupShank = true; % Group all sites on the same shank if true
+        minNeighborsDetect = 0; % Minimum number of sample neighbors exceeding threshold for a sample to be considered a peak
+        nSiteDir = []; % Number of neighboring sites to group in either direction
+        nSitesExcl = []; % Number of sites to exclude from the spike waveform group
+        qqFactor = 5; % Spike detection threshold
+        refracInt = 0.25; % Spike refractory period (in ms)
+        spikeThreshMax = []; % Maximum absolute amplitude (in ?V) permitted for spikes
+        threshFile = ''; % Path to .mat file storing the spike detection threshold
 
-        % feature extraction params
-        clusterFeature = 'pca';             % feature to use in clustering
-        interpPC = 1;                    % interpolate waveforms for feature projection to find optimal delay (2x interp) if true
-        fSpatialMask_clu = 0;               % apply spatial mask calculated from the distances between sites to the peak site (half-scale: evtDetectRad)
-        minSitesWeightFeatures = 5;                 % minimum number of sites to have to apply spatial mask
-        nPeaksFeatures = 2;                       % undocumented
-        nPCsPerSite = 1;
-        timeFeatureFactor;                % undocumented
+        % FEATURE EXTRACTION PARAMETERS
+        clusterFeature = 'pca'; % The feature to extract from your spike waveforms in order to cluster them
+        interpPC = true; % Interpolate 1st principal vector to maximize projection of spikes if true
+        nPCsPerSite = 1; % Number of principal components to compute per site
+        nPeaksFeatures = 2; % Number of potential peaks to use when computing features
 
-        % clustering params
-        autoMergeBy = 'pearson';            % metric to use when automerging clusters
-        distCut = 2;                        % percentile at which to cut off distance in rho computation
-        driftMerge = 1;                   % compute multiple waveforms at three drift locations based on the spike position if true
-        log10DeltaCut = 0.6;                % the base-10 log of the delta cutoff value
-        log10RhoCut = -2.5;                 % the base-10 log of the rho cutoff value
-        maxClustersSite = 20;               % maximum number of clusters per site if local detrending is used
-        minClusterSize = 30;                % minimum cluster size (set to 2*#features if lower)
-        maxUnitSim = 0.98;                   %
-        nInterp_merge = 1;                  % Interpolation factor for the mean unit waveforms, set to 1 to disable
-        nPassesMerge = 10;                  % number of passes for unit mean raw waveform-based merging
-        outlierThresh = 7.5;                % threshold to remove outlier spikes for each cluster, in MAD
-        nClusterIntervals = 4;                      % number of time periods over which to cluster separately (later to be merged after clustering)
-        RDDetrendMode = 'global';           %
-        evtWindowMergeFactor = 1;            % Waveform range for computing the correlation. evtWindowMergeFactor <= spkLim_raw_factor_merge. circa v3.1.8
-        useGlobalDistCut = 0;               % use a global distance cutoff for all sites if true; otherwise use different cutoff values for each site
+        % CLUSTERING PARAMETERS
+        RDDetrendMode = 'global'; % Detrending mode to apply to rho-delta values in order to determine cluster centers
+        autoMergeBy = 'pearson'; % Metric to use for automerging clusters
+        distCut = 2; % Percentile of pairwise distances between spikes on a site to use as a cutoff distance
+        driftMerge = true; % Compute multiple waveforms at three drift locations based on the spike position if true
+        evtWindowMergeFactor = 1; % Ratio of samples to take when computing correlation
+        log10DeltaCut = 0.6; % Log10 of delta cutoff
+        log10RhoCut = -2.5; % Log10 of rho cutoff
+        maxClustersSite = 20; % Maximum number of cluster centers computed per site
+        maxUnitSim = 0.98; % Threshold for merging two units having similar spike waveforms
+        meanInterpFactor = 1; % Interpolation factor for mean unit waveforms
+        minClusterSize = 30; % Minimum number of spikes per cluster
+        minSitesWeightFeatures = 5; % Minimum number of sites to have if using weightFeatures
+        nClusterIntervals = 4; % Number of intervals to divide the recording into around a spike
+        nPassesMerge = []; % Number of times to repeat automatic waveform-based merging
+        outlierThresh = 7.5; % Threshold (in MADs) to remove outlier spikes for each cluster
+        useGlobalDistCut = false; % Use a global distance cutoff for all sites if true
+        weightFeatures = false; % Weight display features by distance from site if true
 
-        % display params
-        corrRange = [0.9 1];
-        dispFeature = 'vpp';                % feature to display in time/projection views
-        dispFilter = '';                    %
-        dispTimeLimits = [0 0.2];           % time range to display (in seconds)
-        figList;                            % figure handles to display in manual view
-        showSpikeCount = 1;                          %
-        maxAmp = 250;
-        colorMap = [213 219 235; ...
-                    0   130 196; ...
-                    240 119 22]/256;
-        nShow = 200;                        % maximum number of traces to show [D?# spikes to show]
-        nSpikesFigProj = 500;                   % maximum number of features to show in projection
-        nSitesFigProj = 5;                  % number of sites to display in the feature projection view
-        nSkip = 1;
-        nSegmentsTraces = 1;                   % number of time segments to display. Set to 1 to show one continuous time segment
-        nSpikesFigWav = 30;                     % show spike waveforms for manual clustering
-        pcPair = [1 2];                     % PC projection to show (1 vs 2; 1 vs 3; 2 vs 3), can be toggled
-        showRaw = 0;                        % show raw waveforms in main view if true
-        projTimeLimits = [];                   % time range to display in feature view, in seconds
-        umPerPix = 20;                    %
+        % CURATION PARAMETERS
+        figList = ["FigCorr", "FigHist", "FigISI", "FigMap", "FigPos", "FigProj", "FigRD", "FigSim", "FigTime", "FigWav"]; % List of tags of figures to display in feature view
+        frFilterShape = 'triangle'; % Kernel shape for temporal averaging
+        frPeriod = 2; % Time period (in s) over which to determine firing rate
+        frSampleRate = 1000; % Resampling rate (in Hz) for estimating the firing rate
 
-        % preview GUI params
-        nLoadsMaxPreview = 30;            % number of time segments to load for preview
-        nSecsLoadPreview = 1;           % recording duration per continuous segment to preview (in sec)
+        % DISPLAY PARAMETERS
+        colorMap = [0.83203, 0, 0.9375, 0.85547, 0.50781, 0.46484, 0.91797, 0.76563, 0.085938]; % RGB color map for background, primary selected, and secondary selected spikes
+        corrRange = [0.9, 1]; % Correlation score range to distinguish by color map
+        dispFeature = 'vpp'; % Feature to display in the feature projection plot
+        dispFilter = 'none'; % Filter to apply in traces plot
+        dispTimeLimits = [0, 0.2]; % Time range (in ms) to display
+        maxAmp = 250; % Amplitude scale (in ?V)
+        nSitesFigProj = 5; % Number of sites to show in feature projection view
+        nSpikesFigISI = 200; % Maximum number of spikes to show in ISI view
+        nSpikesFigProj = 500; % Maximum number of spikes per cluster to display in the feature projection view
+        nSpikesFigWav = 30; % Maximum number of spikes per cluster to display generally
+        pcPair = [1, 2]; % Pair of PCs to display
+        projTimeLimits = []; % Time range (in s) to display in feature projection view
+        showRaw = false; % Show raw traces in waveform view if true
+        showSpikeCount = true; % Show spike count per unit in waveform plot
+        umPerPix = 20; % Vertical site center-to-center spacing
 
-        % parameters for estimating firing rate
-        frPeriod = 2;            % time period to determine the firing rate
-        frFilterShape = 'triangle'; % {'triangle', 'rectangle'} kernel shape for temporal averaging
-        frSampleRate = 1000;        % Resampled rate for the firing rate
+        % TRIAL PARAMETERS
+        psthTimeBin = 0.01; % Time bin (in s) for PSTH view
+        psthTimeLimits = []; % Time range (in s) over which to display PSTH
+        psthXTick = 0.2; % PSTH time tick mark spacing
+        trialFile = ''; % Path to file containing trial data
 
-        % aux-file parameters
-        auxChan;                            % aux channel # to correlate with the unit firing rate
-        auxFile = '';                       % aux channel file
-        auxLabel = '';                      % label for the aux channel
-        auxSampleRate = [];                 % sampling rate for aux file
-        auxScale = 1;               		% scale factor for aux input
-        nClustersShowAux = 10;              %
+        % VALIDATION PARAMETERS
+        gtFile = ''; % Path to file containing ground-truth data
 
-        % trial parameters
-        trialFile = '';                     % .mat or .csv file containing timestamp in seconds unit. use any variable name.
-        psthTimeLimits = [-1 5];                 % Time range to display PSTH (in seconds)
-        psthTimeBin = .01;                    % Time bin for the PSTH histogram (in seconds)
-        psthXTick = .2;                    % PSTH time tick mark spacing
+        % PREVIEW PARAMETERS
+        nLoadsMaxPreview = 30; % Number of time segments to load in preview
+        nSecsLoadPreview = 1; % Number of seconds to load in preview
+        siteCorrThresh = 0; % Threshold to reject bad sites based on maximum correlation with neighboring sites
+
+        % TRACES PARAMETERS
+        nSegmentsTraces = 1; % Number of time segments to display in traces view
+        nSkip = 1; % Show every nSkip samples when plotting traces
+
+        % LFP PARAMETERS
+        lfpSampleRate = 2500; % Sampling rate for LFP channels
+
+        % AUX CHANNEL PARAMETERS
+        auxChan = []; % Auxiliary channel index
+        auxFile = ''; % Path to file containing auxiliary channel
+        auxLabel = 'Aux channel'; % Label for auxiliary channel data
+        auxSampleRate = []; % Sample rate for auxiliary file
+        auxScale = 1; % Scale factor for aux data
+        nClustersShowAux = 10; % Number of clusters to show in the aux vs. firing rate correlation
     end
 
     %% NEW-STYLE PARAMS, not publicly settable
@@ -466,6 +510,8 @@ classdef Config < dynamicprops
                 obj.error('Malformed shank indexing', 'Bad probe configuration');
                 return;
             end
+
+            obj.ignoreSites = obj.ignoreSites(ismember(obj.siteMap, obj.ignoreSites));
 
             % nSiteDir and/or nSitesExcl may not have been specified
             if isempty(obj.nSiteDir) || isempty(obj.nSitesExcl)
@@ -723,127 +769,150 @@ classdef Config < dynamicprops
 
     %% GETTERS/SETTERS
     methods
+        % CARMode/vcCommonRef
+        function set.CARMode(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            legalVals = {'mean', 'median', 'none'};
+            assert(ismember(val, legalVals), 'legal values are %s', strjoin(legalVals, ', '))
+            obj.CARMode = val;
+        end
+        function val = get.vcCommonRef(obj)
+            obj.logOldP('vcCommonRef');
+            val = obj.CARMode;
+        end
+        function set.vcCommonRef(obj, val)
+            obj.logOldP('vcCommonRef');
+            obj.CARMode = val;
+        end
+
         % autoMergeBy/autoMergeCriterion
-        function set.autoMergeBy(obj, am)
-            legalTypes = {'pearson', 'dist'};
-            failMsg = sprintf('legal autoMergeBys are %s', strjoin(legalTypes, ', '));
-            assert(sum(strcmp(am, legalTypes)) == 1, failMsg);
-            obj.autoMergeBy = am;
+        function set.autoMergeBy(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            legalVals = {'pearson', 'dist'};
+            assert(ismember(val, legalVals), 'legal values are %s', strjoin(legalVals, ', '))
+            obj.autoMergeBy = val;
         end
-        function am = get.autoMergeCriterion(obj)
+        function val = get.autoMergeCriterion(obj)
             obj.logOldP('autoMergeCriterion');
-            am = obj.autoMergeBy;
+            val = obj.autoMergeBy;
         end
-        function set.autoMergeCriterion(obj, am)
+        function set.autoMergeCriterion(obj, val)
             obj.logOldP('autoMergeCriterion');
-            obj.autoMergeBy = am;
+            obj.autoMergeBy = val;
         end
 
         % auxChan/iChan_aux
-        function set.auxChan(obj, ac)
-            assert(isempty(ac) || jrclust.utils.ismatrixnum(ac) && all(ac > 0), 'malformed auxChan');
-            obj.auxChan = ac;
+        function set.auxChan(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.auxChan = val;
         end
-        function ac = get.iChan_aux(obj)
+        function val = get.iChan_aux(obj)
             obj.logOldP('iChan_aux');
-            ac = obj.auxChan;
+            val = obj.auxChan;
         end
-        function set.iChan_aux(obj, ac)
+        function set.iChan_aux(obj, val)
             obj.logOldP('iChan_aux');
-            obj.auxChan = ac;
+            obj.auxChan = val;
         end
 
         % auxFile/vcFile_aux
-        function set.auxFile(obj, af)
-            if isempty(af)
-                obj.auxFile = '';
-            else
-                af_ = jrclust.utils.absPath(af);
-                assert(isfile(af_), 'could not find aux file ''%s''', af);
-                obj.auxFile = af_;
-            end
+        function set.auxFile(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            hFun = @(x) ~isempty(jrclust.utils.absPath(x));
+            assert(hFun(val));
+            obj.auxFile = jrclust.utils.absPath(val);
         end
-        function af = get.vcFile_aux(obj)
+        function val = get.vcFile_aux(obj)
             obj.logOldP('vcFile_aux');
-            af = obj.auxFile;
+            val = obj.auxFile;
         end
-        function set.vcFile_aux(obj, af)
+        function set.vcFile_aux(obj, val)
             obj.logOldP('vcFile_aux');
-            obj.auxFile = af;
+            obj.auxFile = val;
         end
 
         % auxLabel/vcLabel_aux
-        function set.auxLabel(obj, al)
-            failMsg = 'auxLabel must be a string';
-            assert(ischar(al), failMsg);
-            obj.auxLabel = al;
+        function set.auxLabel(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            obj.auxLabel = val;
         end
-        function al = get.vcLabel_aux(obj)
+        function val = get.vcLabel_aux(obj)
             obj.logOldP('vcLabel_aux');
-            al = obj.auxLabel;
+            val = obj.auxLabel;
         end
-        function set.vcLabel_aux(obj, al)
+        function set.vcLabel_aux(obj, val)
             obj.logOldP('vcLabel_aux');
-            obj.auxLabel = al;
+            obj.auxLabel = val;
         end
 
         % auxSampleRate/sRateHz_aux
-        function set.auxSampleRate(obj, ar)
-            failMsg = 'auxSampleRate must be a positive integer';
-            assert(isempty(ar) || jrclust.utils.isscalarnum(ar) && ar == round(ar) && ar > 0, failMsg);
-            obj.auxSampleRate = ar;
+        function set.auxSampleRate(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.auxSampleRate = val;
         end
-        function ar = get.sRateHz_aux(obj)
+        function val = get.sRateHz_aux(obj)
             obj.logOldP('sRateHz_aux');
-            ar = obj.auxSampleRate;
+            val = obj.auxSampleRate;
         end
-        function set.sRateHz_aux(obj, ar)
+        function set.sRateHz_aux(obj, val)
             obj.logOldP('sRateHz_aux');
-            obj.auxSampleRate = ar;
+            obj.auxSampleRate = val;
         end
 
         % auxScale/vrScale_aux
-        function set.auxScale(obj, as)
-            failMsg = 'auxScale must be a positive scalar';
-            assert(jrclust.utils.isscalarnum(as) && as > 0, failMsg);
-            assert(jrclust.utils.isscalarnum(as) && as > 0, failMsg);
-            obj.auxScale = as;
+        function set.auxScale(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.auxScale = val;
         end
-        function as = get.vrScale_aux(obj)
+        function val = get.vrScale_aux(obj)
             obj.logOldP('vrScale_aux');
-            as = obj.auxScale;
+            val = obj.auxScale;
         end
-        function set.vrScale_aux(obj, as)
+        function set.vrScale_aux(obj, val)
             obj.logOldP('vrScale_aux');
-            obj.auxScale = as;
+            obj.auxScale = val;
         end
 
         % bitScaling/uV_per_bit
-        function set.bitScaling(obj, bs)
-            assert(jrclust.utils.isscalarnum(bs) && bs > 0, 'bad bitScaling factor');
-            obj.bitScaling = bs;
+        function set.bitScaling(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.bitScaling = val;
         end
-        function bs = get.uV_per_bit(obj)
+        function val = get.uV_per_bit(obj)
             obj.logOldP('uV_per_bit');
-            bs = obj.bitScaling;
+            val = obj.bitScaling;
         end
-        function set.uV_per_bit(obj, bs)
+        function set.uV_per_bit(obj, val)
             obj.logOldP('uV_per_bit');
-            obj.bitScaling = bs;
+            obj.bitScaling = val;
+        end
+
+        % blankPeriod/blank_period_ms
+        function set.blankPeriod(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.blankPeriod = val;
+        end
+        function val = get.blank_period_ms(obj)
+            obj.logOldP('blank_period_ms');
+            val = obj.blankPeriod;
+        end
+        function set.blank_period_ms(obj, val)
+            obj.logOldP('blank_period_ms');
+            obj.blankPeriod = val;
         end
 
         % blankThresh/blank_thresh
-        function set.blankThresh(obj, bt)
-            assert((jrclust.utils.isscalarnum(bt) && bt >= 0) || (isnumeric(bt) && isempty(bt)), 'bad blankThresh');
-            obj.blankThresh = bt;
+        function set.blankThresh(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.blankThresh = val;
         end
-        function bt = get.blank_thresh(obj)
+        function val = get.blank_thresh(obj)
             obj.logOldP('blank_thresh');
-            bt = obj.blankThresh;
+            val = obj.blankThresh;
         end
-        function set.blank_thresh(obj, bt)
+        function set.blank_thresh(obj, val)
             obj.logOldP('blank_thresh');
-            obj.blankThresh = bt;
+            obj.blankThresh = val;
         end
 
         % bytesPerSample
@@ -851,47 +920,48 @@ classdef Config < dynamicprops
             bp = jrclust.utils.typeBytes(obj.dataType);
         end
 
-        % CARMode/vcCommonRef
-        function set.CARMode(obj, cm)
-            legalTypes = {'mean', 'median', 'none'};
-            failMsg = sprintf('legal carModes are %s', strjoin(legalTypes, ', '));
-            assert(ismember(cm, legalTypes), failMsg);
-            obj.CARMode = cm;
-        end
-        function cm = get.vcCommonRef(obj)
-            obj.logOldP('vcCommonRef');
-            cm = obj.CARMode;
-        end
-        function set.vcCommonRef(obj, cm)
-            obj.logOldP('vcCommonRef');
-            obj.CARMode = cm;
-        end
-
         % clusterFeature/vcFet
-        function set.clusterFeature(obj, cf)
-            if strcmp(cf, 'gpca')
-                cf = 'pca';
+        function set.clusterFeature(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            if strcmp(val, 'gpca')
+                val = 'pca';
                 warning('gpca feature temporarily disabled; using pca');
             end
-            legalTypes = {'cov', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'};
-            failMsg = sprintf('legal clusterFeatures are: %s', strjoin(legalTypes, ', '));
-            assert(sum(strcmp(cf, legalTypes)) == 1, failMsg);
-            obj.clusterFeature = cf;
+            legalVals = {'cov', 'energy', 'pca', 'vmin', 'vminmax', 'vpp'};
+            assert(ismember(val, legalVals), 'legal values are %s', strjoin(legalVals, ', '))
+            obj.clusterFeature = val;
         end
-        function cf = get.vcFet(obj)
+        function val = get.vcFet(obj)
             obj.logOldP('vcFet');
-            cf = obj.clusterFeature;
+            val = obj.clusterFeature;
         end
-        function set.vcFet(obj, cf)
+        function set.vcFet(obj, val)
             obj.logOldP('vcFet');
-            obj.clusterFeature = cf;
+            obj.clusterFeature = val;
+        end
+
+        % colorMap/mrColor_proj
+        function set.colorMap(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'nonnegative', 'numel', 9});
+            hFun = @(x) reshape(x, 3, 3);
+            val = hFun(val);
+            obj.colorMap = val;
+        end
+        function val = get.mrColor_proj(obj)
+            obj.logOldP('mrColor_proj');
+            val = obj.colorMap;
+        end
+        function set.mrColor_proj(obj, val)
+            obj.logOldP('mrColor_proj');
+            obj.colorMap = val;
         end
 
         % configFile/vcFile_prm
-        function set.configFile(obj, cf)
-            cf_ = jrclust.utils.absPath(cf);
-            assert(isfile(cf_), 'could not find file ''%s''', cf);
-            obj.configFile = cf_;
+        function set.configFile(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            hFun = @(x) ~isempty(jrclust.utils.absPath(x));
+            assert(hFun(val));
+            obj.configFile = jrclust.utils.absPath(val);
         end
         function cf = get.vcFile_prm(obj)
             obj.logOldP('vcFile_prm');
@@ -902,536 +972,761 @@ classdef Config < dynamicprops
             obj.configFile = cf;
         end
 
-        % dispFilter/vcFilter_show
-        function set.dispFilter(obj, ft)
-            legalTypes = {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'none'};
-            failMsg = sprintf('legal filterTypes are: %s or ''''', strjoin(legalTypes, ', '));
-            assert((ischar(ft) && isempty(ft)) || sum(strcmp(ft, legalTypes)) == 1, failMsg);
-            obj.dispFilter = ft;
+        % corrRange/corrLim
+        function set.corrRange(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'nonnegative', 'numel', 2, '<=', 1});
+            obj.corrRange = val;
         end
-        function ft = get.vcFilter_show(obj)
-            obj.logOldP('vcFilter_show');
-            ft = obj.dispFilter;
+        function val = get.corrLim(obj)
+            obj.logOldP('corrLim');
+            val = obj.corrRange;
         end
-        function set.vcFilter_show(obj, ft)
-            obj.logOldP('vcFilter_show');
-            obj.dispFilter = ft;
-        end
-
-        % dispFeature/vcFet_show
-        function set.dispFeature(obj, df)
-            % canonicalize synonyms
-            if strcmp(df, 'vmin')
-                df = 'vpp';
-            elseif strcmp(df, 'gpca')
-                df = 'pca';
-            elseif strcmp(df, 'private pca')
-                df = 'ppca';
-            elseif strcmp(df, 'spacetime')
-                df = 'cov';
-            end
-
-            legalTypes = {'cov', 'kilosort', 'pca', 'ppca', 'vpp'};
-            failMsg = sprintf('legal dispFeatures are %s', strjoin(legalTypes, ', '));
-            assert(ismember(df, legalTypes), failMsg);
-
-            if ~strcmp(df, 'pca') % reset pcPair
-                obj.pcPair = [1 2]; %#ok<MCSUP>
-            end
-            obj.dispFeature = df;
-        end
-        function df = get.vcFet_show(obj)
-            obj.logOldP('vcFet_show');
-            df = obj.dispFeature;
-        end
-        function set.vcFet_show(obj, df)
-            obj.logOldP('vcFet_show');
-            obj.dispFeature = df;
-        end
-
-        % dispTimeLimits/tlim
-        function set.dispTimeLimits(obj, tl)
-            assert((isempty(tl) && isnumeric(tl)) || (jrclust.utils.ismatrixnum(tl) && all(tl >= 0)), 'bad dispTimeLimits');
-            if numel(tl) == 1
-                tl = [0 tl];
-            end
-            assert(all(size(tl) == [1 2]) && tl(1) < tl(2), 'bad dispTimeLimits');
-            obj.dispTimeLimits = tl;
-        end
-        function tl = get.tlim(obj)
-            obj.logOldP('tlim');
-            tl = obj.dispTimeLimits;
-        end
-        function set.tlim(obj, tl)
-            obj.logOldP('tlim');
-            obj.dispTimeLimits = tl;
+        function set.corrLim(obj, val)
+            obj.logOldP('corrLim');
+            obj.corrRange = val;
         end
 
         % dataType/vcDataType
-        function set.dataType(obj, dt)
-            legalTypes = {'int16', 'uint16', 'int32', 'uint32', 'single', 'double'};
-            failMsg = sprintf('legal dtypes are: %s', strjoin(legalTypes, ', '));
-            assert(ismember(dt, legalTypes), failMsg);
-            obj.dataType = dt;
+        function set.dataType(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            legalVals = {'int16', 'uint16', 'int32', 'uint32', 'single', 'double'};
+            assert(ismember(val, legalVals), 'legal values are %s', strjoin(legalVals, ', '))
+            obj.dataType = val;
         end
-        function dt = get.vcDataType(obj)
+        function val = get.vcDataType(obj)
             obj.logOldP('vcDataType');
-            dt = obj.dataType;
+            val = obj.dataType;
         end
-        function set.vcDataType(obj, dt)
+        function set.vcDataType(obj, val)
             obj.logOldP('vcDataType');
-            obj.dataType = dt;
+            obj.dataType = val;
+        end
+
+        % detectBipolar/fDetectBipolar
+        function set.detectBipolar(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.detectBipolar = val;
+        end
+        function val = get.fDetectBipolar(obj)
+            obj.logOldP('fDetectBipolar');
+            val = obj.detectBipolar;
+        end
+        function set.fDetectBipolar(obj, val)
+            obj.logOldP('fDetectBipolar');
+            obj.detectBipolar = val;
+        end
+
+        % dispFeature/vcFet_show
+        function set.dispFeature(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            legalVals = {'cov', 'pca', 'ppca', 'vpp'};
+            assert(ismember(val, legalVals), 'legal values are %s', strjoin(legalVals, ', '))
+            obj.dispFeature = val;
+        end
+        function val = get.vcFet_show(obj)
+            obj.logOldP('vcFet_show');
+            val = obj.dispFeature;
+        end
+        function set.vcFet_show(obj, val)
+            obj.logOldP('vcFet_show');
+            obj.dispFeature = val;
+        end
+
+        % dispFilter/vcFilter_show
+        function set.dispFilter(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            legalVals = {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'none'};
+            assert(ismember(val, legalVals), 'legal values are %s', strjoin(legalVals, ', '))
+            obj.dispFilter = val;
+        end
+        function val = get.vcFilter_show(obj)
+            obj.logOldP('vcFilter_show');
+            val = obj.dispFilter;
+        end
+        function set.vcFilter_show(obj, val)
+            obj.logOldP('vcFilter_show');
+            obj.dispFilter = val;
+        end
+
+        % dispTimeLimits/tlim
+        function set.dispTimeLimits(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'nonnegative', 'increasing', 'numel', 2});
+            obj.dispTimeLimits = val;
+        end
+        function val = get.tlim(obj)
+            obj.logOldP('tlim');
+            val = obj.dispTimeLimits;
+        end
+        function set.tlim(obj, val)
+            obj.logOldP('tlim');
+            obj.dispTimeLimits = val;
+        end
+
+        % distCut/dc_percent
+        function set.distCut(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'nonnegative', '<=', 100});
+            obj.distCut = val;
+        end
+        function val = get.dc_percent(obj)
+            obj.logOldP('dc_percent');
+            val = obj.distCut;
+        end
+        function set.dc_percent(obj, val)
+            obj.logOldP('dc_percent');
+            obj.distCut = val;
+        end
+
+        % driftMerge/fDrift_merge
+        function set.driftMerge(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.driftMerge = val;
+        end
+        function val = get.fDrift_merge(obj)
+            obj.logOldP('fDrift_merge');
+            val = obj.driftMerge;
+        end
+        function set.fDrift_merge(obj, val)
+            obj.logOldP('fDrift_merge');
+            obj.driftMerge = val;
         end
 
         % evtDetectRad/maxDist_site_spk_um
-        function set.evtDetectRad(obj, ed)
-            assert(jrclust.utils.isscalarnum(ed) && ed > 0, 'evtDetectRad must be a positive scalar');
-            obj.evtDetectRad = ed;
+        function set.evtDetectRad(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.evtDetectRad = val;
         end
-        function ed = get.maxDist_site_spk_um(obj)
+        function val = get.maxDist_site_spk_um(obj)
             obj.logOldP('maxDist_site_spk_um');
-            ed = obj.evtDetectRad;
+            val = obj.evtDetectRad;
         end
-        function set.maxDist_site_spk_um(obj, ed)
+        function set.maxDist_site_spk_um(obj, val)
             obj.logOldP('maxDist_site_spk_um');
-            obj.evtDetectRad = ed;
+            obj.evtDetectRad = val;
         end
 
         % evtManualThreshSamp/spkThresh
-        function mt = get.evtManualThreshSamp(obj)
-            mt = obj.evtManualThresh / obj.bitScaling;
+        function val = get.evtManualThreshSamp(obj)
+            val = obj.evtManualThresh / obj.bitScaling;
         end
-        function mt = get.spkThresh(obj)
+        function val = get.spkThresh(obj)
             obj.logOldP('spkThresh');
-            mt = obj.evtManualThreshSamp;
+            val = obj.evtManualThreshSamp;
         end
 
         % evtManualThresh/spkThresh_uV
-        function set.evtManualThresh(obj, mt)
-            assert(isempty(mt) || (jrclust.utils.isscalarnum(mt) && mt ~= 0)); % TODO: positive or negative?
-            obj.evtManualThresh = mt;
+        function set.evtManualThresh(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real'});
+            obj.evtManualThresh = val;
         end
-        function mt = get.spkThresh_uV(obj)
+        function val = get.spkThresh_uV(obj)
             obj.logOldP('spkThresh_uV');
-            mt = obj.evtManualThresh;
+            val = obj.evtManualThresh;
         end
-        function set.spkThresh_uV(obj, mt)
+        function set.spkThresh_uV(obj, val)
             obj.logOldP('spkThresh_uV');
-            obj.evtManualThresh = mt;
+            obj.evtManualThresh = val;
         end
 
         % evtMergeRad/maxDist_site_um
-        function set.evtMergeRad(obj, em)
-            assert(jrclust.utils.isscalarnum(em) && em >= 0, 'evtMergeRad must be a nonnegative scalar');
-            obj.evtMergeRad = em;
+        function set.evtMergeRad(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.evtMergeRad = val;
         end
-        function em = get.maxDist_site_um(obj)
+        function val = get.maxDist_site_um(obj)
             obj.logOldP('maxDist_site_um');
-            em = obj.evtMergeRad;
+            val = obj.evtMergeRad;
         end
-        function set.maxDist_site_um(obj, em)
+        function set.maxDist_site_um(obj, val)
             obj.logOldP('maxDist_site_um');
-            obj.evtMergeRad = em;
+            obj.evtMergeRad = val;
         end
 
         % evtWindow/spkLim_ms
-        function set.evtWindow(obj, ew)
-            assert(ismatrix(ew) && all(size(ew) == [1 2]) && ew(1) < 0 && ew(2) > 0, 'degenerate evtWindow');
-            obj.evtWindow = ew;
+        function set.evtWindow(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'increasing', 'numel', 2});
+            hFun = @(x) diff(x) >= x(2);
+            assert(hFun(val));
+            obj.evtWindow = val;
         end
-        function ew = get.spkLim_ms(obj)
+        function val = get.spkLim_ms(obj)
             obj.logOldP('spkLim_ms');
-            ew = obj.evtWindow;
+            val = obj.evtWindow;
         end
-        function set.spkLim_ms(obj, ew)
+        function set.spkLim_ms(obj, val)
             obj.logOldP('spkLim_ms');
-            obj.evtWindow = ew;
+            obj.evtWindow = val;
+        end
+
+        % evtWindowMergeFactor/spkLim_factor_merge
+        function set.evtWindowMergeFactor(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive', '<=', 1});
+            obj.evtWindowMergeFactor = val;
+        end
+        function val = get.spkLim_factor_merge(obj)
+            obj.logOldP('spkLim_factor_merge');
+            val = obj.evtWindowMergeFactor;
+        end
+        function set.spkLim_factor_merge(obj, val)
+            obj.logOldP('spkLim_factor_merge');
+            obj.evtWindowMergeFactor = val;
         end
 
         % evtWindowRaw/spkLim_raw_ms
-        function set.evtWindowRaw(obj, ew)
-            assert(ismatrix(ew) && all(size(ew) == [1 2]) && ew(1) < 0 && ew(2) > 0, 'degenerate evtWindowRaw');
-            obj.evtWindowRaw = ew;
+        function set.evtWindowRaw(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'increasing', 'numel', 2});
+            hFun = @(x) diff(x) >= x(2);
+            assert(hFun(val));
+            obj.evtWindowRaw = val;
         end
-        function ew = get.spkLim_raw_ms(obj)
+        function val = get.spkLim_raw_ms(obj)
             obj.logOldP('spkLim_raw_ms');
-            ew = obj.evtWindowRaw;
+            val = obj.evtWindowRaw;
         end
-        function set.spkLim_raw_ms(obj, ew)
+        function set.spkLim_raw_ms(obj, val)
             obj.logOldP('spkLim_raw_ms');
-            obj.evtWindowRaw = ew;
+            obj.evtWindowRaw = val;
         end
 
         % evtWindowRawSamp/spkLim_raw
-        function ew = get.evtWindowRawSamp(obj)
-            ew = round(obj.evtWindowRaw * obj.sampleRate / 1000);
+        function val = get.evtWindowRawSamp(obj)
+            val = round(obj.evtWindowRaw * obj.sampleRate / 1000);
         end
-        function set.evtWindowRawSamp(obj, ew)
-            obj.evtWindowRaw = ew * 1000 / obj.sampleRate;
+        function set.evtWindowRawSamp(obj, val)
+            obj.evtWindowRaw = val * 1000 / obj.sampleRate;
         end
-        function ew = get.spkLim_raw(obj)
+        function val = get.spkLim_raw(obj)
             obj.logOldP('spkLim_raw');
-            ew = obj.evtWindowRawSamp;
+            val = obj.evtWindowRawSamp;
         end
-        function set.spkLim_raw(obj, ew)
+        function set.spkLim_raw(obj, val)
             obj.logOldP('spkLim_raw');
-            obj.evtWindowRawSamp = ew;
+            obj.evtWindowRawSamp = val;
         end
 
         % evtWindowSamp/spkLim
-        function ew = get.evtWindowSamp(obj)
-            ew = round(obj.evtWindow * obj.sampleRate / 1000);
+        function val = get.evtWindowSamp(obj)
+            val = round(obj.evtWindow * obj.sampleRate / 1000);
         end
-        function set.evtWindowSamp(obj, ew)
-            obj.evtWindow = ew * 1000 / obj.sampleRate;
+        function set.evtWindowSamp(obj, val)
+            obj.evtWindow = val * 1000 / obj.sampleRate;
         end
-        function ew = get.spkLim(obj)
+        function val = get.spkLim(obj)
             obj.logOldP('spkLim');
-            ew = obj.evtWindowSamp;
+            val = obj.evtWindowSamp;
         end
-        function set.spkLim(obj, ew)
+        function set.spkLim(obj, val)
             obj.logOldP('spkLim');
-            obj.evtWindowSamp = ew;
+            obj.evtWindowSamp = val;
         end
 
         % fftThresh/fft_thresh
-        function set.fftThresh(obj, ft)
-            assert(jrclust.utils.isscalarnum(ft) && ft >= 0, 'fftThresh must be a nonnegative scalar');
-            obj.fftThresh = ft;
+        function set.fftThresh(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'scalar', 'nonnegative'});
+            obj.fftThresh = val;
         end
-        function ft = get.fft_thresh(obj)
+        function val = get.fft_thresh(obj)
             obj.logOldP('fft_thresh');
-            ft = obj.fftThresh;
+            val = obj.fftThresh;
         end
-        function set.fft_thresh(obj, ft)
+        function set.fft_thresh(obj, val)
             obj.logOldP('fft_thresh');
-            obj.fftThresh = ft;
-        end
-
-        % filtOrder
-        function set.filtOrder(obj, fo)
-            assert(jrclust.utils.isscalarnum(fo) && fo > 0, 'bad filtOrder');
-            obj.filtOrder = fo;
+            obj.fftThresh = val;
         end
 
         % filterType/vcFilter
-        function set.filterType(obj, ft)
-            legalTypes = {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'none'};
-            assert(sum(strcmp(ft, legalTypes)) == 1, 'legal filterTypes are: %s', strjoin(legalTypes, ', '));
-            obj.filterType = ft;
+        function set.filterType(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            legalVals = {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'none'};
+            assert(ismember(val, legalVals), 'legal values are %s', strjoin(legalVals, ', '))
+            obj.filterType = val;
         end
-        function ft = get.vcFilter(obj)
+        function val = get.vcFilter(obj)
             obj.logOldP('vcFilter');
-            ft = obj.filterType;
+            val = obj.filterType;
         end
-        function set.vcFilter(obj, ft)
+        function set.vcFilter(obj, val)
             obj.logOldP('vcFilter');
-            obj.filterType = ft;
+            obj.filterType = val;
+        end
+
+        % filtOrder
+        function set.filtOrder(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'scalar', 'positive'});
+            obj.filtOrder = val;
         end
 
         % frFilterShape/filter_shape_rate
-        function set.frFilterShape(obj, fr)
-            legalTypes = {'triangle', 'rectangle'};
-            failMsg = sprintf('legal frFilterShapes are %s', strjoin(legalTypes, ', '));
-            assert(ismember(fr, legalTypes), failMsg);
-            obj.frFilterShape = fr;
+        function set.frFilterShape(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            legalVals = {'triangle', 'rectangle'};
+            assert(ismember(val, legalVals), 'legal values are %s', strjoin(legalVals, ', '))
+            obj.frFilterShape = val;
         end
-        function fr = get.filter_shape_rate(obj)
+        function val = get.filter_shape_rate(obj)
             obj.logOldP('filter_shape_rate');
-            fr = obj.frFilterShape;
+            val = obj.frFilterShape;
         end
-        function set.filter_shape_rate(obj, fr)
+        function set.filter_shape_rate(obj, val)
             obj.logOldP('filter_shape_rate');
-            obj.frFilterShape = fr;
+            obj.frFilterShape = val;
         end
 
         % frPeriod/filter_sec_rate
-        function set.frPeriod(obj, fr)
-            failMsg = 'frPeriod must be a positive scalar';
-            assert(jrclust.utils.isscalarnum(fr) && fr > 0, failMsg);
-            obj.frPeriod = fr;
+        function set.frPeriod(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.frPeriod = val;
         end
-        function fr = get.filter_sec_rate(obj)
+        function val = get.filter_sec_rate(obj)
             obj.logOldP('filter_sec_rate');
-            fr = obj.frPeriod;
+            val = obj.frPeriod;
         end
-        function set.filter_sec_rate(obj, fr)
+        function set.filter_sec_rate(obj, val)
             obj.logOldP('filter_sec_rate');
-            obj.frPeriod = fr;
+            obj.frPeriod = val;
         end
 
         % frSampleRate/sRateHz_rate
-        function set.frSampleRate(obj, fr)
-            failMsg = 'frSampleRate must be a positive integer';
-            assert(jrclust.utils.isscalarnum(fr) && fr == round(fr) && fr > 0, failMsg);
-            obj.frSampleRate = fr;
+        function set.frSampleRate(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.frSampleRate = val;
         end
-        function fr = get.sRateHz_rate(obj)
+        function val = get.sRateHz_rate(obj)
             obj.logOldP('sRateHz_rate');
-            fr = obj.frSampleRate;
+            val = obj.frSampleRate;
         end
-        function set.sRateHz_rate(obj, fr)
+        function set.sRateHz_rate(obj, val)
             obj.logOldP('sRateHz_rate');
-            obj.frSampleRate = fr;
+            obj.frSampleRate = val;
         end
 
-        % freqLimBP
-        function set.freqLimBP(obj, fl)
-            assert(jrclust.utils.ismatrixnum(fl) && all(size(fl) == [1 2]) && all(fl >= 0), 'bad freqLimBP');
-            obj.freqLimBP = fl;
+        % freqLimBP/freqLim
+        function set.freqLimBP(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'nonnegative', 'increasing', 'numel', 2});
+            obj.freqLimBP = val;
+        end
+        function val = get.freqLim(obj)
+            obj.logOldP('freqLim');
+            val = obj.freqLimBP;
+        end
+        function set.freqLim(obj, val)
+            obj.logOldP('freqLim');
+            obj.freqLimBP = val;
         end
 
         % gainBoost/gain_boost
-        function set.gainBoost(obj, gb)
-            assert(jrclust.utils.isscalarnum(gb) && gb > 0, 'gainBoost must be a positive scalar');
-            obj.gainBoost = gb;
+        function set.gainBoost(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.gainBoost = val;
         end
-        function gb = get.gain_boost(obj)
+        function val = get.gain_boost(obj)
             obj.logOldP('gain_boost');
-            gb = obj.gainBoost;
+            val = obj.gainBoost;
         end
-        function set.gain_boost(obj, gb)
+        function set.gain_boost(obj, val)
             obj.logOldP('gain_boost');
-            obj.gainBoost = gb;
+            obj.gainBoost = val;
+        end
+
+        % groupShank/fGroup_shank
+        function set.groupShank(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.groupShank = val;
+        end
+        function val = get.fGroup_shank(obj)
+            obj.logOldP('fGroup_shank');
+            val = obj.groupShank;
+        end
+        function set.fGroup_shank(obj, val)
+            obj.logOldP('fGroup_shank');
+            obj.groupShank = val;
         end
 
         % gtFile/vcFile_gt
-        function set.gtFile(obj, gf)
-            if isempty(gf)
-                obj.gtFile = '';
-            else
-                gf_ = jrclust.utils.absPath(gf);
-                assert(isfile(gf_), 'could not find ground-truth file ''%s''', gf);
-                obj.gtFile = gf_;
-            end
+        function set.gtFile(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            hFun = @(x) ~isempty(jrclust.utils.absPath(x));
+            assert(hFun(val));
+            obj.gtFile = jrclust.utils.absPath(val);
         end
-        function gf = get.vcFile_gt(obj)
+        function val = get.vcFile_gt(obj)
             obj.logOldP('vcFile_gt');
-            gf = obj.gtFile;
+            val = obj.gtFile;
         end
-        function set.vcFile_gt(obj, gf)
+        function set.vcFile_gt(obj, val)
             obj.logOldP('vcFile_gt');
-            obj.gtFile = gf;
+            obj.gtFile = val;
         end
 
         % headerOffset/header_offset
-        function set.headerOffset(obj, ho)
-            assert(jrclust.utils.isscalarnum(ho) && ho >= 0, 'invalid headerOffset');
-            obj.headerOffset = ho;
+        function set.headerOffset(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'nonnegative'});
+            obj.headerOffset = val;
         end
-        function ho = get.header_offset(obj)
+        function val = get.header_offset(obj)
             obj.logOldP('header_offset');
-            ho = obj.headerOffset;
+            val = obj.headerOffset;
         end
-        function set.header_offset(obj, ho)
+        function set.header_offset(obj, val)
             obj.logOldP('header_offset');
-            obj.headerOffset = ho;
+            obj.headerOffset = val;
         end
 
         % ignoreSites/viSiteZero
-        function set.ignoreSites(obj, ig)
-            assert(jrclust.utils.ismatrixnum(ig) && all(ig > 0), 'degenerate ignoreSites');
-            % don't manually ignore sites that are automatically ignored
-            obj.ignoreSites = ig;
+        function set.ignoreSites(obj, val)
+            validateattributes(val, {'numeric'}, {'integer', 'positive'});
+            obj.ignoreSites = val;
         end
-        function ig = get.viSiteZero(obj)
+        function val = get.viSiteZero(obj)
             obj.logOldP('viSiteZero');
-            ig = obj.ignoreSites;
+            val = obj.ignoreSites;
         end
-        function set.viSiteZero(obj, ig)
+        function set.viSiteZero(obj, val)
             obj.logOldP('viSiteZero');
-            obj.ignoreSites = ig;
+            obj.ignoreSites = val;
+        end
+
+        % interpPC/fInterp_fet
+        function set.interpPC(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.interpPC = val;
+        end
+        function val = get.fInterp_fet(obj)
+            obj.logOldP('fInterp_fet');
+            val = obj.interpPC;
+        end
+        function set.fInterp_fet(obj, val)
+            obj.logOldP('fInterp_fet');
+            obj.interpPC = val;
         end
 
         % lfpSampleRate/sRateHz_lfp
-        function set.lfpSampleRate(obj, lf)
-            assert(jrclust.utils.isscalarnum(lf) && lf > 0, 'bad lfpSampleRate');
-            obj.lfpSampleRate = lf;
+        function set.lfpSampleRate(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.lfpSampleRate = val;
         end
-        function lf = get.sRateHz_lfp(obj)
+        function val = get.sRateHz_lfp(obj)
             obj.logOldP('sRateHz_lfp');
-            lf = obj.lfpSampleRate;
+            val = obj.lfpSampleRate;
         end
-        function set.sRateHz_lfp(obj, lf)
+        function set.sRateHz_lfp(obj, val)
             obj.logOldP('sRateHz_lfp');
-            obj.lfpSampleRate = lf;
+            obj.lfpSampleRate = val;
         end
 
         % loadTimeLimits/tlim_load
-        function set.loadTimeLimits(obj, tl)
-            assert((isempty(tl) && isnumeric(tl)) || ...
-                   (jrclust.utils.ismatrixnum(tl) && all(size(tl) == [1 2]) && all(tl > 0) && tl(1) < tl(2)), 'bad loadTimeLimits');
-            obj.loadTimeLimits = tl;
+        function set.loadTimeLimits(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'nonnegative', 'increasing', 'numel', 2});
+            obj.loadTimeLimits = val;
         end
-        function tl = get.tlim_load(obj)
+        function val = get.tlim_load(obj)
             obj.logOldP('tlim_load');
-            tl = obj.loadTimeLimits;
+            val = obj.loadTimeLimits;
         end
-        function set.tlim_load(obj, tl)
+        function set.tlim_load(obj, val)
             obj.logOldP('tlim_load');
-            obj.loadTimeLimits = tl;
+            obj.loadTimeLimits = val;
         end
 
         % log10DeltaCut/delta1_cut
-        function set.log10DeltaCut(obj, dc)
-            assert(jrclust.utils.isscalarnum(dc), 'log10DeltaCut must be a numeric scalar');
-            obj.log10DeltaCut = dc;
+        function set.log10DeltaCut(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real'});
+            obj.log10DeltaCut = val;
         end
-        function dc = get.delta1_cut(obj)
+        function val = get.delta1_cut(obj)
             obj.logOldP('delta1_cut');
-            dc = obj.log10DeltaCut;
+            val = obj.log10DeltaCut;
         end
-        function set.delta1_cut(obj, dc)
+        function set.delta1_cut(obj, val)
             obj.logOldP('delta1_cut');
-            obj.log10DeltaCut = dc;
+            obj.log10DeltaCut = val;
         end
 
         % log10RhoCut/rho_cut
-        function set.log10RhoCut(obj, rc)
-            assert(jrclust.utils.isscalarnum(rc), 'log10RhoCut must be a numeric scalar');
-            obj.log10RhoCut = rc;
+        function set.log10RhoCut(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real'});
+            obj.log10RhoCut = val;
         end
-        function rc = get.rho_cut(obj)
+        function val = get.rho_cut(obj)
             obj.logOldP('rho_cut');
-            rc = obj.log10RhoCut;
+            val = obj.log10RhoCut;
         end
-        function set.rho_cut(obj, rc)
+        function set.rho_cut(obj, val)
             obj.logOldP('rho_cut');
-            obj.log10RhoCut = rc;
+            obj.log10RhoCut = val;
         end
 
         % maxBytesLoad/MAX_BYTES_LOAD
-        function set.maxBytesLoad(obj, mb)
-            assert(isempty(mb) || jrclust.utils.isscalarnum(mb) && mb > 0, 'maxBytesLoad must be a positive scalar');
-            obj.maxBytesLoad = mb;
+        function set.maxBytesLoad(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.maxBytesLoad = val;
         end
-        function mb = get.MAX_BYTES_LOAD(obj)
+        function val = get.MAX_BYTES_LOAD(obj)
             obj.logOldP('MAX_BYTES_LOAD');
-            mb = obj.maxBytesLoad;
+            val = obj.maxBytesLoad;
         end
-        function set.MAX_BYTES_LOAD(obj, mb)
+        function set.MAX_BYTES_LOAD(obj, val)
             obj.logOldP('MAX_BYTES_LOAD');
-            obj.maxBytesLoad = mb;
+            obj.maxBytesLoad = val;
         end
 
         % maxClustersSite/maxCluPerSite
-        function set.maxClustersSite(obj, mc)
-            failMsg = 'maxClustersSite must be a nonnegative integer';
-            assert(jrclust.utils.isscalarnum(mc) && round(mc) == mc && mc > 0, failMsg);
-            obj.maxClustersSite = mc;
+        function set.maxClustersSite(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.maxClustersSite = val;
         end
-        function mc = get.maxCluPerSite(obj)
+        function val = get.maxCluPerSite(obj)
             obj.logOldP('maxCluPerSite');
-            mc = obj.maxClustersSite;
+            val = obj.maxClustersSite;
         end
-        function set.maxCluPerSite(obj, mc)
+        function set.maxCluPerSite(obj, val)
             obj.logOldP('maxCluPerSite');
-            obj.maxClustersSite = mc;
+            obj.maxClustersSite = val;
         end
 
         % maxSecLoad/MAX_LOAD_SEC
-        function set.maxSecLoad(obj, ms)
-            assert(isempty(ms) || (jrclust.utils.isscalarnum(ms) && ms > 0), 'maxSecLoad must be a positive scalar');
-            obj.maxSecLoad = ms;
+        function set.maxSecLoad(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.maxSecLoad = val;
         end
-        function ms = get.MAX_LOAD_SEC(obj)
+        function val = get.MAX_LOAD_SEC(obj)
             obj.logOldP('MAX_LOAD_SEC');
-            ms = obj.maxSecLoad;
+            val = obj.maxSecLoad;
         end
-        function set.MAX_LOAD_SEC(obj, ms)
+        function set.MAX_LOAD_SEC(obj, val)
             obj.logOldP('MAX_LOAD_SEC');
-            obj.maxSecLoad = ms;
+            obj.maxSecLoad = val;
         end
 
-        % maxUnitSim
-        function set.maxUnitSim(obj, mw)
-            failMsg = 'maxUnitSim must be between 0 and 1';
-            assert(jrclust.utils.isscalarnum(mw) && mw >= 0 && mw <= 1, failMsg);
-            obj.maxUnitSim = mw;
+        % maxUnitSim/maxWavCor
+        function set.maxUnitSim(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'nonnegative', '<=', 1});
+            obj.maxUnitSim = val;
+        end
+        function val = get.maxWavCor(obj)
+            obj.logOldP('maxWavCor');
+            val = obj.maxUnitSim;
+        end
+        function set.maxWavCor(obj, val)
+            obj.logOldP('maxWavCor');
+            obj.maxUnitSim = val;
+        end
+
+        % meanInterpFactor/nInterp_merge
+        function set.meanInterpFactor(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.meanInterpFactor = val;
+        end
+        function val = get.nInterp_merge(obj)
+            obj.logOldP('nInterp_merge');
+            val = obj.meanInterpFactor;
+        end
+        function set.nInterp_merge(obj, val)
+            obj.logOldP('nInterp_merge');
+            obj.meanInterpFactor = val;
         end
 
         % minClusterSize/min_count
-        function set.minClusterSize(obj, mc)
-            assert(jrclust.utils.isscalarnum(mc) && mc == round(mc) && mc > 0, 'minClusterSize must be a positive integer-valued scalar');
-            obj.minClusterSize = mc;
+        function set.minClusterSize(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.minClusterSize = val;
         end
-        function mc = get.min_count(obj)
+        function val = get.min_count(obj)
             obj.logOldP('min_count');
-            mc = obj.minClusterSize;
+            val = obj.minClusterSize;
         end
-        function set.min_count(obj, mc)
+        function set.min_count(obj, val)
             obj.logOldP('min_count');
-            obj.minClusterSize = mc;
+            obj.minClusterSize = val;
         end
 
-        % csFile_merge
-        function mr = get.csFile_merge(obj)
-            obj.logOldP('csFile_merge');
-            mr = obj.rawRecordings;
+        % minNeighborsDetect/nneigh_min_detect
+        function set.minNeighborsDetect(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'nonnegative', '<=', 2});
+            obj.minNeighborsDetect = val;
+        end
+        function val = get.nneigh_min_detect(obj)
+            obj.logOldP('nneigh_min_detect');
+            val = obj.minNeighborsDetect;
+        end
+        function set.nneigh_min_detect(obj, val)
+            obj.logOldP('nneigh_min_detect');
+            obj.minNeighborsDetect = val;
+        end
+
+        % minSitesWeightFeatures/min_sites_mask
+        function set.minSitesWeightFeatures(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.minSitesWeightFeatures = val;
+        end
+        function val = get.min_sites_mask(obj)
+            obj.logOldP('min_sites_mask');
+            val = obj.minSitesWeightFeatures;
+        end
+        function set.min_sites_mask(obj, val)
+            obj.logOldP('min_sites_mask');
+            obj.minSitesWeightFeatures = val;
+        end
+
+        % nClusterIntervals/nTime_clu
+        function set.nClusterIntervals(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nClusterIntervals = val;
+        end
+        function val = get.nTime_clu(obj)
+            obj.logOldP('nTime_clu');
+            val = obj.nClusterIntervals;
+        end
+        function set.nTime_clu(obj, val)
+            obj.logOldP('nTime_clu');
+            obj.nClusterIntervals = val;
         end
 
         % nClustersShowAux/nClu_show_aux
-        function set.nClustersShowAux(obj, nc)
-            failMsg = 'nClustersShowAux must be a positive integer';
-            assert(jrclust.utils.isscalarnum(nc) && nc == round(nc) && nc > 0, failMsg);
-            obj.nClustersShowAux = nc;
+        function set.nClustersShowAux(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nClustersShowAux = val;
         end
-        function nc = get.nClu_show_aux(obj)
+        function val = get.nClu_show_aux(obj)
             obj.logOldP('nClu_show_aux');
-            nc = obj.nClustersShowAux;
+            val = obj.nClustersShowAux;
         end
-        function set.nClu_show_aux(obj, nc)
+        function set.nClu_show_aux(obj, val)
             obj.logOldP('nClu_show_aux');
-            obj.nClustersShowAux = nc;
+            obj.nClustersShowAux = val;
         end
 
-        % nPeaksFeatures
-        function set.nPeaksFeatures(obj, nf)
-            assert(jrclust.utils.isscalarnum(nf) && ~isempty(intersect(nf, [1 2 3])), 'nPeaksFeatures must be 1, 2, or 3');
-            obj.nPeaksFeatures = nf;
+        % nDiffOrder/nDiff_filt
+        function set.nDiffOrder(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'nonnegative', '<=', 3});
+            obj.nDiffOrder = val;
+        end
+        function val = get.nDiff_filt(obj)
+            obj.logOldP('nDiff_filt');
+            val = obj.nDiffOrder;
+        end
+        function set.nDiff_filt(obj, val)
+            obj.logOldP('nDiff_filt');
+            obj.nDiffOrder = val;
+        end
+
+        % nLoadsMaxPreview/nLoads_max_preview
+        function set.nLoadsMaxPreview(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nLoadsMaxPreview = val;
+        end
+        function val = get.nLoads_max_preview(obj)
+            obj.logOldP('nLoads_max_preview');
+            val = obj.nLoadsMaxPreview;
+        end
+        function set.nLoads_max_preview(obj, val)
+            obj.logOldP('nLoads_max_preview');
+            obj.nLoadsMaxPreview = val;
+        end
+
+        % nPCsPerSite/nPcPerChan
+        function set.nPCsPerSite(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive', '<=', 3});
+            obj.nPCsPerSite = val;
+        end
+        function val = get.nPcPerChan(obj)
+            obj.logOldP('nPcPerChan');
+            val = obj.nPCsPerSite;
+        end
+        function set.nPcPerChan(obj, val)
+            obj.logOldP('nPcPerChan');
+            obj.nPCsPerSite = val;
         end
 
         % nPassesMerge/nRepeat_merge
-        function set.nPassesMerge(obj, np)
-            failMsg = 'nPassesMerge must be a nonnegative integer';
-            assert(jrclust.utils.isscalarnum(np) && np == round(np) && np >= 0, failMsg);
-            obj.nPassesMerge = np;
+        function set.nPassesMerge(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nPassesMerge = val;
         end
-        function np = get.nRepeat_merge(obj)
+        function val = get.nRepeat_merge(obj)
             obj.logOldP('nRepeat_merge');
-            np = obj.nPassesMerge;
+            val = obj.nPassesMerge;
         end
-        function set.nRepeat_merge(obj, np)
+        function set.nRepeat_merge(obj, val)
             obj.logOldP('nRepeat_merge');
-            obj.nPassesMerge = np;
+            obj.nPassesMerge = val;
+        end
+
+        % nPeaksFeatures/nFet_use
+        function set.nPeaksFeatures(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', '<=', 3});
+            obj.nPeaksFeatures = val;
+        end
+        function val = get.nFet_use(obj)
+            obj.logOldP('nFet_use');
+            val = obj.nPeaksFeatures;
+        end
+        function set.nFet_use(obj, val)
+            obj.logOldP('nFet_use');
+            obj.nPeaksFeatures = val;
         end
 
         % nSamplesPad/nPad_filt
-        function set.nSamplesPad(obj, ns)
-            assert(jrclust.utils.isscalarnum(ns) && ns >= 0, 'nSamplesPad must be a nonnegative scalar');
-            obj.nSamplesPad = ns;
+        function set.nSamplesPad(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nSamplesPad = val;
         end
-        function ns = get.nPad_filt(obj)
+        function val = get.nPad_filt(obj)
             obj.logOldP('nPad_filt');
-            ns = obj.nSamplesPad;
+            val = obj.nSamplesPad;
         end
-        function set.nPad_filt(obj, ns)
+        function set.nPad_filt(obj, val)
             obj.logOldP('nPad_filt');
-            obj.nSamplesPad = ns;
+            obj.nSamplesPad = val;
+        end
+
+        % nSecsLoadPreview/sec_per_load_preview
+        function set.nSecsLoadPreview(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.nSecsLoadPreview = val;
+        end
+        function val = get.sec_per_load_preview(obj)
+            obj.logOldP('sec_per_load_preview');
+            val = obj.nSecsLoadPreview;
+        end
+        function set.sec_per_load_preview(obj, val)
+            obj.logOldP('sec_per_load_preview');
+            obj.nSecsLoadPreview = val;
+        end
+
+        % nSegmentsTraces/nTime_traces
+        function set.nSegmentsTraces(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nSegmentsTraces = val;
+        end
+        function val = get.nTime_traces(obj)
+            obj.logOldP('nTime_traces');
+            val = obj.nSegmentsTraces;
+        end
+        function set.nTime_traces(obj, val)
+            obj.logOldP('nTime_traces');
+            obj.nSegmentsTraces = val;
         end
 
         % nSiteDir/maxSite
-        function set.nSiteDir(obj, ns)
-            assert(jrclust.utils.ismatrixnum(ns) && (isempty(ns) || (jrclust.utils.isscalarnum(ns) && ns >= 0)), 'invalid value for nSiteDir');
-            obj.nSiteDir = ns;
+        function set.nSiteDir(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nSiteDir = val;
         end
-        function ns = get.maxSite(obj)
+        function val = get.maxSite(obj)
             obj.logOldP('maxSite');
-            ns = obj.nSiteDir;
+            val = obj.nSiteDir;
         end
-        function set.maxSite(obj, ns)
+        function set.maxSite(obj, val)
             obj.logOldP('maxSite');
-            obj.nSiteDir = ns;
+            obj.nSiteDir = val;
         end
 
         % nSites
@@ -1445,335 +1740,551 @@ classdef Config < dynamicprops
         end
 
         % nSitesExcl/nSites_ref
-        function set.nSitesExcl(obj, ns)
-            assert(jrclust.utils.ismatrixnum(ns) && (isempty(ns) || (jrclust.utils.isscalarnum(ns) && ns >= 0)), 'invalid value for nSitesExcl');
-            obj.nSitesExcl = ns;
+        function set.nSitesExcl(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nSitesExcl = val;
         end
-        function ns = get.nSites_ref(obj)
+        function val = get.nSites_ref(obj)
             obj.logOldP('nSites_ref');
-            ns = obj.nSitesExcl;
+            val = obj.nSitesExcl;
         end
-        function set.nSites_ref(obj, ns)
+        function set.nSites_ref(obj, val)
             obj.logOldP('nSites_ref');
-            obj.nSitesExcl = ns;
+            obj.nSitesExcl = val;
+        end
+
+        % nSkip/nSkip_show
+        function set.nSkip(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nSkip = val;
+        end
+        function val = get.nSkip_show(obj)
+            obj.logOldP('nSkip_show');
+            val = obj.nSkip;
+        end
+        function set.nSkip_show(obj, val)
+            obj.logOldP('nSkip_show');
+            obj.nSkip = val;
+        end
+
+        % nSpikesFigProj/nShow_proj
+        function set.nSpikesFigProj(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nSpikesFigProj = val;
+        end
+        function val = get.nShow_proj(obj)
+            obj.logOldP('nShow_proj');
+            val = obj.nSpikesFigProj;
+        end
+        function set.nShow_proj(obj, val)
+            obj.logOldP('nShow_proj');
+            obj.nSpikesFigProj = val;
+        end
+
+        % nSpikesFigWav/nSpk_show
+        function set.nSpikesFigWav(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nSpikesFigWav = val;
+        end
+        function val = get.nSpk_show(obj)
+            obj.logOldP('nSpk_show');
+            val = obj.nSpikesFigWav;
+        end
+        function set.nSpk_show(obj, val)
+            obj.logOldP('nSpk_show');
+            obj.nSpikesFigWav = val;
+        end
+
+        % nThreadsGPU/nThreads
+        function set.nThreadsGPU(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.nThreadsGPU = val;
+        end
+        function val = get.nThreads(obj)
+            obj.logOldP('nThreads');
+            val = obj.nThreadsGPU;
+        end
+        function set.nThreads(obj, val)
+            obj.logOldP('nThreads');
+            obj.nThreadsGPU = val;
         end
 
         % outlierThresh/thresh_mad_clu
-        function set.outlierThresh(obj, ot)
-            failMsg = 'outlierThresh must be a nonnegative number';
-            assert(jrclust.utils.isscalarnum(ot) && ot >= 0, failMsg);
-            obj.outlierThresh = ot;
+        function set.outlierThresh(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.outlierThresh = val;
         end
-        function ot = get.thresh_mad_clu(obj)
+        function val = get.thresh_mad_clu(obj)
             obj.logOldP('thresh_mad_clu');
-            ot = obj.outlierThresh;
+            val = obj.outlierThresh;
         end
-        function set.thresh_mad_clu(obj, ot)
+        function set.thresh_mad_clu(obj, val)
             obj.logOldP('thresh_mad_clu');
-            obj.outlierThresh = ot;
+            obj.outlierThresh = val;
         end
 
         % outputDir
-        function od = get.outputDir(obj)
+        function val = get.outputDir(obj)
             if isempty(obj.outputDir)
-                od = fileparts(obj.configFile);
+                val = fileparts(obj.configFile);
             else
-                od = obj.outputDir;
+                val = obj.outputDir;
             end
         end
-        function set.outputDir(obj, od)
-            failMsg = 'outputDir must be a directory';
-            od_ = jrclust.utils.absPath(od);
-            assert(isempty(od) || isdir(od_), failMsg);
-            obj.outputDir = od_;
+        function set.outputDir(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            hFun = @(x) ~isempty(jrclust.utils.absPath(x));
+            assert(hFun(val));
+            obj.outputDir = jrclust.utils.absPath(val);
         end
 
         % probeFile/probe_file
-        function set.probeFile(obj, pf)
+        function set.probeFile(obj, val)
             % first check where the config file is located
-            pf_ = jrclust.utils.absPath(pf);
+            val_ = jrclust.utils.absPath(val);
             % if we can't find it there, try the standard location
-            if isempty(pf_)
-                pf_ = jrclust.utils.absPath(pf, fullfile(jrclust.utils.basedir(), 'probes'));
+            if isempty(val_)
+                val_ = jrclust.utils.absPath(val, fullfile(jrclust.utils.basedir(), 'probes'));
             end
-            assert(isfile(pf_), 'could not find probe file ''%s''', pf);
-            obj.probeFile = pf_;
+            assert(isfile(val_), 'could not find probe file ''%s''', val);
+            obj.probeFile = val_;
         end
-        function pf = get.probe_file(obj)
+        function val = get.probe_file(obj)
             obj.logOldP('probe_file');
-            pf = obj.probeFile;
+            val = obj.probeFile;
         end
-        function set.probe_file(obj, pf)
+        function set.probe_file(obj, val)
             obj.logOldP('probe_file');
-            obj.probeFile = pf;
+            obj.probeFile = val;
         end
 
         % probePad/vrSiteHW
-        function set.probePad(obj, pp)
-            assert(jrclust.utils.ismatrixnum(pp) && all(pp(:) > 0), 'malformed probePad');
-            obj.probePad = pp;
+        function set.probePad(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'positive', 'numel', 2});
+            obj.probePad = val;
         end
-        function pp = get.vrSiteHW(obj)
+        function val = get.vrSiteHW(obj)
             obj.logOldP('vrSiteHW');
-            pp = obj.probePad;
+            val = obj.probePad;
         end
-        function set.vrSiteHW(obj, pp)
+        function set.vrSiteHW(obj, val)
             obj.logOldP('vrSiteHW');
-            obj.probePad = pp;
+            obj.probePad = val;
+        end
+
+        % projTimeLimits/tLimFigProj
+        function set.projTimeLimits(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'nonnegative', 'increasing', 'numel', 2});
+            obj.projTimeLimits = val;
+        end
+        function val = get.tLimFigProj(obj)
+            obj.logOldP('tLimFigProj');
+            val = obj.projTimeLimits;
+        end
+        function set.tLimFigProj(obj, val)
+            obj.logOldP('tLimFigProj');
+            obj.projTimeLimits = val;
+        end
+
+        % psthTimeBin/tbin_psth
+        function set.psthTimeBin(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.psthTimeBin = val;
+        end
+        function val = get.tbin_psth(obj)
+            obj.logOldP('tbin_psth');
+            val = obj.psthTimeBin;
+        end
+        function set.tbin_psth(obj, val)
+            obj.logOldP('tbin_psth');
+            obj.psthTimeBin = val;
+        end
+
+        % psthTimeLimits/tlim_psth
+        function set.psthTimeLimits(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'increasing', 'numel', 2});
+            hFun = @(x) diff(x) >= x(2);
+            assert(hFun(val));
+            obj.psthTimeLimits = val;
+        end
+        function val = get.tlim_psth(obj)
+            obj.logOldP('tlim_psth');
+            val = obj.psthTimeLimits;
+        end
+        function set.tlim_psth(obj, val)
+            obj.logOldP('tlim_psth');
+            obj.psthTimeLimits = val;
+        end
+
+        % psthXTick/xtick_psth
+        function set.psthXTick(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.psthXTick = val;
+        end
+        function val = get.xtick_psth(obj)
+            obj.logOldP('xtick_psth');
+            val = obj.psthXTick;
+        end
+        function set.xtick_psth(obj, val)
+            obj.logOldP('xtick_psth');
+            obj.psthXTick = val;
         end
 
         % ramToGPUFactor/nLoads_gpu
-        function set.ramToGPUFactor(obj, rg)
-            assert(jrclust.utils.isscalarnum(rg) && rg > 0, 'ramToGPUFactor must be a positive scalar');
-            obj.ramToGPUFactor = rg;
+        function set.ramToGPUFactor(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.ramToGPUFactor = val;
         end
-        function rg = get.nLoads_gpu(obj)
+        function val = get.nLoads_gpu(obj)
             obj.logOldP('nLoads_gpu');
-            rg = obj.ramToGPUFactor;
+            val = obj.ramToGPUFactor;
         end
-        function set.nLoads_gpu(obj, rg)
+        function set.nLoads_gpu(obj, val)
             obj.logOldP('nLoads_gpu');
-            obj.ramToGPUFactor = rg;
+            obj.ramToGPUFactor = val;
         end
 
         % randomSeed
-        function set.randomSeed(obj, rs)
-            failMsg = 'randomSeed must be a nonnegative integer';
-            assert(jrclust.utils.isscalarnum(rs) && rs == round(rs) && rs >= 0, failMsg);
-            obj.randomSeed = rs;
+        function set.randomSeed(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'nonnegative'});
+            obj.randomSeed = val;
         end
 
         % refracInt/spkRefrac_ms
-        function set.refracInt(obj, ri)
-            assert(jrclust.utils.isscalarnum(ri) && ri > 0, 'refractory interval must be a positive scalar');
-            obj.refracInt = ri;
+        function set.refracInt(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.refracInt = val;
         end
-        function ri = get.spkRefrac_ms(obj)
+        function val = get.spkRefrac_ms(obj)
             obj.logOldP('spkRefrac_ms');
-            ri = obj.refracInt;
+            val = obj.refracInt;
         end
-        function set.spkRefrac_ms(obj, ri)
+        function set.spkRefrac_ms(obj, val)
             obj.logOldP('spkRefrac_ms');
-            obj.refracInt = ri;
+            obj.refracInt = val;
         end
 
         % refracIntSamp/spkRefrac
-        function ri = get.refracIntSamp(obj)
-            ri = round(obj.refracInt * obj.sampleRate / 1000);
+        function val = get.refracIntSamp(obj)
+            val = round(obj.refracInt * obj.sampleRate / 1000);
         end
-        function set.refracIntSamp(obj, ri)
-            obj.refracInt = ri * 1000 / obj.sampleRate;
+        function set.refracIntSamp(obj, val)
+            obj.refracInt = val * 1000 / obj.sampleRate;
         end
-        function ri = get.spkRefrac(obj)
+        function val = get.spkRefrac(obj)
             obj.logOldP('spkRefrac');
-            ri = obj.refracIntSamp;
+            val = obj.refracIntSamp;
         end
-        function set.spkRefrac(obj, ri)
+        function set.spkRefrac(obj, val)
             obj.logOldP('spkRefrac');
-            obj.refracIntSamp = ri;
-        end
-
-        % RDDetrendMode/vcDetrend_postclu
-        function set.RDDetrendMode(obj, dm)
-            legalTypes = {'global', 'local', 'logz', 'hidehiko', 'none'};
-            failMsg = sprintf('legal RDDetrendModes are %s', strjoin(legalTypes, ', '));
-            assert(sum(strcmp(dm, legalTypes)) == 1, failMsg);
-            obj.RDDetrendMode = dm;
-        end
-        function dm = get.vcDetrend_postclu(obj)
-            obj.logOldP('vcDetrend_postclu');
-            dm = obj.RDDetrendMode;
-        end
-        function set.vcDetrend_postclu(obj, dm)
-            obj.logOldP('vcDetrend_postclu');
-            obj.RDDetrendMode = dm;
+            obj.refracIntSamp = val;
         end
 
         % sampleRate/sRateHz
-        function set.sampleRate(obj, sr)
-            assert(jrclust.utils.isscalarnum(sr) && sr > 0, 'bad sample rate');
-            obj.sampleRate = sr;
+        function set.sampleRate(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'integer', 'positive'});
+            obj.sampleRate = val;
         end
-        function sr = get.sRateHz(obj)
+        function val = get.sRateHz(obj)
             obj.logOldP('sRateHz');
-            sr = obj.sampleRate;
+            val = obj.sampleRate;
         end
-        function set.sRateHz(obj, sr)
+        function set.sRateHz(obj, val)
             obj.logOldP('sRateHz');
-            obj.sampleRate = sr;
+            obj.sampleRate = val;
         end
 
         % sessionName
-        function sn = get.sessionName(obj)
-            [~, sn, ~] = fileparts(obj.configFile);
+        function val = get.sessionName(obj)
+            [~, val, ~] = fileparts(obj.configFile);
         end
 
         % shankMap/viShank_site
-        function set.shankMap(obj, sm)
-            assert(jrclust.utils.ismatrixnum(sm) && all(sm > 0), 'malformed shankMap');
-            obj.shankMap = sm;
+        function set.shankMap(obj, val)
+            validateattributes(val, {'numeric'}, {'integer', 'positive'});
+            obj.shankMap = val;
         end
-        function sm = get.viShank_site(obj)
+        function val = get.viShank_site(obj)
             obj.logOldP('viShank_site');
-            sm = obj.shankMap;
+            val = obj.shankMap;
         end
-        function set.viShank_site(obj, sm)
+        function set.viShank_site(obj, val)
             obj.logOldP('viShank_site');
-            obj.shankMap = sm;
+            obj.shankMap = val;
         end
 
         % showRaw/fWav_raw_show
-        function set.showRaw(obj, sr)
-            obj.showRaw = 1 && sr;
+        function set.showRaw(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.showRaw = val;
         end
-        function sr = get.fWav_raw_show(obj)
+        function val = get.fWav_raw_show(obj)
             obj.logOldP('fWav_raw_show');
-            sr = obj.showRaw;
+            val = obj.showRaw;
         end
-        function set.fWav_raw_show(obj, sr)
+        function set.fWav_raw_show(obj, val)
             obj.logOldP('fWav_raw_show');
-            obj.showRaw = sr;
+            obj.showRaw = val;
+        end
+
+        % showSpikeCount/fText
+        function set.showSpikeCount(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.showSpikeCount = val;
+        end
+        function val = get.fText(obj)
+            obj.logOldP('fText');
+            val = obj.showSpikeCount;
+        end
+        function set.fText(obj, val)
+            obj.logOldP('fText');
+            obj.showSpikeCount = val;
         end
 
         % siteCorrThresh/thresh_corr_bad_site
-        function set.siteCorrThresh(obj, ct)
-            assert(jrclust.utils.isscalarnum(ct) && ct >= 0 && ct < 1, 'bad siteCorrThresh');
-            obj.siteCorrThresh = ct;
+        function set.siteCorrThresh(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'nonnegative', '<', 1});
+            obj.siteCorrThresh = val;
         end
-        function ct = get.thresh_corr_bad_site(obj)
+        function val = get.thresh_corr_bad_site(obj)
             obj.logOldP('thresh_corr_bad_site');
-            ct = obj.siteCorrThresh;
+            val = obj.siteCorrThresh;
         end
-        function set.thresh_corr_bad_site(obj, ct)
+        function set.thresh_corr_bad_site(obj, val)
             obj.logOldP('thresh_corr_bad_site');
-            obj.siteCorrThresh = ct;
+            obj.siteCorrThresh = val;
         end
 
         % siteLoc/mrSiteXY
-        function set.siteLoc(obj, pg)
-            assert(jrclust.utils.ismatrixnum(pg) && all(pg(:) >= 0), 'malformed siteLoc');
-            obj.siteLoc = pg;
+        function set.siteLoc(obj, val)
+            validateattributes(val, {'numeric'}, {'real', 'nonnegative'});
+            obj.siteLoc = val;
         end
-        function pg = get.mrSiteXY(obj)
+        function val = get.mrSiteXY(obj)
             obj.logOldP('mrSiteXY');
-            pg = obj.siteLoc;
+            val = obj.siteLoc;
         end
-        function set.mrSiteXY(obj, pg)
+        function set.mrSiteXY(obj, val)
             obj.logOldP('mrSiteXY');
-            obj.siteLoc = pg;
+            obj.siteLoc = val;
         end
 
         % siteMap/viSite2Chan
-        function set.siteMap(obj, cm)
-            assert(jrclust.utils.ismatrixnum(cm) && all(cm > 0), 'malformed siteMap');
-            obj.siteMap = cm;
+        function set.siteMap(obj, val)
+            validateattributes(val, {'numeric'}, {'integer', 'positive'});
+            obj.siteMap = val;
         end
-        function cm = get.viSite2Chan(obj)
+        function val = get.viSite2Chan(obj)
             obj.logOldP('viSite2Chan');
-            cm = obj.siteMap;
+            val = obj.siteMap;
         end
-        function set.viSite2Chan(obj, cm)
+        function set.viSite2Chan(obj, val)
             obj.logOldP('viSite2Chan');
-            obj.siteMap = cm;
+            obj.siteMap = val;
         end
 
         % siteNeighbors/miSites
-        function set.siteNeighbors(obj, sn) % danger zone: don't set this manually
-            assert(jrclust.utils.ismatrixnum(sn), 'siteNeighbors must be a numeric matrix');
-            obj.siteNeighbors = sn;
+        function set.siteNeighbors(obj, val) % danger zone: don't set this manually
+            validateattributes(val, {'numeric'}, {'integer', 'positive'});
+            obj.siteNeighbors = val;
         end
-        function sn = get.miSites(obj)
+        function val = get.miSites(obj)
             obj.logOldP('miSites');
-            sn = obj.siteNeighbors;
+            val = obj.siteNeighbors;
         end
-        function set.miSites(obj, sn)
+        function set.miSites(obj, val)
             obj.logOldP('miSites');
-            obj.siteNeighbors = sn;
+            obj.siteNeighbors = val;
+        end
+
+        % spikeThreshMax/spkThresh_max_uV
+        function set.spikeThreshMax(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'real', 'positive'});
+            obj.spikeThreshMax = val;
+        end
+        function val = get.spkThresh_max_uV(obj)
+            obj.logOldP('spkThresh_max_uV');
+            val = obj.spikeThreshMax;
+        end
+        function set.spkThresh_max_uV(obj, val)
+            obj.logOldP('spkThresh_max_uV');
+            obj.spikeThreshMax = val;
+        end
+
+        % tallSkinny/fTranspose_bin
+        function set.tallSkinny(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.tallSkinny = val;
+        end
+        function val = get.fTranspose_bin(obj)
+            obj.logOldP('fTranspose_bin');
+            val = obj.tallSkinny;
+        end
+        function set.fTranspose_bin(obj, val)
+            obj.logOldP('fTranspose_bin');
+            obj.tallSkinny = val;
         end
 
         % threshFile/vcFile_thresh
-        function set.threshFile(obj, tf)
-            if isempty(tf)
-                obj.threshFile = '';
-            else
-                failMsg = sprintf('could not find threshold file ''%s''', tf);
-                tf_ = jrclust.utils.absPath(tf);
-                assert(isfile(tf_), failMsg);
-                obj.threshFile = tf_;
-            end
+        function set.threshFile(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            hFun = @(x) ~isempty(jrclust.utils.absPath(x));
+            assert(hFun(val));
+            obj.threshFile = jrclust.utils.absPath(val);
         end
-        function gf = get.vcFile_thresh(obj)
+        function val = get.vcFile_thresh(obj)
             obj.logOldP('vcFile_thresh');
-            gf = obj.threshFile;
+            val = obj.threshFile;
         end
-        function set.vcFile_thresh(obj, gf)
+        function set.vcFile_thresh(obj, val)
             obj.logOldP('vcFile_thresh');
-            obj.threshFile = gf;
+            obj.threshFile = val;
         end
 
         % trialFile/vcFile_trial
-        function set.trialFile(obj, tf)
-            if isempty(tf)
-                obj.trialFile = tf;
-            else
-                failMsg = sprintf('could not find trial file ''%s''', tf);
-                tf_ = jrclust.utils.absPath(tf);
-                assert(isfile(tf_), failMsg);
-                obj.trialFile = tf_;
-            end
+        function set.trialFile(obj, val)
+            validateattributes(val, {'char'}, {'scalartext'});
+            hFun = @(x) ~isempty(jrclust.utils.absPath(x));
+            assert(hFun(val));
+            obj.trialFile =jrclust.utils.absPath(val);
         end
-        function tf = get.vcFile_trial(obj)
+        function val = get.vcFile_trial(obj)
             obj.logOldP('vcFile_trial');
-            tf = obj.trialFile;
+            val = obj.trialFile;
         end
-        function set.vcFile_trial(obj, tf)
+        function set.vcFile_trial(obj, val)
             obj.logOldP('vcFile_trial');
-            obj.trialFile = tf;
+            obj.trialFile = val;
+        end
+
+        % umPerPix/um_per_pix
+        function set.umPerPix(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'positive', 'integer'});
+            obj.umPerPix = val;
+        end
+        function val = get.um_per_pix(obj)
+            obj.logOldP('um_per_pix');
+            val = obj.umPerPix;
+        end
+        function set.um_per_pix(obj, val)
+            obj.logOldP('um_per_pix');
+            obj.umPerPix = val;
+        end
+
+        % useElliptic/fEllip
+        function set.useElliptic(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.useElliptic = val;
+        end
+        function val = get.fEllip(obj)
+            obj.logOldP('fEllip');
+            val = obj.useElliptic;
+        end
+        function set.fEllip(obj, val)
+            obj.logOldP('fEllip');
+            obj.useElliptic = val;
         end
 
         % useGPU/fGpu
-        function set.useGPU(obj, ug)
-            % use GPU if and only if present, accessible, and asked for
-            ug = ug && license('test', 'Distrib_Computing_Toolbox') && gpuDeviceCount() > 0;
-            obj.useGPU = ug;
+        function set.useGPU(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.useGPU = val;
         end
-        function ug = get.fGpu(obj)
+        function val = get.fGpu(obj)
             obj.logOldP('fGpu');
-            ug = obj.useGPU;
+            val = obj.useGPU;
         end
-        function set.fGpu(obj, ug)
+        function set.fGpu(obj, val)
             obj.logOldP('fGpu');
-            obj.useGPU = ug;
+            obj.useGPU = val;
+        end
+
+        % useGlobalDistCut/fDc_global
+        function set.useGlobalDistCut(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.useGlobalDistCut = val;
+        end
+        function val = get.fDc_global(obj)
+            obj.logOldP('fDc_global');
+            val = obj.useGlobalDistCut;
+        end
+        function set.fDc_global(obj, val)
+            obj.logOldP('fDc_global');
+            obj.useGlobalDistCut = val;
+        end
+
+        % useParfor/fParfor
+        function set.useParfor(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.useParfor = val;
+        end
+        function val = get.fParfor(obj)
+            obj.logOldP('fParfor');
+            val = obj.useParfor;
+        end
+        function set.fParfor(obj, val)
+            obj.logOldP('fParfor');
+            obj.useParfor = val;
         end
 
         % userFiltKernel/vnFilter_user
-        function set.userFiltKernel(obj, uf)
-            assert(jrclust.utils.ismatrixnum(uf));
-            obj.userFiltKernel = uf;
+        function set.userFiltKernel(obj, val)
+            validateattributes(val, {'numeric'}, {'integer'});
+            obj.userFiltKernel = val;
         end
-        function uf = get.vnFilter_user(obj)
+        function val = get.vnFilter_user(obj)
             obj.logOldP('vnFilter_user');
-            uf = obj.userFiltKernel;
+            val = obj.userFiltKernel;
         end
-        function set.vnFilter_user(obj, uf)
+        function set.vnFilter_user(obj, val)
             obj.logOldP('vnFilter_user');
-            obj.userFiltKernel = uf;
+            obj.userFiltKernel = val;
         end
 
         % verbose/fVerbose
-        function vb = get.verbose(obj)
-            vb = obj.verbose && ~obj.batchMode;
+        function set.verbose(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.verbose = val;
         end
-        function set.verbose(obj, vb)
-            obj.verbose = 1 && vb;
-        end
-        function vb = get.fVerbose(obj)
+        function val = get.fVerbose(obj)
             obj.logOldP('fVerbose');
-            vb = obj.verbose;
+            val = obj.verbose;
         end
-        function set.fVerbose(obj, vb)
+        function set.fVerbose(obj, val)
             obj.logOldP('fVerbose');
-            obj.verbose = vb;
+            obj.verbose = val;
+        end
+
+        % weightFeatures/fSpatialMask_clu
+        function set.weightFeatures(obj, val)
+            validateattributes(val, {'logical', 'double'}, {'scalar'});
+            hFun = @(x) logical(x);
+            val = hFun(val);
+            obj.weightFeatures = val;
+        end
+        function val = get.fSpatialMask_clu(obj)
+            obj.logOldP('fSpatialMask_clu');
+            val = obj.weightFeatures;
+        end
+        function set.fSpatialMask_clu(obj, val)
+            obj.logOldP('fSpatialMask_clu');
+            obj.weightFeatures = val;
         end
     end
 end

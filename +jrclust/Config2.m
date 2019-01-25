@@ -15,6 +15,11 @@ classdef Config2 < dynamicprops
         configFile;
     end
 
+    %% NOT TO BE SET BY USERS
+    properties (SetAccess=private)
+        siteNeighbors;              % indices of neighbors for each site
+    end
+
     %% RECORDING(S) (to ease the transition)
     properties (Dependent, Hidden, SetObservable)
         singleRaw;  % formerly vcFile
@@ -166,6 +171,8 @@ classdef Config2 < dynamicprops
                 return;
             end
 
+            obj.ignoreSites = obj.ignoreSites(ismember(obj.siteMap, obj.ignoreSites)); %#ok<MCNPR>
+
             % nSiteDir and/or nSitesExcl may not have been specified
             if isempty(obj.nSiteDir) || isempty(obj.nSitesExcl)
                 siteDists = pdist2(obj.siteLoc, obj.siteLoc);
@@ -192,10 +199,7 @@ classdef Config2 < dynamicprops
                 obj.error('nSitesExcl is too large or nSiteDir is too small', 'Bad configuration');
             end
 
-            obj.addprop('siteNeighbors');
-            ignoreSites_ = find(ismember(obj.siteMap, obj.ignoreSites));
-            sn = findSiteNeighbors(obj.siteLoc, 2*obj.nSiteDir + 1, ignoreSites_, obj.shankMap);
-            obj.setProp('siteNeighbors', sn);
+            obj.siteNeighbors = findSiteNeighbors(obj.siteLoc, 2*obj.nSiteDir + 1, obj.ignoreSites, obj.shankMap);
 
             % boost that gain
             obj.bitScaling = obj.bitScaling/obj.gainBoost; %#ok<MCNPR>
