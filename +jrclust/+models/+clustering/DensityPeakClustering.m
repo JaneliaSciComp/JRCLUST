@@ -1429,8 +1429,8 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
         % hCfg
         function set.hCfg(obj, hc)
-            failMsg = 'hCfg must be an object of type jrclust.Config';
-            assert(isa(hc, 'jrclust.Config'), failMsg);
+            failMsg = 'hCfg must be an object of type jrclust.Config2';
+            assert(isa(hc, 'jrclust.Config2'), failMsg);
             obj.hCfg = hc;
         end
 

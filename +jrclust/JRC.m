@@ -180,7 +180,7 @@ classdef JRC < handle & dynamicprops
 
                 % workflow commands
                 case 'bootstrap'
-                    obj.hCfg = jrclust.Config(); % opens a dialog
+                    obj.hCfg = jrclust.Config2(); % opens a dialog
                     jrclust.utils.qMsgBox(sprintf('Parameter file created at %s', obj.hCfg.configFile));
                     obj.isCompleted = 1;
                     return;
@@ -196,7 +196,7 @@ classdef JRC < handle & dynamicprops
                     probeFile = obj.args{1};
                     
                     if endsWith(probeFile, '.prm')
-                        hCfg_ = jrclust.Config(probeFile);
+                        hCfg_ = jrclust.Config2(probeFile);
                         doPlotProbe(hCfg_.probeFile);
                     else % not a config file
                         probeFile_ = jrclust.utils.absPath(probeFile, fullfile(jrclust.utils.basedir(), 'probes'));
@@ -213,7 +213,7 @@ classdef JRC < handle & dynamicprops
                     return;
 
                 case 'preview'
-                    hCfg_ = jrclust.Config(obj.args{1});
+                    hCfg_ = jrclust.Config2(obj.args{1});
                     hPreview = jrclust.controllers.curate.PreviewController(hCfg_);
                     hPreview.preview();
 
@@ -222,7 +222,7 @@ classdef JRC < handle & dynamicprops
 
                     
                 case 'traces'
-                    hCfg_ = jrclust.Config(obj.args{1});
+                    hCfg_ = jrclust.Config2(obj.args{1});
                     hTraces = jrclust.controllers.curate.TracesController(hCfg_);
                     if numel(obj.args) > 1
                         recID = str2double(obj.args{2});
@@ -276,7 +276,7 @@ classdef JRC < handle & dynamicprops
 
             % load parameter file
             configFile = obj.args{1};
-            obj.hCfg = jrclust.Config(configFile);
+            obj.hCfg = jrclust.Config2(configFile);
         end
     end
 

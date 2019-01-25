@@ -8,6 +8,8 @@ classdef Config < dynamicprops
         isLoaded;
         isError;
         oldPcount;
+        paramSet;
+        oldParamSet;
         tempParams;
     end
 
@@ -256,6 +258,16 @@ classdef Config < dynamicprops
                 filename = obj.configFile;
             end
 
+            % read in default parameter set
+            fid = fopen(fullfile(jrclust.utils.basedir(), 'params.json'), 'r');
+            obj.paramSet = jsondecode(fread(fid, '*char'));
+            fclose(fid);
+
+            % read in mapping to old (v3) parameter set
+            fid = fopen(fullfile(jrclust.utils.basedir(), 'old2new.json'), 'r');
+            obj.oldParamSet = jsondecode(fread(fid, '*char'));
+            fclose(fid);
+
             obj.isLoaded = 0;
             obj.isError = 0;
 
@@ -303,63 +315,63 @@ classdef Config < dynamicprops
         function loadParams(obj)
             obj.oldPcount = containers.Map();
 
-            s = jrclust.utils.mToStruct(obj.configFile);
-            if isfield(s, 'template_file') && ~isempty(s.template_file)
+            userParams = jrclust.utils.mToStruct(obj.configFile);
+            if isfield(userParams, 'template_file') && ~isempty(userParams.template_file)
                 try
-                    t = jrclust.utils.mToStruct(jrclust.utils.absPath(s.template_file));
-                    fns = fieldnames(s);
-                    for i = 1:numel(fns) % merge s (specific) into t (general)
-                        t.(fns{i}) = s.(fns{i});
+                    t = jrclust.utils.mToStruct(jrclust.utils.absPath(userParams.template_file));
+                    uParamNames = fieldnames(userParams);
+                    for i = 1:numel(uParamNames) % merge s (specific) into t (general)
+                        t.(uParamNames{i}) = userParams.(uParamNames{i});
                     end
-                    s = t;
+                    userParams = t;
                 catch ME
-                    obj.warning(sprintf('Could not set template file %s: %s ', s.template_file, ME.message), 'Missing template file');
+                    obj.warning(sprintf('Could not set template file %s: %s ', userParams.template_file, ME.message), 'Missing template file');
                 end
             end
 
-            fns = fieldnames(s);
-            unusedProps = cell(numel(fns), 1);
-            errorProps = cell(numel(fns), 2);
+            uParamNames = fieldnames(userParams);
+            unusedProps = cell(numel(uParamNames), 1);
+            errorProps = cell(numel(uParamNames), 2);
 
             % loop through all user-defined parameters
-            for i = 1:numel(fns)
+            for i = 1:numel(uParamNames)
                 % ignore configFile/template_file
-                if ismember(fns{i}, {'configFile', 'vcFile_prm', 'template_file'})
+                if ismember(uParamNames{i}, {'configFile', 'vcFile_prm', 'template_file'})
                     continue;
-                elseif strcmp(fns{i}, 'vcFile') % old single recording
-                    if ~isempty(s.vcFile)
-                        obj.setRawRecordings(s.vcFile);
+                elseif strcmp(uParamNames{i}, 'vcFile') % old single recording
+                    if ~isempty(userParams.vcFile)
+                        obj.setRawRecordings(userParams.vcFile);
                     end
 
                     continue;
-                elseif strcmp(fns{i}, 'csFile_merge')
-                    if ~isempty(s.csFile_merge)
-                        obj.setRawRecordings(s.csFile_merge);
+                elseif strcmp(uParamNames{i}, 'csFile_merge')
+                    if ~isempty(userParams.csFile_merge)
+                        obj.setRawRecordings(userParams.csFile_merge);
                     end
 
                     continue;
                 end
 
                 % empty values in the param file take on their defaults
-                if ~isempty(s.(fns{i}))
-                    if ~isprop(obj, fns{i})
-                        unusedProps{i} = fns{i};
+                if ~isempty(userParams.(uParamNames{i}))
+                    if ~isprop(obj, uParamNames{i})
+                        unusedProps{i} = uParamNames{i};
                         continue;
                     end
 
                     try
-                        if ismember(fns{i}, {'probe_file', 'probeFile'})
+                        if ismember(uParamNames{i}, {'probe_file', 'probeFile'})
                             % try same directory as config file first
-                            pf = jrclust.utils.absPath(s.(fns{i}), fileparts(obj.configFile));
+                            pf = jrclust.utils.absPath(userParams.(uParamNames{i}), fileparts(obj.configFile));
                             if isempty(pf) % fall back to default collection
-                                pf = jrclust.utils.absPath(s.(fns{i}), fullfile(jrclust.utils.basedir(), 'probes'));
+                                pf = jrclust.utils.absPath(userParams.(uParamNames{i}), fullfile(jrclust.utils.basedir(), 'probes'));
                             end
                             obj.probeFile = pf;
                         end
 
-                        obj.(fns{i}) = s.(fns{i});
+                        obj.(uParamNames{i}) = userParams.(uParamNames{i});
                     catch ME % error or not a property we support
-                        errorProps{i, 1} = fns{i};
+                        errorProps{i, 1} = uParamNames{i};
                         errorProps{i, 2} = ME.message;
                     end
                 end
@@ -489,7 +501,7 @@ classdef Config < dynamicprops
                 end
             end
 
-            obj.siteNeighbors = jrclust.utils.findSiteNeighbors(obj.siteLoc, 2*obj.nSiteDir + 1, obj.ignoreSites, obj.shankMap);
+            obj.siteNeighbors = findSiteNeighbors(obj.siteLoc, 2*obj.nSiteDir + 1, obj.ignoreSites, obj.shankMap);
 
             % boost that gain
             obj.bitScaling = obj.bitScaling/obj.gainBoost;
@@ -512,8 +524,8 @@ classdef Config < dynamicprops
             edit(obj.configFile);
         end
 
-        function success = flush(obj)
-            %FLUSH Write stored values to file
+        function success = save(obj)
+            %SAVE Write stored values to file
             success = 1;
 
             % first back up the old config file

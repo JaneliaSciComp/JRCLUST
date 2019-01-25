@@ -1,7 +1,5 @@
 function [sites, dists] = findSiteNeighbors(siteLoc, nNeighbors, ignoreSites, shankMap)
     %FINDSITENEIGHBORS Get the nearest neighbors for each site
-    %   find nearest sites
-
     if nargin < 3
         ignoreSites = [];
     end

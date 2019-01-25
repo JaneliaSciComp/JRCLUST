@@ -1,56 +1,59 @@
+% JRCLUST parameters (common parameters only) 
+
 % USAGE PARAMETERS
-outputDir = ''; % Directory in which to place output files.
+outputDir = ''; % Directory in which to place output files (Will output to the same directory as this file if empty)
 
 % PROBE PARAMETERS
-probePad = []; % Recording contact pad size (in m). (Height x width)
-shankMap = []; % Shank ID of each site.
-siteLoc = []; % Site locations (in m). (x values in the first column, y values in the second column)
-siteMap = []; % Map of channel index to site ID. (The mapping siteMap(i) = j corresponds to the statement 'site i is stored as channel j in the recording')
+probePad = []; % (formerly vrSiteHW) Recording contact pad size (in μm) (Height x width)
+shankMap = []; % (formerly viShank_site) Shank ID of each site
+siteLoc = []; % (formerly mrSiteXY) Site locations (in μm) (x values in the first column, y values in the second column)
+siteMap = []; % (formerly viSite2Chan) Map of channel index to site ID (The mapping siteMap(i) = j corresponds to the statement 'site i is stored as channel j in the recording')
 
 % RECORDING FILE PARAMETERS
-bitScaling = 0.30518; % ADC bit scaling factor. (Conversion factor for ADC bit values to V)
-dataType = 'int16'; % Format of raw recordings.
-headerOffset = 0; % Recording file header offset (in bytes).
-nChans = 384; % Number of channels stored in recording file. (Distinct from the number of AP sites)
-rawRecordings = ''; % Path or paths to raw recordings to sort.
-sampleRate = 30000; % Sampling rate (in Hz) of raw recording.
+bitScaling = 0.30518; % (formerly uV_per_bit) ADC bit scaling factor (Conversion factor for ADC bit values to μV)
+dataType = 'int16'; % (formerly vcDataType) Format of raw recordings
+headerOffset = 0; % (formerly header_offset) Recording file header offset (in bytes)
+nChans = 384; % Number of channels stored in recording file (Distinct from the number of AP sites)
+rawRecordings = ''; % Path or paths to raw recordings to sort
+sampleRate = 30000; % (formerly sRateHz) Sampling rate (in Hz) of raw recording
 
 % PREPROCESSING PARAMETERS
-ignoreSites = []; % Sites to ignore manually.
+ignoreSites = []; % (formerly viSiteZero) Sites to ignore manually
 
 % SPIKE DETECTION PARAMETERS
-CARMode = 'mean'; % The meaning of 'average' in 'common average reference'.
-blankPeriod = 5; % Duration of blanking period (in ms) when the common mean exceeds blankThresh.
-blankThresh = []; % Threshold (in MADs) above which to reject samples exceeding channel median after filtering.
-evtDetectRad = 75; % Maximum distance (in m) for extracting spike waveforms.
-evtWindow = [-0.25; 0.75]; % Time range (in ms) of filtered spike waveforms, centered at the peak.
-filtOrder = 3; % Bandpass filter order.
-filterType = 'ndiff'; % Type of filter to use on raw data.
-freqLimBP = [300; 3000]; % Frequency cutoffs for bandpass filter.
-nSiteDir = []; % Number of neighboring sites to group in either direction. (nSitesEvt is set to 1 + 2*nSiteDir - nSitesExcl)
-nSitesExcl = []; % Number of sites to exclude from the spike waveform group.
-qqFactor = 5; % Spike detection threshold. (Thr = qqFactor*med(abs(x-med(x)))/0.6745)
-refracInt = 0.25; % Spike refractory period (in ms).
+blankThresh = []; % (formerly blank_thresh) Threshold (in MADs) above which to reject samples exceeding channel median after filtering
+blankPeriod = 5; % (formerly blank_period_ms) Duration of blanking period (in ms) when the common mean exceeds blankThresh
+CARMode = 'mean'; % (formerly vcCommonRef) The meaning of 'average' in 'common average reference'
+evtDetectRad = 75; % (formerly maxDist_site_spk_um) Maximum distance (in μm) for extracting spike waveforms
+evtWindow = [-0.25; 0.75]; % (formerly spkLim_ms) Time range (in ms) of filtered spike waveforms, centered at the peak
+filterType = 'ndiff'; % (formerly vcFilter) Type of filter to use on raw data
+filtOrder = 3; % Bandpass filter order
+freqLimBP = [300; 3000]; % (formerly freqLim) Frequency cutoffs for bandpass filter
+nSiteDir = []; % (formerly maxSite) Number of neighboring sites to group in either direction (nSitesEvt is set to 1 + 2*nSiteDir - nSitesExcl)
+nSitesExcl = []; % (formerly nSites_ref) Number of sites to exclude from the spike waveform group
+qqFactor = 5; % Spike detection threshold (Thr = qqFactor*med(abs(x-med(x)))/0.6745)
+refracInt = 0.25; % (formerly spkRefrac_ms) Spike refractory period (in ms)
 
 % FEATURE EXTRACTION PARAMETERS
-clusterFeature = 'pca'; % The feature to extract from your spike waveforms in order to cluster them.
-nPCsPerSite = 1; % Number of principal components to compute per site.
+clusterFeature = 'pca'; % (formerly vcFet) The feature to extract from your spike waveforms in order to cluster them
+nPCsPerSite = 1; % (formerly nPcPerChan) Number of principal components to compute per site
 
 % CLUSTERING PARAMETERS
-RDDetrendMode = 'global'; % Detrending mode to apply to rho-delta values in order to determine cluster centers.
-autoMergeBy = 'pearson'; % Metric to use for automerging clusters.
-distCut = 2; % Percentile of pairwise distances between spikes on a site to use as a cutoff distance.
-log10DeltaCut = 0.6; % Log10 of delta cutoff. (Spikes with delta values below this cutoff will not be considered as cluster centers)
-log10RhoCut = -2.5; % Log10 of rho cutoff. (Spikes with rho values below this cutoff will not be considered as cluster centers)
-maxUnitSim = 0.98; % Threshold for merging two units having similar spike waveforms. (Units with a similiarity score above this value will be merged)
-minClusterSize = 30; % Minimum number of spikes per cluster. (Automatically set to the maximum of this value and twice the number of features)
-nClusterIntervals = 4; % Number of intervals to divide the recording into around a spike. (When clustering, take the 1/nClusterIntervals fraction of all spikes around a spiking event to compute distance)
+autoMergeBy = 'pearson'; % (formerly autoMergeCriterion) Metric to use for automerging clusters
+distCut = 2; % (formerly dc_percent) Percentile of pairwise distances between spikes on a site to use as a cutoff distance
+log10DeltaCut = 0.6; % (formerly delta1_cut) Log10 of delta cutoff (Spikes with delta values below this cutoff will not be considered as cluster centers)
+log10RhoCut = -2.5; % (formerly rho_cut) Log10 of rho cutoff (Spikes with rho values below this cutoff will not be considered as cluster centers)
+maxUnitSim = 0.98; % (formerly maxWavCor) Threshold for merging two units having similar spike waveforms (Units with a similiarity score above this value will be merged)
+minClusterSize = 30; % (formerly min_count) Minimum number of spikes per cluster (Automatically set to the maximum of this value and twice the number of features)
+nClusterIntervals = 4; % (formerly nTime_clu) Number of intervals to divide the recording into around a spike (When clustering, take the 1/nClusterIntervals fraction of all spikes around a spiking event to compute distance)
+RDDetrendMode = 'global'; % (formerly vcDetrend_postclu) Detrending mode to apply to rho-delta values in order to determine cluster centers
 
 % DISPLAY PARAMETERS
-dispTimeLimits = [0; 0.2]; % Time range (in ms) to display.
-nSpikesFigProj = 500; % Maximum number of spikes per cluster to display in the feature projection view.
-nSpikesFigWav = 30; % Maximum number of spikes per cluster to display generally.
+dispTimeLimits = [0; 0.2]; % (formerly tlim) Time range (in ms) to display
+nSpikesFigProj = 500; % (formerly nShow_proj) Maximum number of spikes per cluster to display in the feature projection view
+nSpikesFigWav = 30; % (formerly nSpk_show) Maximum number of spikes per cluster to display generally
 
 % TRIAL PARAMETERS
-psthTimeLimits = []; % Time range (in s) over which to display PSTH.
-trialFile = ''; % Path to file containing trial data. (Can be .mat or .csv, must contain timestamps of trials in units of s)
+psthTimeLimits = []; % (formerly tlim_psth) Time range (in s) over which to display PSTH
+trialFile = ''; % (formerly vcFile_trial) Path to file containing trial data (Can be .mat or .csv, must contain timestamps of trials in units of s)
+

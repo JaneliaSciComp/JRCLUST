@@ -7,7 +7,7 @@ function ap = absPath(pathname, basedir)
         basedir = fullfile(pwd(), basedir);
     end
 
-    if isempty(pathname)
+    if nargin == 0 || ~ischar(pathname) || isempty(pathname)
         ap = '';
     elseif isAbsPath(pathname) && (isfile(pathname) || isdir(pathname))
         ap = pathname;

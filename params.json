@@ -412,7 +412,7 @@
         },
         "outputDir": {
             "description": "Directory in which to place output files",
-            "comment": "",
+            "comment": "Will output to the same directory as this file if empty",
             "default_value": "",
             "validation": {
                 "classes": ["char"],
@@ -442,10 +442,11 @@
             "validation": {
                 "classes": ["numeric"],
                 "attributes": [
-                    "scalar",
                     "real",
-                    "positive"
-                ]
+                    "increasing",
+                    "numel", 2
+                ],
+                "postassert": "@(x) diff(x) >= x(2)"
             },
             "section": ["trial"]
         },
@@ -466,7 +467,7 @@
         "rawRecordings": {
             "description": "Path or paths to raw recordings to sort",
             "comment": "",
-            "default_value": "",
+            "default_value": [""],
             "validation": {
                 "classes": ["char", "cell"],
                 "attributes": []
@@ -634,14 +635,15 @@
             "section": ["aux channel"]
         },
         "batchMode": {
-            "description": "Suppress all output if true",
+            "description": "Suppress message boxes in favor of console messages",
             "comment": "",
-            "default_value": false,
+            "default_value": true,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
-            "section": ["logging"]
+            "section": ["usage"]
         },
         "colorMap": {
             "description": "RGB color map for background, primary selected, and secondary selected spikes",
@@ -712,8 +714,9 @@
             "comment": "",
             "default_value": true,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
             "section": [
                 "clustering",
@@ -836,9 +839,9 @@
         "freqLimNotch": {
             "description": "Frequency ranges to exclude for notch filter",
             "comment": "",
-            "default_value": [[], []],
+            "default_value": [],
             "validation": {
-                "classes": ["cell"],
+                "classes": ["cell", "double"],
                 "attributes": [
                     "numel", 2
                 ],
@@ -936,8 +939,9 @@
             "comment": "",
             "default_value": true,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
             "section": ["spike detection"]
         },
@@ -957,8 +961,9 @@
             "comment": "",
             "default_value": true,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
             "section": ["feature extraction"]
         },
@@ -1008,7 +1013,7 @@
         "maxBytesLoad": {
             "description": "Maximum number of bytes to load into memory",
             "comment": "",
-            "default_value": "",
+            "default_value": [],
             "validation": {
                 "classes": ["numeric"],
                 "attributes": [
@@ -1046,6 +1051,20 @@
                 ]
             },
             "section": ["execution"]
+        },
+        "meanInterpFactor": {
+            "description": "Interpolation factor for mean unit waveforms",
+            "comment": "Set to 1 to disable",
+            "default_value": 1,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["clustering"]
         },
         "minNeighborsDetect": {
             "description": "Minimum number of sample neighbors exceeding threshold for a sample to be considered a peak",
@@ -1105,20 +1124,6 @@
             },
             "section": ["preprocessing"]
         },
-        "nInterp_merge": {
-            "description": "Interpolation factor for mean unit waveforms",
-            "comment": "Set to 1 to disable",
-            "default_value": 1,
-            "validation": {
-                "classes": ["numeric"],
-                "attributes": [
-                    "scalar",
-                    "integer",
-                    "positive"
-                ]
-            },
-            "section": ["clustering"]
-        },
         "nLoadsMaxPreview": {
             "description": "Number of time segments to load in preview",
             "comment": "",
@@ -1136,7 +1141,7 @@
         "nPassesMerge": {
             "description": "Number of times to repeat automatic waveform-based merging",
             "comment": "",
-            "default_value": "",
+            "default_value": [],
             "validation": {
                 "classes": ["numeric"],
                 "attributes": [
@@ -1371,8 +1376,9 @@
             "comment": "",
             "default_value": false,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
             "section": [
                 "display",
@@ -1384,8 +1390,9 @@
             "comment": "",
             "default_value": true,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
             "section": ["display"]
         },
@@ -1423,8 +1430,9 @@
             "comment": "",
             "default_value": true,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
             "section": ["recording file"]
         },
@@ -1458,8 +1466,9 @@
             "comment": "Uses Butterworth filter if false",
             "default_value": true,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
             "section": ["preprocessing"]
         },
@@ -1468,8 +1477,9 @@
             "comment": "",
             "default_value": false,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
             "section": ["clustering"]
         },
@@ -1478,8 +1488,9 @@
             "comment": "",
             "default_value": true,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
             "section": ["execution"]
         },
@@ -1488,8 +1499,9 @@
             "comment": "",
             "default_value": true,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
             "section": ["execution"]
         },
@@ -1510,8 +1522,9 @@
             "comment": "",
             "default_value": false,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
             "section": ["clustering"]
         },
@@ -1520,10 +1533,11 @@
             "comment": "",
             "default_value": true,
             "validation": {
-                "classes": ["logical"],
-                "attributes": ["scalar"]
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
             },
-            "section": ["logging"]
+            "section": ["usage"]
         }
     }
 }

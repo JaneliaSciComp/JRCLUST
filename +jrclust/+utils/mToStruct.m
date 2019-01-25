@@ -18,7 +18,7 @@ function S = mToStruct(filename)
             S.(varnames{j}) = a;
         end
     catch
-        S = [];
+        S = struct();
     end
 end
 

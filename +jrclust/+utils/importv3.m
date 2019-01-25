@@ -22,7 +22,7 @@ function hClust = importv3(filename)
         return;
     end
 
-    hCfg = jrclust.Config(prmFile);
+    hCfg = jrclust.Config2(prmFile);
 
     % construct dRes
     dRes = struct();

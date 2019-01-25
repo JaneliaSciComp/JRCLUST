@@ -298,7 +298,7 @@ classdef PreviewController < handle
             obj.hCfg.blankThresh = newPrms.blankThresh;
             obj.hCfg.blankPeriod = newPrms.blankPeriod;
 
-            obj.hCfg.flush();
+            obj.hCfg.save();
             obj.hCfg.edit();
         end
 
@@ -309,7 +309,7 @@ classdef PreviewController < handle
             save(threshFile, 'siteThresh'); % also need to store filter values?
 
             obj.hCfg.threshFile = threshFile;
-            obj.hCfg.flush();
+            obj.hCfg.save();
             obj.hCfg.edit();
 
             jrclust.utils.qMsgBox(sprintf('Saved to %s and updated %s (threshFile)', ...

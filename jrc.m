@@ -16,7 +16,7 @@ function hJRC_ = jrc(varargin)
     try
         hJRC = jrclust.JRC(varargin{:});
     catch ME
-        warning(ME.identifier, 'Could not create JRC handle: %s', ME.message);
+        warning('Could not create JRC handle: %s', ME.message); %#ok<MEXCEP>
         return;
     end
 
