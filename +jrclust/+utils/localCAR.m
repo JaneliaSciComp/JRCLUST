@@ -17,7 +17,7 @@ function [spikeWindows, carTraces] = localCAR(spikeWindows, hCfg, nSitesEvt, ref
         return;
     end
 
-    if strcmp(hCfg.vcSpkRef, 'nmean') % use n sites having the least SD as reference sites
+    if strcmp(hCfg.getOr('vcSpkRef', 'nmean'), 'nmean') % use n sites having the least SD as reference sites
         if isempty(refSites)
             farHalf = ceil(size(spikeWindows, 3)/2):size(spikeWindows, 3);
             carTraces = mean(spikeWindows(:, :, farHalf), 3);

@@ -33,7 +33,7 @@ function [prVecs, eigVals] = spikePrVecs(spikeWindows, hCfg)
     eigVals = flipud(diag(eigVals));
 
     % spike center should be negative
-    iMid = 1-hCfg.spkLim(1); % sample where the spike is said to occur
+    iMid = 1-hCfg.evtWindowSamp(1); % sample where the spike is said to occur
     sgn = (eigVecs(iMid, :) < 0) * 2 - 1; % 1 or -1 depending on the sign
     prVecs = bsxfun(@times, eigVecs, sgn);
 end
