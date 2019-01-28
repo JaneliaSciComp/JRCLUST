@@ -80,7 +80,7 @@ function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, 
     [nC, n12] = size(siteFeatures); % nc is constant with the loop
     dn_max = int32(round((n1 + n2) / hCfg.nClusterIntervals));
 
-    if hCfg.fGpu
+    if hCfg.useGPU
         try
             % set every time function is called
             delta = zeros([1, n1], 'single', 'gpuArray');

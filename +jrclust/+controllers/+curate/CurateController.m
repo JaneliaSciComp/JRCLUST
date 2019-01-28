@@ -317,7 +317,7 @@ classdef CurateController < handle
                     else
                         iCluster = obj.selected(1);
                         iSite = obj.hClust.clusterSites(iCluster);
-                        hFigWav.setWindow(iCluster + [-1, 1]*6, iSite + [-1, 1]*(obj.hCfg.maxSite*2+1), [0 obj.hClust.nClusters+1], [0 nSites+1]);
+                        hFigWav.setWindow(iCluster + [-1, 1]*6, iSite + [-1, 1]*(obj.hCfg.nSiteDir*2+1), [0 obj.hClust.nClusters+1], [0 nSites+1]);
                     end
 
                 case 'a'
@@ -1134,7 +1134,7 @@ classdef CurateController < handle
 
         function spawnFigures(obj)
             %SPAWNFIGURES Create new figures
-            obj.hFigs = doSpawnFigures(obj.hCfg, isa(obj.hClust, 'jrclust.sort.KilosortClustering'));
+            obj.hFigs = doSpawnFigures(obj.hCfg);
         end
 
         function splitCluster(obj, iCluster, retained)

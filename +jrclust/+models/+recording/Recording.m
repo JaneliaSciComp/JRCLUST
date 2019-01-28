@@ -169,6 +169,10 @@ classdef Recording < handle & dynamicprops
                 fieldNames = fieldnames(spikeData);
                 for i = 1:numel(fieldNames)
                     fn = fieldNames{i};
+                    if ismember(fn, {'spikesRaw', 'spikesFilt', 'spikeFeatures'})
+                        continue; % don't save these twice
+                    end
+
                     if ~isprop(obj, fn) % don't overwrite any fields already here
                         obj.addprop(fn);
                         obj.(fn) = spikeData.(fn);

@@ -75,7 +75,7 @@ end
 
 function [spikeWindows, spikeTimes] = carRealign(spikeWindows, samplesIn, spikeTimes, neighbors, hCfg)
     %CARREALIGN Realign spike peaks
-    if ~strcmpi(hCfg.vcSpkRef, 'nmean')
+    if ~strcmpi(hCfg.getOr('vcSpkRef', 'nmean'), 'nmean')
         return;
     end
 
@@ -100,7 +100,7 @@ function [shiftMe, shiftBy] = findShifted(spikeWindows, hCfg)
     %   spikeWindows: nSamples x nSpikes x nSites
     peakLoc = 1 - hCfg.evtWindowSamp(1);
 
-    if hCfg.fDetectBipolar
+    if hCfg.detectBipolar
         [~, truePeakLoc] = max(abs(spikeWindows(:, :, 1)));
     else
         [~, truePeakLoc] = min(spikeWindows(:, :, 1));

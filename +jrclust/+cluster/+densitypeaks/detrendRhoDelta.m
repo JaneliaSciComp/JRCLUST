@@ -41,7 +41,7 @@ function [centers, logRho, zscores] = detrendRhoDelta(hClust, spikesBySite, fLoc
 
         centers = cell2vec(centersBySite);
     else % detrend globally
-        detIndices = find(delta > 0 & delta < 1 & hClust.spikeRho > 10^hCfg.rho_cut & hClust.spikeRho < .1 & isfinite(logRho) & isfinite(delta));
+        detIndices = find(delta > 0 & delta < 1 & hClust.spikeRho > 10^hCfg.log10RhoCut & hClust.spikeRho < .1 & isfinite(logRho) & isfinite(delta));
         [~, zscores] = detrendQuadratic(logRho, delta, detIndices);
 
         zscores(delta == 0) = nan;

@@ -34,7 +34,7 @@ classdef Config < dynamicprops
         fGroup_shank; % => groupShank
         fInterp_fet; % => interpPC
         fParfor; % => useParfor
-        fSpatialMask_clu; % => weightFeatures
+        weightFeatures; % => weightFeatures
         fText; % => showSpikeCount
         fTranspose_bin; % => tallSkinny
         fVerbose; % => verbose
@@ -2271,19 +2271,19 @@ classdef Config < dynamicprops
             obj.verbose = val;
         end
 
-        % weightFeatures/fSpatialMask_clu
+        % weightFeatures/weightFeatures
         function set.weightFeatures(obj, val)
             validateattributes(val, {'logical', 'double'}, {'scalar'});
             hFun = @(x) logical(x);
             val = hFun(val);
             obj.weightFeatures = val;
         end
-        function val = get.fSpatialMask_clu(obj)
-            obj.logOldP('fSpatialMask_clu');
+        function val = get.weightFeatures(obj)
+            obj.logOldP('weightFeatures');
             val = obj.weightFeatures;
         end
-        function set.fSpatialMask_clu(obj, val)
-            obj.logOldP('fSpatialMask_clu');
+        function set.weightFeatures(obj, val)
+            obj.logOldP('weightFeatures');
             obj.weightFeatures = val;
         end
     end

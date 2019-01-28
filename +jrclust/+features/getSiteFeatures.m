@@ -57,7 +57,7 @@ function [siteFeatures, spikes, n1, n2, spikeOrder] = getSiteFeatures(spikeFeatu
     try
         nSites = hCfg.nSitesEvt;
 
-        if hCfg.fSpatialMask_clu && nSites >= hCfg.minSitesWeightFeatures
+        if hCfg.weightFeatures && nSites >= hCfg.minSitesWeightFeatures
             nFeaturesPerSite = size(siteFeatures, 1) / nSites;
 
             weights = distWeight(site, nSites, hCfg);

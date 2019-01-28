@@ -27,7 +27,7 @@ function [nLoads, nSamplesLoad, nSamplesFinal] = planLoad(nBytesFile, hCfg)
         nSamplesMax = floor(hCfg.sampleRate * hCfg.maxSecLoad);
     end
 
-    if ~hCfg.fTranspose_bin % load entire file, Catalin's format
+    if ~hCfg.tallSkinny % load entire file, Catalin's format
         [nLoads, nSamplesLoad, nSamplesFinal] = deal(1, nSamples, nSamples);
     else
         [nLoads, nSamplesLoad, nSamplesFinal] = jrclust.utils.partitionLoad(nSamples, nSamplesMax);

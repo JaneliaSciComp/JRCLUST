@@ -215,22 +215,28 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
             minScore = min(scoresMax(~keepMe_));
             keepMe = find(keepMe_);
-            mapTo(keepMe_) = keepMe;
-
+            mapTo(keepMe_) = keepMe; % map units to keep to themselves
+ 
             keepMe = setdiff(keepMe, mapTo(~keepMe_));
             removeMe = setdiff(1:nClusters_, mapTo);
             updateMe = setdiff(setdiff(1:nClusters_, keepMe), removeMe);
 
-            good = obj.spikeClusters > 0;
-            obj.spikeClusters(good) = int32(mapTo(obj.spikeClusters(good))); % translate cluster number
-            obj.refresh(0, updateMe); % empty clusters removed later
+            spikeClusters_ = obj.spikeClusters;
+            good = spikeClusters_ > 0;
+            spikeClusters_(good) = int32(mapTo(spikeClusters_(good))); % translate cluster number
+
+            obj.subsetFields(union(keepMe, updateMe));
+            [~, ~, obj.spikeClusters(good)] = unique(spikeClusters_(good)); % remap to 1:nNewClusters
+
+            updateMe = arrayfun(@(i) find(union(keepMe, updateMe) == i), updateMe);
+            obj.refresh(0, updateMe); % recount
 
             arrayfun(@obj.rmRefracSpikes, updateMe); % remove refrac spikes
+            obj.removeEmptyClusters();
 
             % update cluster waveforms and distance
             obj.computeMeanWaveforms(updateMe);
             obj.computeWaveformSim(updateMe);
-            obj.removeEmptyClusters();
 
             nMerged = nClusters_ - obj.nClusters;
             if obj.hCfg.verbose
@@ -1029,7 +1035,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 inconsistencies{end+1} = sprintf('clusterCentroids: expected %d, actual %d', obj.nClusters, size(obj.clusterCentroids, 1));
             end
             if ~isempty(obj.simScore) && ~all(size(obj.simScore) == obj.nClusters)
-                inconsistencies{end+1} = sprintf('simScore: expected %dx%d, actual %d', obj.nClusters, obj.nClusters, size(obj.simScore, 1), size(obj.simScore, 2));
+                inconsistencies{end+1} = sprintf('simScore: expected %dx%d, actual %dx%d', obj.nClusters, obj.nClusters, size(obj.simScore, 1), size(obj.simScore, 2));
             end
 
             % tensor fields
@@ -1543,7 +1549,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
         % spikeClusters/viClu
         function set.spikeClusters(obj, sc)
             obj.spikeClusters = sc;
-            obj.nClusters = double(max(sc)); %#ok<MCSUP>
+            obj.nClusters = numel(unique(sc(sc > 0))); %#ok<MCSUP>
         end
 
         function sc = get.viClu(obj)
@@ -1587,6 +1593,9 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
         end
 
         % spikeFeatures
+        function set.spikeFeatures(obj, sf)
+            obj.dRes.spikeFeatures = sf;
+        end
         function sf = get.spikeFeatures(obj)
             if isfield(obj.dRes, 'spikeFeatures') || isprop(obj.dRes, 'spikeFeatures')
                 sf = obj.dRes.spikeFeatures;
@@ -1646,6 +1655,9 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
         end
 
         % spikesFilt
+        function set.spikesFilt(obj, sf)
+            obj.dRes.spikesFilt = sf;
+        end
         function sf = get.spikesFilt(obj)
             if isfield(obj.dRes, 'spikesFilt') || isprop(obj.dRes, 'spikesFilt')
                 sf = obj.dRes.spikesFilt;
@@ -1655,6 +1667,9 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
         end
 
         % spikesRaw
+        function set.spikesRaw(obj, sr)
+            obj.dRes.spikesRaw = sr;
+        end
         function sr = get.spikesRaw(obj)
             if isfield(obj.dRes, 'spikesRaw') || isprop(obj.dRes, 'spikesRaw')
                 sr = obj.dRes.spikesRaw;

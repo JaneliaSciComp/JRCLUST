@@ -22,8 +22,8 @@ classdef Config2 < dynamicprops
 
     %% RECORDING(S) (to ease the transition)
     properties (Dependent, Hidden, SetObservable)
-        singleRaw;  % formerly vcFile
-        multiRaw;   % formerly csFile_merge
+        singleRaw;                  % formerly vcFile
+        multiRaw;                   % formerly csFile_merge
     end
 
     %% COMPUTED PARAMS
@@ -216,49 +216,49 @@ classdef Config2 < dynamicprops
             end
         end
 
-        function val = subsref(obj, prop)
-            ptype = {prop.type};
-            % get a property or call a function without parens
-            if numel(ptype) == 1 && strcmp(prop.type, '.')
-                propname = prop.subs;
-                if isfield(obj.oldParamSet, propname)
-                    propname = obj.oldParamSet.(propname);
-                end
-
-                if nargout > 0 || isprop(obj, propname)
-                    val = obj.(propname);
-                else
-                    obj.(propname);
-                end
-            elseif numel(ptype) == 2 && jrclust.utils.isEqual(ptype, {'.', '()'})
-                psubs = {prop.subs};
-                fname = psubs{1};
-                if numel(psubs) > 1
-                    fargs = psubs{2};
-                else
-                    fargs = {};
-                end
-
-                if nargout > 0
-                    val = obj.(fname)(fargs{:});
-                else
-                    obj.(fname)(fargs{:});
-                end
-            elseif numel(ptype) == 2 && jrclust.utils.isEqual(ptype, {'.', '{}'})
-                psubs = {prop.subs};
-                fname = psubs{1};
-                if numel(psubs) > 1
-                    fargs = psubs{2};
-                else
-                    fargs = {};
-                end
-
-                field = obj.(fname);
-                if nargout > 0
-                    val = field{fargs{:}};
-                end
-            end
-        end
+%         function val = subsref(obj, prop)
+%             ptype = {prop.type};
+%             % get a property or call a function without parens
+%             if numel(ptype) == 1 && strcmp(prop.type, '.')
+%                 propname = prop.subs;
+%                 if isfield(obj.oldParamSet, propname)
+%                     propname = obj.oldParamSet.(propname);
+%                 end
+% 
+%                 if nargout > 0 || isprop(obj, propname)
+%                     val = obj.(propname);
+%                 else
+%                     obj.(propname);
+%                 end
+%             elseif numel(ptype) == 2 && jrclust.utils.isEqual(ptype, {'.', '()'})
+%                 psubs = {prop.subs};
+%                 fname = psubs{1};
+%                 if numel(psubs) > 1
+%                     fargs = psubs{2};
+%                 else
+%                     fargs = {};
+%                 end
+% 
+%                 if nargout > 0
+%                     val = obj.(fname)(fargs{:});
+%                 else
+%                     obj.(fname)(fargs{:});
+%                 end
+%             elseif numel(ptype) == 2 && jrclust.utils.isEqual(ptype, {'.', '{}'})
+%                 psubs = {prop.subs};
+%                 fname = psubs{1};
+%                 if numel(psubs) > 1
+%                     fargs = psubs{2};
+%                 else
+%                     fargs = {};
+%                 end
+% 
+%                 field = obj.(fname);
+%                 if nargout > 0
+%                     val = field{fargs{:}};
+%                 end
+%             end
+%         end
     end
 
     %% DOUBLE SECRET METHODS
@@ -652,20 +652,26 @@ classdef Config2 < dynamicprops
                 obj.configFile = '';
             end
 
-            if ischar(mr)
+            if ischar(mr) && ~any(mr == '*')
                 obj.singleRaw = mr;
                 return;
-            end
+            elseif ischar(mr) % wildcard character
+                basedir = fileparts(obj.configFile);
+                mr_ = jrclust.utils.absPath(mr, basedir);
+                if isempty(mr_)
+                    error('Wildcard not recognized: %s', mr);
+                end
+            else
+                % check is a cell array
+                assert(iscell(mr), 'multiRaw must be a cell array');
 
-            % check is a cell array
-            assert(iscell(mr), 'multiRaw must be a cell array');
-
-            % get absolute paths
-            basedir = fileparts(obj.configFile);
-            mr_ = cellfun(@(fn) jrclust.utils.absPath(fn, basedir), mr, 'UniformOutput', 0);
-            isFound = cellfun(@isempty, mr_);
-            if ~all(isFound)
-                error('%d/%d files not found', sum(isFound), numel(isFound));
+                % get absolute paths
+                basedir = fileparts(obj.configFile);
+                mr_ = cellfun(@(fn) jrclust.utils.absPath(fn, basedir), mr, 'UniformOutput', 0);
+                isFound = cellfun(@isempty, mr_);
+                if ~all(isFound)
+                    error('%d/%d files not found', sum(isFound), numel(isFound));
+                end
             end
 
             % validation done, just set prop

@@ -13,20 +13,20 @@ function [tnWav_spk_out, tnWav_spk2_out] = cancel_overlap_spk_(spikeWindows, spi
 
     % for each pair identify time range where threshold crossing occurs and set to zero
     % correct only first occuring (b)
-    miSites = hCfg.miSites;
+    siteNeighbors = hCfg.siteNeighbors;
     nSpk_ol = numel(viSpk_ol_a);
     nSpk = size(spikeWindows,2);
 
     for iSpk_ol = 1:nSpk_ol
         [iSpk_b, nDelay_b] = deal(viSpk_ol_b(iSpk_ol), vnDelay_ol_b(iSpk_ol));
-        viSite_b = miSites(:,spikeSites(iSpk_b));
+        viSite_b = siteNeighbors(:,spikeSites(iSpk_b));
         mnWav_b = tnWav_spk_out(nDelay_b+1:end,:,iSpk_b);
         mlWav_b = bsxfun(@le, mnWav_b, siteThresh(viSite_b));
         mnWav_b(mlWav_b) = 0;
         tnWav_spk_out(nDelay_b+1:end,:,iSpk_b) = mnWav_b;
 
         if ~isempty(spikeWindows2)
-            viSite_b = miSites(:,spikeSites2(iSpk_b));
+            viSite_b = siteNeighbors(:,spikeSites2(iSpk_b));
             mnWav_b = tnWav_spk2_out(nDelay_b+1:end,:,iSpk_b);
             mlWav_b = bsxfun(@le, mnWav_b, siteThresh(viSite_b));
             mnWav_b(mlWav_b) = 0;

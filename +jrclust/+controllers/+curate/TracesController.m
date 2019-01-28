@@ -283,7 +283,7 @@ classdef TracesController < handle
             tracesRaw_ = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', 0);
             obj.tracesRaw = jrclust.utils.neCell2mat(tracesRaw_);
 
-        %     if obj.hCfg.fTranspose_bin
+        %     if obj.hCfg.tallSkinny
         %         obj.tracesFull = [];
         %         fseek_(fid_bin, iSampleOffset, obj.hCfg);
         %         if obj.hCfg.nSegmentsTraces > 1

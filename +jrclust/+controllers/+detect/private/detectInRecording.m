@@ -150,7 +150,7 @@ function samplesRaw = regularize(samplesRaw, hCfg)
     end
 
     % extract channel means
-    if hCfg.fTranspose_bin
+    if hCfg.tallSkinny
         samplesRaw = samplesRaw';
     else % Catalin's format (samples x channels)
         if ~isempty(hCfg.loadTimeLimits)

@@ -91,8 +91,6 @@ function helpstr = help(varargin)
                   '    Generates .prm file by combining the .bin and .prb file names (e.g. binfile_prbfile.prm).';
                   '';
                   '[Sorting multiple recordings together]';
-                  '  jrc dir myparam.prm';
-                  '    List all recording files to be clustered together (csFile_merge)';
                   '  jrc traces myparam.prm';
                   '    List all recording files and select which one to display';
                   '  jrc traces myparam.prm File#';

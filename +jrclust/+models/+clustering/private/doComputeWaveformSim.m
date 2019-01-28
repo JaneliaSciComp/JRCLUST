@@ -34,8 +34,8 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
         meanWfSet = cellfun(@(x) rankorderMatrix(x), meanWfSet, 'UniformOutput', 0);
     end
 
-    if hClust.hCfg.nInterp_merge > 1
-        meanWfSet = cellfun(@(x) jrclust.utils.interpWindows(x, hClust.hCfg.nInterp_merge), meanWfSet, 'UniformOutput', 0);
+    if hClust.hCfg.meanInterpFactor > 1
+        meanWfSet = cellfun(@(x) jrclust.utils.interpWindows(x, hClust.hCfg.meanInterpFactor), meanWfSet, 'UniformOutput', 0);
     end
 
     if fUsePeak2
@@ -45,10 +45,10 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
         clusterSites_ = {hClust.clusterSites};
     end
 
-    simScore = zeros(hClust.nClusters);
+    simScore = zeros(size(hClust.simScore), 'like', hClust.simScore);
 
-    % shift waveforms up to some multiple (nInterp_merge) of the refractory period
-    nShifts = ceil(hClust.hCfg.nInterp_merge*hClust.hCfg.refracInt*hClust.hCfg.sampleRate/1000);
+    % shift waveforms up to some multiple (meanInterpFactor) of the refractory period
+    nShifts = ceil(hClust.hCfg.meanInterpFactor*hClust.hCfg.refracInt*hClust.hCfg.sampleRate/1000);
     [cviShift1, cviShift2] = jrclust.utils.shiftRange(int32(size(meanWfGlobal_, 1)), nShifts);
 
     scoreData = struct('cviShift1', {cviShift1}, ...

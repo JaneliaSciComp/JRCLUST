@@ -21,14 +21,14 @@ function doPlotAuxCorr(hClust, firingRates, auxSamples, auxChanCorr, auxTimes, s
         axes('Parent', hTab);
         subplot(2, 1, 1);
 
-        hAx = plotyy(auxTimes, firingRates(:,iCluster), auxTimes, auxSamples);
+        hAx = plotyy(auxTimes, firingRates(:, iCluster), auxTimes, auxSamples);
 
         xlabel('Time (s)');
         ylabel(hAx(1),'Firing Rate (Hz)');
         ylabel(hAx(2), auxLabel);
 
         iSite = hClust.clusterSites(iCluster);
-        iTitle = sprintf('Clu %d (Site %d, Chan %d): Corr=%0.3f', iCluster, iSite, hCfg.viSite2Chan(iSite), auxChanCorr(iCluster));
+        iTitle = sprintf('Cluster %d (Site %d, Chan %d): Corr=%0.3f', iCluster, iSite, hCfg.siteMap(iSite), auxChanCorr(iCluster));
         title(iTitle);
         set(hAx, 'XLim', auxTimes([1,end]));
         grid on;

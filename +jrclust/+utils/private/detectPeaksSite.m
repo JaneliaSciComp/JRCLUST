@@ -18,7 +18,7 @@ function [peakLocs, peaks, siteThresh] = detectPeaksSite(samplesIn, siteThresh, 
     % detect turning point in waveforms exceeding threshold
     peakLocs = findPeaks(samplesIn, siteThresh, hCfg.minNeighborsDetect);
 
-    if hCfg.fDetectBipolar % detect positive peaks
+    if hCfg.detectBipolar % detect positive peaks
         peakLocs = [peakLocs; findPeaks(-samplesIn, siteThresh, hCfg.minNeighborsDetect)];
         peakLocs = sort(peakLocs);
     end

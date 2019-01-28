@@ -49,7 +49,7 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
         [multiBounds, multiRange, multiEdges] = sample_skip_(hFigTraces.figData.windowBounds, hFigTraces.figData.nSamplesTotal, hCfg.nSegmentsTraces);
 
         tlim_show = (cellfun(@(x) x(1), multiBounds([1, end]))) / hCfg.sampleRate;
-        XLabel = sprintf('Time (s), %d segments merged (%0.1f ~ %0.1f s, %0.2f s each)', hCfg.nSegmentsTraces, tlim_show, diff(hCfg.tlim));
+        XLabel = sprintf('Time (s), %d segments merged (%0.1f ~ %0.1f s, %0.2f s each)', hCfg.nSegmentsTraces, tlim_show, diff(hCfg.dispTimeLimits));
 
         mrX_edges = XData(repmat(multiEdges(:)', [3, 1]));
         mrY_edges = repmat([0; hCfg.nSites + 1; nan], 1, numel(multiEdges));
