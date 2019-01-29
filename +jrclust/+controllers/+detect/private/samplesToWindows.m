@@ -9,7 +9,7 @@ function [spikesRaw, spikesFilt, spikeTimes] = samplesToWindows(samplesRaw, samp
     spikesFilt = zeros(diff(hCfg.evtWindowSamp) + 1, nSitesEvt, nSpikes, 'like', samplesFilt);
 
     % Realignment parameters
-    fRealign_spk = hCfg.getOr('fRealign_spk', 0); % 0, 1, 2
+    realignTraces = hCfg.getOr('realignTraces', 0); % 0, 1, 2
     spikeTimes = jrclust.utils.tryGpuArray(spikeTimes, isa(samplesRaw, 'gpuArray'));
     spikeSites = jrclust.utils.tryGpuArray(spikeSites, isa(samplesRaw, 'gpuArray'));
 
@@ -30,10 +30,10 @@ function [spikesRaw, spikesFilt, spikeTimes] = samplesToWindows(samplesRaw, samp
             try
                 spikeWindows = jrclust.utils.extractWindows(samplesFilt, hCfg.evtWindowSamp, siteTimes, neighbors);
 
-                if fRealign_spk == 1
+                if realignTraces == 1
                     [spikeWindows, siteTimes] = carRealign(spikeWindows, samplesFilt, siteTimes, neighbors, hCfg);
                     spikeTimes(siteSpikes) = siteTimes;
-                elseif fRealign_spk == 2
+                elseif realignTraces == 2
                     spikeWindows = interpPeaks(spikeWindows, hCfg);
                 end
 

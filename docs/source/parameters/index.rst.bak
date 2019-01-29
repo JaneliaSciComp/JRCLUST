@@ -3,40 +3,6 @@
 JRCLUST parameters
 ==================
 
-Common parameters
------------------
-
-.. _CARMode:
-
-``CARMode``
-^^^^^^^^^^^
-
-The meaning of "average" in "common average reference".
-
-One of the following:
-
-- ``mean``: (**default**) Computes the mean across sites, excluding sites in :ref:`ignoreSites`.
-- ``median``: Computes the median across sites, excluding sites in :ref:`ignoreSites`.
-- ``none``: Skips CAR.
-
-.. _clusterFeature:
-
-``clusterFeature``
-^^^^^^^^^^^^^^^^^^
-
-The feature to extract from your spike waveforms in order to cluster them.
-
-One of the following:
-
-- ``gpca``: :ref:`"Global" PCA <gpca>`.
-   :ref:`nPCsPerSite` sets the number of components per channel (default: 1).
-   .. warning:: This feature is currently disabled due to an issue in formulation.
-- ``pca``: Projection of spike waveforms onto :ref:`principal components <pca>`.
-- ``cov``: Covariance feature.
-- ``vpp``: Peak-to-peak spike amplitudes.
-- ``vmin``: Minimum spike amplitude
-- ``vminmax``: Minimum and maximum spike amplitudes (2 features/site)
-- ``energy``: Standard deviation of spike waveform
 
 .. _evtDetectRad:
 
@@ -198,9 +164,9 @@ Flag to detect peaks with positive amplitudes as well as negative if true.
 Must be 0 or 1.
 **Default** is 0.
 
-.. _fRealign_spk:
+.. _realignTraces:
 
-``fRealign_spk``
+``realignTraces``
 ^^^^^^^^^^^^^^^^
 
 .. _nPeaksFeatures:

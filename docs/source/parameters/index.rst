@@ -8,8 +8,8 @@ Common parameters
 
 .. _CARMode:
 
-``CARMode``
-^^^^^^^^^^^
+CARMode
+^^^^^^^
 
 (Formerly ``vcCommonRef``)
 
@@ -17,50 +17,51 @@ The meaning of 'average' in 'common average reference'.
 
 One of the following:
 
-- 'mean'
-- 'median'
-- 'none'
+- 'mean': Computes the mean across sites, excluding sites in :ref:`ignoreSites`.
+- 'median': Computes the median across sites, excluding sites in :ref:`ignoreSites`.
+- 'none': Skips CAR.
 
 **Default** is 'mean'.
 
 .. _RDDetrendMode:
 
-``RDDetrendMode``
-^^^^^^^^^^^^^^^^^
+RDDetrendMode
+^^^^^^^^^^^^^
 
 (Formerly ``vcDetrend_postclu``)
 
-Detrending mode to apply to rho-delta values in order to determine cluster centers.
+Detrending mode to apply to rho-delta values in order to :ref:`determine cluster centers <assign-clusters>`.
 
 One of the following:
 
-- 'global'
-- 'local'
-- 'logz'
+- 'global': Performs the detrending for all sites together.
+- 'local': Performs the detrending for each site separately.
+- 'logz':
 - 'hidehiko'
-- 'none'
+- 'none': Skips detrending.
 
 **Default** is 'global'.
 
 .. _autoMergeBy:
 
-``autoMergeBy``
-^^^^^^^^^^^^^^^
+autoMergeBy
+^^^^^^^^^^^
 
 (Formerly ``autoMergeCriterion``)
 
-Metric to use for automerging clusters.
+Metric to use for :ref:`automerging clusters <merge-post-hoc>` based on average waveform.
 
 One of the following:
 
-- 'pearson'
-- 'dist'
+- 'pearson': Use the `Pearson correlation coefficient`_ to compute similarity.
+- 'dist': Define similarity as :math:`1 - \frac{\|\text{tr}_i - \text{tr}_j\|}{\max(\|\text{tr}_i\|, \|\text{tr}_j\|)}`,
+  where :math:`\text{tr}_k` is the mean waveform for cluster :math:`k`.
 
 **Default** is 'pearson'.
 
 .. _bitScaling:
 
-``bitScaling``
+bitScaling
 ^^^^^^^^^^^^^^
 
 (Formerly ``uV_per_bit``)
@@ -71,7 +72,7 @@ ADC bit scaling factor (Conversion factor for ADC bit values to μV).
 
 .. _blankPeriod:
 
-``blankPeriod``
+blankPeriod
 ^^^^^^^^^^^^^^^
 
 (Formerly ``blank_period_ms``)
@@ -82,7 +83,7 @@ Duration of blanking period (in ms) when the common mean exceeds blankThresh.
 
 .. _blankThresh:
 
-``blankThresh``
+blankThresh
 ^^^^^^^^^^^^^^^
 
 (Formerly ``blank_thresh``)
@@ -93,7 +94,7 @@ Threshold (in MADs) above which to reject samples exceeding channel median after
 
 .. _clusterFeature:
 
-``clusterFeature``
+clusterFeature
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``vcFet``)
@@ -102,18 +103,19 @@ The feature to extract from your spike waveforms in order to cluster them.
 
 One of the following:
 
-- 'cov'
-- 'energy'
-- 'pca'
-- 'vmin'
-- 'vminmax'
-- 'vpp'
+- 'cov': Covariance feature.
+- 'energy': Standard deviation of spike waveform.
+- 'gpca': :ref:`Global PCA <gpca>`.
+- 'pca': Projection of spike waveforms onto :ref:`principal components <pca>`.
+- 'vmin': Minimum spike amplitude.
+- 'vminmax': Minimum and maximum spike amplitudes (2 features/site).
+- 'vpp': Peak-to-peak spike amplitudes.
 
 **Default** is 'pca'.
 
 .. _dataType:
 
-``dataType``
+dataType
 ^^^^^^^^^^^^
 
 (Formerly ``vcDataType``)
@@ -133,7 +135,7 @@ One of the following:
 
 .. _dispTimeLimits:
 
-``dispTimeLimits``
+dispTimeLimits
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``tlim``)
@@ -144,7 +146,7 @@ Time range (in ms) to display.
 
 .. _distCut:
 
-``distCut``
+distCut
 ^^^^^^^^^^^
 
 (Formerly ``dc_percent``)
@@ -155,7 +157,7 @@ Percentile of pairwise distances between spikes on a site to use as a cutoff dis
 
 .. _evtDetectRad:
 
-``evtDetectRad``
+evtDetectRad
 ^^^^^^^^^^^^^^^^
 
 (Formerly ``maxDist_site_spk_um``)
@@ -166,7 +168,7 @@ Maximum distance (in μm) for extracting spike waveforms.
 
 .. _evtWindow:
 
-``evtWindow``
+evtWindow
 ^^^^^^^^^^^^^
 
 (Formerly ``spkLim_ms``)
@@ -177,7 +179,7 @@ Time range (in ms) of filtered spike waveforms, centered at the peak.
 
 .. _filtOrder:
 
-``filtOrder``
+filtOrder
 ^^^^^^^^^^^^^
 
 Bandpass filter order.
@@ -186,7 +188,7 @@ Bandpass filter order.
 
 .. _filterType:
 
-``filterType``
+filterType
 ^^^^^^^^^^^^^^
 
 (Formerly ``vcFilter``)
@@ -206,7 +208,7 @@ One of the following:
 
 .. _freqLimBP:
 
-``freqLimBP``
+freqLimBP
 ^^^^^^^^^^^^^
 
 (Formerly ``freqLim``)
@@ -217,7 +219,7 @@ Frequency cutoffs for bandpass filter.
 
 .. _headerOffset:
 
-``headerOffset``
+headerOffset
 ^^^^^^^^^^^^^^^^
 
 (Formerly ``header_offset``)
@@ -228,7 +230,7 @@ Recording file header offset (in bytes).
 
 .. _ignoreSites:
 
-``ignoreSites``
+ignoreSites
 ^^^^^^^^^^^^^^^
 
 (Formerly ``viSiteZero``)
@@ -239,7 +241,7 @@ Sites to ignore manually.
 
 .. _log10DeltaCut:
 
-``log10DeltaCut``
+log10DeltaCut
 ^^^^^^^^^^^^^^^^^
 
 (Formerly ``delta1_cut``)
@@ -250,7 +252,7 @@ Log10 of delta cutoff (Spikes with delta values below this cutoff will not be co
 
 .. _log10RhoCut:
 
-``log10RhoCut``
+log10RhoCut
 ^^^^^^^^^^^^^^^
 
 (Formerly ``rho_cut``)
@@ -261,7 +263,7 @@ Log10 of rho cutoff (Spikes with rho values below this cutoff will not be consid
 
 .. _maxUnitSim:
 
-``maxUnitSim``
+maxUnitSim
 ^^^^^^^^^^^^^^
 
 (Formerly ``maxWavCor``)
@@ -272,7 +274,7 @@ Threshold for merging two units having similar spike waveforms (Units with a sim
 
 .. _minClusterSize:
 
-``minClusterSize``
+minClusterSize
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``min_count``)
@@ -283,7 +285,7 @@ Minimum number of spikes per cluster (Automatically set to the maximum of this v
 
 .. _nChans:
 
-``nChans``
+nChans
 ^^^^^^^^^^
 
 Number of channels stored in recording file (Distinct from the number of AP sites).
@@ -292,7 +294,7 @@ Number of channels stored in recording file (Distinct from the number of AP site
 
 .. _nClusterIntervals:
 
-``nClusterIntervals``
+nClusterIntervals
 ^^^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``nTime_clu``)
@@ -303,7 +305,7 @@ Number of intervals to divide the recording into around a spike (When clustering
 
 .. _nPCsPerSite:
 
-``nPCsPerSite``
+nPCsPerSite
 ^^^^^^^^^^^^^^^
 
 (Formerly ``nPcPerChan``)
@@ -314,7 +316,7 @@ Number of principal components to compute per site.
 
 .. _nSiteDir:
 
-``nSiteDir``
+nSiteDir
 ^^^^^^^^^^^^
 
 (Formerly ``maxSite``)
@@ -325,7 +327,7 @@ Number of neighboring sites to group in either direction (nSitesEvt is set to 1 
 
 .. _nSitesExcl:
 
-``nSitesExcl``
+nSitesExcl
 ^^^^^^^^^^^^^^
 
 (Formerly ``nSites_ref``)
@@ -336,7 +338,7 @@ Number of sites to exclude from the spike waveform group.
 
 .. _nSpikesFigProj:
 
-``nSpikesFigProj``
+nSpikesFigProj
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``nShow_proj``)
@@ -347,7 +349,7 @@ Maximum number of spikes per cluster to display in the feature projection view.
 
 .. _nSpikesFigWav:
 
-``nSpikesFigWav``
+nSpikesFigWav
 ^^^^^^^^^^^^^^^^^
 
 (Formerly ``nSpk_show``)
@@ -358,7 +360,7 @@ Maximum number of spikes per cluster to display generally.
 
 .. _outputDir:
 
-``outputDir``
+outputDir
 ^^^^^^^^^^^^^
 
 Directory in which to place output files (Will output to the same directory as this file if empty).
@@ -367,7 +369,7 @@ Directory in which to place output files (Will output to the same directory as t
 
 .. _probePad:
 
-``probePad``
+probePad
 ^^^^^^^^^^^^
 
 (Formerly ``vrSiteHW``)
@@ -378,7 +380,7 @@ Recording contact pad size (in μm) (Height x width).
 
 .. _psthTimeLimits:
 
-``psthTimeLimits``
+psthTimeLimits
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``tlim_psth``)
@@ -389,7 +391,7 @@ Time range (in s) over which to display PSTH.
 
 .. _qqFactor:
 
-``qqFactor``
+qqFactor
 ^^^^^^^^^^^^
 
 Spike detection threshold (Thr = qqFactor*med(abs(x-med(x)))/0.6745).
@@ -398,7 +400,7 @@ Spike detection threshold (Thr = qqFactor*med(abs(x-med(x)))/0.6745).
 
 .. _rawRecordings:
 
-``rawRecordings``
+rawRecordings
 ^^^^^^^^^^^^^^^^^
 
 Path or paths to raw recordings to sort.
@@ -407,7 +409,7 @@ Path or paths to raw recordings to sort.
 
 .. _refracInt:
 
-``refracInt``
+refracInt
 ^^^^^^^^^^^^^
 
 (Formerly ``spkRefrac_ms``)
@@ -418,7 +420,7 @@ Spike refractory period (in ms).
 
 .. _sampleRate:
 
-``sampleRate``
+sampleRate
 ^^^^^^^^^^^^^^
 
 (Formerly ``sRateHz``)
@@ -429,7 +431,7 @@ Sampling rate (in Hz) of raw recording.
 
 .. _shankMap:
 
-``shankMap``
+shankMap
 ^^^^^^^^^^^^
 
 (Formerly ``viShank_site``)
@@ -440,7 +442,7 @@ Shank ID of each site.
 
 .. _siteLoc:
 
-``siteLoc``
+siteLoc
 ^^^^^^^^^^^
 
 (Formerly ``mrSiteXY``)
@@ -451,7 +453,7 @@ Site locations (in μm) (x values in the first column, y values in the second co
 
 .. _siteMap:
 
-``siteMap``
+siteMap
 ^^^^^^^^^^^
 
 (Formerly ``viSite2Chan``)
@@ -462,7 +464,7 @@ Map of channel index to site ID (The mapping siteMap(i) = j corresponds to the s
 
 .. _trialFile:
 
-``trialFile``
+trialFile
 ^^^^^^^^^^^^^
 
 (Formerly ``vcFile_trial``)
@@ -476,7 +478,7 @@ Advanced parameters
 
 .. _auxChan:
 
-``auxChan``
+auxChan
 ^^^^^^^^^^^
 
 (Formerly ``iChan_aux``)
@@ -487,7 +489,7 @@ Auxiliary channel index.
 
 .. _auxFile:
 
-``auxFile``
+auxFile
 ^^^^^^^^^^^
 
 (Formerly ``vcFile_aux``)
@@ -498,7 +500,7 @@ Path to file containing auxiliary channel.
 
 .. _auxLabel:
 
-``auxLabel``
+auxLabel
 ^^^^^^^^^^^^
 
 (Formerly ``vcLabel_aux``)
@@ -509,7 +511,7 @@ Label for auxiliary channel data.
 
 .. _auxSampleRate:
 
-``auxSampleRate``
+auxSampleRate
 ^^^^^^^^^^^^^^^^^
 
 (Formerly ``sRateHz_aux``)
@@ -520,7 +522,7 @@ Sample rate for auxiliary file.
 
 .. _auxScale:
 
-``auxScale``
+auxScale
 ^^^^^^^^^^^^
 
 (Formerly ``vrScale_aux``)
@@ -531,7 +533,7 @@ Scale factor for aux data.
 
 .. _batchMode:
 
-``batchMode``
+batchMode
 ^^^^^^^^^^^^^
 
 Suppress message boxes in favor of console messages.
@@ -540,7 +542,7 @@ Suppress message boxes in favor of console messages.
 
 .. _colorMap:
 
-``colorMap``
+colorMap
 ^^^^^^^^^^^^
 
 (Formerly ``mrColor_proj``)
@@ -551,7 +553,7 @@ RGB color map for background, primary selected, and secondary selected spikes (T
 
 .. _corrRange:
 
-``corrRange``
+corrRange
 ^^^^^^^^^^^^^
 
 (Formerly ``corrLim``)
@@ -562,7 +564,7 @@ Correlation score range to distinguish by color map.
 
 .. _detectBipolar:
 
-``detectBipolar``
+detectBipolar
 ^^^^^^^^^^^^^^^^^
 
 (Formerly ``fDetectBipolar``)
@@ -573,7 +575,7 @@ Detect positive as well as negative peaks.
 
 .. _dispFeature:
 
-``dispFeature``
+dispFeature
 ^^^^^^^^^^^^^^^
 
 (Formerly ``vcFet_show``)
@@ -591,7 +593,7 @@ One of the following:
 
 .. _dispFilter:
 
-``dispFilter``
+dispFilter
 ^^^^^^^^^^^^^^
 
 (Formerly ``vcFilter_show``)
@@ -611,7 +613,7 @@ One of the following:
 
 .. _driftMerge:
 
-``driftMerge``
+driftMerge
 ^^^^^^^^^^^^^^
 
 (Formerly ``fDrift_merge``)
@@ -622,7 +624,7 @@ Compute multiple waveforms at three drift locations based on the spike position 
 
 .. _evtManualThresh:
 
-``evtManualThresh``
+evtManualThresh
 ^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``spkThresh_uV``)
@@ -633,7 +635,7 @@ Manually-set spike detection threshold (in μV).
 
 .. _evtMergeRad:
 
-``evtMergeRad``
+evtMergeRad
 ^^^^^^^^^^^^^^^
 
 (Formerly ``maxDist_site_um``)
@@ -644,7 +646,7 @@ Maximum distance (in μm) for merging spike waveforms.
 
 .. _evtWindowMergeFactor:
 
-``evtWindowMergeFactor``
+evtWindowMergeFactor
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``spkLim_factor_merge``)
@@ -655,7 +657,7 @@ Ratio of samples to take when computing correlation.
 
 .. _evtWindowRaw:
 
-``evtWindowRaw``
+evtWindowRaw
 ^^^^^^^^^^^^^^^^
 
 (Formerly ``spkLim_raw_ms``)
@@ -666,7 +668,7 @@ Time range (in ms) of raw spike waveforms, centered at the peak.
 
 .. _fftThresh:
 
-``fftThresh``
+fftThresh
 ^^^^^^^^^^^^^
 
 (Formerly ``fft_thresh``)
@@ -677,7 +679,7 @@ Threshold (in MADs of power-frequency product) above which to remove frequency o
 
 .. _figList:
 
-``figList``
+figList
 ^^^^^^^^^^^
 
 List of tags of figures to display in feature view.
@@ -699,7 +701,7 @@ One of the following:
 
 .. _frFilterShape:
 
-``frFilterShape``
+frFilterShape
 ^^^^^^^^^^^^^^^^^
 
 (Formerly ``filter_shape_rate``)
@@ -715,7 +717,7 @@ One of the following:
 
 .. _frPeriod:
 
-``frPeriod``
+frPeriod
 ^^^^^^^^^^^^
 
 (Formerly ``filter_sec_rate``)
@@ -726,7 +728,7 @@ Time period (in s) over which to determine firing rate (Used in estimation of th
 
 .. _frSampleRate:
 
-``frSampleRate``
+frSampleRate
 ^^^^^^^^^^^^^^^^
 
 (Formerly ``sRateHz_rate``)
@@ -737,7 +739,7 @@ Resampling rate (in Hz) for estimating the firing rate (Used in estimation of th
 
 .. _freqLimNotch:
 
-``freqLimNotch``
+freqLimNotch
 ^^^^^^^^^^^^^^^^
 
 Frequency ranges to exclude for notch filter.
@@ -746,7 +748,7 @@ Frequency ranges to exclude for notch filter.
 
 .. _freqLimStop:
 
-``freqLimStop``
+freqLimStop
 ^^^^^^^^^^^^^^^
 
 Frequency range to exclude for band-stop filter.
@@ -755,7 +757,7 @@ Frequency range to exclude for band-stop filter.
 
 .. _gainBoost:
 
-``gainBoost``
+gainBoost
 ^^^^^^^^^^^^^
 
 (Formerly ``gain_boost``)
@@ -766,7 +768,7 @@ Scale factor to boost gain in raw recording (Used in filtering operation).
 
 .. _gpuLoadFactor:
 
-``gpuLoadFactor``
+gpuLoadFactor
 ^^^^^^^^^^^^^^^^^
 
 GPU memory usage factor (Use 1/gpuLoadFactor amount of GPU memory).
@@ -775,7 +777,7 @@ GPU memory usage factor (Use 1/gpuLoadFactor amount of GPU memory).
 
 .. _groupShank:
 
-``groupShank``
+groupShank
 ^^^^^^^^^^^^^^
 
 (Formerly ``fGroup_shank``)
@@ -786,7 +788,7 @@ Group all sites on the same shank if true.
 
 .. _gtFile:
 
-``gtFile``
+gtFile
 ^^^^^^^^^^
 
 (Formerly ``vcFile_gt``)
@@ -797,7 +799,7 @@ Path to file containing ground-truth data.
 
 .. _interpPC:
 
-``interpPC``
+interpPC
 ^^^^^^^^^^^^
 
 (Formerly ``fInterp_fet``)
@@ -808,7 +810,7 @@ Interpolate 1st principal vector to maximize projection of spikes if true.
 
 .. _lfpSampleRate:
 
-``lfpSampleRate``
+lfpSampleRate
 ^^^^^^^^^^^^^^^^^
 
 (Formerly ``sRateHz_lfp``)
@@ -819,7 +821,7 @@ Sampling rate for LFP channels.
 
 .. _loadTimeLimits:
 
-``loadTimeLimits``
+loadTimeLimits
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``tlim_load``)
@@ -830,7 +832,7 @@ Time range (in s) of samples to load at once (All samples are loaded if empty).
 
 .. _maxAmp:
 
-``maxAmp``
+maxAmp
 ^^^^^^^^^^
 
 Amplitude scale (in μV).
@@ -839,7 +841,7 @@ Amplitude scale (in μV).
 
 .. _maxBytesLoad:
 
-``maxBytesLoad``
+maxBytesLoad
 ^^^^^^^^^^^^^^^^
 
 (Formerly ``MAX_BYTES_LOAD``)
@@ -850,7 +852,7 @@ Maximum number of bytes to load into memory.
 
 .. _maxClustersSite:
 
-``maxClustersSite``
+maxClustersSite
 ^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``maxCluPerSite``)
@@ -861,7 +863,7 @@ Maximum number of cluster centers computed per site (Used if RDDetrendMode is 'l
 
 .. _maxSecLoad:
 
-``maxSecLoad``
+maxSecLoad
 ^^^^^^^^^^^^^^
 
 (Formerly ``MAX_LOAD_SEC``)
@@ -872,7 +874,7 @@ Maximum sample duration (in s) to load into memory (Overrides maxBytesLoad if no
 
 .. _meanInterpFactor:
 
-``meanInterpFactor``
+meanInterpFactor
 ^^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``nInterp_merge``)
@@ -883,18 +885,28 @@ Interpolation factor for mean unit waveforms (Set to 1 to disable).
 
 .. _minNeighborsDetect:
 
-``minNeighborsDetect``
+minNeighborsDetect
 ^^^^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``nneigh_min_detect``)
 
 Minimum number of sample neighbors exceeding threshold for a sample to be considered a peak.
 
+For example, consider a putative peak occurring at sample :math:`t_i`.
+If ``minNeighborsDetect`` is set to 1, then **either** sample :math:`t_{i-1}` or :math:`t_{i+1}`
+must also exceed the detection threshold.
+If ``minNeighborsDetect`` is set to 2, then **both** sample :math:`t_{i-1}` and :math:`t_{i+1}`
+must also exceed the detection threshold.
+If ``minNeighborsDetect`` is set to 0, then samples :math:`t_{i-1}` and :math:`t_{i+1}`
+are not considered.
+
+Must be one of 0, 1, or 2.
+
 **Default** is 0.
 
 .. _minSitesWeightFeatures:
 
-``minSitesWeightFeatures``
+minSitesWeightFeatures
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``min_sites_mask``)
@@ -905,7 +917,7 @@ Minimum number of sites to have if using weightFeatures (Ignored if weightFeatur
 
 .. _nClustersShowAux:
 
-``nClustersShowAux``
+nClustersShowAux
 ^^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``nClu_show_aux``)
@@ -916,7 +928,7 @@ Number of clusters to show in the aux vs. firing rate correlation.
 
 .. _nDiffOrder:
 
-``nDiffOrder``
+nDiffOrder
 ^^^^^^^^^^^^^^
 
 (Formerly ``nDiff_filt``)
@@ -927,7 +939,7 @@ Order for differentiator filter (Used if and only if filterType is 'sgdiff' or '
 
 .. _nLoadsMaxPreview:
 
-``nLoadsMaxPreview``
+nLoadsMaxPreview
 ^^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``nLoads_max_preview``)
@@ -938,7 +950,7 @@ Number of time segments to load in preview.
 
 .. _nPassesMerge:
 
-``nPassesMerge``
+nPassesMerge
 ^^^^^^^^^^^^^^^^
 
 (Formerly ``nRepeat_merge``)
@@ -949,7 +961,7 @@ Number of times to repeat automatic waveform-based merging.
 
 .. _nPeaksFeatures:
 
-``nPeaksFeatures``
+nPeaksFeatures
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``nFet_use``)
@@ -960,7 +972,7 @@ Number of potential peaks to use when computing features.
 
 .. _nSamplesPad:
 
-``nSamplesPad``
+nSamplesPad
 ^^^^^^^^^^^^^^^
 
 (Formerly ``nPad_filt``)
@@ -971,7 +983,7 @@ Number of samples to overlap between chunks in large files.
 
 .. _nSecsLoadPreview:
 
-``nSecsLoadPreview``
+nSecsLoadPreview
 ^^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``sec_per_load_preview``)
@@ -982,7 +994,7 @@ Number of seconds to load in preview.
 
 .. _nSegmentsTraces:
 
-``nSegmentsTraces``
+nSegmentsTraces
 ^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``nTime_traces``)
@@ -993,7 +1005,7 @@ Number of time segments to display in traces view (A value of 1 shows one contin
 
 .. _nSitesFigProj:
 
-``nSitesFigProj``
+nSitesFigProj
 ^^^^^^^^^^^^^^^^^
 
 Number of sites to show in feature projection view.
@@ -1002,7 +1014,7 @@ Number of sites to show in feature projection view.
 
 .. _nSkip:
 
-``nSkip``
+nSkip
 ^^^^^^^^^
 
 (Formerly ``nSkip_show``)
@@ -1013,7 +1025,7 @@ Show every nSkip samples when plotting traces.
 
 .. _nSpikesFigISI:
 
-``nSpikesFigISI``
+nSpikesFigISI
 ^^^^^^^^^^^^^^^^^
 
 Maximum number of spikes to show in ISI view.
@@ -1022,7 +1034,7 @@ Maximum number of spikes to show in ISI view.
 
 .. _nThreadsGPU:
 
-``nThreadsGPU``
+nThreadsGPU
 ^^^^^^^^^^^^^^^
 
 (Formerly ``nThreads``)
@@ -1033,7 +1045,7 @@ Number of GPU threads to use for clustering.
 
 .. _outlierThresh:
 
-``outlierThresh``
+outlierThresh
 ^^^^^^^^^^^^^^^^^
 
 (Formerly ``thresh_mad_clu``)
@@ -1044,7 +1056,7 @@ Threshold (in MADs) to remove outlier spikes for each cluster.
 
 .. _pcPair:
 
-``pcPair``
+pcPair
 ^^^^^^^^^^
 
 Pair of PCs to display.
@@ -1053,7 +1065,7 @@ Pair of PCs to display.
 
 .. _projTimeLimits:
 
-``projTimeLimits``
+projTimeLimits
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``tLimFigProj``)
@@ -1064,7 +1076,7 @@ Time range (in s) to display in feature projection view.
 
 .. _psthTimeBin:
 
-``psthTimeBin``
+psthTimeBin
 ^^^^^^^^^^^^^^^
 
 (Formerly ``tbin_psth``)
@@ -1075,7 +1087,7 @@ Time bin (in s) for PSTH view.
 
 .. _psthXTick:
 
-``psthXTick``
+psthXTick
 ^^^^^^^^^^^^^
 
 (Formerly ``xtick_psth``)
@@ -1086,7 +1098,7 @@ PSTH time tick mark spacing.
 
 .. _ramToGPUFactor:
 
-``ramToGPUFactor``
+ramToGPUFactor
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``nLoads_gpu``)
@@ -1097,7 +1109,7 @@ Ratio of RAM to GPU memory.
 
 .. _randomSeed:
 
-``randomSeed``
+randomSeed
 ^^^^^^^^^^^^^^
 
 Seed for the random number generator.
@@ -1106,7 +1118,7 @@ Seed for the random number generator.
 
 .. _showRaw:
 
-``showRaw``
+showRaw
 ^^^^^^^^^^^
 
 (Formerly ``fWav_raw_show``)
@@ -1117,7 +1129,7 @@ Show raw traces in waveform view if true.
 
 .. _showSpikeCount:
 
-``showSpikeCount``
+showSpikeCount
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``fText``)
@@ -1128,7 +1140,7 @@ Show spike count per unit in waveform plot.
 
 .. _siteCorrThresh:
 
-``siteCorrThresh``
+siteCorrThresh
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``thresh_corr_bad_site``)
@@ -1139,7 +1151,7 @@ Threshold to reject bad sites based on maximum correlation with neighboring site
 
 .. _spikeThreshMax:
 
-``spikeThreshMax``
+spikeThreshMax
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``spkThresh_max_uV``)
@@ -1150,7 +1162,7 @@ Maximum absolute amplitude (in μV) permitted for spikes.
 
 .. _tallSkinny:
 
-``tallSkinny``
+tallSkinny
 ^^^^^^^^^^^^^^
 
 (Formerly ``fTranspose_bin``)
@@ -1161,7 +1173,7 @@ Recording will be interpreted as nChannels x nSamples if true.
 
 .. _threshFile:
 
-``threshFile``
+threshFile
 ^^^^^^^^^^^^^^
 
 (Formerly ``vcFile_thresh``)
@@ -1172,7 +1184,7 @@ Path to .mat file storing the spike detection threshold (Created by preview GUI)
 
 .. _umPerPix:
 
-``umPerPix``
+umPerPix
 ^^^^^^^^^^^^
 
 (Formerly ``um_per_pix``)
@@ -1183,7 +1195,7 @@ Vertical site center-to-center spacing.
 
 .. _useElliptic:
 
-``useElliptic``
+useElliptic
 ^^^^^^^^^^^^^^^
 
 (Formerly ``fEllip``)
@@ -1194,7 +1206,7 @@ Use elliptic (bandpass) filter if true (Uses Butterworth filter if false).
 
 .. _useGPU:
 
-``useGPU``
+useGPU
 ^^^^^^^^^^
 
 (Formerly ``fGpu``)
@@ -1205,7 +1217,7 @@ Use GPU where appropriate.
 
 .. _useGlobalDistCut:
 
-``useGlobalDistCut``
+useGlobalDistCut
 ^^^^^^^^^^^^^^^^^^^^
 
 (Formerly ``fDc_global``)
@@ -1216,7 +1228,7 @@ Use a global distance cutoff for all sites if true.
 
 .. _useParfor:
 
-``useParfor``
+useParfor
 ^^^^^^^^^^^^^
 
 (Formerly ``fParfor``)
@@ -1227,7 +1239,7 @@ Use parfor where appropriate.
 
 .. _userFiltKernel:
 
-``userFiltKernel``
+userFiltKernel
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``vnFilter_user``)
@@ -1238,7 +1250,7 @@ User-specified filter kernel (Ignored unless filterType is 'user').
 
 .. _verbose:
 
-``verbose``
+verbose
 ^^^^^^^^^^^
 
 (Formerly ``fVerbose``)
@@ -1249,7 +1261,7 @@ Be chatty when processing.
 
 .. _weightFeatures:
 
-``weightFeatures``
+weightFeatures
 ^^^^^^^^^^^^^^^^^^
 
 (Formerly ``fSpatialMask_clu``)
@@ -1257,3 +1269,6 @@ Be chatty when processing.
 Weight display features by distance from site if true.
 
 **Default** is false.
+
+.. _`Pearson correlation coefficient`: https://en.wikipedia.org/wiki/Pearson_correlation_coefficient
+.. _`MAD`: https://en.wikipedia.org/wiki/Median_absolute_deviation

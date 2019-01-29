@@ -1,7 +1,7 @@
 {
     "common parameters": {
         "autoMergeBy": {
-            "description": "Metric to use for automerging clusters",
+            "description": "Metric to use for automerging clusters based on average waveform",
             "comment": "",
             "default_value": "pearson",
             "validation": {

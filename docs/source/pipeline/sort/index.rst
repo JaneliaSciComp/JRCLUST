@@ -36,7 +36,7 @@ We then take the median of the :math:`d_i` as our global cutoff distance.
 (This behavior can be overridden by setting the parameter :ref:`useGlobalDistCut`
 to 0 in your config file.)
 
-.. _merge-post-hoc:
+.. _assign-clusters:
 
 Assigning clusters: "sufficiently dense" and "sufficiently far"
 ---------------------------------------------------------------
@@ -65,6 +65,8 @@ assigned to clusters.
 .. note::
    Because we :ref:`compared primary peaks with secondary peaks <rl-adjustments>`,
    a spike may have as its nearest neighbor a spike on a nearby site.
+
+.. _merge-post-hoc:
 
 Merging possibly oversplit clusters
 -----------------------------------

@@ -8,7 +8,7 @@ function [features1, features2, features3, spikeWindows] = computeFeatures(spike
     features3 = single([]);
     spikeWindows = single(permute(spikeWindows, [1, 3, 2])); % nSamples x nSpikes x nSites
 
-    if hCfg.getOr('fRealign_spk', 0) ~= 1
+    if hCfg.getOr('realignTraces', 0) ~= 1
         spikeWindows = jrclust.utils.localCAR(spikeWindows, hCfg, nSitesEvt, []);
     end
 

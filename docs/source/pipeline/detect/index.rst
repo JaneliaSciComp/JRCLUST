@@ -34,10 +34,6 @@ Additionally, JRCLUST computes the common average reference and subtracts it fro
 Computing detection thresholds
 ------------------------------
 
-.. A threshold is automatically computed from the filtered samples in the following manner due to
-.. `Quiroga <https://www.mitpressjournals.org/doi/abs/10.1162/089976604774201631>`__
-.. :
-
 Assuming a Gaussian noise distribution on every site, we estimate the standard
 deviation :math:`\sigma_{\text{noise}}^{(i)}` of the background on site :math:`i` by
 
@@ -100,7 +96,7 @@ and :math:`n_{\text{samples}}` depends on ``evtWindow`` and ``evtWindowRaw`` for
 Each of these matrices is stored in an :math:`n_{\text{sites}} \times n_{\text{samples}} \times n_{\text{spikes}}`
 array and are used for feature extraction, automatically merging clusters, and display in the curation GUI.
 
-At this point, :ref:`if you specify <fRealign_spk>`, JRCLUST may either subtract a local common average reference from the windows
+At this point, :ref:`if you specify <realignTraces>`, JRCLUST may either subtract a local common average reference from the windows
 and realign the spike waveforms; or interpolate the spike waveforms between samples to determine if the true peak maxima are at
 subpixels, taking the interpolant if this is found to be the case.
 
