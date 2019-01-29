@@ -180,8 +180,7 @@ classdef JRC < handle & dynamicprops
 
                 % workflow commands
                 case 'bootstrap'
-                    obj.hCfg = jrclust.Config2(); % opens a dialog
-                    jrclust.utils.qMsgBox(sprintf('Parameter file created at %s', obj.hCfg.configFile));
+                    doBootstrap(obj.args{:});
                     obj.isCompleted = 1;
                     return;
 

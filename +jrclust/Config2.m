@@ -11,7 +11,7 @@ classdef Config2 < dynamicprops
     end
 
     %% CONFIG FILE
-    properties (SetObservable, SetAccess=private)
+    properties (SetAccess=private, SetObservable)
         configFile;
     end
 
@@ -20,7 +20,7 @@ classdef Config2 < dynamicprops
         siteNeighbors;              % indices of neighbors for each site
     end
 
-    %% RECORDING(S) (to ease the transition)
+    %% RECORDING(S) (to ease the v3-v4 transition)
     properties (Dependent, Hidden, SetObservable)
         singleRaw;                  % formerly vcFile
         multiRaw;                   % formerly csFile_merge
@@ -43,9 +43,12 @@ classdef Config2 < dynamicprops
         function obj = Config2(filename)
             %CONFIG Construct an instance of this class
             if nargin == 0
-                obj.configFile = '';
                 userParams = struct();
-            else
+                obj.configFile = '';
+            elseif isstruct(filename)
+                userParams = filename;
+                obj.configFile = '';
+            elseif ischar(filename)
                 filename_ = jrclust.utils.absPath(filename);
                 userParams = jrclust.utils.mToStruct(filename_); % raises error if not a file
                 obj.configFile = filename_;
@@ -55,6 +58,48 @@ classdef Config2 < dynamicprops
 
             % for setting temporary parameters
             obj.tempParams = containers.Map();
+
+            obj.loadParams(userParams);
+        end
+
+        function obj = subsasgn(obj, prop, val)
+            if strcmp(prop.type, '.')
+                [flag, val, errMsg] = obj.validateProp(prop.subs, val);
+                if flag
+                    obj.setProp(prop.subs, val);
+                else
+                    error(errMsg);
+                end
+            end
+        end
+    end
+
+    %% DOUBLE SECRET METHODS
+    methods (Access = private, Hidden)
+        function error(obj, emsg, varargin)
+            %ERROR Raise an error
+            obj.isError = 1;
+            if obj.batchMode
+                error(emsg);
+            else
+                errordlg(emsg, varargin{:});
+            end
+        end
+
+        function loadParams(obj, filename)
+            %LOADPARAMS Load parameters from file
+            if nargin < 2
+                filename = obj.configFile;
+            end
+
+            if ischar(filename)
+                filename_ = jrclust.utils.absPath(filename);
+                userParams = jrclust.utils.mToStruct(filename_); % raises error if not a file
+            elseif isstruct(filename)
+                userParams = filename;
+            else
+                error('Class not recognized: %s', class(filename));
+            end
 
             % read in default parameter set
             fid = fopen(fullfile(jrclust.utils.basedir(), 'params.json'), 'r');
@@ -113,7 +158,13 @@ classdef Config2 < dynamicprops
             % load probe from a probe file (legacy support)
             if isfield(userParams, 'probe_file') && ~isempty(userParams.probe_file)
                 % first check local directory
-                pf = jrclust.utils.absPath(userParams.probe_file, fileparts(obj.configFile));
+                if isprop(obj, 'configFile') && ~isempty(obj.configFile)
+                    basedir = fileparts(obj.configFile);
+                else
+                    basedir = fullfile(jrclust.utils.basedir(), 'probes');
+                end
+
+                pf = jrclust.utils.absPath(userParams.probe_file, basedir);
                 if isempty(pf)
                     pf = jrclust.utils.absPath(userParams.probe_file, fullfile(jrclust.utils.basedir(), 'probes'));
                 end
@@ -205,74 +256,6 @@ classdef Config2 < dynamicprops
             obj.bitScaling = obj.bitScaling/obj.gainBoost; %#ok<MCNPR>
         end
 
-        function obj = subsasgn(obj, prop, val)
-            if strcmp(prop.type, '.')
-                [flag, val, errMsg] = obj.validateProp(prop.subs, val);
-                if flag
-                    obj.setProp(prop.subs, val);
-                else
-                    error(errMsg);
-                end
-            end
-        end
-
-%         function val = subsref(obj, prop)
-%             ptype = {prop.type};
-%             % get a property or call a function without parens
-%             if numel(ptype) == 1 && strcmp(prop.type, '.')
-%                 propname = prop.subs;
-%                 if isfield(obj.oldParamSet, propname)
-%                     propname = obj.oldParamSet.(propname);
-%                 end
-% 
-%                 if nargout > 0 || isprop(obj, propname)
-%                     val = obj.(propname);
-%                 else
-%                     obj.(propname);
-%                 end
-%             elseif numel(ptype) == 2 && jrclust.utils.isEqual(ptype, {'.', '()'})
-%                 psubs = {prop.subs};
-%                 fname = psubs{1};
-%                 if numel(psubs) > 1
-%                     fargs = psubs{2};
-%                 else
-%                     fargs = {};
-%                 end
-% 
-%                 if nargout > 0
-%                     val = obj.(fname)(fargs{:});
-%                 else
-%                     obj.(fname)(fargs{:});
-%                 end
-%             elseif numel(ptype) == 2 && jrclust.utils.isEqual(ptype, {'.', '{}'})
-%                 psubs = {prop.subs};
-%                 fname = psubs{1};
-%                 if numel(psubs) > 1
-%                     fargs = psubs{2};
-%                 else
-%                     fargs = {};
-%                 end
-% 
-%                 field = obj.(fname);
-%                 if nargout > 0
-%                     val = field{fargs{:}};
-%                 end
-%             end
-%         end
-    end
-
-    %% DOUBLE SECRET METHODS
-    methods (Access = private, Hidden)
-        function error(obj, emsg, varargin)
-            %ERROR Raise an error
-            obj.isError = 1;
-            if obj.batchMode
-                error(emsg);
-            else
-                errordlg(emsg, varargin{:});
-            end
-        end
-
         function setProp(obj, propname, val)
             %SETPROP Set a property
             if isfield(obj.oldParamSet, propname)
@@ -325,7 +308,11 @@ classdef Config2 < dynamicprops
                         end
 
                         % get absolute paths
-                        basedir = fileparts(obj.configFile);
+                        if isprop(obj, 'configFile') && ~isempty(obj.configFile)
+                            basedir = fileparts(obj.configFile);
+                        else
+                            basedir = '';
+                        end
                         val_ = cellfun(@(fn) jrclust.utils.absPath(fn, basedir), val, 'UniformOutput', 0);
                         isFound = ~cellfun(@isempty, val_);
                         if ~all(isFound)
@@ -371,6 +358,30 @@ classdef Config2 < dynamicprops
             else
                 warndlg(wmsg, varargin{:});
             end
+        end
+    end
+
+    %% SECRET METHODS
+    methods (Hidden)
+        function setConfigFile(obj, configFile, reloadParams)
+            %SETCONFIGFILE Don't use this. Seriously.
+             if nargin < 2
+                 return;
+             end
+             if nargin < 3
+                 reloadParams = 1;
+             end
+
+             configFile_ = jrclust.utils.absPath(configFile);
+             if isempty(configFile_)
+                 error('Could not find %s', configFile);
+             end
+
+             obj.configFile = configFile_;
+
+             if reloadParams
+                 obj.loadParams(obj.configFile);
+             end
         end
     end
 
@@ -656,7 +667,12 @@ classdef Config2 < dynamicprops
                 obj.singleRaw = mr;
                 return;
             elseif ischar(mr) % wildcard character
-                basedir = fileparts(obj.configFile);
+                if isprop(obj, 'configFile') && ~isempty(obj.configFile)
+                    basedir = fileparts(obj.configFile);
+                else
+                    basedir = pwd();
+                end
+
                 mr_ = jrclust.utils.absPath(mr, basedir);
                 if isempty(mr_)
                     error('Wildcard not recognized: %s', mr);
@@ -666,7 +682,12 @@ classdef Config2 < dynamicprops
                 assert(iscell(mr), 'multiRaw must be a cell array');
 
                 % get absolute paths
-                basedir = fileparts(obj.configFile);
+                if isprop(obj, 'configFile') && ~isempty(obj.configFile)
+                    basedir = fileparts(obj.configFile);
+                else
+                    basedir = pwd();
+                end
+
                 mr_ = cellfun(@(fn) jrclust.utils.absPath(fn, basedir), mr, 'UniformOutput', 0);
                 isFound = cellfun(@isempty, mr_);
                 if ~all(isFound)
@@ -717,7 +738,7 @@ classdef Config2 < dynamicprops
 
         % sessionName
         function sn = get.sessionName(obj)
-            if isprop(obj, 'configFile')
+            if isprop(obj, 'configFile') && ~isempty(obj.configFile)
                 [~, sn, ~] = fileparts(obj.configFile);
             else
                 sn = '';
@@ -743,7 +764,11 @@ classdef Config2 < dynamicprops
             assert(ischar(sr), 'singleRaw must be a string');
 
             % get absolute paths
-            basedir = fileparts(obj.configFile);
+            if isprop(obj, 'configFile') && ~isempty(obj.configFile)
+                basedir = fileparts(obj.configFile);
+            else
+                basedir = pwd();
+            end
             sr_ = jrclust.utils.absPath(sr, basedir);
             if isempty(sr_)
                 error('''%s'' not found', sr);

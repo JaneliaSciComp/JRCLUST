@@ -34,5 +34,31 @@ function probe = doLoadProbe(probeFile)
     else
         probe.shankMap = pstr.shank;
     end
+
+    % load optional fields
+    if isfield(pstr, 'maxSite')
+        probe.nSiteDir = pstr.maxSite;
+    end
+    if isfield(pstr, 'nChans')
+        probe.nChans = pstr.nChans;
+    end
+    if isfield(pstr, 'nSites_ref')
+        probe.nSitesExcl = pstr.nSites_ref;
+    end
+    if isfield(pstr, 'sRateHz')
+        probe.sampleRate = pstr.sRateHz;
+    end
+    if isfield(pstr, 'uV_per_bit')
+        probe.bitScaling = pstr.uV_per_bit;
+    end
+    if isfield(pstr, 'um_per_pix')
+        probe.umPerPix = pstr.um_per_pix;
+    end
+    if isfield(pstr, 'vcDataType')
+        probe.dataType = pstr.vcDataType;
+    end
+    if isfield(pstr, 'viSiteZero')
+        probe.ignoreSites = pstr.viSiteZero;
+    end
 end
 
