@@ -1257,4 +1257,3 @@ Be chatty when processing.
 Weight display features by distance from site if true.
 
 **Default** is false.
-
