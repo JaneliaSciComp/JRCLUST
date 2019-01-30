@@ -21,7 +21,7 @@ function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
             showSites{iCluster} = iSites;
             nSpikesCluster(iCluster) = size(iWaveforms, 3);
         catch ME
-            warning(ME.identifier, 'Can''t plot cluster %d: %s', iCluster, ME.message);
+            warning('Can''t plot cluster %d: %s', iCluster, ME.message);
         end
     end
 

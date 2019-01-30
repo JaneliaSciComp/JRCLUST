@@ -5,7 +5,12 @@ function success = compileCUDA(nvccPath)
         if ispc()
             nvccPath = sprintf('"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v%0.1f\\bin\\nvcc.exe"', gpuD.ToolkitVersion);
         else
-            nvccPath = '/usr/local/cuda/bin/nvcc';
+            [ecode, out] = system('which nvcc');
+            if ecode == 0 % successfully found nvcc on path
+                nvccPath = strip(out);
+            else % fall back to default
+                nvccPath = '/usr/local/cuda/bin/nvcc';
+            end
         end
     end
     basedir = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA');
@@ -27,7 +32,7 @@ function success = compileCUDA(nvccPath)
             status = system(cmd);
             success = success && (status == 0);
         catch ME
-            warning(ME.identifier, 'Could not compile %s: %s\n', iFileCU, ME.message);
+            warning('Could not compile %s: %s\n', iFileCU, ME.message);
         end
     end
 

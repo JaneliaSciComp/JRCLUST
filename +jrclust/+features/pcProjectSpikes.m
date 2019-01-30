@@ -19,7 +19,7 @@ function [proj1, proj2, proj3] = pcProjectSpikes(sampledWindows, prVecs1, prVecs
             end
         end % for
     catch ME
-        warning(ME.identifier, 'error projecting spikes: %s', ME.message)
+        warning('error projecting spikes: %s', ME.message)
     end
 
     proj1 = (proj1') / nSamples; % why scale here?

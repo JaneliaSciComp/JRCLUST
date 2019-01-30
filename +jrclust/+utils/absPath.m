@@ -1,7 +1,7 @@
 function ap = absPath(pathname, basedir)
     %ABSPATH Get the absolute path of pathname (file or directory)
     %   Returns empty str if pathname can't be found
-    if nargin < 2 || ~isdir(basedir)
+    if nargin < 2 || ~exist(basedir, 'dir')
         basedir = pwd();
     elseif ~isAbsPath(basedir)
         basedir = fullfile(pwd(), basedir);
@@ -9,7 +9,7 @@ function ap = absPath(pathname, basedir)
 
     if nargin == 0 || ~ischar(pathname) || isempty(pathname)
         ap = '';
-    elseif isAbsPath(pathname) && (isfile(pathname) || isdir(pathname))
+    elseif isAbsPath(pathname) && (exist(pathname, 'file') || exist(pathname, 'dir'))
         ap = pathname;
     elseif any(pathname == '*') || any(pathname == '?')
         % first check full file
@@ -28,7 +28,7 @@ function ap = absPath(pathname, basedir)
     else
         if isfile(fullfile(basedir, pathname)) || isdir(fullfile(basedir, pathname)) % check hinted directory first
             ap = fullfile(basedir, pathname);
-        elseif isfile(pathname) || isdir(pathname) % try to find it relative to current directory
+        elseif exist(pathname, 'file') || exist(pathname, 'dir') % try to find it relative to current directory
             ap = fullfile(pwd(), pathname);
         else % can't find it, you're on your own
             ap = '';

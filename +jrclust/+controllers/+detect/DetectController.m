@@ -99,7 +99,7 @@ classdef DetectController < handle
                 try
                     hRec.setDetections(recData);
                 catch ME % maybe rethrow
-                    warning(ME.identifier, 'error caught: %s', ME.message);
+                    warning('error caught: %s', ME.message);
                     continue;
                 end
 

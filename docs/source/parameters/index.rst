@@ -36,8 +36,8 @@ One of the following:
 
 - 'global': Performs the detrending for all sites together.
 - 'local': Performs the detrending for each site separately.
-- 'logz':
-- 'hidehiko'
+- 'logz': Use z-scores instead of detrending.
+- 'hidehiko': Use a non-constant threshold to determine centers for each site.
 - 'none': Skips detrending.
 
 **Default** is 'global'.
@@ -162,9 +162,13 @@ evtDetectRad
 
 (Formerly ``maxDist_site_spk_um``)
 
-Maximum distance (in μm) for extracting spike waveforms.
+Maximum distance (in μm) for :ref:`extracting spike waveforms <extract-windows>`
+(``r2`` in the figure below).
 
 **Default** is 75.
+
+.. image:: /.static/evtDetectRad.png
+   :scale: 25%
 
 .. _evtWindow:
 
@@ -174,6 +178,10 @@ evtWindow
 (Formerly ``spkLim_ms``)
 
 Time range (in ms) of filtered spike waveforms, centered at the peak.
+
+Must be an array with 2 elements, the first negative and the second positive.
+For example, if ``evtWindow`` is set to [-0.5, 0.5], then 1/2 ms worth of samples
+are extracted before and after the spiking event.
 
 **Default** is [-0.25, 0.75].
 
@@ -197,12 +205,12 @@ Type of filter to use on raw data.
 
 One of the following:
 
-- 'ndiff'
-- 'sgdiff'
+- 'ndiff': Applies a differentiation filter, choosing a kernel depending on the order given in :ref:`nDiffOrder`.
+- 'sgdiff': Applies a `Savitzky-Golay <https://en.wikipedia.org/wiki/Savitzky–Golay_filter>`_ filter depending on the order given in :ref:`nDiffOrder`.
 - 'bandpass'
 - 'fir1'
-- 'user'
-- 'none'
+- 'user': Convolves your raw samples with a :ref:`kernel of your choosing <userFiltKernel>`.
+- 'none': Skips filtering (not recommended).
 
 **Default** is 'ndiff'.
 
@@ -299,7 +307,19 @@ nClusterIntervals
 
 (Formerly ``nTime_clu``)
 
-Number of intervals to divide the recording into around a spike (When clustering, take the 1/nClusterIntervals fraction of all spikes around a spiking event to compute distance).
+Number of intervals to divide the recording into around a spike.
+
+When clustering, take the :math:`\frac{1}{\text{nClusterIntervals}}` fraction of all
+spikes around a spiking event to compute distance.
+
+For example, if ``nClusterIntervals`` = 1, all spikes will be used;
+if ``nClusterIntervals`` = 2, JRCLUST will take the half of all spikes which are closest
+in time to compute distances.
+Increasing this value will take fewer and fewer spikes to compare at the risk of
+oversplitting clusters (you might want to do this if you observe fast drift in your
+recording).
+However, automated merging based on the :ref:`waveform correlation <maxUnitSim>`
+can merge most of the units initially split by drift.
 
 **Default** is 4.
 
@@ -321,7 +341,16 @@ nSiteDir
 
 (Formerly ``maxSite``)
 
-Number of neighboring sites to group in either direction (nSitesEvt is set to 1 + 2*nSiteDir - nSitesExcl).
+Number of neighboring sites to group in either direction.
+
+The total number of sites per spike group (``nSitesEvt``) is 1 + 2\*``nSiteDir``.
+In other words, a spike group includes the site on which the spike occurs, along with ``nSiteDir``
+sites in the horizontal direction and ``nSiteDir`` in the vertical direction.
+
+If empty, the number of sites per spike group is determined from :ref:`evtDetectRad`.
+
+.. warning::
+   This parameter may be deprecated in an upcoming release in favor of ``evtDetectRad``.
 
 **Default** is empty.
 
@@ -394,7 +423,17 @@ Time range (in s) over which to display PSTH.
 qqFactor
 ^^^^^^^^^^^^
 
-Spike detection threshold (Thr = qqFactor*med(abs(x-med(x)))/0.6745).
+Spike detection threshold.
+
+Multiplier of the :ref:`estimate <compute-threshold>` :math:`\sigma_{\text{noise}}^{(i)}`
+of standard deviation of noise distribution on each site to compute the threshold for that site.
+In other words,
+
+.. math::
+
+    \text{Thr}_i := \text{qqFactor} \cdot \sigma_{\text{noise}}^{(i)}
+
+is the spike detection threshold for site :math:`i`.
 
 **Default** is 5.
 
@@ -640,9 +679,13 @@ evtMergeRad
 
 (Formerly ``maxDist_site_um``)
 
-Maximum distance (in μm) for merging spike waveforms.
+Maximum distance (in μm) to search over for :ref:`potential duplicates <merge-peaks>` (``r1`` in the figure below).
+This distance is used to determine the number of sites to extract features if :ref:`nSiteDir` is empty.
 
 **Default** is 50.
+
+.. image:: /.static/evtDetectRad.png
+   :scale: 25%
 
 .. _evtWindowMergeFactor:
 
@@ -664,6 +707,10 @@ evtWindowRaw
 
 Time range (in ms) of raw spike waveforms, centered at the peak.
 
+Must be an array with 2 elements, the first negative and the second positive.
+For example, if ``evtWindowRaw`` is set to [-1, 1], then 1 ms worth of samples
+are extracted before and after the spiking event.
+
 **Default** is [-0.5, 1.5].
 
 .. _fftThresh:
@@ -673,7 +720,12 @@ fftThresh
 
 (Formerly ``fft_thresh``)
 
-Threshold (in MADs of power-frequency product) above which to remove frequency outliers.
+Threshold (in MADs of power-frequency product) above which to remove frequency outliers
+when :ref:`denoising <denoising>`.
+Frequencies with power-frequency product above this threshold will be zeroed out as noise.
+
+Setting to 0 disables this notch filtering.
+If you choose to enable, the recommended value is 10.
 
 **Default** is 0.
 
@@ -857,7 +909,7 @@ maxClustersSite
 
 (Formerly ``maxCluPerSite``)
 
-Maximum number of cluster centers computed per site (Used if RDDetrendMode is 'local').
+Maximum number of cluster centers computed per site (Used if :ref:`RDDetrendMode` is 'local').
 
 **Default** is 20.
 
@@ -892,7 +944,7 @@ minNeighborsDetect
 
 Minimum number of sample neighbors exceeding threshold for a sample to be considered a peak.
 
-For example, consider a putative peak occurring at sample :math:`t_i`.
+For example, consider a potential peak occurring at sample :math:`t_i`.
 If ``minNeighborsDetect`` is set to 1, then **either** sample :math:`t_{i-1}` or :math:`t_{i+1}`
 must also exceed the detection threshold.
 If ``minNeighborsDetect`` is set to 2, then **both** sample :math:`t_{i-1}` and :math:`t_{i+1}`
@@ -933,7 +985,7 @@ nDiffOrder
 
 (Formerly ``nDiff_filt``)
 
-Order for differentiator filter (Used if and only if filterType is 'sgdiff' or 'ndiff').
+Order for differentiator filter (Used if and only if :ref:`filterType` is 'sgdiff' or 'ndiff').
 
 **Default** is 2.
 
@@ -1244,7 +1296,11 @@ userFiltKernel
 
 (Formerly ``vnFilter_user``)
 
-User-specified filter kernel (Ignored unless filterType is 'user').
+User-specified filter kernel (Ignored unless :ref:`filterType` is 'user').
+
+Your filtered samples will be the output of a convolution of your raw samples
+with this kernel.
+You must specify this if and only if your :ref:`filterType` is ``'user'``.
 
 **Default** is empty.
 

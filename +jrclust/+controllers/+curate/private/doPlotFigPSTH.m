@@ -1,8 +1,5 @@
 function [hFigTrial1, hFigTrial2] = doPlotFigPSTH(hClust, hFigTrial1, hFigTrial2, selected)
-    %doPlotFigPSTH()
-    %   plot if window open using curretnly selected clusters
-    %doPlotFigPSTH(hCfg, iClu, S_clu)
-    %   Open window and plot specific clusters and S_clu
+    %DOPLOTFIGPSTH Plot PSTH figures
     hCfg = hClust.hCfg;
 
     % begin TW block
@@ -91,7 +88,7 @@ function trialTimes = loadTrialFile(trialFile)
             end
         end
     catch ME
-        warning(ME.identifier, 'Could not load trialFile %s: %s', trialFile, ME.message);
+        warning('Could not load trialFile %s: %s', trialFile, ME.message);
     end
 end
 

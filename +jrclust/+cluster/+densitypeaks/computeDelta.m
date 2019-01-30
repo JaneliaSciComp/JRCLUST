@@ -50,7 +50,7 @@ function res = computeDelta(dRes, res, hCfg)
             [siteDelta, siteNN] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, n1, n2, res.rhoCutSite(iSite), deltaCK, hCfg);
             [siteDelta, siteNN] = jrclust.utils.tryGather(siteDelta, siteNN);
         catch ME % can't continue!
-            error(ME.identifier, 'Error at site %d: %s', iSite, ME.message);
+            error('Error at site %d: %s', iSite, ME.message);
         end
 
         res.spikeDelta(spikeData.spikes1) = siteDelta;
@@ -90,7 +90,7 @@ function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, 
 
             return;
         catch ME
-            warning(ME.identifier, 'CUDA kernel failed: %s', ME.message);
+            warning('CUDA kernel failed: %s', ME.message);
         end
     end
 

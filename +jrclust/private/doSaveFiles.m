@@ -5,7 +5,7 @@ function doSaveFiles(res, hCfg)
     end
 
     filename = fullfile(hCfg.outputDir, [hCfg.sessionName '_res.mat']);
-    if isfile(filename) % don't overwrite without explicit permission
+    if exist(filename, 'file') % don't overwrite without explicit permission
         question = sprintf('%s already exists. Overwrite?', filename);
         dlgAns = questdlg(question, 'Confirm overwrite', 'No');
         if isempty(dlgAns) || ismember(dlgAns, {'No', 'Cancel'})

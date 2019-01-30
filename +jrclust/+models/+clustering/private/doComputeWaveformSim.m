@@ -81,7 +81,7 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
                 end
             end
         catch ME
-            warning(ME.identifier, 'computeWaveformSim: parfor failed: %s', ME.messsage);
+            warning('computeWaveformSim: parfor failed: %s', ME.messsage);
             useParfor = 0;
         end
     end

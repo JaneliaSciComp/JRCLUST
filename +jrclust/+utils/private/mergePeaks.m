@@ -26,7 +26,7 @@ function [spikeTimes, spikeAmps, spikeSites] = mergePeaks(spikesBySite, ampsBySi
                 [mergedTimes{iSite}, mergedAmps{iSite}, mergedSites{iSite}] = ...
                     mergeSpikesSite(spikeTimes, spikeAmps, spikeSites, iSite, hCfg);
             catch ME
-                warning(ME.identifier, 'failed to merge spikes on site %d: %s', iSite, ME.message);
+                warning('failed to merge spikes on site %d: %s', iSite, ME.message);
             end
         end
     end

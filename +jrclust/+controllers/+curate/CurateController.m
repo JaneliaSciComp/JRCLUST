@@ -915,7 +915,7 @@ classdef CurateController < handle
             try
                 obj.figApply(@(hFig) hFig.close());
             catch ME
-                warning(ME.identifier, 'Could not close figures: %s', ME.message);
+                warning('Could not close figures: %s', ME.message);
             end
 
             obj.hFigs = containers.Map();

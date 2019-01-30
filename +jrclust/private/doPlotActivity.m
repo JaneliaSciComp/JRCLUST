@@ -48,7 +48,7 @@ function doPlotActivity(hCfg, spikeData)
     hFigActivity.subplotApply('hActivity', 2, @title, 'Right edge sites');
 
     [~, meanSite] = max(mean(amp90, 2));
-    meanSiteNeighbors = meanSite + (-2:2);
+    meanSiteNeighbors = intersect(1:max(meanSite)+2, meanSite + (-2:2));
     amp90Center = amp90(meanSiteNeighbors, :);
     centroid = bsxfun(@rdivide, sum(bsxfun(@times, amp90Center.^2, YLocs(meanSiteNeighbors))), sum(amp90Center.^2));
     if numel(centroid) == 1

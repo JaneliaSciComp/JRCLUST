@@ -124,7 +124,8 @@
                     "nonnegative",
                     "increasing",
                     "numel", 2
-                ]
+                ],
+                "postapply": "@(x) x(:)'"
             },
             "section": ["display"]
         },
@@ -171,6 +172,7 @@
                     "increasing",
                     "numel", 2
                 ],
+                "postapply": "@(x) x(:)'",
                 "postassert": "@(x) diff(x) >= x(2)"
             },
             "section": [
@@ -222,7 +224,8 @@
                     "nonnegative",
                     "increasing",
                     "numel", 2
-                ]
+                ],
+                "postapply": "@(x) x(:)'"
             },
             "section": ["spike detection"]
         },
@@ -431,7 +434,8 @@
                     "real",
                     "positive",
                     "numel", 2
-                ]
+                ],
+                "postapply": "@(x) x(:)'"
             },
             "section": ["probe"]
         },
@@ -446,6 +450,7 @@
                     "increasing",
                     "numel", 2
                 ],
+                "postapply": "@(x) x(:)'",
                 "postassert": "@(x) diff(x) >= x(2)"
             },
             "section": ["trial"]
@@ -671,7 +676,8 @@
                     "nonnegative",
                     "numel", 2,
                     "<=", 1
-                ]
+                ],
+                "postapply": "@(x) x(:)'"
             },
             "section": ["display"]
         },
@@ -789,6 +795,7 @@
                     "increasing",
                     "numel", 2
                 ],
+                "postapply": "@(x) x(:)'",
                 "postassert": "@(x) diff(x) >= x(2)"
             },
             "section": [
@@ -858,6 +865,7 @@
                 "attributes": [
                     "numel", 2
                 ],
+                "postapply": "@(x) x(:)'",
                 "postassert": "@(x) all(cellfun(@(y) numel(y) == 2 && y(1)<y(2) && y(1)>=0, x))"
             },
             "section": ["spike detection"]
@@ -873,7 +881,8 @@
                     "nonnegative",
                     "increasing",
                     "numel", 2
-                ]
+                ],
+                "postapply": "@(x) x(:)'"
             },
             "section": ["spike detection"]
         },
@@ -950,7 +959,7 @@
         "groupShank": {
             "description": "Group all sites on the same shank if true",
             "comment": "",
-            "default_value": true,
+            "default_value": false,
             "validation": {
                 "classes": ["logical", "double"],
                 "attributes": ["scalar"],
@@ -1005,7 +1014,8 @@
                     "nonnegative",
                     "increasing",
                     "numel", 2
-                ]
+                ],
+                "postapply": "@(x) x(:)'"
             },
             "section": ["preprocessing"]
         },
@@ -1031,9 +1041,9 @@
                 "classes": ["numeric"],
                 "attributes": [
                     "scalar",
-                    "integer",
                     "positive"
-                ]
+                ],
+                "postapply": "@(x) floor(x)"
             },
             "section": ["execution"]
         },
@@ -1306,7 +1316,8 @@
                     "increasing",
                     "numel", 2,
                     "<=", 3
-                ]
+                ],
+                "postapply": "@(x) x(:)'"
             },
             "section": ["display"]
         },
@@ -1321,7 +1332,8 @@
                     "nonnegative",
                     "increasing",
                     "numel", 2
-                ]
+                ],
+                "postapply": "@(x) x(:)'"
             },
             "section": ["display"]
         },

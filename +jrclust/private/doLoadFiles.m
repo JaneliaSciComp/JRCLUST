@@ -3,7 +3,7 @@ function res = doLoadFiles(hCfg)
     res = struct();
 
     filename = fullfile(hCfg.outputDir, [hCfg.sessionName '_res.mat']);
-    if ~isfile(filename)
+    if ~exist(filename, 'file')
         warning('%s does not exist', filename);
         return;
     end
@@ -11,7 +11,7 @@ function res = doLoadFiles(hCfg)
     try
         res = load(filename);
     catch ME
-        warning(ME.identifier, 'failed to load %s: %s', ME.message);
+        warning('failed to load %s: %s', ME.message);
         return;
     end
 
@@ -39,14 +39,14 @@ function res = doLoadFiles(hCfg)
             spikeFeatures = [];
         end
 
+        res.spikesRaw = spikesRaw;
+        res.spikesFilt = spikesFilt;
+        res.spikeFeatures = spikeFeatures;
+
         if isfield(res, 'hClust')
             res.hClust.spikesRaw = spikesRaw;
             res.hClust.spikesFilt = spikesFilt;
             res.hClust.spikeFeatures = spikeFeatures;
-        else
-            res.spikesRaw = spikesRaw;
-            res.spikesFilt = spikesFilt;
-            res.spikeFeatures = spikeFeatures;
         end
     end
 end
@@ -54,7 +54,7 @@ end
 %% LOCAL FUNCTIONS
 function binData = loadBin(filename, binShape, dataType)
     %LOADBIN Save traces/features to binary file
-    if isfile(filename)
+    if exist(filename, 'file')
         fid = fopen(filename, 'r');
         binData = fread(fid, Inf, ['*' dataType]);
         fclose(fid);

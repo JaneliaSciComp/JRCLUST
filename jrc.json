@@ -3,9 +3,11 @@
     "version": {
         "major": 4,
         "minor": 0,
-        "release": 0
+        "release": 0,
+        "tag": "alpha",
+        "codename": "Edward"
     },
-    "changeDate": "19 Nov 2018",
+    "changeDate": "30 Jan 2019",
     "authors": [
         "James Jun"
     ],
@@ -20,7 +22,7 @@
         "Tim Wang"
     ],
     "hardwareRequirements": [
-        "32GB RAM",
+        "32GiB RAM",
         "NVIDIA GPU, compute capability 3.5 or later"
     ],
     "softwareRequirements": [
@@ -28,8 +30,6 @@
         "Parallel Computing Toolbox",
         "Image Processing Toolbox",
         "Signal Processing Toolbox",
-        "Statistics and Machine Learning Toolbox",
-        "Microsoft Visual Studio Community 2015",
-        "CUDA 8.0",
+        "Statistics and Machine Learning Toolbox"
     ]
 }

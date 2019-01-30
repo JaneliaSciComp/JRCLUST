@@ -186,8 +186,8 @@ classdef Recording < handle & dynamicprops
     methods
         % hCfg
         function set.hCfg(obj, hc)
-            failMsg = 'hCfg must be an instance of jrclust.Config2';
-            assert(isempty(hc) || isa(hc, 'jrclust.Config2'), failMsg);
+            failMsg = 'hCfg must be an instance of jrclust.Config';
+            assert(isempty(hc) || isa(hc, 'jrclust.Config'), failMsg);
             obj.hCfg = hc;
         end
 

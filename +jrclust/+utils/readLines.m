@@ -1,6 +1,6 @@
 function lines = readLines(filename)
     %READLINES Read the lines of a text file into a cell array
-    assert(isfile(filename), '''%s'' is not a file', filename);
+    assert(exist(filename, 'file') == 2, '''%s'' is not a file', filename);
 
     fid = fopen(filename, 'r');
     lines = textscan(fid, '%s', 'Delimiter', '\n');

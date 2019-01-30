@@ -75,5 +75,6 @@ function [spikeSites] = groupByShank(spikeSites, hCfg)
     % remap
     [~, ia, ic] = unique(hCfg.shankMap);
     site2site(hCfg.siteMap) = ia(ic);
+    site2site = site2site(site2site > 0);
     spikeSites = site2site(spikeSites);
 end

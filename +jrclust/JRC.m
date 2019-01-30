@@ -195,8 +195,8 @@ classdef JRC < handle & dynamicprops
                     probeFile = obj.args{1};
                     
                     if endsWith(probeFile, '.prm')
-                        hCfg_ = jrclust.Config2(probeFile);
-                        doPlotProbe(hCfg_.probeFile);
+                        hCfg_ = jrclust.Config(probeFile);
+                        doPlotProbe(hCfg_);
                     else % not a config file
                         probeFile_ = jrclust.utils.absPath(probeFile, fullfile(jrclust.utils.basedir(), 'probes'));
                         if isempty(probeFile_)
@@ -205,14 +205,15 @@ classdef JRC < handle & dynamicprops
                             return;
                         end
 
-                        doPlotProbe(probeFile_);
+                        probeData = doLoadProbe(probeFile_);
+                        doPlotProbe(probeData);
                     end
 
                     obj.isCompleted = 1;
                     return;
 
                 case 'preview'
-                    hCfg_ = jrclust.Config2(obj.args{1});
+                    hCfg_ = jrclust.Config(obj.args{1});
                     hPreview = jrclust.controllers.curate.PreviewController(hCfg_);
                     hPreview.preview();
 
@@ -221,7 +222,7 @@ classdef JRC < handle & dynamicprops
 
                     
                 case 'traces'
-                    hCfg_ = jrclust.Config2(obj.args{1});
+                    hCfg_ = jrclust.Config(obj.args{1});
                     hTraces = jrclust.controllers.curate.TracesController(hCfg_);
                     if numel(obj.args) > 1
                         recID = str2double(obj.args{2});
@@ -275,7 +276,7 @@ classdef JRC < handle & dynamicprops
 
             % load parameter file
             configFile = obj.args{1};
-            obj.hCfg = jrclust.Config2(configFile);
+            obj.hCfg = jrclust.Config(configFile);
         end
     end
 

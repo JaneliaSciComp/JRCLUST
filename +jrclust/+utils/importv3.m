@@ -22,7 +22,7 @@ function hClust = importv3(filename)
         return;
     end
 
-    hCfg = jrclust.Config2(prmFile);
+    hCfg = jrclust.Config(prmFile);
 
     % construct dRes
     dRes = struct();
@@ -68,7 +68,7 @@ function hClust = importv3(filename)
         dRes.spikesRaw = reshape(dRes.spikesRaw, S0.dimm_raw);
         fclose(fid);
     catch ME
-        warning(ME.identifier, 'spikesRaw not imported: %s', ME.message);
+        warning('spikesRaw not imported: %s', ME.message);
     end
 
     try
@@ -77,7 +77,7 @@ function hClust = importv3(filename)
         dRes.spikesFilt = reshape(dRes.spikesFilt, S0.dimm_spk);
         fclose(fid);
     catch ME
-        warning(ME.identifier, 'spikesFilt not imported: %s', ME.message);
+        warning('spikesFilt not imported: %s', ME.message);
     end
 
     try
@@ -86,7 +86,7 @@ function hClust = importv3(filename)
         dRes.spikeFeatures = reshape(dRes.spikeFeatures, S0.dimm_fet);
         fclose(fid);
     catch ME
-        warning(ME.identifier, 'spikeFeatures not imported: %s', ME.message);
+        warning('spikeFeatures not imported: %s', ME.message);
     end
 
     % construct sRes

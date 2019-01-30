@@ -88,7 +88,7 @@ function rho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, rhoCut, rhoCK, h
 
             return;
         catch ME
-            warning(ME.identifier, 'CUDA kernel failed: %s', ME.message);
+            warning('CUDA kernel failed: %s', ME.message);
         end
     end
 

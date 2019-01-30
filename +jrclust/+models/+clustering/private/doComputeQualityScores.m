@@ -25,7 +25,7 @@ function scores = doComputeQualityScores(hClust, updateMe)
         nSitesOverThresh_ = sum(bsxfun(@lt, unitVmin, - siteRMS_*hClust.hCfg.qqFactor), 1)';
     catch ME
         [siteRMS_, unitSNR_, nSitesOverThresh_] = deal([]);
-        warning(ME.identifier, 'RMS, SNR, nSitesOverThresh not set: %s', ME.message);
+        warning('RMS, SNR, nSitesOverThresh not set: %s', ME.message);
     end
 
     % compute unitIsoDist_, unitLRatio_, unitISIRatio_

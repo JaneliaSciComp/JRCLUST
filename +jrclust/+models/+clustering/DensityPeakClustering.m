@@ -51,7 +51,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
     properties (SetAccess=private, SetObservable)
         clusterCenters;     % cluster centers
         clusterCentroids;   % centroids of clusters on the probe
-        unitCount;      % number of spikes per cluster
+        unitCount;          % number of spikes per cluster
         clusterNotes;       % notes on clusters
         clusterSites;       % site on which spikes in this cluster most often occur
         editPos;            % current position in edit history
@@ -423,7 +423,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 try
                     obj.hCfg.setTemporaryParams('maxUnitSim', maxUnitSim);
                 catch ME
-                    warning(ME.identifier, 'autoMerge aborted: %s', ME.message);
+                    warning('autoMerge aborted: %s', ME.message);
                     return;
                 end
             end
@@ -812,7 +812,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 fprintf(fid, 'spikeTimes,spikeClusters,spikeSites\n');
                 fclose(fid);
             catch ME
-                warning(ME.identifier, 'Failed to export: %s', ME.message);
+                warning('Failed to export: %s', ME.message);
                 success = 0;
                 return;
             end
@@ -858,7 +858,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 table_ = table(ID, SNR, centerSite, nSpikes, xPos, yPos, uVmin, uVpp, IsoDist, LRatio, ISIRatio, note);
                 writetable(table_, filename);
             catch ME
-                warning(ME.identifier, 'Failed to export: %s', ME.message);
+                warning('Failed to export: %s', ME.message);
                 success = 0;
                 return;
             end
@@ -1435,8 +1435,8 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
         % hCfg
         function set.hCfg(obj, hc)
-            failMsg = 'hCfg must be an object of type jrclust.Config2';
-            assert(isa(hc, 'jrclust.Config2'), failMsg);
+            failMsg = 'hCfg must be an object of type jrclust.Config';
+            assert(isa(hc, 'jrclust.Config'), failMsg);
             obj.hCfg = hc;
         end
 

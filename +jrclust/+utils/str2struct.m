@@ -27,7 +27,7 @@ function S = str2struct(strval)
 
             eval(sprintf('S = setfield(S, ''%s'', %s);', fn, fn));
         catch ME
-            warning(ME.identifier, 'str2struct failed: %s', ME.message);
+            warning('str2struct failed: %s', ME.message);
             S = [];
             return;
         end

@@ -85,7 +85,7 @@ function hCfg = doBootstrap(varargin)
     end
 
     % construct the Config object from specified data
-    hCfg = jrclust.Config2(cfgData);
+    hCfg = jrclust.Config(cfgData);
 
     while 1
         % confirm with the user
@@ -183,21 +183,14 @@ end
 
 %% LOCAL FUNCTIONS
 function hCfg = bootstrapGUI() % WIP
-    %BOOTSTRAPGUI Show all (common) parameters 
+    %BOOTSTRAPGUI Show all (common) parameters
     % load old2new param set and convert to new2old
-    fid = fopen(fullfile(jrclust.utils.basedir(), 'old2new.json', 'r'));
-    old2new = jsondecode(fread(fid, Inf, '*char'));
-    fclose(fid);
-    new2old = struct();
-    fns = fieldnames(old2new);
-    for i = 1:numel(fns)
-        new2old.(old2new.(fns{i})) = old2new.(fns{i});
-    end
+    [old2new, new2old] = jrclust.utils.getOldParamMapping();
 
     % build the bootstrap GUI
     hBootstrap = uicontainer();
     hRecData = uipanel('Parent', hBootstrap, 'Title', 'Recording file', 'Position', [0, 0.75, 0.25, 0.25]);
     hProbe = uipanel('Parent', hBootstrap, 'Title', 'Probe parameters', 'Position', [0.25, 0.75, 0.25, 0.25]);
 
-    
+
 end

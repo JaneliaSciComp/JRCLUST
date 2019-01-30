@@ -19,6 +19,7 @@ The original JRCLUST paper by Jun, et al., may be found on the `bioRxiv <https:/
    usage/index
    pipeline/index
    parameters/index
+   dev/index
 
 
 .. Indices and tables
