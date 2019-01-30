@@ -225,7 +225,7 @@ classdef Config < dynamicprops
             obj.ignoreSites = obj.ignoreSites(ismember(obj.siteMap, obj.ignoreSites));
 
             % nSiteDir and/or nSitesExcl may not have been specified
-            if xor(isempty(obj.nSiteDir), isempty(obj.nSitesExcl))
+            if isempty(obj.nSiteDir) || isempty(obj.nSitesExcl)
                 siteDists = pdist2(obj.siteLoc, obj.siteLoc);
 
                 % max over all sites of number of neighbors in merge radius

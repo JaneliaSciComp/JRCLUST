@@ -32,22 +32,33 @@ function doSaveFiles(res, hCfg)
     end
 
     % save everything else
+    if isfield(res, 'hClust') && ~isempty(res.hClust.spikesRaw)
+        doRestore = 1;
+        spikesRaw = res.hClust.spikesRaw;
+        res.hClust.spikesRaw = [];
+        spikesFilt = res.hClust.spikesFilt;
+        res.hClust.spikesFilt = [];
+        spikeFeatures = res.hClust.spikeFeatures;
+        res.hClust.spikeFeatures = [];
+    else
+        doRestore = 0;
+    end
+
     jrclust.utils.saveStruct(res, filename);
     if hCfg.verbose
         fprintf('Saved results to %s\n', filename);
+    end
+
+    if doRestore
+        res.hClust.spikesRaw = spikesRaw;
+        res.hClust.spikesFilt = spikesFilt;
+        res.hClust.spikeFeatures = spikeFeatures;
     end
 end
 
 %% LOCAL FUNCTIONS
 function res = saveBin(res, binField, tag, hCfg)
     %SAVEBIN Save traces/features to binary file
-    if isfield(res, 'hClust') && ~isempty(res.hClust.(binField))
-        if ~isfield(res, binField)
-            res.(binField) = res.hClust.(binField);
-        end
-        res.hClust.(binField) = [];
-    end
-
     if isfield(res, binField)
         binFile = fullfile(hCfg.outputDir, [hCfg.sessionName '_', tag, '.jrc']);
         fid = fopen(binFile, 'w');
