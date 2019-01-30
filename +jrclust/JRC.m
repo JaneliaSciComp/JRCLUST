@@ -198,6 +198,11 @@ classdef JRC < handle & dynamicprops
                         hCfg_ = jrclust.Config(probeFile);
                         doPlotProbe(hCfg_);
                     else % not a config file
+                        [~, ~, ext] = fileparts(probeFile);
+                        if isempty(ext) % a convenience for a forgetful mind
+                            probeFile = [probeFile '.prb'];
+                        end
+
                         probeFile_ = jrclust.utils.absPath(probeFile, fullfile(jrclust.utils.basedir(), 'probes'));
                         if isempty(probeFile_)
                             obj.errMsg = sprintf('Could not find probe file: %s', probeFile);

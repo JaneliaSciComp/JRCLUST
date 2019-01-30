@@ -9,7 +9,7 @@ function hJRC_ = jrc(varargin)
     end
 
     if nargin < 1
-        disp(jrclust.utils.help); % later: GUI
+        disp(jrclust.utils.help()); % later: GUI
         return;
     end
 
