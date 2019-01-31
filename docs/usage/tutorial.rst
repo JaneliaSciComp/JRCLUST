@@ -101,7 +101,7 @@ Once you are satisfied, JRCLUST will open up your parameter file for editing:
 You should end up with a parameter file that looks something like this
 (see the :ref:`parameters page <parameters>` for details):
 
-.. literalinclude:: ../../../default.prm
+.. literalinclude:: ../../default.prm
    :language: matlab
 
 Look over your parameters and ensure they are satisfactory.
