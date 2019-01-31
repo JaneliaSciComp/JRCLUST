@@ -244,8 +244,8 @@ classdef JRC < handle & dynamicprops
             end
 
             % command sentinel
-            detectCmds = {'detect', 'spikesort', 'full'};
-            sortCmds   = {'sort', 'spikesort', 'full'};
+            detectCmds = {'detect', 'detect-sort', 'full'};
+            sortCmds   = {'sort', 'detect-sort', 'full'};
             curateCmds = {'manual', 'full'};
             miscCmds = {'activity', 'auto'};
 
