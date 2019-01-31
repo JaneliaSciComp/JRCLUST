@@ -15,6 +15,7 @@ classdef CurateController < handle
         hFigs;          % containers.Map of Figure objects
         hMenus;         % containers.Map of Menu handles
         isEnding;       % to prevent double prompting when endSession is called
+        isWorking;      % to prevent keypress/mouseclick functions from colliding
         maxAmp;         % scaling factor for 
         projSites;      % current sites in FigProj
         selected;       % selected clusters, in order of selection
@@ -26,6 +27,8 @@ classdef CurateController < handle
             obj.hClust = hClust;
             obj.hFigs = containers.Map();
             obj.hMenus = containers.Map();
+            obj.isEnding = 0;
+            obj.isWorking = 0;
             obj.currentSite = [];
             obj.maxAmp = [];
             obj.selected = [];
@@ -42,6 +45,10 @@ classdef CurateController < handle
     methods (Hidden)
         function keyPressFigSim(obj, hObject, hEvent) %#ok<*INUSL>
             %KEYPRESSFIGSIM Handle callbacks for keys pressed in sim view
+            if obj.isWorking
+                return;
+            end
+
             hFigSim = obj.hFigs('FigSim');
 
             switch hEvent.Key
@@ -76,6 +83,10 @@ classdef CurateController < handle
 
         function keyPressFigProj(obj, hObject, hEvent)
             %KEYPRESSFIGPROJ Handle callbacks for keys pressed in feature view
+            if obj.isWorking
+                return;
+            end
+
             hFigProj = obj.hFigs('FigProj');
             factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
 
@@ -162,6 +173,10 @@ classdef CurateController < handle
 
         function keyPressFigTime(obj, hObject, hEvent)
             %KEYPRESSFIGTIME Handle callbacks for keys pressed in time view
+            if obj.isWorking
+                return;
+            end
+
             hFigTime = obj.hFigs('FigTime');
             factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
 
@@ -209,7 +224,11 @@ classdef CurateController < handle
                         iCluster = obj.selected(1);
 
                         hFigTime.addPlot('hPoly', @impoly)
-                        polyPos = hFigTime.plotApply('hPoly', @getPosition);
+                        try
+                            polyPos = hFigTime.plotApply('hPoly', @getPosition);
+                        catch ME
+                            return;
+                        end
 
                         XData = hFigTime.plotApply('foreground', @get, 'XData');
                         YData = hFigTime.plotApply('foreground', @get, 'YData');
@@ -233,6 +252,10 @@ classdef CurateController < handle
 
         function keyPressFigWav(obj, hObject, hEvent)
             %KEYPRESSFIGWAV Handle callbacks for keys pressed in main view
+            if obj.isWorking
+                return;
+            end
+
             hFigWav = obj.hFigs('FigWav');
             factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
             nSites = obj.hCfg.nSites;
@@ -345,6 +368,10 @@ classdef CurateController < handle
 
         function mouseClickFigSim(obj, xyPos, clickType)
             %MOUSECLICKFIGSIM Handle callbacks for mouse clicks in sim view
+            if obj.isWorking
+                return;
+            end
+
             xyPos = max(round(xyPos), [1 1]);
             if strcmp(clickType, 'normal') % left click
                 obj.updateSelect(xyPos);
@@ -353,6 +380,10 @@ classdef CurateController < handle
 
         function mouseClickFigWav(obj, xyPos, clickType)
             %MOUSECLICKFIGWAV Handle callbacks for mouse clicks in main view
+            if obj.isWorking
+                return;
+            end
+
             iCluster = round(xyPos(1)); % floor of x position
             if iCluster < 1 || iCluster > obj.hClust.nClusters
                 return;
@@ -494,7 +525,9 @@ classdef CurateController < handle
                 return;
             end
 
-            doPlotFigMap(obj.hFigs('FigMap'), obj.hClust, obj.hCfg, obj.selected);
+            hFigMap = obj.hFigs('FigMap');
+            doPlotFigMap(hFigMap, obj.hClust, obj.hCfg, obj.selected);
+            hFigMap.setMouseable();
         end
 
         function updateFigPos(obj)
@@ -503,7 +536,9 @@ classdef CurateController < handle
                 return;
             end
 
-            doPlotFigPos(obj.hFigs('FigPos'), obj.hClust, obj.hCfg, obj.selected, obj.maxAmp);
+            hFigPos = obj.hFigs('FigPos');
+            doPlotFigPos(hFigPos, obj.hClust, obj.hCfg, obj.selected, obj.maxAmp);
+            hFigPos.setMouseable();
         end
 
         function updateFigProj(obj, doAutoscale)
@@ -662,6 +697,11 @@ classdef CurateController < handle
 
         function annotateUnit(obj, note, doConfirm)
             %ANNOTATEUNIT Add a note to a cluster
+            if obj.isWorking
+                return;
+            end
+            obj.isWorking = 1;
+
             iCluster = obj.selected(1);
 
             if nargin < 2
@@ -675,6 +715,7 @@ classdef CurateController < handle
                 note = sprintf('=%d', obj.selected(2));
             elseif ~isempty(note) && strcmp(note, '=')
                 msgbox('Right-click another unit to set equal to selected unit');
+                obj.isWorking = 0;
                 return;
             end
 
@@ -688,10 +729,16 @@ classdef CurateController < handle
             end
 
             obj.updateMenu();
+            obj.isWorking = 0;
         end
 
         function autoDelete(obj)
             %AUTODELETE Automatically delete clusters by SNR/spike count
+            if obj.isWorking
+                return;
+            end
+            obj.isWorking = 1;
+
             hFigDelete = jrclust.views.Figure('', [.5 .7 .35 .3], ['Delete Auto: ', obj.hCfg.sessionName], 0, 0);
 
             hFigDelete.addPlot('hPlotSNR', obj.hClust.unitSNR(:), obj.hClust.unitCount(:), '.'); % show cluster SNR and spike count
@@ -733,11 +780,17 @@ classdef CurateController < handle
             jrclust.utils.qMsgBox(sprintf('Deleted %d units <%0.1f SNR or <%d spikes/unit.', numel(deleteMe), snrMin, minCount));
             % TODO: add a note in hClust.history to this effect
             % save_log_(sprintf('delete-auto <%0.1f SNR or <%d spikes/unit', snrMin, minCount), S0);
+            obj.isWorking = 0;
         end
 
         function autoMerge(obj)
             %AUTOMERGE
             % snr_thresh = inputdlgNum('SNR threshold: ', 'Auto-deletion based on SNR', 10); % also ask about # spikes/unit (or firing rate) @TODO
+            if obj.isWorking
+                return;
+            end
+            obj.isWorking = 1;
+
             dlgAns = inputdlg('Waveform correlation threshold (0-1):', 'Auto-merge based on waveform threshold', 1, {num2str(obj.hCfg.maxUnitSim)});
 
             % parse user input
@@ -777,10 +830,17 @@ classdef CurateController < handle
                 hFigWav = obj.hFigs('FigWav');
                 hFigWav.wait(0);
             end
+
+            obj.isWorking = 0;
         end
 
         function autoSplit(obj, fMultisite)
             %AUTOSPLIT
+            if obj.isWorking
+                return;
+            end
+            obj.isWorking = 1;
+
             if numel(obj.selected) > 1
                 return;
             end
@@ -821,7 +881,6 @@ classdef CurateController < handle
             jrclust.utils.tryClose(hBox);
 
             while 1
-
                 splitOff = ~retained;
                 % plot PC2 vs. PC1
                 hFigSplit.subplotApply('pcPlots', 1, @plot, ...
@@ -901,6 +960,7 @@ classdef CurateController < handle
             end
             hFigSplit.close();
 
+            obj.isWorking = 0;
             obj.splitCluster(iCluster, retained);
         end
 
@@ -931,6 +991,11 @@ classdef CurateController < handle
 
         function deleteClusters(obj, deleteMe)
             %DELETECLUSTERS Delete clusters either specified or selected
+            if obj.isWorking
+                return;
+            end
+            obj.isWorking = 1;
+
             if nargin < 2 && numel(obj.selected) > 1
                 return;
             elseif nargin < 2
@@ -954,6 +1019,8 @@ classdef CurateController < handle
                     obj.updateSelect(obj.selected);
                 end
             end
+
+            obj.isWorking = 0;
         end
 
         function exportFiringRate(obj)
@@ -1027,6 +1094,11 @@ classdef CurateController < handle
 
         function mergeSelected(obj)
             %MERGESELECTED Merge a pair of clusters
+            if obj.isWorking
+                return;
+            end
+            obj.isWorking = 1;
+
             if numel(obj.selected) < 2
                 return;
             end
@@ -1045,6 +1117,8 @@ classdef CurateController < handle
                 obj.updateFigSim();
                 obj.updateSelect(min(obj.selected));
             end
+
+            obj.isWorking = 0;
         end
 
         function plotAuxRate(obj, fSelected)
@@ -1082,9 +1156,9 @@ classdef CurateController < handle
             if obj.hasFig('FigSim')
                 % set key and mouse handles
                 hFigSim = obj.hFigs('FigSim');
+                obj.updateFigSim();
                 hFigSim.hFunKey = @obj.keyPressFigSim;
                 hFigSim.setMouseable(@obj.mouseClickFigSim);
-                obj.updateFigSim();
             end
 
             % plot feature projection
@@ -1139,6 +1213,11 @@ classdef CurateController < handle
 
         function splitCluster(obj, iCluster, retained)
             %SPLITCLUSTER Split off a cluster given retained spikes
+            if obj.isWorking
+                return;
+            end
+            obj.isWorking = 1;
+
             iSpikes = obj.hClust.spikesByCluster{iCluster};
 
             [success, retained] = obj.hClust.splitCluster(iCluster, iSpikes(retained));
@@ -1153,6 +1232,8 @@ classdef CurateController < handle
                 obj.updateFigSim();
                 obj.updateSelect([iCluster, iCluster + 1]);
             end
+
+            obj.isWorking = 0;
         end
 
         function toggleRaw(obj, hMenu)

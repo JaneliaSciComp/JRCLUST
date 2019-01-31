@@ -736,7 +736,7 @@ If you choose to enable, the recommended value is 10.
 .. _figList:
 
 figList
-^^^^^^^^^^^
+^^^^^^^
 
 List of tags of figures to display in feature view.
 

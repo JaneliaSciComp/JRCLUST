@@ -2,7 +2,7 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
     %COMPWFSIM Compute waveform-based similarity scores for all clusters
     % these guys are not in the default param set, but can be overridden if you really want
     fUsePeak2 = hClust.hCfg.getOr('fUsePeak2', 0);
-    fWaveform_raw = hClust.hCfg.getOr('fWavRaw_merge', 1); % revert TW: get_set_(P, 'fWavRaw_merge', 0);
+    fWaveform_raw = hClust.hCfg.getOr('fWavRaw_merge', 0); % TW
     fZeroStart_raw = hClust.hCfg.getOr('fZeroStart_raw', 0);
     fRankCorr_merge = hClust.hCfg.getOr('fRankCorr_merge', 0);
     fMode_cor = hClust.hCfg.getOr('fMode_cor', 1); % 0: Pearson, 1: non mean-subtracted Pearson
@@ -55,7 +55,7 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
                       'cviShift2', {cviShift2}, ...
                       'fMode_cor', fMode_cor);
     if isempty(updateMe)
-        useParfor = 1;
+        useParfor = 0;
         scoreData.updateMe = true(hClust.nClusters, 1);
         scoreData.simScoreOld = [];
     else
@@ -65,7 +65,7 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
         scoreData.simScoreOld = hClust.simScore;
         scoreData.updateMe((1:hClust.nClusters) > size(scoreData.simScoreOld, 1)) = 1;
     end
-                    
+
     if useParfor
         % avoid sending the entire hCfg object out to workers
         cfgSub = struct('siteNeighbors', hClust.hCfg.siteNeighbors, ...
@@ -176,7 +176,7 @@ function corScores = clusterWaveformSim(meanWfSet, clusterSites, hCfg, scoreData
                 jWaveforms_ = cellfun(@(x) x(:, ijOverlap, j), jWaveforms, 'UniformOutput', 0);
             end
 
-            if strcmp(hCfg.autoMergeBy, 'xcorr')
+            if strcmp(hCfg.autoMergeBy, 'pearson')
                 corScores(jCluster) = maxCorPearson(iWaveforms_, jWaveforms_, cviShift1, cviShift2, fMode_cor);
             else % dist
                 corScores(jCluster) = minNormDist(iWaveforms_, jWaveforms_);

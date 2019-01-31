@@ -7,6 +7,8 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
 
     if ~hFigPos.hasAxes('default')
         hFigPos.addAxes('default');
+    else
+        hFigPos.axApply('default', @cla);
     end
 
     plotPosUnit(c1Data, hFigPos, hCfg, 0, maxAmp);
@@ -72,7 +74,7 @@ function plotPosUnit(cData, hFigPos, hCfg, fSecondary, maxAmp)
 
         YData = bsxfun(@plus, YData, siteYData');
         XData = bsxfun(@plus, repmat(XBase, [1, size(YData, 2)]), siteXData');
-        hFigPos.addPlot(sprintf('neighbor%d', iWav), @line, XData(:), YData(:), ...
+        hFigPos.addPlot(sprintf('neighbor%d%d', double(fSecondary) + 1, iWav), @line, XData(:), YData(:), ...
                         'Color', cmap, 'LineWidth', lineWidth);
     end
 

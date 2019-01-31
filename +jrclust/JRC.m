@@ -22,7 +22,7 @@ classdef JRC < handle & dynamicprops
     % most general data from detection step
     properties (Dependent)
         spikeTimes;     %
-        spikeSites;     % 
+        spikeSites;     %
     end
 
     % data from clustering step
@@ -147,7 +147,7 @@ classdef JRC < handle & dynamicprops
                     obj.cmd = 'full';
                     imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
                     jrclust.utils.depWarn(obj.cmd, imsg);
-                
+
                 case 'plot-activity'
                     obj.cmd = 'activity';
                     imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
@@ -193,7 +193,7 @@ classdef JRC < handle & dynamicprops
                     end
 
                     probeFile = obj.args{1};
-                    
+
                     if endsWith(probeFile, '.prm')
                         hCfg_ = jrclust.Config(probeFile);
                         doPlotProbe(hCfg_);
@@ -225,7 +225,7 @@ classdef JRC < handle & dynamicprops
                     obj.isCompleted = 1;
                     return;
 
-                    
+
                 case 'traces'
                     hCfg_ = jrclust.Config(obj.args{1});
                     hTraces = jrclust.controllers.curate.TracesController(hCfg_);
@@ -240,7 +240,7 @@ classdef JRC < handle & dynamicprops
                     hTraces.show(recID, 0, obj.hClust);
 
                     obj.isCompleted = 1;
-                    return;                    
+                    return;
             end
 
             % command sentinel
@@ -372,7 +372,7 @@ classdef JRC < handle & dynamicprops
                     fprintf('Using previously-clustered spikes\n');
                 end
                 if ~isempty(obj.res) && isfield(obj.res, 'curatedOn')
-                    fprintf('Last manually edit on %s\n', datestr(obj.res.curatedOn));
+                    fprintf('Last manually edited on %s\n', datestr(obj.res.curatedOn));
                 end
             end
 
@@ -479,6 +479,9 @@ classdef JRC < handle & dynamicprops
             end
 
             res = doLoadFiles(obj.hCfg);
+            if isfield(res, 'hClust')
+                res.hClust.hCfg = obj.hCfg;
+            end
         end
     end
 
@@ -526,4 +529,3 @@ classdef JRC < handle & dynamicprops
         end
     end
 end
-

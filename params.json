@@ -653,7 +653,7 @@
         "colorMap": {
             "description": "RGB color map for background, primary selected, and secondary selected spikes",
             "comment": "The first three values are the R values, the next three are the G values, and the last three are the B values.",
-            "default_value": [0.83203, 0, 0.9375, 0.85547, 0.50781, 0.46484, 0.91797, 0.76563, 0.085938],
+            "default_value": [0.5, 0, 1, 0.5, 0, 0, 0.5, 0, 0],
             "validation": {
                 "classes": ["numeric"],
                 "attributes": [
@@ -1164,7 +1164,7 @@
         "nPassesMerge": {
             "description": "Number of times to repeat automatic waveform-based merging",
             "comment": "",
-            "default_value": [],
+            "default_value": 10,
             "validation": {
                 "classes": ["numeric"],
                 "attributes": [

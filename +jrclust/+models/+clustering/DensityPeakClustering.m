@@ -419,7 +419,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 return;
             end
 
-            if nargin == 2
+            if nargin > 1
                 try
                     obj.hCfg.setTemporaryParams('maxUnitSim', maxUnitSim);
                 catch ME
@@ -726,10 +726,6 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                     break;
                 end
             end
-
-            if nargin == 2 && ~isempty(maxUnitSim) % restore old maxUnitSim
-                obj.hCfg.maxUnitSim = mwcOld;
-            end
         end
 
         function editSeek(obj, seekTo)
@@ -958,6 +954,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
             clustersBak = obj.spikeClusters;
             obj.spikeClusters(obj.spikeClusters == jCluster) = iCluster;
+            obj.nClusters = obj.nClusters + 1; % this is a hack
 
             % take the denser of the two centers, using delta as tiebreaker
             iCenter = obj.clusterCenters(iCluster);

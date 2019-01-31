@@ -9,8 +9,7 @@ function hFigMap = doPlotFigMap(hFigMap, hClust, hCfg, selected)
         [XData, YData] = getPadCoordinates(hCfg);
         hFigMap.addPlot('hPatch', @patch, XData, YData, vpp, 'EdgeColor', 'k', 'FaceColor', 'flat');
         hFigMap.axApply('default', @axis, [min(XData(:)), max(XData(:)), min(YData(:)), max(YData(:))]);
-        % colormap jet;
-        hFigMap.setMouseable();
+        hFigMap.axApply('default', @colormap, 'hot');
         hFigMap.addPlot('hText', @text, hCfg.siteLoc(:, 1), hCfg.siteLoc(:, 2), ...
                         arrayfun(@(i) num2str(i), 1:hCfg.nSites, 'UniformOutput', 0), ...
                         'VerticalAlignment', 'bottom', ...

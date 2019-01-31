@@ -1,6 +1,5 @@
 function [clusterMean, siteNeighbors, clusterMeanLow, clusterMeanHigh] = getClusterMean(hClust, spikeWindows, iCluster)
     %GETCLUSTERMEAN Get mean cluster waveform, optionally low and high
-
     [clusterMean, clusterMeanLow, clusterMeanHigh] = deal([]);
     iSite = hClust.clusterSites(iCluster);
     siteNeighbors = hClust.hCfg.siteNeighbors(:, iSite);

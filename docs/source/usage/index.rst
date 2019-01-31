@@ -102,6 +102,8 @@ Preview commands
    If you have multiple recordings, you may specify the index of the file to display from.
 -  ``jrc activity myparams.prm``: Plot firing rate as a function of time and depth.
 
+.. _missing-commands:
+
 Missing commands
 ~~~~~~~~~~~~~~~~
 

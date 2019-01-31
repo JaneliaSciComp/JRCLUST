@@ -1,4 +1,4 @@
-.. _sort-step:
+.. _pipeline-sort:
 
 Spike clustering
 ================

@@ -22,27 +22,27 @@ function hFigCorr = doPlotFigCorr(hFigCorr, hClust, hCfg, selected)
     jTimes = int32(double(hClust.spikeTimes(hClust.spikesByCluster{jCluster}))/jitterSamp);
 
     % count agreements of jTimes + lag with iTimes
-    lag = -nLags:nLags;
-    intCount = zeros(size(lag));
-    for iLag = 1:numel(lag)
-        if iCluster == jCluster && lag(iLag)==0
+    lagSamp = -nLags:nLags;
+    intCount = zeros(size(lagSamp));
+    for iLag = 1:numel(lagSamp)
+        if iCluster == jCluster && lagSamp(iLag)==0
             continue;
         end
-        intCount(iLag) = numel(intersect(iTimes, jTimes + lag(iLag)));
+        intCount(iLag) = numel(intersect(iTimes, jTimes + lagSamp(iLag)));
     end
 
-    timeLag = lag*jitterMs;
+    lagTime = lagSamp*jitterMs;
 
     % draw the plot
     if ~hFigCorr.hasAxes('default')
         hFigCorr.addAxes('default');
-        hFigCorr.addPlot('hBar', @bar, timeLag, intCount, 1);
+        hFigCorr.addPlot('hBar', @bar, lagTime, intCount, 1);
         hFigCorr.axApply('default', @xlabel, 'Time (ms)');
         hFigCorr.axApply('default', @ylabel, 'Counts');
         hFigCorr.axApply('default', @grid, 'on');
         hFigCorr.axApply('default', @set, 'YScale', 'log');
     else
-        hFigCorr.updatePlot('hBar', timeLag, intCount);
+        hFigCorr.updatePlot('hBar', lagTime, intCount);
         %set(hFigCorr.figData.hBar, 'XData', timeLag, 'YData', intCount);
     end
 

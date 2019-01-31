@@ -1,4 +1,4 @@
-.. _detect-step:
+.. _pipeline-detect:
 
 Spike detection
 ===============

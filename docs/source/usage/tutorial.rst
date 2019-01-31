@@ -221,7 +221,7 @@ Depending on your choice of parameters, you should see something like the follow
 
 Your detection results will be exported to the workspace in the form of a struct called ``res`` for inspection.
 See :ref:`io-files` for a description of the contents.
-For a detailed description of the detect step, see :ref:`detect-step`.
+For a detailed description of the detect step, see :ref:`pipeline-detect`.
 
 .. image:: /.static/detect.PNG
 
@@ -272,10 +272,24 @@ You should see something like the following output:
    Saved spikeFeatures to F:\Tests\JRCLUST\single\test_features.jrc
    Saved results to F:\Tests\JRCLUST\single\test_res.mat
 
-JRCLUST will tell you when your spikes were detected and perform :ref:`clustering <sort-step>` and postprocessing.
+JRCLUST will tell you when your spikes were detected and perform :ref:`clustering <pipeline-sort>` and postprocessing.
 As in the :ref:`detect step <tut-detect>`, JRCLUST will export the results structure to the workspace for inspection.
 
 Curating your clustering
 ------------------------
 
 You will now want to inspect the results of your clustering.
+Do this with
+
+.. code-block:: matlab
+
+   jrc manual /path/to/your/configfile.prm
+
+You will be greeted with the following screen:
+
+.. image:: /.static/curate-main.PNG
+
+Each of these figures contains a different view onto the data.
+Here you will be able to annotate, delete, merge, or split clusters.
+For a description of what each figure does and how to perform these operations, see the :ref:`pipeline-curate` section.
+When you are satisfied with your clustering, you may save and exit.
