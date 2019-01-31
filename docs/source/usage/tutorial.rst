@@ -155,3 +155,127 @@ You can also plot the `power spectral density <https://en.wikipedia.org/wiki/Spe
 You may select a single site or show the mean power vs. frequency as shown below:
 
 .. image:: /.static/plot-psd.PNG
+
+The preview GUI
+---------------
+
+A more advanced view on your raw traces is the preview GUI.
+Invoke it like so:
+
+.. code-block:: matlab
+
+   jrc preview /path/to/your/configfile.prm
+
+This will take a look at your recording and do some preliminary spike detection with the parameters you've specified.
+(Spikes are circled in red below).
+You can view the maximum site-to-site correlation and set a threshold for bad sites (i.e., :ref:`sites to ignore <ignoreSites>`) if they come below that threshold.
+In the figure below, site 46 is poorly correlated with the other sites, so you might choose to ignore it.
+You can also view the common average across sites at each time step, expressed in units of MAD, to set a :ref:`threshold <blankThresh>` for blanking out that period.
+There are many other parameters to set from the preview GUI.
+Take some time to explore these in the Edit menu, and see the effects they have by changing views in the View menu.
+(You can see the :ref:`manual page <man-preview>` for details.)
+Once you are satisfied with these parameters, you can select "Save to [your parameter file here]" from the File menu and start to detect spikes.
+
+.. image:: /.static/plot-preview.PNG
+
+.. _tut-detect:
+
+Detecting spikes
+----------------
+
+Now it's time to detect spikes in your file.
+This can be done with
+
+.. code-block:: matlab
+
+   jrc detect /path/to/your/configfile.prm
+
+If you want to cluster your spikes immediately afterward, use
+
+.. code-block:: matlab
+
+   jrc detect-sort /path/to/your/configfile.prm
+
+instead.
+
+Depending on your choice of parameters, you should see something like the following output:
+
+.. code-block:: matlab
+
+   >> jrc detect test.prm
+   Clearing GPU memory...done
+   Processing load 1/1...
+   Loading from file...done (0.06 s)
+   Filtering spikes...  done (0.07) s
+   Detecting spikes from each channel.
+   ................................................................
+   Detected 14883 spikes from 64 sites; took 0.3s.
+   Merging spikes...  9891 spiking events found; took 0.1s
+   Extracting features...done (2.39 s)
+   File 1/1 took 8.3s (101.1 MB, 12.2 MB/s, x1.0 realtime)
+   Detection completed in 8.30 seconds
+   Saved spikesRaw to F:\Tests\JRCLUST\single\test_raw.jrc
+   Saved spikesFilt to F:\Tests\JRCLUST\single\test_filt.jrc
+   Saved spikeFeatures to F:\Tests\JRCLUST\single\test_features.jrc
+   Saved results to F:\Tests\JRCLUST\single\test_res.mat
+
+Your detection results will be exported to the workspace in the form of a struct called ``res`` for inspection.
+See :ref:`io-files` for a description of the contents.
+For a detailed description of the detect step, see :ref:`detect-step`.
+
+.. image:: /.static/detect.PNG
+
+Clustering spikes
+-----------------
+
+Once you have detected your spikes, it's time to cluster them:
+
+.. code-block:: matlab
+
+   jrc sort /path/to/your/configfile.prm
+
+You should see something like the following output:
+
+.. code-block:: matlab
+
+   >> jrc sort test.prm
+   Using spikes detected on 31-Jan-2019 09:38:17
+   Clearing GPU memory...done
+   Computing rho
+     ................................................................................................................................
+     took 5.4s
+   Computing delta
+     ................................................................
+     took 0.13s
+   assigning clusters, nClusters:1177
+   i: 1, n0 = 1869, i: 2, n0 = 1869, i: 3, n0 = 1869, i: 4, n0 = 1869, i: 5, n0 = 1869, i: 6, n0 = 1869, i: 7, n0 = 1869, i: 8, n0 = 1869, i: 9, n0 = 1869, i: 10, n0 = 1869,
+     took 0.1s. Removed 1131 clusters having <30 spikes: ->46
+   ..............................................Calculating cluster mean waveform.
+     ............................................................................................
+     took 0.1s
+   Computing waveform correlation...  took 0.2s
+   Computing self correlation
+     ..............................................
+     took 0.0s
+   Calculating cluster mean waveform.
+     ............................................................................................
+     took 0.1s
+   Computing waveform correlation...  took 0.1s
+   Computing self correlation
+     ..............................................
+     took 0.0s
+   Calculating cluster quality...
+     took 0.0s
+   Sorting completed in 6.34 seconds
+   Saved spikesRaw to F:\Tests\JRCLUST\single\test_raw.jrc
+   Saved spikesFilt to F:\Tests\JRCLUST\single\test_filt.jrc
+   Saved spikeFeatures to F:\Tests\JRCLUST\single\test_features.jrc
+   Saved results to F:\Tests\JRCLUST\single\test_res.mat
+
+JRCLUST will tell you when your spikes were detected and perform :ref:`clustering <sort-step>` and postprocessing.
+As in the :ref:`detect step <tut-detect>`, JRCLUST will export the results structure to the workspace for inspection.
+
+Curating your clustering
+------------------------
+
+You will now want to inspect the results of your clustering.

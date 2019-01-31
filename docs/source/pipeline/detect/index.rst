@@ -1,3 +1,5 @@
+.. _detect-step:
+
 Spike detection
 ===============
 
@@ -57,7 +59,7 @@ Detecting peaks
 Samples on each site are compared to the threshold :math:`\text{Thr}_i` for that site.
 Those samples with negative value but exceeding the threshold in magnitude are considered
 putative peaks.
-(If you :ref:`specify <fDetectBipolar>`, then JRCLUST can also detect peaks with positive value.)
+(If you :ref:`specify <detectBipolar>`, then JRCLUST can also detect peaks with positive value.)
 A putative peak must also exceed its immediate neighbors in magnitude, i.e., the sample at time
 :math:`t_j` is a peak if and only if the following conditions hold:
 

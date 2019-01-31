@@ -1,3 +1,5 @@
+.. _sort-step:
+
 Spike clustering
 ================
 

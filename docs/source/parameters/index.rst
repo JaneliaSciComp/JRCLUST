@@ -62,7 +62,7 @@ One of the following:
 .. _bitScaling:
 
 bitScaling
-^^^^^^^^^^^^^^
+^^^^^^^^^^
 
 (Formerly ``uV_per_bit``)
 
@@ -73,18 +73,18 @@ ADC bit scaling factor (Conversion factor for ADC bit values to μV).
 .. _blankPeriod:
 
 blankPeriod
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^
 
 (Formerly ``blank_period_ms``)
 
-Duration of blanking period (in ms) when the common mean exceeds blankThresh.
+Duration of blanking period (in ms) when the common mean exceeds :ref:`blankThresh`.
 
 **Default** is 5.
 
 .. _blankThresh:
 
 blankThresh
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^
 
 (Formerly ``blank_thresh``)
 
@@ -95,7 +95,7 @@ Threshold (in MADs) above which to reject samples exceeding channel median after
 .. _clusterFeature:
 
 clusterFeature
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
 
 (Formerly ``vcFet``)
 
@@ -116,7 +116,7 @@ One of the following:
 .. _dataType:
 
 dataType
-^^^^^^^^^^^^
+^^^^^^^^
 
 (Formerly ``vcDataType``)
 
@@ -136,7 +136,7 @@ One of the following:
 .. _dispTimeLimits:
 
 dispTimeLimits
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
 
 (Formerly ``tlim``)
 
@@ -147,7 +147,7 @@ Time range (in ms) to display.
 .. _distCut:
 
 distCut
-^^^^^^^^^^^
+^^^^^^^
 
 (Formerly ``dc_percent``)
 
@@ -158,7 +158,7 @@ Percentile of pairwise distances between spikes on a site to use as a cutoff dis
 .. _evtDetectRad:
 
 evtDetectRad
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^
 
 (Formerly ``maxDist_site_spk_um``)
 
@@ -173,7 +173,7 @@ Maximum distance (in μm) for :ref:`extracting spike waveforms <extract-windows>
 .. _evtWindow:
 
 evtWindow
-^^^^^^^^^^^^^
+^^^^^^^^^
 
 (Formerly ``spkLim_ms``)
 
@@ -188,7 +188,7 @@ are extracted before and after the spiking event.
 .. _filtOrder:
 
 filtOrder
-^^^^^^^^^^^^^
+^^^^^^^^^
 
 Bandpass filter order.
 
@@ -197,7 +197,7 @@ Bandpass filter order.
 .. _filterType:
 
 filterType
-^^^^^^^^^^^^^^
+^^^^^^^^^^
 
 (Formerly ``vcFilter``)
 
@@ -217,7 +217,7 @@ One of the following:
 .. _freqLimBP:
 
 freqLimBP
-^^^^^^^^^^^^^
+^^^^^^^^^
 
 (Formerly ``freqLim``)
 
@@ -228,18 +228,20 @@ Frequency cutoffs for bandpass filter.
 .. _headerOffset:
 
 headerOffset
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^
 
 (Formerly ``header_offset``)
 
 Recording file header offset (in bytes).
+
+JRCLUST will skip this many bytes at the beginning of your recording file.
 
 **Default** is 0.
 
 .. _ignoreSites:
 
 ignoreSites
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^
 
 (Formerly ``viSiteZero``)
 
@@ -250,40 +252,42 @@ Sites to ignore manually.
 .. _log10DeltaCut:
 
 log10DeltaCut
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
 
 (Formerly ``delta1_cut``)
 
-Log10 of delta cutoff (Spikes with delta values below this cutoff will not be considered as cluster centers).
+:math:`\log_{10}` of delta cutoff (Spikes with delta values below this cutoff will not be considered as cluster centers).
 
 **Default** is 0.6.
 
 .. _log10RhoCut:
 
 log10RhoCut
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^
 
 (Formerly ``rho_cut``)
 
-Log10 of rho cutoff (Spikes with rho values below this cutoff will not be considered as cluster centers).
+:math:`\log_{10}` of rho cutoff (Spikes with rho values below this cutoff will not be considered as cluster centers).
 
 **Default** is -2.5.
 
 .. _maxUnitSim:
 
 maxUnitSim
-^^^^^^^^^^^^^^
+^^^^^^^^^^
 
 (Formerly ``maxWavCor``)
 
 Threshold for merging two units having similar spike waveforms (Units with a similiarity score above this value will be merged).
+
+See :ref:`autoMergeBy` for how "similarity" is defined.
 
 **Default** is 0.98.
 
 .. _minClusterSize:
 
 minClusterSize
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
 
 (Formerly ``min_count``)
 
@@ -294,7 +298,7 @@ Minimum number of spikes per cluster (Automatically set to the maximum of this v
 .. _nChans:
 
 nChans
-^^^^^^^^^^
+^^^^^^
 
 Number of channels stored in recording file (Distinct from the number of AP sites).
 
@@ -303,7 +307,7 @@ Number of channels stored in recording file (Distinct from the number of AP site
 .. _nClusterIntervals:
 
 nClusterIntervals
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
 
 (Formerly ``nTime_clu``)
 
@@ -326,7 +330,7 @@ can merge most of the units initially split by drift.
 .. _nPCsPerSite:
 
 nPCsPerSite
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^
 
 (Formerly ``nPcPerChan``)
 
@@ -337,7 +341,7 @@ Number of principal components to compute per site.
 .. _nSiteDir:
 
 nSiteDir
-^^^^^^^^^^^^
+^^^^^^^^
 
 (Formerly ``maxSite``)
 
@@ -357,7 +361,7 @@ If empty, the number of sites per spike group is determined from :ref:`evtDetect
 .. _nSitesExcl:
 
 nSitesExcl
-^^^^^^^^^^^^^^
+^^^^^^^^^^
 
 (Formerly ``nSites_ref``)
 

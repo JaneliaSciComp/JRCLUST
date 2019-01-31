@@ -86,8 +86,8 @@ Pipeline commands
 -  ``jrc sort myparams.prm``: Cluster detected spike features.
    If JRCLUST can't find any detected spikes, it will also perform the detect step.
    Your myparams\_res.mat file will be updated with a :ref:`clustering handle <DensityPeakClustering>` object.
--  ``jrc spikesort myparams.prm``: Detect and cluster spikes.
-   The difference between ``sort`` and ``spikesort`` is that ``spikesort`` will overwrite any previously-detected spikes,
+-  ``jrc detect-sort myparams.prm``: Detect and cluster spikes.
+   The difference between ``sort`` and ``detect-sort`` is that ``detect-sort`` will overwrite any previously-detected spikes,
    whereas ``sort`` will only perform spike detection if JRCLUST can't find any previously-detected spikes.
 -  ``jrc auto myparams.prm``: Recluster spikes.
    You might want to do this if, e.g., you've updated the clustering parameters.
