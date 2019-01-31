@@ -1,14 +1,8 @@
-# JRCLUST: Janelia Rocket Cluster
+# JRCLUST
 
-**NOTE:** Active development is happening [here](https://github.com/vidriotech/JRCLUST).
+JRCLUST is a scalable and customizable package for spike sorting on [high-density silicon probes](https://www.nature.com/articles/nature24636).
+It is written in MATLAB and CUDA.
 
-[Scalable, cross-validated and drift-resistant](https://github.com/JaneliaSciComp/JRCLUST/wiki/Performance-benchmark) spike sorting pipeline for [high-density silicon probes](https://www.nature.com/articles/nature24636).
-Originally developed by [J. James Jun, PhD](https://sites.google.com/view/rocketephys), maintained by [Vidrio Technologies](https://vidriotechnologies.com).
+Read the documentation [here](https://jrclust.readthedocs.io/en/latest/index.html), and the original BioRxiv paper [here](https://www.biorxiv.org/content/early/2017/01/30/101030).
 
-[Click here to download latest releases](https://github.com/JaneliaSciComp/JRCLUST/releases)
-
-[Click here to view JRCLUST GitHub Wiki](https://github.com/JaneliaSciComp/JRCLUST/wiki)
-
-[Click here to read the BioRxiv paper](https://www.biorxiv.org/content/early/2017/01/30/101030)
-
-[Click here to view video tutorials](https://www.youtube.com/playlist?list=PLbvLpg5J7t9FC4s0umOB--2ZYcrmNRyZ_)
+JRCLUST was originally developed by [James Jun](https://sites.google.com/view/rocketephys) and is currently maintained by [Vidrio Technologies](https://vidriotechnologies.com).
