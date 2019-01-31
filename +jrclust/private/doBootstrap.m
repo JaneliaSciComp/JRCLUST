@@ -5,17 +5,24 @@ function hCfg = doBootstrap(varargin)
         metafile_ = jrclust.utils.absPath(varargin{1});
         if isempty(metafile_) % warn?
             metafile = '';
+            workingdir = pwd();
         elseif ischar(metafile_)
+            workingdir = fileparts(metafile_);
             metafile = {metafile_};
         else % cell
             metafile = metafile_;
+            workingdir = fileparts(metafile_{1});
+        end
+
+        if ~isempty(metafile)
+            binfile = cellfun(@(f) jrclust.utils.subsExt(f, '.bin'), metafile, 'UniformOutput', 0);
         end
     else
         metafile = '';
+        workingdir = pwd();
     end
 
     hCfg = [];
-    workingdir = pwd();
 
     % first check for a .meta file
     if isempty(metafile)
