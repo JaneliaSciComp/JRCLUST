@@ -9,7 +9,7 @@ Installing JRCLUST
 ------------------
 
 JRCLUST is hosted on `GitHub <https://github.com/JaneliaSciComp/JRCLUST>`__.
-If you'd like to test the latest development code, you can clone the repository to your computer.
+If you'd like to test the latest development code, you can `clone the repository <https://help.github.com/articles/cloning-a-repository/>`__ to your computer.
 If you want to stay on a release, head to the `releases page <https://github.com/JaneliaSciComp/JRCLUST/releases>`__ and download the latest release.
 
 You may want to add something like the following to your `startup script <https://www.mathworks.com/help/matlab/ref/startup.html>`__:
@@ -287,7 +287,7 @@ Do this with
 
 You will be greeted with the following screen:
 
-.. image:: /.static/curate-main.PNG
+.. image:: /.static/curate.PNG
 
 Each of these figures contains a different view onto the data.
 Here you will be able to annotate, delete, merge, or split clusters.

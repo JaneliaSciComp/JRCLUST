@@ -75,7 +75,7 @@ function res = computeDelta(dRes, res, hCfg)
 end
 
 %% LOCALFUNCTIONS
-function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, n1, n2, rhoCut, deltaCK, hCfg)
+function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, n1, n2, distCut, deltaCK, hCfg)
     %COMPUTEDELTASITE Compute site-wise delta for spike features
     [nC, n12] = size(siteFeatures); % nc is constant with the loop
     dn_max = int32(round((n1 + n2) / hCfg.nClusterIntervals));
@@ -86,7 +86,7 @@ function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, 
             delta = zeros([1, n1], 'single', 'gpuArray');
             nNeigh = zeros([1, n1], 'uint32', 'gpuArray');
             consts = int32([n1, n12, nC, dn_max, hCfg.getOr('fDc_spk', 0)]);
-            [delta, nNeigh] = feval(deltaCK, delta, nNeigh, siteFeatures, spikeOrder, rhoOrder, consts, rhoCut);
+            [delta, nNeigh] = feval(deltaCK, delta, nNeigh, siteFeatures, spikeOrder, rhoOrder, consts, distCut);
 
             return;
         catch ME
@@ -98,4 +98,5 @@ function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, 
     nearby = bsxfun(@lt, rhoOrder, rhoOrder(1:n1)') & abs(bsxfun(@minus, spikeOrder, spikeOrder(1:n1)')) <= dn_max;
     dists(~nearby) = nan;
     [delta, nNeigh] = min(dists);
+    delta = delta / distCut;
 end
