@@ -3,9 +3,6 @@
 JRCLUST is a scalable and customizable package for spike sorting on [high-density silicon probes](https://www.nature.com/articles/nature24636).
 It is written in MATLAB and CUDA.
 
-Read the documentation [here](https://jrclust.readthedocs.io/en/latest/index.html), and the original BioRxiv paper [here](https://www.biorxiv.org/content/early/2017/01/30/101030).
-Visit our [Gitter community](https://gitter.im/JRCLUST/community).
-
 JRCLUST was originally developed by [James Jun](https://www.simonsfoundation.org/team/james-jun/) and is currently maintained by [Vidrio Technologies](https://vidriotechnologies.com).
 
 ## Installing JRCLUST
@@ -31,4 +28,8 @@ Do this with
 jrclust.CUDA.compileCUDA();
 ```
 
-Now that JRCLUST is installed, please visit [the documentation](https://jrclust.readthedocs.io/en/latest/usage/index.html) for usage information.
+## Questions?
+
+Read the documentation [here](https://jrclust.readthedocs.io/en/latest/index.html) and the original bioRxiv paper [here](https://www.biorxiv.org/content/early/2017/01/30/101030).
+Still have questions?
+Visit our [Gitter community](https://gitter.im/JRCLUST/community) and ask!
