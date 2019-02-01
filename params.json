@@ -1,0 +1,1568 @@
+{
+    "common parameters": {
+        "autoMergeBy": {
+            "description": "Metric to use for automerging clusters based on average waveform",
+            "comment": "",
+            "default_value": "pearson",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "pearson",
+                    "dist"
+                ]
+            },
+            "section": [
+                "clustering",
+                "curation"
+            ]
+        },
+        "bitScaling": {
+            "description": "ADC bit scaling factor",
+            "comment": "Conversion factor for ADC bit values to μV",
+            "default_value": 0.30518,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["recording file"]
+        },
+        "blankThresh": {
+            "description": "Threshold (in MADs) above which to reject samples exceeding channel median after filtering",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "blankPeriod": {
+            "description": "Duration of blanking period (in ms) when the common mean exceeds blankThresh",
+            "comment": "",
+            "default_value": 5,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "CARMode": {
+            "description": "The meaning of 'average' in 'common average reference'",
+            "comment": "",
+            "default_value": "mean",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "mean",
+                    "median",
+                    "none"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "clusterFeature": {
+            "description": "The feature to extract from your spike waveforms in order to cluster them",
+            "comment": "",
+            "default_value": "pca",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "cov",
+                    "energy",
+                    "pca",
+                    "vmin",
+                    "vminmax",
+                    "vpp"
+                ]
+            },
+            "section": [
+                "feature extraction",
+                "clustering"
+            ]
+        },
+        "dataType": {
+            "description": "Format of raw recordings",
+            "comment": "",
+            "default_value": "int16",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "int16",
+                    "uint16",
+                    "int32",
+                    "uint32",
+                    "single",
+                    "double"
+                ]
+            },
+            "section": ["recording file"]
+        },
+        "dispTimeLimits": {
+            "description": "Time range (in ms) to display",
+            "comment": "",
+            "default_value": [0, 0.2],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "nonnegative",
+                    "increasing",
+                    "numel", 2
+                ],
+                "postapply": "@(x) x(:)'"
+            },
+            "section": ["display"]
+        },
+        "distCut": {
+            "description": "Percentile of pairwise distances between spikes on a site to use as a cutoff distance",
+            "comment": "",
+            "default_value": 2,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "nonnegative",
+                    "<=", 100
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "evtDetectRad": {
+            "description": "Maximum distance (in μm) for extracting spike waveforms",
+            "comment": "",
+            "default_value": 75,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": [
+                "spike detection",
+                "feature extraction"
+            ]
+        },
+        "evtWindow": {
+            "description": "Time range (in ms) of filtered spike waveforms, centered at the peak",
+            "comment": "",
+            "default_value": [-0.25, 0.75],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "increasing",
+                    "numel", 2
+                ],
+                "postapply": "@(x) x(:)'",
+                "postassert": "@(x) diff(x) >= x(2)"
+            },
+            "section": [
+                "spike detection",
+                "feature extraction",
+                "display"
+            ]
+        },
+        "filterType": {
+            "description": "Type of filter to use on raw data",
+            "comment": "",
+            "default_value": "ndiff",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "ndiff",
+                    "sgdiff",
+                    "bandpass",
+                    "fir1",
+                    "user",
+                    "none"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "filtOrder": {
+            "description": "Bandpass filter order",
+            "comment": "",
+            "default_value": 3,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "freqLimBP": {
+            "description": "Frequency cutoffs for bandpass filter",
+            "comment": "",
+            "default_value": [300, 3000],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "nonnegative",
+                    "increasing",
+                    "numel", 2
+                ],
+                "postapply": "@(x) x(:)'"
+            },
+            "section": ["spike detection"]
+        },
+        "headerOffset": {
+            "description": "Recording file header offset (in bytes)",
+            "comment": "",
+            "default_value": 0,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "nonnegative"
+                ]
+            },
+            "section": ["recording file"]
+        },
+        "ignoreSites": {
+            "description": "Sites to ignore manually",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["preprocessing"]
+        },
+        "log10DeltaCut": {
+            "description": "Log10 of delta cutoff",
+            "comment": "Spikes with delta values below this cutoff will not be considered as cluster centers",
+            "default_value": 0.6,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real"
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "log10RhoCut": {
+            "description": "Log10 of rho cutoff",
+            "comment": "Spikes with rho values below this cutoff will not be considered as cluster centers",
+            "default_value": -2.5,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real"
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "maxUnitSim": {
+            "description": "Threshold for merging two units having similar spike waveforms",
+            "comment": "Units with a similiarity score above this value will be merged",
+            "default_value": 0.98,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "nonnegative",
+                    "<=", 1
+                ]
+            },
+            "section": [
+                "clustering",
+                "curation"
+            ]
+        },
+        "minClusterSize": {
+            "description": "Minimum number of spikes per cluster",
+            "comment": "Automatically set to the maximum of this value and twice the number of features",
+            "default_value": 30,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "nChans": {
+            "description": "Number of channels stored in recording file",
+            "comment": "Distinct from the number of AP sites",
+            "default_value": 384,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["recording file"]
+        },
+        "nClusterIntervals": {
+            "description": "Number of intervals to divide the recording into around a spike",
+            "comment": "When clustering, take the 1/nClusterIntervals fraction of all spikes around a spiking event to compute distance",
+            "default_value": 4,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "nPCsPerSite": {
+            "description": "Number of principal components to compute per site",
+            "comment": "",
+            "default_value": 1,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive",
+                    "<=", 3
+                ]
+            },
+            "section": ["feature extraction"]
+        },
+        "nSiteDir": {
+            "description": "Number of neighboring sites to group in either direction",
+            "comment": "nSitesEvt is set to 1 + 2*nSiteDir - nSitesExcl",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "nSitesExcl": {
+            "description": "Number of sites to exclude from the spike waveform group",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "nSpikesFigProj": {
+            "description": "Maximum number of spikes per cluster to display in the feature projection view",
+            "comment": "",
+            "default_value": 500,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["display"]
+        },
+        "nSpikesFigWav": {
+            "description": "Maximum number of spikes per cluster to display generally",
+            "comment": "",
+            "default_value": 30,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["display"]
+        },
+        "outputDir": {
+            "description": "Directory in which to place output files",
+            "comment": "Will output to the same directory as this file if empty",
+            "default_value": "",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "postassert": "@(x) ~isempty(jrclust.utils.absPath(x))"
+            },
+            "section": ["usage"]
+        },
+        "probePad": {
+            "description": "Recording contact pad size (in μm)",
+            "comment": "Height x width",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "positive",
+                    "numel", 2
+                ],
+                "postapply": "@(x) x(:)'"
+            },
+            "section": ["probe"]
+        },
+        "psthTimeLimits": {
+            "description": "Time range (in s) over which to display PSTH",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "increasing",
+                    "numel", 2
+                ],
+                "postapply": "@(x) x(:)'",
+                "postassert": "@(x) diff(x) >= x(2)"
+            },
+            "section": ["trial"]
+        },
+        "qqFactor": {
+            "description": "Spike detection threshold",
+            "comment": "Thr = qqFactor*med(abs(x-med(x)))/0.6745",
+            "default_value": 5,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "rawRecordings": {
+            "description": "Path or paths to raw recordings to sort",
+            "comment": "",
+            "default_value": [""],
+            "validation": {
+                "classes": ["char", "cell"],
+                "attributes": []
+            },
+            "section": ["recording file"]
+        },
+        "RDDetrendMode": {
+            "description": "Detrending mode to apply to rho-delta values in order to determine cluster centers",
+            "comment": "",
+            "default_value": "global",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "global",
+                    "local",
+                    "logz",
+                    "hidehiko",
+                    "none"
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "refracInt": {
+            "description": "Spike refractory period (in ms)",
+            "comment": "",
+            "default_value": 0.25,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "sampleRate": {
+            "description": "Sampling rate (in Hz) of raw recording",
+            "comment": "",
+            "default_value": 30000,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["recording file"]
+        },
+        "shankMap": {
+            "description": "Shank ID of each site",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["probe"]
+        },
+        "siteLoc": {
+            "description": "Site locations (in μm)",
+            "comment": "x values in the first column, y values in the second column",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "nonnegative"
+                ]
+            },
+            "section": ["probe"]
+        },
+        "siteMap": {
+            "description": "Map of channel index to site ID",
+            "comment": "The mapping siteMap(i) = j corresponds to the statement 'site i is stored as channel j in the recording'",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["probe"]
+        },
+        "trialFile": {
+            "description": "Path to file containing trial data",
+            "comment": "Can be .mat or .csv, must contain timestamps of trials in units of s",
+            "default_value": "",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "postassert": "@(x) ~isempty(jrclust.utils.absPath(x))"
+            },
+            "section": ["trial"]
+        }
+    },
+    "advanced parameters": {
+        "auxChan": {
+            "description": "Auxiliary channel index",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["aux channel"]
+        },
+        "auxFile": {
+            "description": "Path to file containing auxiliary channel",
+            "comment": "",
+            "default_value": "",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "postassert": "@(x) ~isempty(jrclust.utils.absPath(x))"
+            },
+            "section": ["aux channel"]
+        },
+        "auxLabel": {
+            "description": "Label for auxiliary channel data",
+            "comment": "",
+            "default_value": "Aux channel",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"]
+            },
+            "section": ["aux channel"]
+        },
+        "auxSampleRate": {
+            "description": "Sample rate for auxiliary file",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["aux channel"]
+        },
+        "auxScale": {
+            "description": "Scale factor for aux data",
+            "comment": "",
+            "default_value": 1,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["aux channel"]
+        },
+        "batchMode": {
+            "description": "Suppress message boxes in favor of console messages",
+            "comment": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": ["usage"]
+        },
+        "colorMap": {
+            "description": "RGB color map for background, primary selected, and secondary selected spikes",
+            "comment": "The first three values are the R values, the next three are the G values, and the last three are the B values.",
+            "default_value": [0.5, 0, 1, 0.5, 0, 0, 0.5, 0, 0],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "nonnegative",
+                    "numel", 9
+                ],
+                "postapply": "@(x) reshape(x, 3, 3)"
+            },
+            "section": ["display"]
+        },
+        "corrRange": {
+            "description": "Correlation score range to distinguish by color map",
+            "comment": "",
+            "default_value": [0.9, 1],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "nonnegative",
+                    "numel", 2,
+                    "<=", 1
+                ],
+                "postapply": "@(x) x(:)'"
+            },
+            "section": ["display"]
+        },
+        "detectBipolar": {
+            "description": "Detect positive as well as negative peaks",
+            "comment": "",
+            "default_value": false,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": [
+                "spike detection"
+            ]
+        },
+        "dispFeature": {
+            "description": "Feature to display in the feature projection plot",
+            "comment": "",
+            "default_value": "vpp",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "cov",
+                    "pca",
+                    "ppca",
+                    "vpp"
+                ]
+            },
+            "section": ["display"]
+        },
+        "dispFilter": {
+            "description": "Filter to apply in traces plot",
+            "comment": "",
+            "default_value": "none",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "ndiff",
+                    "sgdiff",
+                    "bandpass",
+                    "fir1",
+                    "user",
+                    "none"
+                ]
+            },
+            "section": ["display"]
+        },
+        "driftMerge": {
+            "description": "Compute multiple waveforms at three drift locations based on the spike position if true",
+            "comment": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": [
+                "clustering",
+                "curation"
+            ]
+        },
+        "evtManualThresh": {
+            "description": "Manually-set spike detection threshold (in μV)",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "evtMergeRad": {
+            "description": "Maximum distance (in μm) for merging spike waveforms",
+            "comment": "",
+            "default_value": 50,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "evtWindowMergeFactor": {
+            "description": "Ratio of samples to take when computing correlation",
+            "comment": "",
+            "default_value": 1,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive",
+                    "<=", 1
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "evtWindowRaw": {
+            "description": "Time range (in ms) of raw spike waveforms, centered at the peak",
+            "comment": "",
+            "default_value": [-0.5, 1.5],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "increasing",
+                    "numel", 2
+                ],
+                "postapply": "@(x) x(:)'",
+                "postassert": "@(x) diff(x) >= x(2)"
+            },
+            "section": [
+                "spike detection",
+                "feature extraction",
+                "display"
+            ]
+        },
+        "fftThresh": {
+            "description": "Threshold (in MADs of power-frequency product) above which to remove frequency outliers",
+            "comment": "",
+            "default_value": 0,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "scalar",
+                    "nonnegative"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "figList": {
+            "description": "List of tags of figures to display in feature view",
+            "comment": "",
+            "default_value": [
+                "FigCorr",
+                "FigHist",
+                "FigISI",
+                "FigMap",
+                "FigPos",
+                "FigProj",
+                "FigRD",
+                "FigSim",
+                "FigTime",
+                "FigWav"
+            ],
+            "validation": {
+                "classes": ["cell"],
+                "attributes": [
+                    "nonempty"
+                ],
+                "values": [
+                    "FigCorr",
+                    "FigHist",
+                    "FigISI",
+                    "FigMap",
+                    "FigPos",
+                    "FigProj",
+                    "FigRD",
+                    "FigSim",
+                    "FigTime",
+                    "FigWav"
+                ]
+            },
+            "section": [
+                "curation",
+                "display"
+            ]
+        },
+        "freqLimNotch": {
+            "description": "Frequency ranges to exclude for notch filter",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["cell", "double"],
+                "attributes": [
+                    "numel", 2
+                ],
+                "postapply": "@(x) x(:)'",
+                "postassert": "@(x) all(cellfun(@(y) numel(y) == 2 && y(1)<y(2) && y(1)>=0, x))"
+            },
+            "section": ["spike detection"]
+        },
+        "freqLimStop": {
+            "description": "Frequency range to exclude for band-stop filter",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "nonnegative",
+                    "increasing",
+                    "numel", 2
+                ],
+                "postapply": "@(x) x(:)'"
+            },
+            "section": ["spike detection"]
+        },
+        "frFilterShape": {
+            "description": "Kernel shape for temporal averaging",
+            "comment": "Used in estimation of the firing rate of a given unit",
+            "default_value": "triangle",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "triangle",
+                    "rectangle"
+                ]
+            },
+            "section": ["curation"]
+        },
+        "frPeriod": {
+            "description": "Time period (in s) over which to determine firing rate",
+            "comment": "Used in estimation of the firing rate of a given unit",
+            "default_value": 2,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["curation"]
+        },
+        "frSampleRate": {
+            "description": "Resampling rate (in Hz) for estimating the firing rate",
+            "comment": "Used in estimation of the firing rate of a given unit",
+            "default_value": 1000,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["curation"]
+        },
+        "gainBoost": {
+            "description": "Scale factor to boost gain in raw recording",
+            "comment": "Used in filtering operation",
+            "default_value": 1,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "gpuLoadFactor": {
+            "description": "GPU memory usage factor",
+            "comment": "Use 1/gpuLoadFactor amount of GPU memory",
+            "default_value": 5,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["execution"]
+        },
+        "groupShank": {
+            "description": "Group all sites on the same shank if true",
+            "comment": "",
+            "default_value": false,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": ["spike detection"]
+        },
+        "gtFile": {
+            "description": "Path to file containing ground-truth data",
+            "comment": "",
+            "default_value": "",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "postassert": "@(x) ~isempty(jrclust.utils.absPath(x))"
+            },
+            "section": ["validation"]
+        },
+        "interpPC": {
+            "description": "Interpolate 1st principal vector to maximize projection of spikes if true",
+            "comment": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": ["feature extraction"]
+        },
+        "lfpSampleRate": {
+            "description": "Sampling rate for LFP channels",
+            "comment": "",
+            "default_value": 2500,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["lfp"]
+        },
+        "loadTimeLimits": {
+            "description": "Time range (in s) of samples to load at once",
+            "comment": "All samples are loaded if empty",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "nonnegative",
+                    "increasing",
+                    "numel", 2
+                ],
+                "postapply": "@(x) x(:)'"
+            },
+            "section": ["preprocessing"]
+        },
+        "maxAmp": {
+            "description": "Amplitude scale (in μV)",
+            "comment": "",
+            "default_value": 250,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["display"]
+        },
+        "maxBytesLoad": {
+            "description": "Maximum number of bytes to load into memory",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "positive"
+                ],
+                "postapply": "@(x) floor(x)"
+            },
+            "section": ["execution"]
+        },
+        "maxClustersSite": {
+            "description": "Maximum number of cluster centers computed per site",
+            "comment": "Used if RDDetrendMode is 'local'",
+            "default_value": 20,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "maxSecLoad": {
+            "description": "Maximum sample duration (in s) to load into memory",
+            "comment": "Overrides maxBytesLoad if nonempty",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["execution"]
+        },
+        "meanInterpFactor": {
+            "description": "Interpolation factor for mean unit waveforms",
+            "comment": "Set to 1 to disable",
+            "default_value": 1,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "minNeighborsDetect": {
+            "description": "Minimum number of sample neighbors exceeding threshold for a sample to be considered a peak",
+            "comment": "",
+            "default_value": 0,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "nonnegative",
+                    "<=", 2
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "minSitesWeightFeatures": {
+            "description": "Minimum number of sites to have if using weightFeatures",
+            "comment": "Ignored if weightFeatures is false",
+            "default_value": 5,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "nClustersShowAux": {
+            "description": "Number of clusters to show in the aux vs. firing rate correlation",
+            "comment": "",
+            "default_value": 10,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["aux channel"]
+        },
+        "nDiffOrder": {
+            "description": "Order for differentiator filter",
+            "comment": "Used if and only if filterType is 'sgdiff' or 'ndiff'",
+            "default_value": 2,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "nonnegative",
+                    "<=", 3
+                ]
+            },
+            "section": ["preprocessing"]
+        },
+        "nLoadsMaxPreview": {
+            "description": "Number of time segments to load in preview",
+            "comment": "",
+            "default_value": 30,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["preview"]
+        },
+        "nPassesMerge": {
+            "description": "Number of times to repeat automatic waveform-based merging",
+            "comment": "",
+            "default_value": 10,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "nPeaksFeatures": {
+            "description": "Number of potential peaks to use when computing features",
+            "comment": "",
+            "default_value": 2,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "<=", 3
+                ]
+            },
+            "section": ["feature extraction"]
+        },
+        "nSamplesPad": {
+            "description": "Number of samples to overlap between chunks in large files",
+            "comment": "",
+            "default_value": 100,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["preprocessing"]
+        },
+        "nSitesFigProj": {
+            "description": "Number of sites to show in feature projection view",
+            "comment": "",
+            "default_value": 5,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["display"]
+        },
+        "nSkip": {
+            "description": "Show every nSkip samples when plotting traces",
+            "comment": "",
+            "default_value": 1,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["traces"]
+        },
+        "nSpikesFigISI": {
+            "description": "Maximum number of spikes to show in ISI view",
+            "comment": "",
+            "default_value": 200,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["display"]
+        },
+        "nThreadsGPU": {
+            "description": "Number of GPU threads to use for clustering",
+            "comment": "",
+            "default_value": 128,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": [
+                "execution",
+                "clustering"
+            ]
+        },
+        "nSecsLoadPreview": {
+            "description": "Number of seconds to load in preview",
+            "comment": "",
+            "default_value": 1,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["preview"]
+        },
+        "nSegmentsTraces": {
+            "description": "Number of time segments to display in traces view",
+            "comment": "A value of 1 shows one continuous time segment",
+            "default_value": 1,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["traces"]
+        },
+        "outlierThresh": {
+            "description": "Threshold (in MADs) to remove outlier spikes for each cluster",
+            "comment": "",
+            "default_value": 7.5,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["clustering"]
+        },
+        "pcPair": {
+            "description": "Pair of PCs to display",
+            "comment": "",
+            "default_value": [1, 2],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "positive",
+                    "increasing",
+                    "numel", 2,
+                    "<=", 3
+                ],
+                "postapply": "@(x) x(:)'"
+            },
+            "section": ["display"]
+        },
+        "projTimeLimits": {
+            "description": "Time range (in s) to display in feature projection view",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "real",
+                    "nonnegative",
+                    "increasing",
+                    "numel", 2
+                ],
+                "postapply": "@(x) x(:)'"
+            },
+            "section": ["display"]
+        },
+        "psthTimeBin": {
+            "description": "Time bin (in s) for PSTH view",
+            "comment": "",
+            "default_value": 0.01,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["trial"]
+        },
+        "psthXTick": {
+            "description": "PSTH time tick mark spacing",
+            "comment": "",
+            "default_value": 0.2,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": [
+                "trial",
+                "display"
+            ]
+        },
+        "ramToGPUFactor": {
+            "description": "Ratio of RAM to GPU memory",
+            "comment": "",
+            "default_value": 8,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["execution"]
+        },
+        "randomSeed": {
+            "description": "Seed for the random number generator",
+            "comment": "",
+            "default_value": 0,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "integer",
+                    "nonnegative"
+                ]
+            },
+            "section": ["execution"]
+        },
+        "showRaw": {
+            "description": "Show raw traces in waveform view if true",
+            "comment": "",
+            "default_value": false,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": [
+                "display",
+                "curation"
+            ]
+        },
+        "showSpikeCount": {
+            "description": "Show spike count per unit in waveform plot",
+            "comment": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": ["display"]
+        },
+        "siteCorrThresh": {
+            "description": "Threshold to reject bad sites based on maximum correlation with neighboring sites",
+            "comment": "Set to 0 to disable",
+            "default_value": 0,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "nonnegative",
+                    "<", 1
+                ]
+            },
+            "section": ["preview"]
+        },
+        "spikeThreshMax": {
+            "description": "Maximum absolute amplitude (in μV) permitted for spikes",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "tallSkinny": {
+            "description": "Recording will be interpreted as nChannels x nSamples if true",
+            "comment": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": ["recording file"]
+        },
+        "threshFile": {
+            "description": "Path to .mat file storing the spike detection threshold",
+            "comment": "Created by preview GUI",
+            "default_value": "",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "postassert": "@(x) ~isempty(jrclust.utils.absPath(x))"
+            },
+            "section": ["spike detection"]
+        },
+        "umPerPix": {
+            "description": "Vertical site center-to-center spacing",
+            "comment": "",
+            "default_value": 20,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "positive",
+                    "integer"
+                ]
+            },
+            "section": ["display"]
+        },
+        "useElliptic": {
+            "description": "Use elliptic (bandpass) filter if true",
+            "comment": "Uses Butterworth filter if false",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": ["preprocessing"]
+        },
+        "useGlobalDistCut": {
+            "description": "Use a global distance cutoff for all sites if true",
+            "comment": "",
+            "default_value": false,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": ["clustering"]
+        },
+        "useGPU": {
+            "description": "Use GPU where appropriate",
+            "comment": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": ["execution"]
+        },
+        "useParfor": {
+            "description": "Use parfor where appropriate",
+            "comment": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": ["execution"]
+        },
+        "userFiltKernel": {
+            "description": "User-specified filter kernel",
+            "comment": "Ignored unless filterType is 'user'",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "integer"
+                ]
+            },
+            "section": ["preprocessing"]
+        },
+        "weightFeatures": {
+            "description": "Weight display features by distance from site if true",
+            "comment": "",
+            "default_value": false,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": ["clustering"]
+        },
+        "verbose": {
+            "description": "Be chatty when processing",
+            "comment": "",
+            "default_value": true,
+            "validation": {
+                "classes": ["logical", "double"],
+                "attributes": ["scalar"],
+                "postapply": "@(x) logical(x)"
+            },
+            "section": ["usage"]
+        }
+    }
+}

@@ -1,277 +1,58 @@
-% Default parameters for jrclust (default.prm)
+% JRCLUST parameters (common parameters only)
 
-% #Recording file format
-vcFile = '';                % Raw recording file path (leave empty if multiple files are sorted together)
-csFile_merge = {};          % List of recording files to merge (leave empty if single file is used)
-sort_file_merge = 1;        % Sort files by the 0: alphabetical order, 1: metafile, 2: file created time, 3: file modified time, 4: numerical order in the file names
-vcFile_prm = '';            % Current parameter file path (.prm) if left empty
-template_file = '';         % Template parameter file path (.prm). Parameters in this file override the default parameter file (default.prm), but get overridden is by the parameter file.
-probe_file = '';            % Probe file to use (.prb). Default search location: prb\
-nChans = 120;               % # channels stored
-vcDataType = 'int16';       % Raw data format. Choices: {'int16', 'uint16', 'int32', 'uint32', 'single', 'double'}
-sRateHz = 25000;            % Sampling rate (Hz)
-uV_per_bit = 0.305176;      % Bit scaling factor (uV/bit)
-fTranspose_bin = 1;         % Set to 1 if the recording file is written in the channel order at different times
-fInverse_file = 0;          % Set to 1 to flip the polarity of the signal
-header_offset = 0;          % File header offset (set to 0 for files containing no header info (e.g. WHISPER format)
+% USAGE PARAMETERS
+outputDir = ''; % Directory in which to place output files (Will output to the same directory as this file if empty)
 
-% #Execution parameters
-version = 'v3.2.5';         % JRCLUST version. Updated on Jan 8, 2018
-fVerbose = 0;               % Verbose flag, set to 0 to suppress displaying extra information 
-fParfor = 1;                % Use Multiple CPU cores (if parallel processing toolbox is installed)
-fGpu = 1;                   % Use GPU if parallel processing toolbox is installed
-iGpu = 1;                   % Use specific GPU ID (run 'gpuDevice()' to retrieve the list of GPUs)
-MAX_BYTES_LOAD = [];        % Default memory loading block size (bytes)
-MAX_LOAD_SEC = [];          % Maximum loading duration (seconds). This overrides "MAX_BYTES_LOAD".
-MAX_LOG = 5;                % Maximum number of histories to track for 'manual' GUI
-nLoads_gpu = 8;             % Ratio of RAM to GPU memory. If your GPU memory is 12 GB and RAM is 96 GB, set nLoads_gpu = 8. Increase this number if you get GPU memory error.
-vcFile_thresh = '';         % Name of .mat file taht stores the spike detection threshold in 'vnThresh_site' variable. Created by 'preview' GUI
-sec_per_load_preview = 1;   % Recording duration (sec) per continuous segment to preview
-nLoads_max_preview = 30;    % Number of time segments to load for preview
-offset_sec_preview = 0;     % Time offset (sec) to apply to the preview
-fCacheRam = 1;              % Cache spikew aveform information in RAM. Uses more RAM but faster
-fRamCache = 1;              % Cache both raw and filtered spike waveforms in RAM (greater memory demand)
-fSavePlot_RD = 1;           % Save the Rho-Delta plot as .png file (prefix: '_RD.png' at the end of the .prm file name)
+% PROBE PARAMETERS
+probePad = []; % (formerly vrSiteHW) Recording contact pad size (in μm) (Height x width)
+shankMap = []; % (formerly viShank_site) Shank ID of each site
+siteLoc = []; % (formerly mrSiteXY) Site locations (in μm) (x values in the first column, y values in the second column)
+siteMap = []; % (formerly viSite2Chan) Map of channel index to site ID (The mapping siteMap(i) = j corresponds to the statement 'site i is stored as channel j in the recording')
 
-% #Display parameters (Affects display only, (*):Can be modified in the manual GUI)
-tlim = [0, .2];             % Time range to display 
-nTime_traces = 1;           % Number of time segments to display. Set to 1 to show one continuous time segment
-nSkip_show = 1;             % Show 1 in n samples when plotting traces
-fSpike_show = 1;            % show spikes in the trace view (*)
-maxAmp = 250;               % Amplitude range in uV (initial setting, changeable in UI) (*)
-nShow = 200;                % Maximum number of traces to show [D?# spikes to show]
-corrLim = [.9 1];           % Correlation color plot range
-nSpk_show = 30;             % show spike waveforms for manual clustering
-nShow_proj = 500;           % Max. number of spikes to show in the projection view
-nSitesFigProj = 5;          % number of sites to show in feature projection view
-vcFet_show = 'vpp';         % Feature to show in time plot {'vpp', 'cov', 'pca'} (*)
-mrColor_proj = [.75 .75 .75; 0 0 0; 1 0 0];     % background, selected, comparison color
-vcFilter_show = '';         % Filter to apply in the "traces" view. Choices: {'', 'bandpass', 'sgdiff'}. '' uses vcFilter setting.
-fText = 1;                  % Show spike count per unit (*, press 'n' to toggle in manual GUI)
+% RECORDING FILE PARAMETERS
+bitScaling = 0.30518; % (formerly uV_per_bit) ADC bit scaling factor (Conversion factor for ADC bit values to μV)
+dataType = 'int16'; % (formerly vcDataType) Format of raw recordings
+headerOffset = 0; % (formerly header_offset) Recording file header offset (in bytes)
+nChans = 384; % Number of channels stored in recording file (Distinct from the number of AP sites)
+rawRecordings = ''; % Path or paths to raw recordings to sort
+sampleRate = 30000; % (formerly sRateHz) Sampling rate (in Hz) of raw recording
 
-% #Pre-processing (run "jrc spikesort" after change)
-tlim_load = [];             % Time range to load in sec (uses all time range if set to empty)
-vcFilter = 'ndiff';         % {'ndiff', 'sgdiff', 'bandpass', 'fir1', 'user', 'fftdiff', 'none'}
-nDiff_filt = 2;			    % Differentiation filter for vcFilter='sgdiff', ignored otherwise. Set to [] to disable. 2n+1 samples used for centered differentiation
-freqLim = [300, 3000];      % Frequency cut-off limit for vcFilter='bandpass', ignored otherwise. 
-filtOrder = 3;              % Bandpass filter order
-fEllip = 1;                 % Use Elliptic filter. set to 0 for Butterworth filter. Only valid for vcFilter='bandpass'.
-vnFilter_user = [];         % User-specified filter kernel. Used if vcFilter='user' is set.
-fft_thresh = 0;             % Automatically remove frequency outliers (unit:MAD, 10 recommended, 0 to disable). Verify by running "jrc traces" and press "p" to view the power spectrum.
-freqLimNotch = {};          % Notch filter frequency range to exclude manually. {[start1, end1], [start2, end2]}. Can be used in conjunction with fft_thresh.
-vcCommonRef = 'mean';       % common reference mode {'none', 'mean', 'median', 'whiten'}
-viSiteZero = [];            % Site# to ignore manually
-nPad_filt = 100;            % Number of samples to overlap between multiple loading (filter edge safe).
-gain_boost = 1;             % multiply the raw recording by this gain to boost uV per bit
-thresh_corr_bad_site = [];  % Automatically reject bad sites based on the max. correlation with neighboring sites using raw waveforms. Set to [] to disable
+% PREPROCESSING PARAMETERS
+ignoreSites = []; % (formerly viSiteZero) Sites to ignore manually
 
-% #Spike detection and grouping (run "jrc spikesort" after change)
-qqFactor = 5;               % Spike detection thresold (Threshold = qqFactor*S, S = med(x-med(x))/.6745). (RQ Quiroga'04).
-qqSample = 4;               % Median subsample factor (1 every n)
-spkThresh_uV = [];          % Manual threshold (applies to all channels)
-spkThresh_max_uV = [];      % maximum absolute amp. allowed
-spkLim_ms = [-.25, .75];    % Time range to capture the filtered spike waveforms; spkLim = round(P.spkLim_ms/1000*P.sRateHz)
-spkLim_raw_ms = [];         % Raw spike waveform range, setting to [] will use spkLim_raw_factor to determine spkLim_raw (# samples)
-spkLim_raw_factor = 2;      % if spkLim_raw_ms==[] then spkLim_raw = spkLim * spkLim_raw_factor
-maxSite = [];               % Auto-calculated by `maxDist_site_spk_um` if empty. `nSites_spk` = 1+2*`maxSite`-`nSite_ref`)
-spkRefrac_ms = .25;         % Detection refractory period in milliseconds
-vcSpatialFilter = 'none';   % Spatial filter for detection {'mean', 'imec2', 'subtract', 'csd'}
-fSaveEvt = 1;               % Flag to save event file
-fDetectBipolar = 0;         % bipolar amplitude detection (0 means negative)
-fSaveRawSpk = 0;            % Save spike detected per site (saves minimum peak)
-blank_thresh = [];          % reject spikes exceeding the channel mean after filtering (MAD unit), ignored if [] or 0
-blank_period_ms = 5;        % (miliseconds) Duration of blanking when the common mean exceeds a threhold (blank_thresh)
-nneigh_min_detect = 0;      % Min. number of neighbors near the spike below threshold. choose between [0,1,2]
-maxDist_site_um = 50;       % Radius of spike event merging. Keep spikes that has most negative peaks within x um radius.
-maxDist_site_spk_um = 75;   % Max. radius for extracting waveforms. Used if maxSite=[] and nSites_ref=[]
-fGroup_shank = 0;           % Group all sites in the same shank
+% SPIKE DETECTION PARAMETERS
+blankThresh = []; % (formerly blank_thresh) Threshold (in MADs) above which to reject samples exceeding channel median after filtering
+blankPeriod = 5; % (formerly blank_period_ms) Duration of blanking period (in ms) when the common mean exceeds blankThresh
+CARMode = 'mean'; % (formerly vcCommonRef) The meaning of 'average' in 'common average reference'
+evtDetectRad = 75; % (formerly maxDist_site_spk_um) Maximum distance (in μm) for extracting spike waveforms
+evtWindow = [-0.25, 0.75]; % (formerly spkLim_ms) Time range (in ms) of filtered spike waveforms, centered at the peak
+filterType = 'ndiff'; % (formerly vcFilter) Type of filter to use on raw data
+filtOrder = 3; % Bandpass filter order
+freqLimBP = [300, 3000]; % (formerly freqLim) Frequency cutoffs for bandpass filter
+nSiteDir = []; % (formerly maxSite) Number of neighboring sites to group in either direction (nSitesEvt is set to 1 + 2*nSiteDir - nSitesExcl)
+nSitesExcl = []; % (formerly nSites_ref) Number of sites to exclude from the spike waveform group
+qqFactor = 5; % Spike detection threshold (Thr = qqFactor*med(abs(x-med(x)))/0.6745)
+refracInt = 0.25; % (formerly spkRefrac_ms) Spike refractory period (in ms)
 
-% #Feature extraction (run "jrc spikesort" after change)
-vcFet = 'gpca';             % Feature list: {'gpca', 'cov', 'vpp', 'vmin', 'vminmax', 'energy', 'pca'}
-nPcPerChan = 1;             % number of principal components per chan.
-nSites_ref = [];            % set to 0 for global referencing (move to feature section) @TODO: diagram
-vcSpkRef = 'nmean';         % Subtract mean of the spiking event sites {'nmean', 'none'}
-fInterp_fet = 1;            % Interpolate the waveforms for feature projection to find the optimal delay (2x interp). Set to 0 to disable
+% FEATURE EXTRACTION PARAMETERS
+clusterFeature = 'pca'; % (formerly vcFet) The feature to extract from your spike waveforms in order to cluster them
+nPCsPerSite = 1; % (formerly nPcPerChan) Number of principal components to compute per site
 
-% #Clustering (run "jrc sort" after change)
-nTime_clu = 4;              % number of time periods to perform separate clustering (later to be merged after clustering)
-dc_percent = 2;             % used for distribution cutting
-fRepeat_clu = 0;            % Flag for whether to repeat clustering for the bottom half of the cluster amplitudes.
-nThreads = 128;             % number of GPU threads for clustering
-nC_max = 45;                % (read-only) Set by the CUDA code. Maximum number of dimensions per event
-fSpatialMask_clu = 0;       % Apply spatial mask calculated from the distances between sites to the peak site (half-scale: P.maxDist_site_um). circa v3.1.10
-min_sites_mask = 5;         % Minimum number of sites to have to apply spatial mask. Used if fSpatialMask_clu==1. circa v3.1.10
+% CLUSTERING PARAMETERS
+autoMergeBy = 'pearson'; % (formerly autoMergeCriterion) Metric to use for automerging clusters based on average waveform
+distCut = 2; % (formerly dc_percent) Percentile of pairwise distances between spikes on a site to use as a cutoff distance
+log10DeltaCut = 0.6; % (formerly delta1_cut) Log10 of delta cutoff (Spikes with delta values below this cutoff will not be considered as cluster centers)
+log10RhoCut = -2.5; % (formerly rho_cut) Log10 of rho cutoff (Spikes with rho values below this cutoff will not be considered as cluster centers)
+maxUnitSim = 0.98; % (formerly maxWavCor) Threshold for merging two units having similar spike waveforms (Units with a similiarity score above this value will be merged)
+minClusterSize = 30; % (formerly min_count) Minimum number of spikes per cluster (Automatically set to the maximum of this value and twice the number of features)
+nClusterIntervals = 4; % (formerly nTime_clu) Number of intervals to divide the recording into around a spike (When clustering, take the 1/nClusterIntervals fraction of all spikes around a spiking event to compute distance)
+RDDetrendMode = 'global'; % (formerly vcDetrend_postclu) Detrending mode to apply to rho-delta values in order to determine cluster centers
 
-% #Post-cluster auto-merging parameters (run "jrc auto" after change)
-delta1_cut = .6;            % RL cluster: delta cut-off. Increasing this will produce less clusters.
-rho_cut = -2.5;             % RL cluster: rho cut-off. Decreasing (more negative) this will produce more clusters.
-autoMergeBy = 'pearson';    % use Pearson coefficient ('pearson') or normalized mean waveform distance ('dist') to merge clusters (maxWavCor will be different in each case to achieve the same results)
-maxWavCor = .98;            % merge if waveform correlation is greater than maxWavCor.
-min_count = 30;             % Minimum cluster size (min_count will be set to 2*#features if lower).
-nRepeat_merge = 10;         % # of repeats for average unit raw waveform based merging
-vcDetrend_postclu = 'global'; % 'none', 'hidehiko', 'global', 'local', 'logz'
-thresh_mad_clu = 7.5;       % This sets the MAD score threshold to remove outlier spikes for each cluster.
-maxCluPerSite = 20;         % Maximum clusters per site allowed if local detrending is used.
-fDrift_merge = 1;           % Compute multiple waveforms at three drift locations based on the spike position (CoM).
-nInterp_merge = 1;          % Interpolation factor for the mean unit waveforms, set to 1 to disable
-maxDist_site_merge_um = 35; % Max. distance separation of the peak sites to consider merging
-spkLim_factor_merge = 1;    % Waveform range for computing the correlation. spkLim_factor_merge <= spkLim_raw_factor_merge. circa v3.1.8
+% DISPLAY PARAMETERS
+dispTimeLimits = [0, 0.2]; % (formerly tlim) Time range (in ms) to display
+nSpikesFigProj = 500; % (formerly nShow_proj) Maximum number of spikes per cluster to display in the feature projection view
+nSpikesFigWav = 30; % (formerly nSpk_show) Maximum number of spikes per cluster to display generally
 
-% #Trial (used for plotting PSTH for each unit after clustering)
-vcFile_trial = '';          % .mat or .csv file containing timestamp in seconds unit. use any variable name.
-thresh_trial = [];          % Threshold to detect trial event timing from the TTL pulse. If empty, half between min and max is used.
-tRefrac_trial = .001;       % Trial timestamp refractory period (sec), disable duplicate events
-tlim_psth = [-1 5];         % Time range to display PSTH (in seconds)
-tbin_psth = .01;            % Time bin for the PSTH histogram (in seconds)
-xtick_psth = .2;            % PSTH time tick mark spacing
-fAverageTrial_psth = 1;     % Plot PSTH for averaged trial if set to 1, otherwise plot individual trials (opens multiple tabs)
-nSmooth_ms_psth = 50;       % PSTH smoothing time window (in milliseconds)
-rateLim_psth = [];          % range range in Hz
-dinput_imec_trial = 1;      % IMEC digital input channel number (1-16) to generate trial file (vcFile_trial) using 'maketrial-imec' command.
-
-% #Firing rate estimation for unit
-sRateHz_rate = 1000;                % Resampled rate for the firing rate
-filter_sec_rate = 2;                % Time period to determine the firing rate
-filter_shape_rate = 'triangle';     % {'triangle', 'rectangle'} kernel shape for temporal averaging
-
-% #Aux channel (used for correlating with the unit firing rates)
-vcFile_aux = '';            % Aux channel file
-sRateHz_aux = [];           % sampling rate for aux file
-iChan_aux = [];             % Aux channel # to correlate with the unit firing rate    
-vcLabel_aux = '';           % Label for the aux channel
-vrScale_aux = 1;            % Scale factor for the aux input
-nClu_show_aux = 10;         % Max # clusters to show for aux vs. firing rate correlation
-
-% #LFP
-vcFile_lfp = '';            % LFP file
-sRateHz_lfp = 2500;         % Target LFP sampling rate (Hz)
-nSkip_lfp = [];             % downsample factor used to determine sRateHz_lfp if sRateHz_lfp==[]
-
-
-
-%--------------------------------------------------------------------------
-% Developer's section
-
-% Record Keeping
-vcDate_file = '';           % date string. e.g. '19-May-2016 13:02:18'
-nBytes_file = [];           % file byte size
-duration_file = [];         % recording duration in seconds
-
-% Ground truth
-vcFile_gt = '';             % Ground truth file. Default: *_gt.mat. @TODO: Specify the format
-
-% Unit/dipole tracking
-um_per_pix = 20;
-maxSite_pix = 4.5;
-nPc_dip = 3;                    % Number of principal components for dipole fitting
-maxSite_dip = maxSite;          % Number of sites (2n+1) to fit dipole model
-
-% depth tracking
-vcMode_track = 'mt_cpsd2_mr';   % LFP tracking method {'mt_psd_mr', 'mt_cpsd_mr', 'cpsd_mr', 'corr_mr', 'mt_cpsd1_mr', 'mt_fft_mr', 'mt_cpsd2_mr', 'mt_cpsd1_mr', 'mt_dpsd_mr'}
-tBin_track = 9;                 % Duration (sec) per bin
-freqLim_track = [15 150];       % Filter range
-freqLim_excl_track = [58 62];   % Filter range to exclude. Change this for Europe
-thresh_corr_track = [];         % Deprecated. correlation drop-off
-viDepth_track = [];             % Range of sites to track. set to empty to ignore
-fUseCache_track = 0;            % Use pre-stored result
-maxSite_track = 2:8;              % maximum distance for a site pair
-nw_lcm_track = 1;               % number of windows for local center of mass 
-max_shift_track = [];            % maximum shift distance per bin
-fSingleColumn_track = 1;        % Disable by default
-viSite_bad_track = [];          % Sites to ignore
-pix_per_sec_track = [];         % Descent experiment speed
-load_fraction_track = [];       % Fraction of data to load for tracking
-viDepth_excl_track = [];        % Depth point to ignore
-fSmooth_track = 1;              % Smooth depth tracking result
-fUseLfp_track = 1;              % Use LFP info for tracking. set to 0 to use AP band
-
-% Drift correction
-cvrDepth_drift = {};        % Time range (s) and depth to correct manually
-tbin_drift = [];            % drift correcting time step in sec. Set to empty to skip drift correction
-nT_drift = [];             % Number of time steps for drift correction. Set to empty to skip drift correction
-ybin_drift = 2;             % drift correcting depth step in um
-
-
-%--------------------------------------------------------------------------
-% Deprecated
-
-% Recording file format
-viChan_bin = [];            % channel translation order for bin file [D]
-viChan_aux = [];            % aux and sync channels [D]
-cviShank = {};              % Shank channel group [D]
-
-% Display parameters
-LineStyle = '';             % Line style string [D]
-fShowAllSites = 0;          % Show mean traces from all sites [D]
-fAddCommonRef = 0;          % Add common ref [D]
-iClu_show = [];             % cluster to display %show all by default [D]
-maxSite_show = [];          % uses maxSite if empty.  [D]
-tlim_lfp = [0, 5];          % lfp viewing range [D]
-maxAmp_lfp = 1000;          % Amplitude range in uV (LFP) [D]
-freqLim_corr = [15 150];    % LFP correlation frequency limit [D]
-time_tick_show = [];        % Time interval tick marks in secondds, [] for auto [D]
-viChan_show = [];           % Show all if empty [D]
-fWav_raw_show = 0;          % Show raw waveform (0 to show filtered); [D]
-
-% Pre-processing
-nSites_excl_ref = 6;        % excl three nearest sites when perfomaing 'nmean' local referencing [D]
-thresh_sd_ref = 5;          % local common referencing threshold (SD) [D]
-fSaveSpk = 1;               % flag to save .spk file (large binary) [D]
-freqLim_lfp = [];           % LFP filter range in Hz. [#] for lowpass and [#,#] for bandpass [D?]
-freqLimNotch_lfp = [];      % Notch filter for LFP band [D?]
-fWhiten_traces = 0;         % Apply whitening of the traces after filtering. (kilosort and spykingcircus use this). [D?]
-nSkip_whiten = 10;          % use 1 of n for whitening calculation [D?]
-fLoad_lfp = 0;              % Load LFP file [D?]
-S_imec3 = [];               % imec3 struct [D]
-fMeanSite = 1;              % Subtract background noise (mean across sites, nSite=4*maxSite); [D]
-fMeanSite_drift = 0;        % Average nearest vertical neighbors (top and down) [D]
-vcFilter_detect = '';       % Filter choice to run spike detection {'matched', 'corr'}; [D?]
-fCheckSites = 0;            % Automatically reject bad sites if set to 1
-maxLfpSdZ = 4.500000;       % site rejection threshold (valid if fCheckSites=1)
-
-% Spike detection and grouping
-fPcaDetect = 0;             % Detect spikes after projecting waveform in 1st prin. vec.
-fRms_detect = 0;            % don't use rms filter for detection if selectec
-rms_filt_ms = 0;            % RMS filter for spike detection. Set to 0 to ignore
-maxSite_detect = 1.5;       % Max site to sum neighboring channels for detection
-refrac_factor = 2;          % Refractory period for the same channel  (spkRefrac_ms x refrac_factor)
-
-% Feature extraction
-slopeLim_ms = [.05 .35];    % Slope feature parameter
-spkLim_ms_fet = [-.25, .75];			% Spike waveform time range
-maxSite_fet = [];              % 2*n number of nearest neighbors for merging
-nMinAmp_ms = 0;             % Amplitude minimum search range
-fRejectSpk_vpp = 0;         % Reject spikes exceedign 2 * thresh
-fMinNorm_wav = 0;           % Normalize by min value at max site
-
-% Clustering
-dc_frac = [];
-dc_factor = 1;              % higher: merge more, lower: split more
-tlim_clu = [];              % time range to cluster, referenced from tlim_load in sec
-vcCluDist = 'eucldist';    % Distance: {'neucldist_offset', 'nmaxdist_offset', 'nmaxdist', 'corrdist', 'neucldist', 'eucldist'};
-fMeanSiteRef = 0;           % Subtract by mean 
-maxSite_sort = [];          % max site distance to compare cluster membership
-maxSite_merge = [];        % Number of sites (2n+1) to merge based on waveform similarity
-vcDc_clu = 'distr';         % use noise distribution to determine cutoff {noise, distr, entropy, otsu}
-fProj_sort = 0;             % PCA project from PCA
-fNormRhoDelta = 1;          % remove spikes in delta dimension if set
-
-% Post-cluster parameters (run "jrc auto" after change)
-thresh_merge_clu = 0;       % Pierre Yger's cluster merging criterial based on medium projection of cluster pairs
-thresh_automerge_pca = [];   % posthoc merge based on the eigvec similarity. recommends .998
-thresh_split_clu = 0;       % Split a cluster to two if separation distance > (x) after k-means clustering
-fDiscard_count = 1;         % Discard cluster under minimum count. set to zero to absorb to the nearest cluster
-vcCluWavMode = 'mean';      % use median to compute average cluster waveform
-
-% Batch process parameters
-fProcessReverseOrder = 0;
-fProcessOdd = 0;
-fProcessEven = 0;
-fRun = 1;                   % Run the job for batch
-
-% Trial
-vcFile_vid = '';            % video file
-iChan_vid = [];             % video sync channel, zero-based
-flim_vid = [];              % used for video sync, video frame #
-tlim_vid = [];              % used for video sync, ephys time
-vcFile_bonsai = '';         % bonsai 5-column output (x,y are 2 and 3)
+% TRIAL PARAMETERS
+psthTimeLimits = []; % (formerly tlim_psth) Time range (in s) over which to display PSTH
+trialFile = ''; % (formerly vcFile_trial) Path to file containing trial data (Can be .mat or .csv, must contain timestamps of trials in units of s)

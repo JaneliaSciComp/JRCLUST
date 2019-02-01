@@ -8,6 +8,9 @@ sample*.png
 sample*.prm
 sample*.csv
 
+# docs
+docs/build
+
 # Misc
 *.mat
 *.ipynb
