@@ -320,6 +320,8 @@ classdef JRC < handle & dynamicprops
             %RUN Run commands
             if obj.isError
                 error(obj.errMsg);
+            elseif isempty(obj.hCfg.rawRecordings)
+                error('rawRecordings cannot be empty');
             elseif obj.isCompleted
                 warning('command ''%s'' completed successfully; to rerun, use rerun()', obj.cmd);
                 return;

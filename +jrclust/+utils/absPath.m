@@ -46,6 +46,7 @@ function iap = isAbsPath(pathname)
         truncd = regexprep(pathname, '^[a-z]:', '', 'ignorecase');
         iap = ~strcmp(truncd, pathname) && (all(regexp(truncd, '^[/\\]')) == 1);
     else
-        iap = (all(regexp(pathname, '^/')) == 1);
+        iap = regexp(pathname, '^/');
+        iap = ~isempty(iap) && iap;
     end
 end
