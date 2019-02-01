@@ -3,6 +3,21 @@
 Spike detection
 ===============
 
+.. _chunking:
+
+Chunking
+--------
+
+JRCLUST will chunk up large files and perform each of the following steps in sequence over
+each chunk.
+If you are using a GPU, the chunk size is determined from your available GPU memory.
+For consistency, **3/4** of the total GPU memory will be considered "available".
+If you are not using a GPU, JRCLUST will try to determine the total amount of RAM available
+on your system and consider all of it to be available.
+JRCLUST will then take :ref:`a fraction <gpuLoadFactor>` of that available memory and reserve it
+for processing.
+Large files are chunked to use as much of the available memory as possible.
+
 .. _denoising:
 
 Denoising

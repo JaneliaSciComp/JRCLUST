@@ -107,9 +107,9 @@ One of the following:
 - 'energy': Standard deviation of spike waveform.
 - 'gpca': :ref:`Global PCA <gpca>`.
 - 'pca': Projection of spike waveforms onto :ref:`principal components <pca>`.
-- 'vmin': Minimum spike amplitude.
-- 'vminmax': Minimum and maximum spike amplitudes (2 features/site).
-- 'vpp': Peak-to-peak spike amplitudes.
+- 'vmin': :ref:`Minimum spike amplitude <vmin>`.
+- 'vminmax': :ref:`Minimum and maximum spike amplitudes <vminmax>` (2 features/site).
+- 'vpp': :ref:`Peak-to-peak spike amplitudes <feature-vpp>`.
 
 **Default** is 'pca'.
 
@@ -856,7 +856,7 @@ Path to file containing ground-truth data.
 .. _interpPC:
 
 interpPC
-^^^^^^^^^^^^
+^^^^^^^^
 
 (Formerly ``fInterp_fet``)
 

@@ -59,7 +59,6 @@ For each recording you specify in your config file, JRCLUST will:
 #. :ref:`Extract spatiotemporal windows <extract-windows>` around spiking events, in both raw and filtered samples.
 #. :ref:`Compute low-dimensional features <compute-features>` from the resulting waveforms.
 
-JRCLUST will chunk up large files and perform all these steps in sequence over each chunk.
 A detailed description of the steps in the detection process is indexed below.
 
 .. toctree::

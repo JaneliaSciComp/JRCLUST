@@ -6,7 +6,7 @@ It is written in MATLAB and CUDA.
 Read the documentation [here](https://jrclust.readthedocs.io/en/latest/index.html), and the original BioRxiv paper [here](https://www.biorxiv.org/content/early/2017/01/30/101030).
 Visit our [Gitter community](https://gitter.im/JRCLUST/community).
 
-JRCLUST was originally developed by [James Jun](https://sites.google.com/view/rocketephys) and is currently maintained by [Vidrio Technologies](https://vidriotechnologies.com).
+JRCLUST was originally developed by [James Jun](https://www.simonsfoundation.org/team/james-jun/) and is currently maintained by [Vidrio Technologies](https://vidriotechnologies.com).
 
 ## Installing JRCLUST
 
