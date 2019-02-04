@@ -1,0 +1,17 @@
+2/4/2019
+
+# Parameters
+- `RDDetrendMode`: 'hidehiko' renamed to 'regress'
+- `realignTraces` was overlooked; this has been fixed
+- old2new parameter mapping moved into params.json
+- `deprecated` field (with supported/partially supported subfields) added to params.json
+# Config class
+- `validateProp` method failed to check default string values because MATLAB is weird about "" strings; this has been fixed
+- `save` method exported default params, not user-specified params; this has been fixed
+- `oldParamSet` made a dependent property
+- added `setCustomProp` method: Config no longer ignores params not found in the default set
+- added `deprecatedParams` property: check for deprecated status when calling `setCustomProp`
+- added `isV3Import` property: Config will export a new config file if this is true
+- `save` method exports custom properties if there are any
+# JRC class
+- `saveFiles` saved binaries (raw/filtered traces, features) on sort without detect; this has been fixed

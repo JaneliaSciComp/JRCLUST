@@ -1,4 +1,4 @@
-function doSaveFiles(res, hCfg)
+function doSaveFiles(res, hCfg, saveBinaries, saveConfig)
     %DOSAVEFILES Save results structs and binary files to disk
     if isempty(res)
         return;
@@ -13,25 +13,28 @@ function doSaveFiles(res, hCfg)
         end
     end
 
-    % save spikesRaw
-    res = saveBin(res, 'spikesRaw', 'raw', hCfg);
-    if isfield(res, 'spikesRaw') % save to file failed
-        warning('Failed to save spikesRaw; will be saved in %s', filename);
+    if saveBinaries
+        % save spikesRaw
+        res = saveBin(res, 'spikesRaw', 'raw', hCfg);
+        if isfield(res, 'spikesRaw') % save to file failed
+            warning('Failed to save spikesRaw; will be saved in %s', filename);
+        end
+
+        % save spikesFilt
+        res = saveBin(res, 'spikesFilt', 'filt', hCfg);
+        if isfield(res, 'spikesFilt') % save to file failed
+            warning('Failed to save spikesFilt; will be saved in %s', filename);
+        end
+
+        % save spikeFeatures
+        res = saveBin(res, 'spikeFeatures', 'features', hCfg);
+        if isfield(res, 'spikeFeatures') % save to file failed
+            warning('Failed to save spikeFeatures; will be saved in %s', filename);
+        end
     end
 
-    % save spikesFilt
-    res = saveBin(res, 'spikesFilt', 'filt', hCfg);
-    if isfield(res, 'spikesFilt') % save to file failed
-        warning('Failed to save spikesFilt; will be saved in %s', filename);
-    end
-
-    % save spikeFeatures
-    res = saveBin(res, 'spikeFeatures', 'features', hCfg);
-    if isfield(res, 'spikeFeatures') % save to file failed
-        warning('Failed to save spikeFeatures; will be saved in %s', filename);
-    end
-
-    % save everything else
+    % save everything else (don't save spikesRaw, spikesFilt,
+    % spikeFeatures inside hClust)
     if isfield(res, 'hClust') && ~isempty(res.hClust.spikesRaw)
         doRestore = 1;
         spikesRaw = res.hClust.spikesRaw;
@@ -49,10 +52,14 @@ function doSaveFiles(res, hCfg)
         fprintf('Saved results to %s\n', filename);
     end
 
-    if doRestore
+    if doRestore % restore spikesRaw, spikesFilt, spikeFeatures to hClust
         res.hClust.spikesRaw = spikesRaw;
         res.hClust.spikesFilt = spikesFilt;
         res.hClust.spikeFeatures = spikeFeatures;
+    end
+
+    if saveConfig
+        hCfg.save();
     end
 end
 

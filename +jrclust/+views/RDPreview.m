@@ -44,7 +44,7 @@ function hCFig = RDPreview(hClust)
 
 
     % populate the detrend option dropdown
-    detrendOptions = {'none', 'local', 'global', 'hidehiko'};
+    detrendOptions = {'none', 'local', 'global', 'regress'};
     hCFig.addUicontrol('detrendLabel', 'Style', 'text', ...
                        'String', 'Detrend mode', ...
                        'Position', [285, 0, 50, 30]);

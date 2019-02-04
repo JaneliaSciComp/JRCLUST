@@ -25,7 +25,7 @@ function sRes = computeCenters(dRes, sRes, hCfg)
         y(mask) = jrclust.utils.zscore(y(mask));
 
         sRes.clusterCenters = find(x >= hCfg.log10RhoCut & y >= 4 + hCfg.log10DeltaCut);
-    elseif strcmp(hCfg.RDDetrendMode, 'hidehiko') % Hide's regression method
+    elseif strcmp(hCfg.RDDetrendMode, 'regress') % regression method
         sRes.clusterCenters = jrclust.cluster.densitypeaks.regressCenters(sRes, dRes.spikesBySite, hCfg.log10DeltaCut);
     else                                            % don't detrend
         sRes.clusterCenters = find(sRes.spikeRho(:) > 10^(hCfg.log10RhoCut) & sRes.spikeDelta(:) > 10^(hCfg.log10DeltaCut));

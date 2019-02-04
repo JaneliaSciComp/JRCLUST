@@ -328,7 +328,7 @@ classdef JRC < handle & dynamicprops
             end
 
             % try to warm up the local parallel pool before taking a swim
-            if obj.hCfg.useParfor && (obj.isDetect || obj.isSort || obj.isSort)
+            if obj.hCfg.useParfor && (obj.isDetect || obj.isSort)
                 try
                     parpool('local');
                 catch
@@ -363,17 +363,17 @@ classdef JRC < handle & dynamicprops
 
             % notify user that we're using previously-computed results
             if obj.hCfg.verbose
-                if ~isempty(obj.res) && isfield(obj.res, 'detectedOn')
+                if ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'detectedOn')
                     fprintf('Using spikes detected on %s\n', datestr(obj.res.detectedOn));
-                elseif ~isempty(obj.res) && isfield(obj.res, 'spikeTimes')
+                elseif ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'spikeTimes')
                     fprintf('Using previously-detected spikes\n');
                 end
-                if ~isempty(obj.res) && isfield(obj.res, 'sortedOn')
+                if ~obj.isDetect && ~obj.isSort && ~isempty(obj.res) && isfield(obj.res, 'sortedOn')
                     fprintf('Using clustering computed on %s\n', datestr(obj.res.sortedOn));
-                elseif ~isempty(obj.res) && isfield(obj.res, 'hClust')
+                elseif ~obj.isDetect && ~obj.isSort && ~isempty(obj.res) && isfield(obj.res, 'hClust')
                     fprintf('Using previously-clustered spikes\n');
                 end
-                if ~isempty(obj.res) && isfield(obj.res, 'curatedOn')
+                if obj.isCurate && ~isempty(obj.res) && isfield(obj.res, 'curatedOn')
                     fprintf('Last manually edited on %s\n', datestr(obj.res.curatedOn));
                 end
             end
@@ -450,7 +450,7 @@ classdef JRC < handle & dynamicprops
 
             % save our results for later
             if doSave
-                obj.saveFiles();
+                obj.saveFiles(obj.isDetect, obj.hCfg.isV3Import);
             end
 
             % CURATE SPIKES
@@ -465,13 +465,13 @@ classdef JRC < handle & dynamicprops
             obj.isCompleted = 1;
         end
 
-        function saveFiles(obj)
+        function saveFiles(obj, saveBinaries, saveConfig)
             %SAVEFILES Save results struct to disk
             if obj.isError
                 error(obj.errMsg);
             end
 
-            doSaveFiles(obj.res, obj.hCfg);
+            doSaveFiles(obj.res, obj.hCfg, saveBinaries, saveConfig);
         end
 
         function res = loadFiles(obj)

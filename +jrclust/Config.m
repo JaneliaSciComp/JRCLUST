@@ -4,38 +4,45 @@ classdef Config < dynamicprops
 
     %% OBJECT-LEVEL PROPERTIES
     properties (Hidden, SetAccess=private, SetObservable)
-        isError;
-        paramSet;
-        oldParamSet;
-        tempParams;
+        customParams;           % params not included in the default set
+        isError;                % true if an error in configuration
+        isV3Import;             % true if old-style params are referred to in configFile
+        paramSet;               % common and advanced parameter sets with default values and validation criteria
+        tempParams;             % temporary parameters (probably a hack)
+    end
+
+    %% DEPENDENT OBJECT-LEVEL PROPERTIES
+    properties (Dependent, Hidden, SetObservable)
+        deprecatedParams;       % deprecated parameters (for excluding)
+        oldParamSet;            % old-style parameters with mapping to new params
     end
 
     %% CONFIG FILE
     properties (SetAccess=private, SetObservable)
-        configFile;
+        configFile;             % path to configuration file
     end
 
     %% NOT TO BE SET BY USERS
     properties (SetAccess=private)
-        siteNeighbors;              % indices of neighbors for each site
+        siteNeighbors;          % indices of neighbors for each site
     end
 
     %% RECORDING(S) (to ease the v3-v4 transition)
     properties (Dependent, Hidden, SetObservable)
-        singleRaw;                  % formerly vcFile
-        multiRaw;                   % formerly csFile_merge
+        singleRaw;              % formerly vcFile
+        multiRaw;               % formerly csFile_merge
     end
 
     %% COMPUTED PARAMS
     properties (SetObservable, Dependent)
-        bytesPerSample;             % byte count for each discrete sample
-        evtManualThreshSamp;        % evtManualThresh / bitScaling
-        evtWindowRawSamp;           % interval around event to extract raw spike waveforms, in samples
-        evtWindowSamp;              % interval around event to extract filtered spike waveforms, in samples
-        nSites;                     % numel(siteMap)
-        nSitesEvt;                  % 2*nSiteDir + 1 - nSitesExcl
-        refracIntSamp;              % spike refractory interval, in samples
-        sessionName;                % name of prm file, without path or extensions
+        bytesPerSample;         % byte count for each discrete sample
+        evtManualThreshSamp;    % evtManualThresh / bitScaling
+        evtWindowRawSamp;       % interval around event to extract raw spike waveforms, in samples
+        evtWindowSamp;          % interval around event to extract filtered spike waveforms, in samples
+        nSites;                 % numel(siteMap)
+        nSitesEvt;              % 2*nSiteDir + 1 - nSitesExcl
+        refracIntSamp;          % spike refractory interval, in samples
+        sessionName;            % name of prm file, without path or extensions
     end
 
     %% LIFECYCLE
@@ -58,6 +65,8 @@ classdef Config < dynamicprops
                 obj.configFile = filename_;
             end
 
+            obj.customParams = {};
+            obj.isV3Import = 0;
             obj.isError = 0;
 
             % for setting temporary parameters
@@ -109,9 +118,6 @@ classdef Config < dynamicprops
             obj.paramSet = jrclust.utils.getDefaultParams(0);
             fullParams = jrclust.utils.mergeStructs(obj.paramSet.commonParameters, ...
                                                     obj.paramSet.advancedParameters);
-
-            % read in mapping to old (v3) parameter set
-            obj.oldParamSet = jrclust.utils.getOldParamMapping();
 
             % set default parameters
             paramNames = fieldnames(fullParams);
@@ -179,6 +185,8 @@ classdef Config < dynamicprops
                     fn = probeFields{i};
                     obj.(fn) = probe.(fn);
                 end
+
+                userParams = rmfield(userParams, 'probe_file');
             end
 
             % set user-specified params
@@ -197,7 +205,7 @@ classdef Config < dynamicprops
 
                 % empty values in the param file take on their defaults
                 if ~isempty(userParams.(paramName))
-                    [flag, val, errMsg] = obj.validateProp(paramName, userParams.(paramName)); %#ok<ASGLU>
+                    [flag, val, errMsg] = obj.validateProp(paramName, userParams.(paramName));
                     if flag
                         obj.setProp(paramName, val);
                     else % TODO: warn users after a grace period
@@ -256,10 +264,28 @@ classdef Config < dynamicprops
             obj.bitScaling = obj.bitScaling/obj.gainBoost;
         end
 
+        function setCustomProp(obj, propname, val)
+            %SETCUSTOMPROP Set a property not included in the defaults
+            if ismember(propname, obj.deprecatedParams.unsupported)
+                return;
+            end
+
+            if ~ismember(propname, obj.customParams)
+                obj.customParams{end+1} = propname;
+            end
+
+            if ~isprop(obj, propname)
+                addprop(obj, propname);
+            end
+
+            obj.(propname) = val;
+        end
+
         function setProp(obj, propname, val)
             %SETPROP Set a property
             if isfield(obj.oldParamSet, propname)
                 propname = obj.oldParamSet.(propname);
+                obj.isV3Import = 1;
             end
 
             fullParams = jrclust.utils.mergeStructs(obj.paramSet.commonParameters, ...
@@ -272,6 +298,8 @@ classdef Config < dynamicprops
                 obj.(propname) = val;
             elseif ismember(propname, {'singleRaw', 'multiRaw'}) % separate validation for these
                 obj.(propname) = val;
+            else
+                obj.setCustomProp(propname, val);
             end
         end
 
@@ -279,6 +307,7 @@ classdef Config < dynamicprops
             %VALIDATEPROP Ensure a property is valid
             if isfield(obj.oldParamSet, propname) % map the old param name to the new one
                 propname = obj.oldParamSet.(propname);
+                obj.isV3Import = 1;
             end
 
             fullParams = jrclust.utils.mergeStructs(obj.paramSet.commonParameters, ...
@@ -286,6 +315,8 @@ classdef Config < dynamicprops
 
             flag = 1;
             errMsg = '';
+
+            % found in default params, do validation
             if isfield(fullParams, propname)
                 validData = fullParams.(propname).validation;
                 classes = validData.classes;
@@ -341,7 +372,7 @@ classdef Config < dynamicprops
                         assert(hFun(val));
                     end
 
-                    if isfield(validData, "values")
+                    if isfield(validData, 'values')
                         assert(all(ismember(val, validData.values)));
                     end
                 catch ME
@@ -515,7 +546,7 @@ classdef Config < dynamicprops
                         continue;
                     end
 
-                    fprintf(fid, '%s = %s; %% ', pn, jrclust.utils.field2str(pdata.default_value));
+                    fprintf(fid, '%s = %s; %% ', pn, jrclust.utils.field2str(obj.(pn)));
                     if isfield(new2old, pn) % write old parameter name
                         fprintf(fid, '(formerly %s) ', new2old.(pn));
                     end
@@ -528,6 +559,16 @@ classdef Config < dynamicprops
                 end
 
                 fprintf(fid, '\n');
+            end
+
+            % write out custom parameters
+            if ~isempty(obj.customParams)
+                fprintf(fid, '%% USER-DEFINED PARAMETERS\n');
+                for j = 1:numel(obj.customParams)
+                    pn = obj.customParams{j};
+
+                    fprintf(fid, '%s = %s;\n', pn, jrclust.utils.field2str(obj.(pn)));
+                end
             end
 
             if fid > 1
@@ -603,6 +644,15 @@ classdef Config < dynamicprops
         % bytesPerSample
         function bp = get.bytesPerSample(obj)
             bp = jrclust.utils.typeBytes(obj.dataType);
+        end
+
+        % deprecatedParams
+        function val = get.deprecatedParams(obj)
+            if ~isstruct(obj.paramSet)
+                val = [];
+            else
+                val = obj.paramSet.deprecated;
+            end
         end
 
         % evtManualThreshSamp
@@ -709,6 +759,15 @@ classdef Config < dynamicprops
                 ns = 2*obj.nSiteDir - obj.nSitesExcl + 1;
             else
                 ns = [];
+            end
+        end
+
+        % oldParamSet
+        function val = get.oldParamSet(obj)
+            if ~isstruct(obj.paramSet)
+                val = [];
+            else
+                val = obj.paramSet.old2new;
             end
         end
 

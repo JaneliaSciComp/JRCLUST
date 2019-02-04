@@ -37,7 +37,7 @@ One of the following:
 - 'global': Performs the detrending for all sites together.
 - 'local': Performs the detrending for each site separately.
 - 'logz': Use z-scores instead of detrending.
-- 'hidehiko': Use a non-constant threshold to determine centers for each site.
+- 'regress': Use a non-constant threshold to determine centers for each site.
 - 'none': Skips detrending.
 
 **Default** is 'global'.
@@ -1166,16 +1166,25 @@ Ratio of RAM to GPU memory.
 .. _randomSeed:
 
 randomSeed
-^^^^^^^^^^^^^^
+^^^^^^^^^^
 
 Seed for the random number generator.
+
+**Default** is 0.
+
+.. _realignTraces:
+
+realignTraces
+^^^^^^^^^^^^^
+
+Realign spike traces after subtracting local CAR (Realign if 1, perform subpixel interpolation if 2).
 
 **Default** is 0.
 
 .. _showRaw:
 
 showRaw
-^^^^^^^^^^^
+^^^^^^^
 
 (Formerly ``fWav_raw_show``)
 
