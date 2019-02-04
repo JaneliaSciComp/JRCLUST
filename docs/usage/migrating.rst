@@ -13,3 +13,4 @@ What's different
 - Some commands are :ref:`missing <missing-commands>`.
 - Logging and curation history are stored in the DensityPeakClustering object ``hClust``, instead of in a separate file where they might get out of sync.
 - You must specify your parameter file for every invocation of JRCLUST.
+- JRCLUST will overwrite old config files and save a backup copy to 'filename.prm.bak'.
