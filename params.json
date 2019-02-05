@@ -1408,7 +1408,8 @@
                     "nonnegative",
                     "<=", 2
                 ]
-            }
+            },
+            "section": ["spike detection"]
         },
         "showRaw": {
             "description": "Show raw traces in waveform view if true",
