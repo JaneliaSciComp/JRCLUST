@@ -230,7 +230,7 @@ classdef Config < dynamicprops
                 return;
             end
 
-            obj.ignoreSites = obj.ignoreSites(ismember(obj.siteMap, obj.ignoreSites));
+            obj.ignoreSites = obj.ignoreSites(ismember(obj.ignoreSites, obj.siteMap));
 
             % nSiteDir and/or nSitesExcl may not have been specified
             if isempty(obj.nSiteDir) || isempty(obj.nSitesExcl)

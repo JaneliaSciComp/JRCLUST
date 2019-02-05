@@ -9,8 +9,11 @@
 # PreviewController
 - spike highlights were not clearing after toggling spikes off; this has been fixed
 - annoying "Beginning/End of file" message triggered before reaching BOF/EOF; this has been fixed
+# Config
+- ignoreSites was indexed with ismember(siteMap, ignoreSites), potentially causing OOB errors; this has been fixed
 # various
 - replace `isfile` with `exist(., 'file') == 2` and `isdir` with `exist(., 'dir') == 7`
+- `exist` called without abs path returned false positives, leading to references to nonexistent files; this has been fixed
 
 2/4/2019
 
