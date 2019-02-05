@@ -96,8 +96,9 @@ classdef PreviewController < handle
                 case {'leftarrow', 'rightarrow', 'home', 'end'}
                     switch lower(hEvent.Key)
                         case 'leftarrow'
-                            if obj.windowBounds(1) - obj.windowWidth*factor < 1
+                            if obj.windowBounds(1) == 1
                                 jrclust.utils.qMsgBox('Beginning of file', 1);
+                                return;
                             end
 
                             newBounds = obj.windowBounds - obj.windowWidth*factor;
@@ -106,8 +107,9 @@ classdef PreviewController < handle
                             end
 
                         case 'rightarrow'
-                            if obj.windowBounds(end) + (obj.windowWidth + 1)*factor > obj.nSamplesTotal
+                            if obj.windowBounds(end) == obj.nSamplesTotal
                                 jrclust.utils.qMsgBox('End of file', 1);
+                                return;
                             end
 
                             newBounds = obj.windowBounds + (obj.windowWidth + 1)*factor;

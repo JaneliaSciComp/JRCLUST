@@ -47,16 +47,24 @@ classdef TracesController < handle
                 case {'leftarrow', 'rightarrow', 'j', 'home', 'end'}
                     switch lower(hEvent.Key)
                         case 'leftarrow'
+                            if obj.hFigTraces.figData.windowBounds(1) == 1
+                                jrclust.utils.qMsgBox('Beginning of file', 1);
+                                return;
+                            end
+
                             windowBounds = obj.hFigTraces.figData.windowBounds - (obj.hFigTraces.figData.windowWidth) * factor; %no overlap
                             if windowBounds(1) < 1
-                                jrclust.utils.qMsgBox('Beginning of file', 1);
                                 windowBounds = [1, obj.hFigTraces.figData.windowWidth];
                             end
 
                         case 'rightarrow'
+                            if obj.hFigTraces.figData.windowBounds(2) == obj.hFigTraces.figData.nSamplesTotal
+                                jrclust.utils.qMsgBox('End of file', 1);
+                                return;
+                            end
+
                             windowBounds = obj.hFigTraces.figData.windowBounds + (obj.hFigTraces.figData.windowWidth + 1) * factor; %no overlap
                             if windowBounds(2) > obj.hFigTraces.figData.nSamplesTotal
-                                jrclust.utils.qMsgBox('End of file', 1);
                                 windowBounds = [-obj.hFigTraces.figData.windowWidth + 1, 0] + obj.hFigTraces.figData.nSamplesTotal;
                             end
 
