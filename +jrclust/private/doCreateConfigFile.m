@@ -11,7 +11,7 @@ function P = doCreateConfigFile(outputDir, binFiles, probeFile, templateFile, fA
 
     % load meta file
     metaFiles = cellfun(@(bf) jrclust.utils.subsExt(bf, '.meta'), binFiles, 'UniformOutput', 0);
-    metaFiles = metaFiles(cellfun(@isfile, metaFiles));
+    metaFiles = metaFiles(cellfun(@(fn) exist(fn, 'file') == 2, metaFiles));
     if ~isempty(metaFiles)
         metaFile = metaFiles{1}; % just take the first one
         SMeta = jrclust.utils.loadMetadata(metaFile);

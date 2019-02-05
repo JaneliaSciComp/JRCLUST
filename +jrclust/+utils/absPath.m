@@ -9,7 +9,7 @@ function ap = absPath(pathname, basedir)
 
     if nargin == 0 || ~ischar(pathname) || isempty(pathname)
         ap = '';
-    elseif isAbsPath(pathname) && (exist(pathname, 'file') || exist(pathname, 'dir'))
+    elseif isAbsPath(pathname) && (exist(pathname, 'file') == 2 || exist(pathname, 'dir') == 7)
         ap = pathname;
     elseif any(pathname == '*') || any(pathname == '?')
         % first check full file
@@ -26,7 +26,7 @@ function ap = absPath(pathname, basedir)
             end
         end
     else
-        if isfile(fullfile(basedir, pathname)) || isdir(fullfile(basedir, pathname)) % check hinted directory first
+        if exist(fullfile(basedir, pathname), 'file') == 2 || exist(fullfile(basedir, pathname), 'dir') == 7 % check hinted directory first
             ap = fullfile(basedir, pathname);
         elseif exist(pathname, 'file') || exist(pathname, 'dir') % try to find it relative to current directory
             ap = fullfile(pwd(), pathname);

@@ -43,7 +43,7 @@
                     "positive"
                 ]
             },
-            "section": ["spike detection"]
+            "section": ["preprocessing"]
         },
         "blankPeriod": {
             "description": "Duration of blanking period (in ms) when the common mean exceeds blankThresh",
@@ -197,7 +197,7 @@
                     "none"
                 ]
             },
-            "section": ["spike detection"]
+            "section": ["preprocessing"]
         },
         "filtOrder": {
             "description": "Bandpass filter order",
@@ -211,7 +211,7 @@
                     "positive"
                 ]
             },
-            "section": ["spike detection"]
+            "section": ["preprocessing"]
         },
         "freqLimBP": {
             "description": "Frequency cutoffs for bandpass filter",
@@ -227,7 +227,7 @@
                 ],
                 "postapply": "@(x) x(:)'"
             },
-            "section": ["spike detection"]
+            "section": ["preprocessing"]
         },
         "headerOffset": {
             "description": "Recording file header offset (in bytes)",
@@ -868,7 +868,7 @@
                 "postapply": "@(x) x(:)'",
                 "postassert": "@(x) all(cellfun(@(y) numel(y) == 2 && y(1)<y(2) && y(1)>=0, x))"
             },
-            "section": ["spike detection"]
+            "section": ["preprocessing"]
         },
         "freqLimStop": {
             "description": "Frequency range to exclude for band-stop filter",
@@ -884,7 +884,7 @@
                 ],
                 "postapply": "@(x) x(:)'"
             },
-            "section": ["spike detection"]
+            "section": ["preprocessing"]
         },
         "frFilterShape": {
             "description": "Kernel shape for temporal averaging",
@@ -940,7 +940,7 @@
                     "positive"
                 ]
             },
-            "section": ["spike detection"]
+            "section": ["preprocessing"]
         },
         "gpuLoadFactor": {
             "description": "GPU memory usage factor",

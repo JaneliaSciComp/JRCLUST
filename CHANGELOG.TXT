@@ -2,12 +2,15 @@
 
 # Parameters
 - `realignTraces` did not have a section field, causing crashes on `Config.save`; this has been fixed
+- change sections for various filtering params to "preprocessing" rather than "spike detection"
 # TracesController
 - spike highlights were not clearing after toggling spikes off; this has been fixed
 - annoying "Beginning/End of file" message triggered before reaching BOF/EOF; this has been fixed
 # PreviewController
 - spike highlights were not clearing after toggling spikes off; this has been fixed
 - annoying "Beginning/End of file" message triggered before reaching BOF/EOF; this has been fixed
+# various
+- replace `isfile` with `exist(., 'file') == 2` and `isdir` with `exist(., 'dir') == 7`
 
 2/4/2019
 
