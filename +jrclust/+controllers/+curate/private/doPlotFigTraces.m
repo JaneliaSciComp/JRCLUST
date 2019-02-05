@@ -72,7 +72,7 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
     plotKeys = keys(hFigTraces.hPlots);
     chSpk = plotKeys(startsWith(plotKeys, 'chSpk'));
     if ~isempty(chSpk)
-        cellfun(@(plotKey) hFigTraces.rmPlot(plotKeys), chSpk);
+        cellfun(@(pk) hFigTraces.rmPlot(pk), chSpk);
     end
 
     % plot spikes
@@ -153,12 +153,6 @@ function tracesFilt = doPlotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hC
                                    nan, nan, 'Color', iColor, 'LineWidth', iLinewidth);
                 hFigTraces.multiplot(plotKey, hFigTraces.figData.maxAmp, mrT11, mrY11, iSite);
             end
-        end
-    else % remove cluster plots
-        plotKeys = keys(hFigTraces.hPlots);
-        chSpk = plotKeys(startsWith(plotKeys, 'chSpk'));
-        if ~isempty(chSpk)
-            cellfun(@(plotKey) hFigTraces.rmPlot(plotKeys), chSpk);
         end
     end
 
