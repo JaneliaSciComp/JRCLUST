@@ -536,7 +536,7 @@ classdef Config < dynamicprops
             if diffsOnly
                 fprintf(fid, '(default parameters not exported)');
             end
-            fprintf(fid, '\n%% For a description of these parameters, see %s\n\n', fullfile(progInfo.docsSite, 'parameters/index.html'));
+            fprintf(fid, '\n%% For a description of these parameters, see %s\n\n', [progInfo.docsSite, 'parameters/index.html']);
 
             % write sections
             for i = 1:numel(sections)
