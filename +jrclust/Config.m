@@ -14,6 +14,7 @@ classdef Config < dynamicprops
     %% DEPENDENT OBJECT-LEVEL PROPERTIES
     properties (Dependent, Hidden, SetObservable)
         deprecatedParams;       % deprecated parameters (for excluding)
+        fullParams;             % all parameters (merged common/advanced param sets)
         oldParamSet;            % old-style parameters with mapping to new params
     end
 
@@ -73,6 +74,9 @@ classdef Config < dynamicprops
             obj.tempParams = containers.Map();
 
             obj.loadParams(userParams);
+            if ~isempty(obj.configFile) % prm file was specified, validate
+                obj.validateParams();
+            end
         end
 
         function obj = subsasgn(obj, prop, val)
@@ -95,7 +99,7 @@ classdef Config < dynamicprops
             if obj.batchMode
                 error(emsg);
             else
-                errordlg(emsg, varargin{:});
+                uiwait(errordlg(emsg, varargin{:}, 'modal'));
             end
         end
 
@@ -116,18 +120,16 @@ classdef Config < dynamicprops
 
             % read in default parameter set
             obj.paramSet = jrclust.utils.getDefaultParams(0);
-            fullParams = jrclust.utils.mergeStructs(obj.paramSet.commonParameters, ...
-                                                    obj.paramSet.advancedParameters);
 
             % set default parameters
-            paramNames = fieldnames(fullParams);
+            paramNames = fieldnames(obj.fullParams);
             for i = 1:numel(paramNames)
                 paramName = paramNames{i};
                 if strcmp(paramName, 'rawRecordings')
                     obj.setProp('rawRecordings', '');
                     continue;
                 end
-                [flag, val, errMsg] = obj.validateProp(paramName, fullParams.(paramName).default_value);
+                [flag, val, errMsg] = obj.validateProp(paramName, obj.fullParams.(paramName).default_value);
                 if flag
                     obj.setProp(paramName, val);
                 else
@@ -213,8 +215,58 @@ classdef Config < dynamicprops
                     end
                 end
             end
+        end
 
-            % validate params
+        function setCustomProp(obj, propname, val)
+            %SETCUSTOMPROP Set a property not included in the defaults
+            if ismember(propname, obj.deprecatedParams.unsupported)
+                return;
+            end
+
+            % ignore property if it's Dependent
+            propData = ?jrclust.Config;
+            propNames = {propData.PropertyList.Name};
+            dependentProps = propNames([propData.PropertyList.Dependent]);
+            if ismember(propname, dependentProps)
+                return;
+            end
+
+            if ~isprop(obj, propname)
+                addprop(obj, propname);
+                if ~ismember(propname, obj.customParams)
+                    obj.customParams{end+1} = propname;
+                end
+            end
+
+            obj.(propname) = val;
+        end
+
+        function setProp(obj, propname, val)
+            %SETPROP Set a property
+            if isfield(obj.oldParamSet, propname)
+                propname = obj.oldParamSet.(propname);
+                obj.isV3Import = 1;
+            end
+
+            if isfield(obj.fullParams, propname)
+                if ~isprop(obj, propname)
+                    obj.addprop(propname);
+                end
+
+                obj.(propname) = val;
+            elseif ismember(propname, {'singleRaw', 'multiRaw'}) % separate validation for these
+                obj.(propname) = val;
+            else
+                obj.setCustomProp(propname, val);
+            end
+        end
+
+        function validateParams(obj)
+            %VALIDATEPARAMS Validate parameters and compute others
+            if obj.nSites == 0
+                obj.error('No siteMap specified', 'Bad probe configuration');
+            end
+
             if size(obj.siteLoc, 1) ~= obj.nSites
                 obj.error('Malformed probe geometry', 'Bad probe configuration');
                 return;
@@ -229,8 +281,6 @@ classdef Config < dynamicprops
                 obj.error('siteMap refers to channels larger than indexed by nChans', 'Bad probe configuration');
                 return;
             end
-
-            obj.ignoreSites = obj.ignoreSites(ismember(obj.ignoreSites, obj.siteMap));
 
             % nSiteDir and/or nSitesExcl may not have been specified
             if isempty(obj.nSiteDir) || isempty(obj.nSitesExcl)
@@ -258,49 +308,11 @@ classdef Config < dynamicprops
                 obj.error('nSitesExcl is too large or nSiteDir is too small', 'Bad configuration');
             end
 
+            obj.ignoreSites = obj.ignoreSites(ismember(obj.ignoreSites, obj.siteMap));
             obj.siteNeighbors = findSiteNeighbors(obj.siteLoc, 2*obj.nSiteDir + 1, obj.ignoreSites, obj.shankMap);
 
             % boost that gain
             obj.bitScaling = obj.bitScaling/obj.gainBoost;
-        end
-
-        function setCustomProp(obj, propname, val)
-            %SETCUSTOMPROP Set a property not included in the defaults
-            if ismember(propname, obj.deprecatedParams.unsupported)
-                return;
-            end
-
-            if ~ismember(propname, obj.customParams)
-                obj.customParams{end+1} = propname;
-            end
-
-            if ~isprop(obj, propname)
-                addprop(obj, propname);
-            end
-
-            obj.(propname) = val;
-        end
-
-        function setProp(obj, propname, val)
-            %SETPROP Set a property
-            if isfield(obj.oldParamSet, propname)
-                propname = obj.oldParamSet.(propname);
-                obj.isV3Import = 1;
-            end
-
-            fullParams = jrclust.utils.mergeStructs(obj.paramSet.commonParameters, ...
-                                                    obj.paramSet.advancedParameters);
-            if isfield(fullParams, propname)
-                if ~isprop(obj, propname)
-                    obj.addprop(propname);
-                end
-
-                obj.(propname) = val;
-            elseif ismember(propname, {'singleRaw', 'multiRaw'}) % separate validation for these
-                obj.(propname) = val;
-            else
-                obj.setCustomProp(propname, val);
-            end
         end
 
         function [flag, val, errMsg] = validateProp(obj, propname, val)
@@ -310,15 +322,12 @@ classdef Config < dynamicprops
                 obj.isV3Import = 1;
             end
 
-            fullParams = jrclust.utils.mergeStructs(obj.paramSet.commonParameters, ...
-                                                    obj.paramSet.advancedParameters);
-
             flag = 1;
             errMsg = '';
 
             % found in default params, do validation
-            if isfield(fullParams, propname)
-                validData = fullParams.(propname).validation;
+            if isfield(obj.fullParams, propname)
+                validData = obj.fullParams.(propname).validation;
                 classes = validData.classes;
                 attributes = validData.attributes;
 
@@ -387,7 +396,7 @@ classdef Config < dynamicprops
             if obj.batchMode
                 warning(wmsg);
             else
-                warndlg(wmsg, varargin{:});
+                uiwait(warndlg(wmsg, varargin{:}, 'modal'));
             end
         end
     end
@@ -519,7 +528,7 @@ classdef Config < dynamicprops
             [~, new2old] = jrclust.utils.getOldParamMapping();
 
             % write header
-            progInfo = jrclust.utils.info;
+            progInfo = jrclust.utils.info();
             fprintf(fid, '%% %s parameters ', progInfo.program);
             if ~exportAdv
                 fprintf(fid, '(common parameters only) ');
@@ -527,7 +536,7 @@ classdef Config < dynamicprops
             if diffsOnly
                 fprintf(fid, '(default parameters not exported)');
             end
-            fprintf(fid, '\n\n');
+            fprintf(fid, '\n%% For a description of these parameters, see %s\n\n', fullfile(progInfo.docsSite, 'parameters/index.html'));
 
             % write sections
             for i = 1:numel(sections)
@@ -567,7 +576,12 @@ classdef Config < dynamicprops
                 for j = 1:numel(obj.customParams)
                     pn = obj.customParams{j};
 
-                    fprintf(fid, '%s = %s;\n', pn, jrclust.utils.field2str(obj.(pn)));
+                    fprintf(fid, '%s = %s;', pn, jrclust.utils.field2str(obj.(pn)));
+                    if isfield(new2old, pn) % write old parameter name
+                        fprintf(fid, ' %% (formerly %s)\n', new2old.(pn));
+                    else
+                        fprintf(fid, '\n');
+                    end
                 end
             end
 
@@ -668,16 +682,6 @@ classdef Config < dynamicprops
                 ew = [];
             end
         end
-        function set.evtWindowRawSamp(obj, ew)
-            if ~isprop(obj, 'sampleRate')
-                error('cannot convert without a sample rate');
-            end
-
-            if ~isprop(obj, 'evtWindowRaw')
-                obj.addprop('evtWindowRaw');
-            end
-            obj.evtWindowRaw = ew * 1000 / obj.sampleRate; %#ok<MCNPR>
-        end
 
         % evtWindowSamp
         function ew = get.evtWindowSamp(obj)
@@ -687,15 +691,11 @@ classdef Config < dynamicprops
                 ew = [];
             end
         end
-        function set.evtWindowSamp(obj, ew)
-            if ~isprop(obj, 'sampleRate')
-                error('cannot convert without a sample rate');
-            end
 
-            if ~isprop(obj, 'evtWindow')
-                obj.addprop('evtWindow');
-            end
-            obj.evtWindow = ew * 1000 / obj.sampleRate; %#ok<MCNPR>
+        % fullParams
+        function val = get.fullParams(obj)
+            val = jrclust.utils.mergeStructs(obj.paramSet.commonParameters, ...
+                                             obj.paramSet.advancedParameters);
         end
 
         % multiRaw
@@ -778,16 +778,6 @@ classdef Config < dynamicprops
             else
                 ri = [];
             end
-        end
-        function set.refracIntSamp(obj, ri)
-            if ~isprop(obj, 'sampleRate')
-                error('cannot convert without a sample rate');
-            end
-
-            if ~isprop(obj, 'refracInt')
-                obj.addprop('refracInt');
-            end
-            obj.refracInt = ri * 1000 / obj.sampleRate; %#ok<MCNPR>
         end
 
         % sessionName

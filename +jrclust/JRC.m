@@ -58,6 +58,29 @@ classdef JRC < handle & dynamicprops
 
     %% UTILITY METHODS
     methods (Access=protected)
+        function deprecateCmd(obj, oldCmd, iMsg, newCmd)
+            %DEPRECATECMD Print a message regarding deprecation
+            %   if newCmd is specified, sets obj.cmd to newCmd
+            if nargin < 3
+                iMsg = '';
+            end
+            if nargin < 4
+                newCmd = '';
+            end
+
+            % set a default iMsg in case of an alias
+            if isempty(iMsg) && ~isempty(newCmd)
+                iMsg = sprintf('Please use ''%s'' in the future', newCmd);
+            end
+
+            jrclust.utils.depWarn(oldCmd, iMsg);
+
+            % set obj.cmd here
+            if ~isempty(newCmd)
+                obj.cmd = newCmd;
+            end
+        end
+
         function processArgs(obj)
             %PROCESSARGS Handle command-line arguments, load param file
             nargs = numel(obj.args);
@@ -81,82 +104,73 @@ classdef JRC < handle & dynamicprops
                 case {'compile-ksort', 'dir', 'edit', 'git-pull', 'issue', 'import-kilosort-sort', ...
                       'import-ksort-sort', 'kilosort', 'kilosort-verify', 'ksort', 'ksort-verify' ...
                       'which', 'wiki', 'wiki-download'}
-                    jrclust.utils.depWarn(obj.cmd);
+                    obj.deprecateCmd(obj.cmd);
                     obj.isCompleted = 1;
                     return;
 
                 case {'doc', 'doc-edit'}
-                    imsg = 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki';
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    iMsg = 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki';
+                    obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
                     return;
 
                 case 'download'
-                    imsg = 'You can find sample.bin and sample.meta at https://drive.google.com/drive/folders/1-UTasZWB0TwFFFV49jSrpRPHmtve34O0?usp=sharing';
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    iMsg = 'You can find sample.bin and sample.meta at https://drive.google.com/drive/folders/1-UTasZWB0TwFFFV49jSrpRPHmtve34O0?usp=sharing';
+                    obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
                     return;
 
                 case 'gui'
-                    imsg = 'GUI is not implemented yet';
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    iMsg = 'GUI is not implemented yet';
+                    obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
                     return;
 
                 case 'install'
-                    imsg = 'You might be looking for `compile` instead';
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    iMsg = 'You might be looking for `compile` instead';
+                    obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
                     return;
 
                 case {'set', 'setprm', 'set-prm'}
-                    imsg = 'Create a new JRC handle instead';
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    iMsg = 'Create a new JRC handle instead';
+                    obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
                     return;
 
                 case 'update'
-                    imsg = 'Please check the repository at https://github.com/JaneliaSciComp/JRCLUST for updates';
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    iMsg = 'Please check the repository at https://github.com/JaneliaSciComp/JRCLUST for updates';
+                    obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
                     return;
 
                 case {'load-bin', 'export-wav', 'wav'}
-                    imsg = 'Please use jrclust.models.recordings.Recording instead';
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    iMsg = 'Please use jrclust.models.recordings.Recording instead';
+                    obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
                     return;
 
                 % deprecated synonyms, warn but proceed
                 case 'spikedetect'
-                    obj.cmd = 'detect';
-                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    obj.deprecateCmd(obj.cmd, '', 'detect');
 
                 case {'cluster', 'clust', 'sort-verify', 'sort-validate'}
-                    obj.cmd = 'sort';
-                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    obj.deprecateCmd(obj.cmd, '', 'sort');
 
                 case {'detectsort', 'spikesort', 'spikesort-verify', 'spikesort-validate'}
-                    obj.cmd = 'detect-sort';
-                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    obj.deprecateCmd(obj.cmd, '', 'detect-sort');
 
                 case 'all'
-                    obj.cmd = 'full';
-                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    obj.deprecateCmd(obj.cmd, '', 'full');
 
                 case 'plot-activity'
-                    obj.cmd = 'activity';
-                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    obj.deprecateCmd(obj.cmd, '', 'activity');
 
                 case {'makeprm', 'createprm'}
-                    obj.cmd = 'bootstrap';
-                    imsg = sprintf('Please use ''%s'' in the future', obj.cmd);
-                    jrclust.utils.depWarn(obj.cmd, imsg);
+                    obj.deprecateCmd(obj.cmd, '', 'bootstrap');
+                    doBootstrap(obj.args{:});
+                    obj.isCompleted = 1;
+                    return;
 
                 % info commands
                 case 'about'
@@ -181,6 +195,11 @@ classdef JRC < handle & dynamicprops
                 % workflow commands
                 case 'bootstrap'
                     doBootstrap(obj.args{:});
+                    obj.isCompleted = 1;
+                    return;
+
+                case 'importv3'
+                    jrclust.import.importv3(obj.args{1});
                     obj.isCompleted = 1;
                     return;
 

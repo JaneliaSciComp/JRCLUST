@@ -4,10 +4,10 @@
         "major": 4,
         "minor": 0,
         "release": 0,
-        "tag": "alpha",
+        "tag": "alpha-patch2",
         "codename": "Edward"
     },
-    "changeDate": "5 Feb 2019",
+    "changeDate": "6 Feb 2019",
     "authors": [
         "James Jun"
     ],
@@ -31,5 +31,6 @@
         "Image Processing Toolbox",
         "Signal Processing Toolbox",
         "Statistics and Machine Learning Toolbox"
-    ]
+    ],
+    "docsSite": "https://jrclust.readthedocs.io/en/latest/"
 }

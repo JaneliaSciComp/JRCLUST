@@ -1,4 +1,5 @@
 % JRCLUST parameters (common parameters only) 
+% For a description of these parameters, see https://jrclust.readthedocs.io/en/latest/parameters/index.html
 
 % USAGE PARAMETERS
 outputDir = ''; % Directory in which to place output files (Will output to the same directory as this file if empty)
@@ -18,17 +19,17 @@ rawRecordings = ''; % Path or paths to raw recordings to sort
 sampleRate = 30000; % (formerly sRateHz) Sampling rate (in Hz) of raw recording
 
 % PREPROCESSING PARAMETERS
+blankThresh = []; % (formerly blank_thresh) Threshold (in MADs) above which to reject samples exceeding channel median after filtering
+filterType = 'ndiff'; % (formerly vcFilter) Type of filter to use on raw data
+filtOrder = 3; % Bandpass filter order
+freqLimBP = [300, 3000]; % (formerly freqLim) Frequency cutoffs for bandpass filter
 ignoreSites = []; % (formerly viSiteZero) Sites to ignore manually
 
 % SPIKE DETECTION PARAMETERS
-blankThresh = []; % (formerly blank_thresh) Threshold (in MADs) above which to reject samples exceeding channel median after filtering
 blankPeriod = 5; % (formerly blank_period_ms) Duration of blanking period (in ms) when the common mean exceeds blankThresh
 CARMode = 'mean'; % (formerly vcCommonRef) The meaning of 'average' in 'common average reference'
 evtDetectRad = 75; % (formerly maxDist_site_spk_um) Maximum distance (in μm) for extracting spike waveforms
 evtWindow = [-0.25, 0.75]; % (formerly spkLim_ms) Time range (in ms) of filtered spike waveforms, centered at the peak
-filterType = 'ndiff'; % (formerly vcFilter) Type of filter to use on raw data
-filtOrder = 3; % Bandpass filter order
-freqLimBP = [300, 3000]; % (formerly freqLim) Frequency cutoffs for bandpass filter
 nSiteDir = []; % (formerly maxSite) Number of neighboring sites to group in either direction (nSitesEvt is set to 1 + 2*nSiteDir - nSitesExcl)
 nSitesExcl = []; % (formerly nSites_ref) Number of sites to exclude from the spike waveform group
 qqFactor = 5; % Spike detection threshold (Thr = qqFactor*med(abs(x-med(x)))/0.6745)

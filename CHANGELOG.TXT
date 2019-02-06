@@ -1,4 +1,27 @@
-2/5/2019
+6 Feb 2019
+
+Added an importer for JRCv3 _jrc.mat files.
+This can be used via `jrc importv3 /path/to/your/session_jrc.mat`
+
+# JRC
+- deprecate/warning was giving erroneous messages; this has been fixed
+
+# Config
+- make errors and warnings (if in dialogs) blocking
+- make fullParams a dependent property rather than recomputing it in different places
+- don't validate params if not given a filename in constructor
+- removed setters for `*Samp` (dependent) properties
+- check for Dependent status and membership in fullParams in setCustomProp
+- added pointer to param docs when exporting prm file
+
+# depWarn
+- make deprecation warnings blocking
+
+# jrc.json
+- added link to documentation
+- updated release to alpha-patch2
+
+5 Feb 2019
 
 # Parameters
 - `realignTraces` did not have a section field, causing crashes on `Config.save`; this has been fixed
@@ -15,7 +38,7 @@
 - replace `isfile` with `exist(., 'file') == 2` and `isdir` with `exist(., 'dir') == 7`
 - `exist` called without abs path returned false positives, leading to references to nonexistent files; this has been fixed
 
-2/4/2019
+4 Feb 2019
 
 # Parameters
 - `RDDetrendMode`: 'hidehiko' renamed to 'regress'
