@@ -71,6 +71,8 @@ Documentation and help
 Pipeline commands
 ~~~~~~~~~~~~~~~~~
 
+-  ``jrc importv3 mysession_jrc.mat``: Import a JRCv3 ``_jrc.mat`` file to the new format.
+   **Does not overwrite your old results.**
 -  ``jrc bootstrap``: Create a :ref:`config file <bootstrapping>`.
 -  ``jrc detect myparams.prm``: Perform spike detection and feature extraction.
    (Replace ``myparams`` with a unique name of your choosing.)
