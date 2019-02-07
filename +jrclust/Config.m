@@ -206,7 +206,15 @@ classdef Config < dynamicprops
                 end
 
                 % empty values in the param file take on their defaults
-                if ~isempty(userParams.(paramName))
+                if strcmp(paramName, 'rawRecordings') % validate depending on type
+                    if ischar(userParams.(paramName))
+                        obj.singleRaw = userParams.(paramName);
+                    elseif iscell(userParams.(paramName))
+                        obj.multiRaw = userParams.(paramName);
+                    else
+                        error('rawRecordings must be a char or cell array of char');
+                    end
+                elseif ~isempty(userParams.(paramName))
                     [flag, val, errMsg] = obj.validateProp(paramName, userParams.(paramName));
                     if flag
                         obj.setProp(paramName, val);
@@ -334,33 +342,6 @@ classdef Config < dynamicprops
                 if isempty(val) || isempty(attributes)
                     if ~any(cellfun(@(c) isa(val, c), classes))
                         flag = 0;
-                    end
-
-                    % this is a hack but maybe a necessary hack
-                    if strcmp(propname, 'rawRecordings')
-                        if ischar(val)
-                            val = {val};
-                        end
-
-                        if ~isprop(obj, 'configFile')
-                            addprop(obj, 'configFile');
-                            obj.configFile = '';
-                        end
-
-                        % get absolute paths
-                        if isprop(obj, 'configFile') && ~isempty(obj.configFile)
-                            basedir = fileparts(obj.configFile);
-                        else
-                            basedir = '';
-                        end
-                        val_ = cellfun(@(fn) jrclust.utils.absPath(fn, basedir), val, 'UniformOutput', 0);
-                        isFound = ~cellfun(@isempty, val_);
-                        if ~all(isFound)
-                            flag = 0;
-                            errMsg = sprintf('%d/%d files not found', sum(isFound), numel(isFound));
-                        else
-                            val = val_;
-                        end
                     end
 
                     return;
@@ -734,14 +715,20 @@ classdef Config < dynamicprops
                 end
 
                 mr_ = cellfun(@(fn) jrclust.utils.absPath(fn, basedir), mr, 'UniformOutput', 0);
-                isFound = cellfun(@isempty, mr_);
+
+                % handle glob expansions
+                while any(cellfun(@iscell, mr_))
+                    mr_ = [mr_{:}];
+                end
+
+                isFound = ~cellfun(@isempty, mr_);
                 if ~all(isFound)
                     error('%d/%d files not found', sum(isFound), numel(isFound));
                 end
             end
 
             % validation done, just set prop
-            obj.setProp('rawRecordings', mr_);
+            obj.setProp('rawRecordings', jrclust.utils.sortNat(unique(mr_)));
         end
 
         % nSites
@@ -799,7 +786,7 @@ classdef Config < dynamicprops
                 obj.configFile = '';
             end
 
-            if iscell(sr)
+            if iscell(sr) || (ischar(sr) && any(sr == '*'))
                 obj.multiRaw = sr;
                 return;
             end

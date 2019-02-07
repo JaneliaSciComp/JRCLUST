@@ -11,6 +11,12 @@
 # doBootstrap
 - double check for binary file if binary and meta filenames don't match
 
+# Config
+- glob expansion in bin files was resulting in nested cell arrays instead of files; this has been fixed
+
+# jrc
+- try-catch around hJRC creation resulting in useless error messages; this has been corrected
+
 6 Feb 2019
 
 Added an importer for JRCv3 _jrc.mat files.

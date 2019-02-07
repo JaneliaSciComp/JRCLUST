@@ -13,12 +13,8 @@ function hJRC_ = jrc(varargin)
         return;
     end
 
-    try
-        hJRC = jrclust.JRC(varargin{:});
-    catch ME
-        warning('Could not create JRC handle: %s', ME.message); %#ok<MEXCEP>
-        return;
-    end
+    % discard try-catch here for now as these messages are next to useless
+    hJRC = jrclust.JRC(varargin{:});
 
     if hJRC.inProgress()
         hJRC.hCfg.verbose = 1;
