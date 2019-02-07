@@ -30,33 +30,29 @@ function hCfg = doBootstrap(varargin)
 
         switch dlgAns
             case 'Yes' % select .meta file
-                [metafile, workingdir] = uigetfile({'*.meta', 'SpikeGLX meta files (*.meta)'; '*.*', 'All Files (*.*)'}, 'Select one or more .meta files', workingdir, 'MultiSelect', 'on');
-                if ~(ischar(metafile) || iscell(metafile)) % cancel
+                [metafile, workingdir] = selectFile({'*.meta', 'SpikeGLX meta files (*.meta)'; '*.*', 'All Files (*.*)'}, 'Select one or more .meta files', workingdir, 1);
+                if all(cellfun(@isempty, metafile))
                     return;
-                elseif ischar(metafile)
-                    metafile = {fullfile(workingdir, metafile)};
-                else
-                    metafile = cellfun(@(f) fullfile(workingdir, f), metafile, 'UniformOutput', 0);
                 end
 
                 binfile = cellfun(@(f) jrclust.utils.subsExt(f, '.bin'), metafile, 'UniformOutput', 0);
 
             case 'No' % select recording file
-                [binfile, workingdir] = uigetfile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; '*.*', 'All Files (*.*)'}, 'Select one or more raw recordings', workingdir, 'MultiSelect', 'on');
-                if isempty(binfile) % cancel
+                [binfile, workingdir] = selectFile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; '*.*', 'All Files (*.*)'}, 'Select one or more raw recordings', workingdir, 1);
+                if all(cellfun(@isempty, binfile))
                     return;
-                end
-                if ~(ischar(binfile) || iscell(binfile)) % cancel
-                    return;
-                elseif ischar(binfile)
-                    binfile = {fullfile(workingdir, binfile)};
-                else
-                    binfile = cellfun(@(f) fullfile(workingdir, f), binfile, 'UniformOutput', 0);
                 end
 
             case {'Cancel', ''}
-                hCfg = [];
                 return;
+        end
+    end
+
+    % check for missing binary files
+    if any(cellfun(@(f) isempty(jrclust.utils.absPath(f)), binfile))
+        binfile = selectFile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; '*.*', 'All Files (*.*)'}, 'Select one or more raw recordings', workingdir, 1);
+        if cellfun(@isempty, binfile)
+            return;
         end
     end
 
@@ -83,7 +79,7 @@ function hCfg = doBootstrap(varargin)
             if isempty(dir(fullfile(workingdir, '*.prb')))
                 probedir = fullfile(jrclust.utils.basedir(), 'probes');
             end
-            [probefile, probedir] = uigetfile({'*.prb', 'Probe files (*.prb)'; '*.*', 'All Files (*.*)'}, 'Select a probe file', probedir);
+            [probefile, probedir] = selectFile({'*.prb', 'Probe files (*.prb)'; '*.*', 'All Files (*.*)'}, 'Select a probe file', probedir, 0);
             cfgData.probe_file = fullfile(probedir, probefile);
 
         case {'Cancel', ''}
@@ -198,6 +194,21 @@ function hCfg = bootstrapGUI() % WIP
     hBootstrap = uicontainer();
     hRecData = uipanel('Parent', hBootstrap, 'Title', 'Recording file', 'Position', [0, 0.75, 0.25, 0.25]);
     hProbe = uipanel('Parent', hBootstrap, 'Title', 'Probe parameters', 'Position', [0.25, 0.75, 0.25, 0.25]);
+end
 
+function [filename, dirname] = selectFile(fileSpec, prompt, dirname, multiSelect)
+    args = {fileSpec, prompt, dirname};
+    if multiSelect
+        args = [args, {'MultiSelect', 'on'}];
+    end
 
+    [filename, dirname] = uigetfile(args{:});
+    if ~(ischar(filename) || iscell(filename)) % cancel
+        filename = jrclust.utils.ifEq(multiSelect, {''}, '');
+        return;
+    elseif ischar(filename) && multiSelect
+        filename = {fullfile(dirname, filename)};
+    elseif multiSelect
+        filename = cellfun(@(f) fullfile(dirname, f), filename, 'UniformOutput', 0);
+    end
 end

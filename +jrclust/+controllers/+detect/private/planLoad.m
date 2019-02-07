@@ -13,8 +13,8 @@ function [nLoads, nSamplesLoad, nSamplesFinal] = planLoad(nBytesFile, hCfg)
         elseif ispc()
             S = memory();
             nBytes = floor(S.MaxPossibleArrayBytes);
-        else % no hints given, assume infinite memory
-            nBytes = inf;
+        else % no hints given, assume 8 GiB
+            nBytes = 2^33;
         end
 
         hCfg.maxBytesLoad = floor(nBytes / hCfg.gpuLoadFactor);

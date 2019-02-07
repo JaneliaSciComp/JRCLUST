@@ -1,3 +1,16 @@
+7 Feb 2019
+
+# Parameters
+- a post-validation transform was erroneously applied to `freqLimNotch`; this has been fixed
+
+# planLoad
+- on non-Windows systems without GPUs (i.e., where no memory information is available),
+  JRCLUST attempts to load the entire file, potentially crashing when the file is large;
+  this has been fixed
+
+# doBootstrap
+- double check for binary file if binary and meta filenames don't match
+
 6 Feb 2019
 
 Added an importer for JRCv3 _jrc.mat files.
