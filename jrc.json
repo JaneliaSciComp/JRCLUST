@@ -4,10 +4,10 @@
         "major": 4,
         "minor": 0,
         "release": 0,
-        "tag": "alpha-patch2",
+        "tag": "alpha-patch4",
         "codename": "Edward"
     },
-    "changeDate": "7 Feb 2019",
+    "changeDate": "11 Feb 2019",
     "authors": [
         "James Jun"
     ],

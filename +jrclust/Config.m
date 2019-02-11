@@ -316,7 +316,11 @@ classdef Config < dynamicprops
                 obj.error('nSitesExcl is too large or nSiteDir is too small', 'Bad configuration');
             end
 
-            obj.ignoreSites = obj.ignoreSites(ismember(obj.ignoreSites, obj.siteMap));
+            % ignoreSites/ignoreChans
+            obj.ignoreChans = obj.ignoreChans(ismember(obj.ignoreChans, obj.siteMap));
+            obj.ignoreSites = intersect(obj.ignoreSites, 1:numel(obj.siteMap));
+            obj.ignoreSites = union(obj.ignoreSites, find(ismember(obj.siteMap, obj.ignoreChans)));
+
             obj.siteNeighbors = findSiteNeighbors(obj.siteLoc, 2*obj.nSiteDir + 1, obj.ignoreSites, obj.shankMap);
 
             % boost that gain

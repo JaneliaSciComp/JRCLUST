@@ -1,3 +1,14 @@
+11 Feb 2019
+
+# Parameters
+- ignoreChans (formerly viChanZero) (re)implemented to address issue #83.
+
+# Config
+- canonical version of ignoreSites was computed wrong in validation; this has been fixed
+
+# CurateController
+- "File > Save" menu callback crashed with "Too many input arguments" (see #86); this has been fixed
+
 7 Feb 2019
 
 # Parameters

@@ -638,7 +638,7 @@ classdef CurateController < handle
             hFig.figApply(@set, 'MenuBar','None');
 
             obj.hMenus('FileMenu') = hFig.uimenu('Label', 'File');
-            uimenu(obj.hMenus('FileMenu'), 'Label', 'Save', 'Callback', @obj.saveFiles);
+            uimenu(obj.hMenus('FileMenu'), 'Label', 'Save', 'Callback', @(hO, hE) obj.saveFiles());
             uimenu(obj.hMenus('FileMenu'), 'Label', 'Save figures as .fig', 'Callback', @(hO, hE) obj.saveFigures('.fig'));
             uimenu(obj.hMenus('FileMenu'), 'Label', 'Save figures as .png', 'Callback', @(hO, hE) obj.saveFigures('.png'));
             uimenu(obj.hMenus('FileMenu'), 'Label', 'Export units to csv', 'Callback', @(hO, hE) obj.hClust.exportToCSV(), 'Separator', 'on');

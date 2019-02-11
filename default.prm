@@ -23,7 +23,8 @@ blankThresh = []; % (formerly blank_thresh) Threshold (in MADs) above which to r
 filterType = 'ndiff'; % (formerly vcFilter) Type of filter to use on raw data
 filtOrder = 3; % Bandpass filter order
 freqLimBP = [300, 3000]; % (formerly freqLim) Frequency cutoffs for bandpass filter
-ignoreSites = []; % (formerly viSiteZero) Sites to ignore manually
+ignoreChans = []; % (formerly viChanZero) Channel numbers to ignore manually
+ignoreSites = []; % (formerly viSiteZero) Site IDs to ignore manually
 
 % SPIKE DETECTION PARAMETERS
 blankPeriod = 5; % (formerly blank_period_ms) Duration of blanking period (in ms) when the common mean exceeds blankThresh

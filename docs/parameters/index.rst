@@ -238,6 +238,19 @@ JRCLUST will skip this many bytes at the beginning of your recording file.
 
 **Default** is 0.
 
+.. _ignoreChans:
+
+ignoreChans
+^^^^^^^^^^^
+
+(Formerly ``viChanZero``)
+
+Channel numbers to ignore manually.
+Should be an array of integers between 1 and nChans.
+These values will be merged into :ref:`ignoreSites`.
+
+**Default** is empty.
+
 .. _ignoreSites:
 
 ignoreSites
@@ -245,7 +258,8 @@ ignoreSites
 
 (Formerly ``viSiteZero``)
 
-Sites to ignore manually.
+Site IDs to ignore manually.
+Should be an array of integers between 1 and nSites.
 
 **Default** is empty.
 

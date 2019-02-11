@@ -243,8 +243,21 @@
             },
             "section": ["recording file"]
         },
+        "ignoreChans": {
+            "description": "Channel numbers to ignore manually",
+            "comment": "",
+            "default_value": [],
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "integer",
+                    "positive"
+                ]
+            },
+            "section": ["preprocessing"]
+        },
         "ignoreSites": {
-            "description": "Sites to ignore manually",
+            "description": "Site IDs to ignore manually",
             "comment": "",
             "default_value": [],
             "validation": {
@@ -1764,6 +1777,7 @@
         "vcFilter": "filterType",
         "vcFilter_show": "dispFilter",
         "vcLabel_aux": "auxLabel",
+        "viChanZero": "ignoreChans",
         "viShank_site": "shankMap",
         "viSite2Chan": "siteMap",
         "viSiteZero": "ignoreSites",
