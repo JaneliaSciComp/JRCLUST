@@ -39,8 +39,20 @@ function res = doLoadFiles(hCfg)
             spikeFeatures = [];
         end
 
+        % set spikesRaw/spikesFilt/spikeFeatures (warn if empty!)
+        if isempty(spikesRaw)
+            warning('spikesRaw is empty');
+        end
         res.spikesRaw = spikesRaw;
+
+        if isempty(spikesFilt)
+            warning('spikesFilt is empty');
+        end
         res.spikesFilt = spikesFilt;
+
+        if isempty(spikeFeatures)
+            warning('spikeFeatures is empty');
+        end
         res.spikeFeatures = spikeFeatures;
 
         if isfield(res, 'hClust')

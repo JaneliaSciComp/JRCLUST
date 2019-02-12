@@ -91,8 +91,8 @@ Pipeline commands
 -  ``jrc detect-sort myparams.prm``: Detect and cluster spikes.
    The difference between ``sort`` and ``detect-sort`` is that ``detect-sort`` will overwrite any previously-detected spikes,
    whereas ``sort`` will only perform spike detection if JRCLUST can't find any previously-detected spikes.
--  ``jrc auto myparams.prm``: Recluster spikes.
-   You might want to do this if, e.g., you've updated the clustering parameters.
+-  ``jrc recluster myparams.prm``: Recluster spikes.
+   You might want to do this if, e.g., you've updated the clustering threshold parameters but don't want to recompute rho and delta.
 -  ``jrc manual myparams.prm``: Open the manual curation GUI.
 
 Preview commands

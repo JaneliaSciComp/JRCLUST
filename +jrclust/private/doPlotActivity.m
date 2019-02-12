@@ -1,4 +1,4 @@
-function doPlotActivity(hCfg, spikeData)
+function doPlotActivity(spikeData, hCfg)
     %DOPLOTACTIVITY Plot activity as a function of depth and time
     tBin = 10; % activity every 10 sec
     % plot activity as a function of time

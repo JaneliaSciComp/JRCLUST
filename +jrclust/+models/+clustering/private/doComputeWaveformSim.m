@@ -45,7 +45,7 @@ function simScore = doComputeWaveformSim(hClust, updateMe)
         clusterSites_ = {hClust.clusterSites};
     end
 
-    simScore = zeros(size(hClust.simScore), 'like', hClust.simScore);
+    simScore = zeros(size(meanWfGlobal_, 3), 'like', hClust.simScore);
 
     % shift waveforms up to some multiple (meanInterpFactor) of the refractory period
     nShifts = ceil(hClust.hCfg.meanInterpFactor*hClust.hCfg.refracInt*hClust.hCfg.sampleRate/1000);

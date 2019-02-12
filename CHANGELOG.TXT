@@ -9,15 +9,27 @@
 # JRC
 - hCfg is now a hidden attribute but publicly settable
 - `compile` command is now (re)implemented
+- `auto` is now `recluster`
+- steps in pipeline have been broken out into their own functions (run calls each in turn)
+- saveRes and saveBinaries are separate functions
+- saveRes can be called with a forceOverwrite parameter
+- user is warned if spikesRaw, spikesFilt, spikeFeatures are empty on load
+
+# Config
+- automatically set to error if rawRecordings is empty
 
 # Recording
 - supply a more helpful error message if nSamples is not an integer
 
 # DetectController
 - check for error in hRec before trying to detect
+- save rawShape, filtShape, featuresShape in detect()
 
 # metaToStruct
 - check given .meta file is a text file
+
+# help
+- now opens the RTD site or directs user to visit
 
 11 Feb 2019
 

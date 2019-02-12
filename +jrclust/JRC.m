@@ -22,12 +22,6 @@ classdef JRC < handle & dynamicprops
         hCfg;           % Config object
     end
 
-    % most general data from detection step
-    properties (Dependent)
-        spikeTimes;     %
-        spikeSites;     %
-    end
-
     % data from clustering step
     properties (Dependent)
         hClust;
@@ -50,17 +44,42 @@ classdef JRC < handle & dynamicprops
             obj.isCurate = 0;
 
             if ~jrclust.utils.sysCheck()
-                obj.errMsg = 'system requirements not met';
+                obj.errMsg = 'System requirements not met';
                 obj.isError = 1;
             elseif nargin > 0
-                % handle arguments (legacy mode)
-                obj.processArgs();
+                try
+                    obj.hCfg = varargin{1};
+                catch ME % arg 1 is not a Config, process arguments
+                    % handle arguments (legacy mode)
+                    obj.processArgs();
+                end
             end
         end
     end
 
     %% UTILITY METHODS
     methods (Access=protected)
+        function clearMemory(obj)
+            %CLEARMEMORY Clear GPU memory and set random seeds
+            if obj.hCfg.useGPU
+                % while we're here, clear GPU memory
+                if obj.isDetect || obj.isSort
+                    if obj.hCfg.verbose
+                        fprintf('Clearing GPU memory...');
+                    end
+                    gpuDevice(); % selects GPU device
+                    gpuDevice([]); % clears GPU memory
+                    if obj.hCfg.verbose
+                        fprintf('done\n');
+                    end
+                end
+
+                parallel.gpu.rng(obj.hCfg.randomSeed);
+            end
+
+            rng(obj.hCfg.randomSeed);
+        end
+
         function deprecateCmd(obj, oldCmd, iMsg, newCmd)
             %DEPRECATECMD Print a message regarding deprecation
             %   if newCmd is specified, sets obj.cmd to newCmd
@@ -102,6 +121,19 @@ classdef JRC < handle & dynamicprops
                 obj.isCurate = 1;
             end
 
+            if nargs > 0
+                % load parameter file
+                configFile = obj.args{1};
+                try
+                    obj.hCfg = jrclust.Config(configFile);
+                    % save imported config file
+                    if obj.hCfg.isV3Import
+                        obj.hCfg.save();
+                    end
+                catch ME % arg 1 need not be a config file
+                end
+            end
+
             switch obj.cmd
                 % deprecated commands; will be removed in a future release
                 case {'compile-ksort', 'dir', 'edit', 'git-pull', 'issue', 'import-kilosort-sort', ...
@@ -109,49 +141,41 @@ classdef JRC < handle & dynamicprops
                       'which', 'wiki', 'wiki-download'}
                     obj.deprecateCmd(obj.cmd);
                     obj.isCompleted = 1;
-                    return;
 
                 case {'doc', 'doc-edit'}
                     iMsg = 'Please visit the wiki at https://github.com/JaneliaSciComp/JRCLUST/wiki';
                     obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
-                    return;
 
                 case 'download'
                     iMsg = 'You can find sample.bin and sample.meta at https://drive.google.com/drive/folders/1-UTasZWB0TwFFFV49jSrpRPHmtve34O0?usp=sharing';
                     obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
-                    return;
 
                 case 'gui'
                     iMsg = 'GUI is not implemented yet';
                     obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
-                    return;
 
                 case 'install'
                     iMsg = 'You might be looking for `compile` instead';
                     obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
-                    return;
 
                 case {'set', 'setprm', 'set-prm'}
                     iMsg = 'Create a new JRC handle instead';
                     obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
-                    return;
 
                 case 'update'
                     iMsg = 'Please check the repository at https://github.com/JaneliaSciComp/JRCLUST for updates';
                     obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
-                    return;
 
                 case {'load-bin', 'export-wav', 'wav'}
                     iMsg = 'Please use jrclust.models.recordings.Recording instead';
                     obj.deprecateCmd(obj.cmd, iMsg);
                     obj.isCompleted = 1;
-                    return;
 
                 % deprecated synonyms, warn but proceed
                 case 'spikedetect'
@@ -166,14 +190,20 @@ classdef JRC < handle & dynamicprops
                 case 'all'
                     obj.deprecateCmd(obj.cmd, '', 'full');
 
+                case 'auto'
+                    obj.deprecateCmd(obj.cmd, '', 'recluster');
+                    obj.recluster();
+                    obj.isCompleted = ~obj.isError;
+
                 case 'plot-activity'
                     obj.deprecateCmd(obj.cmd, '', 'activity');
+                    obj.activity();
+                    obj.isCompleted = 1;
 
                 case {'makeprm', 'createprm'}
                     obj.deprecateCmd(obj.cmd, '', 'bootstrap');
                     doBootstrap(obj.args{:});
                     obj.isCompleted = 1;
-                    return;
 
                 % info commands
                 case 'about'
@@ -182,101 +212,69 @@ classdef JRC < handle & dynamicprops
                     abstr = jrclust.utils.about();
                     msgbox(abstr, verstr);
                     obj.isCompleted = 1;
-                    return;
 
                 case 'help'
-                    disp(jrclust.utils.help());
+                    jrclust.utils.help();
                     obj.isCompleted = 1;
-                    return;
 
                 case 'version'
                     md = jrclust.utils.info();
                     fprintf('%s v%s\n', md.program, jrclust.utils.version());
                     obj.isCompleted = 1;
-                    return;
 
                 % workflow commands
                 case 'bootstrap'
-                    doBootstrap(obj.args{:});
+                    obj.hCfg = doBootstrap(obj.args{:});
                     obj.isCompleted = 1;
-                    return;
 
                 case 'compile'
                     jrclust.CUDA.compileCUDA();
                     obj.isCompleted = 1;
-                    return;
 
                 case 'importv3'
                     jrclust.import.importv3(obj.args{1});
                     obj.isCompleted = 1;
-                    return;
 
-                % preview commands
-                case 'probe'
-                    if nargs == 0
-                        obj.errMsg = 'Specify a probe file or config file';
-                        obj.isError = 1;
-                        return;
-                    end
-
-                    probeFile = obj.args{1};
-
-                    if endsWith(probeFile, '.prm')
-                        hCfg_ = jrclust.Config(probeFile);
-                        doPlotProbe(hCfg_);
-                    else % not a config file
-                        [~, ~, ext] = fileparts(probeFile);
-                        if isempty(ext) % a convenience for a forgetful mind
-                            probeFile = [probeFile '.prb'];
-                        end
-
-                        probeFile_ = jrclust.utils.absPath(probeFile, fullfile(jrclust.utils.basedir(), 'probes'));
-                        if isempty(probeFile_)
-                            obj.errMsg = sprintf('Could not find probe file: %s', probeFile);
-                            obj.isError = 1;
-                            return;
-                        end
-
-                        probeData = doLoadProbe(probeFile_);
-                        doPlotProbe(probeData);
-                    end
-
+                % misc commands
+                case 'activity'
+                    obj.activity();
                     obj.isCompleted = 1;
-                    return;
+
+                case 'probe'
+                    if isempty(obj.hCfg) && nargs == 0
+                        obj.isError = 1;
+                        obj.errMsg = 'Specify a probe or a config file';
+                    elseif isempty(obj.hCfg)
+                        obj.probe(obj.args{1});
+                        obj.isCompleted = 1;
+                    else
+                        obj.probe();
+                        obj.isCompleted = 1;
+                    end
 
                 case 'preview'
-                    hCfg_ = jrclust.Config(obj.args{1});
-                    hPreview = jrclust.controllers.curate.PreviewController(hCfg_);
-                    hPreview.preview();
-
+                    obj.preview();
                     obj.isCompleted = 1;
-                    return;
 
+                case 'recluster'
+                    obj.recluster();
+                    obj.isCompleted = ~obj.isError;
 
                 case 'traces'
-                    hCfg_ = jrclust.Config(obj.args{1});
-                    hTraces = jrclust.controllers.curate.TracesController(hCfg_);
-                    if numel(obj.args) > 1
-                        recID = str2double(obj.args{2});
-                        if isnan(recID)
-                            recID = [];
-                        end
-                    else
-                        recID = [];
-                    end
-                    hTraces.show(recID, 0, obj.hClust);
-
+                    obj.traces();
                     obj.isCompleted = 1;
-                    return;
+            end
+
+            if ~obj.inProgress
+                return;
             end
 
             % command sentinel
             detectCmds = {'detect', 'detect-sort', 'full'};
             sortCmds   = {'sort', 'detect-sort', 'full'};
             curateCmds = {'manual', 'full'};
-            miscCmds = {'activity', 'auto'};
 
-            legalCmds = unique([detectCmds, sortCmds curateCmds miscCmds]);
+            legalCmds = unique([detectCmds, sortCmds curateCmds]);
 
             if ~any(strcmpi(obj.cmd, legalCmds))
                 obj.errMsg = sprintf('Command `%s` not recognized', obj.cmd);
@@ -305,10 +303,226 @@ classdef JRC < handle & dynamicprops
                 obj.isError = 1;
                 return;
             end
+        end
 
-            % load parameter file
-            configFile = obj.args{1};
-            obj.hCfg = jrclust.Config(configFile);
+        function startParPool(obj)
+            %STARTPARPOOL Start the parallel pool
+            if obj.hCfg.useParfor
+                try
+                    parpool('local');
+                catch % parpool already running
+                end
+            end
+        end
+    end
+
+    %% PREVIEW/RECLUSTER METHODS
+    methods
+        function activity(obj)
+            %ACTIVITY Plot activity
+            if isempty(obj.res)
+                obj.loadFiles();
+            end
+
+            doPlotActivity(obj.res, obj.hCfg);
+        end
+
+        function preview(obj)
+            %PREVIEW Display Preview GUI
+            hPreview = jrclust.controllers.curate.PreviewController(obj.hCfg);
+            hPreview.preview();
+        end
+
+        function probe(obj, probeFile)
+            %PROBE Plot a probe layout
+            if nargin > 1
+                [~, ~, ext] = fileparts(probeFile);
+                if isempty(ext) % a convenience for a forgetful mind
+                    probeFile = [probeFile '.prb'];
+                end
+
+                probeFile_ = jrclust.utils.absPath(probeFile, fullfile(jrclust.utils.basedir(), 'probes'));
+                if isempty(probeFile_)
+                    obj.errMsg = sprintf('Could not find probe file: %s', probeFile);
+                    obj.isError = 1;
+                    return;
+                end
+
+                probeData = doLoadProbe(probeFile_);
+                doPlotProbe(probeData);
+            elseif isempty(obj.hCfg) 
+                obj.errMsg = 'Specify a probe file or config file';
+                obj.isError = 1;
+                return;
+            else
+                doPlotProbe(obj.hCfg);
+            end
+        end
+
+        function traces(obj)
+            %TRACES Show traces
+            if isempty(obj.res)
+                obj.loadFiles();
+            end
+
+            hTraces = jrclust.controllers.curate.TracesController(obj.hCfg);
+            if numel(obj.args) > 1
+                recID = str2double(obj.args{2});
+                if isnan(recID)
+                    recID = [];
+                end
+            else
+                recID = [];
+            end
+
+            hTraces.show(recID, 0, obj.hClust);
+        end
+    end
+
+    %% PIPELINE METHODS
+    methods
+        function recluster(obj)
+            %RECLUSTER Recluster spikes
+            if isempty(obj.res)
+                obj.loadFiles();
+            end
+
+            if isfield(obj.res, 'hClust')
+                obj.res.hClust.hCfg = obj.hCfg; % update hClust's config
+                obj.res.hClust.reassign();
+                obj.res.hClust.autoMerge();
+                obj.res.sortedOn = now();
+                obj.saveRes(1);
+            else
+                obj.isError = 1;
+                obj.errMsg = 'hClust not found';
+            end
+        end
+
+        function dRes = detect(obj)
+            %DETECT Detect spikes in recording
+            obj.res = []; % reset obj.res
+            obj.isDetect = 1;
+
+            % clear GPU memory and set random seeds
+            obj.clearMemory();
+
+            % start the parallel pool
+            if obj.hCfg.useParfor
+                obj.startParPool();
+            end
+
+            obj.hDetect = jrclust.controllers.detect.DetectController(obj.hCfg);
+            dRes = obj.hDetect.detect();
+
+            if obj.hDetect.isError
+                error(obj.hDetect.errMsg);
+            elseif obj.hCfg.verbose
+                fprintf('Detection completed in %0.2f seconds\n', dRes.detectTime);
+            end
+
+            obj.res = dRes;
+
+            % save files
+            obj.saveBinaries();
+            obj.saveRes(0);
+        end
+
+        function sRes = sort(obj)
+            %SORT Cluster detected spikes
+            if isempty(obj.res)
+                obj.loadFiles();
+            end
+            obj.isSort = 1;
+
+            if ~isfield(obj.res, 'spikeFeatures')
+                dlgAns = questdlg('Could not find all required data. Detect?', 'Detection required', 'No');
+                if strcmp(dlgAns, 'Yes')
+                    obj.detect();
+                else
+                    obj.isCompleted = 1;
+                    return;
+                end
+            end
+
+            if obj.hCfg.verbose
+                % inform user we're using previously detected spikes
+                if ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'detectedOn')
+                    fprintf('Using spikes detected on %s\n', datestr(obj.res.detectedOn));
+                elseif ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'spikeTimes')
+                    fprintf('Using previously-detected spikes\n');
+                end
+            end
+
+            % clear GPU memory and set random seeds
+            obj.clearMemory();
+
+            % start the parallel pool
+            if obj.hCfg.useParfor
+                obj.startParPool();
+            end
+
+            obj.hSort = jrclust.controllers.sort.SortController(obj.hCfg);
+            sRes = obj.hSort.sort(obj.res);
+
+            if obj.hSort.isError
+                error(obj.hSort.errMsg);
+            elseif obj.hCfg.verbose
+                fprintf('Sorting completed in %0.2f seconds\n', sRes.sortTime);
+            end
+
+            obj.res = jrclust.utils.mergeStructs(obj.res, sRes);
+            obj.saveRes(obj.isDetect); % force overwrite if we're detecting
+        end
+
+        function curate(obj)
+            %CURATE Spin up the manual GUI for curation
+            if isempty(obj.res)
+                obj.loadFiles();
+            end
+            obj.isCurate = 1;
+
+            if ~isfield(obj.res, 'hClust')
+                dlgAns = questdlg('Could not find all required data. Sort?', 'Sorting required', 'No');
+                if strcmp(dlgAns, 'Yes')
+                    obj.sort();
+                else
+                    obj.isCompleted = 1;
+                    return;
+                end
+            end
+
+            if obj.hCfg.verbose
+                % inform user we're using previously detected spikes
+                if ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'detectedOn')
+                    fprintf('Using spikes detected on %s\n', datestr(obj.res.detectedOn));
+                elseif ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'spikeTimes')
+                    fprintf('Using previously-detected spikes\n');
+                end
+
+                % inform user we're using a previously-computed clustering
+                if ~obj.isSort && ~isempty(obj.res) && isfield(obj.res, 'sortedOn')
+                    fprintf('Using clustering computed on %s\n', datestr(obj.res.sortedOn));
+                elseif ~obj.isSort && ~isempty(obj.res) && isfield(obj.res, 'hClust')
+                    fprintf('Using previously-clustered spikes\n');
+                end
+
+                % inform user of the last time this set was curated
+                if ~isempty(obj.res) && isfield(obj.res, 'curatedOn')
+                    fprintf('Last manually edited on %s\n', datestr(obj.res.curatedOn));
+                end
+            end
+
+            % clear GPU memory and set random seeds
+            obj.clearMemory();
+
+            % start the parallel pool
+            if obj.hCfg.useParfor
+                obj.startParPool();
+            end
+
+            obj.hCurate = jrclust.controllers.curate.CurateController(obj.hClust);
+            obj.hCurate.beginSession();
         end
     end
 
@@ -347,213 +561,182 @@ classdef JRC < handle & dynamicprops
             %RUN Run commands
             if obj.isError
                 error(obj.errMsg);
-            elseif isempty(obj.hCfg.rawRecordings)
-                error('rawRecordings cannot be empty');
             elseif obj.isCompleted
                 warning('command ''%s'' completed successfully; to rerun, use rerun()', obj.cmd);
                 return;
             end
 
-            % try to warm up the local parallel pool before taking a swim
-            if obj.hCfg.useParfor && (obj.isDetect || obj.isSort)
-                try
-                    parpool('local');
-                catch
-                end
-            end
-
-            % load saved data only if we're not starting over
-            if ~obj.isDetect
-                obj.res = obj.loadFiles();
-            else
-                obj.res = [];
-            end
-
-            if obj.isCurate && ~obj.isSort
-                if ~isfield(obj.res, 'hClust')
-                    dlgAns = questdlg('Could not find all required data. Sort?', 'Sorting required', 'No');
-                    if strcmp(dlgAns, 'Yes')
-                        obj.isSort = 1;
-                    else
-                        return;
-                    end
-                end
-            end
-
-            if obj.isSort && ~obj.isDetect
-                if ~isfield(obj.res, 'spikeTimes')
-                    obj.isDetect = 1;
-                end
-            end
-
-            doSave = obj.isSort || obj.isDetect;
-
-            % notify user that we're using previously-computed results
-            if obj.hCfg.verbose
-                if ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'detectedOn')
-                    fprintf('Using spikes detected on %s\n', datestr(obj.res.detectedOn));
-                elseif ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'spikeTimes')
-                    fprintf('Using previously-detected spikes\n');
-                end
-                if ~obj.isDetect && ~obj.isSort && ~isempty(obj.res) && isfield(obj.res, 'sortedOn')
-                    fprintf('Using clustering computed on %s\n', datestr(obj.res.sortedOn));
-                elseif ~obj.isDetect && ~obj.isSort && ~isempty(obj.res) && isfield(obj.res, 'hClust')
-                    fprintf('Using previously-clustered spikes\n');
-                end
-                if obj.isCurate && ~isempty(obj.res) && isfield(obj.res, 'curatedOn')
-                    fprintf('Last manually edited on %s\n', datestr(obj.res.curatedOn));
-                end
-            end
-
-            % set random seeds
-            rng(obj.hCfg.randomSeed);
-            if obj.hCfg.useGPU
-                % while we're here, clear GPU memory
-                if obj.isDetect || obj.isSort
-                    if obj.hCfg.verbose
-                        fprintf('Clearing GPU memory...');
-                    end
-                    gpuDevice(); % selects GPU device
-                    gpuDevice([]); % clears GPU memory
-                    if obj.hCfg.verbose
-                        fprintf('done\n');
-                    end
-                end
-
-                parallel.gpu.rng(obj.hCfg.randomSeed);
-            end
-
-            % PLOT ACTIVITY OR RECLUSTER
-            if strcmp(obj.cmd, 'activity')
-                if ~isempty(obj.res) && all(cellfun(@(f) ismember(f, fieldnames(obj.res)), ...
-                                                    {'spikeTimes', 'spikeSites', 'spikeAmps'}))
-                    doPlotActivity(obj.hCfg, obj.res);
-                end
-            elseif strcmp(obj.cmd, 'auto')
-                if ~isempty(obj.res) && isfield(obj.res, 'hClust')
-                    obj.res.hClust.hCfg = obj.hCfg; % update hClust's config
-                    obj.res.hClust.reassign();
-                    obj.res.hClust.autoMerge();
-                    obj.res.sortedOn = now();
-                    doSave = 1;
-                else
-                    obj.isError = 1;
-                    obj.errMsg = 'hClust not found';
-                    return;
-                end
-            end
-
             % DETECT SPIKES
             gpuDetect = obj.hCfg.useGPU; % save this in case useGPU is disabled during detection step
             if obj.isDetect
-                obj.hDetect = jrclust.controllers.detect.DetectController(obj.hCfg);
-                dRes = obj.hDetect.detect();
-
-                if obj.hDetect.isError
-                    error(obj.hDetect.errMsg);
-                elseif obj.hCfg.verbose
-                    fprintf('Detection completed in %0.2f seconds\n', dRes.runtime);
-                end
-
-                obj.res = dRes;
+                obj.detect();
             end
 
             % CLUSTER SPIKES
             gpuSort = obj.hCfg.useGPU | gpuDetect;
             if obj.isSort
                 obj.hCfg.useGPU = gpuSort;
-
-                obj.hSort = jrclust.controllers.sort.SortController(obj.hCfg);
-                sRes = obj.hSort.sort(obj.res);
-
-                if obj.hSort.isError
-                    error(obj.hSort.errMsg);
-                elseif obj.hCfg.verbose
-                    fprintf('Sorting completed in %0.2f seconds\n', sRes.runtime);
-                end
-
-                obj.res = jrclust.utils.mergeStructs(obj.res, sRes);
-            end
-
-            % save our results for later
-            if doSave
-                obj.saveFiles(obj.isDetect, obj.hCfg.isV3Import);
+                obj.sort();
             end
 
             % CURATE SPIKES
             gpuCurate = obj.hCfg.useGPU | gpuSort;
             if obj.isCurate
                 obj.hCfg.useGPU = gpuCurate;
-
-                obj.hCurate = jrclust.controllers.curate.CurateController(obj.hClust);
-                obj.hCurate.beginSession();
+                obj.curate();
             end
 
             obj.isCompleted = 1;
         end
 
-        function saveFiles(obj, saveBinaries, saveConfig)
-            %SAVEFILES Save results struct to disk
-            if obj.isError
-                error(obj.errMsg);
+        function saveBinaries(obj)
+            %SAVEBINARIES Save raw/filtered traces, features to disk
+            if isempty(obj.res)
+                return;
+            end
+            sessionName = obj.hCfg.sessionName;
+
+            % save spikesRaw
+            if isfield(obj.res, 'spikesRaw') && ~isempty(obj.res.spikesRaw)
+                filename = fullfile(obj.hCfg.outputDir, [sessionName, '_raw.jrc']);
+                [fid, fErr] = fopen(filename, 'w');
+                if fid == -1
+                    warning('Failed to save spikesRaw: %s', fErr);
+                else
+                    ct = fwrite(fid, obj.res.spikesRaw, '*int16');
+                    fclose(fid);
+
+                    if ct == numel(obj.res.spikesRaw) && obj.hCfg.verbose
+                        fprintf('Saved spikesRaw to %s\n', filename);
+                    end
+                end
             end
 
-            doSaveFiles(obj.res, obj.hCfg, saveBinaries, saveConfig);
+            % save spikesFilt
+            if isfield(obj.res, 'spikesFilt') && ~isempty(obj.res.spikesFilt)
+                filename = fullfile(obj.hCfg.outputDir, [sessionName, '_filt.jrc']);
+                [fid, fErr] = fopen(filename, 'w');
+                if fid == -1
+                    warning('Failed to save spikesFilt: %s', fErr);
+                else
+                    ct = fwrite(fid, obj.res.spikesFilt, '*int16');
+                    fclose(fid);
+
+                    if ct == numel(obj.res.spikesFilt) && obj.hCfg.verbose
+                        fprintf('Saved spikesFilt to %s\n', filename);
+                    end
+                end
+            end
+
+            % save spikeFeatures
+            if isfield(obj.res, 'spikeFeatures') && ~isempty(obj.res.spikeFeatures)
+                filename = fullfile(obj.hCfg.outputDir, [sessionName, '_features.jrc']);
+                [fid, fErr] = fopen(filename, 'w');
+                if fid == -1
+                    warning('Failed to save spikeFeatures: %s', fErr);
+                else
+                    ct = fwrite(fid, obj.res.spikeFeatures, '*single');
+                    fclose(fid);
+
+                    if ct == numel(obj.res.spikeFeatures) && obj.hCfg.verbose
+                        fprintf('Saved spikeFeatures to %s\n', filename);
+                    end
+                end
+            end
         end
 
-        function res = loadFiles(obj)
+        function saveRes(obj, forceOverwrite)
+            %SAVERES Save results struct
+            if isempty(obj.res)
+                return;
+            end
+            if nargin < 2
+                forceOverwrite = 0;
+            end
+            forceOverwrite = forceOverwrite | obj.hCfg.getOr('testRun', 0);
+
+            sessionName = obj.hCfg.sessionName;
+            filename = fullfile(obj.hCfg.outputDir, [sessionName '_res.mat']);
+             % don't overwrite unless explicitly permitted (or testing)
+            if exist(filename, 'file') && ~forceOverwrite
+                question = sprintf('%s already exists. Overwrite?', filename);
+                dlgAns = questdlg(question, 'Confirm overwrite', 'No');
+                if isempty(dlgAns) || ismember(dlgAns, {'No', 'Cancel'})
+                    return;
+                end
+            end
+
+            % save everything else (don't save spikesRaw, spikesFilt,
+            % spikeFeatures inside hClust)
+            if isfield(obj.res, 'hClust') && ~isempty(obj.res.hClust.spikesRaw)
+                doRestore = 1;
+
+                spikesRaw = obj.res.hClust.spikesRaw;
+                obj.res.hClust.spikesRaw = [];
+
+                spikesFilt = obj.res.hClust.spikesFilt;
+                obj.res.hClust.spikesFilt = [];
+
+                spikeFeatures = obj.res.hClust.spikeFeatures;
+                obj.res.hClust.spikeFeatures = [];
+            else
+                doRestore = 0;
+            end
+
+            jrclust.utils.saveStruct(obj.res, filename);
+
+            if doRestore % restore spikesRaw, spikesFilt, spikeFeatures to hClust
+                obj.res.hClust.spikesRaw = spikesRaw;
+                obj.res.hClust.spikesFilt = spikesFilt;
+                obj.res.hClust.spikeFeatures = spikeFeatures;
+            end
+
+            if obj.hCfg.verbose
+                fprintf('Saved results to %s\n', filename);
+            end
+        end
+
+        function loadFiles(obj)
             %LOADFILES Load results struct
             if obj.isError
                 error(obj.errMsg);
             end
 
-            res = doLoadFiles(obj.hCfg);
-            if isfield(res, 'hClust')
-                res.hClust.hCfg = obj.hCfg;
+            obj.res = doLoadFiles(obj.hCfg);
+            if isfield(obj.res, 'hClust')
+                obj.res.hClust.hCfg = obj.hCfg;
             end
         end
     end
 
     % GETTERS/SETTERS
     methods
+        % hCfg
+        function set.hCfg(obj, hCfg)
+            assert(isa(hCfg, 'jrclust.Config'), 'hCfg must be a Config object');
+            obj.hCfg = hCfg;
+        end
+        
         % hClust
-        function hc = get.hClust(obj)
+        function val = get.hClust(obj)
             if isempty(obj.res) || ~isfield(obj.res, 'hClust')
-                hc = [];
+                val = [];
             else
-                hc = obj.res.hClust;
+                val = obj.res.hClust;
             end
         end
 
         % isError
-        function ie = get.isError(obj)
-            ie = obj.isError;
+        function val = get.isError(obj)
+            val = obj.isError;
             if ~isempty(obj.hCfg) % pick up error in Config
-                ie = ie || obj.hCfg.isError;
+                val = val || obj.hCfg.isError;
             end
             if ~isempty(obj.hDetect) % pick up error in hDetect
-                ie = ie || obj.hDetect.isError;
+                val = val || obj.hDetect.isError;
             end
             if ~isempty(obj.hSort) % pick up error in hSort
-                ie = ie || obj.hSort.isError;
-            end
-        end
-
-        % spikeTimes
-        function st = get.spikeTimes(obj)
-            if isempty(obj.res)
-                st = [];
-            else
-                st = obj.res.spikeTimes;
-            end
-        end
-
-        % spikeSites
-        function ss = get.spikeSites(obj)
-            if isempty(obj.res)
-                ss = [];
-            else
-                ss = obj.res.spikeSites;
+                val = val || obj.hSort.isError;
             end
         end
     end

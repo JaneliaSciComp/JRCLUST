@@ -212,7 +212,11 @@ classdef Config < dynamicprops
                     elseif iscell(userParams.(paramName))
                         obj.multiRaw = userParams.(paramName);
                     else
-                        error('rawRecordings must be a char or cell array of char');
+                        obj.error('rawRecordings must be a char or cell array of char');
+                    end
+
+                    if isempty(obj.rawRecordings)
+                        obj.error('rawRecordings cannot be empty');
                     end
                 elseif ~isempty(userParams.(paramName))
                     [flag, val, errMsg] = obj.validateProp(paramName, userParams.(paramName));
@@ -674,6 +678,23 @@ classdef Config < dynamicprops
                 ew = round(obj.evtWindow * obj.sampleRate / 1000);
             else
                 ew = [];
+            end
+        end
+
+        % isError
+        function val = get.isError(obj)
+            val = obj.isError;
+            if isprop(obj, 'rawRecordings')
+                switch class(obj.rawRecordings)
+                    case 'cell'
+                        val = val | all(cellfun(@isempty, obj.rawRecordings));
+
+                    case 'char'
+                        val = val | isempty(obj.rawRecordings);
+
+                    otherwise
+                        val = 1;
+                end
             end
         end
 

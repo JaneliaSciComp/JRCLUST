@@ -158,8 +158,13 @@ classdef DetectController < handle
 
             % detected spikes (raw and filtered), features
             res.spikesRaw = cat(3, obj.spikesRaw{:});
+            res.rawShape = size(res.spikesRaw);
+
             res.spikesFilt = cat(3, obj.spikesFilt{:});
+            res.filtShape = size(res.spikesFilt);
+
             res.spikeFeatures = cat(3, obj.spikeFeatures{:});
+            res.featuresShape = size(res.spikeFeatures);
 
             % spike positions
             res.spikePositions = spikePos(res.spikeSites, res.spikeFeatures, obj.hCfg);
@@ -168,7 +173,7 @@ classdef DetectController < handle
             res.hRecs = hRecs;
 
             % summarize
-            res.runtime = toc(t0);
+            res.detectTime = toc(t0);
             res.detectedOn = now();
         end
     end

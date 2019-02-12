@@ -60,7 +60,7 @@ classdef SortController < handle
             % end
 
             % summarize
-            res.runtime = toc(t0);
+            res.sortTime = toc(t0);
             res.sortedOn = now();
         end
     end

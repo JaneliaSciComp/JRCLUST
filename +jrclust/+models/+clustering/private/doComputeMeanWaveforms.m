@@ -1,11 +1,11 @@
 function results = doComputeMeanWaveforms(hClust, updateMe, useRaw)
     %DOCOMPUTEMEANWAVEFORMS Compute the mean waveform for each cluster
+    results = struct();
     if isempty(hClust.spikesFilt)
         return;
     end
 
     useRaw = useRaw && ~isempty(hClust.spikesRaw);
-
     verbose = hClust.hCfg.verbose && isempty(updateMe);
     if verbose
         fprintf('Calculating cluster mean waveform.\n\t');
@@ -91,9 +91,6 @@ function results = doComputeMeanWaveforms(hClust, updateMe, useRaw)
             end
         end
     end
-
-    results = struct();
-    %results.tmrWav_clu = meanWfGlobal_; % meanSubtract after or before?
 
     % measure waveforms
     [unitPeaks_, unitPeakSites_] = min(permute(min(meanWfLocal_), [2, 3, 1]), [], 1);
