@@ -47,7 +47,7 @@ function [timesOut, ampsOut, sitesOut] = mergeSpikesSite(spikeTimes, spikeAmps, 
     nLims = int32(abs(hCfg.refracIntSamp));
 
     % find neighboring spikes
-    nearbySites = jrclust.utils.findNearbySites(hCfg.siteLoc, iSite, hCfg.evtMergeRad); % includes iSite
+    nearbySites = jrclust.utils.findNearbySites(hCfg.siteLoc, iSite, hCfg.evtDetectRad); % includes iSite
     spikesBySite = arrayfun(@(jSite) find(spikeSites == jSite), nearbySites, 'UniformOutput', 0);
     timesBySite = arrayfun(@(jSite) spikeTimes(spikesBySite{jSite}), 1:numel(nearbySites), 'UniformOutput', 0);
     ampsBySite = arrayfun(@(jSite) spikeAmps(spikesBySite{jSite}), 1:numel(nearbySites), 'UniformOutput', 0);

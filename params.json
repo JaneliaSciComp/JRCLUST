@@ -145,6 +145,20 @@
             "section": ["clustering"]
         },
         "evtDetectRad": {
+            "description": "Maximum distance (in μm) to search over for duplicate peaks",
+            "comment": "",
+            "default_value": 50,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["spike detection"]
+        },
+        "evtGroupRad": {
             "description": "Maximum distance (in μm) for extracting spike waveforms",
             "comment": "",
             "default_value": 75,
@@ -156,10 +170,21 @@
                     "positive"
                 ]
             },
-            "section": [
-                "spike detection",
-                "feature extraction"
-            ]
+            "section": ["feature extraction"]
+        },
+        "evtMergeRad": {
+            "description": "Maximum distance (in μm) to consider for merging spike waveforms",
+            "comment": "",
+            "default_value": 35,
+            "validation": {
+                "classes": ["numeric"],
+                "attributes": [
+                    "scalar",
+                    "real",
+                    "positive"
+                ]
+            },
+            "section": ["clustering"]
         },
         "evtWindow": {
             "description": "Time range (in ms) of filtered spike waveforms, centered at the peak",
@@ -385,7 +410,7 @@
             "section": ["spike detection"]
         },
         "nSitesExcl": {
-            "description": "Number of sites to exclude from the spike waveform group",
+            "description": "Number of sites to exclude from the spike waveform group for feature extraction",
             "comment": "",
             "default_value": [],
             "validation": {
@@ -764,20 +789,6 @@
                 "attributes": [
                     "scalar",
                     "real"
-                ]
-            },
-            "section": ["spike detection"]
-        },
-        "evtMergeRad": {
-            "description": "Maximum distance (in μm) for merging spike waveforms",
-            "comment": "",
-            "default_value": 50,
-            "validation": {
-                "classes": ["numeric"],
-                "attributes": [
-                    "scalar",
-                    "real",
-                    "positive"
                 ]
             },
             "section": ["spike detection"]
@@ -1634,7 +1645,6 @@
             "freqLim_track",
             "iGpu",
             "maxAmp_lfp",
-            "maxDist_site_merge_um",
             "maxLfpSdZ",
             "maxSite_detect",
             "maxSite_pix",
@@ -1709,8 +1719,9 @@
         "header_offset": "headerOffset",
         "iChan_aux": "auxChan",
         "maxCluPerSite": "maxClustersSite",
-        "maxDist_site_spk_um": "evtDetectRad",
-        "maxDist_site_um": "evtMergeRad",
+        "maxDist_site_merge_um": "evtMergeRad",
+        "maxDist_site_spk_um": "evtGroupRad",
+        "maxDist_site_um": "evtDetectRad",
         "maxSite": "nSiteDir",
         "maxWavCor": "maxUnitSim",
         "miSites": "siteNeighbors",

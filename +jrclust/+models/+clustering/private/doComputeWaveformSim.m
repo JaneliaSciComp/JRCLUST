@@ -137,7 +137,7 @@ function corScores = clusterWaveformSim(meanWfSet, clusterSites, hCfg, scoreData
     if fUsePeak2
         compClusters = find(sites == iSite | sites2 == iSite | sites3 == iSite | sites == sites2(iCluster) | sites == sites3(iCluster));
     else
-        compClusters = find(ismember(sites, jrclust.utils.findNearbySites(hCfg.siteLoc, iSite, hCfg.evtDetectRad)));
+        compClusters = find(ismember(sites, jrclust.utils.findNearbySites(hCfg.siteLoc, iSite, hCfg.evtMergeRad)));
     end
 
     corScores = zeros(nClusters, 1, 'single');

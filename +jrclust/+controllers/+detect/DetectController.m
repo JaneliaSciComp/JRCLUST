@@ -83,6 +83,10 @@ classdef DetectController < handle
                 fn = obj.hCfg.rawRecordings{iRec};
                 hRec = jrclust.models.recording.Recording(fn, obj.hCfg);
 
+                if hRec.isError
+                    error(hRec.errMsg);
+                end
+
                 % subset imported samples in this recording interval
                 [impTimes, impSites] = deal([]);
                 if ~isempty(obj.importTimes)

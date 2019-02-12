@@ -1,5 +1,14 @@
 function S = metaToStruct(filename)
     %METATOSTRUCT read a SpikeGLX meta file and convert to struct
+    [status, cmdout] = system(sprintf('file %s', filename));
+
+    % check given file is a text file
+    if status == 0
+        assert(any(strfind(lower(cmdout), 'text')), '''%s'' is not a text file', filename);
+    else % fall back to extension checking
+        [~, ~, ext] = fileparts(filename);
+        assert(strcmpi(ext, '.meta'), '''%s'' is not a meta file', filename);
+    end
 
     fid = fopen(filename, 'r');
     keysvals = textscan(fid, '%s%s', 'Delimiter', '=',  'ReturnOnError', 0);

@@ -160,6 +160,21 @@ Percentile of pairwise distances between spikes on a site to use as a cutoff dis
 evtDetectRad
 ^^^^^^^^^^^^
 
+(Formerly ``maxDist_site_um``)
+
+Maximum distance (in μm) to search over for :ref:`potential duplicates <merge-peaks>` (``r1`` in the figure below).
+This distance is used to determine the number of sites to extract features if :ref:`nSiteDir` is empty.
+
+**Default** is 50.
+
+.. image:: /.static/evtDetectRad.png
+   :scale: 25%
+
+.. _evtGroupRad:
+
+evtGroupRad
+^^^^^^^^^^^^
+
 (Formerly ``maxDist_site_spk_um``)
 
 Maximum distance (in μm) for :ref:`extracting spike waveforms <extract-windows>`
@@ -169,6 +184,17 @@ Maximum distance (in μm) for :ref:`extracting spike waveforms <extract-windows>
 
 .. image:: /.static/evtDetectRad.png
    :scale: 25%
+
+.. _evtMergeRad:
+
+evtMergeRad
+^^^^^^^^^^^^
+
+(Formerly ``maxDist_site_merge_um``)
+
+Maximum distance (in μm) between sites to consider :ref:`merging a pair of units <merge-post-hoc>`.
+
+**Default** is 35.
 
 .. _evtWindow:
 
@@ -365,10 +391,10 @@ The total number of sites per spike group (``nSitesEvt``) is 1 + 2\*``nSiteDir``
 In other words, a spike group includes the site on which the spike occurs, along with ``nSiteDir``
 sites in the horizontal direction and ``nSiteDir`` in the vertical direction.
 
-If empty, the number of sites per spike group is determined from :ref:`evtDetectRad`.
+If empty, the number of sites per spike group is determined from :ref:`evtGroupRad`.
 
 .. warning::
-   This parameter may be deprecated in an upcoming release in favor of ``evtDetectRad``.
+   This parameter may be deprecated in an upcoming release in favor of ``evtGroupRad``.
 
 **Default** is empty.
 
@@ -379,14 +405,14 @@ nSitesExcl
 
 (Formerly ``nSites_ref``)
 
-Number of sites to exclude from the spike waveform group.
+Number of sites to exclude from the spike waveform group for feature extraction.
 
 **Default** is empty.
 
 .. _nSpikesFigProj:
 
 nSpikesFigProj
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
 
 (Formerly ``nShow_proj``)
 
@@ -397,7 +423,7 @@ Maximum number of spikes per cluster to display in the feature projection view.
 .. _nSpikesFigWav:
 
 nSpikesFigWav
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
 
 (Formerly ``nSpk_show``)
 
@@ -682,28 +708,13 @@ Compute multiple waveforms at three drift locations based on the spike position 
 .. _evtManualThresh:
 
 evtManualThresh
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 (Formerly ``spkThresh_uV``)
 
 Manually-set spike detection threshold (in μV).
 
 **Default** is empty.
-
-.. _evtMergeRad:
-
-evtMergeRad
-^^^^^^^^^^^^^^^
-
-(Formerly ``maxDist_site_um``)
-
-Maximum distance (in μm) to search over for :ref:`potential duplicates <merge-peaks>` (``r1`` in the figure below).
-This distance is used to determine the number of sites to extract features if :ref:`nSiteDir` is empty.
-
-**Default** is 50.
-
-.. image:: /.static/evtDetectRad.png
-   :scale: 25%
 
 .. _evtWindowMergeFactor:
 
@@ -1027,7 +1038,7 @@ nPassesMerge
 
 Number of times to repeat automatic waveform-based merging.
 
-**Default** is empty.
+**Default** is 10.
 
 .. _nPeaksFeatures:
 

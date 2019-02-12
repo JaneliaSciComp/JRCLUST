@@ -294,17 +294,17 @@ classdef Config < dynamicprops
             if isempty(obj.nSiteDir) || isempty(obj.nSitesExcl)
                 siteDists = pdist2(obj.siteLoc, obj.siteLoc);
 
-                % max over all sites of number of neighbors in merge radius
-                nNeighMrg = max(sum(siteDists <= obj.evtMergeRad)); % 11/7/17 JJJ: med to max
+                % max over all sites of number of neighbors in detect radius
+                nNeighDetect = max(sum(siteDists <= obj.evtDetectRad)); % 11/7/17 JJJ: med to max
 
                 if isempty(obj.nSitesExcl)
-                    % max over all sites of number of neighbors in detect radius
-                    nNeighDetect = max(sum(siteDists <= obj.evtDetectRad)); % 11/7/17 JJJ: med to max
-                    nsd = (nNeighDetect - 1)/2;
-                    obj.nSitesExcl = nNeighDetect - nNeighMrg;
+                    % max over all sites of number of neighbors in extract radius
+                    nNeighExtract = max(sum(siteDists <= obj.evtGroupRad)); % 11/7/17 JJJ: med to max
+                    nsd = (nNeighExtract - 1)/2;
+                    obj.nSitesExcl = nNeighExtract - nNeighDetect;
                 else
-                    nNeighDetect = nNeighMrg + obj.nSitesExcl;
-                    nsd = (nNeighDetect - 1)/2;
+                    nNeighExtract = nNeighDetect + obj.nSitesExcl;
+                    nsd = (nNeighExtract - 1)/2;
                 end
 
                 if isempty(obj.nSiteDir)

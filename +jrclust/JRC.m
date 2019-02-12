@@ -11,12 +11,15 @@ classdef JRC < handle & dynamicprops
     end
 
     properties (SetObservable, SetAccess=private)
-        args;           %
-        cmd;            %
-        hCfg;           %
+        args;           % arguments passed after command
+        cmd;            % command passed
         hDetect;        %
         hSort;          %
         hCurate;        %
+    end
+
+    properties (Hidden, SetObservable)
+        hCfg;           % Config object
     end
 
     % most general data from detection step
@@ -195,6 +198,11 @@ classdef JRC < handle & dynamicprops
                 % workflow commands
                 case 'bootstrap'
                     doBootstrap(obj.args{:});
+                    obj.isCompleted = 1;
+                    return;
+
+                case 'compile'
+                    jrclust.CUDA.compileCUDA();
                     obj.isCompleted = 1;
                     return;
 

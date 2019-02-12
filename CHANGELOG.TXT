@@ -1,7 +1,28 @@
+12 Feb 2019
+# Parameters
+- evtGroupRad introduced
+- evtMergeRad (formerly maxDist_site_merge_um) (re)implemented to correct an error in parameter usage
+- selection of evtDetectRad, evtGroupRad, or evtMergeRad as the parameter of choice has been corrected in some places
+- exact usage of nSitesExcl clarified in docs
+- nPassesMerge had reported an incorrect default value in the docs; this has been fixed
+
+# JRC
+- hCfg is now a hidden attribute but publicly settable
+- `compile` command is now (re)implemented
+
+# Recording
+- supply a more helpful error message if nSamples is not an integer
+
+# DetectController
+- check for error in hRec before trying to detect
+
+# metaToStruct
+- check given .meta file is a text file
+
 11 Feb 2019
 
 # Parameters
-- ignoreChans (formerly viChanZero) (re)implemented to address issue #83.
+- ignoreChans (formerly viChanZero) (re)implemented to address issue #83
 
 # Config
 - canonical version of ignoreSites was computed wrong in validation; this has been fixed

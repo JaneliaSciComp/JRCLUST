@@ -52,7 +52,7 @@ function [viSpk_ol_spk, vnDelay_ol_spk] = findPotentialOverlaps(spikeTimes, spik
         end
 
         % get sites which are *near* iSite but not iSite
-        nearbySites = setdiff(jrclust.utils.findNearbySites(hCfg.siteLoc, iSite, hCfg.evtMergeRad), iSite);
+        nearbySites = setdiff(jrclust.utils.findNearbySites(hCfg.siteLoc, iSite, hCfg.evtDetectRad), iSite);
         nearbySpikes = jrclust.utils.neCell2mat(spikesBySite(nearbySites));
 
         nSpikesOnSite = numel(spikesOnSite);
