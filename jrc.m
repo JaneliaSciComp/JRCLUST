@@ -14,7 +14,7 @@ function hJRC_ = jrc(varargin)
     end
 
     % discard try-catch here for now as these messages are next to useless
-    hJRC = jrclust.JRC(varargin{:});
+    hJRC = JRC(varargin{:});
 
     if hJRC.inProgress()
         hJRC.hCfg.verbose = 1;

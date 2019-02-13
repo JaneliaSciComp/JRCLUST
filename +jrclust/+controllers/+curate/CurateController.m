@@ -362,8 +362,6 @@ classdef CurateController < handle
                 otherwise
                     hFigWav.wait(0); %stop waiting
             end
-
-            hFigWav.toForeground(); %change the focus back to the current object
         end
 
         function mouseClickFigSim(obj, xyPos, clickType)

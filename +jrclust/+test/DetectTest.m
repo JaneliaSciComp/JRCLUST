@@ -13,7 +13,7 @@ classdef DetectTest < matlab.unittest.TestCase
     methods (TestClassSetup)
         function setupProps(obj)
             hCfg_ = jrclust.Config(fullfile(getenv('JRCTESTDATA'), 'single', 'test.prm'));
-            obj.hJRC = jrclust.JRC(hCfg_);
+            obj.hJRC = JRC(hCfg_);
             obj.hCfg.testRun = 1;
         end
 

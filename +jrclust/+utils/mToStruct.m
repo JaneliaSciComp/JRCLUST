@@ -1,10 +1,10 @@
 function S = mToStruct(filename)
     %MTOSTRUCT read and evaluate a .m script, convert workspace to struct
+    S = struct();
     lines = jrclust.utils.readLines(filename);
     lines = stripComments(lines);
-    
+
     if isempty(lines)
-        S = [];
         return;
     end
 
@@ -17,12 +17,11 @@ function S = mToStruct(filename)
             eval(sprintf('a = %s;', varnames{j}));
             S.(varnames{j}) = a;
         end
-    catch
-        S = struct();
+    catch ME
     end
 end
 
-%% local functions
+%% LOCAL FUNCTIONS
 function lines = stripComments(lines)
     lines = lines(cellfun(@(ln) ~isempty(ln), lines));
     lines = cellfun(@(ln) strtrim(ln), lines, 'UniformOutput', 0);

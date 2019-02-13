@@ -26,6 +26,19 @@ function strval = field2str(val)
             strval = [strval, '}'];
             return;
 
+        case 'struct'
+            strval = 'struct(';
+            strFields = fieldnames(val);
+            for i = 1:numel(strFields) - 1
+                fn = strFields{i};
+                strval = [strval, sprintf('''%s'', ', fn), ...
+                          jrclust.utils.field2str(val.(fn)), ', '];
+            end
+            fn = strFields{end};
+            strval = [strval, sprintf('''%s'', ', fn), ...
+                          jrclust.utils.field2str(val.(fn)), ')'];
+            return;
+
         otherwise
             error('Unsupported format: %s\n', class(val));
     end

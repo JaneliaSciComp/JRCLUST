@@ -6,20 +6,23 @@ classdef DetectMultiTest < matlab.unittest.TestCase
         dRes1;
         dRes;
         testConfig;
-        nSpikes0 = 11208;
+        nSpikes0 = 9891;
         nSpikes1 = 9635;
-        nSpikes = 11208 + 9635;
+        nSpikes = 6344 + 9635;
+    end
+
+    properties (Dependent)
+        res;
+        hCfg;
     end
 
     methods (TestClassSetup)
         function detectSingly(testCase)
             tc0 = fullfile(getenv('JRCTESTDATA'), 'multi', 'test0.prm');
-            hJRC = jrc('detect', tc0);
-            testCase.dRes0 = hJRC.dRes;
+            testCase.hJRC0 = jrc('detect', tc0);
 
             tc1 = fullfile(getenv('JRCTESTDATA'), 'multi', 'test1.prm');
-            hJRC = jrc('detect', tc1);
-            testCase.dRes1 = hJRC.dRes;
+            testCase.hJRC1 = jrc('detect', tc1);
         end
 
         function detectTogether(testCase)

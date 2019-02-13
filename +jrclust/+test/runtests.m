@@ -1,4 +1,4 @@
-function res = runTests()
+function res = runtests()
     close all; clear;
     res = struct();
 

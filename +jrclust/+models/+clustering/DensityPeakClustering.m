@@ -652,7 +652,14 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             end
 
             obj.simScore = doComputeWaveformSim(obj, updateMe);
-            obj.simScore = jrclust.utils.setDiag(obj.simScore, obj.computeSelfSim());
+            if isempty(updateMe)
+                obj.simScore = jrclust.utils.setDiag(obj.simScore, obj.computeSelfSim());
+            else
+                for ii = 1:numel(updateMe)
+                    i = updateMe(ii);
+                    obj.simScore(i, i) = obj.computeSelfSim(updateMe);
+                end
+            end
         end
 
         function computeQualityScores(obj, updateMe)
@@ -660,6 +667,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             if nargin < 2
                 updateMe = [];
             end
+
             scores = doComputeQualityScores(obj, updateMe);
             obj.nSitesOverThresh = scores.nSitesOverThresh;
             obj.siteRMS = scores.siteRMS;

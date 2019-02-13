@@ -1,3 +1,11 @@
+13 Feb 2019
+# mToStruct
+- throws a warning if eval/parse fails
+
+# import.v3 (formerly import.importv3)
+- updates clusterCenters on import to be consistent with nClusters
+- checks for hClust consistency on import
+
 12 Feb 2019
 # Parameters
 - evtGroupRad introduced
