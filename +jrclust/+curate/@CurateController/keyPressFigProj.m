@@ -5,16 +5,16 @@ function keyPressFigProj(obj, ~, hEvent)
     end
 
     hFigProj = obj.hFigs('FigProj');
-    factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
+    factor = 4^double(jrclust.utils.keyMod(hEvent, 'shift')); % 1 or 4
 
     switch lower(hEvent.Key)
         case 'uparrow'
             projScale = hFigProj.figData.boundScale*sqrt(2)^-factor;
-            rescaleFigProj(hFigProj, projScale, obj.hCfg);
+            jrclust.views.rescaleFigProj(hFigProj, projScale, obj.hCfg);
 
         case 'downarrow'
             projScale = hFigProj.figData.boundScale*sqrt(2)^factor;
-            rescaleFigProj(hFigProj, projScale, obj.hCfg);
+            jrclust.views.rescaleFigProj(hFigProj, projScale, obj.hCfg);
 
         case 'leftarrow' % go down one channel
             if obj.projSites(1) > 1

@@ -43,6 +43,11 @@ classdef Config < dynamicprops
         nSites;                 % numel(siteMap)
         nSitesEvt;              % 2*nSiteDir + 1 - nSitesExcl
         refracIntSamp;          % spike refractory interval, in samples
+
+        featuresFile;           % path to binary file containing spike features
+        filtFile;               % path to binary file containing filtered traces
+        rawFile;                % path to binary file containing raw traces
+        resFile;                % path to MAT file containing results struct
         sessionName;            % name of prm file, without path or extensions
     end
 
@@ -245,6 +250,22 @@ classdef Config < dynamicprops
             end
         end
 
+        % featuresFile
+        function val = get.featuresFile(obj)
+            val = fullfile(obj.outputDir, [obj.sessionName '_features.jrc']);
+        end
+
+        % filtFile
+        function val = get.filtFile(obj)
+            val = fullfile(obj.outputDir, [obj.sessionName '_filt.jrc']);
+        end
+
+        % fullParams
+        function val = get.fullParams(obj)
+            val = jrclust.utils.mergeStructs(obj.paramSet.commonParameters, ...
+                                             obj.paramSet.advancedParameters);
+        end
+
         % isError
         function val = get.isError(obj)
             val = obj.isError;
@@ -260,12 +281,6 @@ classdef Config < dynamicprops
                         val = 1;
                 end
             end
-        end
-
-        % fullParams
-        function val = get.fullParams(obj)
-            val = jrclust.utils.mergeStructs(obj.paramSet.commonParameters, ...
-                                             obj.paramSet.advancedParameters);
         end
 
         % multiRaw
@@ -347,6 +362,11 @@ classdef Config < dynamicprops
             end
         end
 
+        % rawFile
+        function val = get.rawFile(obj)
+            val = fullfile(obj.outputDir, [obj.sessionName '_raw.jrc']);
+        end
+
         % refracIntSamp
         function ri = get.refracIntSamp(obj)
             if isprop(obj, 'refracInt') && isprop(obj, 'sampleRate')
@@ -354,6 +374,11 @@ classdef Config < dynamicprops
             else
                 ri = [];
             end
+        end
+
+        % resFile
+        function val = get.resFile(obj)
+            val = fullfile(obj.outputDir, [obj.sessionName '_res.mat']);
         end
 
         % sessionName

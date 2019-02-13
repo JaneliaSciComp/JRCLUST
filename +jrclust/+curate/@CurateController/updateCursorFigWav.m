@@ -35,6 +35,6 @@ function iCluster = plotSelectedMeans(hFigWav, hClust, iCluster, plotKey, maxAmp
         meanWf = hClust.meanWfGlobal(:, :, iCluster);
     end
 
-    hFigWav.multiplot(plotKey, maxAmp, getXRange(iCluster, hCfg), meanWf);
+    hFigWav.multiplot(plotKey, maxAmp, jrclust.views.getXRange(iCluster, hCfg), meanWf);
     hFigWav.plotApply(plotKey, @uistack, 'top');
 end

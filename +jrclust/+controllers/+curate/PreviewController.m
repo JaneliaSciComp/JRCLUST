@@ -1,6 +1,5 @@
-classdef PreviewController < handle
+classdef PreviewController < jrclust.interfaces.FigureController
     %PREVIEWCONTROLLER
-    
     properties (SetAccess=private)
         figData;
         fileBounds;
@@ -70,7 +69,7 @@ classdef PreviewController < handle
     %% KEYBOARD/MOUSE FUNCTIONS
     methods (Hidden)
         function keyPressFigPreview(obj, ~, hEvent)
-            factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
+            factor = 4^double(jrclust.utils.keyMod(hEvent, 'shift')); % 1 or 4
 
             switch lower(hEvent.Key)
                 case 'uparrow'
@@ -179,11 +178,11 @@ classdef PreviewController < handle
             uimenu(editMenu, 'Label', 'Spike detection threshold', 'Callback', @(hO, hE) obj.setQQFactor());
 
             filterMenu = uimenu(editMenu, 'Label', 'Filter mode');
-            menuOptions(filterMenu, {'ndiff', 'bandpass', 'sgdiff', 'fir1', 'user'}, @obj.setFilter);
-            menuCheckbox(filterMenu, obj.hCfg.filterType);
+            obj.menuOptions(filterMenu, {'ndiff', 'bandpass', 'sgdiff', 'fir1', 'user'}, @obj.setFilter);
+            obj.menuCheckbox(filterMenu, obj.hCfg.filterType);
 
             refMenu = uimenu(editMenu, 'Label', 'Reference mode');
-            menuOptions(refMenu, {'none', 'mean', 'median'}, @obj.setCARMode); % @TODO: local mean
+            obj.menuOptions(refMenu, {'none', 'mean', 'median'}, @obj.setCARMode); % @TODO: local mean
             uimenu(editMenu, 'Label', 'Common reference threshold', 'Callback', @(hO, hE) obj.setBlankThresh());
             uimenu(editMenu, 'Label', 'FFT cleanup threshold', 'Callback', @(hO, hE) obj.setFFTThreshMAD());
 
@@ -191,8 +190,8 @@ classdef PreviewController < handle
             viewMenu = obj.hFigPreview.figApply(@uimenu, 'Label', 'View');
 
             tRangeMenu = uimenu(viewMenu, 'Label', 'Display time range (s)');
-            menuOptions(tRangeMenu, {'0.05', '0.1', '0.2', '0.5', '1', '2', '5', 'Custom'}, @obj.setTimeRange);
-            menuCheckbox(tRangeMenu, '0.1');
+            obj.menuOptions(tRangeMenu, {'0.05', '0.1', '0.2', '0.5', '1', '2', '5', 'Custom'}, @obj.setTimeRange);
+            obj.menuCheckbox(tRangeMenu, '0.1');
 
             uimenu(viewMenu, 'Label', 'Display site range', 'Callback', @(hO, hE) obj.setSiteRange());
             uimenu(viewMenu, 'Label', 'Show raw traces [F]', 'Callback', @(hO, hE) obj.keyPressFigPreview([], struct('Key', 'f')), 'Tag', 'menu_preview_view_filter');
@@ -201,20 +200,20 @@ classdef PreviewController < handle
             uimenu(viewMenu, 'Label', 'Toggle [G]rid', 'Callback', @(hO, hE) obj.keyPressFigPreview([], struct('Key', 'g')), 'Tag', 'menu_preview_view_grid');
 
             siteMenu = uimenu(viewMenu, 'Label', 'Site view');
-            menuOptions(siteMenu, {'Site correlation', 'Spike threshold', 'Event rate (Hz)', 'Event SNR (median)'}, @obj.setSiteView);
-            menuCheckbox(siteMenu, 'Site correlation');
+            obj.menuOptions(siteMenu, {'Site correlation', 'Spike threshold', 'Event rate (Hz)', 'Event SNR (median)'}, @obj.setSiteView);
+            obj.menuCheckbox(siteMenu, 'Site correlation');
 
             refMenu = uimenu(viewMenu, 'Label', 'Reference view');
-            menuOptions(refMenu, {'original', 'binned'}, @obj.setRefView);
-            menuCheckbox(refMenu, 'original');
+            obj.menuOptions(refMenu, {'original', 'binned'}, @obj.setRefView);
+            obj.menuCheckbox(refMenu, 'original');
 
             freqMenu = uimenu(viewMenu, 'Label', 'Frequency scale');
-            menuOptions(freqMenu, {'Linear', 'Log'}, @obj.setFreqScale);
-            menuCheckbox(freqMenu, 'Linear');
+            obj.menuOptions(freqMenu, {'Linear', 'Log'}, @obj.setFreqScale);
+            obj.menuCheckbox(freqMenu, 'Linear');
 
             % mh_view_psd = uimenu(viewMenu, 'Label', 'PSD view');
-            % menuOptions(mh_view_psd, {'original', 'detrended'}, @Fig_preview_view_psd_);
-            % menuCheckbox(mh_view_psd, 'original');
+            % obj.menuOptions(mh_view_psd, {'original', 'detrended'}, @Fig_preview_view_psd_);
+            % obj.menuCheckbox(mh_view_psd, 'original');
         end
 
         function exportTraces(obj)
@@ -248,7 +247,7 @@ classdef PreviewController < handle
                     nSamplesLoad = obj.nSamplesPerLoad;
                 end
 
-                multiBounds = sample_skip_([1, nSamplesLoad], hRec.nSamples, nLoadsFile);
+                multiBounds = jrclust.views.sampleSkip([1, nSamplesLoad], hRec.nSamples, nLoadsFile);
                 obj.fileBounds(hRec.binpath) = multiBounds;
 
                 fileTraces_ = cell(nLoadsFile, 1);
@@ -346,7 +345,7 @@ classdef PreviewController < handle
 
         function setCARMode(obj, label, hMenu)
             %SETCARMODE Update CAR mode
-            menuCheckbox(hMenu, label);
+            obj.menuCheckbox(hMenu, label);
             obj.CARMode = label;
 
             obj.updateFigPreview(1);
@@ -376,7 +375,7 @@ classdef PreviewController < handle
 
         function setFilter(obj, label, hMenu)
             %SETFILTER Update filter
-            menuCheckbox(hMenu, label);
+            obj.menuCheckbox(hMenu, label);
             obj.filterType = label;
             obj.fFilter = 1;
 
@@ -385,7 +384,7 @@ classdef PreviewController < handle
 
         function setFreqScale(obj, label, hMenu)
             %SETFREQSCALE
-            menuCheckbox(hMenu, label);
+            obj.menuCheckbox(hMenu, label);
             switch label
                 % case 'Power'
                 % case 'Detrended'
@@ -416,7 +415,7 @@ classdef PreviewController < handle
         function setRefView(obj, label, hMenu)
             %SETREFVIEW
             obj.refView = label;
-            menuCheckbox(hMenu, label);
+            obj.menuCheckbox(hMenu, label);
             doPlotFigPreview(obj.hFigPreview, obj.figData, 1, obj.hCfg);
         end
 
@@ -464,7 +463,7 @@ classdef PreviewController < handle
         function setSiteView(obj, label, hMenu)
             %SETSITEVIEW
             obj.siteView = label;
-            menuCheckbox(hMenu, label);
+            obj.menuCheckbox(hMenu, label);
             doPlotFigPreview(obj.hFigPreview, obj.figData, 1, obj.hCfg);
         end
 
@@ -488,7 +487,7 @@ classdef PreviewController < handle
             if isnan(tRange)
                 return;
             end
-            menuCheckbox(hMenu, label);
+            obj.menuCheckbox(hMenu, label);
 
             obj.windowWidth = round(tRange * obj.hCfg.sampleRate);
             obj.windowBounds = obj.windowBounds(1) + [0, obj.windowWidth - 1];

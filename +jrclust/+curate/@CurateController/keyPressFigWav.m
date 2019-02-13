@@ -5,20 +5,20 @@ function keyPressFigWav(obj, ~, hEvent)
     end
 
     hFigWav = obj.hFigs('FigWav');
-    factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
+    factor = 4^double(jrclust.utils.keyMod(hEvent, 'shift')); % 1 or 4
     nSites = obj.hCfg.nSites;
 
     switch hEvent.Key
         case 'uparrow'
-            obj.maxAmp = rescaleFigWav(hFigWav, obj.hClust, obj.hCfg, obj.maxAmp, sqrt(2)^-factor);
+            obj.maxAmp = jrclust.views.rescaleFigWav(hFigWav, obj.hClust, obj.hCfg, obj.maxAmp, sqrt(2)^-factor);
             obj.updateCursorFigWav();
 
         case 'downarrow'
-            obj.maxAmp = rescaleFigWav(hFigWav, obj.hClust, obj.hCfg, obj.maxAmp, sqrt(2)^factor);
+            obj.maxAmp = jrclust.views.rescaleFigWav(hFigWav, obj.hClust, obj.hCfg, obj.maxAmp, sqrt(2)^factor);
             obj.updateCursorFigWav();
 
         case 'leftarrow' % select previous cluster
-            if keyMod(hEvent, 'shift')
+            if jrclust.utils.keyMod(hEvent, 'shift')
                 selected_ = [obj.selected(1), max(obj.selected(end)-1, 1)];
             else
                 selected_ = max(obj.selected(1)-1, 1);
@@ -26,7 +26,7 @@ function keyPressFigWav(obj, ~, hEvent)
             obj.updateSelect(selected_);
 
         case 'rightarrow' % select next cluster
-            if keyMod(hEvent, 'shift')
+            if jrclust.utils.keyMod(hEvent, 'shift')
                 selected_ = [obj.selected(1), min(obj.selected(end)+1, obj.hClust.nClusters)];
             else
                 selected_ = min(obj.selected(1)+1, obj.hClust.nClusters);

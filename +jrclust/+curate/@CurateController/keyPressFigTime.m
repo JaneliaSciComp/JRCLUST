@@ -5,7 +5,7 @@ function keyPressFigTime(obj, ~, hEvent)
     end
 
     hFigTime = obj.hFigs('FigTime');
-    factor = 4^double(keyMod(hEvent, 'shift')); % 1 or 4
+    factor = 4^double(jrclust.utils.keyMod(hEvent, 'shift')); % 1 or 4
 
     switch hEvent.Key
         case 'leftarrow' % go down one channel
@@ -20,10 +20,10 @@ function keyPressFigTime(obj, ~, hEvent)
             obj.updateFigTime(0);
 
         case 'uparrow'
-            rescaleFigTime(hFigTime, sqrt(2)^-factor);
+            jrclust.views.rescaleFigTime(hFigTime, sqrt(2)^-factor);
 
         case 'downarrow' % change amp
-            rescaleFigTime(hFigTime, sqrt(2)^factor);
+            jrclust.views.rescaleFigTime(hFigTime, sqrt(2)^factor);
 
         case 'b' % toggle background spikes
             hFigTime.figData.doPlotBG = hFigTime.toggleVisible('background');

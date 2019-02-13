@@ -44,6 +44,6 @@ function curate(obj)
         obj.startParPool();
     end
 
-    obj.hCurate = jrclust.controllers.curate.CurateController(obj.hClust);
+    obj.hCurate = jrclust.curate.CurateController(obj.hClust);
     obj.hCurate.beginSession();
 end
