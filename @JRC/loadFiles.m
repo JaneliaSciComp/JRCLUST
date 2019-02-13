@@ -66,7 +66,7 @@ function loadFiles(obj)
 
     obj.res = res_;
     if isfield(obj.res, 'hClust')
-        obj.res.hClust.obj.hCfg = obj.obj.hCfg;
+        obj.res.hClust.hCfg = obj.hCfg;
     end
 end
 

@@ -1,4 +1,14 @@
-function hFigISI = doPlotFigISI(hFigISI, hClust, hCfg, selected)
+function updateFigISI(obj)
+    %UPDATEFIGISI Plot return map
+    if isempty(obj.selected) || ~obj.hasFig('FigISI')
+        return;
+    end
+
+    plotFigISI(obj.hFigs('FigISI'), obj.hClust, obj.hCfg, obj.selected);
+end
+
+%% LOCAL FUNCTIONS
+function hFigISI = plotFigISI(hFigISI, hClust, hCfg, selected)
     %DOPLOTFIGISI Plot return map (ISI vs. previous ISI)
     if numel(selected) == 1
         iCluster = selected(1);
@@ -24,9 +34,7 @@ function hFigISI = doPlotFigISI(hFigISI, hClust, hCfg, selected)
         hFigISI.axApply('default', @grid, 'on');
 
         % show refractory line
-        %line(get(S_fig.hAx,'XLim'), hCfg.spkRefrac_ms*[1 1], 'Color', [1 0 0]);
         hFigISI.addPlot('refracLine1', @line, hFigISI.axApply('default', @get, 'XLim'), hCfg.refracInt*[1 1], 'Color', [1 0 0]);
-        %line(hCfg.spkRefrac_ms*[1 1], get(S_fig.hAx,'YLim'), 'Color', [1 0 0]);
         hFigISI.addPlot('refracLine2', @line, hCfg.refracInt*[1 1], hFigISI.axApply('default', @get, 'YLim'), 'Color', [1 0 0]);
     end
 
@@ -38,22 +46,19 @@ function hFigISI = doPlotFigISI(hFigISI, hClust, hCfg, selected)
     else
         hFigISI.hidePlot('foreground2');
     end
-
-    %set(hFigISI, 'UserData', S_fig);
 end
 
-%% LOCAL FUNCTIONS
 function [isiK, isiK1] = getReturnMap(iCluster, hClust, hCfg)
     %GETRETURNMAP subset 
     clusterTimes = double(hClust.spikeTimes(hClust.spikesByCluster{iCluster}))/hCfg.sampleRate;
-    clusterISIMs = diff(clusterTimes * 1000); % in msec
+    clusterISI = diff(clusterTimes * 1000); % in msec
 
     %isiK = clusterISIMs(1:end-1);
     %isiK1 = clusterISIMs(2:end);
     %subset = randperm(numel(isiK), min(hCfg.nShow, numel(isiK)));
-    subset = randperm(numel(clusterISIMs) - 1, min(hCfg.nSpikesFigISI, numel(clusterISIMs) - 1));
+    subset = randperm(numel(clusterISI) - 1, min(hCfg.nSpikesFigISI, numel(clusterISI) - 1));
     %isiK = isiK(subset);
-    isiK = clusterISIMs(subset);
+    isiK = clusterISI(subset);
     %isiK1 = isiK1(subset);
-    isiK1 = clusterISIMs(subset+1);
+    isiK1 = clusterISI(subset+1);
 end

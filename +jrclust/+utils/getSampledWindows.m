@@ -1,4 +1,3 @@
-%function tnWav_spk1 = jrclust.utils.getSampledWindows(sampledSpikes, iSite, S0, showRaw)
 function sampledWindows = getSampledWindows(hClust, sampledSpikes, sites, showRaw)
     %GETSAMPLEDWINDOWS 
     %   input:  sampledSpikes, a vector of spike indices

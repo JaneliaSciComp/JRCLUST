@@ -1,5 +1,17 @@
-function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
-    %DOPLOTFIGPOS Plot position of cluster on probe
+function updateFigPos(obj)
+    %UPDATEFIGPOS Plot cluster position on probe
+    if isempty(obj.selected) || ~obj.hasFig('FigPos')
+        return;
+    end
+
+    hFigPos = obj.hFigs('FigPos');
+    plotFigPos(hFigPos, obj.hClust, obj.hCfg, obj.selected, obj.maxAmp);
+    hFigPos.setMouseable();
+end
+
+%% LOCAL FUNCTIONS
+function plotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
+    %PLOTFIGPOS Plot position of cluster on probe
     c1Data = hClust.exportUnitInfo(selected(1));
     if numel(selected) > 1
         c2Data = hClust.exportUnitInfo(selected(2));
@@ -35,8 +47,8 @@ function hFigPos = doPlotFigPos(hFigPos, hClust, hCfg, selected, maxAmp)
     hFigPos.axApply('default', @title, figTitle);
 end
 
-%% LOCAL FUNCTIONS
 function plotPosUnit(cData, hFigPos, hCfg, fSecondary, maxAmp)
+    %PLOTPOSUNIT
     if isempty(cData)
         return;
     end

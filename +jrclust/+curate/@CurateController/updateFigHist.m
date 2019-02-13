@@ -1,4 +1,14 @@
-function hFigHist = doPlotFigHist(hFigHist, hClust, hCfg, selected)
+function updateFigHist(obj)
+    %UPDATEFIGHIST Plot ISI histogram
+    if isempty(obj.selected) || ~obj.hasFig('FigHist')
+        return;
+    end
+
+    plotFigHist(obj.hFigs('FigHist'), obj.hClust, obj.hCfg, obj.selected);
+end
+
+%% LOCAL FUNCTIONS
+function hFigHist = plotFigHist(hFigHist, hClust, hCfg, selected)
     %DOPLOTFIGHIST Plot ISI histogram
     if numel(selected) == 1
         iCluster = selected(1);
@@ -36,7 +46,6 @@ function hFigHist = doPlotFigHist(hFigHist, hClust, hCfg, selected)
     end
 end
 
-%% LOCAL FUNCTIONS
 function YData = getISIHistogram(iCluster, XData, hClust, hCfg)
     %GETISIHISTOGRAM Get a histogram of ISI values
     %   TODO: replace hist call with histogram

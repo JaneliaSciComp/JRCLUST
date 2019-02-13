@@ -1,5 +1,17 @@
-function hFigMap = doPlotFigMap(hFigMap, hClust, hCfg, selected)
-    %DOPLOTFIGMAP Plot probe map
+function updateFigMap(obj)
+    %UPDATEFIGMAP Plot probe map
+    if isempty(obj.selected) || ~obj.hasFig('FigMap')
+        return;
+    end
+
+    hFigMap = obj.hFigs('FigMap');
+    plotFigMap(hFigMap, obj.hClust, obj.hCfg, obj.selected);
+    hFigMap.setMouseable();
+end
+
+%% LOCAL FUNCTIONS
+function hFigMap = plotFigMap(hFigMap, hClust, hCfg, selected)
+    %PLOTFIGMAP Plot probe map
     iWaveforms = hClust.meanWfGlobal(:, :, selected(1));
     clusterVpp = squeeze(max(iWaveforms) - min(iWaveforms));
     vpp = repmat(clusterVpp(:)', [4, 1]);
@@ -24,7 +36,6 @@ function hFigMap = doPlotFigMap(hFigMap, hClust, hCfg, selected)
     hFigMap.axApply('default', @caxis, [0, max(clusterVpp)]);
 end
 
-%% LOCAL FUNCTIONS
 function [XData, YData] = getPadCoordinates(hCfg)
     xOffsets = [0 0 1 1] * hCfg.probePad(2);
     yOffsets = [0 1 1 0] * hCfg.probePad(1);

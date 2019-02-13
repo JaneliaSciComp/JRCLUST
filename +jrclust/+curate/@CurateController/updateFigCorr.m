@@ -1,4 +1,14 @@
-function hFigCorr = doPlotFigCorr(hFigCorr, hClust, hCfg, selected)
+function updateFigCorr(obj)
+    %UPDATEFIGCORR Plot cross correlation
+    if isempty(obj.selected) || ~obj.hasFig('FigCorr')
+        return;
+    end
+
+    plotFigCorr(obj.hFigs('FigCorr'), obj.hClust, obj.hCfg, obj.selected);
+end
+
+%% LOCAL FUNCTIONS
+function hFigCorr = plotFigCorr(hFigCorr, hClust, hCfg, selected)
     %DOPLOTFIGCORR Plot timestep cross correlation
     if numel(selected) == 1
         iCluster = selected(1);
@@ -43,13 +53,8 @@ function hFigCorr = doPlotFigCorr(hFigCorr, hClust, hCfg, selected)
         hFigCorr.axApply('default', @set, 'YScale', 'log');
     else
         hFigCorr.updatePlot('hBar', lagTime, intCount);
-        %set(hFigCorr.figData.hBar, 'XData', timeLag, 'YData', intCount);
     end
 
-    % title_(hFigCorr.figData.hAx, sprintf('Cluster %d vs. Cluster %d', iCluster, jCluster));
     hFigCorr.axApply('default', @title, sprintf('Cluster %d vs. Cluster %d', iCluster, jCluster));
-
-    % xlim_(hFigCorr.figData.hAx, [-nLags, nLags] * jitterMs);
     hFigCorr.axApply('default', @set, 'XLim', jitterMs*[-nLags, nLags]);
-    %set(hFigCorr, 'UserData', hFigCorr.figData);
 end

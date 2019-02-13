@@ -169,7 +169,7 @@ classdef PreviewController < handle
 
             % File menu
             fileMenu = obj.hFigPreview.figApply(@uimenu, 'Label', 'File');
-            uimenu(fileMenu, 'Label', sprintf('Save to %s', obj.hCfg.configFile), 'Callback', @(hO, hE) obj.savePrm());
+            uimenu(fileMenu, 'Label', sprintf('Save to %s', obj.hCfg.configFile), 'Callback', @(hO, hE) obj.saveConfig());
             uimenu(fileMenu, 'Label', '[E]xport to workspace', 'Callback', @(hO, hE) obj.exportTraces());
             uimenu(fileMenu, 'Label', 'Save spike detection threshold', 'Callback', @(hO, hE) obj.saveThresh());
 
@@ -185,7 +185,7 @@ classdef PreviewController < handle
             refMenu = uimenu(editMenu, 'Label', 'Reference mode');
             menuOptions(refMenu, {'none', 'mean', 'median'}, @obj.setCARMode); % @TODO: local mean
             uimenu(editMenu, 'Label', 'Common reference threshold', 'Callback', @(hO, hE) obj.setBlankThresh());
-            uimenu(editMenu, 'Label', 'FFT cleanup threshold', 'Callback', @(hO, hE) obj.setFftThreshMAD());
+            uimenu(editMenu, 'Label', 'FFT cleanup threshold', 'Callback', @(hO, hE) obj.setFFTThreshMAD());
 
             % View menu
             viewMenu = obj.hFigPreview.figApply(@uimenu, 'Label', 'View');
@@ -264,7 +264,7 @@ classdef PreviewController < handle
             obj.tracesRaw = cat(1, tracesRaw_{:});
         end
 
-        function savePrm(obj)
+        function saveConfig(obj)
             %SAVEPRM Update parameter file, show a preview window
             if isempty(obj.figData)
                 return;
@@ -319,7 +319,7 @@ classdef PreviewController < handle
         end
 
         function setBlankThresh(obj)
-            %SETREFTHRESH
+            %SETBLANKTHRESH
             blankThresh_ = num2str(obj.blankThresh);
             blank_period_ms_ = num2str(obj.blankPeriod);
 
@@ -352,7 +352,7 @@ classdef PreviewController < handle
             obj.updateFigPreview(1);
         end
 
-        function setFftThreshMAD(obj)
+        function setFFTThreshMAD(obj)
             %SETFFTTHRESHMAD
             if isempty(obj.fftThresh)
                 fftThresh_ = '0';
