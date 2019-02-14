@@ -70,24 +70,6 @@ classdef JRC < handle & dynamicprops
         startParPool(obj);
     end
 
-    %% USER METHODS
-    methods
-        function ip = inProgress(obj)
-            %INPROGRESS Return true if in progress (not finished or errored)
-            ip = ~(obj.isCompleted || obj.isError);
-        end
-
-        function rerun(obj)
-            %RERUN Rerun commands
-            if obj.isError
-                error(obj.errMsg);
-            else
-                obj.isCompleted = 0;
-                obj.run();
-            end
-        end
-    end
-
     % GETTERS/SETTERS
     methods
         % hCfg

@@ -1,8 +1,6 @@
 function success = saveFiles(obj)
     %SAVEFILES Save files to disk
-    filename = fullfile(obj.hCfg.outputDir, [obj.hCfg.sessionName '_res.mat']);
-
-    dlgAns = questdlg(['Save clustering to ', filename, ' ?'], 'Confirmation', 'Yes');
+    dlgAns = questdlg(['Save clustering to ', obj.hCfg.resFile, ' ?'], 'Confirmation', 'Yes');
     if strcmp(dlgAns, 'Yes')
         obj.cRes.curatedOn = now();
 
@@ -20,7 +18,7 @@ function success = saveFiles(obj)
 
         % save hClust and curatedOn
         cRes = obj.cRes; %#ok<NASGU>
-        save(filename, '-struct', 'cRes', '-append');
+        save(obj.hCfg.resFile, '-struct', 'cRes', '-append');
 
         % restore these values to hClust
         obj.hClust.spikesRaw = spikesRaw;

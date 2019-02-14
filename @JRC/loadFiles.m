@@ -4,14 +4,20 @@ function loadFiles(obj)
         error(obj.errMsg);
     end
 
-    filename = fullfile(obj.hCfg.outputDir, [obj.hCfg.sessionName '_res.mat']);
-    if ~exist(filename, 'file')
-        warning('%s does not exist', filename);
+    if ~exist(obj.hCfg.resFile, 'file')
+        warning('%s does not exist', obj.hCfg.resFile);
         return;
     end
 
     try
-        res_ = load(filename);
+        if obj.hCfg.verbose
+            fprintf('Loading %s...', obj.hCfg.resFile);
+            t = tic;
+        end
+        res_ = load(obj.hCfg.resFile);
+        if obj.hCfg.verbose
+            fprintf('done (took %0.2f s)\n', toc(t));
+        end
     catch ME
         warning('failed to load %s: %s', ME.message);
         return;
@@ -20,23 +26,41 @@ function loadFiles(obj)
     if isfield(res_, 'spikeTimes')
         % load spikesRaw
         if isfield(res_, 'rawShape')
-            rawFile = fullfile(obj.hCfg.outputDir, [obj.hCfg.sessionName '_raw', '.jrc']);
-            spikesRaw = readBin(rawFile, res_.rawShape, '*int16');
+            if obj.hCfg.verbose
+                t = tic;
+                fprintf('Loading %s...', obj.hCfg.rawFile);
+            end
+            spikesRaw = readBin(obj.hCfg.rawFile, res_.rawShape, '*int16');
+            if obj.hCfg.verbose
+                fprintf('done (took %0.2f s)\n', toc(t));
+            end
         else
             spikesRaw = [];
         end
 
         % load spikesFilt
         if isfield(res_, 'filtShape')
-            filtFile = fullfile(obj.hCfg.outputDir, [obj.hCfg.sessionName '_filt', '.jrc']);
-            spikesFilt = readBin(filtFile, res_.filtShape, '*int16');
+            if obj.hCfg.verbose
+                t = tic;
+                fprintf('Loading %s...', obj.hCfg.filtFile);
+            end
+            spikesFilt = readBin(obj.hCfg.filtFile, res_.filtShape, '*int16');
+            if obj.hCfg.verbose
+                fprintf('done (took %0.2f s)\n', toc(t));
+            end
         else
             spikesFilt = [];
         end
 
         if isfield(res_, 'featuresShape')
-            featuresFile = fullfile(obj.hCfg.outputDir, [obj.hCfg.sessionName '_features', '.jrc']);
-            spikeFeatures = readBin(featuresFile, res_.featuresShape, '*single');
+            if obj.hCfg.verbose
+                t = tic;
+                fprintf('Loading %s...', obj.hCfg.featuresFile);
+            end
+            spikeFeatures = readBin(obj.hCfg.featuresFile, res_.featuresShape, '*single');
+            if obj.hCfg.verbose
+                fprintf('done (took %0.2f s)\n', toc(t));
+            end
         else
             spikeFeatures = [];
         end

@@ -81,6 +81,10 @@ classdef Config < dynamicprops
             obj.loadParams(userParams);
             if ~isempty(obj.configFile) % prm file was specified, validate
                 obj.validateParams();
+
+                if isempty(obj.outputDir)
+                    obj.outputDir = fileparts(obj.configFile);
+                end
             end
         end
 

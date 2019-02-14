@@ -9,10 +9,9 @@ function saveRes(obj, forceOverwrite)
     forceOverwrite = forceOverwrite | obj.hCfg.getOr('testRun', 0);
 
     sessionName = obj.hCfg.sessionName;
-    filename = fullfile(obj.hCfg.outputDir, [sessionName '_res.mat']);
      % don't overwrite unless explicitly permitted (or testing)
-    if exist(filename, 'file') && ~forceOverwrite
-        question = sprintf('%s already exists. Overwrite?', filename);
+    if exist(obj.hCfg.resFile, 'file') && ~forceOverwrite
+        question = sprintf('%s already exists. Overwrite?', obj.hCfg.resFile);
         dlgAns = questdlg(question, 'Confirm overwrite', 'No');
         if isempty(dlgAns) || ismember(dlgAns, {'No', 'Cancel'})
             return;
@@ -36,7 +35,7 @@ function saveRes(obj, forceOverwrite)
         doRestore = 0;
     end
 
-    jrclust.utils.saveStruct(obj.res, filename);
+    jrclust.utils.saveStruct(obj.res, obj.hCfg.resFile);
 
     if doRestore % restore spikesRaw, spikesFilt, spikeFeatures to hClust
         obj.res.hClust.spikesRaw = spikesRaw;
@@ -45,6 +44,6 @@ function saveRes(obj, forceOverwrite)
     end
 
     if obj.hCfg.verbose
-        fprintf('Saved results to %s\n', filename);
+        fprintf('Saved results to %s\n', obj.hCfg.resFile);
     end
 end
