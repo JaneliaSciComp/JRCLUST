@@ -16,7 +16,7 @@ function [prVecs1, prVecs2] = getPVClusters(hClust, sites, iCluster, jCluster)
 
     MAX_SAMPLE = 10000;
     sampledSpikes = jrclust.utils.subsample(hClust.spikesByCluster{iCluster}, MAX_SAMPLE);
-    sampledWindows = permute(jrclust.utils.getSampledWindows(hClust, sampledSpikes, sites, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
+    sampledWindows = permute(hClust.getSpikeWindows(sampledSpikes, sites, 0, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
 
     nSamples = size(sampledWindows, 1);
     nSites = numel(sites);
@@ -34,7 +34,7 @@ function [prVecs1, prVecs2] = getPVClusters(hClust, sites, iCluster, jCluster)
         % compute 1st principal vectors off of the spikes from iCluster and
         % jCluster and store them in prVecs{1,2} respectively
         sampledSpikes2 = jrclust.utils.subsample(hClust.spikesByCluster{jCluster}, MAX_SAMPLE);
-        sampledWindows2 = permute(jrclust.utils.getSampledWindows(hClust, sampledSpikes2, sites, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
+        sampledWindows2 = permute(hClust.getSpikeWindows(sampledSpikes2, sites, 0, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
         for kSite = 1:nSites
             iVecs = jrclust.features.getPVSamples(sampledWindows(:, :, kSite));
             jVecs = jrclust.features.getPVSamples(sampledWindows2(:, :, kSite));

@@ -17,7 +17,7 @@ function hJRC_ = jrc(varargin)
     hJRC = JRC(varargin{:});
 
     if hJRC.inProgress()
-        hJRC.hCfg.verbose = 1;
+        hJRC.hCfg.verbose = 1; % invocation from command line is always verbose
         hJRC.run();
     end
 

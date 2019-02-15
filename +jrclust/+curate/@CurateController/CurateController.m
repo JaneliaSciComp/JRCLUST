@@ -1,12 +1,13 @@
 classdef CurateController < handle
     %CURATECONTROLLER Interface for manually curating sorted clusters
+    %% CONFIGURATION
+    properties (Dependent)
+        hCfg;
+    end
+
     properties (SetAccess=private, Hidden, SetObservable)
         cRes;           % curate results struct, returned at endSession
         hClust;         % Clustering object
-    end
-
-    properties (Dependent)
-        hCfg;
     end
 
     properties (AbortSet, SetAccess=private, Hidden, Transient, SetObservable)

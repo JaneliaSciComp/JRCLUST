@@ -1,6 +1,6 @@
 function [old2new, new2old] = getOldParamMapping()
     %GETOLDPARAMMAPPING Get the old-style parameter mapping
-    fid = fopen(fullfile(jrclust.utils.basedir, 'params.json'), 'r', 'n', 'UTF-8');
+    fid = fopen(fullfile(jrclust.utils.basedir, 'json', 'params.json'), 'r', 'n', 'UTF-8');
     fstr = fread(fid, '*char')';
     fclose(fid);
 

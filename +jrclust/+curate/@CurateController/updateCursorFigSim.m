@@ -27,6 +27,6 @@ function updateCursorFigSim(obj)
     hFigSim.axApply('default', @set, 'XLim', jrclust.utils.trimLim(iCluster + [-6, 6], 0.5 + [0, obj.hClust.nClusters]));
     hFigSim.axApply('default', @set, 'YLim', jrclust.utils.trimLim(jCluster + [-6, 6], 0.5 + [0, obj.hClust.nClusters]));
 
-    scoreij = obj.hClust.simScore(iCluster, jCluster);
+    scoreij = obj.hClust.waveformSim(iCluster, jCluster);
     hFigSim.axApply('default', @title, sprintf('Cluster %d vs. Cluster %d: %0.3f', iCluster, jCluster, scoreij));
 end

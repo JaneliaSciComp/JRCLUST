@@ -1,6 +1,7 @@
 function keyPressFigProj(obj, ~, hEvent)
     %KEYPRESSFIGPROJ Handle callbacks for keys pressed in feature view
     if obj.isWorking
+        jrclust.utils.qMsgBox('An operation is in progress.');
         return;
     end
 

@@ -1,6 +1,7 @@
 function keyPressFigWav(obj, ~, hEvent)
     %KEYPRESSFIGWAV Handle callbacks for keys pressed in main view
     if obj.isWorking
+        jrclust.utils.qMsgBox('An operation is in progress.');
         return;
     end
 
@@ -56,9 +57,9 @@ function keyPressFigWav(obj, ~, hEvent)
             setFigWavXTicks(hFigWav, obj.hClust, obj.hCfg.showSpikeCount);
 
         case 'space' % select most similar to currently selected
-            simScore = obj.hClust.simScore;
-            simScore(obj.selected(1), obj.selected(1)) = -inf;
-            [~, nextBest] = max(simScore(:, obj.selected(1)));
+            waveformSim = obj.hClust.waveformSim;
+            waveformSim(obj.selected(1), obj.selected(1)) = -inf;
+            [~, nextBest] = max(waveformSim(:, obj.selected(1)));
             obj.updateSelect([obj.selected(1), nextBest]);
 
         case 'p' % PSTH plot

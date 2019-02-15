@@ -1,5 +1,7 @@
-function v3(filename)
+function [hCfg, res] = v3(filename)
     %V3 Import an old-style session (_jrc.mat) to the new style
+    [hCfg, res] = deal([]);
+
     filename_ = jrclust.utils.absPath(filename);
     if isempty(filename_)
         error('Could not find ''%s''', filename);
@@ -34,29 +36,38 @@ function v3(filename)
         end
         fclose(fid);
 
-        % try to import params directly
         hCfg = jrclust.Config();
-        oldPrms = fieldnames(S0.P);
-        for i = 1:numel(oldPrms)
-            propname = oldPrms{i};
-
-            if isfield(hCfg.oldParamSet, propname) && ~isempty(S0.P.(propname))
-                % gpca has been disabled for now
-                if strcmpi(propname, 'vcFet') && strcmpi(S0.P.(propname), 'gpca')
-                    warning('gpca has been disabled; using pca instead');
-                    hCfg.clusterFeature = 'pca';
-                    continue;
-                end
-
-                 % these will be converted automatically
-                 try
-                    hCfg.(propname) = S0.P.(propname);
-                 catch % use default
-                 end
-            end
-        end
     else
         hCfg = jrclust.Config(prmFile);
+    end
+
+    % try to import params directly
+    oldPrms = fieldnames(S0.P);
+
+    % handle special cases in P
+    if isfield(S0.P, 'spkLim_raw_ms') && isempty(S0.P.spkLim_raw_ms)
+        if isfield(S0.P, 'spkLim_ms') && isfield(S0.P, 'spkLim_raw_factor')
+            S0.P.spkLim_raw_ms = S0.P.spkLim_ms * S0.P.spkLim_raw_factor;
+        end
+    end
+
+    for i = 1:numel(oldPrms)
+        propname = oldPrms{i};
+
+        if isfield(hCfg.oldParamSet, propname) && ~isempty(S0.P.(propname))
+            % gpca has been disabled for now
+            if strcmpi(propname, 'vcFet') && strcmpi(S0.P.(propname), 'gpca')
+                warning('gpca has been disabled; using pca instead');
+                hCfg.clusterFeature = 'pca';
+                continue;
+            end
+
+             % these will be converted automatically
+             try
+                hCfg.(propname) = S0.P.(propname);
+             catch % use default
+             end
+        end
     end
 
     % construct dRes
@@ -109,16 +120,22 @@ function v3(filename)
     spkraw = jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_spkraw.jrc');
     if exist(spkraw, 'file') == 2
         renameFile(spkraw, jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_raw.jrc'));
+    else
+        warning('Could not find file ''%s''', spkraw);
     end
 
     spkwav = jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_spkwav.jrc');
     if exist(spkwav, 'file') == 2
         renameFile(spkwav, jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_filt.jrc'));
+    else
+        warning('Could not find file ''%s''', spkwav);
     end
 
     spkfet = jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_spkfet.jrc');
     if exist(spkfet, 'file') == 2
         renameFile(spkfet, jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_features.jrc'));
+    else
+        warning('Could not find file ''%s''', spkfet);
     end
 
     % construct sRes
@@ -162,7 +179,7 @@ function v3(filename)
                 sRes.clusterCenters = clusterCenters;
             end
             if isfield(S_clu, 'mrWavCor')
-                sRes.simScore = S_clu.mrWavCor;
+                sRes.waveformSim = S_clu.mrWavCor;
             end
             if isfield(S_clu, 'tmrWav_spk_clu')
                 sRes.meanWfGlobal = S_clu.tmrWav_spk_clu;
@@ -232,35 +249,19 @@ function v3(filename)
             end
         end
 
-        hClust = jrclust.models.clustering.DensityPeakClustering(sRes, res, hCfg);
-        msgs = hClust.selfConsistent();
+        hClust = jrclust.sort.DensityPeakClustering(sRes, res, hCfg);
+        msgs = hClust.inconsistentFields();
         assert(isempty(msgs), strjoin(msgs, ', '));
 
         % remove quality scores/initial clustering from sRes
         sRes = rmfield(sRes, {'clusterCentroids', 'clusterNotes', 'initialClustering', ...
                               'meanWfGlobal', 'meanWfGlobalRaw', 'meanWfLocal', 'meanWfLocalRaw', ...
-                              'meanWfRawHigh', 'meanWfRawLow', 'nSitesOverThresh', 'simScore', ...
+                              'meanWfRawHigh', 'meanWfRawLow', 'nSitesOverThresh', 'waveformSim', ...
                               'siteRMS', 'unitISIRatio', 'unitIsoDist', 'unitLRatio', 'unitPeakSites', ...
                               'unitPeaks', 'unitPeaksRaw', 'unitSNR', 'unitVpp', 'unitVppRaw'});
         res = jrclust.utils.mergeStructs(res, sRes);
         res.hClust = hClust;
     end
-
-    resFile = jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_res.mat');
-    % make a backup
-    if exist(resFile, 'file')
-        try
-            copyfile(resFile, jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_res.mat.bak'));
-        catch ME
-            resFile2 = jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_res-import.mat');
-            warning('%s exists and we are not going to overwrite it. Saving to %s instead', resFile, resFile2);
-            resFile = resFile2;
-        end
-    end
-
-    hCfg.save(hCfg.configFile, 1);
-    jrclust.utils.saveStruct(res, resFile);
-    fprintf('Saved imported results to %s\n', resFile);
 end
 
 %% LOCAL FUNCTIONS

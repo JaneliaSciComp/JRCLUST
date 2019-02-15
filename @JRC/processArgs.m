@@ -19,13 +19,19 @@ function processArgs(obj)
     if nargs > 0
         % load parameter file
         configFile = obj.args{1};
-        try
-            obj.hCfg = jrclust.Config(configFile);
-            % save imported config file
-            if obj.hCfg.isV3Import
-                obj.hCfg.save();
+
+        % arg 1 need not be a config file
+        [~, ~, ext] = fileparts(configFile);
+        if strcmpi(ext, '.prm')
+            try
+                obj.hCfg = jrclust.Config(configFile);
+                % save imported config file
+                if obj.hCfg.isV3Import
+                    obj.hCfg.save();
+                end
+            catch ME
+                warning('Failed to load %s: %s', configFile, ME.message);
             end
-        catch ME % arg 1 need not be a config file
         end
     end
 
@@ -127,8 +133,21 @@ function processArgs(obj)
             obj.isCompleted = 1;
 
         case 'importv3'
-            jrclust.import.v3(obj.args{1});
-            obj.isCompleted = 1;
+            [hCfg_, res_] = jrclust.import.v3(obj.args{1});
+            if isempty(hCfg_)
+                obj.error('Import failed');
+            else
+                obj.hCfg = hCfg_;
+                obj.res = res_;
+
+                obj.saveRes();
+                %fprintf('Saved imported results to %s\n', obj.hCfg.resFile);
+
+                obj.hCfg.save(obj.hCfg.configFile, 1);
+                %fprintf('Saved new configuration file to %s\n', obj.hCfg.configFile);
+
+                obj.isCompleted = 1;
+            end
 
         % misc commands
         case 'activity'

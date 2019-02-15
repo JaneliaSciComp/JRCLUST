@@ -3,7 +3,6 @@ function saveBinaries(obj)
     if isempty(obj.res)
         return;
     end
-    sessionName = obj.hCfg.sessionName;
 
     % save spikesRaw
     if isfield(obj.res, 'spikesRaw') && ~isempty(obj.res.spikesRaw)

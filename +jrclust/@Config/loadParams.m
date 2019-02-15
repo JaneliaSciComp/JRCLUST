@@ -102,7 +102,7 @@ function loadParams(obj, filename)
 
         % empty values in the param file take on their defaults
         if strcmp(paramName, 'rawRecordings') % validate depending on type
-            if ischar(userParams.(paramName))
+            if ischar(userParams.(paramName)) && ~isempty(userParams.(paramName))
                 obj.singleRaw = userParams.(paramName);
             elseif iscell(userParams.(paramName))
                 obj.multiRaw = userParams.(paramName);

@@ -82,6 +82,7 @@ classdef Config < dynamicprops
             if ~isempty(obj.configFile) % prm file was specified, validate
                 obj.validateParams();
 
+                % define a default outputDir if not already set
                 if isempty(obj.outputDir)
                     obj.outputDir = fileparts(obj.configFile);
                 end
@@ -420,7 +421,7 @@ classdef Config < dynamicprops
             end
             sr_ = jrclust.utils.absPath(sr, basedir);
             if isempty(sr_)
-                error('''%s'' not found', sr);
+                error('Recording ''%s'' not found', sr);
             end
 
             % validation done, just set prop

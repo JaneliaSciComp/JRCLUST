@@ -1,9 +1,9 @@
 function annotateUnit(obj, note, doConfirm)
     %ANNOTATEUNIT Add a note to a cluster
     if obj.isWorking
+        jrclust.utils.qMsgBox('An operation is in progress.');
         return;
     end
-    obj.isWorking = 1;
 
     iCluster = obj.selected(1);
 
@@ -18,19 +18,25 @@ function annotateUnit(obj, note, doConfirm)
         note = sprintf('=%d', obj.selected(2));
     elseif ~isempty(note) && strcmp(note, '=')
         msgbox('Right-click another unit to set equal to selected unit');
-        obj.isWorking = 0;
         return;
     end
 
-    if doConfirm
-        newNote = inputdlg(sprintf('Cluster %d', iCluster), 'Annotation', 1, {note});
-        if ~isempty(newNote)
-            obj.hClust.addNote(iCluster, newNote{1});
+    obj.isWorking = 1;
+    try
+        if doConfirm
+            newNote = inputdlg(sprintf('Cluster %d', iCluster), 'Annotation', 1, {note});
+            if ~isempty(newNote)
+                obj.hClust.addNote(iCluster, newNote{1});
+            end
+        else
+            obj.hClust.addNote(iCluster, note);
         end
-    else
-        obj.hClust.addNote(iCluster, note);
+
+        obj.updateMenu();
+    catch ME
+        warning('Failed to annotate: %s', ME.message);
+        jrclust.utils.qMsgBox('Operation failed.');
     end
 
-    obj.updateMenu();
     obj.isWorking = 0;
 end

@@ -13,8 +13,8 @@ function corrData = plotAuxCorr(hClust, selected)
     end
 
     % compute firing rates and correlate with the aux channel
-    firingRates = hClust.firingRates([], numel(auxSamples));
-    auxChanCorr = arrayfun(@(i) corr(auxSamples, firingRates(:, i), 'type', 'Pearson'), 1:size(firingRates, 2));
+    firingRates = hClust.getFiringRates[], numel(auxSamples));
+    auxChanCorr = arrayfun(@(i) corr(auxSamples, getFiringRates:, i), 'type', 'Pearson'), 1:size(firingRates, 2));
 
     [~, argsort] = sort(auxChanCorr, 'descend');
 
@@ -36,7 +36,7 @@ function corrData = plotAuxCorr(hClust, selected)
         axes('Parent', hTab);
         subplot(2, 1, 1);
 
-        hAx = plotyy(auxTimes, firingRates(:, iCluster), auxTimes, auxSamples);
+        hAx = plotyy(auxTimes, getFiringRates:, iCluster), auxTimes, auxSamples);
 
         xlabel('Time (s)');
         ylabel(hAx(1),'Firing Rate (Hz)');
@@ -49,7 +49,7 @@ function corrData = plotAuxCorr(hClust, selected)
         grid on;
 
         subplot(2, 1, 2);
-        plot(auxSamples(1:nSubsamplesAux:end), firingRates(1:nSubsamplesAux:end,iCluster), 'k.');
+        plot(auxSamples(1:nSubsamplesAux:end), getFiringRates1:nSubsamplesAux:end,iCluster), 'k.');
         xlabel(auxLabel);
         ylabel('Firing Rate (Hz)');
         grid on;

@@ -81,10 +81,18 @@ function loadFiles(obj)
         end
         res_.spikeFeatures = spikeFeatures;
 
+        % restore values to hClust
         if isfield(res_, 'hClust')
-            res_.hClust.spikesRaw = spikesRaw;
-            res_.hClust.spikesFilt = spikesFilt;
-            res_.hClust.spikeFeatures = spikeFeatures;
+            hClustFields = fieldnames(res_.hClust);
+            for i = 1:numel(hClustFields)
+                fn = hClustFields{i};
+                if isempty(res_.hClust.(fn)) && isfield(res_, fn)
+                    res_.hClust.(fn) = res_.(fn);
+                end
+            end
+
+            % restore initialClustering
+            res_.hClust.initialClustering = res_.spikeClusters;
         end
     end
 

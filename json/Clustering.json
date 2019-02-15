@@ -1,0 +1,51 @@
+{
+    "vector fields": [
+        "clusterNotes",
+        "clusterSites",
+        "spikesByCluster",
+        "unitCount",
+        "unitPeaks",
+        "unitPeaksRaw",
+        "unitPeakSites",
+        "unitVpp",
+        "unitVppRaw",
+        "unitISIRatio",
+        "unitIsoDist",
+        "unitLRatio",
+        "unitSNR"
+    ],
+    "other fields": {
+        "clusterCentroids": {
+            "subset": "@(vals, indices) vals(indices, :)",
+            "consistent": "@(vals, nClusters) size(vals, 1) == nClusters"
+        },
+        "meanWfGlobal": {
+            "subset": "@(vals, indices) vals(:, :, indices)",
+            "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
+        },
+        "meanWfGlobalRaw": {
+            "subset": "@(vals, indices) vals(:, :, indices)",
+            "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
+        },
+        "meanWfLocal": {
+            "subset": "@(vals, indices) vals(:, :, indices)",
+            "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
+        },
+        "meanWfLocalRaw": {
+            "subset": "@(vals, indices) vals(:, :, indices)",
+            "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
+        },
+        "meanWfRawLow": {
+            "subset": "@(vals, indices) vals(:, :, indices)",
+            "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
+        },
+        "meanWfRawHigh": {
+            "subset": "@(vals, indices) vals(:, :, indices)",
+            "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
+        },
+        "waveformSim": {
+            "subset": "@(vals, indices) vals(indices, indices)",
+            "consistent": "@(vals, nClusters) all(size(vals) == nClusters*ones(1, 2))"
+        }
+    }
+}

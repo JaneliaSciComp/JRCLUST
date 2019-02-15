@@ -1,11 +1,10 @@
 function autoSplit(obj, multisite)
     %AUTOSPLIT
-    if obj.isWorking
+    if numel(obj.selected) > 1
         return;
     end
-    obj.isWorking = 1;
-
-    if numel(obj.selected) > 1
+    if obj.isWorking
+        jrclust.utils.qMsgBox('An operation is in progress.');
         return;
     end
 
@@ -26,13 +25,11 @@ function autoSplit(obj, multisite)
 
     iSpikes = obj.hClust.spikesByCluster{iCluster};
 
-    sampledSpikes = jrclust.utils.getSampledWindows(obj.hClust, iSpikes, spikeSites);
-    sampledSpikes = jrclust.utils.filtTouV(sampledSpikes, obj.hCfg);
+    sampledSpikes = obj.hClust.getSpikeWindows(iSpikes, spikeSites, 0, 1);
     sampledSpikes = reshape(sampledSpikes, [], size(sampledSpikes, 3));
 
     % get Vpp of cluster spikes on current site (in FigTime)
-    localSpikes = jrclust.utils.getSampledWindows(obj.hClust, iSpikes, obj.currentSite);
-    localSpikes = squeeze(jrclust.utils.filtTouV(localSpikes, obj.hCfg)); % TW calculate amplitudes on the fly
+    localSpikes = squeeze(obj.hClust.getSpikeWindows(iSpikes, obj.currentSite, 0, 1));
     localVpp = max(localSpikes) - min(localSpikes); % TW calculate amplitudes on the fly
 
     clusterTimes = obj.hClust.spikeTimes(iSpikes);

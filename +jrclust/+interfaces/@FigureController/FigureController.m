@@ -12,7 +12,7 @@ classdef (Abstract) FigureController < handle
     end
 
     %% UTILITY METHODS
-    methods
+    methods (Access=protected, Hidden)
         menuCheckbox(menuTag, label, fUncheckOthers);
         menuOptions(obj, parent, labels, hFun);
     end

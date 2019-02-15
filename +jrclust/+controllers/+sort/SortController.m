@@ -50,7 +50,7 @@ classdef SortController < handle
             [~, res.ordRho] = sort(res.spikeRho, 'descend');
 
             res = jrclust.cluster.densitypeaks.assignClusters(dRes, res, obj.hCfg);
-            hClust = jrclust.models.clustering.DensityPeakClustering(res, dRes, obj.hCfg);
+            hClust = jrclust.sort.DensityPeakClustering(res, dRes, obj.hCfg);
             hClust.autoMerge();
 
             res.hClust = hClust;

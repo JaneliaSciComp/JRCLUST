@@ -56,7 +56,7 @@ classdef JRC < handle & dynamicprops
             end
 
             % don't proceed without a Config unless completed
-            if ~obj.isCompleted && isempty(obj.hCfg)
+            if obj.inProgress() && isempty(obj.hCfg)
                 obj.error('Could not create Config object');
             end
         end

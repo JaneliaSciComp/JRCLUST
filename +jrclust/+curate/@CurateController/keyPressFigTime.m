@@ -1,6 +1,7 @@
 function keyPressFigTime(obj, ~, hEvent)
     %KEYPRESSFIGTIME Handle callbacks for keys pressed in time view
     if obj.isWorking
+        jrclust.utils.qMsgBox('An operation is in progress.');
         return;
     end
 

@@ -5,7 +5,7 @@ function params = getDefaultParams(merge)
         merge = 1;
     end
 
-    fid = fopen(fullfile(jrclust.utils.basedir, 'params.json'), 'r', 'n', 'UTF-8');
+    fid = fopen(fullfile(jrclust.utils.basedir(), 'json', 'params.json'), 'r', 'n', 'UTF-8');
     fstr = fread(fid, '*char')';
     fclose(fid);
 

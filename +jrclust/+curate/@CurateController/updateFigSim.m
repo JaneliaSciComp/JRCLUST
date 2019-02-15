@@ -38,7 +38,7 @@ function hFigSim = plotFigSim(hFigSim, hClust, hCfg)
             hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.kSimScore, hCfg.corrRange);
             hFig.axApply('default', @title, '[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr');
         else
-            hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.simScore, hCfg.corrRange);
+            hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.waveformSim, hCfg.corrRange);
             hFigSim.axApply('default', @title, '[S]plit; [M]erge; [D]elete');
         end
 
@@ -53,7 +53,7 @@ function hFigSim = plotFigSim(hFigSim, hClust, hCfg)
             hFigSim.plotApply('hImSim', @set, 'CData', hClust.kSimScore);
             hFigSim.figApply(@set, 'Name', ['KiloSort cluster similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
         else
-            hFigSim.plotApply('hImSim', @set, 'CData', hClust.simScore);
+            hFigSim.plotApply('hImSim', @set, 'CData', hClust.waveformSim);
             hFigSim.figApply(@set, 'Name', ['Waveform-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
         end
 

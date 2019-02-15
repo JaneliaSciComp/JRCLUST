@@ -1,6 +1,7 @@
 function keyPressFigSim(obj, ~, hEvent)
     %KEYPRESSFIGSIM Handle callbacks for keys pressed in sim view
     if obj.isWorking
+        jrclust.utils.qMsgBox('An operation is in progress.');
         return;
     end
 

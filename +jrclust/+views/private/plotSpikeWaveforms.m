@@ -11,10 +11,16 @@ function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
             iSites = siteNeighbors(:, iCluster);
 
             if hCfg.showRaw
-                iWaveforms = jrclust.utils.rawTouV(hClust.spikesRaw(:, :, iSpikes), hCfg);
+                if isempty(hClust.spikesRawVolt)
+                    hClust.spikesRawVolt = jrclust.utils.rawTouV(hClust.spikesRaw, hCfg);
+                end
+                iWaveforms = hClust.spikesRawVolt(:, :, iSpikes);
                 iWaveforms = jrclust.filters.fftLowpass(iWaveforms, hCfg.getOr('fc_spkwav_show', []), hCfg.sampleRate);
             else
-                iWaveforms = jrclust.utils.filtTouV(hClust.spikesFilt(:, :, iSpikes), hCfg);
+                if isempty(hClust.spikesFiltVolt)
+                    hClust.spikesFiltVolt = jrclust.utils.filtTouV(hClust.spikesFilt, hCfg);
+                end
+                iWaveforms = hClust.spikesFiltVolt(:, :, iSpikes);
             end
 
             [YData{iCluster}, XData{iCluster}] = wfToPlot(iWaveforms, iCluster, iSites, maxAmp, hCfg);

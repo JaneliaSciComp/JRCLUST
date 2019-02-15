@@ -1,9 +1,9 @@
 function autoDelete(obj)
     %AUTODELETE Automatically delete clusters by SNR/spike count
     if obj.isWorking
+        jrclust.utils.qMsgBox('An operation is in progress.');
         return;
     end
-    obj.isWorking = 1;
 
     hFigDelete = jrclust.views.Figure('', [.5 .7 .35 .3], ['Delete Auto: ', obj.hCfg.sessionName], 0, 0);
 
@@ -46,5 +46,4 @@ function autoDelete(obj)
     jrclust.utils.qMsgBox(sprintf('Deleted %d units <%0.1f SNR or <%d spikes/unit.', numel(deleteMe), snrMin, minCount));
     % TODO: add a note in hClust.history to this effect
     % save_log_(sprintf('delete-auto <%0.1f SNR or <%d spikes/unit', snrMin, minCount), S0);
-    obj.isWorking = 0;
 end
