@@ -75,7 +75,6 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
             obj.dRes = dRes;
             obj.hCfg = hCfg;
-            obj.history = cell(0, 4);
             isImport = obj.tryImport(sRes);
 
             if ~isImport
