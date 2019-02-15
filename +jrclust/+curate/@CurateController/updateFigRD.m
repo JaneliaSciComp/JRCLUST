@@ -18,11 +18,11 @@ function hFigRD = plotFigRD(hFigRD, hClust, hCfg)
 %     end
 
     if strcmp(hCfg.RDDetrendMode, 'global')
-        [centers, x, y] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 0, hCfg);
+        [centers, x, y] = jrclust.sort.detrendRhoDelta(hClust, hClust.spikesBySite, 0, hCfg);
         y = jrclust.utils.nanlog10(y);
         fDetrend = 1;
     elseif strcmp(hCfg.RDDetrendMode, 'local')
-        [centers, x, y] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 1, hCfg);
+        [centers, x, y] = jrclust.sort.detrendRhoDelta(hClust, hClust.spikesBySite, 1, hCfg);
         y = jrclust.utils.nanlog10(y);
         fDetrend = 1;
     else

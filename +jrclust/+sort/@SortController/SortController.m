@@ -41,15 +41,15 @@ classdef SortController < handle
             res.spikeNeigh = zeros(nSpikes, 1, 'uint32');
 
             % compute rho
-            res = jrclust.cluster.densitypeaks.computeRho(dRes, res, obj.hCfg);
+            res = jrclust.sort.computeRho(dRes, res, obj.hCfg);
 
             % compute delta
-            res = jrclust.cluster.densitypeaks.computeDelta(dRes, res, obj.hCfg);
+            res = jrclust.sort.computeDelta(dRes, res, obj.hCfg);
 
             % assign clusters
             [~, res.ordRho] = sort(res.spikeRho, 'descend');
 
-            res = jrclust.cluster.densitypeaks.assignClusters(dRes, res, obj.hCfg);
+            res = jrclust.sort.assignClusters(dRes, res, obj.hCfg);
             hClust = jrclust.sort.DensityPeakClustering(res, dRes, obj.hCfg);
             hClust.autoMerge();
 

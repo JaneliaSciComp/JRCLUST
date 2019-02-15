@@ -11,7 +11,7 @@ function dRes = detect(obj)
         obj.startParPool();
     end
 
-    obj.hDetect = jrclust.controllers.detect.DetectController(obj.hCfg);
+    obj.hDetect = jrclust.detect.DetectController(obj.hCfg);
     dRes = obj.hDetect.detect();
 
     if obj.hDetect.isError

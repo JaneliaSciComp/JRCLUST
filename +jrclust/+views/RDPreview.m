@@ -276,11 +276,11 @@ function hCFig = RDPreview(hClust)
         hFigRD.cla();
 
         if strcmp(hClust.hCfg.RDDetrendMode, 'global')
-            [centers, rho, delta] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 0, hClust.hCfg);
+            [centers, rho, delta] = jrclust.sort.detrendRhoDelta(hClust, hClust.spikesBySite, 0, hClust.hCfg);
             delta = jrclust.utils.nanlog10(delta);
             fDetrend = 1;
         elseif strcmp(hClust.hCfg.RDDetrendMode, 'local')
-            [centers, rho, delta] = jrclust.cluster.densitypeaks.detrendRhoDelta(hClust, hClust.spikesBySite, 1, hClust.hCfg);
+            [centers, rho, delta] = jrclust.sort.detrendRhoDelta(hClust, hClust.spikesBySite, 1, hClust.hCfg);
             delta = jrclust.utils.nanlog10(delta);
             fDetrend = 1;
         else

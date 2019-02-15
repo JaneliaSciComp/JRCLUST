@@ -32,7 +32,7 @@ function sRes = sort(obj)
         obj.startParPool();
     end
 
-    obj.hSort = jrclust.controllers.sort.SortController(obj.hCfg);
+    obj.hSort = jrclust.sort.SortController(obj.hCfg);
     sRes = obj.hSort.sort(obj.res);
 
     if obj.hSort.isError

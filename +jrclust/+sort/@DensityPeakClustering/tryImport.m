@@ -47,7 +47,7 @@ function success = tryImport(obj, sRes)
         if isfield(sRes, 'waveformSim')
             obj.waveformSim = sRes.waveformSim;
         else
-            obj.waveformSim = doComputeWaveformSim(obj, []);
+            obj.computeWaveformSim([]);
         end
 
         if isfield(sRes, 'clusterNotes')

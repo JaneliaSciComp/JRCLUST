@@ -8,7 +8,7 @@ function reassign(obj, recompute)
         recompute = ~isempty(obj.meanWfGlobal); % don't recompute mean waveforms if we didn't have them already
     end
 
-    obj.sRes = jrclust.cluster.densitypeaks.assignClusters(obj.dRes, obj.sRes, obj.hCfg);
+    obj.sRes = jrclust.sort.assignClusters(obj.dRes, obj.sRes, obj.hCfg);
 
     % these fields are mutable so we need to store copies in obj
     obj.spikeClusters = obj.initialClustering;

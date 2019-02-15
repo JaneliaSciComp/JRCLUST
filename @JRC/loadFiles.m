@@ -83,6 +83,10 @@ function loadFiles(obj)
 
         % restore values to hClust
         if isfield(res_, 'hClust')
+            if isa(res_.hClust, 'jrclust.models.clustering.DensityPeakClustering')
+                res_.hClust = convertToNew(res_, obj.hCfg);
+            end
+
             hClustFields = fieldnames(res_.hClust);
             for i = 1:numel(hClustFields)
                 fn = hClustFields{i};
@@ -113,4 +117,21 @@ function binData = readBin(filename, binShape, dataType)
     else
         binData = [];
     end
+end
+
+function hClustNew = convertToNew(res, hCfg)
+    hClustOld = res.hClust;
+
+    dRes = hClustOld.dRes;
+    dRes.spikesRaw = res.spikesRaw;
+    dRes.spikesFilt = res.spikesFilt;
+    dRes.spikeFeatures = res.spikeFeatures;
+
+    sRes = hClustOld.sRes;
+    if isfield(sRes, 'simScore')
+        sRes.waveformSim = sRes.simScore;
+        sRes = rmfield(sRes, 'simScore');
+    end
+
+    hClustNew = jrclust.sort.DensityPeakClustering(sRes, dRes, hCfg);
 end
