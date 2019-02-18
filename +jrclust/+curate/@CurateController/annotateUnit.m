@@ -32,7 +32,7 @@ function annotateUnit(obj, note, doConfirm)
             obj.hClust.addNote(iCluster, note);
         end
 
-        obj.updateMenu();
+        obj.updateNoteMenu();
     catch ME
         warning('Failed to annotate: %s', ME.message);
         jrclust.utils.qMsgBox('Operation failed.');

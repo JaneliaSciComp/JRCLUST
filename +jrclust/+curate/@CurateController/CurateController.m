@@ -2,12 +2,13 @@ classdef CurateController < handle
     %CURATECONTROLLER Interface for manually curating sorted clusters
     %% CONFIGURATION
     properties (Dependent)
-        hCfg;
+        hCfg;           % Config object
+        hClust;         % Clustering object
     end
 
     properties (SetAccess=private, Hidden, SetObservable)
+        res;            % detect/sort results struct, passed by JRC controller
         cRes;           % curate results struct, returned at endSession
-        hClust;         % Clustering object
     end
 
     properties (AbortSet, SetAccess=private, Hidden, Transient, SetObservable)
@@ -23,8 +24,9 @@ classdef CurateController < handle
 
     %% LIFECYCLE
     methods
-        function obj = CurateController(hClust)
-            obj.hClust = hClust;
+        function obj = CurateController(res)
+            obj.res = res;
+            obj.hClust = res.hClust;
             obj.hFigs = containers.Map();
             obj.hMenus = containers.Map();
             obj.isEnding = 0;
@@ -52,7 +54,7 @@ classdef CurateController < handle
     end
 
     %% SPECIFIC FIGURE METHODS
-    methods
+    methods (Hidden)
         updateCursorFigSim(obj);
         updateCursorFigWav(obj);
         updateFigCorr(obj);
@@ -70,26 +72,28 @@ classdef CurateController < handle
     %% UTILITY METHODS
     methods (Access=protected, Hidden)
         addMenu(obj, hFig);
-        annotateUnit(obj, note, doConfirm);
-        autoDelete(obj);
-        autoMerge(obj);
-        autoSplit(obj, multisite);
+%         annotateUnit(obj, note, doConfirm);
+%         autoDelete(obj);
+%         autoMerge(obj);
+%         autoSplit(obj, multisite);
         closeFigures(obj);
         deleteAnnotated(obj);
-        deleteClusters(obj, deleteMe);
-        exportFiringRate(obj);
-        exportMeanWf(obj, exportAll);
-        exportTraces(obj);
+%         deleteClusters(obj, deleteMe, commitMsg);
+%         exportFiringRate(obj);
+%         exportMeanWf(obj, exportAll);
+%         exportTraces(obj);
         res = figApply(obj, hFun, varargin);
         killFigWav(obj, hObject, hEvent);
-        mergeSelected(obj);
+%         mergeSelected(obj);
         plotAllFigures(obj);
+%         restoreHistory(obj, entryIndex);
         spawnFigures(obj);
-        splitCluster(obj, iCluster, retainedSpikes);
-        toggleRaw(obj, hMenu);
-        updateMenu(obj);
-        updateProjection(obj, proj);
-        updateSelect(obj, iClusters);
+%         splitCluster(obj, iCluster, retainedSpikes);
+%         toggleRaw(obj, hMenu);
+        updateHistMenu(obj);
+        updateNoteMenu(obj);
+%         updateProjection(obj, proj);
+%         updateSelect(obj, iClusters);
     end
     
 
@@ -109,8 +113,11 @@ classdef CurateController < handle
             if ~isempty(obj.cRes) && isfield(obj.cRes, 'hClust')
                 hc = obj.cRes.hClust;
             else
-                hc = obj.hClust;
+                hc = [];
             end
+        end
+        function set.hClust(obj, val)
+            obj.cRes.hClust = val;
         end
     end
 end

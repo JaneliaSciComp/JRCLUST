@@ -53,8 +53,7 @@ function computeWaveformSim(obj, updateMe)
         clusterSites_ = {obj.clusterSites};
     end
 
-    %waveformSim = zeros(size(meanWfGlobal_, 3), 'like', obj.waveformSim);
-    waveformSim = obj.waveformSim;
+    waveformSim = zeros(size(meanWfGlobal_, 3), 'like', obj.waveformSim);
 
     % shift waveforms up to some multiple (meanInterpFactor) of the refractory period
     nShifts = ceil(obj.hCfg.meanInterpFactor*obj.hCfg.refracInt*obj.hCfg.sampleRate/1000);
@@ -109,21 +108,23 @@ function computeWaveformSim(obj, updateMe)
     waveformSim = max(waveformSim, waveformSim'); % make it symmetric
     waveformSim(waveformSim == 0) = nan;
     % carry over the old diagonal
-    waveformSim = jrclust.utils.setDiag(waveformSim, diag(obj.waveformSim));
-    obj.waveformSim = waveformSim;
 
     if obj.hCfg.verbose
         fprintf('\ttook %0.1fs\n', toc(t1));
     end
 
     if isempty(updateMe)
-        obj.waveformSim = jrclust.utils.setDiag(obj.waveformSim, obj.computeSelfSim());
+        waveformSim = jrclust.utils.setDiag(waveformSim, obj.computeSelfSim());
     else
+        waveformSim = jrclust.utils.setDiag(waveformSim, diag(obj.waveformSim));
+
         for ii = 1:numel(updateMe)
             iCluster = updateMe(ii);
-            obj.waveformSim(iCluster, iCluster) = obj.computeSelfSim(iCluster);
+            waveformSim(iCluster, iCluster) = obj.computeSelfSim(iCluster);
         end
     end
+
+    obj.waveformSim = waveformSim;
 end
 
 %% LOCAL FUNCTIONS

@@ -1322,7 +1322,7 @@
                 "attributes": [
                     "scalar",
                     "real",
-                    "positive"
+                    "nonnegative"
                 ]
             },
             "section": ["clustering"]

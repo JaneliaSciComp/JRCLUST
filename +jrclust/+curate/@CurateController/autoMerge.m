@@ -1,4 +1,4 @@
-function autoMerge(obj)
+function autoMerge(obj, maxUnitSim)
     %AUTOMERGE Automatically merge units based on their similarity scores
     % snr_thresh = jrclust.utils.inputdlgNum('SNR threshold: ', 'Auto-deletion based on SNR', 10); % also ask about # spikes/unit (or firing rate) @TODO
     if obj.isWorking
@@ -6,17 +6,18 @@ function autoMerge(obj)
         return;
     end
 
-    dlgAns = inputdlg('Waveform correlation threshold (0-1):', 'Auto-merge based on waveform threshold', 1, {num2str(obj.hCfg.maxUnitSim)});
+    if nargin < 2
+        dlgAns = inputdlg('Waveform correlation threshold (0-1):', 'Auto-merge based on waveform threshold', 1, {num2str(obj.hCfg.maxUnitSim)});
+        % parse user input
+        if isempty(dlgAns)
+            return;
+        end
 
-    % parse user input
-    if isempty(dlgAns)
-        return;
-    end
-
-    maxUnitSim = str2double(dlgAns{1});
-    if isnan(maxUnitSim) || maxUnitSim <= 0 || maxUnitSim > 1
-        jrclust.utils.qMsgBox('Invalid criteria.');
-        return;
+        maxUnitSim = str2double(dlgAns{1});
+        if isnan(maxUnitSim) || maxUnitSim <= 0 || maxUnitSim > 1
+            jrclust.utils.qMsgBox('Invalid criteria.');
+            return;
+        end
     end
 
     if obj.hasFig('FigWav')
@@ -25,7 +26,7 @@ function autoMerge(obj)
     end
 
     nClustersOld = obj.hClust.nClusters;
-    hBox = jrclust.utils.qMsgBox('Merging...', 0, 1);
+    hBox = jrclust.utils.qMsgBox('Merging... (this closes automatically)', 0, 1);
 
     obj.isWorking = 1;
     try

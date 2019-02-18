@@ -1,4 +1,4 @@
-function deleteClusters(obj, deleteMe)
+function deleteClusters(obj, deleteMe, commitMsg)
     %DELETECLUSTERS Delete clusters either specified or selected
     if obj.isWorking
         jrclust.utils.qMsgBox('An operation is in progress.');
@@ -10,14 +10,16 @@ function deleteClusters(obj, deleteMe)
     elseif nargin < 2
         deleteMe = obj.selected(1);
     end
+    if nargin < 3 || isempty(commitMsg)
+        deleted = strjoin(arrayfun(@num2str, deleteMe, 'UniformOutput', 0), ', ');
+        commitMsg = sprintf('%s;delete;%s', datestr(now, 31), deleted);
+    end
 
     obj.isWorking = 1;
     try
         success = obj.hClust.deleteClusters(deleteMe);
         if success
             % save the new clustering
-            deleted = strjoin(arrayfun(@num2str, deleteMe, 'UniformOutput', 0), ', ');
-            commitMsg = sprintf('%s;delete;%s', datestr(now, 31), deleted);
             obj.hClust.commit(commitMsg);
 
             % replot

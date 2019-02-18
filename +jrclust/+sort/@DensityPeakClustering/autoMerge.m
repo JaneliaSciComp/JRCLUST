@@ -30,6 +30,12 @@ function success = autoMerge(obj)
         end
     end
 
+    % no changes, no need to continue
+    if iRepeat == 1 && nMerged == 0
+        success = 1;
+        return;
+    end
+
     obj.refresh(1, []);
     obj.orderClusters('clusterSites');
     obj.updateWaveforms();
@@ -37,11 +43,7 @@ function success = autoMerge(obj)
     obj.computeCentroids();
     obj.clearNotes();
     obj.computeQualityScores([]);
-    obj.commit(sprintf('%s;autoMerge', datestr(now, 31)));
-
-    if nargin == 2
-        obj.hCfg.resetTemporaryParams('maxUnitSim');
-    end
+    obj.commit(sprintf('%s;autoMerge (maxUnitSim %0.2f)', datestr(now, 31), obj.hCfg.maxUnitSim));
 
     success = 1;
 end

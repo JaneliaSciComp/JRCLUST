@@ -89,7 +89,14 @@ function keyPressFigWav(obj, ~, hEvent)
             else
                 iCluster = obj.selected(1);
                 iSite = obj.hClust.clusterSites(iCluster);
-                hFigWav.setWindow(iCluster + [-1, 1]*6, iSite + [-1, 1]*(obj.hCfg.nSiteDir*2+1), [0 obj.hClust.nClusters+1], [0 nSites+1]);
+
+                % do we have a second selected cluster?
+                if numel(obj.selected) > 1
+                    xRange = iCluster + [-1, 1]*max(abs(diff(obj.selected)) + 1, 6);
+                else
+                    xRange = iCluster + [-1, 1]*6;
+                end
+                hFigWav.setWindow(xRange, iSite + [-1, 1]*(obj.hCfg.nSiteDir*2+1), [0 obj.hClust.nClusters+1], [0 nSites+1]);
             end
 
         case 'a'

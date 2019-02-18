@@ -91,6 +91,8 @@ classdef (Abstract) Clustering < handle
             fid = fopen(fullfile(jrclust.utils.basedir(), 'json', 'Clustering.json'), 'r');
             obj.unitFields = jsondecode(fread(fid, inf, '*char'));
             fclose(fid);
+
+            obj.history = cell(0, 4);
         end
     end
 

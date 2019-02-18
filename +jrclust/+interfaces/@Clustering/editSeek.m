@@ -16,7 +16,23 @@ function editSeek(obj, seekTo)
         op = obj.history(j, :);
         if strcmp(op{2}, 'delete')
             deleted = op{3};
+            nClustersOld = max(spikeClusters_);
             spikeClusters_(ismember(spikeClusters_, deleted)) = 0;
+
+            % shift clusters larger than deleted down by 1
+            if numel(deleted) == 1
+                gtMask = (spikeClusters_ > deleted);
+                spikeClusters_(gtMask) = spikeClusters_(gtMask) - 1;
+            else
+                keepMe = setdiff(1:nClustersOld, deleteMe);
+                nClusters_ = numel(keepMe);
+
+                good = (spikeClusters_ > 0);
+                mapFrom = zeros(1, nClustersOld);
+                mapFrom(keepMe) = 1:nClusters_;
+
+                spikeClusters_(good) = mapFrom(spikeClusters_(good));
+            end
         elseif strcmp(op{2}, 'merge')
             iCluster = op{3};
             jCluster = op{4};
