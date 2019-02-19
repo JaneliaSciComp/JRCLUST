@@ -43,37 +43,37 @@ classdef ManualTest < matlab.unittest.TestCase
             obj.assertEqual(obj.hCurate.selected, 1);
         end
 
-%         function autoMergeOkay(obj)
-%             spikeClusters = obj.hClust.spikeClusters;
-% 
-%             waveformSimBeforeMerge = obj.hClust.waveformSim;
-%             waveformSimBeforeMerge(isnan(waveformSimBeforeMerge)) = 0;
-% 
-%             % null automerge (cluster assignments shouldn't change)
-%             obj.hCurate.autoMerge(1);
-%             obj.assertEqual(obj.hClust.spikeClusters, spikeClusters);
-% 
-%             % revert (still no change expected)
-%             obj.hCurate.restoreHistory(1);
-%             obj.assertEqual(obj.hClust.spikeClusters, spikeClusters);
-% 
-%             obj.hCurate.autoMerge(0.95);
-% 
-%             waveformSim = obj.hClust.waveformSim;
-%             % clear nans and set diagonal to 0
-%             waveformSim = jrclust.utils.setDiag(waveformSim, zeros(size(waveformSim, 1)));
-%             waveformSim(isnan(obj.hClust.waveformSim)) = 0;
-%             obj.assertLessThanOrEqual(waveformSim, 0.95);
-% 
-%             % restore and check our waveformSim is restored as well
-%             obj.hCurate.restoreHistory(1);
-%             obj.assertEqual(obj.hClust.spikeClusters, spikeClusters);
-%             waveformSim = obj.hClust.waveformSim;
-%             waveformSim(isnan(obj.hClust.waveformSim)) = 0;
-%             obj.assertTrue(any(waveformSim(:) >= 0.95));
-% 
-%             obj.assertLessThan(norm(waveformSim - waveformSimBeforeMerge), 1);
-%         end
+        function autoMergeOkay(obj)
+            spikeClusters = obj.hClust.spikeClusters;
+
+            waveformSimBeforeMerge = obj.hClust.waveformSim;
+            waveformSimBeforeMerge(isnan(waveformSimBeforeMerge)) = 0;
+
+            % null automerge (cluster assignments shouldn't change)
+            obj.hCurate.autoMerge(1);
+            obj.assertEqual(obj.hClust.spikeClusters, spikeClusters);
+
+            % revert (still no change expected)
+            obj.hCurate.restoreHistory(1);
+            obj.assertEqual(obj.hClust.spikeClusters, spikeClusters);
+
+            obj.hCurate.autoMerge(0.95);
+
+            waveformSim = obj.hClust.waveformSim;
+            % clear nans and set diagonal to 0
+            waveformSim = jrclust.utils.setDiag(waveformSim, zeros(size(waveformSim, 1)));
+            waveformSim(isnan(obj.hClust.waveformSim)) = 0;
+            obj.assertLessThanOrEqual(waveformSim, 0.95);
+
+            % restore and check our waveformSim is restored as well
+            obj.hCurate.restoreHistory(1);
+            obj.assertEqual(obj.hClust.spikeClusters, spikeClusters);
+            waveformSim = obj.hClust.waveformSim;
+            waveformSim(isnan(obj.hClust.waveformSim)) = 0;
+            obj.assertTrue(any(waveformSim(:) >= 0.95));
+
+            obj.assertLessThan(norm(waveformSim - waveformSimBeforeMerge), 1);
+        end
 
         function opMonteCarlo(obj)
             opsGroup = {'merge', 'split', 'delete'};
@@ -84,9 +84,8 @@ classdef ManualTest < matlab.unittest.TestCase
                 op = randsample(opsGroup, 1);
                 op = op{1}; % cell array
                 operations{end+1} = op;
-                spikeClusters_ = obj.hClust.spikeClusters;
-                spikeClusters_(spikeClusters_ <= 0) = 0;
-                opClustersBefore{end+1} = spikeClusters_;
+                spikeClustersAfter = obj.hClust.spikeClusters;
+                opClustersBefore{end+1} = spikeClustersAfter;
 
                 switch op
                     case 'merge'
@@ -110,10 +109,21 @@ classdef ManualTest < matlab.unittest.TestCase
             % still here? peel off operations and check our clusters match
             for i = 1:6
                 obj.hCurate.restoreHistory(obj.hClust.nEdits);
-                spikeClusters_ = obj.hClust.spikeClusters;
-                spikeClusters_(spikeClusters_ <= 0) = 0;
-                obj.assertEqual(spikeClusters_, opClustersBefore{end});
+
+                spikeClustersBefore = opClustersBefore{end};
                 opClustersBefore = opClustersBefore(1:end-1);
+                
+                spikeClustersAfter = obj.hClust.spikeClusters;
+
+                % if a cluster <= 0 it doesn't matter if it matches exactly
+                goodClustersBefore = spikeClustersBefore > 0;
+                goodClustersAfter = spikeClustersAfter > 0;
+                obj.assertEqual(goodClustersBefore, goodClustersAfter);
+
+                % but good clusters must match
+                spikeClustersAfter = spikeClustersAfter(goodClustersAfter);
+                spikeClustersBefore = spikeClustersBefore(goodClustersBefore);
+                obj.assertEqual(spikeClustersAfter, spikeClustersBefore);
             end
         end
     end

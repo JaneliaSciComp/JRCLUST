@@ -22,9 +22,11 @@ function deleteClusters(obj, deleteMe, commitMsg)
             % save the new clustering
             obj.hClust.commit(commitMsg);
 
+            obj.isWorking = 0; % in case updateSelect needs to zoom
+
             % replot
             obj.updateFigWav();
-            %obj.updateFigRD(); % centers changed, need replotting
+            obj.updateFigRD(); % centers changed, need replotting
             obj.updateFigSim();
             if numel(deleteMe) == 1 && deleteMe == obj.selected(1)
                 obj.updateSelect(deleteMe);

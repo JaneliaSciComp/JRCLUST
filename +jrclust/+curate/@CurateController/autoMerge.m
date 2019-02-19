@@ -33,6 +33,9 @@ function autoMerge(obj, maxUnitSim)
         obj.hClust.hCfg.setTemporaryParams('maxUnitSim', maxUnitSim);
         if obj.hClust.autoMerge() % success; replot
             jrclust.utils.tryClose(hBox);
+
+            obj.isWorking = 0; % in case updateSelect needs to zoom
+            
             obj.updateFigWav();
             obj.updateFigRD(); % centers changed, need replotting
             obj.updateFigSim();

@@ -17,7 +17,7 @@ function restoreHistory(obj, entryIndex)
                 catch ME
                     warning('Failed to revert: %s', ME.message);
                 end
-                obj.isWorking = 0;
+                obj.isWorking = 0; % in case updateSelect needs to zoom
 
                 % success; replot
                 jrclust.utils.tryClose(hBox);

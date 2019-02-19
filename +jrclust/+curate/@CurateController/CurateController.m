@@ -72,28 +72,14 @@ classdef CurateController < handle
     %% UTILITY METHODS
     methods (Access=protected, Hidden)
         addMenu(obj, hFig);
-%         annotateUnit(obj, note, doConfirm);
-%         autoDelete(obj);
-%         autoMerge(obj);
-%         autoSplit(obj, multisite);
         closeFigures(obj);
         deleteAnnotated(obj);
-%         deleteClusters(obj, deleteMe, commitMsg);
-%         exportFiringRate(obj);
-%         exportMeanWf(obj, exportAll);
-%         exportTraces(obj);
         res = figApply(obj, hFun, varargin);
         killFigWav(obj, hObject, hEvent);
-%         mergeSelected(obj);
         plotAllFigures(obj);
-%         restoreHistory(obj, entryIndex);
         spawnFigures(obj);
-%         splitCluster(obj, iCluster, retainedSpikes);
-%         toggleRaw(obj, hMenu);
         updateHistMenu(obj);
         updateNoteMenu(obj);
-%         updateProjection(obj, proj);
-%         updateSelect(obj, iClusters);
     end
     
 

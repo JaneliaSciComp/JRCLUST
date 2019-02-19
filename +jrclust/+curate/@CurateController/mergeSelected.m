@@ -19,11 +19,13 @@ function mergeSelected(obj)
             commitMsg = sprintf('%s;merge;%d;%d', datestr(now, 31), iCluster, jCluster);
             obj.hClust.commit(commitMsg);
 
+            obj.isWorking = 0; % in case updateSelect needs to zoom
+
             % replot
             obj.updateFigWav();
-            %obj.updateFigRD(); % centers changed, need replotting
+            obj.updateFigRD(); % centers changed, need replotting
             obj.updateFigSim();
-            obj.updateSelect(min(obj.selected));
+            obj.updateSelect(iCluster);
         else
             jrclust.utils.qMsgBox('Operation failed.');
         end

@@ -16,6 +16,8 @@ function splitCluster(obj, iCluster, retainedSpikes)
             commitMsg = sprintf('%s;split;%d;%s', datestr(now, 31), iCluster, retainedSpikes);
             obj.hClust.commit(commitMsg);
 
+            obj.isWorking = 0; % in case updateSelect needs to zoom
+
             % replot
             obj.updateFigWav();
             obj.updateFigSim();
