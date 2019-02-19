@@ -8,7 +8,8 @@ function res = runtests()
 
     tr = TestRunner.withTextOutput;
     tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust'));
-    tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.controllers.detect'));
+    tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.detect'));
+    tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.curate'));
 
     %% TEST BOOTSTRAP
 %     bootstrapSuite = TestSuite.fromClass(?jrclust.test.BootstrapTest);
@@ -19,6 +20,12 @@ function res = runtests()
     %% TEST DETECTION
     detectSuite = TestSuite.fromClass(?jrclust.test.DetectTest);
     detectRes = tr.run(detectSuite);
-
+    
     res = jrclust.utils.mergeStructs(res, detectRes);
+
+    %% TEST CURATION
+    curateSuite = TestSuite.fromClass(?jrclust.test.ManualTest);
+    curateRes = tr.run(curateSuite);
+
+    res = jrclust.utils.mergeStructs(res, curateRes);
 end

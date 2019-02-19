@@ -44,5 +44,29 @@ function updateSelect(obj, iClusters)
     obj.updateCursorFigSim();
 
     % update menu
-    obj.updateMenu();
+    obj.updateNoteMenu();
+    obj.updateHistMenu();
+
+    % zoom to selected cluster if out of bounds
+    if obj.hasFig('FigWav')
+        hFigWav = obj.hFigs('FigWav');
+        xRange = hFigWav.axApply('default', @xlim);
+        yRange = hFigWav.axApply('default', @ylim);
+        iCluster = obj.selected(1);
+        if numel(obj.selected) > 1
+            jCluster = obj.selected(2);
+        else
+            jCluster = obj.selected(1);
+        end
+
+        iSite = obj.hClust.clusterSites(iCluster);
+        jSite = obj.hClust.clusterSites(jCluster);
+
+        if iCluster < xRange(1) || iCluster > xRange(2) || ...
+                iSite < yRange(1) || iSite > yRange(2) || ...
+           jCluster < xRange(1) || jCluster > xRange(2) || ...
+                jSite < yRange(1) || jSite > yRange(2)
+            obj.keyPressFigWav([], struct('Key', 'z'));
+        end
+    end
 end

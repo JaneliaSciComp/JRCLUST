@@ -23,25 +23,32 @@ function success = autoMerge(obj)
     obj.rmOutlierSpikes();
 
     obj.updateWaveforms();
+    mergedAndUpdated = 0;
     for iRepeat = 1:obj.hCfg.nPassesMerge % single-pass vs dual-pass correction
         nMerged = obj.mergeBySim();
-        if nMerged < 1
+        % recompute mean waveforms and similarity scores to catch what slips
+        % through
+        if iRepeat > 1 && nMerged < 1 && ~mergedAndUpdated
+            obj.updateWaveforms();
+            mergedAndUpdated = 1;
+        elseif nMerged < 1
             break;
         end
     end
 
+    % no changes, no need to continue
+    if iRepeat == 1 && nMerged == 0
+        success = 1;
+        return;
+    end
+
     obj.refresh(1, []);
     obj.orderClusters('clusterSites');
-    obj.updateWaveforms();
 
     obj.computeCentroids();
     obj.clearNotes();
     obj.computeQualityScores([]);
-    obj.commit(sprintf('%s;autoMerge', datestr(now, 31)));
-
-    if nargin == 2
-        obj.hCfg.resetTemporaryParams('maxUnitSim');
-    end
+    obj.commit(sprintf('%s;autoMerge (maxUnitSim %0.2f)', datestr(now, 31), obj.hCfg.maxUnitSim));
 
     success = 1;
 end

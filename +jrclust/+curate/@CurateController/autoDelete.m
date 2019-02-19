@@ -42,8 +42,7 @@ function autoDelete(obj)
     end
 
     % delete and update
-    obj.deleteClusters(deleteMe);
-    jrclust.utils.qMsgBox(sprintf('Deleted %d units <%0.1f SNR or <%d spikes/unit.', numel(deleteMe), snrMin, minCount));
-    % TODO: add a note in hClust.history to this effect
-    % save_log_(sprintf('delete-auto <%0.1f SNR or <%d spikes/unit', snrMin, minCount), S0);
+    commitMsg = sprintf('%s;autodelete %d (min SNR %0.1f, max SNR %0.1f, %d spikes/unit minimum);%s', datestr(now, 31), numel(deleteMe), snrMin, snrMax, minCount, deleteMe);
+    obj.deleteClusters(deleteMe, commitMsg);
+    jrclust.utils.qMsgBox(sprintf('Deleted %d units (min SNR %0.1f, max SNR %0.1f, %d spikes/unit minimum).', numel(deleteMe), snrMin, snrMax, minCount));
 end

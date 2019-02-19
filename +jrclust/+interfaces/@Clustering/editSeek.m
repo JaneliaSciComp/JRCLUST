@@ -16,7 +16,23 @@ function editSeek(obj, seekTo)
         op = obj.history(j, :);
         if strcmp(op{2}, 'delete')
             deleted = op{3};
+            nClustersOld = max(spikeClusters_);
             spikeClusters_(ismember(spikeClusters_, deleted)) = 0;
+
+            % shift clusters larger than deleted down by 1
+            if numel(deleted) == 1
+                gtMask = (spikeClusters_ > deleted);
+                spikeClusters_(gtMask) = spikeClusters_(gtMask) - 1;
+            else
+                keepMe = setdiff(1:nClustersOld, deleted);
+                nClustersNew = numel(keepMe);
+
+                good = (spikeClusters_ > 0);
+                mapFrom = zeros(1, nClustersOld);
+                mapFrom(keepMe) = 1:nClustersNew;
+
+                spikeClusters_(good) = mapFrom(spikeClusters_(good));
+            end
         elseif strcmp(op{2}, 'merge')
             iCluster = op{3};
             jCluster = op{4};
@@ -36,8 +52,10 @@ function editSeek(obj, seekTo)
 
             % take splitted off spikes and make a new cluster
             % of them
-            newMask = (spikeClusters_ == iCluster & ~ismember(spikeClusters_, retained));
-            spikeClusters_(newMask) = iCluster + 1;
+            iMask = (spikeClusters_ == iCluster);
+            iSpikes = find(iMask);
+            jSpikes = iSpikes(~ismember(iSpikes, retained)); % spikes to split off
+            spikeClusters_(jSpikes) = iCluster + 1;
         else
             diffs = obj.history{j, 3};
             if isempty(diffs)

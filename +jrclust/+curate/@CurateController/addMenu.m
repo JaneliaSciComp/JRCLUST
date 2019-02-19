@@ -55,6 +55,8 @@ function addMenu(obj, hFig)
     uimenu(obj.hMenus('InfoMenu'), 'Label', 'Clear annotation', 'Callback', @(hO, hE) obj.annotateUnit('', 0));
     uimenu(obj.hMenus('InfoMenu'), 'Label', 'Equal to', 'Callback', @(hO, hE) obj.annotateUnit('=', 1));
 
+    obj.hMenus('HistMenu') = uimenu(hFig, 'Label', 'History', 'Tag', 'HistMenu');
+
     obj.hMenus('HelpMenu') = uimenu(hFig, 'Label', 'Help');
     uimenu(obj.hMenus('HelpMenu'), 'Label', '[H]elp', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'h')));
 

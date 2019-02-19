@@ -4,26 +4,27 @@ function success = saveFiles(obj)
     if strcmp(dlgAns, 'Yes')
         obj.cRes.curatedOn = now();
 
-        % don't save these to _res.mat
-        spikesRaw = obj.hClust.spikesRaw;
-        obj.hClust.spikesRaw = [];
+        res = jrclust.utils.mergeStructs(obj.res, obj.cRes);
 
-        spikesFilt = obj.hClust.spikesFilt;
-        obj.hClust.spikesFilt = [];
+        % don't save this stuff twice
+        restoreFields = struct(); % restore these fields to hClust after saving
+        restoreFields.dRes = res.hClust.dRes;
+        res.hClust.dRes = [];
 
-        spikeFeatures = obj.hClust.spikeFeatures;
-        obj.hClust.spikeFeatures = [];
+        restoreFields.sRes = res.hClust.sRes;
+        res.hClust.sRes = [];
 
-        hMsg = jrclust.utils.qMsgBox('Saving... (this closes automatically)');
+        hMsg = jrclust.utils.qMsgBox('Saving... (this closes automatically)', 0, 1);
+        jrclust.utils.saveStruct(res, obj.hCfg.resFile);
 
-        % save hClust and curatedOn
-        cRes = obj.cRes; %#ok<NASGU>
-        save(obj.hCfg.resFile, '-struct', 'cRes', '-append');
-
-        % restore these values to hClust
-        obj.hClust.spikesRaw = spikesRaw;
-        obj.hClust.spikesFilt = spikesFilt;
-        obj.hClust.spikeFeatures = spikeFeatures;
+        % restore fields to carry on
+        if ~obj.isEnding
+            restoreFieldNames = fieldnames(restoreFields);
+            for i = 1:numel(restoreFieldNames)
+                fn = restoreFieldNames{i};
+                obj.res.hClust.(fn) = restoreFields.(fn);
+            end
+        end
 
         success = 1;
         jrclust.utils.tryClose(hMsg);

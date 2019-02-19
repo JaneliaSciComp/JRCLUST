@@ -13,7 +13,7 @@ function autoSplit(obj, multisite)
         return;
     end
 
-    hBox = msgbox('Splitting... (this closes automatically)');
+    hBox = msgbox('Splitting... (this closes automatically)', 0, 1);
     iCluster = obj.selected(1);
     iSite = obj.hClust.clusterSites(iCluster);
 
