@@ -23,9 +23,15 @@ function success = autoMerge(obj)
     obj.rmOutlierSpikes();
 
     obj.updateWaveforms();
+    mergedAndUpdated = 0;
     for iRepeat = 1:obj.hCfg.nPassesMerge % single-pass vs dual-pass correction
         nMerged = obj.mergeBySim();
-        if nMerged < 1
+        % recompute mean waveforms and similarity scores to catch what slips
+        % through
+        if iRepeat > 1 && nMerged < 1 && ~mergedAndUpdated
+            obj.updateWaveforms();
+            mergedAndUpdated = 1;
+        elseif nMerged < 1
             break;
         end
     end
@@ -38,7 +44,6 @@ function success = autoMerge(obj)
 
     obj.refresh(1, []);
     obj.orderClusters('clusterSites');
-    obj.updateWaveforms();
 
     obj.computeCentroids();
     obj.clearNotes();
