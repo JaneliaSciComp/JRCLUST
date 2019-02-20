@@ -11,8 +11,7 @@
         "unitVppRaw",
         "unitISIRatio",
         "unitIsoDist",
-        "unitLRatio",
-        "unitSNR"
+        "unitLRatio"
     ],
     "other fields": {
         "clusterCentroids": {
