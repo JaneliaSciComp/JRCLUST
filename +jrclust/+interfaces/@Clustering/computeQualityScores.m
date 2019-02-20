@@ -15,18 +15,8 @@ function computeQualityScores(obj, updateMe)
     unitVmaxRaw = squeeze(max(obj.meanWfGlobalRaw));
 
     unitVpp_ = jrclust.utils.rowColSelect(unitVmax - unitVmin, obj.clusterSites, 1:obj.nClusters);
-    unitPeaks_ = jrclust.utils.rowColSelect(unitVmin, obj.clusterSites, 1:obj.nClusters);
     unitVppRaw_ = jrclust.utils.rowColSelect(unitVmaxRaw - unitVminRaw, obj.clusterSites, 1:obj.nClusters);
     unitPeaksRaw_ = jrclust.utils.rowColSelect(unitVminRaw, obj.clusterSites, 1:obj.nClusters);
-
-    try
-        siteRMS_ = jrclust.utils.bit2uV(single(obj.siteThresh(:))/obj.hCfg.qqFactor, obj.hCfg);
-        unitSNR_ = abs(unitPeaks_)./siteRMS_(obj.clusterSites);
-        nSitesOverThresh_ = sum(bsxfun(@lt, unitVmin, - siteRMS_*obj.hCfg.qqFactor), 1)';
-    catch ME
-        [siteRMS_, unitSNR_, nSitesOverThresh_] = deal([]);
-        warning('RMS, SNR, nSitesOverThresh not set: %s', ME.message);
-    end
 
     % compute unitIsoDist_, unitLRatio_, unitISIRatio_
     nSamples2ms = round(obj.hCfg.sampleRate * .002);
@@ -61,14 +51,13 @@ function computeQualityScores(obj, updateMe)
 
         % find spikes whose primary or secondary spikes live on iSite
         iSite1Spikes = obj.spikesBySite{iSite};
-        iSite2Spikes = obj.spikesBySite2{iSite};
-
-        if isempty(iSite2Spikes)
-            siteFeatures = squeeze(obj.spikeFeatures(:, 1, iSite1Spikes));
-            iSiteSpikes = iSite1Spikes(:);
-        else
+        if isprop(obj, 'spikesBySite2') && ~isempty(obj.spikesBySite2{iSite})
+            iSite2Spikes = obj.spikesBySite2{iSite};
             siteFeatures = [squeeze(obj.spikeFeatures(:, 1, iSite1Spikes)), squeeze(obj.spikeFeatures(:, 2, iSite2Spikes))];
             iSiteSpikes = [iSite1Spikes(:); iSite2Spikes(:)];
+        else
+            siteFeatures = squeeze(obj.spikeFeatures(:, 1, iSite1Spikes));
+            iSiteSpikes = iSite1Spikes(:);
         end
 
         isOnSite = (obj.spikeClusters(iSiteSpikes) == iCluster);
@@ -105,13 +94,10 @@ function computeQualityScores(obj, updateMe)
     end % for
     warning on;
 
-    obj.nSitesOverThresh = nSitesOverThresh_;
-    obj.siteRMS = siteRMS_;
     obj.unitISIRatio = unitISIRatio_;
     obj.unitIsoDist = unitIsoDist_;
     obj.unitLRatio = unitLRatio_;
     obj.unitPeaksRaw = unitPeaksRaw_; % unitPeaks is set elsewhere
-    obj.unitSNR = unitSNR_;
     obj.unitVpp = unitVpp_;
     obj.unitVppRaw = unitVppRaw_;
 

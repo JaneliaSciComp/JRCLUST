@@ -1,10 +1,12 @@
 Developer documentation
 =======================
 
+.. toctree::
+   :glob:
+   :caption: Code docs
+   :name: codetoc
 
-.. _DensityPeakClustering:
+   JRC
+   jrclust/index
+   Clustering
 
-DensityPeakClustering
----------------------
-
-Coming soon.

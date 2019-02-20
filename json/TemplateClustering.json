@@ -1,0 +1,11 @@
+{
+    "vector fields": [
+        "templatesByCluster"
+    ],
+    "other fields" : {
+        "templateSim": {
+            "subset": "@(vals, indices) vals(indices, indices)",
+            "consistent": "@(vals, nClusters) all(size(vals) == nClusters*ones(1, 2))"
+        }
+    }
+}

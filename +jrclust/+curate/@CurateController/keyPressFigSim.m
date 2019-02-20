@@ -14,8 +14,8 @@ function keyPressFigSim(obj, ~, hEvent)
             hFigSim.wait(0);
 
         case 'k' % kilosort template similarity view
-            if isa(obj.hClust, 'jrclust.sort.KilosortClustering') && strcmp(hFigSim.figData.figView, 'waveform')
-                hFigSim.figData.figView = 'kilosort';
+            if isa(obj.hClust, 'jrclust.sort.TemplateClustering') && strcmp(hFigSim.figData.figView, 'waveform')
+                hFigSim.figData.figView = 'template';
                 obj.updateFigSim();
             end
 
@@ -30,7 +30,7 @@ function keyPressFigSim(obj, ~, hEvent)
             hFigSim.wait(0);
 
         case 'w' % waveform-based sim view
-            if isa(obj.hClust, 'jrclust.sort.KilosortClustering') && strcmp(hFigSim.figData.figView, 'template')
+            if isa(obj.hClust, 'jrclust.sort.TemplateClustering') && strcmp(hFigSim.figData.figView, 'template')
                 hFigSim.figData.figView = 'waveform';
                 obj.updateFigSim();
             end

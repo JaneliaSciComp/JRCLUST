@@ -47,7 +47,6 @@ classdef (Abstract) Clustering < handle
 
     %% QUALITY METRICS
     properties (SetAccess=protected, SetObservable)
-        siteRMS;            % site-wise 
         unitPeaks;          % minimum voltage of mean filtered waveforms at peak site, per cluster
         unitPeaksRaw;       % minimum voltage (uV) of mean raw waveforms at peak site, per cluster
         unitPeakSites;      % sites on which unitPeaks occur
@@ -56,7 +55,6 @@ classdef (Abstract) Clustering < handle
         unitISIRatio;       % inter-spike interval ratio #(ISI <= 2ms)/#(ISI <= 20ms), per cluster
         unitIsoDist;        % isolation distance
         unitLRatio;         % L-ratio
-        unitSNR;            % signal-to-noise ratio at peak site (peak/RMS)
     end
 
     %% SORTING RESULTS (IMMUTABLE)

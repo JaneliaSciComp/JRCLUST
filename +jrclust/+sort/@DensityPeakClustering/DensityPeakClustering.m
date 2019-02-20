@@ -45,8 +45,9 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
     %% QUALITY METRICS
     properties (SetObservable)
         nSitesOverThresh;   % number of sites exceeding the detection threshold, per cluster
+        siteRMS;            % site-wise threshold/qqFactor
+        unitSNR;            % signal-to-noise ratio at peak site (peak/RMS)
     end
-
 
     %% SORTING RESULTS (IMMUTABLE)
     properties (Dependent, Transient)
