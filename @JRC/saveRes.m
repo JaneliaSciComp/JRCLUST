@@ -42,7 +42,19 @@ function saveRes(obj, forceOverwrite)
         end
     end
 
-    jrclust.utils.saveStruct(obj.res, obj.hCfg.resFile);
+    % don't save these large fields
+    res_ = obj.res;
+    if isfield(res_, 'spikesRaw')
+        res_ = rmfield(res_, 'spikesRaw');
+    end
+    if isfield(res_, 'spikesFilt')
+        res_ = rmfield(res_, 'spikesFilt');
+    end
+    if isfield(res_, 'spikeFeatures')
+        res_ = rmfield(res_, 'spikeFeatures');
+    end
+
+    jrclust.utils.saveStruct(res_, obj.hCfg.resFile);
 
     restoreFieldNames = fieldnames(restoreFields);
     for i = 1:numel(restoreFieldNames)

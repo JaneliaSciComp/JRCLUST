@@ -1,6 +1,6 @@
-function hClust = kilosort(rezFile)
+function [hCfg, res] = kilosort(rezFile)
     %KILOSORT Import a Kilosort session from rez.mat
-    hClust = [];
+    [hCfg, res] = deal([]);
 
     rezFile_ = jrclust.utils.absPath(rezFile);
     if isempty(rezFile_)
@@ -262,6 +262,11 @@ function hClust = kilosort(rezFile)
         break;
     end
 
+    % set some specific params
+    hCfg.nPeaksFeatures = 1; % don't find secondary peaks
+    hCfg.figList = setdiff(hCfg.figList, 'FigRD'); % don't show rho-delta plot
+    hCfg.corrRange = [0.75 1];
+
     %%% detect and extract spikes/features
     hDetect = jrclust.detect.DetectController(hCfg, spikeTimes, spikeSites);
     dRes = hDetect.detect();
@@ -273,5 +278,9 @@ function hClust = kilosort(rezFile)
     hClust = jrclust.sort.TemplateClustering(sRes, dRes, hCfg);
     hClust.computeCentroids();
     hClust.updateWaveforms();
+    hClust.computeQualityScores();
+
+    res = jrclust.utils.mergeStructs(dRes, sRes);
+    res.hClust = hClust;
 end
 

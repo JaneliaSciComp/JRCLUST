@@ -4,11 +4,11 @@ function updateFigSim(obj)
         return;
     end
 
-    plotFigSim(obj.hFigs('FigSim'), obj.hClust, obj.hCfg);
+    plotFigSim(obj.hFigs('FigSim'), obj.hClust, obj.hCfg, obj.selected);
 end
 
 %% LOCAL FUNCTIONS
-function hFigSim = plotFigSim(hFigSim, hClust, hCfg)
+function hFigSim = plotFigSim(hFigSim, hClust, hCfg, selected)
     %PLOTFIGSIM Display cluster similarity scores
     hFigSim.wait(1);
 
@@ -22,8 +22,8 @@ function hFigSim = plotFigSim(hFigSim, hClust, hCfg)
                         'XTick', 1:nClusters, ...
                         'YTick', 1:nClusters);
 
-        if isa(hClust, 'jrclust.sort.KilosortClustering')
-            hFigSim.figData.figView = 'template';
+        if isa(hClust, 'jrclust.sort.TemplateClustering')
+            hFigSim.figData.figView = 'template'; % start out showing template sim scores
         else
             hFigSim.figData.figView = 'waveform';
         end
@@ -34,12 +34,13 @@ function hFigSim = plotFigSim(hFigSim, hClust, hCfg)
         hFigSim.axApply('default', @xlabel, 'Cluster #');
         hFigSim.axApply('default', @ylabel, 'Cluster #');
 
-        if strcmp(hFigSim.figData.figView, 'kilosort') && isprop(hClust, 'kSimScore')
-            hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.kSimScore, hCfg.corrRange);
-            hFig.axApply('default', @title, '[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr');
+        if strcmp(hFigSim.figData.figView, 'template') && isprop(hClust, 'templateSim')
+            hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.templateSim, hCfg.corrRange);
+            %hFigSim.axApply('default', @title, '[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr');
+            hFigSim.figApply(@set, 'Name', ['Template-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w');
         else
             hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.waveformSim, hCfg.corrRange);
-            hFigSim.axApply('default', @title, '[S]plit; [M]erge; [D]elete');
+            %hFigSim.axApply('default', @title, '[S]plit; [M]erge; [D]elete');
         end
 
         % selected cluster pair cursors
@@ -49,9 +50,9 @@ function hFigSim = plotFigSim(hFigSim, hClust, hCfg)
         hFigSim.axApply('default', @colorbar);
         hFigSim.addDiag('hDiag', [0, nClusters, 0.5], 'Color', [0 0 0], 'LineWidth', 1.5);
     else
-        if strcmp(hFigSim.figData.figView, 'kilosort') && isprop(hClust, 'kSimScore')
-            hFigSim.plotApply('hImSim', @set, 'CData', hClust.kSimScore);
-            hFigSim.figApply(@set, 'Name', ['KiloSort cluster similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
+        if strcmp(hFigSim.figData.figView, 'template') && isprop(hClust, 'templateSim')
+            hFigSim.plotApply('hImSim', @set, 'CData', hClust.templateSim);
+            hFigSim.figApply(@set, 'Name', ['Template-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
         else
             hFigSim.plotApply('hImSim', @set, 'CData', hClust.waveformSim);
             hFigSim.figApply(@set, 'Name', ['Waveform-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
@@ -60,6 +61,20 @@ function hFigSim = plotFigSim(hFigSim, hClust, hCfg)
         hFigSim.axApply('default', @set, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
         hFigSim.addDiag('hDiag', [0, nClusters, 0.5], 'Color', [0 0 0], 'LineWidth', 1.5); % overwrites previous diag plot
     end
+
+    iCluster = selected(1);
+    if numel(selected) > 1
+        jCluster = selected(2);
+    else
+        jCluster = iCluster;
+    end
+    
+    if strcmp(hFigSim.figData.figView, 'template')
+        scoreij = hClust.templateSim(iCluster, jCluster);
+    elseif strcmp(hFigSim.figData.figView, 'waveform')
+        scoreij = hClust.waveformSim(iCluster, jCluster);
+    end
+    hFigSim.axApply('default', @title, sprintf('Cluster %d vs. Cluster %d: %0.3f', iCluster, jCluster, scoreij));
 
     hFigSim.wait(0);
 end

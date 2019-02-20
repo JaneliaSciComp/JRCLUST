@@ -149,6 +149,25 @@ function processArgs(obj)
                 obj.isCompleted = 1;
             end
 
+        case 'import-ksort'
+            [hCfg_, res_] = jrclust.import.kilosort(obj.args{1});
+            if isempty(hCfg_)
+                obj.error('Import failed');
+            else
+                obj.hCfg = hCfg_;
+                obj.res = res_;
+
+                obj.saveRes();
+                %fprintf('Saved imported results to %s\n', obj.hCfg.resFile);
+
+                obj.saveBinaries();
+
+                obj.hCfg.save(obj.hCfg.configFile, 1);
+                %fprintf('Saved new configuration file to %s\n', obj.hCfg.configFile);
+
+                obj.isCompleted = 1;
+            end
+
         % misc commands
         case 'activity'
             obj.activity();

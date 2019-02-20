@@ -465,7 +465,7 @@
         "probePad": {
             "description": "Recording contact pad size (in μm)",
             "comment": "Height x width",
-            "default_value": [],
+            "default_value": [12, 12],
             "validation": {
                 "classes": ["numeric"],
                 "attributes": [

@@ -46,6 +46,9 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
                 vals = [];
             end
         end
+        function set.spikeTemplates(obj, vals)
+            obj.sRes.spikeTemplates = vals;
+        end
     end
 end
 

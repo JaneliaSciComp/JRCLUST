@@ -44,7 +44,7 @@ function uInfo = exportUnitInfo(obj, iCluster)
     if ~isempty(obj.unitIsoDist)
         uInfo.IsoDist = obj.unitIsoDist(iCluster);
     end
-    if ~isempty(obj.unitSNR)
+    if isprop(obj, 'unitSNR') && isempty(obj.unitSNR)
         uInfo.SNR = obj.unitSNR(iCluster);
     end
     if ~isempty(obj.unitPeaksRaw)
