@@ -262,8 +262,7 @@ function hClust = kilosort(rezFile)
         break;
     end
 
-    %%% detect and extract spikes
-
+    %%% detect and extract spikes/features
     hDetect = jrclust.detect.DetectController(hCfg, spikeTimes, spikeSites);
     dRes = hDetect.detect();
     sRes = struct('spikeClusters', spikeClusters, ...
