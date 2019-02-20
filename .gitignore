@@ -10,7 +10,9 @@ sample*.csv
 
 # docs
 docs/build
+docs/venv
 
 # Misc
 *.mat
 *.ipynb
+.vscode/
