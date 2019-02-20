@@ -91,7 +91,7 @@ classdef DetectController < handle
                 [impTimes, impSites] = deal([]);
                 if ~isempty(obj.importTimes)
                     inInterval = (obj.importTimes > recOffset & obj.importTimes <= recOffset + hRec.nSamples);
-                    impTimes = obj.importTimes(inInterval) - sampOffset + 1; % shift spike timing
+                    impTimes = obj.importTimes(inInterval) - recOffset; % shift spike timing
 
                     % take sites assoc with times between limits
                     if ~isempty(obj.importSites)

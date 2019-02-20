@@ -79,10 +79,10 @@ classdef Config < dynamicprops
             obj.tempParams = containers.Map();
 
             obj.loadParams(userParams);
-            if ~isempty(obj.configFile) % prm file was specified, validate
-                obj.validateParams();
+            obj.validateParams();
 
                 % define a default outputDir if not already set
+            if ~isempty(obj.configFile) % prm file was specified, validate
                 if isempty(obj.outputDir)
                     obj.outputDir = fileparts(obj.configFile);
                 end
