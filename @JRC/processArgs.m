@@ -216,6 +216,8 @@ function processArgs(obj)
         return;
     end
 
+    obj.hCfg.openLog(sprintf('%s-%s.log', obj.cmd, datestr(now(), 30)));
+
     % determine which commands in the pipeline to run
     if any(strcmp(obj.cmd, curateCmds))
         obj.isCurate = 1;
@@ -227,13 +229,5 @@ function processArgs(obj)
 
     if any(strcmp(obj.cmd, detectCmds))
         obj.isDetect = 1;
-    end
-
-    % commands from here on out require a parameter file
-    if nargs < 1
-        obj.errMsg = sprintf('Command `%s` requires a parameter file', obj.cmd);
-        errordlg(obj.errMsg, 'Missing parameter file');
-        obj.isError = 1;
-        return;
     end
 end

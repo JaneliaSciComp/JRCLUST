@@ -6,9 +6,10 @@ function saveBinaries(obj)
 
     % save spikesRaw
     if isfield(obj.res, 'spikesRaw') && ~isempty(obj.res.spikesRaw)
+        obj.hCfg.updateLog('saveBin', sprintf('Saving spikesRaw to %s', obj.hCfg.rawFile), 1, 0);
         [flag, errmsg] = writeBin(obj.hCfg.rawFile, obj.res.spikesRaw, '*int16');
-        if flag && obj.hCfg.verbose
-            fprintf('Saved spikesRaw to %s\n', obj.hCfg.rawFile);
+        if flag
+            obj.hCfg.updateLog('saveBin', 'Finished saving spikesRaw', 0, 1);
         elseif ~flag
             warning('Failed to save spikesRaw: %s', errmsg);
         end
@@ -16,9 +17,10 @@ function saveBinaries(obj)
 
     % save spikesFilt
     if isfield(obj.res, 'spikesFilt') && ~isempty(obj.res.spikesFilt)
+        obj.hCfg.updateLog('saveBin', sprintf('Saving spikesFilt to %s', obj.hCfg.filtFile), 1, 0);
         [flag, errmsg] = writeBin(obj.hCfg.filtFile, obj.res.spikesFilt, '*int16');
-        if flag && obj.hCfg.verbose
-            fprintf('Saved spikesFilt to %s\n', obj.hCfg.filtFile);
+        if flag
+            obj.hCfg.updateLog('saveBin', 'Finished saving spikesFilt', 0, 1);
         elseif ~flag
             warning('Failed to save spikesFilt: %s', errmsg);
         end
@@ -26,9 +28,10 @@ function saveBinaries(obj)
 
     % save spikeFeatures
     if isfield(obj.res, 'spikeFeatures') && ~isempty(obj.res.spikeFeatures)
+        obj.hCfg.updateLog('saveBin', sprintf('Saving spikeFeatures to %s', obj.hCfg.featuresFile), 1, 0);
         [flag, errmsg] = writeBin(obj.hCfg.featuresFile, obj.res.spikeFeatures, '*single');
-        if flag && obj.hCfg.verbose
-            fprintf('Saved spikeFeatures to %s\n', obj.hCfg.featuresFile);
+        if flag
+            obj.hCfg.updateLog('saveBin', 'Finished saving spikeFeatures', 0, 1);
         elseif ~flag
             warning('Failed to save spikeFeatures: %s', errmsg);
         end

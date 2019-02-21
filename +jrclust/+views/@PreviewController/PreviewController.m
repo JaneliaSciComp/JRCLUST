@@ -499,7 +499,7 @@ classdef PreviewController < jrclust.interfaces.FigureController
             obj.hFigPreview.wait(1);
 
             if obj.fftThresh > 0
-                obj.tracesClean = jrclust.filters.fftClean(obj.tracesRaw, obj.fftThresh, obj.hCfg.ramToGPUFactor); % fft filter
+                obj.tracesClean = jrclust.filters.fftClean(obj.tracesRaw, obj.fftThresh, obj.hCfg); % fft filter
             else
                 obj.tracesClean = obj.tracesRaw;
             end

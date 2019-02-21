@@ -23,6 +23,10 @@ function res = runtests()
     
     res = jrclust.utils.mergeStructs(res, detectRes);
 
+    detectMultiSuite = TestSuite.fromClass(?jrclust.test.DetectMultiTest);
+    detectMultiRes = tr.run(detectMultiSuite);
+
+    res = jrclust.utils.mergeStructs(res, detectMultiRes);
     %% TEST CURATION
     curateSuite = TestSuite.fromClass(?jrclust.test.ManualTest);
     curateRes = tr.run(curateSuite);

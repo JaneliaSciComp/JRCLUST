@@ -54,11 +54,6 @@ classdef JRC < handle & dynamicprops
                     obj.processArgs();
                 end
             end
-
-            % don't proceed without a Config unless completed
-            if obj.inProgress() && isempty(obj.hCfg)
-                obj.error('Could not create Config object');
-            end
         end
     end
 

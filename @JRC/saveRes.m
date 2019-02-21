@@ -17,6 +17,7 @@ function saveRes(obj, forceOverwrite)
         end
     end
 
+    obj.hCfg.updateLog('saveRes', sprintf('Saving results to %s', obj.hCfg.resFile), 1, 0);
     % save everything else (don't save spikesRaw, spikesFilt,
     % spikeFeatures inside hClust)
     restoreFields = struct(); % restore these fields to hClust after saving
@@ -62,7 +63,5 @@ function saveRes(obj, forceOverwrite)
         obj.res.hClust.(fn) = restoreFields.(fn);
     end
 
-    if obj.hCfg.verbose
-        fprintf('Saved results to %s\n', obj.hCfg.resFile);
-    end
+    obj.hCfg.updateLog('saveRes', sprintf('Results saved to %s', obj.hCfg.resFile), 0, 1);
 end

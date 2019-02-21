@@ -1,7 +1,6 @@
 % JRCLUST v4
 % Alan Liddell, Vidrio Technologies
 % Originally written by James Jun
-
 function hJRC_ = jrc(varargin)
     %JRC
     if nargout > 0

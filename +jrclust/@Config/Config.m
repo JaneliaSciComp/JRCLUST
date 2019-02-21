@@ -1,12 +1,12 @@
 classdef Config < dynamicprops
-    %CONFIG JRCLUST session configuration
-    % replacement for P struct
-
+    %CONFIG JRCLUST session configuration (P++)
     %% OBJECT-LEVEL PROPERTIES
     properties (Hidden, SetAccess=private, SetObservable)
         customParams;           % params not included in the default set
         isError;                % true if an error in configuration
         isV3Import;             % true if old-style params are referred to in configFile
+        logEntries;             % containers.Map of log entries
+        logFid;                 % file id of open log file
         paramSet;               % common and advanced parameter sets with default values and validation criteria
         tempParams;             % temporary parameters (probably a hack)
     end
@@ -75,17 +75,19 @@ classdef Config < dynamicprops
             obj.isV3Import = 0;
             obj.isError = 0;
 
+            obj.logEntries = containers.Map();
+
             % for setting temporary parameters
             obj.tempParams = containers.Map();
 
             obj.loadParams(userParams);
             obj.validateParams();
 
-                % define a default outputDir if not already set
-            if ~isempty(obj.configFile) % prm file was specified, validate
-                if isempty(obj.outputDir)
-                    obj.outputDir = fileparts(obj.configFile);
-                end
+            % define a default outputDir if not already set
+            if ~isempty(obj.configFile) && isempty(obj.outputDir)
+                obj.outputDir = fileparts(obj.configFile);
+            elseif isempty(obj.outputDir)
+                obj.outputDir = pwd();
             end
         end
 
@@ -98,6 +100,10 @@ classdef Config < dynamicprops
                     error(errMsg);
                 end
             end
+        end
+
+        function delete(obj)
+            obj.closeLog();
         end
     end
 
@@ -113,35 +119,11 @@ classdef Config < dynamicprops
 
     %% SECRET METHODS
     methods (Hidden)
-        function setConfigFile(obj, configFile, reloadParams)
-            %SETCONFIGFILE Don't use this. Seriously.
-             if nargin < 2
-                 return;
-             end
-             if nargin < 3
-                 reloadParams = 1;
-             end
-
-             configFile_ = jrclust.utils.absPath(configFile);
-             if isempty(configFile_)
-                 error('Could not find %s', configFile);
-             end
-
-             obj.configFile = configFile_;
-
-             if reloadParams
-                 obj.loadParams(obj.configFile);
-             end
-        end
+        setConfigFile(obj, configFile, reloadParams);
     end
 
     %% USER METHODS
     methods
-        function edit(obj)
-            %EDIT Edit the config file
-            edit(obj.configFile);
-        end
-
         function val = getOr(obj, fn, dv)
             %GETOR GET set value `obj.(fn)` OR default value `dv` if unset or empty
             if nargin < 3

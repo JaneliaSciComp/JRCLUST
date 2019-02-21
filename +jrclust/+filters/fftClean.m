@@ -1,4 +1,4 @@
-function [samplesOut, useGPU] = fftClean(samplesIn, fftThresh, ramToGPUFactor)
+function [samplesOut, useGPU] = fftClean(samplesIn, fftThresh, hCfg)
     %FFTCLEAN Remove high-frequency noise from samples
     if fftThresh == 0 || isempty(samplesIn)
         samplesOut = samplesIn;
@@ -7,11 +7,10 @@ function [samplesOut, useGPU] = fftClean(samplesIn, fftThresh, ramToGPUFactor)
 
     useGPU = isa(samplesIn, 'gpuArray');
 
-    fprintf('Applying FFT cleanup...');
-    t = tic;
+    hCfg.updateLog('fftClean', 'Applying FFT-based cleanup', 1, 0);
 
     nSamples = size(samplesIn, 1); % total number of samples (rows) in array
-    [nLoads, nSamplesLoad, nSamplesFinal] = jrclust.utils.partitionLoad(nSamples, round(nSamples/ramToGPUFactor));
+    [nLoads, nSamplesLoad, nSamplesFinal] = jrclust.utils.partitionLoad(nSamples, round(nSamples/hCfg.ramToGPUFactor));
     samplesOut = zeros(size(samplesIn), 'like', samplesIn);
 
     for iLoad = 1:nLoads
@@ -37,7 +36,7 @@ function [samplesOut, useGPU] = fftClean(samplesIn, fftThresh, ramToGPUFactor)
         end
     end % for
 
-    fprintf(' done (%0.2f s)', toc(t));
+    hCfg.updateLog('fftClean', 'Finished FFT-based cleanup', 0, 1);
 end
 
 %% LOCAL FUNCTIONS

@@ -11,14 +11,14 @@ function dRes = detect(obj)
         obj.startParPool();
     end
 
+    obj.hCfg.updateLog('detectStep', 'Detecting spikes in recordings', 1, 0);
     obj.hDetect = jrclust.detect.DetectController(obj.hCfg);
     dRes = obj.hDetect.detect();
 
     if obj.hDetect.isError
         obj.error(obj.hDetect.errMsg);
-    elseif obj.hCfg.verbose
-        fprintf('Detection completed in %0.2f seconds\n', dRes.detectTime);
     end
+    obj.hCfg.updateLog('detectStep', 'Finished detecting', 0, 1);
 
     obj.res = dRes;
 

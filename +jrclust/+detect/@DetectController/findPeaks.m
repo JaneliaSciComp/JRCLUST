@@ -1,4 +1,4 @@
-function spikeData = findPeaks(spikeData, hCfg)
+function spikeData = findPeaks(obj, spikeData)
     %FINDPEAKS Detect or import spike peaks
     samplesFilt = spikeData.samplesFilt;
     keepMe = spikeData.keepMe;
@@ -9,21 +9,16 @@ function spikeData = findPeaks(spikeData, hCfg)
     nPadPost = spikeData.nPadPost;
 
     if isempty(siteThresh)
-        try
-            siteThresh = jrclust.utils.tryGather(int16(jrclust.utils.estimateRMS(samplesFilt, 1e5)*hCfg.qqFactor));
-        catch ME
-            hCfg.useGPU = 0;
-            siteThresh = int16(jrclust.utils.estimateRMS(jrclust.utils.tryGather(samplesFilt), 1e5)*hCfg.qqFactor);
-        end
+        siteThresh = obj.computeThreshold(samplesFilt);
     end
 
     if isempty(spikeTimes) || isempty(spikeSites)
-        if ~isprop(hCfg, 'nPadPre')
-            hCfg.addprop('nPadPre');
+        if ~isprop(obj.hCfg, 'nPadPre')
+            obj.hCfg.addprop('nPadPre');
         end
-        hCfg.nPadPre = nPadPre;
+        obj.hCfg.nPadPre = nPadPre;
 
-        [spikeTimes, spikeAmps, spikeSites] = jrclust.utils.detectPeaks(samplesFilt, siteThresh, keepMe, hCfg);
+        [spikeTimes, spikeAmps, spikeSites] = jrclust.utils.detectPeaks(samplesFilt, siteThresh, keepMe, obj.hCfg);
     else
         spikeTimes = spikeTimes + nPadPre;
         spikeAmps = samplesFilt(sub2ind(size(samplesFilt), spikeTimes, spikeSites)); % @TODO read spikes at the site and time
@@ -39,8 +34,8 @@ function spikeData = findPeaks(spikeData, hCfg)
         spikeSites = spikeSites(inBounds);
     end
 
-    spikeData.siteThresh = siteThresh;
+    spikeData.siteThresh = siteThresh(:);
     spikeData.spikeTimes = spikeTimes;
-    spikeData.spikeAmps = jrclust.utils.tryGather(spikeAmps);
+    spikeData.spikeAmps = spikeAmps;
     spikeData.spikeSites = spikeSites;
 end

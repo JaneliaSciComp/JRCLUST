@@ -27,5 +27,6 @@ function run(obj)
         obj.curate();
     end
 
+    obj.hCfg.closeLog();
     obj.isCompleted = 1;
 end

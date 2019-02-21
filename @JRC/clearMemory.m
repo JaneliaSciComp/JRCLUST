@@ -3,14 +3,10 @@ function clearMemory(obj)
     if obj.hCfg.useGPU
         % while we're here, clear GPU memory
         if obj.isDetect || obj.isSort
-            if obj.hCfg.verbose
-                fprintf('Clearing GPU memory...');
-            end
+            obj.hCfg.updateLog('gpuMemory', 'Clearing GPU memory', 1, 0);
             gpuDevice(); % selects GPU device
             gpuDevice([]); % clears GPU memory
-            if obj.hCfg.verbose
-                fprintf('done\n');
-            end
+            obj.hCfg.updateLog('gpuMemory', 'GPU memory cleared', 0, 1);
         end
 
         parallel.gpu.rng(obj.hCfg.randomSeed);

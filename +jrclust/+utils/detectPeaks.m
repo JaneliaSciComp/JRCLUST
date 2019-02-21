@@ -3,17 +3,12 @@ function [spikeTimes, spikeAmps, spikeSites] = detectPeaks(samplesIn, siteThresh
     nSites = size(samplesIn, 2);
     [spikesBySite, ampsBySite] = deal(cell(nSites, 1));
 
-    if hCfg.verbose
-        fprintf('\tDetecting spikes from each channel.\n\t\t');
-        tDetect = tic;
-    end
+    hCfg.updateLog('detectSpikes', 'Detecting spikes from each site', 1, 0);
 
     for iSite = 1:nSites
         % find spikes
         [peakLocs, peaks] = detectPeaksSite(samplesIn(:, iSite), siteThresh(iSite), hCfg);
-        if hCfg.verbose
-            fprintf('.');
-        end
+        hCfg.updateLog('detectSite', sprintf('Detecting spikes from site %d', iSite), 1, 0);
 
         if isempty(keepMe)
             spikesBySite{iSite} = peakLocs;
@@ -22,25 +17,17 @@ function [spikeTimes, spikeAmps, spikeSites] = detectPeaks(samplesIn, siteThresh
             spikesBySite{iSite} = peakLocs(keepMe(peakLocs));
             ampsBySite{iSite}   = peaks(keepMe(peakLocs));
         end
+
+        hCfg.updateLog('detectSite', sprintf('Found %d spikes', numel(spikesBySite{iSite})), 0, 1);
     end
 
-    if hCfg.verbose
-        nSpikes = sum(cellfun(@numel, spikesBySite));
-        fprintf('\n\t\tDetected %d spikes from %d sites; took %0.1fs.\n', nSpikes, nSites, toc(tDetect));
-    end
+    hCfg.updateLog('detectSpikes', 'Finished detecting spikes', 0, 1);
 
     % Group spiking events using vrWav_mean1. already sorted by time
     if hCfg.getOr('fMerge_spk', 1)
-        if hCfg.verbose
-            fprintf('\tMerging spikes...');
-            t2 = tic;
-        end
-
+        hCfg.updateLog('eventsMerged', 'Merging duplicate spiking events', 1, 0);
         [spikeTimes, spikeAmps, spikeSites] = mergePeaks(spikesBySite, ampsBySite, hCfg);
-
-        if hCfg.verbose
-            fprintf('\t%d spiking events found; took %0.1fs\n', numel(spikeSites), toc(t2));
-        end
+        hCfg.updateLog('eventsMerged', sprintf('%d spiking events found', numel(spikeTimes)), 0, 1);
     else
         spikeTimes = jrclust.utils.neCell2mat(spikesBySite);
         spikeAmps = jrclust.utils.neCell2mat(ampsBySite);

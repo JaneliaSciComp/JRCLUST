@@ -13,10 +13,14 @@ function [spikeTimes, spikeAmps, spikeSites] = mergePeaks(spikesBySite, ampsBySi
     [mergedTimes, mergedAmps, mergedSites] = deal(cell(nSites,1));
 
     try
+        % avoid sending the entire hCfg object out to workers
+        cfgSub = struct('refracIntSamp', hCfg.refracIntSamp, ...
+                        'siteLoc', obj.hCfg.siteLoc, ...
+                        'evtDetectRad', obj.hCfg.evtDetectRad);
         parfor iSite = 1:nSites
             try
                 [mergedTimes{iSite}, mergedAmps{iSite}, mergedSites{iSite}] = ...
-                    mergeSpikesSite(spikeTimes, spikeAmps, spikeSites, iSite, hCfg);
+                    mergeSpikesSite(spikeTimes, spikeAmps, spikeSites, iSite, cfgSub);
             catch % don't try to display an error here
             end
         end

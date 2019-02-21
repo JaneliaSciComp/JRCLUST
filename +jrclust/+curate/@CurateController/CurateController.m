@@ -25,8 +25,10 @@ classdef CurateController < handle
     %% LIFECYCLE
     methods
         function obj = CurateController(res)
-            obj.res = res;
+            % transfer hClust from res to cRes
             obj.hClust = res.hClust;
+            obj.res = rmfield(res, 'hClust');
+
             obj.hFigs = containers.Map();
             obj.hMenus = containers.Map();
             obj.isEnding = 0;
@@ -86,11 +88,11 @@ classdef CurateController < handle
     %% GETTERS/SETTERS
     methods
         % hCfg
-        function hc = get.hCfg(obj)
+        function val = get.hCfg(obj)
             if ~isempty(obj.hClust)
-                hc = obj.hClust.hCfg;
+                val = obj.hClust.hCfg;
             else
-                hc = [];
+                val = [];
             end
         end
 

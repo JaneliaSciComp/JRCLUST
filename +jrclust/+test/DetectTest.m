@@ -15,6 +15,7 @@ classdef DetectTest < matlab.unittest.TestCase
             hCfg_ = jrclust.Config(fullfile(getenv('JRCTESTDATA'), 'single', 'test.prm'));
             obj.hJRC = JRC(hCfg_);
             obj.hCfg.testRun = 1;
+            obj.hCfg.extractAfterDetect = 1;
         end
 
         function doDetect(obj)

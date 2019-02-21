@@ -1,7 +1,7 @@
 function bootstrap(obj, varargin)
     %DOBOOTSTRAP Bootstrap a JRCLUST session
     %   metafile: optional string; path (or glob) to meta file(s)
-    if nargin > 0
+    if nargin > 1
         metafile_ = jrclust.utils.absPath(varargin{1});
         if isempty(metafile_) % warn?
             metafile = '';
