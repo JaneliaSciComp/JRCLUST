@@ -1,12 +1,15 @@
-function samplesOut = bandpassFilter(samplesIn, filtOpts)
-%BANDPASSFILTER Summary of this function goes here
+function samplesOut = bandpassFilter(samplesIn, hCfg)
+    %BANDPASSFILTER Summary of this function goes here
     try
-        samplesOut = filtfiltChain(single(samplesIn), filtOpts);
-    catch
-        fprintf('!! GPU processing failed, retrying on CPU !!');
-        filtOps.useGPUFilt = 0;
-        samplesOut = filtfiltChain(single(samplesIn), filtOpts);
+        hCfg.updateLog('bpFilt', sprintf('Applying bandpass filter to %s samples', jrclust.utils.field2str(size(samplesIn))), 1, 0);
+        samplesOut = filtfiltChain(single(samplesIn), hCfg);
+    catch ME
+        hCfg.updateLog('bpFilt', sprintf('GPU filtering failed: %s (retrying on CPU)', ME.message), 1, 0);
+        hCfg.useGPUFilt = 0;
+        samplesOut = filtfiltChain(single(samplesIn), hCfg);
     end
+
+    hCfg.updateLog('bpFilt', 'Finished filtering', 0, 1);
 
     samplesOut = int16(samplesOut);
 end

@@ -18,7 +18,7 @@ function [spikeTimes, spikeAmps, spikeSites] = detectPeaks(samplesIn, siteThresh
             ampsBySite{iSite}   = peaks(keepMe(peakLocs));
         end
 
-        hCfg.updateLog('detectSite', sprintf('Found %d spikes', numel(spikesBySite{iSite})), 0, 1);
+        hCfg.updateLog('detectSite', sprintf('Found %d spikes on site %d', numel(spikesBySite{iSite}), iSite), 0, 1);
     end
 
     hCfg.updateLog('detectSpikes', 'Finished detecting spikes', 0, 1);
