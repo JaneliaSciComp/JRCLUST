@@ -140,6 +140,7 @@ function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
         if obj.hCfg.getOr('precomputeThresh', 0)
             obj.hCfg.updateLog('filtSamples', 'Reading filtered samples from disk', 1, 0);
             iSamplesFilt = hRec.readFiltROI(1:obj.hCfg.nSites, 1+loadOffset-nPadPre:loadOffset+nSamples+nPadPost)';
+            obj.hCfg.updateLog('filtSamples', sprintf('Read %d filtered samples', size(iSamplesFilt, 1)), 0, 1);
 
             % common mode rejection
             if obj.hCfg.blankThresh > 0
@@ -214,7 +215,8 @@ function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
         obj.hCfg.updateLog('procLoad', sprintf('Finished load %d/%d', iLoad, nLoads), 0, 1);
     end % for
 
-    hRec.close();
+    hRec.closeRaw();
+    hRec.closeFilt();
 
     if obj.hCfg.getOr('extractAfterDetect', 0) && ~strcmp(obj.hCfg.clusterFeature, 'gpca')
         recData = obj.extractFeatures(recData);

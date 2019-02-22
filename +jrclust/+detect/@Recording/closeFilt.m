@@ -3,6 +3,6 @@ function closeFilt(obj)
     if ~obj.filtIsOpen
         return;
     end
-    obj.filtered = [];
+    obj.filteredData = [];
     obj.filtIsOpen = 0;
 end
