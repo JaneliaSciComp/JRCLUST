@@ -1,7 +1,6 @@
 function clearMemory(obj)
     %CLEARMEMORY Clear GPU memory and set random seeds
     if obj.hCfg.useGPU
-        % while we're here, clear GPU memory
         if obj.isDetect || obj.isSort
             obj.hCfg.updateLog('gpuMemory', 'Clearing GPU memory', 1, 0);
             gpuDevice(); % selects GPU device

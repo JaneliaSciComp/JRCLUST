@@ -35,6 +35,13 @@ function res = detect(obj)
 
     % load from files
     for iRec = 1:nRecs
+        if nRecs > 1 % reset random seeds for each file for reproducibility
+            if obj.hCfg.useGPU
+                parallel.gpu.rng(obj.hCfg.randomSeed);
+            end
+            rng(obj.hCfg.randomSeed);
+        end
+
         fn = obj.hCfg.rawRecordings{iRec};
         hRec = jrclust.models.recording.Recording(fn, obj.hCfg);
 
@@ -87,7 +94,8 @@ function res = detect(obj)
         res.spikeFeatures = jrclust.utils.tryGather(res.spikeFeatures);
     end
 
-    res.siteThresh = mean(single(res.siteThresh), 1);
+    % compute the mean of the siteThresh from each recording
+    res.meanSiteThresh = mean(single(res.siteThresh), 2);
 
     % spike sites
     res.spikeSites = res.centerSites(:, 1);

@@ -37,7 +37,7 @@ function success = autoMerge(obj)
     end
 
     % no changes, no need to continue
-    if iRepeat == 1 && nMerged == 0
+    if iRepeat == 1 && nMerged == 0 && ~isempty(obj.clusterCentroids)
         success = 1;
         return;
     end
