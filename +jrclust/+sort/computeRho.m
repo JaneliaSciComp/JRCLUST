@@ -8,10 +8,7 @@ function res = computeRho(dRes, res, hCfg)
         res.rhoCutGlobal = estRhoCutGlobal(dRes, hCfg);
     end
 
-    if hCfg.verbose
-        fprintf('Computing rho\n\t');
-        t1 = tic;
-    end
+    hCfg.updateLog('computeRho', 'Computing rho', 1, 0);
 
     % create CUDA kernel
     chunkSize = 16;
@@ -63,14 +60,10 @@ function res = computeRho(dRes, res, hCfg)
         res.spikeRho(spikeData.spikes1) = jrclust.utils.tryGather(siteRho);
         res.rhoCutSite(iSite) = jrclust.utils.tryGather(siteCut);
         clear siteFeatures spikeOrder siteRho;
-        if hCfg.verbose
-            fprintf('.');
-        end
+        hCfg.updateLog('rhoSite', sprintf('Site %d: rho cutoff, %0.2f; average rho: %0.5f (%d spikes)', iSite, siteCut, mean(res.spikeRho), n1), 0, 0);
     end
 
-    if hCfg.verbose
-        fprintf('\n\ttook %0.1fs\n', toc(t1));
-    end
+    hCfg.updateLog('computeRho', 'Finished computing rho', 0, 1);
 end
 
 %% LOCAL FUNCTIONS
@@ -109,10 +102,7 @@ function rhoCut = estRhoCutGlobal(dRes, hCfg, vlRedo_spk)
     spikeData = struct('spikeTimes', dRes.spikeTimes, ...
                        'vlRedo_spk', vlRedo_spk);
 
-    if hCfg.verbose
-        fprintf('Estimating cutoff distance\n\t');
-        t1 = tic;
-    end
+    hCfg.updateLog('estimateCutDist', 'Estimating cutoff distance', 1, 0);
 
     % estimate rho cutoff for each site
     siteCuts = nan(1, hCfg.nSites);
@@ -138,13 +128,12 @@ function rhoCut = estRhoCutGlobal(dRes, hCfg, vlRedo_spk)
         end
 
         siteCuts(iSite) = estRhoCutSite(siteFeatures, spikeOrder, n1, n2, hCfg);
+        hCfg.updateLog('rhoCutSite', sprintf('Estimated rho cutoff for site %d: %0.2f', iSite, res.rhoCutSite(iSite)), 0, 0);
     end
 
     rhoCut = sqrt(abs(quantile(siteCuts, .5)));
 
-    if hCfg.verbose
-        fprintf('\n\ttook %0.1fs\n', toc(t1));
-    end
+    hCfg.updateLog('estimateCutDist', sprintf('Finished estimating cutoff distance: %0.2f', rhoCut), 0, 1);
 end
 
 function rhoCut = estRhoCutSite(siteFeatures, spikeOrder, n1, n2, hCfg)
@@ -187,9 +176,5 @@ function rhoCut = estRhoCutSite(siteFeatures, spikeOrder, n1, n2, hCfg)
         if isnan(rhoCut) % featureDists was completely nan
             rhoCut = quantile(featureDists(:), hCfg.distCut/100);
         end
-    end
-
-    if hCfg.verbose
-        fprintf('.');
     end
 end

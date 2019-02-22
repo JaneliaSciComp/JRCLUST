@@ -51,8 +51,17 @@ function saveRes(obj, forceOverwrite)
     if isfield(res_, 'spikesFilt')
         res_ = rmfield(res_, 'spikesFilt');
     end
+    if isfield(res_, 'spikesFilt2')
+        res_ = rmfield(res_, 'spikesFilt2');
+    end
+    if isfield(res_, 'spikesFilt3')
+        res_ = rmfield(res_, 'spikesFilt3');
+    end
     if isfield(res_, 'spikeFeatures')
         res_ = rmfield(res_, 'spikeFeatures');
+    end
+    if isfield(res_, 'hRecs')
+        res_ = rmfield(res_, 'hRecs');
     end
 
     jrclust.utils.saveStruct(res_, obj.hCfg.resFile);

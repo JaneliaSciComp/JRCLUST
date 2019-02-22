@@ -199,6 +199,9 @@ function processArgs(obj)
     end
 
     if ~obj.inProgress
+        if ~isempty(obj.hCfg)
+            obj.hCfg.closeLog();
+        end
         return;
     end
 

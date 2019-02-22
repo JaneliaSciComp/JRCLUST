@@ -101,10 +101,6 @@ classdef Config < dynamicprops
                 end
             end
         end
-
-        function delete(obj)
-            obj.closeLog();
-        end
     end
 
     %% DOUBLE SECRET METHODS
@@ -140,12 +136,12 @@ classdef Config < dynamicprops
         function rd = recDurationSec(obj, recID)
             %RECDURATIONSECS Get duration of recording file(s) in seconds
             if nargin < 2 || isempty(recID)
-                hRecs = cellfun(@(fn) jrclust.models.recording.Recording(fn, obj), obj.rawRecordings, 'UniformOutput', 0);
+                hRecs = cellfun(@(fn) jrclust.detect.Recording(fn, obj), obj.rawRecordings, 'UniformOutput', 0);
                 rd = sum(cellfun(@(hR) hR.nSamples, hRecs))/obj.sampleRate;
             elseif recID < 1 || recID > numel(obj.rawRecordings)
                 error('recording ID %d is invalid (there are %d recordings)', recID, numel(obj.rawRecordings));
             else
-                hRec = jrclust.models.recording.Recording(obj.rawRecordings{recID}, obj);
+                hRec = jrclust.detect.Recording(obj.rawRecordings{recID}, obj);
                 rd = hRec.nSamples/obj.sampleRate;
             end
         end

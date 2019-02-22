@@ -1,11 +1,17 @@
 function siteThresh = computeThreshold(obj, samplesIn)
     %COMPUTETHRESHOLD Compute sitewise threshold for samplesIn
+    maxSample = 1e5;
+
     try
-        siteThresh = jrclust.utils.estimateRMS(samplesIn, 1e5)*obj.hCfg.qqFactor;
-        siteThresh = int16(jrclust.utils.tryGather(siteThresh));
+        samplesIn = jrclust.utils.tryGpuArray(samplesIn, obj.hCfg.useGPU);
+        siteThresh = jrclust.utils.estimateRMS(samplesIn, maxSample)*obj.hCfg.qqFactor;
+        [samplesIn, siteThresh] = jrclust.utils.tryGather(samplesIn, siteThresh); %#ok<ASGLU>
     catch ME
         warning('GPU threshold computation failed: %s (retrying in CPU)', ME.message);
+        samplesIn = jrclust.utils.tryGather(samplesIn);
         obj.hCfg.useGPU = 0;
-        siteThresh = int16(jrclust.utils.estimateRMS(jrclust.utils.tryGather(samplesIn), 1e5)*obj.hCfg.qqFactor);
+        siteThresh = jrclust.utils.estimateRMS(samplesIn, maxSample)*obj.hCfg.qqFactor;
     end
+
+    siteThresh = int16(siteThresh);
 end

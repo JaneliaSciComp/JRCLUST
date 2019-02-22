@@ -23,9 +23,91 @@ function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
 
     % divide recording into many loads, samples are columns in data matrix
     [nLoads, nSamplesLoad, nSamplesFinal] = obj.planLoad(hRec);
-    loadOffset = 0;
+    hRec.openRaw();
+
+    % precompute threshold for entire recording (requires 2 passes through data)
+    if obj.hCfg.getOr('precomputeThresh', 0)
+        samplesPre = [];
+        loadOffset = 0;            
+
+        obj.hCfg.updateLog('precomputeThresh', 'Precomputing threshold', 1, 0);
+        for iLoad = 1:nLoads
+            obj.hCfg.updateLog('procLoad', sprintf('Processing load %d/%d', iLoad, nLoads), 1, 0);
+            if iLoad == nLoads
+                nSamples = nSamplesFinal;
+            else
+                nSamples = nSamplesLoad;
+            end
+
+            % load raw samples
+            iSamplesRaw = hRec.readRawROI(obj.hCfg.siteMap, 1+loadOffset:loadOffset+nSamples);
+
+            % convert samples to int16
+            iSamplesRaw = samplesToInt16(iSamplesRaw, obj.hCfg);
+
+            % load next N samples to ensure we don't miss any spikes at the boundary
+            if iLoad < nLoads && obj.hCfg.nSamplesPad > 0
+                leftBound = loadOffset + nSamples + 1;
+                rightBound = leftBound + obj.hCfg.nSamplesPad - 1;
+                samplesPost = hRec.readRawROI(obj.hCfg.siteMap, leftBound:rightBound);
+                samplesPost = samplesToInt16(samplesPost, obj.hCfg);
+            else
+                samplesPost = [];
+            end
+
+            % denoise and filter samples
+            obj.hCfg.updateLog('filtSamples', 'Filtering spikes', 1, 0);
+            iSamplesRaw = [samplesPre; iSamplesRaw; samplesPost];
+
+            if obj.hCfg.fftThresh > 0
+                iSamplesRaw = jrclust.filters.fftClean(iSamplesRaw, obj.hCfg.fftThresh, obj.hCfg);
+            end
+
+            % filter spikes; samples go in padded and come out padded
+            try
+                iSamplesFilt  = jrclust.filters.filtCAR(iSamplesRaw, [], [], 0, obj.hCfg);
+            catch ME % GPU filtering failed, retry in CPU
+                obj.hCfg.updateLog('filtSamples', sprintf('GPU filtering failed: %s (retrying in CPU)', ME.message), 1, 0);
+
+                obj.hCfg.useGPU = 0;
+                iSamplesFilt = jrclust.filters.filtCAR(iSamplesRaw, [], [], 0, obj.hCfg);
+            end
+%             iSamplesFilt = obj.filterSamples(iSamplesRaw, samplesPre, samplesPost);
+            obj.hCfg.updateLog('filtSamples', 'Finished filtering spikes', 0, 1);
+
+            siteThresh = cat(1, siteThresh, obj.computeThreshold(iSamplesFilt));
+
+            nPadPre = size(samplesPre, 1);
+            nPadPost = size(samplesPost, 1);
+            bounds = [nPadPre + 1, size(iSamplesFilt, 1) - nPadPost]; % inclusive
+            success = hRec.writeFilt(iSamplesFilt(bounds(1):bounds(2), :));
+            if ~success % abort
+                siteThresh = [];
+                obj.hCfg.precomputeThresh = 0;
+                break;
+            end
+
+            if iLoad < nLoads
+                samplesPre = iSamplesRaw(end-2*obj.hCfg.nSamplesPad+1:end-obj.hCfg.nSamplesPad, :);
+            end
+
+            % increment sample offset
+            loadOffset = loadOffset + nSamples;
+        end
+
+        siteThresh = mean(siteThresh, 1);
+
+        if isempty(siteThresh)
+            obj.hCfg.updateLog('precomputeThresh', 'Failed to precompute threshold', 0, 1);
+        else % we made it, don't recompute filtered samples but read them in from disk
+            obj.hCfg.updateLog('precomputeThresh', 'Finished precomputing threshold', 0, 1);
+            hRec.closeFiltForWriting();
+            hRec.openFilt();
+        end
+    end
+
     samplesPre = [];
-    hRec.open();
+    loadOffset = 0;
     for iLoad = 1:nLoads
         obj.hCfg.updateLog('procLoad', sprintf('Processing load %d/%d', iLoad, nLoads), 1);
 
@@ -36,7 +118,7 @@ function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
         end
 
         % load raw samples
-        iSamplesRaw = hRec.readROI(obj.hCfg.siteMap, 1+loadOffset:loadOffset+nSamples);
+        iSamplesRaw = hRec.readRawROI(obj.hCfg.siteMap, 1+loadOffset:loadOffset+nSamples);
 
         % convert samples to int16
         iSamplesRaw = samplesToInt16(iSamplesRaw, obj.hCfg);
@@ -45,16 +127,35 @@ function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
         if iLoad < nLoads && obj.hCfg.nSamplesPad > 0
             leftBound = loadOffset + nSamples + 1;
             rightBound = leftBound + obj.hCfg.nSamplesPad - 1;
-            samplesPost = hRec.readROI(obj.hCfg.siteMap, leftBound:rightBound);
+            samplesPost = hRec.readRawROI(obj.hCfg.siteMap, leftBound:rightBound);
             samplesPost = samplesToInt16(samplesPost, obj.hCfg);
         else
             samplesPost = [];
         end
 
-        % denoise and filter samples
-        obj.hCfg.updateLog('filtSamples', 'Filtering spikes', 1, 0);
-        [iSamplesFilt, keepMe] = obj.filterSamples(iSamplesRaw, samplesPre, samplesPost);
-        obj.hCfg.updateLog('filtSamples', 'Finished filtering spikes', 0, 1);
+        nPadPre = size(samplesPre, 1);
+        nPadPost = size(samplesPost, 1);
+
+        % samples pre-filtered, read from disk
+        if obj.hCfg.getOr('precomputeThresh', 0)
+            obj.hCfg.updateLog('filtSamples', 'Reading filtered samples from disk', 1, 0);
+            iSamplesFilt = hRec.readFiltROI(1:obj.hCfg.nSites, 1+loadOffset-nPadPre:loadOffset+nSamples+nPadPost)';
+
+            % common mode rejection
+            if obj.hCfg.blankThresh > 0
+                channelMeans = jrclust.utils.getCAR(iSamplesFilt, obj.hCfg.CARMode, obj.hCfg.ignoreSites);
+
+                keepMe = jrclust.utils.carReject(channelMeans(:), obj.hCfg.blankPeriod, obj.hCfg.blankThresh, obj.hCfg.sampleRate);
+                obj.hCfg.updateLog('rejectMotion', sprintf('Rejecting %0.3f %% of time due to motion', (1 - mean(keepMe))*100), 0, 0);
+            else
+                keepMe = true(size(iSamplesFilt, 1), 1);
+            end
+        else
+            % denoise and filter samples
+            obj.hCfg.updateLog('filtSamples', 'Filtering samples', 1, 0);
+            [iSamplesFilt, keepMe] = obj.filterSamples(iSamplesRaw, samplesPre, samplesPost);
+            obj.hCfg.updateLog('filtSamples', 'Finished filtering samples', 0, 1);
+        end
 
         % detect spikes in filtered samples
         [iSpikeTimes, iSpikeSites] = deal([]);
@@ -75,41 +176,31 @@ function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
                           'spikeTimes', iSpikeTimes, ...
                           'spikeSites', iSpikeSites, ...
                           'siteThresh', siteThresh, ...
-                          'nPadPre', size(samplesPre, 1), ...
-                          'nPadPost', size(samplesPost, 1));
+                          'nPadPre', nPadPre, ...
+                          'nPadPost', nPadPost);
 
         % find peaks: adds spikeAmps, updates spikeTimes, spikeSites,
         %             siteThresh
         loadData = obj.findPeaks(loadData);
-        recData.spikeAmps = cat(1, recData.spikeAmps, ...
-                                jrclust.utils.tryGather(loadData.spikeAmps));
-        recData.spikeSites = cat(1, recData.spikeSites, ...
-                                 jrclust.utils.tryGather(loadData.spikeSites));
-        recData.siteThresh = cat(1, recData.siteThresh, ...
-                                 jrclust.utils.tryGather(loadData.siteThresh));
+        recData.spikeAmps = cat(1, recData.spikeAmps, loadData.spikeAmps);
+        recData.spikeSites = cat(1, recData.spikeSites, loadData.spikeSites);
+        recData.siteThresh = [recData.siteThresh, loadData.siteThresh];
 
         % extract spike windows: adds spikesRaw, spikesFilt, centerSites,
         %                        spikesFilt2, spikesFilt3;
         %                        updates spikeTimes
         loadData = obj.samplesToWindows(loadData);
-        recData.centerSites = cat(1, recData.centerSites, ...
-                                  jrclust.utils.tryGather(loadData.centerSites));
-        recData.spikeTimes = cat(1, recData.spikeTimes, ...
-                                 jrclust.utils.tryGather(loadData.spikeTimes + loadOffset - size(samplesPre, 1)));
-        recData.spikesRaw = cat(3, recData.spikesRaw, ...
-                               jrclust.utils.tryGather(loadData.spikesRaw));
-        recData.spikesFilt = cat(3, recData.spikesFilt, ...
-                                 jrclust.utils.tryGather(loadData.spikesFilt));
-        recData.spikesFilt2 = cat(3, recData.spikesFilt2, ...
-                                  jrclust.utils.tryGather(loadData.spikesFilt2));
-        recData.spikesFilt3 = cat(3, recData.spikesFilt3, ...
-                                  jrclust.utils.tryGather(loadData.spikesFilt3));
+        recData.centerSites = cat(1, recData.centerSites, loadData.centerSites);
+        recData.spikeTimes = cat(1, recData.spikeTimes, loadData.spikeTimes + loadOffset - size(samplesPre, 1));
+        recData.spikesRaw = cat(3, recData.spikesRaw, loadData.spikesRaw);
+        recData.spikesFilt = cat(3, recData.spikesFilt, loadData.spikesFilt);
+        recData.spikesFilt2 = cat(3, recData.spikesFilt2, loadData.spikesFilt2);
+        recData.spikesFilt3 = cat(3, recData.spikesFilt3, loadData.spikesFilt3);
 
         % compute features: adds spikeFeatures
         if ~obj.hCfg.getOr('extractAfterDetect', 0)
             loadData = obj.extractFeatures(loadData);
-            recData.spikeFeatures = cat(3, recData.spikeFeatures, ...
-                                        jrclust.utils.tryGather(loadData.spikeFeatures));
+            recData.spikeFeatures = cat(3, recData.spikeFeatures, loadData.spikeFeatures);
         end
 
         if iLoad < nLoads
@@ -119,6 +210,7 @@ function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
         % increment sample offset
         loadOffset = loadOffset + nSamples;
 
+        jrclust.utils.tryGather(iSamplesFilt);
         obj.hCfg.updateLog('procLoad', sprintf('Finished load %d/%d', iLoad, nLoads), 0, 1);
     end % for
 
@@ -126,7 +218,6 @@ function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
 
     if obj.hCfg.getOr('extractAfterDetect', 0) && ~strcmp(obj.hCfg.clusterFeature, 'gpca')
         recData = obj.extractFeatures(recData);
-        recData.spikeFeatures = jrclust.utils.tryGather(recData.spikeFeatures);
     end
 end
 

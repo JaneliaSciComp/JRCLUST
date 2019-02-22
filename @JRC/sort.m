@@ -15,13 +15,10 @@ function sRes = sort(obj)
         end
     end
 
-    if obj.hCfg.verbose
-        % inform user we're using previously detected spikes
-        if ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'detectedOn')
-            fprintf('Using spikes detected on %s\n', datestr(obj.res.detectedOn));
-        elseif ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'spikeTimes')
-            fprintf('Using previously-detected spikes\n');
-        end
+    if ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'detectedOn')
+        obj.hCfg.updateLog('detectedOn', sprintf('Using spikes detected on %s', datestr(obj.res.detectedOn)), 0, 0);
+    elseif ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'spikeTimes')
+        obj.hCfg.updateLog('detectedOn', 'Using previously-detected spikes', 0, 0);
     end
 
     % clear GPU memory and set random seeds
@@ -32,14 +29,14 @@ function sRes = sort(obj)
         obj.startParPool();
     end
 
+    obj.hCfg.updateLog('sortStep', 'Sorting detected spikes', 1, 0);
     obj.hSort = jrclust.sort.SortController(obj.hCfg);
     sRes = obj.hSort.sort(obj.res);
 
     if obj.hSort.isError
         obj.error(obj.hSort.errMsg);
-    elseif obj.hCfg.verbose
-        fprintf('Sorting completed in %0.2f seconds\n', sRes.sortTime);
     end
+    obj.hCfg.updateLog('sortStep', 'Finished sorting', 0, 1);
 
     obj.res = jrclust.utils.mergeStructs(obj.res, sRes);
     obj.saveRes(obj.isDetect); % force overwrite if we're detecting

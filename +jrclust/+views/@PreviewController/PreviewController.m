@@ -238,7 +238,7 @@ classdef PreviewController < jrclust.interfaces.FigureController
             tracesRaw_ = cell(nFiles, 1);
 
             for iFile = 1:nFiles
-                hRec = jrclust.models.recording.Recording(rawRecordings{iFile}, obj.hCfg);
+                hRec = jrclust.detect.Recording(rawRecordings{iFile}, obj.hCfg);
                 if hRec.nSamples <= obj.nSamplesPerLoad
                     nLoadsFile = 1;
                     nSamplesLoad = hRec.nSamples;
@@ -248,13 +248,13 @@ classdef PreviewController < jrclust.interfaces.FigureController
                 end
 
                 multiBounds = jrclust.views.sampleSkip([1, nSamplesLoad], hRec.nSamples, nLoadsFile);
-                obj.fileBounds(hRec.binpath) = multiBounds;
+                obj.fileBounds(hRec.rawPath) = multiBounds;
 
                 fileTraces_ = cell(nLoadsFile, 1);
 
                 for iLoad = 1:nLoadsFile
                     iBounds = multiBounds{iLoad};
-                    fileTraces_{iLoad} = hRec.readROI(obj.hCfg.siteMap, iBounds(1):iBounds(2))';
+                    fileTraces_{iLoad} = hRec.readRawROI(obj.hCfg.siteMap, iBounds(1):iBounds(2))';
                 end
 
                 tracesRaw_{iFile} = cat(1, fileTraces_{:});

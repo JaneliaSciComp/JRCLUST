@@ -43,7 +43,7 @@ function res = detect(obj)
         end
 
         fn = obj.hCfg.rawRecordings{iRec};
-        hRec = jrclust.models.recording.Recording(fn, obj.hCfg);
+        hRec = jrclust.detect.Recording(fn, obj.hCfg);
 
         if hRec.isError
             error(hRec.errMsg);
@@ -61,18 +61,12 @@ function res = detect(obj)
             end
         end
 
-        obj.hCfg.updateLog('fileLoad', sprintf('Processing file %s (%d/%d)', hRec.binpath, iRec, nRecs), 1, 0);
+        obj.hCfg.updateLog('fileLoad', sprintf('Processing file %s (%d/%d)', hRec.rawPath, iRec, nRecs), 1, 0);
         recData = obj.detectOneRecording(hRec, impTimes, impSites, siteThresh);
-        try
-            hRec.setDetections(recData);
-        catch ME % maybe rethrow
-            warning('error caught: %s', ME.message);
-            continue;
-        end
 
-        obj.hCfg.updateLog('fileLoad', sprintf('Finished processing file %s (%d/%d)', hRec.binpath, iRec, nRecs), 0, 1);
+        obj.hCfg.updateLog('fileLoad', sprintf('Finished processing file %s (%d/%d)', hRec.rawPath, iRec, nRecs), 0, 1);
 
-        res.siteThresh = cat(2, res.siteThresh, recData.siteThresh);
+        res.siteThresh = [res.siteThresh, recData.siteThresh];
         res.spikeTimes = cat(1, res.spikeTimes, recData.spikeTimes + recOffset);
         res.spikeAmps = cat(1, res.spikeAmps, recData.spikeAmps);
         res.centerSites = cat(1, res.centerSites, recData.centerSites);

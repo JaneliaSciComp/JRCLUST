@@ -10,57 +10,37 @@ function loadFiles(obj)
     end
 
     try
-        if obj.hCfg.verbose
-            fprintf('Loading %s...', obj.hCfg.resFile);
-            t = tic;
-        end
+        obj.hCfg.updateLog('loadRes', sprintf('Loading %s', obj.hCfg.resFile), 1, 0);
         res_ = load(obj.hCfg.resFile);
-        if obj.hCfg.verbose
-            fprintf('done (took %0.2f s)\n', toc(t));
-        end
+        obj.hCfg.updateLog('loadRes', sprintf('Finished loading %s', obj.hCfg.resFile), 0, 1);
     catch ME
-        warning('failed to load %s: %s', ME.message);
+        warning('Failed to load %s: %s', ME.message);
         return;
     end
 
     if isfield(res_, 'spikeTimes')
         % load spikesRaw
         if isfield(res_, 'rawShape')
-            if obj.hCfg.verbose
-                t = tic;
-                fprintf('Loading %s...', obj.hCfg.rawFile);
-            end
+            obj.hCfg.updateLog('loadRaw', sprintf('Loading %s', obj.hCfg.rawFile), 1, 0);
             spikesRaw = readBin(obj.hCfg.rawFile, res_.rawShape, '*int16');
-            if obj.hCfg.verbose
-                fprintf('done (took %0.2f s)\n', toc(t));
-            end
+            obj.hCfg.updateLog('loadRaw', sprintf('Finished loading %s', obj.hCfg.rawFile), 0, 1);
         else
             spikesRaw = [];
         end
 
         % load spikesFilt
         if isfield(res_, 'filtShape')
-            if obj.hCfg.verbose
-                t = tic;
-                fprintf('Loading %s...', obj.hCfg.filtFile);
-            end
+            obj.hCfg.updateLog('loadFilt', sprintf('Loading %s', obj.hCfg.filtFile), 1, 0);
             spikesFilt = readBin(obj.hCfg.filtFile, res_.filtShape, '*int16');
-            if obj.hCfg.verbose
-                fprintf('done (took %0.2f s)\n', toc(t));
-            end
+            obj.hCfg.updateLog('loadFilt', sprintf('Finished loading %s', obj.hCfg.filtFile), 0, 1);
         else
             spikesFilt = [];
         end
 
         if isfield(res_, 'featuresShape')
-            if obj.hCfg.verbose
-                t = tic;
-                fprintf('Loading %s...', obj.hCfg.featuresFile);
-            end
+            obj.hCfg.updateLog('loadFeatures', sprintf('Loading %s', obj.hCfg.featuresFile), 1, 0);
             spikeFeatures = readBin(obj.hCfg.featuresFile, res_.featuresShape, '*single');
-            if obj.hCfg.verbose
-                fprintf('done (took %0.2f s)\n', toc(t));
-            end
+            obj.hCfg.updateLog('loadFeatures', sprintf('Finished loading %s', obj.hCfg.featuresFile), 0, 1);
         else
             spikeFeatures = [];
         end
@@ -97,13 +77,20 @@ function loadFiles(obj)
 
             % restore initialClustering
             res_.hClust.initialClustering = res_.spikeClusters;
+
+            % supply hClust with our own hCfg
+            res_.hClust.hCfg = obj.hCfg;
         end
+
+        if isfield(res_, 'hRecs') % don't try to load recordings
+            res_ = rmfield(res_, 'hRecs');
+        end
+    else
+        warning('spikeTimes not found in %s', obj.hCfg.resFile);
+        res_ = struct();
     end
 
     obj.res = res_;
-    if isfield(obj.res, 'hClust')
-        obj.res.hClust.hCfg = obj.hCfg;
-    end
 end
 
 %% LOCAL FUNCTIONS

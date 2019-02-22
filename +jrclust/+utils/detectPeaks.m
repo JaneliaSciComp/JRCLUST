@@ -1,5 +1,7 @@
 function [spikeTimes, spikeAmps, spikeSites] = detectPeaks(samplesIn, siteThresh, keepMe, hCfg)
-    %DETECTPEAKS Detect peaks for each site, 
+    %DETECTPEAKS Detect peaks for each site
+    samplesIn = jrclust.utils.tryGpuArray(samplesIn, hCfg.useGPU);
+
     nSites = size(samplesIn, 2);
     [spikesBySite, ampsBySite] = deal(cell(nSites, 1));
 
@@ -22,6 +24,7 @@ function [spikeTimes, spikeAmps, spikeSites] = detectPeaks(samplesIn, siteThresh
     end
 
     hCfg.updateLog('detectSpikes', 'Finished detecting spikes', 0, 1);
+    samplesIn = jrclust.utils.tryGather(samplesIn); %#ok<NASGU>
 
     % Group spiking events using vrWav_mean1. already sorted by time
     if hCfg.getOr('fMerge_spk', 1)
@@ -45,8 +48,6 @@ function [spikeTimes, spikeAmps, spikeSites] = detectPeaks(samplesIn, siteThresh
         spikeAmps = spikeAmps(argsort);
         spikeSites = spikeSites(argsort);
     end
-
-    spikeAmps = jrclust.utils.tryGather(spikeAmps);
 
     % Group all sites in the same shank
     if hCfg.groupShank

@@ -15,25 +15,23 @@ function curate(obj)
         end
     end
 
-    if obj.hCfg.verbose
-        % inform user we're using previously detected spikes
-        if ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'detectedOn')
-            fprintf('Using spikes detected on %s\n', datestr(obj.res.detectedOn));
-        elseif ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'spikeTimes')
-            fprintf('Using previously-detected spikes\n');
-        end
+    % inform user we're using previously detected spikes
+    if ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'detectedOn')
+        obj.hCfg.updateLog('detectedOn', sprintf('Using spikes detected on %s', datestr(obj.res.detectedOn)), 0, 0);
+    elseif ~obj.isDetect && ~isempty(obj.res) && isfield(obj.res, 'spikeTimes')
+        obj.hCfg.updateLog('detectedOn', 'Using previously-detected spikes');
+    end
 
-        % inform user we're using a previously-computed clustering
-        if ~obj.isSort && ~isempty(obj.res) && isfield(obj.res, 'sortedOn')
-            fprintf('Using clustering computed on %s\n', datestr(obj.res.sortedOn));
-        elseif ~obj.isSort && ~isempty(obj.res) && isfield(obj.res, 'hClust')
-            fprintf('Using previously-clustered spikes\n');
-        end
+    % inform user we're using a previously-computed clustering
+    if ~obj.isSort && ~isempty(obj.res) && isfield(obj.res, 'sortedOn')
+        obj.hCfg.updateLog('sortedOn', sprintf('Using clustering computed on %s', datestr(obj.res.sortedOn)), 0, 0);
+    elseif ~obj.isSort && ~isempty(obj.res) && isfield(obj.res, 'hClust')
+        obj.hCfg.updateLog('sortedOn', 'Using previously-clustered spikes', 0, 0);
+    end
 
-        % inform user of the last time this set was curated
-        if ~isempty(obj.res) && isfield(obj.res, 'curatedOn')
-            fprintf('Last manually edited on %s\n', datestr(obj.res.curatedOn));
-        end
+    % inform user of the last time this set was curated
+    if ~isempty(obj.res) && isfield(obj.res, 'curatedOn')
+        obj.hCfg.updateLog('curatedOn', sprintf('Last manually edited on %s\n', datestr(obj.res.curatedOn)), 0, 0);
     end
 
     % clear GPU memory and set random seeds

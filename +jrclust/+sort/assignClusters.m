@@ -35,16 +35,13 @@ end
 function sRes = doAssignClusters(dRes, sRes, hCfg)
     nRepeatMax = 1000;
     if isempty(sRes.spikeClusters)
-        nClustersPrev = [];
+        nClustersPrev = 0;
     else
         nClustersPrev = sRes.nClusters;
     end
 
     removedClusters = 0;
-    if hCfg.verbose
-        fprintf('assigning clusters, nClusters:%d\n', numel(sRes.clusterCenters));
-        t = tic;
-    end
+    hCfg.updateLog('assignClusters', sprintf('Assigning clusters (nClusters: %d)', numel(sRes.clusterCenters)), 1, 0);
 
     % assign spikes to clusters
     for iRepeat = 1:nRepeatMax % repeat 1000 times max
@@ -80,9 +77,7 @@ function sRes = doAssignClusters(dRes, sRes, hCfg)
                     break;
                 end
 
-                if hCfg.verbose
-                    fprintf('i: %d, n0 = %d, ', i, nUnassigned);
-                end
+                hCfg.updateLog('assignIter', sprintf('iter %d, %d clusters remain unassigned', i, nUnassigned), 0, 0);
             end
             sRes.spikeClusters(sRes.spikeClusters <= 0) = 1; %background
         end
@@ -110,7 +105,7 @@ function sRes = doAssignClusters(dRes, sRes, hCfg)
         end
     end % for
 
-    if hCfg.verbose
-        fprintf('\n\ttook %0.1fs. Removed %d clusters having <%d spikes: %d->%d\n', toc(t), removedClusters, hCfg.minClusterSize, nClustersPrev, nClusters);
-    end
+    hCfg.updateLog('assignClusters', ...
+                   sprintf('Finished assigning clusters (was %d, now %d: %d clusters with fewer than %d spikes removed)', ...
+                           nClustersPrev, nClusters, removedClusters, hCfg.minClusterSize), 0, 1);
 end
