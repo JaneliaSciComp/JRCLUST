@@ -51,11 +51,27 @@ function keyPressFigTime(obj, ~, hEvent)
             if numel(obj.selected) == 1
                 iCluster = obj.selected(1);
 
-                hFigTime.addPlot('hPoly', @impoly)
-                try
-                    polyPos = hFigTime.plotApply('hPoly', @getPosition);
-                catch ME
-                    return;
+                if jrclust.utils.keyMod(hEvent, 'shift')
+                    hFigTime.addPlot('hPoly', @imrect);
+
+                    try
+                        polyPos = hFigTime.plotApply('hPoly', @getPosition);
+                    catch ME
+                        hFigTime.rmPlot('hPoly');
+                        return;
+                    end
+
+                    xpos = [repmat(polyPos(1), 2, 1); repmat(polyPos(1) + polyPos(3), 2, 1)];
+                    ypos = [polyPos(2); repmat(polyPos(2) + polyPos(4), 2, 1); polyPos(2)];
+                    polyPos = [xpos ypos];
+                else
+                    hFigTime.addPlot('hPoly', @impoly);
+                    try
+                        polyPos = hFigTime.plotApply('hPoly', @getPosition);
+                    catch ME
+                        hFigTime.rmPlot('hPoly');
+                        return;
+                    end
                 end
 
                 XData = hFigTime.plotApply('foreground', @get, 'XData');
