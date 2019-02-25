@@ -84,6 +84,7 @@
                 "values": [
                     "cov",
                     "energy",
+                    "gpca",
                     "pca",
                     "vmin",
                     "vminmax",

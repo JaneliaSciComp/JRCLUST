@@ -22,7 +22,7 @@ function [features1, features2, features3, spikeWindows] = computeFeatures(spike
         [features1, features2] = jrclust.features.spikeMinMax(spikeWindows);
     elseif strcmp(hCfg.clusterFeature, 'energy')
         features1 = jrclust.features.spikeEnergy(spikeWindows);
-    else % pca
+    else % pca, gpca
         [features1, features2, features3] = jrclust.features.spikePCA(spikeWindows, hCfg);
     end
 

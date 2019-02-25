@@ -54,4 +54,8 @@ function validateParams(obj)
 
     % boost that gain
     obj.bitScaling = obj.bitScaling/obj.gainBoost;
+
+    if strcmp(obj.clusterFeature, 'gpca')
+        obj.setCustomProp('extractAfterDetect', 1);
+    end
 end
