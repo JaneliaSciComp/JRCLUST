@@ -1,10 +1,11 @@
 function nMerged = mergeBySim(obj)
     %MERGEBYSIM Automatically merge clusters by similarity score
+    obj.hCfg.updateLog('mergeBySim', 'Merging clusters by similarity', 1, 0);
     waveformSim_ = obj.waveformSim;
-    nClusters_ = size(waveformSim_, 2);
+    nClustersPrev = size(waveformSim_, 2);
 
     % identify clusters to remove, update and same (no change), disjoint sets
-    waveformSim_(tril(true(nClusters_))) = 0; % ignore bottom half
+    waveformSim_(tril(true(nClustersPrev))) = 0; % ignore bottom half
     [scoresMax, mapTo] = max(waveformSim_);
 
     % keep clusters whose maximum similarity to some other cluster
@@ -21,8 +22,8 @@ function nMerged = mergeBySim(obj)
     mapTo(keepMe_) = keepMe; % map units to keep to themselves
 
     keepMe = setdiff(keepMe, mapTo(~keepMe_));
-    removeMe = setdiff(1:nClusters_, mapTo);
-    updateMe = setdiff(setdiff(1:nClusters_, keepMe), removeMe);
+    removeMe = setdiff(1:nClustersPrev, mapTo);
+    updateMe = setdiff(setdiff(1:nClustersPrev, keepMe), removeMe);
 
     spikeClusters_ = obj.spikeClusters;
     good = spikeClusters_ > 0;
@@ -41,8 +42,7 @@ function nMerged = mergeBySim(obj)
     obj.computeMeanWaveforms(updateMe);
     obj.computeWaveformSim(updateMe);
 
-    nMerged = nClusters_ - obj.nClusters;
-    if obj.hCfg.verbose
-        fprintf('\tnClusters: %d->%d (%d merged, min score: %0.4f)\n', nClusters_, obj.nClusters, nMerged, minScore);
-    end
+    nMerged = nClustersPrev - obj.nClusters;
+    obj.hCfg.updateLog('mergeBySim', sprintf('Finished merging clusters (was %d, now %d: %d merged; minimum score: %0.3f)', ...
+                                             nClustersPrev, obj.nClusters, nMerged, minScore), 0, 1);
 end

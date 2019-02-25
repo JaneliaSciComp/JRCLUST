@@ -11,7 +11,7 @@ function [nLoads, nSamplesLoad, nSamplesFinal] = planLoad(obj, hRec)
     if isempty(obj.hCfg.maxBytesLoad)
         if obj.hCfg.useGPU
             S = gpuDevice(); % select first GPU device
-            nBytes = 3*floor(S(1).TotalMemory/4); % take 3/4 of total memory
+            nBytes = floor(S(1).TotalMemory/2); % take half of total memory
         elseif ispc()
             S = memory();
             nBytes = floor(S.MaxPossibleArrayBytes);

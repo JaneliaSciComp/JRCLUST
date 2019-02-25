@@ -90,7 +90,7 @@ classdef TracesController < jrclust.interfaces.FigureController
                     nTimeTraces = obj.hCfg.nSegmentsTraces;
                     multiBounds = jrclust.views.sampleSkip(windowBounds, obj.hFigTraces.figData.nSamplesTotal, nTimeTraces);
 
-                    tracesRaw_ = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', 0);
+                    tracesRaw_ = cellfun(@(lims) obj.hRec.readRawROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', 0);
                     obj.tracesRaw = jrclust.utils.neCell2mat(tracesRaw_);
 
                     obj.tracesRaw = u2i(obj.tracesRaw);
@@ -260,7 +260,7 @@ classdef TracesController < jrclust.interfaces.FigureController
             end
 
             fprintf('Opening %s\n', recFilename);
-            obj.hRec = jrclust.models.recording.Recording(recFilename, obj.hCfg);
+            obj.hRec = jrclust.detect.Recording(recFilename, obj.hCfg);
 
         %     [fid_bin, nBytes_bin] = fopen_(vcFile_bin, 'r');
         %     if isempty(fid_bin)
@@ -288,7 +288,7 @@ classdef TracesController < jrclust.interfaces.FigureController
             multiBounds = jrclust.views.sampleSkip(windowBounds, nSamplesTotal, obj.hCfg.nSegmentsTraces);
 
             obj.tracesFull = [];
-            tracesRaw_ = cellfun(@(lims) obj.hRec.readROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', 0);
+            tracesRaw_ = cellfun(@(lims) obj.hRec.readRawROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', 0);
             obj.tracesRaw = jrclust.utils.neCell2mat(tracesRaw_);
 
         %     if obj.hCfg.tallSkinny

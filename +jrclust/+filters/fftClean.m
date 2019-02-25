@@ -1,11 +1,9 @@
-function [samplesOut, useGPU] = fftClean(samplesIn, fftThresh, hCfg)
+function samplesOut = fftClean(samplesIn, fftThresh, hCfg)
     %FFTCLEAN Remove high-frequency noise from samples
     if fftThresh == 0 || isempty(samplesIn)
         samplesOut = samplesIn;
         return;
     end
-
-    useGPU = isa(samplesIn, 'gpuArray');
 
     hCfg.updateLog('fftClean', 'Applying FFT-based cleanup', 1, 0);
 
@@ -23,16 +21,15 @@ function [samplesOut, useGPU] = fftClean(samplesIn, fftThresh, hCfg)
         end
         samplesOut_ = samplesIn(rows, :);
 
-        if useGPU
+        if hCfg.useGPU
             try
-                samplesOut(rows, :) = doFFTClean(samplesOut_, fftThresh);
-            catch
-                useGPU = 0;
+                samplesOut(rows, :) = doFFTClean(samplesOut_, fftThresh, 1);
+            catch ME
+                hCfg.updateLog('fftClean', sprintf('GPU FFT-based cleanup failed: %s (retrying in CPU)', ME.message), 1, 0);
+                samplesOut(rows, :) = doFFTClean(samplesOut_, fftThresh, 0);
             end
-        end
-
-        if ~useGPU
-            samplesOut(rows, :) = doFFTClean(jrclust.utils.tryGather(samplesOut_), fftThresh);
+        else
+            samplesOut(rows, :) = doFFTClean(samplesOut_, fftThresh, 0);
         end
     end % for
 
@@ -40,7 +37,7 @@ function [samplesOut, useGPU] = fftClean(samplesIn, fftThresh, hCfg)
 end
 
 %% LOCAL FUNCTIONS
-function samplesOut = doFFTClean(samplesIn, fftThresh)
+function samplesOut = doFFTClean(samplesIn, fftThresh, useGPU)
     %DOFFTCLEAN Actually perform the FFT clean
     nBins = 20;
     nSkipMed = 4; % skip this many samples when estimating median
@@ -51,11 +48,11 @@ function samplesOut = doFFTClean(samplesIn, fftThresh)
         return;
     end
 
+    samplesIn = jrclust.utils.tryGpuArray(samplesIn, useGPU);
+
     % get the next-largest power of 2 after nSamples (for padding)
     nSamples = size(samplesIn, 1);
     nSamplesPad = 2^nextpow2(nSamples);
-
-    cls = class(samplesIn);
 
     for iRetry = 1:2
         try
@@ -72,7 +69,7 @@ function samplesOut = doFFTClean(samplesIn, fftThresh)
             break; % success
         catch % failure, try again
             fprintf('!! GPU processing failed, retrying on CPU !!');
-             samplesIn = jrclust.utils.tryGather(samplesIn);
+            samplesIn = jrclust.utils.tryGather(samplesIn);
         end
     end % for
 
@@ -95,6 +92,7 @@ function samplesOut = doFFTClean(samplesIn, fftThresh)
     end
 
     % broaden spectrum
+    vrFft = jrclust.utils.tryGather(vrFft);
     isNoise = vrFft > fftThresh;
     vi_noise = find(isNoise);
     for i_nw = 1:nw
@@ -120,5 +118,7 @@ function samplesOut = doFFTClean(samplesIn, fftThresh)
     end
 
     samplesOut = bsxfun(@plus, samplesOut, sampleMeans); % add mean back in
-    samplesOut = cast(samplesOut, cls); % cast back to the original type
+    % clean up GPU memory
+    [samplesIn, samplesOut, sampleMeans, vrFftMad] = jrclust.utils.tryGather(samplesIn, samplesOut, sampleMeans, vrFftMad); %#ok<ASGLU>
+    samplesOut = cast(samplesOut, jrclust.utils.trueClass(samplesIn)); % cast back to the original type
 end

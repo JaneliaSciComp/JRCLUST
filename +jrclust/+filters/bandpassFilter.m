@@ -1,7 +1,7 @@
 function samplesOut = bandpassFilter(samplesIn, hCfg)
     %BANDPASSFILTER Summary of this function goes here
     try
-        hCfg.updateLog('bpFilt', sprintf('Applying bandpass filter to %s samples', jrclust.utils.field2str(size(samplesIn))), 1, 0);
+        hCfg.updateLog('bpFilt', sprintf('Applying bandpass filter to %d samples', size(samplesIn, 1)), 1, 0);
         samplesOut = filtfiltChain(single(samplesIn), hCfg);
     catch ME
         hCfg.updateLog('bpFilt', sprintf('GPU filtering failed: %s (retrying on CPU)', ME.message), 1, 0);

@@ -1,8 +1,5 @@
-%--------------------------------------------------------------------------
-% function [samplesIn, vnWav2_mean] = filtCAR(samplesIn, hCfg, windowPre, windowPost, fTrim_pad)
-function [samplesIn, channelMeans] = filtCAR(samplesIn, windowPre, windowPost, trimPad, hCfg)
+function [samplesOut, channelMeans] = filtCAR(samplesIn, windowPre, windowPost, trimPad, hCfg)
     %FILTCAR Apply user-specified filter and common-average referencing
-
     if nargin < 3
         windowPre = [];
     end
@@ -16,30 +13,34 @@ function [samplesIn, channelMeans] = filtCAR(samplesIn, windowPre, windowPost, t
     nPadPre = size(windowPre, 1);
     nPadPost = size(windowPost, 1);
 
-    samplesIn = [windowPre; samplesIn; windowPost];
+    samplesOut = [windowPre; samplesIn; windowPost];
+    if hCfg.useGPU
+        samplesOut = jrclust.utils.tryGpuArray(samplesOut);
+    end
 
     % apply filter
     if strcmp(hCfg.filterType, 'user')
-        samplesIn = jrclust.filters.userFilter(samplesIn, hCfg.userFiltKernel);
+        samplesOut = jrclust.filters.userFilter(samplesOut, hCfg.userFiltKernel);
     elseif strcmp(hCfg.filterType, 'fir1')
-        samplesIn = jrclust.filters.fir1Filter(samplesIn, ceil(5*hCfg.sampleRate/1000), 2*hCfg.freqLimBP/hCfg.sampleRate);
+        samplesOut = jrclust.filters.fir1Filter(samplesOut, ceil(5*hCfg.sampleRate/1000), 2*hCfg.freqLimBP/hCfg.sampleRate);
     elseif strcmp(hCfg.filterType, 'ndiff')
-        samplesIn = jrclust.filters.ndiffFilter(samplesIn, hCfg.nDiffOrder);
+        samplesOut = jrclust.filters.ndiffFilter(samplesOut, hCfg.nDiffOrder);
     elseif strcmp(hCfg.filterType, 'sgdiff')
-        samplesIn = jrclust.filters.sgFilter(samplesIn, hCfg.nDiffOrder);
+        samplesOut = jrclust.filters.sgFilter(samplesOut, hCfg.nDiffOrder);
     elseif strcmp(hCfg.filterType, 'bandpass')
         hCfg.useGPUFilt = hCfg.useGPU;
-        samplesIn = jrclust.filters.bandpassFilter(samplesIn, hCfg);
+        samplesOut = jrclust.filters.bandpassFilter(samplesOut, hCfg);
         rmprops(hCfg, 'useGPUFilt');
     end
 
     % trim padding
     if trimPad && (nPadPre > 0 || nPadPost > 0)
-        samplesIn = samplesIn(nPadPre+1:end-nPadPost, :);
+        samplesOut = samplesOut(nPadPre+1:end-nPadPost, :);
     end
 
     % global subtraction before
-    [samplesIn, channelMeans] = applyCAR(samplesIn, hCfg);
+    [samplesOut, channelMeans] = applyCAR(samplesOut, hCfg);
+    [samplesOut, channelMeans] = jrclust.utils.tryGather(samplesOut, channelMeans);
 end
 
 %% LOCAL FUNCTIONS
@@ -51,8 +52,8 @@ function [samplesIn, channelMeans] = applyCAR(samplesIn, hCfg)
         channelMeans = meanExcluding(samplesIn, hCfg.ignoreSites);
         samplesIn = bsxfun(@minus, samplesIn, channelMeans);
     elseif strcmp(hCfg.CARMode, 'median')
-        channelMedians = medianExcluding(samplesIn, hCfg.ignoreSites);
-        samplesIn = bsxfun(@minus, samplesIn, channelMedians);
+        channelMeans = medianExcluding(samplesIn, hCfg.ignoreSites);
+        samplesIn = bsxfun(@minus, samplesIn, channelMeans);
     end
 
     samplesIn(:, hCfg.ignoreSites) = 0; % TW do not repair with fMeanSite_drift

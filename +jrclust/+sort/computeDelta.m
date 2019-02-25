@@ -1,9 +1,6 @@
 function res = computeDelta(dRes, res, hCfg)
     %COMPUTEDELTA Compute delta for spike features
-    if hCfg.verbose
-        fprintf('Computing delta\n\t');
-        t2 = tic;
-    end
+    hCfg.updateLog('computeDelta', 'Computing delta', 1, 0);
 
     % create CUDA kernel
     chunkSize = 16;
@@ -46,7 +43,7 @@ function res = computeDelta(dRes, res, hCfg)
         spikeOrder = jrclust.utils.tryGpuArray(spikeOrder);
 
         try
-            deltaCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
+            deltaCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; % MaxGridSize: [2.1475e+09 65535 65535]
             [siteDelta, siteNN] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, n1, n2, res.rhoCutSite(iSite), deltaCK, hCfg);
             [siteDelta, siteNN] = jrclust.utils.tryGather(siteDelta, siteNN);
         catch ME % can't continue!
@@ -55,11 +52,8 @@ function res = computeDelta(dRes, res, hCfg)
 
         res.spikeDelta(spikeData.spikes1) = siteDelta;
         res.spikeNeigh(spikeData.spikes1) = spikes(siteNN);
-        [~, ~, ~] = jrclust.utils.tryGather(siteFeatures, rhoOrder, spikeOrder);
-        clear siteFeatures rhoOrder spikeOrder;
-        if hCfg.verbose
-            fprintf('.');
-        end
+        [siteFeatures, rhoOrder, spikeOrder] = jrclust.utils.tryGather(siteFeatures, rhoOrder, spikeOrder); %#ok<ASGLU>
+        hCfg.updateLog('deltaSite', sprintf('Site %d: median delta: %0.5f (%d spikes)', iSite, median(siteDelta), n1), 0, 0);
     end
 
     % set delta for spikes with no nearest neighbor of higher density to
@@ -69,9 +63,7 @@ function res = computeDelta(dRes, res, hCfg)
         res.spikeDelta(nanDelta) = max(res.spikeDelta);
     end
 
-    if hCfg.verbose
-        fprintf('\n\ttook %0.2fs\n', toc(t2));
-    end
+    hCfg.updateLog('computeDelta', 'Finished computing delta', 0, 1);
 end
 
 %% LOCALFUNCTIONS

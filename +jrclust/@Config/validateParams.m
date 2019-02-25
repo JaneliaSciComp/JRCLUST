@@ -45,6 +45,9 @@ function validateParams(obj)
         obj.error('nSitesExcl is too large or nSiteDir is too small', 'Bad configuration');
     end
 
+    % we can't compute secondary peaks off of sites we don't have
+    obj.nPeaksFeatures = min(obj.nPeaksFeatures, obj.nSitesEvt);
+
     % ignoreSites/ignoreChans
     obj.ignoreChans = obj.ignoreChans(ismember(obj.ignoreChans, obj.siteMap));
     obj.ignoreSites = intersect(obj.ignoreSites, 1:numel(obj.siteMap));

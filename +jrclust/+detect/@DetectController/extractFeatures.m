@@ -1,8 +1,8 @@
 function spikeData = extractFeatures(obj, spikeData)
     %EXTRACTFEATURES Extract spike waveforms and build a spike table
-    spikesFilt = spikeData.spikesFilt;
-    spikesFilt2 = spikeData.spikesFilt2;
-    spikesFilt3 = spikeData.spikesFilt3;
+    spikesFilt = jrclust.utils.tryGpuArray(spikeData.spikesFilt, obj.hCfg.useGPU);
+    spikesFilt2 = jrclust.utils.tryGpuArray(spikeData.spikesFilt2, obj.hCfg.useGPU);
+    spikesFilt3 = jrclust.utils.tryGpuArray(spikeData.spikesFilt3, obj.hCfg.useGPU);
 
     obj.hCfg.updateLog('extractFeatures', 'Extracting features', 1, 0);
 
@@ -59,6 +59,7 @@ function spikeData = extractFeatures(obj, spikeData)
         spikeFeatures = permute(cat(3, features1, features2, features3), [1, 3, 2]); % nSites x nFeatures x nSpikes
     end
 
-    spikeData.spikeFeatures = jrclust.utils.tryGather(spikeFeatures);
+    [spikesFilt, spikesFilt2, spikesFilt3, spikeFeatures] = jrclust.utils.tryGather(spikesFilt, spikesFilt2, spikesFilt3, spikeFeatures); %#ok<ASGLU>
+    spikeData.spikeFeatures = spikeFeatures;
     obj.hCfg.updateLog('extractFeatures', 'Finished extracting features', 0, 1);
 end

@@ -109,8 +109,8 @@ function [auxSamples, auxTimes] = loadAuxChannel(hCfg)
                 return;
             end
 
-            hRec = jrclust.models.recording.Recording(hCfg.auxFile, hCfg);
-            auxSamples = single(hRec.readROI(hCfg.auxChan, 1:hRec.nSamples))*hCfg.bitScaling*hCfg.auxScale;
+            hRec = jrclust.detect.Recording(hCfg.auxFile, hCfg);
+            auxSamples = single(hRec.readRawROI(hCfg.auxChan, 1:hRec.nSamples))*hCfg.bitScaling*hCfg.auxScale;
             auxRate = hCfg.getOr('auxRate', hCfg.sampleRate);
         otherwise
             jrclust.utils.qMsgBox(sprintf('hCfg.auxFile: unsupported file format: %s\n', auxExt));

@@ -71,13 +71,13 @@ function tracesFilt = plotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hClu
 
     % plot spikes
     if strcmpi(hFigTraces.figData.spikes, 'on') && ~isempty(hClust)
-        recPos = find(strcmp(hFigTraces.figData.hRec.binpath, hCfg.rawRecordings));
+        recPos = find(strcmp(hFigTraces.figData.hRec.rawPath, hCfg.rawRecordings));
         if recPos == 1
             offset = 0;
         else
             % find all recordings coming before hRec and sum up nSamples
             % for each
-            hRecs = arrayfun(@(iRec) jrclust.models.recording.Recording(hCfg.rawRecordings{iRec}, hCfg), 1:(recPos-1), 'UniformOutput', 0);
+            hRecs = arrayfun(@(iRec) jrclust.detect.Recording(hCfg.rawRecordings{iRec}, hCfg), 1:(recPos-1), 'UniformOutput', 0);
             offset = sum(cellfun(@(hR) hR.nSamples, hRecs));
         end
 

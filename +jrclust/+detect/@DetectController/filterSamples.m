@@ -1,35 +1,20 @@
-function [samplesOut, keepMe] = filterSamples(obj, samplesIn, windowPre, windowPost)
+function [samplesOut, keepMe] = filterSamples(obj, samplesIn, samplesPre, samplesPost)
     %FILTERSAMPLES Denoise and filter raw samples, apply CAR
-    samplesIn = [windowPre; samplesIn; windowPost];
-    samplesIn_ = samplesIn; % keep a copy in CPU
-    try
-        samplesIn = jrclust.utils.tryGpuArray(samplesIn, obj.hCfg.useGPU);
+    samplesIn = [samplesPre; samplesIn; samplesPost];
 
-        if obj.hCfg.fftThresh > 0
-            samplesIn = jrclust.filters.fftClean(samplesIn, obj.hCfg.fftThresh, obj.hCfg);
-        end
-    catch ME
-        warning('GPU denoising failed: %s (retrying in CPU)', ME.message);
-        obj.hCfg.useGPU = 0;
-
-        samplesIn = samplesIn_;
-        if obj.hCfg.fftThresh > 0
-            samplesIn = jrclust.filters.fftClean(samplesIn, obj.hCfg.fftThresh, obj.hCfg);
-        end
+    if obj.hCfg.fftThresh > 0
+        samplesIn = jrclust.filters.fftClean(samplesIn, obj.hCfg.fftThresh, obj.hCfg);
     end
 
     % filter spikes; samples go in padded and come out padded
     try
         [samplesOut, channelMeans] = jrclust.filters.filtCAR(samplesIn, [], [], 0, obj.hCfg);
     catch ME % GPU filtering failed, retry in CPU
-        warning('GPU filtering failed: %s (retrying in CPU)', ME.message);
-        obj.hCfg.useGPU = 0;
+        obj.hCfg.updateLog('filtSamples', sprintf('GPU filtering failed: %s (retrying in CPU)', ME.message), 1, 0);
 
-        samplesIn = samplesIn_;
+        obj.hCfg.useGPU = 0;
         [samplesOut, channelMeans] = jrclust.filters.filtCAR(samplesIn, [], [], 0, obj.hCfg);
     end
-
-    clear samplesIn_;
 
     % common mode rejection
     if obj.hCfg.blankThresh > 0
