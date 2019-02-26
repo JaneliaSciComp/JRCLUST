@@ -38,9 +38,9 @@ function res = computeDelta(dRes, res, hCfg)
         end
 
         rhoOrder = jrclust.utils.rankorder(res.spikeRho(spikes), 'descend');
-        siteFeatures = jrclust.utils.tryGpuArray(siteFeatures);
-        rhoOrder = jrclust.utils.tryGpuArray(rhoOrder);
-        spikeOrder = jrclust.utils.tryGpuArray(spikeOrder);
+        siteFeatures = jrclust.utils.tryGpuArray(siteFeatures, hCfg.useGPU);
+        rhoOrder = jrclust.utils.tryGpuArray(rhoOrder, hCfg.useGPU);
+        spikeOrder = jrclust.utils.tryGpuArray(spikeOrder, hCfg.useGPU);
 
         try
             deltaCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; % MaxGridSize: [2.1475e+09 65535 65535]
@@ -67,7 +67,7 @@ function res = computeDelta(dRes, res, hCfg)
 end
 
 %% LOCALFUNCTIONS
-function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, n1, n2, distCut, deltaCK, hCfg)
+function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, n1, n2, distCut2, deltaCK, hCfg)
     %COMPUTEDELTASITE Compute site-wise delta for spike features
     [nC, n12] = size(siteFeatures); % nc is constant with the loop
     dn_max = int32(round((n1 + n2) / hCfg.nClusterIntervals));
@@ -78,7 +78,7 @@ function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, 
             delta = zeros([1, n1], 'single', 'gpuArray');
             nNeigh = zeros([1, n1], 'uint32', 'gpuArray');
             consts = int32([n1, n12, nC, dn_max, hCfg.getOr('fDc_spk', 0)]);
-            [delta, nNeigh] = feval(deltaCK, delta, nNeigh, siteFeatures, spikeOrder, rhoOrder, consts, distCut);
+            [delta, nNeigh] = feval(deltaCK, delta, nNeigh, siteFeatures, spikeOrder, rhoOrder, consts, distCut2);
 
             return;
         catch ME
@@ -86,9 +86,15 @@ function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, 
         end
     end
 
-    dists = pdist2(siteFeatures', siteFeatures(:, 1:n1)').^2;
-    nearby = bsxfun(@lt, rhoOrder, rhoOrder(1:n1)') & abs(bsxfun(@minus, spikeOrder, spikeOrder(1:n1)')) <= dn_max;
-    dists(~nearby) = nan;
+    dists = pdist2(siteFeatures', siteFeatures(:, 1:n1)', 'squaredeuclidean');
+    isDenser = bsxfun(@lt, rhoOrder, rhoOrder(1:n1)');
+    nearbyInTime = abs(bsxfun(@minus, spikeOrder, spikeOrder(1:n1)')) <= dn_max;
+
+    dists(~(isDenser & nearbyInTime)) = nan;
+    dists = sqrt(dists/distCut2);
+
     [delta, nNeigh] = min(dists);
-    delta = delta / distCut;
+    maxDense = isnan(delta);
+    delta(maxDense) = sqrt(3.402E+38/distCut2); % to (more or less) square with CUDA kernel's SINGLE_INF
+    nNeigh(maxDense) = find(maxDense);
 end

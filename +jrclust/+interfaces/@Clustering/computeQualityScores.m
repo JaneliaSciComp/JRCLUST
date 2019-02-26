@@ -4,10 +4,7 @@ function computeQualityScores(obj, updateMe)
         updateMe = [];
     end
 
-    if obj.hCfg.verbose
-        t1 = tic;
-        fprintf('Calculating cluster quality...\n');
-    end
+    obj.hCfg.updateLog('qualScores', 'Computing cluster quality scores', 1, 0);
 
     unitVmin = squeeze(min(obj.meanWfGlobal));
     unitVmax = squeeze(max(obj.meanWfGlobal));
@@ -101,7 +98,5 @@ function computeQualityScores(obj, updateMe)
     obj.unitVpp = unitVpp_;
     obj.unitVppRaw = unitVppRaw_;
 
-    if obj.hCfg.verbose
-        fprintf('\ttook %0.1fs\n', toc(t1));
-    end
+    obj.hCfg.updateLog('qualScores', 'Finished computing cluster quality scores', 0, 1);
 end

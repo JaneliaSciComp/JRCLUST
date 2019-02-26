@@ -7,9 +7,7 @@ function res = detect(obj)
         try
             S = load(obj.hCfg.threshFile);
             siteThresh = S.siteThresh;
-            if obj.hCfg.verbose
-                fprintf('Loaded %s\n', obj.hCfg.threshFile);
-            end
+            obj.hCfg.updateLog('loadThresh', sprintf('Loaded threshFile %s', obj.hCfg.threshFile), 0, 0);
         catch ME
             warning('Could not load threshFile %s: %s', obj.hCfg.threshFile, ME.message);
             siteThresh = [];

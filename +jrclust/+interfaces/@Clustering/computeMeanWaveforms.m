@@ -12,11 +12,7 @@ function computeMeanWaveforms(obj, updateMe, useRaw)
     end
 
     useRaw = useRaw && ~isempty(obj.spikesRaw);
-    verbose = obj.hCfg.verbose && isempty(updateMe);
-    if verbose
-        fprintf('Calculating cluster mean waveform.\n\t');
-        t = tic;
-    end
+    obj.hCfg.updateLog('meanWf', 'Computing cluster mean waveforms', 1, 0);
 
     [nSamples, nSitesEvt, ~] = size(obj.spikesFilt);
 
@@ -64,10 +60,6 @@ function computeMeanWaveforms(obj, updateMe, useRaw)
             meanWfLocal_(:, :, iCluster) = clusterMean;
             meanWfGlobal_(:, siteNeighbors, iCluster) = clusterMean;
         end
-
-        if verbose
-            fprintf('.');
-        end
     end
 
     if useRaw
@@ -90,10 +82,6 @@ function computeMeanWaveforms(obj, updateMe, useRaw)
                     meanWfRawHigh_(:,siteNeighbors,iCluster) = jrclust.utils.meanSubtract(clusterMeanHigh)*obj.hCfg.bitScaling;
                 end
             end
-
-            if verbose
-                fprintf('.');
-            end
         end
     end
 
@@ -110,7 +98,5 @@ function computeMeanWaveforms(obj, updateMe, useRaw)
     obj.meanWfRawLow = meanWfRawLow_;
     obj.meanWfRawHigh = meanWfRawHigh_;
 
-    if verbose
-        fprintf('\n\ttook %0.1fs\n', toc(t));
-    end
+    obj.hCfg.updateLog('meanWf', 'Finished computing cluster mean waveforms', 0, 1);
 end

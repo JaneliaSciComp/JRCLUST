@@ -45,8 +45,8 @@ function res = computeRho(dRes, res, hCfg)
             continue;
         end
 
-        siteFeatures = jrclust.utils.tryGpuArray(siteFeatures);
-        spikeOrder = jrclust.utils.tryGpuArray(spikeOrder);
+        siteFeatures = jrclust.utils.tryGpuArray(siteFeatures, hCfg.useGPU);
+        spikeOrder = jrclust.utils.tryGpuArray(spikeOrder, hCfg.useGPU);
 
         if isempty(res.rhoCutGlobal) % estimate rhoCut in CPU
             siteCut = estRhoCutSite(siteFeatures, spikeOrder, n1, n2, hCfg);
@@ -89,7 +89,7 @@ function rho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, rhoCut, rhoCK, h
     [siteFeatures, spikeOrder] = jrclust.utils.tryGather(siteFeatures, spikeOrder);
     spikeOrderN1 = spikeOrder(1:n1)';
     nearby = abs(bsxfun(@minus, spikeOrder, spikeOrderN1)) <= dn_max;
-    rho = sum(nearby & pdist2(siteFeatures', siteFeatures(:,1:n1)').^2 < rhoCut) - 1; %do not include self
+    rho = sum(nearby & pdist2(siteFeatures', siteFeatures(:, 1:n1)', 'squaredeuclidean') <= rhoCut); % include self
     rho = single(rho ./ sum(nearby)); % normalize
 end
 
@@ -156,10 +156,11 @@ function rhoCut = estRhoCutSite(siteFeatures, spikeOrder, n1, n2, hCfg)
 
     for iRetry = 1:2
         try
-            featureDists = pdist2(siteFeatures', featuresPrimary').^2;
+            featureDists = pdist2(siteFeatures', featuresPrimary', 'squaredeuclidean');
 
             fSubset = abs(bsxfun(@minus, spikeOrder, spikeOrderPrimary')) < (n1 + n2) / hCfg.nClusterIntervals;
             featureDists(~fSubset) = nan;
+            break;
         catch ME
             siteFeatures = jrclust.utils.tryGather(siteFeatures);
         end

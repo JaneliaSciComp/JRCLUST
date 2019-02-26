@@ -18,18 +18,25 @@ function res = runtests()
 %     res = jrclust.utils.mergeStructs(res, bootstrapRes);
 
     %% TEST DETECTION
-    detectSuite = TestSuite.fromClass(?jrclust.test.DetectTest);
-    detectRes = tr.run(detectSuite);
-    
-    res = jrclust.utils.mergeStructs(res, detectRes);
+%     detectSuite = TestSuite.fromClass(?jrclust.test.DetectTest);
+%     detectRes = tr.run(detectSuite);
+%     
+%     res = jrclust.utils.mergeStructs(res, detectRes);
+% 
+%     detectMultiSuite = TestSuite.fromClass(?jrclust.test.DetectMultiTest);
+%     detectMultiRes = tr.run(detectMultiSuite);
+% 
+%     res = jrclust.utils.mergeStructs(res, detectMultiRes);
 
-    detectMultiSuite = TestSuite.fromClass(?jrclust.test.DetectMultiTest);
-    detectMultiRes = tr.run(detectMultiSuite);
+    %% TEST SORTING
+    sortSuite = TestSuite.fromClass(?jrclust.test.SortTest);
+    sortRes = tr.run(sortSuite);
 
-    res = jrclust.utils.mergeStructs(res, detectMultiRes);
+    res = jrclust.utils.mergeStructs(res, sortRes);
+
     %% TEST CURATION
-    curateSuite = TestSuite.fromClass(?jrclust.test.ManualTest);
-    curateRes = tr.run(curateSuite);
-
-    res = jrclust.utils.mergeStructs(res, curateRes);
+%     curateSuite = TestSuite.fromClass(?jrclust.test.ManualTest);
+%     curateRes = tr.run(curateSuite);
+% 
+%     res = jrclust.utils.mergeStructs(res, curateRes);
 end

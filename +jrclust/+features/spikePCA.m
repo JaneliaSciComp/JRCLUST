@@ -79,7 +79,7 @@ function [features1, features2, features3] = projectInterp(spikeWindows, prVecs,
         mrPv1(:, iShift) = zscore(interp1(vi0, vr1, vi0+shifts(iShift), 'pchip', 'extrap'));
     end
 
-    mrPv1 = jrclust.utils.tryGpuArray(mrPv1, isa(spikeWindows, 'gpuArray'));
+    mrPv1 = jrclust.utils.tryGpuArray(mrPv1, hCfg.useGPU);
     % find shift that maximizes the projection
     [~, viMax_spk] = max(abs(mrPv1'*spikeWindows(:, :, 1)));
 

@@ -14,6 +14,7 @@ function nMerged = mergeBySim(obj)
 
     if all(keepMe_)
         nMerged = 0;
+        obj.hCfg.updateLog('mergeBySim', 'No clusters to merge', 0, 1);
         return;
     end
 

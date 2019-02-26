@@ -15,7 +15,7 @@ function [samplesOut, channelMeans] = filtCAR(samplesIn, windowPre, windowPost, 
 
     samplesOut = [windowPre; samplesIn; windowPost];
     if hCfg.useGPU
-        samplesOut = jrclust.utils.tryGpuArray(samplesOut);
+        samplesOut = jrclust.utils.tryGpuArray(samplesOut, hCfg.useGPU);
     end
 
     % apply filter

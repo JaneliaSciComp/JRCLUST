@@ -55,9 +55,12 @@ classdef Config < dynamicprops
     methods
         function obj = Config(filename)
             %CONFIG Construct an instance of this class
+            skipValidation = 0;
+
             if nargin == 0
                 userParams = struct();
                 obj.configFile = '';
+                skipValidation = 1;
             elseif isstruct(filename)
                 userParams = filename;
                 obj.configFile = '';
@@ -81,7 +84,9 @@ classdef Config < dynamicprops
             obj.tempParams = containers.Map();
 
             obj.loadParams(userParams);
-            obj.validateParams();
+            if ~skipValidation
+                obj.validateParams();
+            end
 
             % define a default outputDir if not already set
             if ~isempty(obj.configFile) && isempty(obj.outputDir)

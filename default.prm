@@ -2,16 +2,16 @@
 % For a description of these parameters, see https://jrclust.readthedocs.io/en/latest/parameters/index.html
 
 % USAGE PARAMETERS
-outputDir = ''; % Directory in which to place output files (Will output to the same directory as this file if empty)
+outputDir = 'C:\Users\Alan\repos\JRCLUST\+jrclust\@Config'; % Directory in which to place output files (Will output to the same directory as this file if empty)
 
 % PROBE PARAMETERS
-probePad = []; % (formerly vrSiteHW) Recording contact pad size (in μm) (Height x width)
+probePad = [12, 12]; % (formerly vrSiteHW) Recording contact pad size (in m) (Height x width)
 shankMap = []; % (formerly viShank_site) Shank ID of each site
-siteLoc = []; % (formerly mrSiteXY) Site locations (in μm) (x values in the first column, y values in the second column)
+siteLoc = []; % (formerly mrSiteXY) Site locations (in m) (x values in the first column, y values in the second column)
 siteMap = []; % (formerly viSite2Chan) Map of channel index to site ID (The mapping siteMap(i) = j corresponds to the statement 'site i is stored as channel j in the recording')
 
 % RECORDING FILE PARAMETERS
-bitScaling = 0.30518; % (formerly uV_per_bit) ADC bit scaling factor (Conversion factor for ADC bit values to μV)
+bitScaling = 0.30518; % (formerly uV_per_bit) ADC bit scaling factor (Conversion factor for ADC bit values to V)
 dataType = 'int16'; % (formerly vcDataType) Format of raw recordings
 headerOffset = 0; % (formerly header_offset) Recording file header offset (in bytes)
 nChans = 384; % Number of channels stored in recording file (Distinct from the number of AP sites)
@@ -29,7 +29,7 @@ ignoreSites = []; % (formerly viSiteZero) Site IDs to ignore manually
 % SPIKE DETECTION PARAMETERS
 blankPeriod = 5; % (formerly blank_period_ms) Duration of blanking period (in ms) when the common mean exceeds blankThresh
 CARMode = 'mean'; % (formerly vcCommonRef) The meaning of 'average' in 'common average reference'
-evtDetectRad = 50; % (formerly maxDist_site_um) Maximum distance (in μm) to search over for duplicate peaks
+evtDetectRad = 50; % (formerly maxDist_site_um) Maximum distance (in m) to search over for duplicate peaks
 evtWindow = [-0.25, 0.75]; % (formerly spkLim_ms) Time range (in ms) of filtered spike waveforms, centered at the peak
 nSiteDir = []; % (formerly maxSite) Number of neighboring sites to group in either direction (nSitesEvt is set to 1 + 2*nSiteDir - nSitesExcl)
 nSitesExcl = []; % (formerly nSites_ref) Number of sites to exclude from the spike waveform group for feature extraction
@@ -38,13 +38,13 @@ refracInt = 0.25; % (formerly spkRefrac_ms) Spike refractory period (in ms)
 
 % FEATURE EXTRACTION PARAMETERS
 clusterFeature = 'pca'; % (formerly vcFet) The feature to extract from your spike waveforms in order to cluster them
-evtGroupRad = 75; % (formerly maxDist_site_spk_um) Maximum distance (in μm) for extracting spike waveforms
+evtGroupRad = 75; % (formerly maxDist_site_spk_um) Maximum distance (in m) for extracting spike waveforms
 nPCsPerSite = 1; % (formerly nPcPerChan) Number of principal components to compute per site
 
 % CLUSTERING PARAMETERS
 autoMergeBy = 'pearson'; % (formerly autoMergeCriterion) Metric to use for automerging clusters based on average waveform
 distCut = 2; % (formerly dc_percent) Percentile of pairwise distances between spikes on a site to use as a cutoff distance
-evtMergeRad = 35; % (formerly maxDist_site_merge_um) Maximum distance (in μm) to consider for merging spike waveforms
+evtMergeRad = 35; % (formerly maxDist_site_merge_um) Maximum distance (in m) to consider for merging spike waveforms
 log10DeltaCut = 0.6; % (formerly delta1_cut) Log10 of delta cutoff (Spikes with delta values below this cutoff will not be considered as cluster centers)
 log10RhoCut = -2.5; % (formerly rho_cut) Log10 of rho cutoff (Spikes with rho values below this cutoff will not be considered as cluster centers)
 maxUnitSim = 0.98; % (formerly maxWavCor) Threshold for merging two units having similar spike waveforms (Units with a similiarity score above this value will be merged)

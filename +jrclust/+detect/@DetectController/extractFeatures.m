@@ -23,38 +23,17 @@ function spikeData = extractFeatures(obj, spikeData)
 
     if obj.hCfg.nPeaksFeatures == 1
         features1 = jrclust.features.computeFeatures(spikesFilt, obj.hCfg);
-        % if obj.hCfg.verbose
-        %     fprintf('.');
-        % end
 
         spikeFeatures = permute(features1, [1, 3, 2]); % nSites x nFeatures x nSpikes
     elseif obj.hCfg.nPeaksFeatures == 2
         features1 = jrclust.features.computeFeatures(spikesFilt, obj.hCfg);
-        % if obj.hCfg.verbose
-        %     fprintf('.');
-        % end
-
         features2 = jrclust.features.computeFeatures(spikesFilt2, obj.hCfg);
-        % if obj.hCfg.verbose
-        %     fprintf('.');
-        % end
 
         spikeFeatures = permute(cat(3, features1, features2), [1, 3, 2]); % nSites x nFeatures x nSpikes
     else % obj.hCfg.nPeaksFeatures == 3
         features1 = jrclust.features.computeFeatures(spikesFilt, obj.hCfg);
-        % if obj.hCfg.verbose
-        %     fprintf('.');
-        % end
-
         features2 = jrclust.features.computeFeatures(spikesFilt2, obj.hCfg);
-        % if obj.hCfg.verbose
-        %     fprintf('.');
-        % end
-
         features3 = jrclust.features.computeFeatures(spikesFilt3, obj.hCfg);
-        % if obj.hCfg.verbose
-        %     fprintf('.');
-        % end
 
         spikeFeatures = permute(cat(3, features1, features2, features3), [1, 3, 2]); % nSites x nFeatures x nSpikes
     end

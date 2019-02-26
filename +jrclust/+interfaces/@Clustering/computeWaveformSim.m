@@ -15,10 +15,7 @@ function computeWaveformSim(obj, updateMe)
     fRankCorr_merge = obj.hCfg.getOr('fRankCorr_merge', 0);
     fMode_cor = obj.hCfg.getOr('fMode_cor', 1); % 0: Pearson, 1: non mean-subtracted Pearson
 
-    if obj.hCfg.verbose
-        fprintf('Computing waveform correlation...');
-        t1 = tic;
-    end
+    obj.hCfg.updateLog('wfCorr', 'Computing waveform correlation', 1, 0);
 
     if useRaw
         meanWfGlobal_ = trimRawWaveforms(obj.meanWfGlobalRaw, obj.hCfg);
@@ -108,9 +105,7 @@ function computeWaveformSim(obj, updateMe)
 
     waveformSim = max(waveformSim, waveformSim'); % make it symmetric
 
-    if obj.hCfg.verbose
-        fprintf('\ttook %0.1fs\n', toc(t1));
-    end
+    obj.hCfg.updateLog('wfCorr', 'Finished computing waveform correlation', 0, 1);
 
     if isempty(updateMe)
         waveformSim = jrclust.utils.setDiag(waveformSim, obj.computeSelfSim());

@@ -15,8 +15,8 @@ function spikeData = samplesToWindows(obj, spikeData)
 
     % Realignment parameters
     realignTraces = obj.hCfg.getOr('realignTraces', 0); % 0, 1, 2
-    spikeTimes = jrclust.utils.tryGpuArray(spikeTimes, isa(samplesRaw, 'gpuArray'));
-    spikeSites = jrclust.utils.tryGpuArray(spikeSites, isa(samplesRaw, 'gpuArray'));
+    spikeTimes = jrclust.utils.tryGpuArray(spikeTimes, obj.hCfg.useGPU);
+    spikeSites = jrclust.utils.tryGpuArray(spikeSites, obj.hCfg.useGPU);
 
     % extractWindows returns nSamples x nSpikes x nSites
     if isempty(spikeSites)

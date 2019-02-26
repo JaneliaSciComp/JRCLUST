@@ -2,7 +2,7 @@ classdef DetectTest < matlab.unittest.TestCase
     %DETECTTEST Test spike detection
     properties
         hJRC;
-        nSpikes = 9891;
+        nSpikes = 3736994;
     end
 
     properties (Dependent)
@@ -12,7 +12,7 @@ classdef DetectTest < matlab.unittest.TestCase
 
     methods (TestClassSetup)
         function setupProps(obj)
-            hCfg_ = jrclust.Config(fullfile(getenv('JRCTESTDATA'), 'single', 'test.prm'));
+            hCfg_ = jrclust.Config(fullfile(getenv('JRCTESTDATA'), 'large', 'test.prm'));
             obj.hJRC = JRC(hCfg_);
             obj.hCfg.testRun = 1;
             obj.hCfg.extractAfterDetect = 1;
@@ -75,8 +75,7 @@ classdef DetectTest < matlab.unittest.TestCase
         end
 
         function testMerge(obj)
-            %TESTMERGE Assert that no two spiking events are too close
-            %together
+            %TESTMERGE Assert that no two events are too close together
             timesNearby = find(abs(diff(obj.res.spikeTimes) < obj.hCfg.refracIntSamp));
             for i = 1:numel(timesNearby)
                 t = timesNearby(i); % spikeTimes(t) == spikeTimes(t+1)

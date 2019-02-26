@@ -52,8 +52,6 @@ function rmOutlierSpikes(obj)
             obj.spikeClusters(iSpikes(exclude)) = 0; % classify as noise
             obj.unitCount(iCluster) = numel(obj.spikesByCluster{iCluster});
         end
-
-        fprintf('.');
     end
     warning on;
 end

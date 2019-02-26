@@ -54,24 +54,15 @@ function samplesOut = doFFTClean(samplesIn, fftThresh, useGPU)
     nSamples = size(samplesIn, 1);
     nSamplesPad = 2^nextpow2(nSamples);
 
-    for iRetry = 1:2
-        try
-            samplesOut = single(samplesIn);
-            sampleMeans = mean(samplesOut, 1);
-            samplesOut = bsxfun(@minus, samplesOut, sampleMeans); % center the samples
+    samplesOut = single(samplesIn);
+    sampleMeans = mean(samplesOut, 1);
+    samplesOut = bsxfun(@minus, samplesOut, sampleMeans); % center the samples
 
-            if nSamples < nSamplesPad
-                samplesOut = fft(samplesOut, nSamplesPad);
-            else
-                samplesOut = fft(samplesOut);
-            end
-
-            break; % success
-        catch % failure, try again
-            fprintf('!! GPU processing failed, retrying on CPU !!');
-            samplesIn = jrclust.utils.tryGather(samplesIn);
-        end
-    end % for
+    if nSamples < nSamplesPad
+        samplesOut = fft(samplesOut, nSamplesPad);
+    else
+        samplesOut = fft(samplesOut);
+    end
 
     % find frequency outliers
     n1 = nSamplesPad/2; % previous power of 2

@@ -5,22 +5,14 @@ function selfSim = computeSelfSim(obj, iCluster)
     end
 
     if isempty(iCluster)
-        if obj.hCfg.verbose
-            fprintf('Computing self similarity\n\t');
-            t1 = tic;
-        end
+        obj.hCfg.updateLog('selfSim', 'Computing cluster self-similarity', 1, 0);
 
         selfSim = zeros(1, obj.nClusters);
         for iCluster = 1:obj.nClusters
             selfSim(iCluster) = iSelfSim(obj, iCluster);
-            if obj.hCfg.verbose
-                fprintf('.');
-            end
         end
 
-        if obj.hCfg.verbose
-            fprintf('\n\ttook %0.1fs\n', toc(t1));
-        end
+        obj.hCfg.updateLog('selfSim', 'Finished computing cluster self-similarity', 0, 1);
     else
         selfSim = iSelfSim(obj, iCluster);
     end

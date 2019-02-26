@@ -841,7 +841,7 @@
                     "nonnegative"
                 ]
             },
-            "section": ["spike detection"]
+            "section": ["preprocessing"]
         },
         "figList": {
             "description": "List of tags of figures to display in feature view",
