@@ -1,4 +1,4 @@
-function success = save(obj, filename, exportAdv, diffsOnly)
+function success = save(obj, filename, exportAdv)
     %SAVE Write parameters to a file
     success = 0;
 
@@ -8,18 +8,22 @@ function success = save(obj, filename, exportAdv, diffsOnly)
     if nargin < 3
         exportAdv = 0;
     end
-    if nargin < 4
-        diffsOnly = 0;
-    end
 
-    if isempty(filename) % passed an empty string or no config file
+    if isempty(filename) && isempty(obj.configFile) % passed an empty string and no config file
         filename = 'stdout';
+    elseif isempty(filename)
+        filename = obj.configFile;
     end
 
     if ~strcmpi(filename, 'stdout')
         filename_ = jrclust.utils.absPath(filename);
         if isempty(filename_)
-            error('Could not find ''%s''', filename);
+            try
+                fclose(fopen(filename, 'w'));
+                filename_ = filename;
+            catch ME
+                error('Failed to create %s: %s', ME.message);
+            end
         elseif exist(filename, 'dir')
             error('''%s'' is a directory', filename);
         end
@@ -36,13 +40,24 @@ function success = save(obj, filename, exportAdv, diffsOnly)
 
         % file already exists, back it up!
         if exist(filename, 'file')
-            [~, ~, ext] = fileparts(filename);
-            backupFile = jrclust.utils.subsExt(filename, [ext, '.bak']);
-            try
-                copyfile(filename, backupFile);
-            catch ME % cowardly back out
-                warning('Could not back up old file: %s', ME.message);
-                return;
+            % don't bother backing up if empty
+            [~, fn, ~] = fileparts(filename);
+            d = dir(filename);
+            if d.bytes > 0 && ~isempty(regexp(fn, '-full$', 'once'))
+                [~, ~, ext] = fileparts(filename);
+                if obj.isV3Import
+                    newExt = '.old';
+                else
+                    newExt = [ext '.bak'];
+                end
+
+                backupFile = jrclust.utils.subsExt(filename, newExt);
+                try
+                    copyfile(filename, backupFile);
+                catch ME % cowardly back out
+                    warning('Could not back up old file: %s', ME.message);
+                    return;
+                end
             end
         end
 
@@ -53,22 +68,21 @@ function success = save(obj, filename, exportAdv, diffsOnly)
         end
     end
 
-    paramsToExport = obj.paramSet.commonParameters;
-    if exportAdv
-        paramsToExport = jrclust.utils.mergeStructs(paramsToExport, obj.paramSet.advancedParameters);
-    end
+    commonP = obj.paramSet.commonParameters;
+    advancedP = obj.paramSet.advancedParameters;
+    paramsToExport = jrclust.utils.mergeStructs(commonP, advancedP);
 
     % replace fields in paramsToExport with values in this object
     paramNames = fieldnames(paramsToExport);
     for i = 1:numel(paramNames)
         pn = paramNames{i};
 
-        if jrclust.utils.isEqual(paramsToExport.(pn).default_value, obj.(pn))
-            if diffsOnly % don't export fields which have default values
-                paramsToExport = rmfield(paramsToExport, pn);
-            end
-        else
-            paramsToExport.(pn).default_value = obj.(pn);
+        % export a parameter iff exporting everything anyway OR
+        % user-specified parameter is different from default
+        exportMe = exportAdv | ~jrclust.utils.isEqual(paramsToExport.(pn).default_value, obj.(pn));
+
+        if ~exportMe
+            paramsToExport = rmfield(paramsToExport, pn);
         end
     end
 
@@ -85,9 +99,6 @@ function success = save(obj, filename, exportAdv, diffsOnly)
     fprintf(fid, '%% %s parameters ', progInfo.program);
     if ~exportAdv
         fprintf(fid, '(common parameters only) ');
-    end
-    if diffsOnly
-        fprintf(fid, '(default parameters not exported)');
     end
     fprintf(fid, '\n%% For a description of these parameters, see %s\n\n', [progInfo.docsSite, 'parameters/index.html']);
 

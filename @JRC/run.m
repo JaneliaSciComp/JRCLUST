@@ -1,7 +1,7 @@
 function run(obj)
     %RUN Run commands
     if obj.isError
-        error(obj.errMsg);
+        error(obj.errMsg);  
     elseif obj.isCompleted
         warning('command ''%s'' completed successfully; to rerun, use rerun()', obj.cmd);
         return;
@@ -29,4 +29,12 @@ function run(obj)
 
     obj.hCfg.closeLog();
     obj.isCompleted = 1;
+
+    % save full params for reproducibility
+    if ~obj.hCfg.getOr('testRun', 0)
+        [~, ~, ext] = fileparts(obj.hCfg.configFile);
+        newExt = sprintf('-full%s', ext);
+        fullFilename = jrclust.utils.subsExt(obj.hCfg.configFile, newExt);
+        obj.hCfg.save(fullFilename, 1);
+    end
 end

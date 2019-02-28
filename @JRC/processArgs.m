@@ -139,12 +139,8 @@ function processArgs(obj)
             else
                 obj.hCfg = hCfg_;
                 obj.res = res_;
-
                 obj.saveRes();
-                %fprintf('Saved imported results to %s\n', obj.hCfg.resFile);
-
-                obj.hCfg.save(obj.hCfg.configFile, 1);
-                %fprintf('Saved new configuration file to %s\n', obj.hCfg.configFile);
+                obj.hCfg.save('', 1);
 
                 obj.isCompleted = 1;
             end
@@ -158,12 +154,8 @@ function processArgs(obj)
                 obj.res = res_;
 
                 obj.saveRes();
-                %fprintf('Saved imported results to %s\n', obj.hCfg.resFile);
-
                 obj.saveBinaries();
-
-                obj.hCfg.save(obj.hCfg.configFile, 1);
-                %fprintf('Saved new configuration file to %s\n', obj.hCfg.configFile);
+                obj.hCfg.save('', 1);
 
                 obj.isCompleted = 1;
             end

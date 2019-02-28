@@ -39,12 +39,19 @@ end
 %% LOCAL FUNCTIONS
 function iap = isAbsPath(pathname)
     %ISABSPATH Return true if pathname is an absolute path
+    %   but don't check if it actually exists or not
     %   On *nix, it begins with /
-    %   On Windows, it begins with / or \ after chopping off `[A-Za-z]:`
+    %   On Windows, it begins with / or \ after chopping off an optional `[A-Za-z]:`
     if ispc() % Windows
         % chop off drive letter at beginning
         truncd = regexprep(pathname, '^[a-z]:', '', 'ignorecase');
-        iap = ~strcmp(truncd, pathname) && (all(regexp(truncd, '^[/\\]')) == 1);
+
+        % no drive letter at the beginning; network drive?
+        if strcmp(truncd, pathname) && numel(pathname) > 1
+            iap = strcmp(pathname(1:2), '\\') || strcmp(pathname(1:2), '//');
+        else 
+            iap = (all(regexp(truncd, '^[/\\]')) == 1);
+        end
     else
         iap = regexp(pathname, '^/');
         iap = ~isempty(iap) && iap;

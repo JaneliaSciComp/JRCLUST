@@ -117,6 +117,7 @@ function bootstrap(obj, varargin)
                 fclose(fopen(dlgAns{1}, 'w'));
             end
             hCfg_.setConfigFile(dlgAns{1}, 0);
+            hCfg_.outputDir = fileparts(dlgAns{1}); % set outputdir to wherever configFile lives
         catch ME
             errordlg(ME.message);
             continue;
@@ -170,10 +171,10 @@ function bootstrap(obj, varargin)
     dlgAns = questdlg('Would you like to export advanced parameters as well?', 'Bootstrap', 'No');
     switch dlgAns
         case 'Yes'
-            hCfg_.save(hCfg_.configFile, 1, 0);
+            hCfg_.save('', 1);
 
         case 'No'
-            hCfg_.save(hCfg_.configFile, 0, 0);
+            hCfg_.save('', 0);
 
         otherwise
             return;
