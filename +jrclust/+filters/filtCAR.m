@@ -30,7 +30,6 @@ function [samplesOut, channelMeans] = filtCAR(samplesIn, windowPre, windowPost, 
     elseif strcmp(hCfg.filterType, 'bandpass')
         hCfg.useGPUFilt = hCfg.useGPU;
         samplesOut = jrclust.filters.bandpassFilter(samplesOut, hCfg);
-        rmprops(hCfg, 'useGPUFilt');
     end
 
     % trim padding

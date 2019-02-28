@@ -57,6 +57,8 @@ function spikeData = samplesToWindows(obj, spikeData)
         [spikeSites2, spikeSites3] = obj.findSecondaryPeaks(spikesFilt, spikeSites);
         spikesFilt2 = obj.samplesToWindows2(samplesFilt, spikeSites2, spikeTimes);
         centerSites = [spikeSites(:) spikeSites2(:)];
+    else
+        spikesFilt2 = [];
     end
     if obj.hCfg.nPeaksFeatures == 3
         spikesFilt3 = obj.samplesToWindows2(samplesFilt, spikeSites3, spikeTimes);
@@ -74,8 +76,8 @@ function spikeData = samplesToWindows(obj, spikeData)
 
     spikeData.spikesRaw = spikesRaw;
     spikeData.spikesFilt = spikesFilt;
-    spikeData.spikeTimes = spikeTimes;
-    spikeData.centerSites = centerSites;
+    spikeData.spikeTimes = jrclust.utils.tryGather(spikeTimes);
+    spikeData.centerSites = jrclust.utils.tryGather(centerSites);
     spikeData.spikesFilt2 = spikesFilt2;
     spikeData.spikesFilt3 = spikesFilt3;
 end

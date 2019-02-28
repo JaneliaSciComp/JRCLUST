@@ -4,8 +4,8 @@ function [features1, features2, features3, spikeWindows] = computeFeatures(spike
         nSitesEvt = [];
     end
 
-    features2 = single([]);
-    features3 = single([]);
+    [features2, features3] = deal(single([]));
+
     spikeWindows = single(permute(spikeWindows, [1, 3, 2])); % nSamples x nSpikes x nSites
 
     if hCfg.getOr('realignTraces', 0) ~= 1

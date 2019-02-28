@@ -83,7 +83,6 @@ function res = detect(obj)
     % compute features from all spikes over all recordings
     if obj.hCfg.getOr('extractAfterDetect', 0) && strcmp(obj.hCfg.clusterFeature, 'gpca')
         res = obj.extractFeatures(res);
-        res.spikeFeatures = jrclust.utils.tryGather(res.spikeFeatures);
     end
 
     % compute the mean of the siteThresh from each recording

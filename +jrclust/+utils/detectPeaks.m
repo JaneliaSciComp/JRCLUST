@@ -10,7 +10,6 @@ function [spikeTimes, spikeAmps, spikeSites] = detectPeaks(samplesIn, siteThresh
     for iSite = 1:nSites
         % find spikes
         [peakLocs, peaks] = detectPeaksSite(samplesIn(:, iSite), siteThresh(iSite), hCfg);
-        hCfg.updateLog('detectSite', sprintf('Detecting spikes from site %d', iSite), 1, 0);
 
         if isempty(keepMe)
             spikesBySite{iSite} = peakLocs;
@@ -20,7 +19,7 @@ function [spikeTimes, spikeAmps, spikeSites] = detectPeaks(samplesIn, siteThresh
             ampsBySite{iSite}   = peaks(keepMe(peakLocs));
         end
 
-        hCfg.updateLog('detectSite', sprintf('Found %d spikes on site %d', numel(spikesBySite{iSite}), iSite), 0, 1);
+        hCfg.updateLog('detectSite', sprintf('Detected %d spikes on site %d', numel(spikesBySite{iSite}), iSite), 0, 0);
     end
 
     hCfg.updateLog('detectSpikes', 'Finished detecting spikes', 0, 1);
