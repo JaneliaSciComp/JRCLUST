@@ -86,15 +86,42 @@ function [delta, nNeigh] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, 
         end
     end
 
-    dists = pdist2(siteFeatures', siteFeatures(:, 1:n1)', 'squaredeuclidean');
-    isDenser = bsxfun(@lt, rhoOrder, rhoOrder(1:n1)');
-    nearbyInTime = abs(bsxfun(@minus, spikeOrder, spikeOrder(1:n1)')) <= dn_max;
+    rhoOrderN1 = rhoOrder(1:n1)';
+    spikeOrderN1 = spikeOrder(1:n1)';
 
-    dists(~(isDenser & nearbyInTime)) = nan;
-    dists = sqrt(dists/distCut2);
+    % we can quickly run out of space here, ensure this doesn't happen
+    availMem = 2^33; % 8 GiB
+    if jrclust.utils.typeBytes(class(spikeOrder))*n1*n12 > availMem
+        stepSize = floor(availMem/n12/jrclust.utils.typeBytes(class(spikeOrder)));
+        delta = zeros(1, n1, 'single');
+        nNeigh = zeros(1, n1, 'uint32');
 
-    [delta, nNeigh] = min(dists);
-    maxDense = isnan(delta);
-    delta(maxDense) = sqrt(3.402E+38/distCut2); % to (more or less) square with CUDA kernel's SINGLE_INF
-    nNeigh(maxDense) = find(maxDense);
+        for iChunk = 1:stepSize:n1
+            iRange = iChunk:min(iChunk+stepSize-1, n1);
+
+            % find spikes with a larger rho and are nearby enough in time
+            isDenserChunk = bsxfun(@lt, rhoOrder, rhoOrderN1(iRange));
+            nearbyTimeChunk = abs(bsxfun(@minus, spikeOrder, spikeOrderN1(iRange))) <= dn_max;
+
+            distsChunk = pdist2(siteFeatures', siteFeatures(:, iRange)', 'squaredeuclidean');
+            distsChunk(~(isDenserChunk & nearbyTimeChunk)) = nan;
+            distsChunk = sqrt(distsChunk/distCut2); % normalize
+
+            [delta(iRange), nNeigh(iRange)] = min(distsChunk);
+        end
+    else
+        dists = pdist2(siteFeatures', siteFeatures(:, 1:n1)', 'squaredeuclidean');
+        isDenser = bsxfun(@lt, rhoOrder, rhoOrder(1:n1)');
+        nearbyInTime = abs(bsxfun(@minus, spikeOrder, spikeOrderN1)) <= dn_max;
+
+        dists(~(isDenser & nearbyInTime)) = nan;
+        dists = sqrt(dists/distCut2); % normalize
+
+        [delta, nNeigh] = min(dists);
+    end
+
+    % spikes which are maximally dense get SINGLE_INF
+    maximallyDense = isnan(delta);
+    delta(maximallyDense) = sqrt(3.402E+38/distCut2); % to (more or less) square with CUDA kernel's SINGLE_INF
+    nNeigh(maximallyDense) = find(maximallyDense);
 end

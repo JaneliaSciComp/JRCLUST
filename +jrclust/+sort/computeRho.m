@@ -88,9 +88,25 @@ function rho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, rhoCut, rhoCK, h
     % retry in CPU
     [siteFeatures, spikeOrder] = jrclust.utils.tryGather(siteFeatures, spikeOrder);
     spikeOrderN1 = spikeOrder(1:n1)';
-    nearby = abs(bsxfun(@minus, spikeOrder, spikeOrderN1)) <= dn_max;
-    rho = sum(nearby & pdist2(siteFeatures', siteFeatures(:, 1:n1)', 'squaredeuclidean') <= rhoCut); % include self
-    rho = single(rho ./ sum(nearby)); % normalize
+
+    % we can quickly run out of space here, ensure this doesn't happen
+    availMem = 2^33; % 8 GiB
+    if jrclust.utils.typeBytes(class(spikeOrder))*n1*n12 > availMem
+        stepSize = floor(availMem/n12/jrclust.utils.typeBytes(class(spikeOrder)));
+        rho = zeros(1, n1, 'single');
+
+        for iChunk = 1:stepSize:n1
+            iRange = iChunk:min(iChunk+stepSize-1, n1);
+            nearbyTimeChunk = abs(bsxfun(@minus, spikeOrder, spikeOrderN1(iRange))) <= dn_max;
+            nearbySpaceChunk = pdist2(siteFeatures', siteFeatures(:, iRange)', 'squaredeuclidean') <= rhoCut;
+            rho(iRange) = sum(nearbyTimeChunk & nearbySpaceChunk) ./ sum(nearbyTimeChunk);
+        end
+    else
+        nearbyTime = abs(bsxfun(@minus, spikeOrder, spikeOrderN1)) <= dn_max;
+        nearbySpace = (pdist2(siteFeatures', siteFeatures(:, 1:n1)', 'squaredeuclidean') <= rhoCut); % include self
+        rho = sum(nearbyTime & nearbySpace);
+        rho = single(rho ./ sum(nearbyTime)); % normalize
+    end
 end
 
 function rhoCut = estRhoCutGlobal(dRes, hCfg, vlRedo_spk)

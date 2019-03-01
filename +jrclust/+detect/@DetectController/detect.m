@@ -107,12 +107,12 @@ function res = detect(obj)
     if size(res.centerSites, 2) >= 2
         res.spikesBySite2 = arrayfun(@(iSite) find(res.centerSites(:, 2) == iSite), 1:nSites, 'UniformOutput', 0);
     else
-        res.spikesBySite2 = [];
+        res.spikesBySite2 = cell(1, nSites);
     end
     if size(res.centerSites, 2) == 3
         res.spikesBySite3 = arrayfun(@(iSite) find(res.centerSites(:, 3) == iSite), 1:nSites, 'UniformOutput', 0);
     else
-        res.spikesBySite3 = [];
+        res.spikesBySite3 = cell(1, nSites);
     end
 
     % detected spikes (raw and filtered), features
