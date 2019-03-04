@@ -25,6 +25,8 @@ function addMenu(obj, hFig)
     uimenu(obj.hMenus('EditMenu'), 'Label', '[S]plit', 'Callback', @(hO, hE) obj.autoSplit(1), 'Separator', 'on');
     uimenu(obj.hMenus('EditMenu'), 'Label', 'Auto split max-chan', 'Callback', @(hO, hE) obj.autoSplit(0));
     uimenu(obj.hMenus('EditMenu'), 'Label', 'Auto split multi-chan', 'Callback', @(hO, hE) obj.autoSplit(1));
+    uimenu(obj.hMenus('EditMenu'), 'Label', 'Recompute selected cluster mean waveform', 'Callback', @(hO, hE) obj.recomputeWaveforms(), 'Separator', 'on');
+    uimenu(obj.hMenus('EditMenu'), 'Label', 'Recompute all mean waveforms', 'Callback', @(hO, hE) obj.recomputeWaveforms(1));
     uimenu(obj.hMenus('EditMenu'), 'Label', 'Reorder clusters by center site', 'Callback', @(hO, hE) obj.reorderClusters('clusterSites'), 'Separator', 'on');
     uimenu(obj.hMenus('EditMenu'), 'Label', 'Reorder clusters by centroid', 'Callback', @(hO, hE) obj.reorderClusters('Y + X'));
 
