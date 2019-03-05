@@ -60,7 +60,8 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
     %% DETECTION RESULTS (IMMUTABLE)
     properties (Dependent, Transient)
-        siteThresh;         % sitewise detection threshold
+        meanSiteThresh;     % mean sitewise detection threshold over all chunks
+        siteThresh;         % sitewise detection threshold over all chunks
         spikesBySite2;      % aggregate of secondary spike indices by site
         spikesBySite3;      % aggregate of tertiary spike indices by site
         spikeSites2;        % secondary sites on which spikes occur
@@ -174,6 +175,18 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             ms = obj.unitPeakSites;
         end
 
+        % meanSiteThresh
+        function st = get.meanSiteThresh(obj)
+            if isfield(obj.dRes, 'meanSiteThresh')
+                st = obj.dRes.meanSiteThresh;
+            else
+                st = [];
+            end
+        end
+        function set.meanSiteThresh(obj, val)
+            obj.dRes.meanSiteThresh = val;
+        end
+
         % nClusters/nClu
         function nc = get.nClu(obj)
             nc = obj.nClusters;
@@ -224,8 +237,8 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             end
         end
         function set.siteThresh(obj, val)
-            obj.dRes.meanSiteThresh = val;
-        end        
+            obj.dRes.siteThresh = val;
+        end
 
         % spikeClusters/viClu
         function sc = get.viClu(obj)

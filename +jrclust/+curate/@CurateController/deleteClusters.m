@@ -24,6 +24,10 @@ function deleteClusters(obj, deleteMe, commitMsg)
 
             obj.isWorking = 0; % in case updateSelect needs to zoom
 
+            if obj.selected > obj.hClust.nClusters
+                obj.selected = obj.hClust.nClusters;
+            end
+
             % replot
             obj.updateFigWav();
             obj.updateFigRD(); % centers changed, need replotting
