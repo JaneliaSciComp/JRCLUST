@@ -32,7 +32,7 @@ function success = saveFiles(obj)
             restoreFieldNames = fieldnames(restoreFields);
             for i = 1:numel(restoreFieldNames)
                 fn = restoreFieldNames{i};
-                obj.res.hClust.(fn) = restoreFields.(fn);
+                obj.hClust.(fn) = restoreFields.(fn);
             end
         end
 
