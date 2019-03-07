@@ -116,8 +116,8 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
     %% GETTERS/SETTERS
     methods
         % clusterCenters/icl
-        function c = get.icl(obj)
-            c = obj.clusterCenters;
+        function vals = get.icl(obj)
+            vals = obj.clusterCenters;
         end
 
         % clusterNotes/csNote_clu

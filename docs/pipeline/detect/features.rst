@@ -50,10 +50,6 @@ principal vectors computed from the first chunk, rather than computing a set of 
 for each chunk.
 You can use global PCA as your feature by setting your :ref:`clusterFeature` to 'gpca'.
 
-.. warning::
-
-	Global PCA is currently disabled until we fix its implementation.
-
 .. _vmin:
 
 Vmin

@@ -139,7 +139,7 @@ classdef Config < dynamicprops
         end
 
         function rd = recDurationSec(obj, recID)
-            %RECDURATIONSECS Get duration of recording file(s) in seconds
+            %RECDURATIONSEC Get duration of recording file(s) in seconds
             if nargin < 2 || isempty(recID)
                 hRecs = cellfun(@(fn) jrclust.detect.Recording(fn, obj), obj.rawRecordings, 'UniformOutput', 0);
                 rd = sum(cellfun(@(hR) hR.nSamples, hRecs))/obj.sampleRate;

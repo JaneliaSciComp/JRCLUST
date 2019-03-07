@@ -1,9 +1,13 @@
 function positions = spikePos(obj, spikeSites, spikeFeatures)
-    %SPIKEPOS
+    %SPIKEPOS Compute a feature-weighted position for each spike
     nSitesEvt = 1 + obj.hCfg.nSiteDir*2 - obj.hCfg.nSitesExcl;
 
     featuresSquared = squeeze(spikeFeatures(1:nSitesEvt, 1, :)) .^ 2;
-    vrVp = sum(featuresSquared);
+    if iscolumn(featuresSquared)
+        featuresSquared = featuresSquared';
+    end
+
+    vrVp = sum(featuresSquared, 1);
 
     spikeNeighbors = single(obj.hCfg.siteNeighbors(1:nSitesEvt, spikeSites));
     spikeX = reshape(obj.hCfg.siteLoc(spikeNeighbors, 1), size(spikeNeighbors));

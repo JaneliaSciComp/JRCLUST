@@ -1,39 +1,26 @@
-classdef Recording < handle & dynamicprops
-    %RECORDING Model of a single recording
-    properties (Hidden, SetAccess=protected, SetObservable)
-        hCfg;           % Config object
-    end
-
-    properties (SetAccess=private, SetObservable, Hidden, Transient)
-        errMsg;         % error message (if there is an error in the file)
-        isError;        % flag, whether or not there is an error
+classdef Recording < jrclust.interfaces.RawRecording
+    %RECORDING Model of a single SpikeGLX recording
+    %% SPIKEGLX-SPECIFIC PROPERTIES
+    properties (Hidden, SetAccess=protected, SetObservable, Transient)
         rawIsOpen;      % flag, whether raw recording file is open
         filtIsOpen;     % flag, whether filtered file is open
     end
 
-    properties (SetAccess=private, SetObservable, Transient)
+    properties (SetAccess=protected, SetObservable, Transient)
         rawData;        % raw data in memmapped form
         filteredData;   % filtered data in memmapped form
         filteredFid;    % file handle for writing filtered data
     end
 
-    properties (SetObservable, Dependent, Transient)
-        nChans;         % number of channels (rows) in the recording
-        nSamples;       % number of samples per channel (columns) in the recording
-    end
-
-    properties (SetAccess=private, SetObservable)
-        rawPath;        % absolute path to binary file
+    properties (SetAccess=protected, SetObservable)
         filtPath;       % absolute path to filtered recording, if there is one
-        metaPath;       % absolute path to meta file, if there is one
 
         startTime;      % beginning of recording, in samples
         endTime;        % end of recording, in samples
+    end
 
-        dataType;       % data type contained in file
-        dshape;         % shape of data (rows x columns), in samples
-        fSizeBytes;     % size of the file, in bytes
-        headerOffset;   % number of bytes at the beginning of the file to skip
+    properties (SetObservable)
+        metaPath;       % absolute path to meta file, if there is one
     end
 
     %% LIFECYCLE
@@ -41,10 +28,8 @@ classdef Recording < handle & dynamicprops
         function obj = Recording(filename, hCfg) % dataType, nChans, headerOffset, 
             %RECORDING Construct an instance of this class
             % check filename exists
-            obj.rawPath = jrclust.utils.absPath(filename); % returns empty if not found
-            obj.isError = isempty(obj.rawPath);
+            obj = obj@jrclust.interfaces.RawRecording(filename, hCfg);
             if obj.isError
-                obj.errMsg = sprintf('file not found: %s', filename);
                 return;
             end
 
@@ -59,10 +44,7 @@ classdef Recording < handle & dynamicprops
             % set headerOffset
             obj.headerOffset = hCfg.headerOffset;
 
-            % set object data shape
             d = dir(obj.rawPath);
-            obj.fSizeBytes = d.bytes;
-
             nSamples = (d.bytes - obj.headerOffset) / hCfg.nChans / jrclust.utils.typeBytes(obj.dataType);
             if ceil(nSamples) ~= nSamples % must be an integer or we don't have a complete recording
                 obj.errMsg = 'Number of samples computed is not an integer. Check your sample rate or nChans?';
@@ -81,14 +63,6 @@ classdef Recording < handle & dynamicprops
                 end
             end
 
-            try
-                obj.hCfg = hCfg;
-            catch ME
-                obj.errMsg = ME.message;
-                obj.isError = 1;
-                return;
-            end
-
             obj.rawIsOpen = 0;
             obj.filtIsOpen = 0;
         end
@@ -96,13 +70,6 @@ classdef Recording < handle & dynamicprops
 
     %% GETTERS/SETTERS
     methods
-        % hCfg
-        function set.hCfg(obj, hc)
-            failMsg = 'hCfg must be an instance of jrclust.Config';
-            assert(isempty(hc) || isa(hc, 'jrclust.Config'), failMsg);
-            obj.hCfg = hc;
-        end
-
         % rawData
         function rd = get.rawData(obj)
             if obj.rawIsOpen
@@ -119,16 +86,6 @@ classdef Recording < handle & dynamicprops
             else
                 val = [];
             end
-        end
-
-        % nChans
-        function nc = get.nChans(obj)
-            nc = obj.dshape(1);
-        end
-
-        % nSamples
-        function nc = get.nSamples(obj)
-            nc = obj.dshape(2);
         end
     end
 end

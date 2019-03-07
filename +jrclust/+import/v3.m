@@ -55,13 +55,6 @@ function [hCfg, res] = v3(filename)
         propname = oldPrms{i};
 
         if isfield(hCfg.oldParamSet, propname) && ~isempty(S0.P.(propname))
-            % gpca has been disabled for now
-            if strcmpi(propname, 'vcFet') && strcmpi(S0.P.(propname), 'gpca')
-                warning('gpca has been disabled; using pca instead');
-                hCfg.clusterFeature = 'pca';
-                continue;
-            end
-
              % these will be converted automatically
              try
                 hCfg.(propname) = S0.P.(propname);

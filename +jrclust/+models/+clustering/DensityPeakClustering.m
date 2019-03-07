@@ -21,7 +21,6 @@ classdef DensityPeakClustering < handle
         meanWfGlobalRaw;    % mean raw waveforms for each cluster over all sites
         meanWfRawLow;       % mean raw waveforms for each cluster over all sites at a low point on the probe (for drift correction)
         meanWfRawHigh;      % mean raw waveforms for each cluster over all sites at a high point on the probe (for drift correction)
-        simScore;           % waveform-based cluster similarity scores
 
         nSitesOverThresh;   % number of sites exceeding the detection threshold, per cluster
         siteRMS;            % site-wise 
