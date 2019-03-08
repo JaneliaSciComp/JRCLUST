@@ -1,8 +1,10 @@
 function res = endSession(obj)
     %ENDSESSION Finish curating and return results
     if obj.isWorking
-        jrclust.utils.qMsgBox('An operation is in progress.');
-        return;
+        dlgAns = questdlg('An operation is in progress. Really quit?', 'Operation in progress', 'No');
+        if ~strcmp(dlgAns, 'Yes')
+            return;
+        end
     end
 
     obj.isEnding = 1;

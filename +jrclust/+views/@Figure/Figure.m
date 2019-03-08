@@ -362,6 +362,7 @@ classdef Figure < handle
 
         function vals = plotApply(obj, plotKey, hFun, varargin)
             %PLOTAPPLY Apply hFun to the plot given by plotKey
+            vals = [];
             if ~obj.hasPlot(plotKey)
                 return;
             end

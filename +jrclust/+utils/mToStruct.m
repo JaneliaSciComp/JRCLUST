@@ -18,6 +18,7 @@ function S = mToStruct(filename)
             S.(varnames{j}) = a;
         end
     catch ME
+        warning('Failed to parse %s: %s', filename, ME.message);
     end
 end
 

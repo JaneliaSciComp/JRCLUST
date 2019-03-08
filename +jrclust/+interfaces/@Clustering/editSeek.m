@@ -6,6 +6,7 @@ function editSeek(obj, seekTo)
 
     % restore initial state and fast forward
     spikeClusters_ = obj.initialClustering;
+
     if isfield(obj.sRes, 'clusterCenters')
         obj.clusterCenters = obj.sRes.clusterCenters;
     else
@@ -18,6 +19,9 @@ function editSeek(obj, seekTo)
             deleted = op{3};
             nClustersOld = max(spikeClusters_);
             spikeClusters_(ismember(spikeClusters_, deleted)) = 0;
+            if ~isempty(obj.clusterCenters)
+                obj.clusterCenters(deleted) = [];
+            end
 
             % shift clusters larger than deleted down by 1
             if numel(deleted) == 1
@@ -68,6 +72,16 @@ function editSeek(obj, seekTo)
         end
     end
     obj.spikeClusters = spikeClusters_;
+
+    % reassign cluster centers
+    newCenters = zeros(obj.nClusters, 1);
+    for iCluster = 1:obj.nClusters
+        iSpikes = find(obj.spikeClusters == iCluster);
+        [~, iBest] = max(obj.spikeRho(iSpikes));
+        newCenters(iCluster) = iSpikes(iBest);
+    end
+
+    obj.clusterCenters = newCenters;
 
     obj.refresh(0, []);
     if ~isempty(obj.meanWfGlobal) % only compute mean waveforms if we already had them
