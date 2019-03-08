@@ -28,10 +28,10 @@ classdef Figure < handle
 
     properties (Hidden, SetAccess=protected)
         hideOnDrag;     % plotKeys to hide when we drag
-        hideOnDragOff;  % plotKeys normally hidden on drag and manually toggled off
         isMouseable;
         isWaiting;      % are we waiting on an operation to complete?
         mouseStatus;
+        permaHidden;    % plotKeys which have been manually toggled off
         prevPoint;
     end
 
@@ -67,7 +67,7 @@ classdef Figure < handle
             obj.hSubplots = containers.Map();
 
             obj.hideOnDrag = {};
-            obj.hideOnDragOff = {};
+            obj.permaHidden = {};
             obj.isMouseable = 0;
             obj.isWaiting = 0;
         end
@@ -201,14 +201,15 @@ classdef Figure < handle
                 return;
             end
 
-            obj.toggleVisible(obj.hideOnDrag, 0);
+            obj.setVisible(setdiff(obj.hideOnDrag, obj.permaHidden), 0);
         end
 
         function showDrag(obj)
             %SHOWDRAG Show figures after drag release
-            try 
-                obj.toggleVisible(obj.hideOnDrag, 1);
-            catch
+            try
+                obj.setVisible(setdiff(obj.hideOnDrag, obj.permaHidden), 1);
+            catch ME
+                disp(ME.message)
             end
         end
     end
@@ -355,11 +356,6 @@ classdef Figure < handle
             hp = ischar(plotKey) && isKey(obj.hSubplots, plotKey);
         end
 
-        function hidePlot(obj, plotKey)
-            %HIDEPLOT Set XData and YData of a plot to nan
-            obj.updatePlot(plotKey, nan, nan); % updatePlot checks for existence of plotKey
-        end
-
         function vals = plotApply(obj, plotKey, hFun, varargin)
             %PLOTAPPLY Apply hFun to the plot given by plotKey
             vals = [];
@@ -431,11 +427,11 @@ classdef Figure < handle
         end
 
         function setHideOnDrag(obj, plotKey)
-            if ~obj.hasPlot(plotKey) || any(strcmp(obj.hideOnDrag, plotKey))
+            if ~obj.hasPlot(plotKey) || ismember(plotKey, obj.hideOnDrag)
                 return;
             end
 
-            obj.hideOnDrag{end+1} = plotKey;
+            obj.hideOnDrag = union(obj.hideOnDrag, plotKey);
         end
 
         function setMouseable(obj, hFunClick, axKey)
@@ -484,70 +480,10 @@ classdef Figure < handle
             figure(lastFocused);
         end
 
-        function vals = subplotApply(obj, plotKey, spIndex, hFun, varargin)
-            %SUBPLOTAPPLY Apply a plotting function to a subplot
-            vals = [];
-
-            if ~obj.hasSubplot(plotKey) || numel(obj.hSubplots(plotKey)) < spIndex
-                return;
-            end
-
-            hAxes = obj.hSubplots(plotKey);
-            hAx = hAxes(spIndex);
-
-            % apply hFun
-            if nargout == 1
-                vals = hFun(hAx, varargin{:});
-            else
-                hFun(hAx, varargin{:});
-            end
-
-            % save hAxes
-            obj.hSubplots(plotKey) = hAxes;
-        end
-
         function toForeground(obj)
             %TOFOREGROUND Move current plot into focus
             if obj.isReady
                 figure(obj.hFig);
-            end
-        end
-
-        function fVis = toggleVisible(obj, plotKey, fVis)
-            %TOGGLEVISIBLE Toggle visibility of plot by key
-            if isempty(plotKey)
-                return;
-            end
-
-            if iscell(plotKey)
-                if nargin < 3
-                    cellfun(@(pKey) obj.toggleVisible(pKey), plotKey);
-                else
-                    cellfun(@(pKey) obj.toggleVisible(pKey, fVis), plotKey);
-                end
-
-                return;
-            end
-
-            if ~obj.hasPlot(plotKey)
-                return;
-            end
-
-            hPlot = obj.hPlots(plotKey);
-            if nargin == 2
-                if strcmp(get(hPlot, 'Visible'), 'on')
-                    set(hPlot, 'Visible', 'off');
-                    fVis = 0;
-                else
-                    set(hPlot, 'Visible', 'on');
-                    fVis = 1;
-                end
-            else
-                if fVis == 0 % off
-                    set(hPlot, 'Visible', 'off');
-                elseif fVis == 1 % on
-                    set(hPlot, 'Visible', 'on');
-                end
             end
         end
 
@@ -567,7 +503,7 @@ classdef Figure < handle
 
             % clear data if we're empty
             if isempty(newXData) || isempty(newYData)
-                obj.hidePlot(plotKey);
+                obj.clearPlot(plotKey);
                 return;
             end
 
@@ -675,7 +611,7 @@ classdef Figure < handle
             end
         end
         function set.figPos(obj, figPos)
-            if isempty(figPos)
+            if isempty(figPos) || ~isvalid(obj.hFig)
                 return;
             end
 

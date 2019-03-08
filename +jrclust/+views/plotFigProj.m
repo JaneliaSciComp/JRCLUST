@@ -2,7 +2,7 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
     %PLOTFIGPROJ Plot feature projection figure
     hCfg = hClust.hCfg;
 
-    hFigProj.hidePlot('foreground2'); % clear secondary cluster spikes
+    hFigProj.clearPlot('foreground2'); % clear secondary cluster spikes
 
     if strcmp(hCfg.dispFeature, 'vpp')
         XLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
@@ -60,7 +60,7 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
         plotFeatures(hFigProj, 'foreground2', fg2YData, fg2XData, boundScale, hCfg);
         figTitle = sprintf('Clu%d (black), Clu%d (red); %s', selected(1), selected(2), figTitle);
     else % or hide the plot
-        hFigProj.hidePlot('foreground2');
+        hFigProj.clearPlot('foreground2');
         figTitle = sprintf('Clu%d (black); %s', selected(1), figTitle);
     end
 

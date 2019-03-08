@@ -29,7 +29,7 @@ function hFigPreview = doPlotFigPreview(hFigPreview, figData, fKeepView, hCfg)
     if fThreshRef
         hFigPreview.plotApply('hPlotMeanThresh', @set, 'XData', XData([1, end]), 'YData', repmat(figData.blankThresh, [1, 2]));
     else
-        hFigPreview.hidePlot('hPlotMeanThresh');
+        hFigPreview.clearPlot('hPlotMeanThresh');
     end
     hFigPreview.axApply('hAxMean', @grid, jrclust.utils.ifEq(figData.fGrid, 'on', 'off'));
 
@@ -56,7 +56,7 @@ function hFigPreview = doPlotFigPreview(hFigPreview, figData, fKeepView, hCfg)
     if ~isempty(figData.ignoreSites)
         hFigPreview.multiplot('hPlotTracesBad', figData.maxAmp, XData, traces(:, figData.ignoreSites), figData.ignoreSites);
     else
-        hFigPreview.hidePlot('hPlotTracesBad');
+        hFigPreview.clearPlot('hPlotTracesBad');
     end
 
     if figData.fShowSpikes
@@ -69,7 +69,7 @@ function hFigPreview = doPlotFigPreview(hFigPreview, figData, fKeepView, hCfg)
     end
 
     if isempty(spikeTimes)
-        hFigPreview.hidePlot('hPlot_traces_spk1');
+        hFigPreview.clearPlot('hPlot_traces_spk1');
     else
         hFigPreview.multiplot('hPlot_traces_spk1', figData.maxAmp, spikeTimesSec, jrclust.utils.rowColSelect(traces, spikeTimes, spikeSites), spikeSites, 1);
     end
@@ -84,8 +84,8 @@ function hFigPreview = doPlotFigPreview(hFigPreview, figData, fKeepView, hCfg)
         hFigPreview.multiplot('hPlot_traces_spk', figData.maxAmp, XData, ...
             mrSet(traces, ~figData.isThreshCrossing(XDataSamp, :), nan)); % show spikes
     else
-        hFigPreview.hidePlot('hPlotTracesThresh');
-        hFigPreview.hidePlot('hPlot_traces_spk');
+        hFigPreview.clearPlot('hPlotTracesThresh');
+        hFigPreview.clearPlot('hPlot_traces_spk');
     end
 
     hFigPreview.axApply('hAxTraces', @ylabel, 'Site #');
@@ -125,7 +125,7 @@ function hFigPreview = doPlotFigPreview(hFigPreview, figData, fKeepView, hCfg)
     hFigPreview.axApply('hAxPSD', @grid, jrclust.utils.ifEq(figData.fGrid, 'on', 'off'));
 
     if isempty(figData.siteCorrThresh) || ~strcmpi(figData.siteView, 'Site correlation')
-        hFigPreview.hidePlot('hPlotSiteThresh');
+        hFigPreview.clearPlot('hPlotSiteThresh');
     else
         hFigPreview.plotApply('hPlotSiteThresh', @set, 'XData', figData.siteCorrThresh *[1,1], 'YData', [0, nSites+1]);
     end
@@ -133,7 +133,7 @@ function hFigPreview = doPlotFigPreview(hFigPreview, figData, fKeepView, hCfg)
         YData(~figData.ignoreMe) = 0;
         hFigPreview.plotApply('hPlotSiteBad', @set, 'XData', 1:nSites, 'YData', YData); %switch statement
     else
-        hFigPreview.hidePlot('hPlotSiteBad');
+        hFigPreview.clearPlot('hPlotSiteBad');
     end
 
     hFigPreview.axApply('hAxSites', @xlabel, figData.siteView);

@@ -44,7 +44,7 @@ function hFigISI = plotFigISI(hFigISI, hClust, hCfg, selected)
         [jIsiK, jIsiK1] = getReturnMap(jCluster, hClust, hCfg);
         hFigISI.updatePlot('foreground2', jIsiK, jIsiK1);
     else
-        hFigISI.hidePlot('foreground2');
+        hFigISI.clearPlot('foreground2');
     end
 end
 

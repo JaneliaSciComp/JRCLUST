@@ -72,6 +72,8 @@ function loadFiles(obj)
                 fn = hClustFields{i};
                 if isempty(res_.hClust.(fn)) && isfield(res_, fn)
                     res_.hClust.(fn) = res_.(fn);
+                elseif ismember(fn, {'clusterCenters', 'clusterCentroids'}) && isfield(res_, fn)
+                    res_.hClust.sRes.(fn) = res_.(fn);
                 end
             end
 

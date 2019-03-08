@@ -42,7 +42,7 @@ function hFigHist = plotFigHist(hFigHist, hClust, hCfg, selected)
         hFigHist.updatePlot('hPlot2', XData, YData2);
     else
         hFigHist.axApply('default', @title, sprintf('Cluster %d', iCluster));
-        hFigHist.hidePlot('hPlot2');
+        hFigHist.clearPlot('hPlot2');
     end
 end
 
