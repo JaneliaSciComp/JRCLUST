@@ -23,11 +23,6 @@ function success = deleteClusters(obj, deleteMe)
 
     obj.spikeClusters(good) = mapFrom(obj.spikeClusters(good));
 
-    % recompute similarity scores
-%     if isfield(obj, 'mrSim_clu')
-%         obj = sim_score_(obj);
-%     end
-
     if ~isempty(obj.inconsistentFields())
         warning('Cluster data is inconsistent after deleting %d', deleteMe);
         obj.spikeClusters = clustersBak;

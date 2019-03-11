@@ -53,9 +53,9 @@ function plotPosUnit(hFigPos, cData, hCfg, fSecondary, maxAmp)
     XBase([1, end]) = nan; % line break
 
     if fSecondary
-        sampleWf = zeros(1, 1, 0);
+        sampleWf = zeros(1, 1, 0, 'single');
     else
-        sampleWf = cData.sampleWf;
+        sampleWf = single(cData.sampleWf);
     end
 
     siteXData = hCfg.siteLoc(cData.neighbors, 1) / hCfg.umPerPix;

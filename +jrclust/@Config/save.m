@@ -100,7 +100,7 @@ function success = save(obj, filename, exportAdv)
     if ~exportAdv
         fprintf(fid, '(common parameters only) ');
     end
-    fprintf(fid, '\n%% For a description of these parameters, see %s\n\n', [progInfo.docsSite, 'parameters/index.html']);
+    fprintf(fid, '\n%% For a description of these parameters, including legal options, see %s\n\n', [progInfo.docsSite, 'parameters/index.html']);
 
     % write sections
     for i = 1:numel(sections)
