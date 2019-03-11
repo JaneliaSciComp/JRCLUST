@@ -29,7 +29,6 @@ function plotAllFigures(obj)
         % set key and mouse handles
         hFigTime = obj.hFigs('FigTime');
         hFigTime.hFunKey = @obj.keyPressFigTime;
-        hFigTime.setMouseable(); % no special mouse function
     end
 
     % plot main waveform view
