@@ -3,6 +3,9 @@ function autoDelete(obj)
     if obj.isWorking
         jrclust.utils.qMsgBox('An operation is in progress.');
         return;
+    elseif ~isa(obj.hClust, 'jrclust.sort.DensityPeakClustering')
+        jrclust.utils.qMsgBox('Operation not supported for this type of clustering');
+        return;
     end
 
     hFigDelete = jrclust.views.Figure('', [.5 .7 .35 .3], ['Delete Auto: ', obj.hCfg.sessionName], 0, 0);

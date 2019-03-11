@@ -3,5 +3,7 @@ function deleteAnnotated(obj)
     deleteMe = find(strcmp(obj.hClust.clusterNotes, 'to_delete'));
     if ~isempty(deleteMe)
         obj.deleteClusters(deleteMe);
+    else
+        jrclust.utils.qMsgBox('No units deleted');
     end
 end
