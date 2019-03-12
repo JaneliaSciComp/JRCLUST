@@ -1,6 +1,8 @@
 12 Mar 2019
 
-Intan traditional recordings are now supported.
+- Intan traditional recordings are now supported (but experimental; please report issues reading your Intan files).
+- Users can press q in the waveform view to display quality scores for the selected cluster.
+  Pressing SHIFT-Q will also export them to the workspace.
 
 Several small bug fixes.
 
