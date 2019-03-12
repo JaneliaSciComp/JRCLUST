@@ -495,7 +495,7 @@
             "section": ["trial"]
         },
         "qqFactor": {
-            "description": "Spike detection threshold",
+            "description": "Spike detection threshold factor",
             "comment": "Thr = qqFactor*med(abs(x-med(x)))/0.6745",
             "default_value": 5,
             "validation": {
