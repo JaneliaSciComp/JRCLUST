@@ -141,12 +141,12 @@ classdef Config < dynamicprops
         function rd = recDurationSec(obj, recID)
             %RECDURATIONSEC Get duration of recording file(s) in seconds
             if nargin < 2 || isempty(recID)
-                hRecs = cellfun(@(fn) jrclust.detect.Recording(fn, obj), obj.rawRecordings, 'UniformOutput', 0);
+                hRecs = cellfun(@(fn) jrclust.detect.newRecording(fn, obj), obj.rawRecordings, 'UniformOutput', 0);
                 rd = sum(cellfun(@(hR) hR.nSamples, hRecs))/obj.sampleRate;
             elseif recID < 1 || recID > numel(obj.rawRecordings)
                 error('recording ID %d is invalid (there are %d recordings)', recID, numel(obj.rawRecordings));
             else
-                hRec = jrclust.detect.Recording(obj.rawRecordings{recID}, obj);
+                hRec = jrclust.detect.newRecording(obj.rawRecordings{recID}, obj);
                 rd = hRec.nSamples/obj.sampleRate;
             end
         end

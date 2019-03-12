@@ -535,6 +535,20 @@
             },
             "section": ["clustering"]
         },
+        "recordingFormat": {
+            "description": "Format of raw recording",
+            "comment": "",
+            "default_value": "SpikeGLX",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "SpikeGLX",
+                    "Intan"
+                ]
+            },
+            "section": ["recording file"]
+        },
         "refracInt": {
             "description": "Spike refractory period (in ms)",
             "comment": "",

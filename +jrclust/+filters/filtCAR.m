@@ -61,10 +61,10 @@ end
 function means = meanExcluding(samplesIn, ignoreSites)
     %MEANEXCLUDING Calculate mean after excluding ignoreSites
     if isempty(ignoreSites)
-        means = int16(mean(samplesIn, 2));
+        means = cast(mean(samplesIn, 2), 'like', samplesIn);
     else
         nSites = size(samplesIn, 2) - numel(ignoreSites);
-        means = int16((sum(samplesIn, 2) - sum(samplesIn(:, ignoreSites), 2)) / nSites); % TW BUGFIX
+        means = cast((sum(samplesIn, 2) - sum(samplesIn(:, ignoreSites), 2)) / nSites, 'like', samplesIn); % TW BUGFIX
     end
 end
 

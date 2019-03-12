@@ -1,20 +1,11 @@
 classdef Recording < jrclust.interfaces.RawRecording
     %RECORDING Model of a single SpikeGLX recording
     %% SPIKEGLX-SPECIFIC PROPERTIES
-    properties (Hidden, SetAccess=protected, SetObservable, Transient)
-        rawIsOpen;      % flag, whether raw recording file is open
-        filtIsOpen;     % flag, whether filtered file is open
-    end
-
     properties (SetAccess=protected, SetObservable, Transient)
         rawData;        % raw data in memmapped form
-        filteredData;   % filtered data in memmapped form
-        filteredFid;    % file handle for writing filtered data
     end
 
     properties (SetAccess=protected, SetObservable)
-        filtPath;       % absolute path to filtered recording, if there is one
-
         startTime;      % beginning of recording, in samples
         endTime;        % end of recording, in samples
     end
@@ -76,15 +67,6 @@ classdef Recording < jrclust.interfaces.RawRecording
                 rd = obj.rawData.Data.Data;
             else
                 rd = [];
-            end
-        end
-
-        % filteredData
-        function val = get.filteredData(obj)
-            if obj.rawIsOpen
-                val = obj.filteredData.Data.Data;
-            else
-                val = [];
             end
         end
     end

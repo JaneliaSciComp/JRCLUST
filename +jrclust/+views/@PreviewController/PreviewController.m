@@ -101,7 +101,7 @@ classdef PreviewController < jrclust.interfaces.FigureController
                             end
 
                             newBounds = obj.windowBounds - obj.windowWidth*factor;
-                            if newBounds(1) < 1 
+                            if newBounds(1) < 1
                                 newBounds = [1, obj.windowWidth];
                             end
 
@@ -238,7 +238,7 @@ classdef PreviewController < jrclust.interfaces.FigureController
             tracesRaw_ = cell(nFiles, 1);
 
             for iFile = 1:nFiles
-                hRec = jrclust.detect.Recording(rawRecordings{iFile}, obj.hCfg);
+                hRec = jrclust.detect.newRecording(rawRecordings{iFile}, obj.hCfg);
                 if hRec.nSamples <= obj.nSamplesPerLoad
                     nLoadsFile = 1;
                     nSamplesLoad = hRec.nSamples;
@@ -252,10 +252,12 @@ classdef PreviewController < jrclust.interfaces.FigureController
 
                 fileTraces_ = cell(nLoadsFile, 1);
 
+                hRec.openRaw();
                 for iLoad = 1:nLoadsFile
                     iBounds = multiBounds{iLoad};
                     fileTraces_{iLoad} = hRec.readRawROI(obj.hCfg.siteMap, iBounds(1):iBounds(2))';
                 end
+                hRec.closeRaw();
 
                 tracesRaw_{iFile} = cat(1, fileTraces_{:});
             end
@@ -521,7 +523,7 @@ classdef PreviewController < jrclust.interfaces.FigureController
             obj.tracesCAR = jrclust.utils.getCAR(obj.tracesFilt, obj.CARMode, obj.ignoreSites);
 
             if ~strcmpi(obj.CARMode, 'none')
-                obj.tracesFilt = bsxfun(@minus, obj.tracesFilt, int16(obj.tracesCAR));
+                obj.tracesFilt = bsxfun(@minus, obj.tracesFilt, cast(obj.tracesCAR, 'like', obj.tracesFilt));
             end
 
             obj.tracesCAR = jrclust.utils.madScore(mean(obj.tracesCAR, 2)); % Save in MAD unit
@@ -1129,4 +1131,3 @@ classdef PreviewController < jrclust.interfaces.FigureController
         end
     end
 end
-

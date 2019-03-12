@@ -1,5 +1,5 @@
 function bootstrap(obj, varargin)
-    %DOBOOTSTRAP Bootstrap a JRCLUST session
+    %BOOTSTRAP Bootstrap a JRCLUST session
     %   metafile: optional string; path (or glob) to meta file(s)
     if nargin > 1
         metafile_ = jrclust.utils.absPath(varargin{1});
@@ -15,7 +15,21 @@ function bootstrap(obj, varargin)
         end
 
         if ~isempty(metafile)
-            binfile = cellfun(@(f) jrclust.utils.subsExt(f, '.bin'), metafile, 'UniformOutput', 0);
+            [~, ~, exts] = cellfun(@(f) fileparts(f), metafile, 'UniformOutput', 0);
+            uniqueExts = unique(exts);
+            if numel(uniqueExts) > 1
+                error('Specify only a single file type');
+            end
+
+            ext = uniqueExts{:};
+            switch lower(ext)
+                case '.rhd'
+                    obj.bootstrapIntan(metafile);
+                    return;
+
+                case '.meta'
+                    binfile = cellfun(@(f) jrclust.utils.subsExt(f, '.bin'), metafile, 'UniformOutput', 0);
+            end
         end
     else
         metafile = '';
@@ -36,8 +50,22 @@ function bootstrap(obj, varargin)
                 binfile = cellfun(@(f) jrclust.utils.subsExt(f, '.bin'), metafile, 'UniformOutput', 0);
 
             case 'No' % select recording file
-                [binfile, workingdir] = jrclust.utils.selectFile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; '*.*', 'All Files (*.*)'}, 'Select one or more raw recordings', workingdir, 1);
+                [binfile, workingdir] = jrclust.utils.selectFile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; ...
+                                                                  '*.rhd', 'Intan recordings (*.rhd)'; ...
+                                                                  '*.*', 'All Files (*.*)'}, 'Select one or more raw recordings', workingdir, 1);
                 if all(cellfun(@isempty, binfile))
+                    return;
+                end
+
+                [~, ~, exts] = cellfun(@(f) fileparts(f), binfile, 'UniformOutput', 0);
+                uniqueExts = unique(exts);
+                if numel(uniqueExts) > 1
+                    error('Specify only a single file type');
+                end
+
+                ext = uniqueExts{:};
+                if strcmpi(ext, '.rhd')
+                    obj.bootstrapIntan(binfile);
                     return;
                 end
 
@@ -48,7 +76,8 @@ function bootstrap(obj, varargin)
 
     % check for missing binary files
     if any(cellfun(@(f) isempty(jrclust.utils.absPath(f)), binfile))
-        binfile = jrclust.utils.selectFile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; '*.*', 'All Files (*.*)'}, 'Select one or more raw recordings', workingdir, 1);
+        binfile = jrclust.utils.selectFile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; ...
+                                            '*.*', 'All Files (*.*)'}, 'Select one or more raw recordings', workingdir, 1);
         if cellfun(@isempty, binfile)
             return;
         end

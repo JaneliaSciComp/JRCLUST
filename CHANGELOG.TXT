@@ -1,3 +1,9 @@
+12 Mar 2019
+
+Intan traditional recordings are now supported.
+
+Several small bug fixes.
+
 13 Feb 2019
 # mToStruct
 - throws a warning if eval/parse fails

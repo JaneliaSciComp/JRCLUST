@@ -41,7 +41,7 @@ function res = detect(obj)
         end
 
         fn = obj.hCfg.rawRecordings{iRec};
-        hRec = jrclust.detect.Recording(fn, obj.hCfg);
+        hRec = jrclust.detect.newRecording(fn, obj.hCfg);
 
         if hRec.isError
             error(hRec.errMsg);

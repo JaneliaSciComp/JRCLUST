@@ -28,7 +28,7 @@ function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
     % precompute threshold for entire recording (requires 2 passes through data)
     if obj.hCfg.getOr('precomputeThresh', 0)
         samplesPre = [];
-        loadOffset = 0;            
+        loadOffset = 0;
 
         obj.hCfg.updateLog('precomputeThresh', 'Precomputing threshold', 1, 0);
         for iLoad = 1:nLoads

@@ -16,3 +16,4 @@ docs/venv
 *.mat
 *.ipynb
 .vscode/
+read_Intan_RHD2000_file.m

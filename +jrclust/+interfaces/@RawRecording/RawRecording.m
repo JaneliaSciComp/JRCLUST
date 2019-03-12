@@ -5,8 +5,16 @@ classdef (Abstract) RawRecording < handle
     end
 
     properties (Hidden, SetAccess=protected, SetObservable, Transient)
+        rawIsOpen;      % flag, whether raw recording file is open
+        filtIsOpen;     % flag, whether filtered file is open
+    end
+
+    properties (SetAccess=protected, SetObservable, Transient)
         errMsg;         % error message (if there is an error in the file)
         isError;        % flag, whether or not there is an error
+
+        filteredData;   % filtered data in memmapped form
+        filteredFid;    % file handle for writing filtered data
     end
 
     properties (Dependent, SetObservable, Transient)
@@ -16,6 +24,7 @@ classdef (Abstract) RawRecording < handle
 
     properties (SetAccess=protected, SetObservable)
         rawPath;        % absolute path to binary file
+        filtPath;       % absolute path to filtered recording, if there is one
 
         dataType;       % data type contained in file
         dshape;         % shape of data (rows x columns), in samples
@@ -52,11 +61,19 @@ classdef (Abstract) RawRecording < handle
     %% ABSTRACT METHODS
     methods (Abstract)
         roi = readRawROI(obj, rows, cols);
-        roi = readFiltROI(obj, rows, cols);
     end
 
     %% GETTERS/SETTERS
     methods
+        % filteredData
+        function val = get.filteredData(obj)
+            if obj.rawIsOpen
+                val = obj.filteredData.Data.Data;
+            else
+                val = [];
+            end
+        end
+
         % hCfg
         function set.hCfg(obj, hc)
             failMsg = 'hCfg must be an instance of jrclust.Config';

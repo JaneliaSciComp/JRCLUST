@@ -7,7 +7,7 @@
         "tag": "alpha-patch6",
         "codename": "Edward"
     },
-    "changeDate": "8 March 2019",
+    "changeDate": "12 March 2019",
     "authors": [
         "James Jun"
     ],
@@ -19,6 +19,7 @@
         "Mike Economo",
         "Hidehiko Inagaki",
         "Thomas Luo",
+        "Vincent Prevosto",
         "Tim Wang"
     ],
     "hardwareRequirements": [

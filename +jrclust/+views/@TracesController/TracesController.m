@@ -31,7 +31,7 @@ classdef TracesController < jrclust.interfaces.FigureController
     %% KEYPRESS/MOUSECLICK METHODS
     methods
         function keyPressFigTraces(obj, ~, hEvent)
-            %KEYPRESSFIGTRACES 
+            %KEYPRESSFIGTRACES
             factor = 4^double(jrclust.utils.keyMod(hEvent, 'shift')); % 1 or 4
 
             switch hEvent.Key
@@ -125,7 +125,7 @@ classdef TracesController < jrclust.interfaces.FigureController
                     mrY = reshape(YData, UserData.shape);
 
                     obj.hFigTraces.axApply('default', @hold, 'on');
-                    
+
                     obj.hFigTraces.addPlot('hPoint', XData(anchorPoint), YData(anchorPoint), 'r*');
                     obj.hFigTraces.addPlot('hLine', mrX(:, iSite), mrY(:, iSite), 'r-');
 
@@ -190,7 +190,7 @@ classdef TracesController < jrclust.interfaces.FigureController
     %% UTILITY METHODS
     methods (Hidden)
         function closeFigTraces(obj, hFig, hEvent)
-            obj.hRec.close();
+            obj.hRec.closeRaw();
             delete(hFig);
         end
 
@@ -260,7 +260,7 @@ classdef TracesController < jrclust.interfaces.FigureController
             end
 
             fprintf('Opening %s\n', recFilename);
-            obj.hRec = jrclust.detect.Recording(recFilename, obj.hCfg);
+            obj.hRec = jrclust.detect.newRecording(recFilename, obj.hCfg);
 
         %     [fid_bin, nBytes_bin] = fopen_(vcFile_bin, 'r');
         %     if isempty(fid_bin)
@@ -366,4 +366,3 @@ classdef TracesController < jrclust.interfaces.FigureController
         end
     end
 end
-

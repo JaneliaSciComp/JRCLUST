@@ -3,7 +3,7 @@ function corrData = plotAuxCorr(hClust, selected)
     if nargin < 2
         selected = [];
     end
-    hCfg = hClust.hCfg;    
+    hCfg = hClust.hCfg;
 
     % load aux channel data
     [auxSamples, auxTimes] = loadAuxChannel(hCfg);
@@ -64,7 +64,7 @@ end
 
 %% LOCAL FUNCTIONS
 function [auxSamples, auxTimes] = loadAuxChannel(hCfg)
-    %LOADAUXCHANNEL Load the aux channel 
+    %LOADAUXCHANNEL Load the aux channel
     [auxSamples, auxTimes] = deal([]);
     if numel(hCfg.rawRecordings) > 1
         jrclust.utils.qMsgBox('Multi-file mode is currently not supported');
@@ -110,7 +110,7 @@ function [auxSamples, auxTimes] = loadAuxChannel(hCfg)
                 return;
             end
 
-            hRec = jrclust.detect.Recording(hCfg.auxFile, hCfg);
+            hRec = jrclust.detect.newRecording(hCfg.auxFile, hCfg);
             auxSamples = single(hRec.readRawROI(hCfg.auxChan, 1:hRec.nSamples))*hCfg.bitScaling*hCfg.auxScale;
             auxRate = hCfg.getOr('auxRate', hCfg.sampleRate);
         otherwise

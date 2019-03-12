@@ -488,12 +488,26 @@ rawRecordings
 
 Path or paths to raw recordings to sort.
 
-**Default** is [""].
+**Default** is empty.
+
+.. _recordingFormat:
+
+recordingFormat
+^^^^^^^^^^^^^^^
+
+Format of raw recordings.
+
+One of the following:
+
+- 'SpikeGLX': A flat [binary file])(https://github.com/billkarsh/SpikeGLX/blob/master/Markdown/UserManual.md#output-file-format) with no header, stored in channels x samples order.
+- 'Intan': Traditional [Intan file format](http://www.intantech.com/files/Intan_RHD2000_data_file_formats.pdf).
+
+**Default** is 'SpikeGLX'.
 
 .. _refracInt:
 
 refracInt
-^^^^^^^^^^^^^
+^^^^^^^^^
 
 (Formerly ``spkRefrac_ms``)
 
@@ -504,7 +518,7 @@ Spike refractory period (in ms).
 .. _sampleRate:
 
 sampleRate
-^^^^^^^^^^^^^^
+^^^^^^^^^^
 
 (Formerly ``sRateHz``)
 

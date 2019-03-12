@@ -65,6 +65,9 @@ If you select "Yes", you will be prompted to select one or more with a file dial
 .. image:: /.static/bootstrap-meta-select.PNG
 
 If you select "No" instead, you will be prompted to select one or more **raw recordings** with a similar dialog.
+You may select from among SpikeGLX .bin/.dat files, or Intan .rhd traditional-format files.
+
+.. image:: /.static/bootstrap-intan.PNG
 
 In either case, your working directory will be set to the directory containing the file or files you selected.
 

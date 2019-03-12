@@ -77,7 +77,7 @@ function tracesFilt = plotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hClu
         else
             % find all recordings coming before hRec and sum up nSamples
             % for each
-            hRecs = arrayfun(@(iRec) jrclust.detect.Recording(hCfg.rawRecordings{iRec}, hCfg), 1:(recPos-1), 'UniformOutput', 0);
+            hRecs = arrayfun(@(iRec) jrclust.detect.newRecording(hCfg.rawRecordings{iRec}, hCfg), 1:(recPos-1), 'UniformOutput', 0);
             offset = sum(cellfun(@(hR) hR.nSamples, hRecs));
         end
 
@@ -141,7 +141,7 @@ function tracesFilt = plotFigTraces(hFigTraces, hCfg, tracesRaw, resetAxis, hClu
 
                 [mrY11, mrX11] = vr2mr3_(tracesFilt(iSite, :), iTime, evtWindowSamp); %display purpose x2
                 mrT11 = double(mrX11-1) / sampleRate + tStart;
-                
+
                 plotKey = sprintf('chSpk%d', iSpike);
                 hFigTraces.addPlot(plotKey, @line, ...
                                    nan, nan, 'Color', iColor, 'LineWidth', iLinewidth);
@@ -197,4 +197,3 @@ function [mr, ranges] = vr2mr3_(traces, spikeTimes, evtWindow)
     nSpikes = numel(spikeTimes);
     mr = reshape(traces(ranges(:)), [], nSpikes);
 end
-

@@ -10,9 +10,10 @@ classdef DetectTest < matlab.unittest.TestCase
         hCfg;
     end
 
+    %% SETUP
     methods (TestClassSetup)
         function setupProps(obj)
-            hCfg_ = jrclust.Config(fullfile(getenv('JRCTESTDATA'), 'large', 'test.prm'));
+            hCfg_ = jrclust.Config(fullfile(getenv('JRCTESTDATA'), 'large', 'test_large.prm'));
             obj.hJRC = JRC(hCfg_);
             obj.hCfg.testRun = 1;
             obj.hCfg.extractAfterDetect = 1;
@@ -23,6 +24,7 @@ classdef DetectTest < matlab.unittest.TestCase
         end
     end
 
+    %% TEST METHODS
     methods (Test)
         function isSorted(obj)
             %ISSORTED Assert all spike times are in order
