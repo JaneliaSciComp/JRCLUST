@@ -17,7 +17,7 @@ function uInfo = exportUnitInfo(obj, iCluster)
         if isempty(obj.spikesRawVolt)
             obj.spikesRawVolt = jrclust.utils.rawTouV(obj.spikesRaw, obj.hCfg);
         end
-        sampleWf = obj.spikesRaw(:, :, iSubset);
+        sampleWf = obj.spikesRawVolt(:, :, iSubset);
         sampleWf = jrclust.filters.fftLowpass(sampleWf, obj.hCfg.getOr('fc_spkwav_show', []), obj.hCfg.sampleRate);
     else
         meanWf = obj.meanWfGlobal(:,iNeighbors,iCluster);
