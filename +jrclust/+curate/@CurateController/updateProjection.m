@@ -9,7 +9,7 @@ function updateProjection(obj, proj)
     % set menu items checked or unchecked where appropriate
     hProjMenu = obj.hMenus('ProjMenu');
     for i = 1:numel(hProjMenu.Children)
-        if strcmp(hProjMenu.Children(i).Text, obj.hCfg.dispFeature)
+        if strcmp(hProjMenu.Children(i).Label, obj.hCfg.dispFeature)
             set(hProjMenu.Children(i), 'Checked', 'on');
         else
             set(hProjMenu.Children(i), 'Checked', 'off');
