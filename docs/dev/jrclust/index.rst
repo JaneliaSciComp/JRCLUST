@@ -8,5 +8,3 @@ Package ``jrclust``
    :maxdepth: 2
    :caption: Package ``jrclust`` members
    :name: jrclust-toc
-
-   Config

@@ -46,6 +46,29 @@ To merge the selected pair of clusters, press **m**.
 The waveform view also contains the menu system.
 Any time a reference is made to a menu entry in this GUI, that menu is here.
 
+Splitting clusters (FigSplit)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: /.static/split.PNG
+
+Two or more clusters may have been erroneously merged together by the algorithm.
+You can correct this by selecting the cluster in the waveform view and either
+pressing 's' in the waveform view or selecting one of the *Split* options from
+the main menu.
+JRCLUST will then prompt you for the number of clusters you believe this cluster
+should be split into, and then perform hierarchical clustering on a set of
+features computed from the spikes in this cluster, using
+`Ward's minimum variance method`_ .
+You may view projections of spikes onto the 1st, 2nd, and 3rd principal
+components, a μV peak-to-peak vs. time plot, an ISI histogram, and mean
+waveforms for each split or combination of splits.
+You may also choose to manually split in any of the PC spaces or merge splits
+together.
+When you are satisfied, you can select "Keep splits" and your cluster will be
+split
+If you change your mind you can select "Discard splits" and your cluster will
+be unaffected.
+
 The similarity view (FigSim)
 ----------------------------
 
@@ -151,3 +174,5 @@ The rho-delta view (FigRD)
 This figure shows the delta values plotted against the rho values for all spikes.
 Cluster centers are highlighted in red and the :ref:`log10RhoCut` and :ref:`log10DeltaCut`
 thresholds are plotted as dashed vertical and horizontal lines, respectively.
+
+.. _`Ward's minimum variance method`: https://en.wikipedia.org/wiki/Ward's_method
