@@ -7,7 +7,7 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
     if strcmp(hCfg.dispFeature, 'vpp')
         XLabel = 'Site # (%0.0f \\muV; upper: V_{min}; lower: V_{max})';
         YLabel = 'Site # (%0.0f \\muV_{min})';
-    elseif ismember(hCfg.dispFeature, {'kilosort', 'pca', 'ppca'})
+    elseif ismember(hCfg.dispFeature, {'template', 'pca', 'ppca'})
         XLabel = sprintf('Site # (PC %d)', hCfg.pcPair(1));
         YLabel = sprintf('Site # (PC %d)', hCfg.pcPair(2));
     else

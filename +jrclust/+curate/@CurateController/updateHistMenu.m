@@ -9,15 +9,24 @@ function updateHistMenu(obj)
 
         delete(hHistMenu.Children);
         for i = startAt:endAt
-            if strcmp(obj.hClust.history{i, 2}, 'delete')
-                label = sprintf('delete %s', jrclust.utils.field2str(obj.hClust.history{i, 3}));
-            elseif strcmp(obj.hClust.history{i, 2}, 'merge')
-                label = sprintf('merge %d <- %d', obj.hClust.history{i, 3}, obj.hClust.history{i, 4});
-            elseif strcmp(obj.hClust.history{i, 2}, 'split')
-                label = sprintf('split %d <- %d', obj.hClust.history{i, 3});
-            else
-                label = obj.hClust.history{i, 2};
+            switch obj.hClust.history{i, 2}
+                case 'delete'
+                    label = sprintf('delete %s', jrclust.utils.field2str(obj.hClust.history{i, 3}));
+
+                case 'merge'
+                    label = sprintf('merge %d <- %d', obj.hClust.history{i, 3}, obj.hClust.history{i, 4});
+
+                case 'split'
+                    label = sprintf('split %d', obj.hClust.history{i, 3});
+
+                case 'partition'
+                    nSplits = numel(obj.hClust.history{i, 4}) - 1;
+                    label = sprintf('partition %d (%d splits)', obj.hClust.history{i, 3}, nSplits);
+
+                otherwise
+                    label = obj.hClust.history{i, 2};
             end
+
             uimenu(hHistMenu, 'Label', label, ...
                    'Callback', @(hO, hE) obj.restoreHistory(i), ...
                    'Checked', jrclust.utils.ifEq(i - 1 == hClust.editPos, 'on', 'off'), ...

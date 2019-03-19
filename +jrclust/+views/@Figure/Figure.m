@@ -334,6 +334,16 @@ classdef Figure < handle
         function hp = hasPlot(obj, plotKey)
             %HASPLOT Return true iff a plot exists with plotKey as label
             hp = ischar(plotKey) && isKey(obj.hPlots, plotKey);
+
+            % clean up dead plot (e.g. from an axApply(@cla))
+            if hp && ~all(isvalid(obj.hPlots(plotKey)))
+                hp = 0;
+                remove(obj.hPlots, plotKey); % remove the key
+                try
+                    delete(obj.hPlots(plotKey)); % delete the plot
+                catch
+                end
+            end
         end
 
         function hp = hasSubplot(obj, plotKey)

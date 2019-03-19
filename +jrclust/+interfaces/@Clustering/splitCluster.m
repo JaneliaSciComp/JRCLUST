@@ -64,7 +64,7 @@ function [success, retained] = splitCluster(obj, iCluster, retained)
     if isempty(obj.inconsistentFields())
         success = 1;
         obj.postOp([iCluster, iCluster + 1]);
-        obj.orderClusters('clusterSites');
+        %obj.orderClusters('clusterSites'); % can be done manually if the user really wants
     else
         warning('Cluster data is inconsistent after splitting %d', iCluster);
         obj.spikeClusters = clustersBak;

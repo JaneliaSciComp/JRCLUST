@@ -66,6 +66,12 @@ function keyPressFigWav(obj, ~, hEvent)
             obj.deleteClusters();
             hFigWav.wait(0);
 
+        case 'g'
+            dlgAns = jrclust.utils.inputdlgNum('Go to a cluster', '', 1);
+            if ~isnan(dlgAns) && dlgAns > 0 && dlgAns <= obj.hClust.nClusters
+                obj.updateSelect(dlgAns);
+            end
+
         case 'h'
             jrclust.utils.qMsgBox(hFigWav.figData.helpText, 1);
 
