@@ -87,7 +87,7 @@ classdef (Abstract) Clustering < handle
         function obj = Clustering()
             %CLUSTERING Construct an instance of this class
             fid = fopen(fullfile(jrclust.utils.basedir(), 'json', 'Clustering.json'), 'r');
-            obj.unitFields = jsondecode(fread(fid, inf, '*char'));
+            obj.unitFields = jsondecode(fread(fid, inf, '*char')');
             fclose(fid);
 
             obj.history = cell(0, 4);

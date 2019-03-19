@@ -17,7 +17,7 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
         function obj = TemplateClustering(sRes, dRes, hCfg)
             %TEMPLATECLUSTERING
             fid = fopen(fullfile(jrclust.utils.basedir(), 'json', 'TemplateClustering.json'), 'r');
-            dpFields = jsondecode(fread(fid, inf, '*char'));
+            dpFields = jsondecode(fread(fid, inf, '*char')');
             fclose(fid);
             obj.unitFields.vectorFields = [obj.unitFields.vectorFields; dpFields.vectorFields];
 
