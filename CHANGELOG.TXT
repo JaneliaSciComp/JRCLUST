@@ -1,3 +1,8 @@
+19 Mar 2019
+
+- New split mechanism (allows for multiple splits).
+- Users can press g in the waveform view to go to a specific cluster.
+
 12 Mar 2019
 
 - Intan traditional recordings are now supported (but experimental; please report issues reading your Intan files).
