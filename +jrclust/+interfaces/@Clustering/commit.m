@@ -48,7 +48,7 @@ function commit(obj, msg)
         obj.history{end, 4} = retained;
     elseif startsWith(msgParts{2}, 'partition')
         obj.history{end, 3} = str2double(msgParts{3});
-        obj.history{end, 4} = eval(msgParts{4});
+        obj.history{end, 4} = eval(strjoin(msgParts(4:end), ';')); % commit mechanism needs to change
     elseif any(obj.spikeClusters ~= obj.initialClustering) % store diff from previous clustering
         spikeClusters_ = obj.initialClustering;
 
