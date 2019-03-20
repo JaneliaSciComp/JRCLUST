@@ -4,6 +4,9 @@ function success = tryImport(obj, sRes)
                  'initialClustering', 'clusterNotes'};
     if all(ismember(reqFields, fieldnames(sRes)))
         obj.spikeClusters = double(sRes.spikeClusters);
+        obj.clusterCenters = sRes.clusterCenters;
+
+        
         % object takes initalClustering from sRes.spikeClusters
         if isfield(sRes, 'initialClustering')
             sRes.spikeClusters = double(sRes.initialClustering);
