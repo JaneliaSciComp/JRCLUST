@@ -3,6 +3,10 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
     %% TEMPLATE-MATCHING PROPERTIES
     properties (Dependent, SetObservable)
         amplitudes;         % extracted amplitude for each spike
+        templateFeatures;   % matrix giving the magnitude of the projection of each spike onto nTempFeatures other features
+        templateFeatureInd; % for each template, the channels with largest amplitudes are indexed in order
+        pcFeatures;         % projections of each detected spike onto the top templates most similar to the spike's assigned template
+        pcFeatureInd;       % for each template, the other templates with largest similarity are indexed in order
         simScore;           % template-template correlation matrix
         spikeTemplates;     % template assignments for each spike
     end
@@ -41,6 +45,7 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
 
     %% GETTERS/SETTERS
     methods
+        % amplitudes
         function vals = get.amplitudes(obj)
             if isfield(obj.sRes, 'amplitudes')
                 vals = obj.sRes.amplitudes;
@@ -52,6 +57,55 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
             obj.sRes.amplitudes = vals;
         end
 
+        % templateFeatures
+        function vals = get.templateFeatures(obj)
+            if isfield(obj.sRes, 'templateFeatures')
+                vals = obj.sRes.templateFeatures;
+            else
+                vals = [];
+            end
+        end
+        function set.templateFeatures(obj, vals)
+            obj.sRes.templateFeatures = vals;
+        end
+
+        % pcFeatures
+        function vals = get.pcFeatures(obj)
+            if isfield(obj.sRes, 'pcFeatures')
+                vals = obj.sRes.pcFeatures;
+            else
+                vals = [];
+            end
+        end
+        function set.pcFeatures(obj, vals)
+            obj.sRes.pcFeatures = vals;
+        end
+
+        % templateFeatureInd
+        function vals = get.templateFeatureInd(obj)
+            if isfield(obj.sRes, 'templateFeatureInd')
+                vals = obj.sRes.templateFeatureInd;
+            else
+                vals = [];
+            end
+        end
+        function set.templateFeatureInd(obj, vals)
+            obj.sRes.templateFeatureInd = vals;
+        end
+
+        % pcFeatureInd
+        function vals = get.pcFeatureInd(obj)
+            if isfield(obj.sRes, 'pcFeatureInd')
+                vals = obj.sRes.pcFeatureInd;
+            else
+                vals = [];
+            end
+        end
+        function set.pcFeatureInd(obj, vals)
+            obj.sRes.pcFeatureInd = vals;
+        end
+
+        % simScore
         function vals = get.simScore(obj)
             if isfield(obj.sRes, 'simScore')
                 vals = obj.sRes.simScore;
@@ -63,6 +117,7 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
             obj.sRes.simScore = vals;
         end
 
+        % spikeTemplates
         function vals = get.spikeTemplates(obj)
             if isfield(obj.sRes, 'spikeTemplates')
                 vals = obj.sRes.spikeTemplates;

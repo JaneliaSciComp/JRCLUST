@@ -4,10 +4,10 @@
         "major": 4,
         "minor": 0,
         "release": 0,
-        "tag": "alpha-patch6",
+        "tag": "beta",
         "codename": "Edward"
     },
-    "changeDate": "19 March 2019",
+    "changeDate": "20 March 2019",
     "authors": [
         "James Jun"
     ],

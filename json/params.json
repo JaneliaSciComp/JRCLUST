@@ -758,7 +758,8 @@
                     "cov",
                     "pca",
                     "ppca",
-                    "vpp"
+                    "vpp",
+                    "template"
                 ]
             },
             "section": ["display"]

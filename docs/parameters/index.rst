@@ -685,6 +685,7 @@ One of the following:
 - 'pca'
 - 'ppca'
 - 'vpp'
+- 'template' (only supported for template-based clusterings, e.g., Kilosort)
 
 **Default** is 'vpp'.
 

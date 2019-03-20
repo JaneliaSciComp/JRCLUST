@@ -19,6 +19,9 @@ function autoScaleFigTime(hFigTime, hClust, selected)
     end
 
     timeScale = max(cellfun(@(x) quantile(x(:), autoscalePct), timeData));
+    if isnan(timeScale)
+        timeScale = 1;
+    end
     hFigTime.axApply('default', @set, 'YLim', [0, 1]*timeScale);
     imrectSetPosition(hFigTime, 'hRect', [], [0, timeScale]);
 end

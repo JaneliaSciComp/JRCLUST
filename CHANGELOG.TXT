@@ -1,7 +1,14 @@
+20 Mar 2019 (4.0.0-beta release)
+
+- Bugfix: import-ksort didn't use the correct sites for imported spikes; this has been fixed.
+
+Several small bug fixes.
+
 19 Mar 2019
 
 - New split mechanism (allows for multiple splits).
 - Users can press g in the waveform view to go to a specific cluster.
+- Bugfix: raw traces in chunks 2:end were being extracted nSamplesPad later than they were supposed to; this has been fixed.
 
 12 Mar 2019
 

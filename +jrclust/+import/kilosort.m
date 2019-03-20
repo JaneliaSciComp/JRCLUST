@@ -2,6 +2,11 @@ function [hCfg, res] = kilosort(rezFile)
     %KILOSORT Import a Kilosort session from rez.mat
     [hCfg, res] = deal([]);
 
+    if exist('readNPY', 'file') ~= 2
+        warning('Please make sure you have npy-matlab installed (https://github.com/kwikteam/npy-matlab)');
+        return;
+    end
+
     rezFile_ = jrclust.utils.absPath(rezFile);
     if isempty(rezFile_)
         error('Could not find file ''%s''', rezFile);
@@ -29,7 +34,7 @@ function [hCfg, res] = kilosort(rezFile)
 
     amplitudes = rez.st3(:, 3);
 
-    if size(rez.st3, 2) > 4
+    if ~isfield(rez, 'ccb') && size(rez.st3, 2) > 4 % Kilosort1
         spikeClusters = 1 + rez.st3(:, 5);
     else
         spikeClusters = spikeTemplates;
@@ -58,37 +63,35 @@ function [hCfg, res] = kilosort(rezFile)
     for iNN = 1:size(templates,3)
        templates(:,:,iNN) = squeeze(U(:,iNN,:)) * squeeze(W(:,iNN,:))';
     end
-    templates = -abs(permute(templates, [3 2 1])); % nTemplates x nSamples x nChannels
-
-    % compute the weighted average template for a given cluster and pick its min site
-%     clusterSites = zeros('like', clusterIDs);
-%     for iCluster = 1:nClusters
-%         iTemplates = clusterTemplates{iCluster}; % templates for this cluster
-% 
-%         meanTemplate = squeeze(templates(iTemplates, :, :));
-%         if numel(iTemplates) > 1
-%             freqs = histcounts(spikeTemplates(spikeClusters == iCluster), numel(iTemplates));
-%             weights = freqs/sum(freqs); % weight sum of templates by frequency of occurrence in this cluster
-%             t = zeros(size(meanTemplate, 2), size(meanTemplate, 3));
-% 
-%             for iWeight = numel(weights)
-%                 t = t + weights(iWeight)*squeeze(meanTemplate(iWeight, :, :));
-%             end
-% 
-%             meanTemplate = t;
-%         end
-% 
-%         sampleMin = min(meanTemplate, [], 1);
-%         [~, clusterSites(iCluster)] = min(sampleMin); % cluster location
-%     end
-%     spikeSites = clusterSites(spikeClusters);
+    templates = permute(templates, [3 2 1]); % nTemplates x nSamples x nChannels
 
     spikeSites = zeros(size(spikeClusters), 'like', spikeClusters);
     for iTemplate = 1:nTemplates
         template = squeeze(templates(iTemplate, :, :));
-        [~, tSite] = max(max(abs(template)));
+        [~, tSite] = min(min(template));
 
         spikeSites(spikeTemplates == iTemplate) = tSite;
+    end
+
+    % import features
+    if isfield(rez, 'cProj') && ~isempty(rez.cProj)
+        cProj = rez.cProj;
+        iNeigh = rez.iNeigh;
+    elseif exist(fullfile(workingdir, 'template_features.npy'), 'file') == 2
+        cProj = readNPY('template_features.npy')';
+        iNeigh = readNPY('template_feature_ind.npy')';
+    else
+        [cProj, iNeigh] = deal([]);
+    end
+
+    if isfield(rez, 'cProjPC') && ~isempty(rez.cProjPC)
+        cProjPC = permute(rez.cProjPC, [2 3 1]); % nFeatures x nSites x nSpikes
+        iNeighPC = rez.iNeighPC;
+    elseif exist(fullfile(workingdir, 'pc_features.npy'), 'file') == 2
+        cProjPC = permute(readNPY('pc_features.npy'), [2 3 1]); % nFeatures x nSites x nSpikes
+        iNeighPC = readNPY('pc_feature_ind.npy')';
+    else
+        [cProjPC, iNeighPC] = deal([]);
     end
 
     %%% try to detect the recording file
@@ -270,10 +273,15 @@ function [hCfg, res] = kilosort(rezFile)
     %%% detect and extract spikes/features
     hDetect = jrclust.detect.DetectController(hCfg, spikeTimes, spikeSites);
     dRes = hDetect.detect();
+    dRes.spikeSites = spikeSites;
     sRes = struct('spikeClusters', spikeClusters, ...
                   'spikeTemplates', spikeTemplates, ...
                   'simScore', rez.simScore, ...
-                  'amplitudes', amplitudes);
+                  'amplitudes', amplitudes, ...
+                  'templateFeatures', cProj, ...
+                  'templateFeatureInd', iNeigh, ...
+                  'pcFeatures', cProjPC, ...
+                  'pcFeatureInd', iNeighPC);
 
     hClust = jrclust.sort.TemplateClustering(sRes, dRes, hCfg);
     hClust.computeCentroids();

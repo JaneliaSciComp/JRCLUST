@@ -52,8 +52,8 @@ function [sampledFeatures, sampledSpikes] = getClusterFeaturesSite(hClust, iSite
         sampledWindows = permute(hClust.getSpikeWindows(sampledSpikes, iSite, 0, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
         prVecs1 = jrclust.features.getPVClusters(hClust, iSite, iCluster);
         sampledFeatures = jrclust.features.pcProjectSpikes(sampledWindows, prVecs1);
-    % elseif strcmp(hCfg.dispFeature, 'kilosort')
-    %     sampledFeatures = ks_fet_spk_(sampledSpikes, iSite, S0);
+    elseif strcmp(hCfg.dispFeature, 'template')
+        sampledFeatures = hClust.templateFeaturesBySpike(sampledSpikes, iSite);
     else
         error('not implemented yet');
     end

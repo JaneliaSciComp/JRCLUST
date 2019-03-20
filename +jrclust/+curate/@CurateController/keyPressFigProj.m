@@ -34,9 +34,28 @@ function keyPressFigProj(obj, ~, hEvent)
 
         case 'f' % toggle feature display
             if strcmp(obj.hCfg.dispFeature, 'vpp')
-                obj.updateProjection(obj.hCfg.clusterFeature);
+                if isa(obj.hClust, 'jrclust.sort.TemplateClustering')
+                    obj.updateProjection('template');
+                else
+                    obj.updateProjection(obj.hCfg.clusterFeature);
+                end
             else
                 obj.updateProjection('vpp');
+            end
+
+        case 'h' % help
+            jrclust.utils.qMsgBox(hFigProj.figData.helpText, 1);
+
+        case 'm' % merge clusters
+            hFigProj.wait(1);
+            obj.mergeSelected();
+            hFigProj.wait(0);
+
+        case 'p' % toggle PCi v. PCj
+            if ismember(obj.hCfg.dispFeature, {'pca', 'template'})
+                % [1, 2] => [1, 3] => [2, 3] => [1, 2] => ...
+                obj.hCfg.pcPair = sort(mod(obj.hCfg.pcPair + 1, 3) + 1);
+                obj.updateFigProj(0);
             end
 
         case 'r' %reset view
@@ -71,20 +90,6 @@ function keyPressFigProj(obj, ~, hEvent)
 %                     obj.splitCluster(iCluster, retained);
 %                 end
 %             end
-
-        case 'm' % merge clusters
-            hFigProj.wait(1);
-            obj.mergeSelected();
-            hFigProj.wait(0);
-
-        case 'p' % toggle PCi v. PCj
-            if strcmp(obj.hCfg.dispFeature, 'pca')
-                % [1, 2] => [1, 3] => [2, 3] => [1, 2] => ...
-                obj.hCfg.pcPair = sort(mod(obj.hCfg.pcPair + 1, 3) + 1);
-                obj.updateFigProj(0);
-            end
-
-        case 'h' % help
-            jrclust.utils.qMsgBox(hFigProj.figData.helpText, 1);
+        
     end % switch
 end
