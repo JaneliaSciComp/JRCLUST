@@ -35,21 +35,54 @@ function S = loadMetadata(metafile)
         end
     elseif isfield(S, 'imSampRate') % IMECIII
         refChans = [37 76 113 152 189 228 265 304 341 380];
+        siteLoc = zeros(384, 2);
+        viHalf = 0:191;
+        siteLoc(1:2:end,2) = viHalf * 20;
+        siteLoc(2:2:end,2) = siteLoc(1:2:end,2);
+        siteLoc(1:4:end,1) = 16; % 0 before
+        siteLoc(2:4:end,1) = 48; % 32 before
+        siteLoc(3:4:end,1) = 0;  % 16 before
+        siteLoc(4:4:end,1) = 32; % 48 before
 
         S.nChans = S.nSavedChans;
         S.sampleRate = S.imSampRate;
         S.rangeMax = S.imAiRangeMax;
         S.rangeMin = S.imAiRangeMin;
         S.adcBits = 10; % 10 bit adc but 16 bit saved
-        imroTable = textscan(S.imroTbl, '%d', 'Delimiter', '( ),');
-        imroTable = imroTable{1};
 
-        S.gain = double(imroTable(9)); % hard code for now
-        S.gainLFP = double(imroTable(10)); % hard code for now
+        % read data from ~imroTbl
+        imroTbl = strsplit(S.imroTbl(2:end-1), ')(');
+        imroTblHeader = cellfun(@str2double, strsplit(imroTbl{1}, ','));
+        if numel(imroTblHeader) == 3 % 3A with option
+            S.probeOpt = imroTblHeader(2);
+            S.probe = sprintf('imec3_opt%d', S.probeOpt);
+        else
+            S.probe = 'imec3';
+        end
 
-        S.probe = sprintf('imec3_opt%d', imroTable(3));
-        S.nSites = imroTable(4);
-        S.sites = setdiff(1:S.nSites, refChans); % sites saved
+        % parse first entry in imroTbl
+        imroTblChan = cellfun(@str2double, strsplit(imroTbl{2}, ' '));
+
+        S.gain = imroTblChan(4);
+        S.gainLFP = imroTblChan(5);
+
+        % get number of saved AP channels as nSites
+        snsChanMap = strsplit(S.snsChanMap(2:end-1), ')(');
+        apChans = cellfun(@(x) numel(x) >= 2 && strcmp(x(1:2), 'AP'), snsChanMap);
+        apChanMap = snsChanMap(apChans);
+        apChanMap = cellfun(@(x) strsplit(x, ':'), apChanMap, 'UniformOutput', 0); % split by :
+        apChanMap = cellfun(@(x) str2double(x{2}), apChanMap) + 1; % take zero-based order index
+
+        % get shank map
+        snsShankMap = strsplit(S.snsShankMap(2:end-1), ')(');
+        snsShankMap = cellfun(@(x) strsplit(x, ':'), snsShankMap(apChans), 'UniformOutput', 0);
+        snsShankMap = cellfun(@(x) str2double(x(1)) + 1, snsShankMap);
+
+        S.sites = setdiff(apChanMap, refChans); % sites saved
+        S.nSites = numel(S.sites);
+        S.siteLoc = siteLoc(S.sites, :);
+        S.shankMap = snsShankMap(S.sites);
+
         try
             S.S_imec3 = imec3_imroTbl_(S);
         catch

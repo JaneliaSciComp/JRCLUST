@@ -93,6 +93,16 @@ function bootstrap(obj, varargin)
                          'dataType', SMeta_.dataType, ...
                          'probe_file', fullfile(jrclust.utils.basedir(), 'probes', sprintf('%s.prb', SMeta_.probe)));
 
+        if isfield(SMeta_, 'sites')
+            cfgData.siteMap = SMeta_.sites;
+        end
+        if isfield(SMeta_, 'siteLoc')
+            cfgData.siteLoc = SMeta_.siteLoc;
+        end
+        if isfield(SMeta_, 'shankMap')
+            cfgData.shankMap = SMeta_.shankMap;
+        end
+
         cfgData.rawRecordings = binfile;
         cfgData.outputDir = workingdir;
     else
