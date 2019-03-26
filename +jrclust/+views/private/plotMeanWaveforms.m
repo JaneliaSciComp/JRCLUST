@@ -10,7 +10,11 @@ function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp)
     nSitesShow = size(hCfg.siteNeighbors, 1);
 
     % determine x
-    xOffset = hCfg.evtWindowSamp(2)/(diff(hCfg.evtWindowSamp) + 1);
+    if hCfg.showRaw
+        xOffset = hCfg.evtWindowRawSamp(2)/(diff(hCfg.evtWindowRawSamp) + 1);
+    else
+        xOffset = hCfg.evtWindowSamp(2)/(diff(hCfg.evtWindowSamp) + 1);
+    end
     XData = (1:nSamples*nClusters)/nSamples + xOffset;
 
     % breaks between clusters
