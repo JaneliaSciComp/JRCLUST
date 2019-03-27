@@ -160,6 +160,19 @@ function processArgs(obj)
                 obj.isCompleted = 1;
             end
 
+        case 'export-phy'
+            if isempty(obj.hCfg)
+                obj.error(sprintf('%s not found or not a config file', obj.args{1}));
+                return;
+            end
+
+            try
+                jrclust.export.phy(obj.hCfg);
+                obj.isCompleted = 1;
+            catch ME
+                obj.error(ME.message);
+            end
+
         % misc commands
         case 'activity'
             obj.activity();
