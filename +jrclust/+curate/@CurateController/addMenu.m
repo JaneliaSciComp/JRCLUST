@@ -14,6 +14,7 @@ function addMenu(obj, hFig)
     uimenu(obj.hMenus('FileMenu'), 'Label', 'Export selected mean unit waveforms to workspace', 'Callback', @(hO, hE) obj.exportMeanWf(0));
     uimenu(obj.hMenus('FileMenu'), 'Label', 'Export all traces from the selected unit', 'Callback', @(hO, hE) obj.exportTraces());
     uimenu(obj.hMenus('FileMenu'), 'Label', 'Export firing rate for all units', 'Callback', @(hO, hE) obj.exportFiringRate());
+    uimenu(obj.hMenus('FileMenu'), 'Label', 'Print summary', 'Callback', @(hO, hE) obj.summarize(), 'Separator', 'on');
     uimenu(obj.hMenus('FileMenu'), 'Label', 'Exit', 'Callback', @(hO, hE) obj.endSession(), 'Separator', 'on', 'Accelerator', 'Q');
 
     obj.hMenus('EditMenu') = hFig.uimenu('Label', 'Edit');

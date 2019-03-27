@@ -40,4 +40,6 @@ function sRes = sort(obj)
 
     obj.res = jrclust.utils.mergeStructs(obj.res, sRes);
     obj.saveRes(obj.isDetect); % force overwrite if we're detecting
+
+    obj.summarize();
 end

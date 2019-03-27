@@ -25,4 +25,8 @@ function dRes = detect(obj)
     % save files
     obj.saveBinaries();
     obj.saveRes(0);
+
+    if ~obj.isSort
+        obj.summarize();
+    end
 end

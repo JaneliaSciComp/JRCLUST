@@ -1,6 +1,7 @@
 27 Mar 2019
 
 Export results in phy-compatible format with jrc export-phy /path/to/your/config.prm
+Display summaries after detect and sort, also added an option to display a summary in UI.
 
 20 Mar 2019 (4.0.0-beta release)
 
