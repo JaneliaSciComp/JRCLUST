@@ -84,8 +84,9 @@ function phy(hCfg)
         paramFile = fullfile(hCfg.outputDir, 'params.py');
         fid = fopen(paramFile, 'w');
 
-        rawRecordings = strrep(strrep(jrclust.utils.field2str(hCfg.rawRecordings), '{', '['), '}', ']');
-        fprintf(fid, 'dat_path = r''%s''\n', rawRecordings);
+        rawRecordings = cellfun(@(x) sprintf('r''%s''', x), hCfg.rawRecordings, 'UniformOutput', 0);
+        rawRecordings = ['[' strjoin(rawRecordings, ', ') ']'];
+        fprintf(fid, 'dat_path = %s\n', rawRecordings);
 
         fprintf(fid, 'n_channels_dat = %i\n', hCfg.nChans);
 
