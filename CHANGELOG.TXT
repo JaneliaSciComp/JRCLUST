@@ -1,9 +1,16 @@
+29 Mar 2019 (4.0.0-beta release)
+
+- Allow user to select exploratory clustering algorithm in main split.
+- Allow user to split in FigProj.
+
+
 27 Mar 2019
 
-Export results in phy-compatible format with jrc export-phy /path/to/your/config.prm
-Display summaries after detect and sort, also added an option to display a summary in UI.
+- Bugfix: non-integral sample rates are supported to full precision.
+- Export results in phy-compatible format with jrc export-phy /path/to/your/config.prm.
+- Display summaries after detect and sort, also added an option to display a summary in UI.
 
-20 Mar 2019 (4.0.0-beta release)
+20 Mar 2019
 
 - Bugfix: import-ksort didn't use the correct sites for imported spikes; this has been fixed.
 

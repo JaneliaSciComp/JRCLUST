@@ -54,7 +54,9 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
     plotFeatures(hFigProj, 'background', bgYData, bgXData, boundScale, hCfg);
 
     % plot foreground spikes
-    plotFeatures(hFigProj, 'foreground', fgYData, fgXData, boundScale, hCfg);
+    assigns = plotFeatures(hFigProj, 'foreground', fgYData, fgXData, boundScale, hCfg);
+    hFigProj.figData.dispFeatures.fgSpikes = hFigProj.figData.dispFeatures.fgSpikes(assigns);
+
     % plot secondary foreground spikes
     if numel(selected) == 2
         plotFeatures(hFigProj, 'foreground2', fg2YData, fg2XData, boundScale, hCfg);
@@ -82,7 +84,7 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
 end
 
 %% LOCAL FUNCTIONS
-function plotFeatures(hFigProj, plotKey, featY, featX, boundScale, hCfg)
+function assigns = plotFeatures(hFigProj, plotKey, featY, featX, boundScale, hCfg)
     %PLOTFEATURES Plot features in a grid
     if strcmp(hCfg.dispFeature, 'vpp')
         bounds = boundScale*[0 1];
@@ -90,6 +92,6 @@ function plotFeatures(hFigProj, plotKey, featY, featX, boundScale, hCfg)
         bounds = boundScale*[-1 1];
     end
 
-    [XData, YData] = ampToProj(featY, featX, bounds, hCfg.nSiteDir, hCfg);
+    [XData, YData, assigns] = ampToProj(featY, featX, bounds, hCfg.nSiteDir, hCfg);
     hFigProj.updatePlot(plotKey, XData, YData);
 end

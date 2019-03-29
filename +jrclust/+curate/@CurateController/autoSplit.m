@@ -33,18 +33,68 @@ function autoSplit(obj, multisite)
 
     clusterTimes = obj.hClust.spikeTimes(iSpikes);
 
-    nSplits = jrclust.utils.inputdlgNum('Number of clusters:', '', 2);
-    if isnan(nSplits)
+    % create split figure
+    hFigSplit = jrclust.views.Figure('FigSplit', [0.05 0.05 0.8 0.8], sprintf('Split cluster %d', iCluster), 0, 0);
+    hFigSplit.figApply(@set, 'Visible', 'off');
+    hFigSplit.figData.nSplits = 0;
+
+    % create a dialog
+    splitDlg = dialog('Name', 'Split cluster', ...
+                      'Units', 'Normalized', ...
+                      'Position', [0.4, 0.5, 0.2, 0.15]);
+
+    uicontrol('Parent', splitDlg, 'Style', 'text', ...
+              'String', 'Number of splits', ...
+              'Units', 'Normalized', ...
+              'Position', [0.4 0.4 0.2 0.07]);
+
+    nsplit = uicontrol('Parent', splitDlg, 'Style', 'edit', ...
+                       'String', 2, ...
+                       'Units', 'Normalized', ...
+                       'Position', [0.4 0.25 0.2 0.15]);
+
+    % button group: K-means, K-medoids, Hierarchical clustering
+    btngrp = uibuttongroup('Parent', splitDlg, 'Units', 'Normalized', ...
+                           'Position', [0.1 0.1 0.3 0.8]);
+    uicontrol('Parent', btngrp, 'Style', 'radiobutton', 'String', 'Hierarchical (Ward)', ...
+              'Units', 'Normalized', 'Position', [0.1, 0.1, 1, 0.15]);
+    uicontrol('Parent', btngrp, 'Style', 'radiobutton', 'String', 'K-means', ...
+              'Units', 'Normalized', 'Position', [0.1, 0.7, 1, 0.15]);
+    uicontrol('Parent', btngrp, 'Style', 'radiobutton', 'String', 'K-medoids', ...
+              'Units', 'Normalized', 'Position', [0.1, 0.4, 1, 0.15]);
+
+    uicontrol('Parent', splitDlg, 'Style', 'pushbutton', ...
+              'String', 'Split', ...
+              'Units', 'Normalized', ...
+              'Position', [0.4 0.1 0.2 0.15], ...
+              'Callback', @(hO, hE) preSplit(splitDlg, nsplit.String, btngrp, hFigSplit));
+    uicontrol('Parent', splitDlg, 'Style', 'pushbutton', ...
+              'String', 'Cancel', ...
+              'Units', 'Normalized', ...
+              'Position', [0.6 0.1 0.2 0.15], ...
+              'Callback', @(hO, hE) doCancel(splitDlg, hFigSplit));
+    uicontrol('Parent', splitDlg, 'Style', 'text', ...
+              'String', 'How to recluster this unit?', ...
+              'Units', 'Normalized', ...
+              'Position', [0.1 0.9 0.3 0.07]);
+
+    uiwait(splitDlg);
+
+%     nSplits = jrclust.utils.inputdlgNum('Number of clusters:', '', 2);
+%     if isnan(nSplits)
+%         return;
+%     elseif nSplits < 2 || nSplits ~= round(nSplits)
+%         jrclust.utils.qMsgBox('Please enter an integer >= 2');
+%         return;
+%     end
+
+    if hFigSplit.figData.nSplits <= 1
         return;
-    elseif nSplits < 2 || nSplits ~= round(nSplits)
-        jrclust.utils.qMsgBox('Please enter an integer >= 2');
-        return;
+    else
+        nSplits = hFigSplit.figData.nSplits;
     end
 
     hBox = jrclust.utils.qMsgBox('Splitting... (this closes automatically)', 0, 1);
-
-    % create split figure
-    hFigSplit = jrclust.views.Figure('FigSplit', [0.05 0.05 0.8 0.8], 'Split', 0, 0);
 
     % add plots
     hFigSplit.addAxes('vppTime', 'Units', 'Normalized', 'OuterPosition', [0 0 0.7 0.5]);
@@ -106,7 +156,7 @@ function autoSplit(obj, multisite)
     hFigSplit.figData.iSite = iSite;
     hFigSplit.figData.refracInt = obj.hCfg.refracInt/1000;
     while 1
-        [assigns, pcaFeatures] = doAutoSplit(sampledTraces, [double(clusterTimes) double(localVpp')], nSplits); %TW
+        [assigns, pcaFeatures] = doAutoSplit(sampledTraces, [double(clusterTimes) double(localVpp')], hFigSplit); %TW
         hFigSplit.figData.pcaFeatures = pcaFeatures;
         hFigSplit.figData.clusterTimes = double(clusterTimes)/obj.hCfg.sampleRate;
         hFigSplit.figData.localVpp = double(localVpp');
@@ -135,7 +185,7 @@ function autoSplit(obj, multisite)
 end
 
 %% LOCAL FUNCTIONS
-function [assigns, pcaFeatures] = doAutoSplit(sampledSpikes, spikeFeatures, nSplits)
+function [assigns, pcaFeatures] = doAutoSplit(sampledSpikes, spikeFeatures, hFigSplit)
     %DOAUTOSPLIT
     % TODO: ask users number of clusters and split multi-way
     %Make automatic split of clusters using PCA + hierarchical clustering
@@ -146,12 +196,42 @@ function [assigns, pcaFeatures] = doAutoSplit(sampledSpikes, spikeFeatures, nSpl
     % ask how many clusters there are
     try
         combinedFeatures = (combinedFeatures - mean(combinedFeatures, 1)) ./ std(combinedFeatures, 1);
-        assigns = clusterdata(combinedFeatures, 'linkage', 'ward', ...
-                              'distance', 'euclidean', ...
-                              'maxclust', nSplits, 'savememory', 'on');
-    catch % not enough features to automatically split
+        assigns = hFigSplit.figData.hFunSplit(combinedFeatures);
+    catch % not enough features to automatically split or some other failure
         assigns = ones(nSpikes, 1);
     end
+end
+
+function doCancel(splitDlg, hFigSplit)
+    delete(splitDlg);
+    hFigSplit.figData.nSplits = 0;
+end
+
+function preSplit(splitDlg, nsplit, btngrp, hFigSplit)
+    whichSelected = logical(arrayfun(@(child) child.Value, btngrp.Children));
+    selected = btngrp.Children(whichSelected);
+
+    nsplit = floor(str2double(nsplit));
+    if isnan(nsplit)
+        nsplit = 2;
+    end
+
+    switch selected.String
+        case 'K-means'
+            hFigSplit.figData.hFunSplit = @(X) kmeans(X, nsplit);
+        case 'K-medoids'
+            hFigSplit.figData.hFunSplit = @(X) kmedoids(X, nsplit);
+        otherwise
+            hFigSplit.figData.hFunSplit = @(X) clusterdata(X, ...
+                                                           'maxclust', nsplit, ...
+                                                           'linkage', 'ward', ...
+                                                           'distance', 'euclidean', ...
+                                                           'savememory', 'on');
+    end
+
+    delete(splitDlg)
+
+    hFigSplit.figData.nSplits = nsplit;
 end
 
 function updateSplitPlots(hFigSplit)

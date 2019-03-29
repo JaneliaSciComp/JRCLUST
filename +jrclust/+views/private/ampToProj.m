@@ -1,4 +1,4 @@
-function [XData, YData, validXY, boxShape] = ampToProj(YData, XData, bounds, maxPair, hCfg)
+function [XData, YData, assigns] = ampToProj(YData, XData, bounds, maxPair, hCfg)
     %AMPTOPROJ Reshape feature data from nSpikes x nSites to display in an
     %nSites x nSites grid
     %   input: YData, nSpikes x nSites, y-values for feature projection
@@ -13,12 +13,15 @@ function [XData, YData, validXY, boxShape] = ampToProj(YData, XData, bounds, max
 
     % spike features translated into site-site boxes
     [boxedX, boxedY] = deal(nan([nSpikes, nSites, nSites], 'single'));
+    assigns = zeros([nSpikes, nSites, nSites]);
 
     for jSite = 1:nSites
         jSiteY = YData(:, jSite);
         yMask = jSiteY > 0  & jSiteY < 1; % get points away from the boundaries
 
         for iSite = 1:nSites
+            assigns(:, jSite, iSite) = 1:nSpikes;
+
             if abs(iSite - jSite) > maxPair
                 continue;
             end
@@ -46,7 +49,8 @@ function [XData, YData, validXY, boxShape] = ampToProj(YData, XData, bounds, max
     YData = boxedY(validXY);
     YData = YData(:);
 
-    boxShape = [nSpikes, nSites, nSites];
+    assigns = assigns(validXY);
+    assigns = assigns(:);
 end
 
 %% LOCAL FUNCTIONS
