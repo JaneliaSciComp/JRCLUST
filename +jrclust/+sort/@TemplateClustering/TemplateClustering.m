@@ -29,7 +29,9 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
             obj.dRes = dRes;
             obj.hCfg = hCfg;
 
-            obj.spikeClusters = sRes.spikeClusters;
+            if isfield(sRes, 'spikeClusters')
+                obj.spikeClusters = sRes.spikeClusters;
+            end
 
             obj.clearNotes();
             obj.refresh(1, []);

@@ -17,7 +17,7 @@ classdef (Abstract) Clustering < handle
     end
 
     %% SORTING DATA (MUTABLE)
-    properties (SetAccess=protected, SetObservable)
+    properties (SetObservable)
         clusterCentroids;   % centroids of clusters on the probe
         clusterNotes;       % notes on clusters
         clusterSites;       % mode site per cluster
@@ -46,7 +46,7 @@ classdef (Abstract) Clustering < handle
     end
 
     %% QUALITY METRICS
-    properties (SetAccess=protected, SetObservable)
+    properties (SetObservable)
         unitPeaks;          % minimum voltage of mean filtered waveforms at peak site, per cluster
         unitPeaksRaw;       % minimum voltage (uV) of mean raw waveforms at peak site, per cluster
         unitPeakSites;      % sites on which unitPeaks occur

@@ -20,36 +20,38 @@ function saveRes(obj, forceOverwrite)
     obj.hCfg.updateLog('saveRes', sprintf('Saving results to %s', obj.hCfg.resFile), 1, 0);
     % save everything else (don't save spikesRaw, spikesFilt,
     % spikeFeatures inside hClust)
-    restoreFields = struct(); % restore these fields to hClust after saving
+    % don't save these large fields
+    res_ = rmfield(obj.res, 'hClust');
+
     if isfield(obj.res, 'hClust')
-        restoreFields.dRes = obj.res.hClust.dRes;
-        obj.res.hClust.dRes = [];
+        hClust = obj.res.hClust;
 
-        restoreFields.sRes = obj.res.hClust.sRes;
-        obj.res.hClust.sRes = [];
+        res_.initialClustering = hClust.initialClustering;
+        res_.spikeClusters = hClust.spikeClusters;
 
-        % fieldnames contained in dRes and sRes
-        dsFields = union(fieldnames(restoreFields.dRes), fieldnames(restoreFields.sRes));
+        % fieldnames contained in dRes or sRes
+        dsFields = union(fieldnames(hClust.dRes), fieldnames(hClust.sRes));
         % fieldnames from hClust which are not in dRes or sRes
-        hClustOnly = setdiff(fieldnames(obj.res.hClust), dsFields);
-        % any redundancies with res?
-        intersectFields = intersect(fieldnames(obj.res), hClustOnly);
-        for i = 1:numel(intersectFields)
-            fn = intersectFields{i};
-            if jrclust.utils.isEqual(obj.res.(fn), obj.res.hClust.(fn))
-                restoreFields.(fn) = obj.res.hClust.(fn);
-                obj.res.hClust.(fn) = [];
-            end
+        hClustOnly = setdiff(fieldnames(hClust), dsFields);
+        for i = 1:numel(hClustOnly)
+            fn = hClustOnly{i};
+            % hClust fields take precedence
+            res_.(fn) = hClust.(fn);
         end
     end
 
-    % don't save these large fields
-    res_ = obj.res;
+    % don't save these fields
     if isfield(res_, 'spikesRaw')
         res_ = rmfield(res_, 'spikesRaw');
     end
+    if isfield(res_, 'spikesRawVolt')
+        res_ = rmfield(res_, 'spikesRawVolt');
+    end
     if isfield(res_, 'spikesFilt')
         res_ = rmfield(res_, 'spikesFilt');
+    end
+    if isfield(res_, 'spikesFiltVolt')
+        res_ = rmfield(res_, 'spikesFiltVolt');
     end
     if isfield(res_, 'spikesFilt2')
         res_ = rmfield(res_, 'spikesFilt2');
@@ -60,17 +62,21 @@ function saveRes(obj, forceOverwrite)
     if isfield(res_, 'spikeFeatures')
         res_ = rmfield(res_, 'spikeFeatures');
     end
+    if isfield(res_, 'nClusters')
+        res_ = rmfield(res_, 'nClusters');
+    end
+    if isfield(res_, 'nEdits')
+        res_ = rmfield(res_, 'nEdits');
+    end
+    if isfield(res_, 'unitFields')
+        res_ = rmfield(res_, 'unitFields');
+    end
     if isfield(res_, 'hRecs')
         res_ = rmfield(res_, 'hRecs');
     end
 
     jrclust.utils.saveStruct(res_, obj.hCfg.resFile);
-
-    restoreFieldNames = fieldnames(restoreFields);
-    for i = 1:numel(restoreFieldNames)
-        fn = restoreFieldNames{i};
-        obj.res.hClust.(fn) = restoreFields.(fn);
-    end
+    obj.res.hClust = hClust;
 
     obj.hCfg.updateLog('saveRes', sprintf('Results saved to %s', obj.hCfg.resFile), 0, 1);
 end

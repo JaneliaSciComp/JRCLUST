@@ -37,6 +37,7 @@ function loadFiles(obj)
             spikesFilt = [];
         end
 
+        % load spikeFeatures
         if isfield(res_, 'featuresShape')
             obj.hCfg.updateLog('loadFeatures', sprintf('Loading %s', obj.hCfg.featuresFile), 1, 0);
             spikeFeatures = readBin(obj.hCfg.featuresFile, res_.featuresShape, '*single');
@@ -82,6 +83,28 @@ function loadFiles(obj)
 
             % supply hClust with our own hCfg
             res_.hClust.hCfg = obj.hCfg;
+        elseif isfield(res_, 'spikeTemplates') % create a new TemplateClustering
+            hClust = jrclust.sort.TemplateClustering(struct(), struct(), obj.hCfg);
+            fieldNames = fieldnames(res_);
+            for i = 1:numel(fieldNames)
+                fn = fieldNames{i};
+                if isprop(hClust, fn)
+                    hClust.(fn) = res_.(fn);
+                end
+            end
+
+            res_.hClust = hClust;
+        elseif isfield(res_, 'spikeClusters')
+            hClust = jrclust.sort.DensityPeakClustering(struct(), struct(), obj.hCfg);
+            fieldNames = fieldnames(res_);
+            for i = 1:numel(fieldNames)
+                fn = fieldNames{i};
+                if isprop(hClust, fn)
+                    hClust.(fn) = res_.(fn);
+                end
+            end
+
+            res_.hClust = hClust;
         end
 
         if isfield(res_, 'hRecs') % don't try to load recordings

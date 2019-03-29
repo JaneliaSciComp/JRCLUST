@@ -208,12 +208,15 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
         end
 
         % rhoCuts
-        function rc = get.rhoCuts(obj)
+        function val = get.rhoCuts(obj)
             if isfield(obj.sRes, 'rhoCutSite')
-                rc = obj.sRes.rhoCutSite;
+                val = obj.sRes.rhoCutSite;
             else
-                rc = [];
+                val = [];
             end
+        end
+        function set.rhoCuts(obj, val)
+            obj.sRes.rhoCutSite = val;
         end
 
         % waveformSim/mrWavCor

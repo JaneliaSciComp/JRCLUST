@@ -2,7 +2,7 @@
 
 - Allow user to select exploratory clustering algorithm in main split.
 - Allow user to split in FigProj.
-
+- hClust is no longer saved to _res.mat. Now all fields are available without having a copy of JRCLUST installed.
 
 27 Mar 2019
 
