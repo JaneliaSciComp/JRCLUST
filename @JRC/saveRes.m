@@ -75,7 +75,9 @@ function saveRes(obj, forceOverwrite)
     end
 
     jrclust.utils.saveStruct(res_, obj.hCfg.resFile);
-    obj.res.hClust = hClust;
+    if exist('hClust', 'var') == 1
+        obj.res.hClust = hClust;
+    end
 
     obj.hCfg.updateLog('saveRes', sprintf('Results saved to %s', obj.hCfg.resFile), 0, 1);
 end
