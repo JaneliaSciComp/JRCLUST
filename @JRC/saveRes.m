@@ -18,14 +18,11 @@ function saveRes(obj, forceOverwrite)
     end
 
     obj.hCfg.updateLog('saveRes', sprintf('Saving results to %s', obj.hCfg.resFile), 1, 0);
-    % save everything else (don't save spikesRaw, spikesFilt,
-    % spikeFeatures inside hClust)
-    % don't save these large fields
-    res_ = rmfield(obj.res, 'hClust');
 
     if isfield(obj.res, 'hClust')
         hClust = obj.res.hClust;
 
+        res_ = rmfield(obj.res, 'hClust');
         res_.initialClustering = hClust.initialClustering;
         res_.spikeClusters = hClust.spikeClusters;
 
@@ -38,6 +35,8 @@ function saveRes(obj, forceOverwrite)
             % hClust fields take precedence
             res_.(fn) = hClust.(fn);
         end
+    else
+        res_ = obj.res;
     end
 
     % don't save these fields
