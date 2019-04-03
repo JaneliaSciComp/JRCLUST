@@ -19,11 +19,10 @@ function res = computeRho(dRes, res, hCfg)
         rhoCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
         rhoCK.ThreadBlockSize = [hCfg.nThreadsGPU, 1];
         rhoCK.SharedMemorySize = 4 * chunkSize * (2 + nC_max + 2*hCfg.nThreadsGPU);
-        rhoCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
     else
         rhoCK = [] ;
     end
-    
+
     spikeData = struct('spikeTimes', dRes.spikeTimes);
     for iSite = 1:hCfg.nSites
         if isfield(dRes, 'spikesBySite')
@@ -45,6 +44,9 @@ function res = computeRho(dRes, res, hCfg)
         end
 
         [siteFeatures, ~, n1, n2, spikeOrder] = jrclust.features.getSiteFeatures(dRes.spikeFeatures, iSite, spikeData, hCfg);
+        if hCfg.useGPU
+            rhoCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
+        end
 
         if isempty(siteFeatures)
             continue;
@@ -59,7 +61,7 @@ function res = computeRho(dRes, res, hCfg)
             siteCut = res.rhoCutGlobal.^2;
         end
 
-        
+
         siteRho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, siteCut, rhoCK, hCfg);
 
         res.spikeRho(spikeData.spikes1) = jrclust.utils.tryGather(siteRho);

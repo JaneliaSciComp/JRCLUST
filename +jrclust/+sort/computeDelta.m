@@ -11,11 +11,10 @@ function res = computeDelta(dRes, res, hCfg)
         deltaCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
         deltaCK.ThreadBlockSize = [hCfg.nThreadsGPU, 1];
         deltaCK.SharedMemorySize = 4 * chunkSize * (3 + nC_max + 2*hCfg.nThreadsGPU);
-        deltaCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; % MaxGridSize: [2.1475e+09 65535 65535]
     else
         deltaCK = [] ;
     end
-    
+
     spikeData = struct('spikeTimes', dRes.spikeTimes);
     for iSite = 1:hCfg.nSites
         if isfield(dRes, 'spikesBySite')
@@ -37,6 +36,9 @@ function res = computeDelta(dRes, res, hCfg)
         end
 
         [siteFeatures, spikes, n1, n2, spikeOrder] = jrclust.features.getSiteFeatures(dRes.spikeFeatures, iSite, spikeData, hCfg);
+        if hCfg.useGPU
+            deltaCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; % MaxGridSize: [2.1475e+09 65535 65535]
+        end
 
         if isempty(siteFeatures)
             continue;
