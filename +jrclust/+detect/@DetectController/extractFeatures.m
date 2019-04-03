@@ -1,12 +1,14 @@
 function spikeData = extractFeatures(obj, spikeData)
     %EXTRACTFEATURES Extract features from filtered spike traces
-    S = gpuDevice();
+    if obj.hCfg.useGPU
+        S = gpuDevice();
+    end
 
     obj.hCfg.updateLog('extractFeatures', 'Extracting features', 1, 0);
 
     if obj.hCfg.nPeaksFeatures >= 1
         % try to compute in GPU iff we have the memory
-        if floor(log10(numel(spikeData.spikesFilt)*jrclust.utils.typeBytes('single'))) < floor(log10(S(1).AvailableMemory))
+        if obj.hCfg.useGPU && floor(log10(numel(spikeData.spikesFilt)*jrclust.utils.typeBytes('single'))) < floor(log10(S(1).AvailableMemory))
             spikesFilt = jrclust.utils.tryGpuArray(spikeData.spikesFilt, obj.hCfg.useGPU);
         else
             spikesFilt = spikeData.spikesFilt;
@@ -21,7 +23,7 @@ function spikeData = extractFeatures(obj, spikeData)
 
     if obj.hCfg.nPeaksFeatures >= 2
         % try to compute in GPU iff we have the memory
-        if floor(log10(numel(spikeData.spikesFilt2)*jrclust.utils.typeBytes('single'))) < floor(log10(S(1).AvailableMemory))
+        if obj.hCfg.useGPU && floor(log10(numel(spikeData.spikesFilt2)*jrclust.utils.typeBytes('single'))) < floor(log10(S(1).AvailableMemory))
             spikesFilt2 = jrclust.utils.tryGpuArray(spikeData.spikesFilt2, obj.hCfg.useGPU);
         else
             spikesFilt2 = spikeData.spikesFilt2;
@@ -36,7 +38,7 @@ function spikeData = extractFeatures(obj, spikeData)
 
     if obj.hCfg.nPeaksFeatures == 3
         % try to compute in GPU iff we have the memory
-        if floor(log10(numel(spikeData.spikesFilt3)*jrclust.utils.typeBytes('single'))) < floor(log10(S(1).AvailableMemory))
+        if obj.hCfg.useGPU && floor(log10(numel(spikeData.spikesFilt3)*jrclust.utils.typeBytes('single'))) < floor(log10(S(1).AvailableMemory))
             spikesFilt3 = jrclust.utils.tryGpuArray(spikeData.spikesFilt3, obj.hCfg.useGPU);
         else
             spikesFilt3 = spikeData.spikesFilt3;
