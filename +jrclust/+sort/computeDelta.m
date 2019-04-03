@@ -5,12 +5,17 @@ function res = computeDelta(dRes, res, hCfg)
     % create CUDA kernel
     chunkSize = 16;
     nC_max = 45;
-    ptxFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_delta.ptx');
-    cuFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_delta.cu');
-    deltaCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
-    deltaCK.ThreadBlockSize = [hCfg.nThreadsGPU, 1];
-    deltaCK.SharedMemorySize = 4 * chunkSize * (3 + nC_max + 2*hCfg.nThreadsGPU);
-
+    if hCfg.useGPU
+        ptxFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_delta.ptx');
+        cuFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_delta.cu');
+        deltaCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
+        deltaCK.ThreadBlockSize = [hCfg.nThreadsGPU, 1];
+        deltaCK.SharedMemorySize = 4 * chunkSize * (3 + nC_max + 2*hCfg.nThreadsGPU);
+        deltaCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; % MaxGridSize: [2.1475e+09 65535 65535]
+    else
+        deltaCK = [] ;
+    end
+    
     spikeData = struct('spikeTimes', dRes.spikeTimes);
     for iSite = 1:hCfg.nSites
         if isfield(dRes, 'spikesBySite')
@@ -43,7 +48,6 @@ function res = computeDelta(dRes, res, hCfg)
         spikeOrder = jrclust.utils.tryGpuArray(spikeOrder, hCfg.useGPU);
 
         try
-            deltaCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; % MaxGridSize: [2.1475e+09 65535 65535]
             [siteDelta, siteNN] = computeDeltaSite(siteFeatures, spikeOrder, rhoOrder, n1, n2, res.rhoCutSite(iSite), deltaCK, hCfg);
             [siteDelta, siteNN] = jrclust.utils.tryGather(siteDelta, siteNN);
         catch ME % can't continue!

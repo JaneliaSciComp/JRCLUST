@@ -13,12 +13,17 @@ function res = computeRho(dRes, res, hCfg)
     % create CUDA kernel
     chunkSize = 16;
     nC_max = 45;
-    ptxFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.ptx');
-    cuFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.cu');
-    rhoCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
-    rhoCK.ThreadBlockSize = [hCfg.nThreadsGPU, 1];
-    rhoCK.SharedMemorySize = 4 * chunkSize * (2 + nC_max + 2*hCfg.nThreadsGPU);
-
+    if hCfg.useGPU
+        ptxFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.ptx');
+        cuFile = fullfile(jrclust.utils.basedir(), '+jrclust', '+CUDA', 'jrc_cuda_rho.cu');
+        rhoCK = parallel.gpu.CUDAKernel(ptxFile, cuFile);
+        rhoCK.ThreadBlockSize = [hCfg.nThreadsGPU, 1];
+        rhoCK.SharedMemorySize = 4 * chunkSize * (2 + nC_max + 2*hCfg.nThreadsGPU);
+        rhoCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
+    else
+        rhoCK = [] ;
+    end
+    
     spikeData = struct('spikeTimes', dRes.spikeTimes);
     for iSite = 1:hCfg.nSites
         if isfield(dRes, 'spikesBySite')
@@ -54,7 +59,7 @@ function res = computeRho(dRes, res, hCfg)
             siteCut = res.rhoCutGlobal.^2;
         end
 
-        rhoCK.GridSize = [ceil(n1/chunkSize^2), chunkSize]; %MaxGridSize: [2.1475e+09 65535 65535]
+        
         siteRho = computeRhoSite(siteFeatures, spikeOrder, n1, n2, siteCut, rhoCK, hCfg);
 
         res.spikeRho(spikeData.spikes1) = jrclust.utils.tryGather(siteRho);

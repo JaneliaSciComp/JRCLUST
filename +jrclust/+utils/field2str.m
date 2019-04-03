@@ -36,14 +36,18 @@ function strval = field2str(val)
         case 'struct'
             strval = 'struct(';
             strFields = fieldnames(val);
-            for i = 1:numel(strFields) - 1
-                fn = strFields{i};
+            if isempty(strFields)
+                strval = [strval, ')'];
+            else
+                for i = 1:numel(strFields) - 1
+                    fn = strFields{i};
+                    strval = [strval, sprintf('''%s'', ', fn), ...
+                            jrclust.utils.field2str(val.(fn)), ', '];
+                end
+                fn = strFields{end};
                 strval = [strval, sprintf('''%s'', ', fn), ...
-                          jrclust.utils.field2str(val.(fn)), ', '];
+                            jrclust.utils.field2str(val.(fn)), ')'];
             end
-            fn = strFields{end};
-            strval = [strval, sprintf('''%s'', ', fn), ...
-                          jrclust.utils.field2str(val.(fn)), ')'];
             return;
 
         otherwise
