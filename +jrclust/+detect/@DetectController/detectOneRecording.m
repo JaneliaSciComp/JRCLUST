@@ -1,22 +1,25 @@
-function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
+function recData = detectOneRecording(obj, hRec, fids, impTimes, impSites, siteThresh)
     %DETECTONERECORDING Detect spikes in a single Recording
-    if nargin < 3
+    if nargin < 4
         impTimes = [];
     end
-    if nargin < 4
+    if nargin < 5
         impSites = [];
     end
-    if nargin < 5
+    if nargin < 6
         siteThresh = [];
     end
+
+    rawFid = fids(1);
+    filtFid = fids(2);
 
     recData = struct('siteThresh', siteThresh(:), ...
                      'spikeTimes', [], ...
                      'spikeAmps', [], ...
                      'spikeSites', [], ...
                      'centerSites', [], ...
-                     'spikesRaw', [], ...
-                     'spikesFilt', [], ...
+                     'rawShape', [], ...
+                     'filtShape', [], ...
                      'spikesFilt2', [], ...
                      'spikesFilt3', [], ...
                      'spikeFeatures', []);
@@ -187,16 +190,28 @@ function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
         recData.spikeSites = cat(1, recData.spikeSites, loadData.spikeSites);
         recData.siteThresh = [recData.siteThresh, loadData.siteThresh];
 
-        % extract spike windows: adds spikesRaw, spikesFilt, centerSites,
-        %                        spikesFilt2, spikesFilt3;
-        %                        updates spikeTimes
+        % extract spike windows: adds centerSites, updates spikeTimes
         loadData = obj.samplesToWindows(loadData);
         recData.centerSites = cat(1, recData.centerSites, loadData.centerSites);
         recData.spikeTimes = cat(1, recData.spikeTimes, loadData.spikeTimes + loadOffset - size(samplesPre, 1));
-        recData.spikesRaw = cat(3, recData.spikesRaw, loadData.spikesRaw);
-        recData.spikesFilt = cat(3, recData.spikesFilt, loadData.spikesFilt);
         recData.spikesFilt2 = cat(3, recData.spikesFilt2, loadData.spikesFilt2);
         recData.spikesFilt3 = cat(3, recData.spikesFilt3, loadData.spikesFilt3);
+
+        % write out spikesRaw and update shape
+        fwrite(rawFid, loadData.spikesRaw, '*int16');
+        if isempty(recData.rawShape)
+            recData.rawShape = size(loadData.spikesRaw);
+        else
+            recData.rawShape(3) = recData.rawShape(3) + size(loadData.spikesRaw, 3);
+        end
+
+        % write out spikesFilt and update shape
+        fwrite(filtFid, loadData.spikesFilt, '*int16');
+        if isempty(recData.filtShape)
+            recData.filtShape = size(loadData.spikesFilt);
+        else
+            recData.filtShape(3) = recData.filtShape(3) + size(loadData.spikesFilt, 3);
+        end
 
         % compute features: adds spikeFeatures
         if ~obj.hCfg.getOr('extractAfterDetect', 0)
@@ -217,10 +232,6 @@ function recData = detectOneRecording(obj, hRec, impTimes, impSites, siteThresh)
 
     hRec.closeRaw();
     hRec.closeFilt();
-
-    if obj.hCfg.getOr('extractAfterDetect', 0) && ~strcmp(obj.hCfg.clusterFeature, 'gpca')
-        recData = obj.extractFeatures(recData);
-    end
 end
 
 %% LOCAL FUNCTIONS

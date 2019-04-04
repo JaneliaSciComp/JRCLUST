@@ -1,6 +1,9 @@
 4 Apr 2019
 
 - Kilosort importer reads from NPY files instead of rez.mat (npy-matlab is required for this feature)
+- spikesRaw and spikesFilt are written to disk as they are computed, rather than all at once, to save memory (restores v3 behavior)
+- removes JRC/saveBinaries due to the above
+- New parameter: extractAfterDetect allows you to specify whether you want your features computed after ALL spikes are detected or on a per-chunk, per-file basis.
 
 29 Mar 2019 (4.0.0-beta release)
 

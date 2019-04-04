@@ -23,13 +23,16 @@ function res = detect(obj)
                  'spikeTimes', [], ...
                  'spikeAmps', [], ...
                  'centerSites', [], ...
-                 'spikesRaw', [], ...
-                 'spikesFilt', [], ...
+                 'rawShape', [], ...
+                 'filtShape', [], ...
                  'spikesFilt2', [], ...
                  'spikesFilt3', [], ...
                  'spikeFeatures', []);
 
     recOffset = 0; % sample offset for each recording in sequence
+
+    rawFid = fopen(obj.hCfg.rawFile, 'w');
+    filtFid = fopen(obj.hCfg.filtFile, 'w');
 
     % load from files
     for iRec = 1:nRecs
@@ -60,7 +63,7 @@ function res = detect(obj)
         end
 
         obj.hCfg.updateLog('fileLoad', sprintf('Processing file %s (%d/%d)', hRec.rawPath, iRec, nRecs), 1, 0);
-        recData = obj.detectOneRecording(hRec, impTimes, impSites, siteThresh);
+        recData = obj.detectOneRecording(hRec, [rawFid, filtFid], impTimes, impSites, siteThresh);
 
         obj.hCfg.updateLog('fileLoad', sprintf('Finished processing file %s (%d/%d)', hRec.rawPath, iRec, nRecs), 0, 1);
 
@@ -68,22 +71,51 @@ function res = detect(obj)
         res.spikeTimes = cat(1, res.spikeTimes, recData.spikeTimes + recOffset);
         res.spikeAmps = cat(1, res.spikeAmps, recData.spikeAmps);
         res.centerSites = cat(1, res.centerSites, recData.centerSites);
-        res.spikesRaw = cat(3, res.spikesRaw, recData.spikesRaw);
-        res.spikesFilt = cat(3, res.spikesFilt, recData.spikesFilt);
         res.spikesFilt2 = cat(3, res.spikesFilt2, recData.spikesFilt2);
         res.spikesFilt3 = cat(3, res.spikesFilt3, recData.spikesFilt3);
         if isfield(recData, 'spikeFeatures')
             res.spikeFeatures = cat(3, res.spikeFeatures, recData.spikeFeatures);
         end
 
+        % update rawShape, filtShape
+        if isempty(res.rawShape)
+            res.rawShape = recData.rawShape;
+        else
+            res.rawShape(3) = res.rawShape(3) + size(recData.rawShape, 3);
+        end
+        if isempty(res.filtShape)
+            res.filtShape = recData.filtShape;
+        else
+            res.filtShape(3) = res.filtShape(3) + size(recData.filtShape, 3);
+        end
+
         recOffset = recOffset + hRec.nSamples;
         hRecs{iRec} = hRec;
     end % for
 
+    % close raw/filtered spike files
+    try
+        fclose(rawFid);
+        fclose(filtFid);
+    catch ME
+    end
+
+    % load in spikesRaw, spikesFilt
+    fid = fopen(obj.hCfg.rawFile, 'r');
+    res.spikesRaw = reshape(fread(fid, inf, '*int16'), res.rawShape);
+    fclose(fid);
+    fid = fopen(obj.hCfg.filtFile, 'r');
+    res.spikesFilt = reshape(fread(fid, inf, '*int16'), res.filtShape);
+    fclose(fid);
+
     % compute features from all spikes over all recordings
-    if obj.hCfg.getOr('extractAfterDetect', 0) && strcmp(obj.hCfg.clusterFeature, 'gpca')
+    if obj.hCfg.getOr('extractAfterDetect', 0) || strcmp(obj.hCfg.clusterFeature, 'gpca')
         res = obj.extractFeatures(res);
     end
+
+    featuresFid = fopen(obj.hCfg.featuresFile, 'w');
+    fwrite(featuresFid, res.spikeFeatures, '*single');
+    fclose(featuresFid);
 
     % compute the mean of the siteThresh from each recording
     res.meanSiteThresh = mean(single(res.siteThresh), 2);
@@ -116,8 +148,6 @@ function res = detect(obj)
     end
 
     % detected spikes (raw and filtered), features
-    res.rawShape = size(res.spikesRaw);
-    res.filtShape = size(res.spikesFilt);
     res.featuresShape = size(res.spikeFeatures);
 
     % spike positions

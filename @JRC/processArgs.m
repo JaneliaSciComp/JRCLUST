@@ -154,7 +154,6 @@ function processArgs(obj)
                 obj.res = res_;
 
                 obj.saveRes();
-                obj.saveBinaries();
                 obj.hCfg.save('', 1);
 
                 obj.isCompleted = 1;

@@ -843,6 +843,16 @@
                 "display"
             ]
         },
+        "extractAfterDetect": {
+            "description": "Extract features only after detecting all spikes across all files if true",
+            "comment": "This is effectively set to true if you specify clusterFeature='gpca'",
+            "default_value": false,
+            "validation": {
+                "classes": ["logical"],
+                "attributes": ["scalar"]
+            },
+            "section": ["feature extraction"]
+        },
         "fftThresh": {
             "description": "Threshold (in MADs of power-frequency product) above which to remove frequency outliers",
             "comment": "",

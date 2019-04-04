@@ -757,6 +757,18 @@ are extracted before and after the spiking event.
 
 **Default** is [-0.5, 1.5].
 
+.. _extractAfterDetect:
+
+extractAfterDetect
+^^^^^^^^^^^^^^^^^^
+
+Extract features only after detecting all spikes across all files if true.
+Otherwise, features will be computed on a per-chunk, per-file basis, which may not be what you want.
+
+This is effectively set to true if you specify :ref:`clusterFeature` = 'gpca'.
+
+**Default** is false.
+
 .. _fftThresh:
 
 fftThresh
