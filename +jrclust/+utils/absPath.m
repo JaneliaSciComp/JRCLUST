@@ -11,7 +11,7 @@ function ap = absPath(pathname, basedir)
         ap = '';
     elseif strcmp(pathname, '.')
         ap = pwd();
-    elseif exist(pathname, 'file') == 2 && all(regexp(pathname, '^\.[/\\]') == 1)
+    elseif exist(pathname, 'file') == 2 && ~isempty(regexp(pathname, '^\.[/\\]', 'once'))
         basedir = pwd();
         [~, filename, ext] = fileparts(pathname);
         ap = fullfile(basedir, [filename, ext]);
