@@ -1,5 +1,5 @@
-function [hCfg, res] = kilosort(rezFile)
-    %KILOSORT Import a Kilosort session from rez.mat
+function [hCfg, res] = kilosort(loadPath)
+    %KILOSORT Import a Kilosort session from NPY files
     [hCfg, res] = deal([]);
 
     if exist('readNPY', 'file') ~= 2
@@ -7,63 +7,59 @@ function [hCfg, res] = kilosort(rezFile)
         return;
     end
 
-    rezFile_ = jrclust.utils.absPath(rezFile);
-    if isempty(rezFile_)
-        error('Could not find file ''%s''', rezFile);
+    loadPath_ = jrclust.utils.absPath(loadPath);
+    if isempty(loadPath_)
+        error('Could not find path ''%s''', loadPath);
+    elseif exist(loadPath, 'dir') ~= 7
+        error('''%s'' is not a directory', loadPath);
     end
 
-    rezFile = rezFile_;
-    workingdir = fileparts(rezFile);
+    loadPath = loadPath_;
 
-    try
-        load(rezFile, 'rez');
-    catch ME
-        error('Failed to load ''%s'': %s', rezFile, ME.message);
-    end
+    cfgData = struct();
+    cfgData.outputDir = loadPath;
+    
+    % load params and set them in cfgData
+    params = parseParams(fullfile(loadPath, 'params.py'));
+    channelMap = readNPY(fullfile(loadPath, 'channel_map.npy')) + 1;
+    channelPositions = readNPY(fullfile(loadPath, 'channel_positions.npy'));
 
-    rezFields = fieldnames(rez); %#ok<NODEF>
-    for i = 1:numel(rezFields)
-        fn = rezFields{i};
-        if isa(rez.(fn), 'gpuArray')
-            rez.(fn) = jrclust.utils.tryGather(rez.(fn));
-        end
-    end
+    cfgData.sampleRate = params.sample_rate;
+    cfgData.nChans = params.n_channels_dat;
+    cfgData.dataType = params.dtype;
+    cfgData.headerOffset = params.offset;
+    cfgData.siteMap = channelMap;
+    cfgData.siteLoc = channelPositions;
+    cfgData.shankMap = ones(size(channelMap), 'like', channelMap); % this can change with a prm file
+    cfgData.rawRecordings = {params.dat_path};
 
-    spikeTimes = rez.st3(:, 1);
-    spikeTemplates = rez.st3(:, 2);
+    hCfg = jrclust.Config(cfgData);
+    
+    hCfg.updateLog('import-kilosort', sprintf('Loading NPY files from %s', loadPath), 1, 0);
 
-    amplitudes = rez.st3(:, 3);
+    % load spike data
+    amplitudes = readNPY(fullfile(loadPath, 'amplitudes.npy'));
+    spikeTimes = readNPY(fullfile(loadPath, 'spike_times.npy')) + 1;
+    spikeTemplates = readNPY(fullfile(loadPath, 'spike_templates.npy')) + 1;
+    spikeClusters = readNPY(fullfile(loadPath, 'spike_clusters.npy')) + 1;
+    simScore = readNPY(fullfile(loadPath, 'similar_templates.npy'));
+    templates = readNPY(fullfile(loadPath, 'templates.npy')); % nTemplates x nSamples x nChannels
+    
+    cProj = readNPY('template_features.npy')';
+    iNeigh = readNPY('template_feature_ind.npy')';
+    cProjPC = permute(readNPY('pc_features.npy'), [2 3 1]); % nFeatures x nSites x nSpikes
+    iNeighPC = readNPY('pc_feature_ind.npy')';
 
-    if ~isfield(rez, 'ccb') && size(rez.st3, 2) > 4 % Kilosort1
-        spikeClusters = 1 + rez.st3(:, 5);
-    else
-        spikeClusters = spikeTemplates;
-    end
+    hCfg.updateLog('import-kilosort', 'Finished loading files', 0, 1);
 
     [clusterIDs, ~, indices] = unique(spikeClusters);
     goodClusters = clusterIDs(clusterIDs > 0);
     junkClusters = setdiff(clusterIDs, goodClusters);
     clusterIDsNew = [junkClusters' 1:numel(goodClusters)]';
     spikeClusters = clusterIDsNew(indices);
-    nTemplates = size(rez.simScore, 1);
 
-    % nClusters = numel(goodClusters);
-
-    % clusterTemplates = arrayfun(@(iCluster) unique(spikeTemplates(spikeClusters == iCluster)), 1:nClusters, 'UniformOutput', 0);
-
-    % compute templates
-    nt0 = size(rez.W, 1);
-    U = rez.U;
-    W = rez.W;
-
-    Nfilt = size(W, 2);
-    Nchan = rez.ops.Nchan;
-
-    templates = zeros(Nchan, nt0, Nfilt, 'single');
-    for iNN = 1:size(templates,3)
-       templates(:,:,iNN) = squeeze(U(:,iNN,:)) * squeeze(W(:,iNN,:))';
-    end
-    templates = permute(templates, [3 2 1]); % nTemplates x nSamples x nChannels
+    nTemplates = size(templates, 1);
+    nClusters = numel(goodClusters);
 
     spikeSites = zeros(size(spikeClusters), 'like', spikeClusters);
     for iTemplate = 1:nTemplates
@@ -73,37 +69,16 @@ function [hCfg, res] = kilosort(rezFile)
         spikeSites(spikeTemplates == iTemplate) = tSite;
     end
 
-    % import features
-    if isfield(rez, 'cProj') && ~isempty(rez.cProj)
-        cProj = rez.cProj;
-        iNeigh = rez.iNeigh;
-    elseif exist(fullfile(workingdir, 'template_features.npy'), 'file') == 2
-        cProj = readNPY('template_features.npy')';
-        iNeigh = readNPY('template_feature_ind.npy')';
-    else
-        [cProj, iNeigh] = deal([]);
-    end
-
-    if isfield(rez, 'cProjPC') && ~isempty(rez.cProjPC)
-        cProjPC = permute(rez.cProjPC, [2 3 1]); % nFeatures x nSites x nSpikes
-        iNeighPC = rez.iNeighPC;
-    elseif exist(fullfile(workingdir, 'pc_features.npy'), 'file') == 2
-        cProjPC = permute(readNPY('pc_features.npy'), [2 3 1]); % nFeatures x nSites x nSpikes
-        iNeighPC = readNPY('pc_feature_ind.npy')';
-    else
-        [cProjPC, iNeighPC] = deal([]);
-    end
-
     %%% try to detect the recording file
     % first check for a .meta file
-    binfile = jrclust.utils.absPath(rez.ops.fbinary);
+    binfile = params.dat_path;
     metafile = jrclust.utils.absPath(jrclust.utils.subsExt(binfile, '.meta'));
     if isempty(metafile)
         dlgAns = questdlg('Do you have a .meta file?', 'Import', 'No');
 
         switch dlgAns
             case 'Yes' % select .meta file
-                [metafile, workingdir] = jrclust.utils.selectFile({'*.meta', 'SpikeGLX meta files (*.meta)'; '*.*', 'All Files (*.*)'}, 'Select a .meta file', workingdir, 0);
+                [metafile, loadPath] = jrclust.utils.selectFile({'*.meta', 'SpikeGLX meta files (*.meta)'; '*.*', 'All Files (*.*)'}, 'Select a .meta file', loadPath, 0);
                 if isempty(metafile)
                     return;
                 end
@@ -114,7 +89,7 @@ function [hCfg, res] = kilosort(rezFile)
 
             case 'No' % select recording file
                 if isempty(binfile)
-                    [binfile, workingdir] = jrclust.utils.selectFile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; '*.*', 'All Files (*.*)'}, 'Select a raw recording', workingdir, 0);
+                    [binfile, loadPath] = jrclust.utils.selectFile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; '*.*', 'All Files (*.*)'}, 'Select a raw recording', loadPath, 0);
                     if isempty(binfile)
                         return;
                     end
@@ -128,63 +103,19 @@ function [hCfg, res] = kilosort(rezFile)
     % check for missing binary file
     binfile = jrclust.utils.absPath(binfile);
     if isempty(jrclust.utils.absPath(binfile))
-        binfile = jrclust.utils.selectFile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; '*.*', 'All Files (*.*)'}, 'Select a raw recording', workingdir, 0);
+        binfile = jrclust.utils.selectFile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; '*.*', 'All Files (*.*)'}, 'Select a raw recording', loadPath, 0);
         if isempty(binfile)
             return;
         end
     end
 
-    % load metafile
+    % load metafile, set bitScaling
     if ~isempty(metafile)
         SMeta_ = jrclust.utils.loadMetadata(metafile);
-        cfgData = struct('sampleRate', SMeta_.sampleRate, ...
-                         'nChans', SMeta_.nChans, ...
-                         'bitScaling', SMeta_.bitScaling, ...
-                         'headerOffset', 0, ...
-                         'dataType', SMeta_.dataType);
-
-        cfgData.rawRecordings = binfile;
-        cfgData.outputDir = workingdir;
+        hCfg.bitScaling = SMeta_.bitScaling;
     else
-        cfgData.sampleRate = rez.ops.fs;
-        cfgData.nChans = rez.ops.NchanTOT;
-        cfgData.dataType = 'int16';
-        cfgData.rawRecordings = binfile;
-        cfgData.outputDir = workingdir;
+        hCfg.bitScaling = 1;
     end
-
-    dlgAns = questdlg('Would you like to specify a probe file?', 'Import', 'No');
-    switch dlgAns
-        case 'Yes' % select .prb file
-            probedir = workingdir;
-            if isempty(dir(fullfile(workingdir, '*.prb')))
-                probedir = fullfile(jrclust.utils.basedir(), 'probes');
-            end
-            [probefile, probedir] = jrclust.utils.selectFile({'*.prb', 'Probe files (*.prb)'; '*.*', 'All Files (*.*)'}, 'Select a probe file', probedir, 0);
-            cfgData.probe_file = fullfile(probedir, probefile);
-
-        case 'No'
-            if isfield(rez, 'connected')
-                cfgData.siteMap = rez.ops.chanMap(rez.connected);
-                if isfield(rez, 'xc')
-                    cfgData.siteLoc = [rez.xc(:) rez.yc(:)];
-                else
-                    cfgData.siteLoc = [rez.xcoords(:) rez.ycoords(:)];
-                    cfgData.siteLoc = cfgData.siteLoc(connected, :);
-                end
-            else
-                cfgData.siteMap = rez.ops.chanMap;
-                cfgData.siteLoc = [rez.xc(:) rez.yc(:)];
-            end
-
-            cfgData.shankMap = rez.ops.kcoords;
-
-        case {'Cancel', ''}
-            return;
-    end
-
-    % construct the Config object from specified data
-    hCfg = jrclust.Config(cfgData);
 
     while 1
         % confirm with the user
@@ -276,7 +207,7 @@ function [hCfg, res] = kilosort(rezFile)
     dRes.spikeSites = spikeSites;
     sRes = struct('spikeClusters', spikeClusters, ...
                   'spikeTemplates', spikeTemplates, ...
-                  'simScore', rez.simScore, ...
+                  'simScore', simScore, ...
                   'amplitudes', amplitudes, ...
                   'templateFeatures', cProj, ...
                   'templateFeatureInd', iNeigh, ...

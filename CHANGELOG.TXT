@@ -1,3 +1,7 @@
+4 Apr 2019
+
+- Kilosort importer reads from NPY files instead of rez.mat (npy-matlab is required for this feature)
+
 29 Mar 2019 (4.0.0-beta release)
 
 - Allow user to select exploratory clustering algorithm in main split.

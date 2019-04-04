@@ -9,6 +9,12 @@ function ap = absPath(pathname, basedir)
 
     if nargin == 0 || ~ischar(pathname) || isempty(pathname)
         ap = '';
+    elseif strcmp(pathname, '.')
+        ap = pwd();
+    elseif exist(pathname, 'file') == 2 && all(regexp(pathname, '^\.[/\\]') == 1)
+        basedir = pwd();
+        [~, filename, ext] = fileparts(pathname);
+        ap = fullfile(basedir, [filename, ext]);
     elseif isAbsPath(pathname) && (exist(pathname, 'file') == 2 || exist(pathname, 'dir') == 7)
         ap = pathname;
     elseif any(pathname == '*') || any(pathname == '?')

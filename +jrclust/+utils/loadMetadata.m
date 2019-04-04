@@ -67,21 +67,24 @@ function S = loadMetadata(metafile)
         S.gainLFP = imroTblChan(5);
 
         % get number of saved AP channels as nSites
-        snsChanMap = strsplit(S.snsChanMap(2:end-1), ')(');
-        apChans = cellfun(@(x) numel(x) >= 2 && strcmp(x(1:2), 'AP'), snsChanMap);
-        apChanMap = snsChanMap(apChans);
-        apChanMap = cellfun(@(x) strsplit(x, ':'), apChanMap, 'UniformOutput', 0); % split by :
-        apChanMap = cellfun(@(x) str2double(x{2}), apChanMap) + 1; % take zero-based order index
+        try
+            snsChanMap = strsplit(S.snsChanMap(2:end-1), ')(');
+            apChans = cellfun(@(x) numel(x) >= 2 && strcmp(x(1:2), 'AP'), snsChanMap);
+            apChanMap = snsChanMap(apChans);
+            apChanMap = cellfun(@(x) strsplit(x, ':'), apChanMap, 'UniformOutput', 0); % split by :
+            apChanMap = cellfun(@(x) str2double(x{2}), apChanMap) + 1; % take zero-based order index
 
-        % get shank map
-        snsShankMap = strsplit(S.snsShankMap(2:end-1), ')(');
-        snsShankMap = cellfun(@(x) strsplit(x, ':'), snsShankMap(apChans), 'UniformOutput', 0);
-        snsShankMap = cellfun(@(x) str2double(x(1)) + 1, snsShankMap);
+            % get shank map
+            snsShankMap = strsplit(S.snsShankMap(2:end-1), ')(');
+            snsShankMap = cellfun(@(x) strsplit(x, ':'), snsShankMap(apChans), 'UniformOutput', 0);
+            snsShankMap = cellfun(@(x) str2double(x(1)) + 1, snsShankMap);
 
-        S.sites = setdiff(apChanMap, refChans); % sites saved
-        S.nSites = numel(S.sites);
-        S.siteLoc = siteLoc(S.sites, :);
-        S.shankMap = snsShankMap(S.sites);
+            S.sites = setdiff(apChanMap, refChans); % sites saved
+            S.nSites = numel(S.sites);
+            S.siteLoc = siteLoc(S.sites, :);
+            S.shankMap = snsShankMap(S.sites);
+        catch ME
+        end
 
         try
             S.S_imec3 = imec3_imroTbl_(S);

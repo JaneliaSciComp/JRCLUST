@@ -80,14 +80,6 @@ function autoSplit(obj, multisite)
 
     uiwait(splitDlg);
 
-%     nSplits = jrclust.utils.inputdlgNum('Number of clusters:', '', 2);
-%     if isnan(nSplits)
-%         return;
-%     elseif nSplits < 2 || nSplits ~= round(nSplits)
-%         jrclust.utils.qMsgBox('Please enter an integer >= 2');
-%         return;
-%     end
-
     if hFigSplit.figData.nSplits <= 1
         return;
     else
