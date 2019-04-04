@@ -27,12 +27,9 @@ function saveRes(obj, forceOverwrite)
         res_.spikeClusters = hClust.spikeClusters;
 
         % fieldnames contained in dRes or sRes
-        dsFields = union(fieldnames(hClust.dRes), fieldnames(hClust.sRes));
-        % fieldnames from hClust which are not in dRes or sRes
-        hClustOnly = setdiff(fieldnames(hClust), dsFields);
-        for i = 1:numel(hClustOnly)
-            fn = hClustOnly{i};
-            % hClust fields take precedence
+        fieldNames = fieldnames(hClust);
+        for i = 1:numel(fieldNames)
+            fn = fieldNames{i};
             res_.(fn) = hClust.(fn);
         end
     else
