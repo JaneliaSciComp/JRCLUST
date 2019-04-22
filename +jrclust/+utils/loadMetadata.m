@@ -16,8 +16,11 @@ function S = loadMetadata(metafile)
 
     S.dataType = 'int16'; % whisper standard
     S.adcBits = 16;
-    S.probe = '';
-
+    if isfield(S,'probe_file')
+        S.probe = S.probe_file;
+    else
+        S.probe = '';
+    end
     %convert new fields to old fields
     if isfield(S, 'niSampRate') % SpikeGLX
         S.nChans = S.nSavedChans;
