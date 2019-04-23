@@ -110,18 +110,21 @@ function bootstrap(obj, varargin)
         cfgData.outputDir = workingdir;
     end
 
-    dlgAns = questdlg('Would you like to specify a probe file?', 'Bootstrap', 'No');
-    switch dlgAns
-        case 'Yes' % select .prb file
-            probedir = workingdir;
-            if isempty(dir(fullfile(workingdir, '*.prb')))
-                probedir = fullfile(jrclust.utils.basedir(), 'probes');
-            end
-            [probefile, probedir] = jrclust.utils.selectFile({'*.prb', 'Probe files (*.prb)'; '*.*', 'All Files (*.*)'}, 'Select a probe file', probedir, 0);
-            cfgData.probe_file = fullfile(probedir, probefile);
-
-        case {'Cancel', ''}
-            return;
+    if ~(exist('cfgData','var') && ... % if probe file already specified, no need to ask for it again
+            ~isempty(regexp(cfgData.probe_file,['(?<=\' filesep ')\w+?(?=.prb)'], 'once')))
+        dlgAns = questdlg('Would you like to specify a probe file?', 'Bootstrap', 'No');
+        switch dlgAns
+            case 'Yes' % select .prb file
+                probedir = workingdir;
+                if isempty(dir(fullfile(workingdir, '*.prb')))
+                    probedir = fullfile(jrclust.utils.basedir(), 'probes');
+                end
+                [probefile, probedir] = jrclust.utils.selectFile({'*.prb', 'Probe files (*.prb)'; '*.*', 'All Files (*.*)'}, 'Select a probe file', probedir, 0);
+                cfgData.probe_file = fullfile(probedir, probefile);
+                
+            case {'Cancel', ''}
+                return;
+        end
     end
 
     % construct the Config object from specified data
@@ -147,7 +150,11 @@ function bootstrap(obj, varargin)
                         num2str(hCfg_.bitScaling), ...
                         num2str(hCfg_.headerOffset), ...
                         hCfg_.dataType};
-        dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
+        if isfield(SMeta_,'paramDlg') && ~SMeta_.paramDlg %no user dialog, trust meta file
+            dlgAns = dlgFieldVals';
+        else
+            dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
+        end
         if isempty(dlgAns)
             return;
         end
@@ -208,7 +215,11 @@ function bootstrap(obj, varargin)
         break;
     end
 
-    dlgAns = questdlg('Would you like to export advanced parameters as well?', 'Bootstrap', 'No');
+    if isfield(SMeta_,'advancedParam')
+        dlgAns = SMeta_.advancedParam;
+    else
+        dlgAns = questdlg('Would you like to export advanced parameters as well?', 'Bootstrap', 'No');
+    end
     switch dlgAns
         case 'Yes'
             hCfg_.save('', 1);
