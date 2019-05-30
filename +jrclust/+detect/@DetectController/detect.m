@@ -81,12 +81,12 @@ function res = detect(obj)
         if isempty(res.rawShape)
             res.rawShape = recData.rawShape;
         else
-            res.rawShape(3) = res.rawShape(3) + size(recData.rawShape, 3);
+            res.rawShape(3) = res.rawShape(3) + recData.rawShape(3);
         end
         if isempty(res.filtShape)
             res.filtShape = recData.filtShape;
         else
-            res.filtShape(3) = res.filtShape(3) + size(recData.filtShape, 3);
+            res.filtShape(3) = res.filtShape(3) + recData.filtShape(3);
         end
 
         recOffset = recOffset + hRec.nSamples;
