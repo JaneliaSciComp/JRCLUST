@@ -56,38 +56,7 @@ function S = loadMetadata(metafile)
         S.gain = imroTblChan(4);
         S.gainLFP = imroTblChan(5);
 
-<<<<<<< HEAD
-        % get number of saved AP channels as nSites
-        try
-            snsChanMap = strsplit(S.snsChanMap(2:end-1), ')(');
-            apChans = cellfun(@(x) numel(x) >= 2 && strcmp(x(1:2), 'AP'), snsChanMap);
-            apChanMap = snsChanMap(apChans);
-            apChanMap = cellfun(@(x) strsplit(x, ':'), apChanMap, 'UniformOutput', 0); % split by :
-            apChanMap = cellfun(@(x) str2double(x{2}), apChanMap) + 1; % take zero-based order index
-
-            % get shank map
-            snsShankMap = strsplit(S.snsShankMap(2:end-1), ')(');
-            snsShankMap = cellfun(@(x) strsplit(x, ':'), snsShankMap(apChans), 'UniformOutput', 0);
-            snsShankMap = cellfun(@(x) str2double(x(1)) + 1, snsShankMap);
-
-            S.sites = setdiff(apChanMap, refChans); % sites saved
-            S.nSites = numel(S.sites);
-            S.siteLoc = siteLoc(S.sites, :);
-            S.shankMap = snsShankMap(S.sites);
-        catch ME
-        end
-
-        S.S_imec3 = [];
-
-        %% commented out below by AGB beucase it relies on HHMI dropbox files lol.
-%         try
-%             S.S_imec3 = imec3_imroTbl_(S);
-%         catch
-%             S.S_imec3 = [];
-%         end
-=======
         S.isImec = 1;
->>>>>>> 81b96de13452ae998df9d883e02699e7be1f342d
     end
 
     %number of bits of ADC [was 16 in Chongxi original]
