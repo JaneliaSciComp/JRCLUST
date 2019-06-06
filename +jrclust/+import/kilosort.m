@@ -195,6 +195,20 @@ function [hCfg, res] = kilosort(loadPath)
 
         break;
     end
+    
+    % remove out-of-bounds spike times
+    d = dir(hCfg.rawRecordings{1});
+    nSamples = d.bytes / jrclust.utils.typeBytes(hCfg.dataType) / hCfg.nChans;
+    oob = spikeTimes > nSamples;
+    if any(oob)
+        warning('Removing %d/%d spikes after the end of the recording', sum(oob), numel(oob));
+        spikeTimes = spikeTimes(~oob);
+        spikeTemplates = spikeTemplates(~oob);
+        spikeSites = spikeSites(~oob);
+        spikeClusters = spikeClusters(~oob);
+        cProj = cProj(:, ~oob);
+        cProjPC = cProjPC(:, :, ~oob);
+    end
 
     % set some specific params
     hCfg.nPeaksFeatures = 1; % don't find secondary peaks
