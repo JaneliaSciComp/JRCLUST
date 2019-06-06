@@ -86,11 +86,14 @@ function S = loadMetadata(metafile)
         catch ME
         end
 
-        try
-            S.S_imec3 = imec3_imroTbl_(S);
-        catch
-            S.S_imec3 = [];
-        end
+        S.S_imec3 = [];
+
+        %% commented out below by AGB beucase it relies on HHMI dropbox files lol.
+%         try
+%             S.S_imec3 = imec3_imroTbl_(S);
+%         catch
+%             S.S_imec3 = [];
+%         end
     end
 
     %number of bits of ADC [was 16 in Chongxi original]
