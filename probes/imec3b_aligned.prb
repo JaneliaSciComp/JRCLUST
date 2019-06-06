@@ -1,0 +1,14 @@
+% Neuropixels Phase 3B probe (staggered)
+% Order of the probe sites in the recording file
+channels = 1:384;
+
+% Site location in micrometers (x and y)
+geometry = [repmat([43; 11], 192, 1), 20*reshape(repmat((1:192), 2, 1), 384, 1)];
+
+% Reference sites
+ref_sites = 192;
+channels(ref_sites) = []; 
+geometry(ref_sites,:) = []; 
+
+% Recording contact pad size in micrometers. Height x width
+pad = [12 12];
