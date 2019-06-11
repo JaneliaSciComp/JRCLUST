@@ -57,6 +57,10 @@ function commit(obj, msg)
             if strcmp(op{2}, 'delete')
                 deleted = op{3};
                 spikeClusters_(ismember(spikeClusters_, deleted)) = 0;
+                
+                % shift clusters larger than jCluster down by 1
+                gtMask = (spikeClusters_ > jCluster);
+                spikeClusters_(gtMask) = spikeClusters_(gtMask) - 1;
             elseif strcmp(op{2}, 'merge')
                 iCluster = op{3};
                 jCluster = op{4};
@@ -78,6 +82,18 @@ function commit(obj, msg)
                 % of them
                 newMask = (spikeClusters_ == iCluster & ~ismember(spikeClusters_, retained));
                 spikeClusters_(newMask) = iCluster + 1;
+            elseif strcmp(op{2}, 'partition')
+                iCluster = op{3};
+                partition = op{4};
+
+                % make room for new clusters
+                gtMask = spikeClusters_ > iCluster;
+                spikeClusters_(gtMask) = spikeClusters_(gtMask) + numel(partition) - 1;
+
+                iSpikes = find(spikeClusters_ == iCluster);
+                for k = 1:numel(partition)
+                    spikeClusters_(iSpikes(partition{k})) = iCluster + k - 1;
+                end
             else
                 diffs = obj.history{j, 3};
                 if isempty(diffs)

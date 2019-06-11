@@ -45,7 +45,9 @@ function autoDelete(obj)
     end
 
     % delete and update
-    commitMsg = sprintf('%s;autodelete %d (min SNR %0.1f, max SNR %0.1f, %d spikes/unit minimum);%s', datestr(now, 31), numel(deleteMe), snrMin, snrMax, minCount, deleteMe);
+    commitMsg = sprintf('%s;autodelete %d (min SNR %0.1f, max SNR %0.1f, %d spikes/unit minimum);%s', ...
+                        datestr(now, 31), numel(deleteMe), snrMin, snrMax, minCount, ...
+                        strjoin(arrayfun(@num2str, deleteMe, 'UniformOutput', 0), ', '));
     obj.deleteClusters(deleteMe, commitMsg);
     jrclust.utils.qMsgBox(sprintf('Deleted %d units (min SNR %0.1f, max SNR %0.1f, %d spikes/unit minimum).', numel(deleteMe), snrMin, snrMax, minCount));
 end
