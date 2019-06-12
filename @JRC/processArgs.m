@@ -190,8 +190,13 @@ function processArgs(obj)
             end
 
         case 'preview'
-            obj.preview();
-            obj.isCompleted = 1;
+            if isempty(obj.hCfg) && nargs == 0
+                obj.isError = 1;
+                obj.errMsg = 'Specify a config file';
+            else
+                obj.preview();
+                obj.isCompleted = 1;
+            end
 
         case 'recluster'
             obj.recluster();

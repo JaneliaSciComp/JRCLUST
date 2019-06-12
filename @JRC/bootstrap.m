@@ -50,10 +50,16 @@ function bootstrap(obj, varargin)
         end
     end
 
-    % load metafile
-    cfgData = metaToConfig(metafile, binfile, workingdir);
-    if isempty(cfgData) % closed dialog, cancel bootstrap
-        return;
+    if ~isempty(metafile) % load metafile
+        cfgData = metaToConfig(metafile, binfile, workingdir);
+    else % ask for a probe file instead
+        cfgData = struct('outputDir', workingdir);
+        cfgData.rawRecordings = binfile;
+        cfgData.probe_file = getProbeFile(cfgData.outputDir);
+
+        if isempty(cfgData.probe_file) % closed dialog, cancel bootstrap
+            return;
+        end
     end
 
     % construct the Config object from specified data
@@ -158,7 +164,7 @@ end
 
 %% LOCAL FUNCTIONS
 function [metafile, binfile, workingdir] = getMetafile(workingdir)
-dlgAns = questdlg('Do you have a .meta file?', 'Bootstrap', 'No');
+    dlgAns = questdlg('Do you have a .meta file?', 'Bootstrap', 'No');
     switch dlgAns
         case 'Yes' % select .meta file
             [metafile, workingdir] = jrclust.utils.selectFile({'*.meta', 'SpikeGLX meta files (*.meta)'; '*.*', 'All Files (*.*)'}, 'Select one or more .meta files', workingdir, 1);
@@ -169,6 +175,7 @@ dlgAns = questdlg('Do you have a .meta file?', 'Bootstrap', 'No');
             binfile = cellfun(@(f) jrclust.utils.subsExt(f, '.bin'), metafile, 'UniformOutput', 0);
 
         case 'No' % select recording file
+            metafile = '';
             [binfile, workingdir] = jrclust.utils.selectFile({'*.bin;*.dat', 'SpikeGLX recordings (*.bin, *.dat)'; ...
                                                               '*.rhd', 'Intan recordings (*.rhd)'; ...
                                                               '*.*', 'All Files (*.*)'}, 'Select one or more raw recordings', workingdir, 1);
@@ -196,10 +203,6 @@ end
 function cfgData = metaToConfig(metafile, binfile, workingdir)
     cfgData = struct('outputDir', workingdir);
     cfgData.rawRecordings = binfile;
-
-    if isempty(metafile)
-        return;
-    end
 
     SMeta = jrclust.utils.loadMetadata(metafile{1});
     cfgData.sampleRate = SMeta.sampleRate;
