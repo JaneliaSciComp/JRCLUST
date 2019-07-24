@@ -62,6 +62,10 @@ function loadFiles(obj)
         end
         res_.spikeFeatures = spikeFeatures;
 
+        if isfield(res_, 'history') && iscell(res_.history) % old-style history
+            res_ = rmfield(res_, 'history');
+        end
+
         % restore values to hClust
         if isfield(res_, 'hClust')
             if isa(res_.hClust, 'jrclust.models.clustering.DensityPeakClustering')
@@ -84,7 +88,7 @@ function loadFiles(obj)
             % supply hClust with our own hCfg
             res_.hClust.hCfg = obj.hCfg;
         elseif isfield(res_, 'spikeTemplates') % create a new TemplateClustering
-            hClust = jrclust.sort.TemplateClustering(struct(), struct(), obj.hCfg);
+            hClust = jrclust.sort.TemplateClustering(obj.hCfg);
             fieldNames = fieldnames(res_);
             for i = 1:numel(fieldNames)
                 fn = fieldNames{i};
@@ -95,7 +99,7 @@ function loadFiles(obj)
 
             res_.hClust = hClust;
         elseif isfield(res_, 'spikeClusters')
-            hClust = jrclust.sort.DensityPeakClustering(struct(), struct(), obj.hCfg);
+            hClust = jrclust.sort.DensityPeakClustering(obj.hCfg);
             fieldNames = fieldnames(res_);
             for i = 1:numel(fieldNames)
                 fn = fieldNames{i};
@@ -105,6 +109,10 @@ function loadFiles(obj)
             end
 
             res_.hClust = hClust;
+        end
+
+        if isfield(res_, 'hClust')
+            res_.hClust.syncHistFile();
         end
 
         if isfield(res_, 'hRecs') % don't try to load recordings
@@ -145,5 +153,5 @@ function hClustNew = convertToNew(res, hCfg)
         sRes = rmfield(sRes, 'simScore');
     end
 
-    hClustNew = jrclust.sort.DensityPeakClustering(sRes, dRes, hCfg);
+    hClustNew = jrclust.sort.DensityPeakClustering(hCfg, sRes, dRes);
 end

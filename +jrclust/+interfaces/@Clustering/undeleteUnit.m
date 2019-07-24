@@ -1,11 +1,10 @@
 function res = undeleteUnit(obj, spikeClusters, unitID, indices, metadata)
     %UNDELETEUNITS Speculatively undelete a unit, returning a snapshot of
-    %the spike table and metadata fields, along with a diff.
+    %the spike table and metadata fields.
     if nargin < 5
         metadata = struct();
     end
     res = struct('spikeClusters', [], ...
-                 'diffTable', [], ...
                  'metadata', []);
     
     if isempty(indices)
@@ -91,11 +90,10 @@ function res = undeleteUnit(obj, spikeClusters, unitID, indices, metadata)
     end
 
     if isConsistent
-        % first row: indices of spikes to undelete
-        % second row: old unit ID of spikes to undelete
-        % third row: new unit IDs of spikes to undelete
         spikeClusters = spikeClusters(:);
-        diffTable = [indices(:)'; spikeClusters(indices)'; zeros(1, numel(indices))+unitID];
+
+        % flag this unit to update later
+        metadata.unitCount(unitID) = nan;
 
         % side effect: shift all larger units up by unity
         mask = (spikeClusters >= unitID);
@@ -103,15 +101,9 @@ function res = undeleteUnit(obj, spikeClusters, unitID, indices, metadata)
 
         % AFTER making room for new units, assign split off spikes to their
         % new units
-        spikeClusters(diffTable(1, :)) = unitID;
-
-        % update spikesByCluster since we already have this information
-        if isfield(metadata, 'spikesByCluster')
-            metadata.spikesByCluster{unitID} = double(diffTable(1, :)');
-        end
+        spikeClusters(indices) = unitID;
 
         res.spikeClusters = spikeClusters;
-        res.diffTable = diffTable;
         res.metadata = metadata;
     end
 end

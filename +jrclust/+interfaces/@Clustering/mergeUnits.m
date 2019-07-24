@@ -1,15 +1,24 @@
-function res = mergeUnits(obj, spikeClusters, targetUnit, mergingUnits, metadata)
-    %MERGEUNITS Speculatively merge a group of units, returning a snapshot of the
-    %spike table and metadata fields, along with a diff.
+function res = mergeUnits(obj, spikeClusters, mergeTargets, mergingUnits, metadata)
+    %MERGEUNITS Speculatively merge a pair of units, returning a snapshot of
+    %the spike table and metadata fields.
     if nargin < 5
         metadata = struct();
     end
     res = struct('spikeClusters', [], ...
-                 'diffTable', [], ...
                  'metadata', []);
 
     % don't try to merge into ourselves
-    mergingUnits = setdiff(mergingUnits, targetUnit);
+    intersection = ismember(mergingUnits, mergeTargets);
+    if any(intersection)
+        mergingUnits(intersection) = [];
+        mergeTargets(intersection) = [];
+        if isempty(mergingUnits)
+            warning('merge targets found among merging units; none left to merge!')
+            return;
+        else
+            warning('merge targets found among merging units; removing duplicates');
+        end
+    end
 
     nMerging = numel(mergingUnits);
     indices = find(ismember(spikeClusters, mergingUnits));
@@ -19,6 +28,10 @@ function res = mergeUnits(obj, spikeClusters, targetUnit, mergingUnits, metadata
     if isempty(indices)
         return;
     end
+
+    % flag these units to update later
+    metadata.unitCount = obj.unitCount;
+    metadata.unitCount(unique(mergeTargets)) = nan;
 
     % subset fields
     keepSubset = setdiff(goodUnits, mergingUnits); % units to keep, i.e., not the ones that will be merged
@@ -68,11 +81,9 @@ function res = mergeUnits(obj, spikeClusters, targetUnit, mergingUnits, metadata
     end
 
     if isConsistent
-        % first row: indices of spikes to merge
-        % second row: old unit IDs of spikes to merge
-        % third row: new unit IDs of spikes to merge
-        diffTable = [indices(:)'; spikeClusters(indices)'; zeros(1, numel(indices))+targetUnit];
-        spikeClusters(indices) = targetUnit;
+        for i = 1:numel(mergingUnits)
+            spikeClusters(spikeClusters == mergingUnits(i)) = mergeTargets(i);
+        end
 
         % side effect: shift all larger units down by unity
         mergingUnits = sort(mergingUnits, 'descend');
@@ -81,13 +92,7 @@ function res = mergeUnits(obj, spikeClusters, targetUnit, mergingUnits, metadata
             spikeClusters(mask) = spikeClusters(mask) - 1;
         end
 
-        % update spikesByCluster since we already have this information
-        if isfield(metadata, 'spikesByCluster')
-            metadata.spikesByCluster{targetUnit} = sort([metadata.spikesByCluster{targetUnit}; diffTable(1, :)']);
-        end
-
         res.spikeClusters = spikeClusters;
-        res.diffTable = diffTable;
         res.metadata = metadata;
     end
 end

@@ -1,11 +1,10 @@
 function res = deleteUnit(obj, spikeClusters, unitID, metadata)
     %DELETEUNIT Speculatively delete a unit, returning a snapshot of the
-    %spike table and metadata fields, along with a diff.
+    %spike table and metadata fields.
     if nargin < 4
         metadata = struct();
     end
     res = struct('spikeClusters', [], ...
-                 'diffTable', [], ...
                  'metadata', []);
 
     indices = find(spikeClusters == unitID);
@@ -64,10 +63,6 @@ function res = deleteUnit(obj, spikeClusters, unitID, metadata)
     end
 
     if isConsistent
-        % first row: indices of spikes to delete
-        % second row: old unit IDs of spikes to delete
-        % third row: new unit IDs of spikes to delete
-        diffTable = [indices(:)'; repmat(unitID, 1, numel(indices)); zeros(1, numel(indices))-1];
         spikeClusters(indices) = -1;
         
         % side effect: shift all larger units down by unity
@@ -75,7 +70,6 @@ function res = deleteUnit(obj, spikeClusters, unitID, metadata)
         spikeClusters(mask) = spikeClusters(mask) - 1;
 
         res.spikeClusters = spikeClusters;
-        res.diffTable = diffTable;
         res.metadata = metadata;
     end
 end

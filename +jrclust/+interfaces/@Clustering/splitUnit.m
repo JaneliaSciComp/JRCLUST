@@ -1,11 +1,10 @@
 function res = splitUnit(obj, spikeClusters, unitID, unitPart, metadata)
     %SPLITUNIT Speculatively split a unit, returning a snapshot of the
-    %spike table and metadata fields, along with a diff.
+    %spike table and metadata fields.
     if nargin < 5
         metadata = struct();
     end
     res = struct('spikeClusters', [], ...
-                 'diffTable', [], ...
                  'metadata', []);
 
     nSplits = numel(unitPart); % number of *new* units created after a split
@@ -106,14 +105,13 @@ function res = splitUnit(obj, spikeClusters, unitID, unitPart, metadata)
     end
 
     if isConsistent
-        % first row: indices of spikes to split off
-        % second row: old unit ID of spikes to split off
-        % third row: new unit IDs of spikes to split off
         indices = [unitPart{:}];
         newUnits = arrayfun(@(i) zeros(1, numel(unitPart{i}))+unitID+i, 1:nSplits, ...
                             'UniformOutput', 0);
         newUnits = [newUnits{:}];
-        diffTable = [indices; zeros(1, numel(indices))+unitID; newUnits];
+
+        % flag these units to update later
+        metadata.unitCount(unitID:unitID+nSplits) = nan;
         
         % side effect: shift all larger units up by unity
         mask = (spikeClusters > unitID);
@@ -121,18 +119,9 @@ function res = splitUnit(obj, spikeClusters, unitID, unitPart, metadata)
 
         % AFTER making room for new units, assign split off spikes to their
         % new units
-        spikeClusters(diffTable(1, :)) = diffTable(3, :);
-
-        % update spikesByCluster since we already have this information
-        if isfield(metadata, 'spikesByCluster')
-            metadata.spikesByCluster{unitID} = setdiff(metadata.spikesByCluster{unitID}, diffTable(1, :));
-            for unit = unique(diffTable(3, :))
-                metadata.spikesByCluster{unit} = diffTable(1, diffTable(3, :) == unit)';
-            end
-        end
+        spikeClusters(indices) = newUnits;
 
         res.spikeClusters = spikeClusters;
-        res.diffTable = diffTable;
         res.metadata = metadata;
     end
 end

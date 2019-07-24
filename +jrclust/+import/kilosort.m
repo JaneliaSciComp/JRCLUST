@@ -228,7 +228,7 @@ function [hCfg, res] = kilosort(loadPath)
                   'pcFeatures', cProjPC, ...
                   'pcFeatureInd', iNeighPC);
 
-    hClust = jrclust.sort.TemplateClustering(sRes, dRes, hCfg);
+    hClust = jrclust.sort.TemplateClustering(hCfg, sRes, dRes);
     hClust.computeCentroids();
     hClust.updateWaveforms();
     hClust.computeQualityScores();

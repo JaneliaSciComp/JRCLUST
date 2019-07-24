@@ -1,10 +1,5 @@
 function argsort = orderClusters(obj, by)
     %ORDERCLUSTERS Arrange cluster ID numbers by some criterion
-    if obj.nEdits ~= obj.editPos % not at tip of edit history, back out
-        warning('cannot branch from history; use revert() first');
-        return;
-    end
-
     if nargin < 2 || isempty(by) || (~strcmp(by, 'Y + X') && ~isprop(obj, by))
         by = 'clusterSites';
     end
@@ -19,18 +14,43 @@ function argsort = orderClusters(obj, by)
         return;
     end
 
-    %obj.spikeClusters = mapIndex_(obj.spikeClusters, argsort);
-    map(argsort) = 1:numel(argsort);
-    mask = (obj.spikeClusters > 0);
-    obj.spikeClusters(mask) = map(obj.spikeClusters(mask)); % do not map zeros
+    metadata = struct();
 
-    % reorder data fields
-    obj.subsetFields(argsort);
-%     obj.spikesByCluster = obj.spikesByCluster(argsort);
-%     obj.clusterSites = obj.clusterSites(argsort);
-%     obj.unitCount = obj.unitCount(argsort);
-%     obj.clusterNotes = obj.clusterNotes(argsort);
-%     if ~isempty(obj.clusterCentroids)
-%         obj.clusterCentroids = obj.clusterCentroids(argsort, :);
-%     end
+    map(argsort) = 1:numel(argsort);
+    spikeClusters = obj.spikeClusters;
+    mask = spikeClusters > 0; % don't remap noise or deleted units
+    spikeClusters(mask) = map(obj.spikeClusters(mask));
+
+    % subset vector fields
+    vectorFields = obj.unitFields.vectorFields;
+    hFunSubset = @(vals, indices) vals(indices);
+
+    for i = 1:numel(vectorFields)
+        fn = vectorFields{i};
+        if ~isfield(metadata, fn)
+            metadata.(fn) = obj.(fn);
+        end
+
+        if ~isempty(metadata.(fn))
+            metadata.(fn) = hFunSubset(metadata.(fn), argsort);
+        end
+    end
+
+    % subset other (n > 1) fields
+    otherFields = obj.unitFields.otherFields;
+    otherFieldNames = fieldnames(otherFields);
+
+    for i = 1:numel(otherFieldNames)
+        fn = otherFieldNames{i};
+        if ~isfield(metadata, fn)
+            metadata.(fn) = obj.(fn);
+        end
+
+        if ~isempty(metadata.(fn))
+            hFunSubset = eval(otherFields.(fn).subset);
+            metadata.(fn) = hFunSubset(metadata.(fn), argsort);
+        end
+    end
+
+    obj.commit(spikeClusters, metadata, sprintf('reorder clusters by %s', by));
 end

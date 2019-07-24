@@ -18,16 +18,22 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
 
     %% LIFECYCLE
     methods
-        function obj = TemplateClustering(sRes, dRes, hCfg)
+        function obj = TemplateClustering(hCfg, sRes, dRes)
             %TEMPLATECLUSTERING
+            if nargin < 2
+                sRes = struct();
+            end
+            if nargin < 3
+                dRes = struct();
+            end
             fid = fopen(fullfile(jrclust.utils.basedir(), 'json', 'TemplateClustering.json'), 'r');
             dpFields = jsondecode(fread(fid, inf, '*char')');
             fclose(fid);
             obj.unitFields.vectorFields = [obj.unitFields.vectorFields; dpFields.vectorFields];
 
+            obj.hCfg = hCfg;
             obj.sRes = sRes;
             obj.dRes = dRes;
-            obj.hCfg = hCfg;
 
             if isfield(sRes, 'spikeClusters')
                 obj.spikeClusters = sRes.spikeClusters;

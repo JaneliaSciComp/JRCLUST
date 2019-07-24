@@ -242,7 +242,7 @@ function [hCfg, res] = v3(filename)
             end
         end
 
-        hClust = jrclust.sort.DensityPeakClustering(sRes, res, hCfg);
+        hClust = jrclust.sort.DensityPeakClustering(hCfg, sRes, res);
         msgs = hClust.inconsistentFields();
         assert(isempty(msgs), strjoin(msgs, ', '));
 

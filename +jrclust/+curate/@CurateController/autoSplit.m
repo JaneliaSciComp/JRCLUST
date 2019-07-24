@@ -171,8 +171,8 @@ function autoSplit(obj, multisite)
     hFigSplit.close();
 
     obj.isWorking = 0;
-    if ~isempty(assignPart)
-        obj.splitCluster(iCluster, assignPart);
+    if numel(assignPart) > 1
+        obj.splitCluster(iCluster, assignPart(2:end));
     end
 end
 
