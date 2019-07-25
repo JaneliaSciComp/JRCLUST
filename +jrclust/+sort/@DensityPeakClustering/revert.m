@@ -6,7 +6,8 @@ function success = revert(obj, revertTo)
         good = find(obj.clusterCenters > 0);
         % find both empty cluster centers and centers that don't belong to
         % this cluster
-        flagged = [find(obj.clusterCenters == 0); good(obj.spikeClusters(obj.clusterCenters(good)) ~= good)];
+        flagged = [find(obj.clusterCenters == 0); ...
+                   good(obj.spikeClusters(obj.clusterCenters(good)) ~= good)];
 
         % update cluster centers
         for i = 1:numel(flagged)
