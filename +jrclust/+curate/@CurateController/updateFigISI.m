@@ -51,6 +51,11 @@ end
 function [isiK, isiK1] = getReturnMap(iCluster, hClust, hCfg)
     %GETRETURNMAP subset 
     clusterTimes = double(hClust.spikeTimes(hClust.spikesByCluster{iCluster}))/hCfg.sampleRate;
+    if numel(clusterTimes) < 3
+        isiK = 0;
+        isiK1 = 0;
+        return;
+    end
     clusterISI = diff(clusterTimes * 1000); % in msec
 
     %isiK = clusterISIMs(1:end-1);
