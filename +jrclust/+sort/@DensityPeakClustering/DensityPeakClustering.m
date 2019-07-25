@@ -112,7 +112,6 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
     methods (Access=protected, Hidden)
         [sites1, sites2, sites3] = getSecondaryPeaks(obj);
         nMerged = mergeBySim(obj);
-        success = tryImport(obj, sRes);
     end
 
     %% GETTERS/SETTERS
