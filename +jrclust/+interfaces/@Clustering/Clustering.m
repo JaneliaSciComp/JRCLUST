@@ -97,7 +97,6 @@ classdef (Abstract) Clustering < handle
     %% ABSTRACT METHODS
     methods (Abstract)
         autoMerge(obj);
-        editSeek(obj, seekTo);
         success = exportQualityScores(obj, zeroIndex, fGui);
         rmOutlierSpikes(obj);
     end
