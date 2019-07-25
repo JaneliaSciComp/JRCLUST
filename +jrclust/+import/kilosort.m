@@ -229,9 +229,6 @@ function [hCfg, res] = kilosort(loadPath)
                   'pcFeatureInd', iNeighPC);
 
     hClust = jrclust.sort.TemplateClustering(hCfg, sRes, dRes);
-    hClust.computeCentroids();
-    hClust.updateWaveforms();
-    hClust.computeQualityScores();
 
     res = jrclust.utils.mergeStructs(dRes, sRes);
     res.hClust = hClust;
