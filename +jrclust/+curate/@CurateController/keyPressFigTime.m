@@ -46,48 +46,6 @@ function keyPressFigTime(obj, ~, hEvent)
 
         case 's' % split
             obj.splitPoly(hFigTime, jrclust.utils.keyMod(hEvent, 'shift'));
-%             if numel(obj.selected) == 1
-%                 iCluster = obj.selected(1);
-% 
-%                 if jrclust.utils.keyMod(hEvent, 'shift')
-%                     hFigTime.addPlot('hPoly', @imrect);
-% 
-%                     try
-%                         polyPos = hFigTime.plotApply('hPoly', @getPosition);
-%                     catch ME
-%                         hFigTime.rmPlot('hPoly');
-%                         return;
-%                     end
-% 
-%                     xpos = [repmat(polyPos(1), 2, 1); repmat(polyPos(1) + polyPos(3), 2, 1)];
-%                     ypos = [polyPos(2); repmat(polyPos(2) + polyPos(4), 2, 1); polyPos(2)];
-%                     polyPos = [xpos ypos];
-%                 else
-%                     hFigTime.addPlot('hPoly', @impoly);
-%                     try
-%                         polyPos = hFigTime.plotApply('hPoly', @getPosition);
-%                     catch ME
-%                         hFigTime.rmPlot('hPoly');
-%                         return;
-%                     end
-%                 end
-% 
-%                 XData = hFigTime.plotApply('foreground', @get, 'XData');
-%                 YData = hFigTime.plotApply('foreground', @get, 'YData');
-% 
-%                 retained = inpolygon(XData, YData, polyPos(:,1), polyPos(:,2));
-%                 hFigTime.addPlot('hSplit', @line, XData(retained), YData(retained), ...
-%                                  'Color', obj.hCfg.colorMap(3, :), ...
-%                                  'Marker', '.', 'LineStyle', 'none');
-% 
-%                 dlgAns = questdlg('Split?', 'Confirmation', 'No');
-% 
-%                 hFigTime.rmPlot('hPoly');
-%                 hFigTime.rmPlot('hSplit');
-% 
-%                 if strcmp(dlgAns, 'Yes')
-%                     obj.splitCluster(iCluster, retained);
-%                 end
-%             end
+
     end % switch
 end
