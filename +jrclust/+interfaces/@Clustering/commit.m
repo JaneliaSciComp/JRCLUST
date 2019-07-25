@@ -74,21 +74,16 @@ function success = commit(obj, spikeClusters, metadata, msg)
         obj.unitCount(flagged) = cellfun(@numel, obj.spikesByCluster(flagged));
 
         % update cluster sites
-%         if ~isempty(obj.spikeSites)
-            obj.clusterSites(flagged) = double(arrayfun(@(iC) mode(obj.spikeSites(obj.spikesByCluster{iC})), flagged));
-%         end
+        obj.clusterSites(flagged) = double(arrayfun(@(iC) mode(obj.spikeSites(obj.spikesByCluster{iC})), flagged));
 
-        % don't recompute mean waveforms (and their consequences) if we didn't have them already
-%         if ~isempty(obj.meanWfGlobal)
-            % update mean waveforms for flagged units
-            obj.updateWaveforms(flagged);
+        % update mean waveforms for flagged units
+        obj.updateWaveforms(flagged);
 
-            % update unit positions
-            obj.computeCentroids(flagged);
+        % update unit positions
+        obj.computeCentroids(flagged);
 
-            % compute quality scores for altered units
-            obj.computeQualityScores(flagged);
-%         end
+        % compute quality scores for altered units
+        obj.computeQualityScores(flagged);
     end
 
     success = 1;
