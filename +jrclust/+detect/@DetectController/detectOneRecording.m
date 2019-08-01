@@ -14,14 +14,14 @@ function recData = detectOneRecording(obj, hRec, fids, impTimes, impSites, siteT
     filtFid = fids(2);
 
     recData = struct('siteThresh', siteThresh(:), ...
-                     'spikeTimes', [], ...
-                     'spikeAmps', [], ...
-                     'spikeSites', [], ...
-                     'centerSites', [], ...
-                     'rawShape', [], ...
-                     'filtShape', [], ...
-                     'spikesFilt2', [], ...
-                     'spikesFilt3', [], ...
+                     'spikeTimes', int32([]), ...
+                     'spikeAmps', cast([], obj.hCfg.dataType), ...
+                     'spikeSites', int32([]), ...
+                     'centerSites', int32([]), ...
+                     'rawShape', [diff(obj.hCfg.evtWindowRawSamp) + 1, size(obj.hCfg.siteNeighbors, 1), 0], ...
+                     'filtShape', [diff(obj.hCfg.evtWindowSamp) + 1, size(obj.hCfg.siteNeighbors, 1), 0], ...
+                     'spikesFilt2', zeros(diff(obj.hCfg.evtWindowSamp) + 1, size(obj.hCfg.siteNeighbors, 1), 0), ...
+                     'spikesFilt3', zeros(diff(obj.hCfg.evtWindowSamp) + 1, size(obj.hCfg.siteNeighbors, 1), 0), ...
                      'spikeFeatures', []);
 
     % divide recording into many loads, samples are columns in data matrix
@@ -186,37 +186,39 @@ function recData = detectOneRecording(obj, hRec, fids, impTimes, impSites, siteT
         % find peaks: adds spikeAmps, updates spikeTimes, spikeSites,
         %             siteThresh
         loadData = obj.findPeaks(loadData);
-        recData.spikeAmps = cat(1, recData.spikeAmps, loadData.spikeAmps);
-        recData.spikeSites = cat(1, recData.spikeSites, loadData.spikeSites);
-        recData.siteThresh = [recData.siteThresh, loadData.siteThresh];
+        if ~isempty(loadData.spikeTimes)
+            recData.spikeAmps = cat(1, recData.spikeAmps, loadData.spikeAmps);
+            recData.spikeSites = cat(1, recData.spikeSites, loadData.spikeSites);
+            recData.siteThresh = [recData.siteThresh, loadData.siteThresh];
 
-        % extract spike windows: adds centerSites, updates spikeTimes
-        loadData = obj.samplesToWindows(loadData);
-        recData.centerSites = cat(1, recData.centerSites, loadData.centerSites);
-        recData.spikeTimes = cat(1, recData.spikeTimes, loadData.spikeTimes + loadOffset - size(samplesPre, 1));
-        recData.spikesFilt2 = cat(3, recData.spikesFilt2, loadData.spikesFilt2);
-        recData.spikesFilt3 = cat(3, recData.spikesFilt3, loadData.spikesFilt3);
+            % extract spike windows: adds centerSites, updates spikeTimes
+            loadData = obj.samplesToWindows(loadData);
+            recData.centerSites = cat(1, recData.centerSites, loadData.centerSites);
+            recData.spikeTimes = cat(1, recData.spikeTimes, loadData.spikeTimes + loadOffset - size(samplesPre, 1));
+            recData.spikesFilt2 = cat(3, recData.spikesFilt2, loadData.spikesFilt2);
+            recData.spikesFilt3 = cat(3, recData.spikesFilt3, loadData.spikesFilt3);
 
-        % write out spikesRaw and update shape
-        fwrite(rawFid, loadData.spikesRaw, '*int16');
-        if isempty(recData.rawShape)
-            recData.rawShape = size(loadData.spikesRaw);
-        else
-            recData.rawShape(3) = recData.rawShape(3) + size(loadData.spikesRaw, 3);
-        end
+            % write out spikesRaw and update shape
+            fwrite(rawFid, loadData.spikesRaw, '*int16');
+            if isempty(recData.rawShape)
+                recData.rawShape = size(loadData.spikesRaw);
+            else
+                recData.rawShape(3) = recData.rawShape(3) + size(loadData.spikesRaw, 3);
+            end
 
-        % write out spikesFilt and update shape
-        fwrite(filtFid, loadData.spikesFilt, '*int16');
-        if isempty(recData.filtShape)
-            recData.filtShape = size(loadData.spikesFilt);
-        else
-            recData.filtShape(3) = recData.filtShape(3) + size(loadData.spikesFilt, 3);
-        end
+            % write out spikesFilt and update shape
+            fwrite(filtFid, loadData.spikesFilt, '*int16');
+            if isempty(recData.filtShape)
+                recData.filtShape = size(loadData.spikesFilt);
+            else
+                recData.filtShape(3) = recData.filtShape(3) + size(loadData.spikesFilt, 3);
+            end
 
-        % compute features: adds spikeFeatures
-        if ~obj.hCfg.getOr('extractAfterDetect', 0)
-            loadData = obj.extractFeatures(loadData);
-            recData.spikeFeatures = cat(3, recData.spikeFeatures, loadData.spikeFeatures);
+            % compute features: adds spikeFeatures
+            if ~obj.hCfg.getOr('extractAfterDetect', 0)
+                loadData = obj.extractFeatures(loadData);
+                recData.spikeFeatures = cat(3, recData.spikeFeatures, loadData.spikeFeatures);
+            end
         end
 
         if iLoad < nLoads

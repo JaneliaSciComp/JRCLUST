@@ -3,9 +3,13 @@ function syncHistFile(obj)
     d = dir(obj.hCfg.histFile);
 
     nSpikes = numel(obj.spikeClusters);
-    if isempty(d) % file does not exist
+    if isempty(d) || nSpikes == 0 % file does not exist
         fclose(fopen(obj.hCfg.histFile, 'w')); % truncate history file
         d = dir(obj.hCfg.histFile);
+    end
+
+    if nSpikes == 0
+        return;
     end
 
     nEntries = d.bytes / 4 / (nSpikes + 1); % int32 spike table plus header
