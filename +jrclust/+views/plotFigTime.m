@@ -42,7 +42,15 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
     hFigTime.updatePlot('foreground', fgTimes, fgFeatures);
     hFigTime.updatePlot('foreground2', fgTimes2, fgFeatures2);
     imrectSetPosition(hFigTime, 'hRect', timeLimits, vppLim);
-
+ 
+    %% add trial time indicators
+    trialTimes = loadTrialFile(hCfg.trialFile);
+    ax=get(hFigTime.hPlots('foreground'),'parent');
+    yl=get(ax,'ylim');
+    try;delete(linehandle);end;clear linehandle;
+    linehandle = line(ax,repmat(trialTimes{1}(:,1),1,2),yl,'linewidth',0.1,'color',[0 1 0]);
+    set(ax,'ylim',yl);
+    
 %     if isfield(S_fig, 'vhAx_track')
 %         toggleVisible_({S_fig.vhAx_track, S_fig.hPlot0_track, S_fig.hPlot1_track, S_fig.hPlot2_track}, 0);
 %         toggleVisible_({S_fig.hAx, S_fig.hRect, S_fig.hPlot1, S_fig.hPlot2, S_fig.hPlot0}, 1);
@@ -68,4 +76,31 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
                                'H-Zoom: press x and wheel. space to reset', ...
                                'V-Zoom: press y and wheel. space to reset', ...
                                'Drag while pressing wheel: pan'};
+end
+
+
+function trialTimes = loadTrialFile(trialFile)
+    %LOADTRIALFILE Import trial times (in seconds)
+    trialTimes = [];
+
+    try
+        [~, ~, ext] = fileparts(trialFile);
+
+        if strcmpi(ext, '.mat')
+            trialData = load(trialFile);
+            fieldNames = fieldnames(trialData);
+
+            trialTimes = trialData.(fieldNames{1});
+            if isstruct(trialTimes)
+                trialTimes = trialTimes.times;
+            end
+        elseif strcmpi(ext, '.csv')
+            trialTimes = csvread(trialFile);
+            if isrow(trialTimes)
+                trialTimes = trialTimes(:);
+            end
+        end
+    catch ME
+        warning('Could not load trialFile %s: %s', trialFile, ME.message);
+    end
 end
