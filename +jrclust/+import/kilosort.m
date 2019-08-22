@@ -45,10 +45,10 @@ function [hCfg, res] = kilosort(loadPath)
     simScore = readNPY(fullfile(loadPath, 'similar_templates.npy'));
     templates = readNPY(fullfile(loadPath, 'templates.npy')); % nTemplates x nSamples x nChannels
     
-    cProj = readNPY(fullfile(loadPath,'template_features.npy'))';
-    iNeigh = readNPY(fullfile(loadPath,'template_feature_ind.npy'))';
-    cProjPC = permute(readNPY(fullfile(loadPath,'pc_features.npy')), [2 3 1]); % nFeatures x nSites x nSpikes
-    iNeighPC = readNPY(fullfile(loadPath,'pc_feature_ind.npy'))';
+    cProj = readNPY(fullfile(loadPath, 'template_features.npy'))';
+    iNeigh = readNPY(fullfile(loadPath, 'template_feature_ind.npy'))';
+    cProjPC = permute(readNPY(fullfile(loadPath, 'pc_features.npy')), [2 3 1]); % nFeatures x nSites x nSpikes
+    iNeighPC = readNPY(fullfile(loadPath, 'pc_feature_ind.npy'))';
 
     hCfg.updateLog('import-kilosort', 'Finished loading files', 0, 1);
 
@@ -228,12 +228,8 @@ function [hCfg, res] = kilosort(loadPath)
                   'pcFeatures', cProjPC, ...
                   'pcFeatureInd', iNeighPC);
 
-    hClust = jrclust.sort.TemplateClustering(sRes, dRes, hCfg);
-    hClust.computeCentroids();
-    hClust.updateWaveforms();
-    hClust.computeQualityScores();
+    hClust = jrclust.sort.TemplateClustering(hCfg, sRes, dRes);
 
     res = jrclust.utils.mergeStructs(dRes, sRes);
     res.hClust = hClust;
 end
-
