@@ -69,7 +69,7 @@ function sRes = doAssign(dRes, sRes, hCfg)
     end
 
     % one or no center, assign all spikes to one cluster
-    if numel(sRes.clusterCenters) == 0 || numel(sRes.clusterCenters) == 1
+    if numel(sRes.ordRho) > 0 && (numel(sRes.clusterCenters) == 0 || numel(sRes.clusterCenters) == 1)
         sRes.spikeClusters = ones([nSpikes, 1], 'int32');
         sRes.clusterCenters = sRes.ordRho(1);
     else

@@ -1,6 +1,6 @@
 function nRemoved = rmRefracSpikes(obj, iCluster)
     %RMREFRACSPIKES remove refractory spikes
-    if obj.nEdits ~= obj.editPos % not at tip of edit history, back out
+    if obj.nEdits > obj.editPos % not at tip of edit history, back out
         warning('cannot branch from history; use revert() first');
         return;
     end

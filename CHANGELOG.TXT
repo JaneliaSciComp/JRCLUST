@@ -1,3 +1,7 @@
+25 Jul 2019
+
+- Revamp history mechanism.
+
 4 Apr 2019
 
 - Kilosort importer reads from NPY files instead of rez.mat (npy-matlab is required for this feature)

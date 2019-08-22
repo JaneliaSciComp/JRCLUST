@@ -4,6 +4,7 @@
     ],
     "other fields" : {
         "templateSim": {
+            "augment": "@(vals, augAfter, filler) cat(2, cat(1, vals(1:augAfter, 1:augAfter), filler(1:augAfter, :)', vals(augAfter+1:end, 1:augAfter)), filler, cat(1, vals(1:augAfter, augAfter+1:end), filler(augAfter+size(filler, 2)+1:end, :)', vals(augAfter+1:end, augAfter+1:end)))",
             "subset": "@(vals, indices) vals(indices, indices)",
             "consistent": "@(vals, nClusters) all(size(vals) == nClusters*ones(1, 2))"
         }

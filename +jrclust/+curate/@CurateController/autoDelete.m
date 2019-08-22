@@ -40,12 +40,11 @@ function autoDelete(obj)
         return;
     end
     if numel(deleteMe) >= obj.hClust.nClusters
-        jrclust.utils.qMsgBox('Cannot delete all units.');
+        jrclust.utils.qMsgBox('Refusing to delete all units.');
         return;
     end
 
     % delete and update
-    commitMsg = sprintf('%s;autodelete %d (min SNR %0.1f, max SNR %0.1f, %d spikes/unit minimum);%s', datestr(now, 31), numel(deleteMe), snrMin, snrMax, minCount, deleteMe);
-    obj.deleteClusters(deleteMe, commitMsg);
+    obj.deleteClusters(deleteMe);
     jrclust.utils.qMsgBox(sprintf('Deleted %d units (min SNR %0.1f, max SNR %0.1f, %d spikes/unit minimum).', numel(deleteMe), snrMin, snrMax, minCount));
 end

@@ -62,36 +62,7 @@ function keyPressFigProj(obj, ~, hEvent)
             obj.updateFigProj(1);
 
         case 's' %split
-            if numel(obj.selected) == 1
-                iCluster = obj.selected(1);
-
-                hFigProj.addPlot('hPoly', @impoly)
-                polyPos = hFigProj.plotApply('hPoly', @getPosition);
-                if isempty(polyPos)
-                    return;
-                end
-
-                XData = hFigProj.plotApply('foreground', @get, 'XData');
-                YData = hFigProj.plotApply('foreground', @get, 'YData');
-
-                retained = inpolygon(XData, YData, polyPos(:,1), polyPos(:,2));
-
-                % return here
-                hFigProj.addPlot('hSplit', @line, XData(retained), YData(retained), ...
-                                 'Color', obj.hCfg.colorMap(3, :), ...
-                                 'Marker', '.', 'LineStyle', 'none');
-
-                dlgAns = questdlg('Split?', 'Confirmation', 'No');
-
-                hFigProj.rmPlot('hPoly');
-                hFigProj.rmPlot('hSplit');
-
-                if strcmp(dlgAns, 'Yes')
-                    iSpikes = obj.hClust.spikesByCluster{iCluster};
-                    retained = ismember(hFigProj.figData.dispFeatures.fgSpikes(retained), iSpikes);
-                    obj.splitCluster(iCluster, retained);
-                end
-            end
+            obj.splitPoly(hFigProj, jrclust.utils.keyMod(hEvent, 'shift'));
         
     end % switch
 end

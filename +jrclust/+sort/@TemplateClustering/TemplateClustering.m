@@ -18,25 +18,30 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
 
     %% LIFECYCLE
     methods
-        function obj = TemplateClustering(sRes, dRes, hCfg)
+        function obj = TemplateClustering(hCfg, sRes, dRes)
             %TEMPLATECLUSTERING
+            if nargin < 2
+                sRes = struct();
+            end
+            if nargin < 3
+                dRes = struct();
+            end
+
             fid = fopen(fullfile(jrclust.utils.basedir(), 'json', 'TemplateClustering.json'), 'r');
             dpFields = jsondecode(fread(fid, inf, '*char')');
             fclose(fid);
-            obj.unitFields.vectorFields = [obj.unitFields.vectorFields; dpFields.vectorFields];
+            obj.unitFields.vectorFields = [obj.unitFields.vectorFields; dpFields.vectorFields];            
 
-            obj.sRes = sRes;
-            obj.dRes = dRes;
             obj.hCfg = hCfg;
+            obj.dRes = dRes;
+            obj.sRes = sRes;
 
             if isfield(sRes, 'spikeClusters')
                 obj.spikeClusters = sRes.spikeClusters;
+                
+                obj.syncHistFile();
+                obj.commit(obj.spikeClusters, struct(), 'initial commit');
             end
-
-            obj.clearNotes();
-            obj.refresh(1, []);
-            commitMsg = sprintf('%s;initial import', datestr(now, 31));
-            obj.commit(commitMsg);
         end
     end
 

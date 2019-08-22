@@ -15,35 +15,51 @@
     ],
     "other fields": {
         "clusterCentroids": {
+            "augment": "@(vals, augAfter, filler) cat(1, vals(1:augAfter, :), filler, vals(augAfter+1:end, :))",
             "subset": "@(vals, indices) vals(indices, :)",
+            "cluster_dims": 1,
             "consistent": "@(vals, nClusters) size(vals, 1) == nClusters"
         },
         "meanWfGlobal": {
+            "augment": "@(vals, augAfter, filler) cat(3, vals(:, :, 1:augAfter), filler, vals(:, :, augAfter+1:end))",
             "subset": "@(vals, indices) vals(:, :, indices)",
+            "cluster_dims": 3,
             "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
         },
         "meanWfGlobalRaw": {
+            "augment": "@(vals, augAfter, filler) cat(3, vals(:, :, 1:augAfter), filler, vals(:, :, augAfter+1:end))",
             "subset": "@(vals, indices) vals(:, :, indices)",
+            "cluster_dims": 3,
             "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
         },
         "meanWfLocal": {
+            "augment": "@(vals, augAfter, filler) cat(3, vals(:, :, 1:augAfter), filler, vals(:, :, augAfter+1:end))",
             "subset": "@(vals, indices) vals(:, :, indices)",
+            "cluster_dims": 3,
             "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
         },
         "meanWfLocalRaw": {
+            "augment": "@(vals, augAfter, filler) cat(3, vals(:, :, 1:augAfter), filler, vals(:, :, augAfter+1:end))",
             "subset": "@(vals, indices) vals(:, :, indices)",
+            "cluster_dims": 3,
             "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
         },
         "meanWfRawLow": {
+            "augment": "@(vals, augAfter, filler) cat(3, vals(:, :, 1:augAfter), filler, vals(:, :, augAfter+1:end))",
             "subset": "@(vals, indices) vals(:, :, indices)",
+            "cluster_dims": 3,
             "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
         },
         "meanWfRawHigh": {
+            "augment": "@(vals, augAfter, filler) cat(3, vals(:, :, 1:augAfter), filler, vals(:, :, augAfter+1:end))",
             "subset": "@(vals, indices) vals(:, :, indices)",
+            "cluster_dims": 3,
             "consistent": "@(vals, nClusters) size(vals, 3) == nClusters"
         },
         "waveformSim": {
+            "augment": "@(vals, augAfter, filler) cat(2, cat(1, vals(1:augAfter, 1:augAfter), filler(1:augAfter, :)', vals(augAfter+1:end, 1:augAfter)), filler, cat(1, vals(1:augAfter, augAfter+1:end), filler(augAfter+size(filler, 2)+1:end, :)', vals(augAfter+1:end, augAfter+1:end)))",
             "subset": "@(vals, indices) vals(indices, indices)",
+            "cluster_dims": [1, 2],
             "consistent": "@(vals, nClusters) all(size(vals) == nClusters*ones(1, 2))"
         }
     }

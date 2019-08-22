@@ -18,7 +18,7 @@ Bootstrapping
 Your config file encapsulates the choices in parameters that you make, as well as describing the relevant probe configuration.
 You can create a config file by invoking ``jrc bootstrap`` or ``jrc bootstrap /path/to/metafile.meta`` from the MATLAB command window.
 
-If you don't specify a `SpikeGLX meta file (.meta) <https://github.com/billkarsh/SpikeGLX/blob/master/Markdown/Metadata.md>`__, you will be asked to select one.
+If you don't specify a `SpikeGLX meta file (.meta) <https://github.com/billkarsh/SpikeGLX/blob/master/Markdown/Metadata_3B2.md>`__, you will be asked to select one.
 This will collect recording-specific information from your meta file and set default parameters.
 (The default parameters may be inspected on the :ref:`parameters` page.)
 The location of your raw recording will be inferred from your meta file, so be sure they are similarly named (this is the SpikeGLX default) and placed together in the same directory!

@@ -90,14 +90,13 @@ classdef (Abstract) Clustering < handle
             obj.unitFields = jsondecode(fread(fid, inf, '*char')');
             fclose(fid);
 
-            obj.history = cell(0, 4);
+            obj.history = containers.Map('KeyType', 'int32', 'ValueType', 'char'); % commit messages
         end
     end
 
     %% ABSTRACT METHODS
     methods (Abstract)
         autoMerge(obj);
-        editSeek(obj, seekTo);
         success = exportQualityScores(obj, zeroIndex, fGui);
         rmOutlierSpikes(obj);
     end
@@ -108,7 +107,6 @@ classdef (Abstract) Clustering < handle
 
     %% UTILITY METHODS
     methods (Access=protected, Hidden)
-        postOp(obj, updateMe);
         removeEmptyClusters(obj);
     end
 
@@ -135,7 +133,7 @@ classdef (Abstract) Clustering < handle
 
         % nEdits
         function ne = get.nEdits(obj)
-            ne = size(obj.history, 1) - 1;
+            ne = size(obj.history, 1);
         end
 
         % spikeAmps

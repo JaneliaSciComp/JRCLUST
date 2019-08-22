@@ -1,5 +1,10 @@
 function positions = spikePos(obj, spikeSites, spikeFeatures)
     %SPIKEPOS Compute a feature-weighted position for each spike
+    positions = [];
+    if isempty(spikeSites) || isempty(spikeFeatures)
+        return;
+    end
+
     nSitesEvt = 1 + obj.hCfg.nSiteDir*2 - obj.hCfg.nSitesExcl;
 
     featuresSquared = squeeze(spikeFeatures(1:nSitesEvt, 1, :)) .^ 2;

@@ -5,6 +5,10 @@ function curate(obj)
     end
     obj.isCurate = 1;
 
+    if ~isfield(obj.res, 'spikeTimes') || isempty(obj.res.spikeTimes)
+        error('no spikes to curate');
+    end
+
     if ~isfield(obj.res, 'hClust')
         dlgAns = questdlg('Could not find all required data. Sort?', 'Sorting required', 'No');
         if strcmp(dlgAns, 'Yes')

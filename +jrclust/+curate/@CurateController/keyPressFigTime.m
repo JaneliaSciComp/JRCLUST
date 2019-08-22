@@ -14,9 +14,6 @@ function keyPressFigTime(obj, ~, hEvent)
             obj.updateFigTime(0);
 
         case 'rightarrow' % go up one channel
-%             if ~isVisible_(S_fig.hAx)
-%                 jrclust.utils.qMsgBox('Channel switching is disabled in the position view'); return;
-%             end
             obj.currentSite = min(obj.currentSite + factor, obj.hCfg.nSites);
             obj.updateFigTime(0);
 
@@ -48,48 +45,7 @@ function keyPressFigTime(obj, ~, hEvent)
             obj.updateFigTime(1);
 
         case 's' % split
-            if numel(obj.selected) == 1
-                iCluster = obj.selected(1);
+            obj.splitPoly(hFigTime, jrclust.utils.keyMod(hEvent, 'shift'));
 
-                if jrclust.utils.keyMod(hEvent, 'shift')
-                    hFigTime.addPlot('hPoly', @imrect);
-
-                    try
-                        polyPos = hFigTime.plotApply('hPoly', @getPosition);
-                    catch ME
-                        hFigTime.rmPlot('hPoly');
-                        return;
-                    end
-
-                    xpos = [repmat(polyPos(1), 2, 1); repmat(polyPos(1) + polyPos(3), 2, 1)];
-                    ypos = [polyPos(2); repmat(polyPos(2) + polyPos(4), 2, 1); polyPos(2)];
-                    polyPos = [xpos ypos];
-                else
-                    hFigTime.addPlot('hPoly', @impoly);
-                    try
-                        polyPos = hFigTime.plotApply('hPoly', @getPosition);
-                    catch ME
-                        hFigTime.rmPlot('hPoly');
-                        return;
-                    end
-                end
-
-                XData = hFigTime.plotApply('foreground', @get, 'XData');
-                YData = hFigTime.plotApply('foreground', @get, 'YData');
-
-                retained = inpolygon(XData, YData, polyPos(:,1), polyPos(:,2));
-                hFigTime.addPlot('hSplit', @line, XData(retained), YData(retained), ...
-                                 'Color', obj.hCfg.colorMap(3, :), ...
-                                 'Marker', '.', 'LineStyle', 'none');
-
-                dlgAns = questdlg('Split?', 'Confirmation', 'No');
-
-                hFigTime.rmPlot('hPoly');
-                hFigTime.rmPlot('hSplit');
-
-                if strcmp(dlgAns, 'Yes')
-                    obj.splitCluster(iCluster, retained);
-                end
-            end
     end % switch
 end
