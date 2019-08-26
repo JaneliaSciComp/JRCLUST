@@ -3,7 +3,7 @@ function success = commit(obj, spikeClusters, metadata, msg)
     success = commit@jrclust.interfaces.Clustering(obj, spikeClusters, metadata, msg);
 
     if success
-        if isempty(fieldnames(metadata)) % initial commit
+        if 1==1 % initial commit -- AGB forcing it to enter this if statement fixes the problem of template similarity plot not updating
             obj.templatesByCluster = arrayfun(@(iC) unique(obj.spikeTemplates(obj.spikesByCluster{iC})), ...
                                       1:obj.nClusters, 'UniformOutput', 0);
 
@@ -24,7 +24,6 @@ function success = commit(obj, spikeClusters, metadata, msg)
             obj.templateSim = templateSim;
         elseif isfield(metadata, 'unitCount') && any(isnan(metadata.unitCount))
             flagged = find(isnan(metadata.unitCount));
-
             obj.templatesByCluster(flagged) = arrayfun(@(iC) unique(obj.spikeTemplates(obj.spikesByCluster{iC})), ...
                 flagged, 'UniformOutput', 0);
 
