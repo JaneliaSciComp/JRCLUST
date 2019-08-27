@@ -77,11 +77,6 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 dRes = struct();
             end
 
-            fid = fopen(fullfile(jrclust.utils.basedir(), 'json', 'DensityPeakClustering.json'), 'r');
-            dpFields = jsondecode(fread(fid, inf, '*char')');
-            fclose(fid);
-            obj.unitFields.vectorFields = [obj.unitFields.vectorFields; dpFields.vectorFields];
-
             obj.dRes = dRes;
             obj.sRes = sRes;
             obj.hCfg = hCfg;

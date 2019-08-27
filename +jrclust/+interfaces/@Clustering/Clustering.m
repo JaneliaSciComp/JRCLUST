@@ -90,6 +90,23 @@ classdef (Abstract) Clustering < handle
             obj.unitFields = jsondecode(fread(fid, inf, '*char')');
             fclose(fid);
 
+            % get specific fields for this subclass
+            clsSplit = strsplit(class(obj), '.');
+            clsName = clsSplit{end};
+            fieldFile = fullfile(jrclust.utils.basedir(), 'json', [clsName, '.json']);
+            if exist(fieldFile, 'file') == 2
+                fid = fopen(fieldFile, 'r');
+                specificFields = jsondecode(fread(fid, inf, '*char')');
+                fclose(fid);
+
+                if isfield(specificFields, 'vectorFields')
+                    obj.unitFields.vectorFields = [obj.unitFields.vectorFields; specificFields.vectorFields];
+                end
+                if isfield(specificFields, 'otherFields')
+                    obj.unitFields.otherFields = jrclust.utils.mergeStructs(obj.unitFields.otherFields, specificFields.otherFields);
+                end
+            end
+
             obj.history = containers.Map('KeyType', 'int32', 'ValueType', 'char'); % commit messages
         end
     end
