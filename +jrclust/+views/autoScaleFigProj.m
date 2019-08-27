@@ -6,8 +6,8 @@ function autoScaleFigProj(hFigProj, hClust, selected)
     % get display features for figProj, compute the autoscalePct'th
     % quantile, set boundaries of each site box to that scale
     dispFeaturesProj = hFigProj.figData.dispFeatures;
-    fgYData = dispFeaturesProj.fgYData;
-    fgXData = dispFeaturesProj.fgXData;
+    fgYData = dispFeaturesProj.fgYData(dispFeaturesProj.assigns);
+    fgXData = dispFeaturesProj.fgXData(dispFeaturesProj.assigns);
     fg2YData = dispFeaturesProj.fg2YData;
     fg2XData = dispFeaturesProj.fg2XData;
 

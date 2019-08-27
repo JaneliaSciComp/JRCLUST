@@ -6,29 +6,38 @@ function [XData, YData, assigns] = ampToProj(YData, XData, bounds, maxPair, hCfg
     XData = linmap(XData', bounds, [0, 1]);
     YData = linmap(YData', bounds, [0, 1]);
 
-    [nSpikes, nSites] = size(YData);
+    nSites = size(YData, 2);
+    
+    useVpp = strcmp(hCfg.dispFeature, 'vpp');
+
+    % subset features
+    if nargout > 2
+        assigns = zeros([min(hCfg.nSpikesFigProj, size(YData, 1)), nSites, nSites]);
+        subset = jrclust.utils.subsample(1:size(YData, 1), hCfg.nSpikesFigProj);
+        YData = YData(subset, :);
+        XData = XData(subset, :);
+    end
+
+    nSpikes = size(YData, 1);
     if isempty(maxPair)
         maxPair = nSites;
     end
 
     % spike features translated into site-site boxes
     [boxedX, boxedY] = deal(nan([nSpikes, nSites, nSites], 'single'));
-    assigns = zeros([nSpikes, nSites, nSites]);
 
     for jSite = 1:nSites
         jSiteY = YData(:, jSite);
         yMask = jSiteY > 0  & jSiteY < 1; % get points away from the boundaries
 
-        for iSite = 1:nSites
-            assigns(:, jSite, iSite) = 1:nSpikes;
-
-            if abs(iSite - jSite) > maxPair
-                continue;
+        for iSite = max(1, ceil(jSite-maxPair)):min(nSites, floor(jSite+maxPair))
+            if nargout > 2
+                assigns(:, jSite, iSite) = subset;
             end
             
             % vpp only:
             % min on site j vs. min on site i above the diagonal
-            if strcmp(hCfg.dispFeature, 'vpp') && jSite > iSite
+            if useVpp && jSite > iSite
                 isiteX = YData(:, iSite);
             else % diagonal and below: min vs. max
                 isiteX = XData(:, iSite);
@@ -42,15 +51,17 @@ function [XData, YData, assigns] = ampToProj(YData, XData, bounds, maxPair, hCfg
         end
     end
 
-    validXY = find(~isnan(boxedX) & ~isnan(boxedY));
+    validXY = (~isnan(boxedX)) & (~isnan(boxedY));
     XData = boxedX(validXY);
     XData = XData(:);
 
     YData = boxedY(validXY);
     YData = YData(:);
 
-    assigns = assigns(validXY);
-    assigns = assigns(:);
+    if nargout > 2
+        assigns = assigns(validXY);
+        assigns = assigns(:);
+    end
 end
 
 %% LOCAL FUNCTIONS

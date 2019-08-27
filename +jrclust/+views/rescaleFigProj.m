@@ -34,9 +34,9 @@ function rescaleUpdate(hFigProj, projScale, hCfg)
     hFigProj.updatePlot('background', bgXData, bgYData);
 
     % rescale foreground features
-    fgYData = dispFeatures.fgYData;
-    fgXData = dispFeatures.fgXData;
-    [fgXData, fgYData] = ampToProj(fgYData, fgXData, bounds, hCfg.nSiteDir, hCfg);
+    fgYData = dispFeatures.fgYData(dispFeatures.assigns);
+    fgXData = dispFeatures.fgXData(dispFeatures.assigns);
+    [fgXData, fgYData, ~] = ampToProj(fgYData, fgXData, bounds, hCfg.nSiteDir, hCfg);
     hFigProj.updatePlot('foreground', fgXData, fgYData);
 
     % rescale secondary foreground features

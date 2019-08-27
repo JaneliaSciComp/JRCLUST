@@ -39,7 +39,7 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
         hFigProj.figData.boundScale = boundScale;
     end
 
-    dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected);
+    dispFeatures = getFigProjFeatures2(hClust, sitesToShow, selected);
     bgYData = dispFeatures.bgYData;
     bgXData = dispFeatures.bgXData;
     fgYData = dispFeatures.fgYData;
@@ -54,8 +54,7 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
     plotFeatures(hFigProj, 'background', bgYData, bgXData, boundScale, hCfg);
 
     % plot foreground spikes
-    assigns = plotFeatures(hFigProj, 'foreground', fgYData, fgXData, boundScale, hCfg);
-    hFigProj.figData.dispFeatures.fgSpikes = hFigProj.figData.dispFeatures.fgSpikes(assigns);
+    hFigProj.figData.dispFeatures.assigns = plotFeatures(hFigProj, 'foreground', fgYData, fgXData, boundScale, hCfg);
 
     % plot secondary foreground spikes
     if numel(selected) == 2
@@ -92,6 +91,11 @@ function assigns = plotFeatures(hFigProj, plotKey, featY, featX, boundScale, hCf
         bounds = boundScale*[-1 1];
     end
 
-    [XData, YData, assigns] = ampToProj(featY, featX, bounds, hCfg.nSiteDir, hCfg);
+    if nargout > 0
+        [XData, YData, assigns] = ampToProj(featY, featX, bounds, hCfg.nSiteDir, hCfg);
+    else
+        [XData, YData] = ampToProj(featY, featX, bounds, hCfg.nSiteDir, hCfg);
+    end
+
     hFigProj.updatePlot(plotKey, XData, YData);
 end
