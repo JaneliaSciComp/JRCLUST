@@ -1,66 +1,56 @@
-function [XData, YData, assigns] = ampToProj(YData, XData, bounds, maxPair, hCfg)
+function [XData, YData, subset] = ampToProj(YData, XData, bounds, maxPair, hCfg)
     %AMPTOPROJ Reshape feature data from nSpikes x nSites to display in an
     %nSites x nSites grid
     %   input: YData, nSpikes x nSites, y-values for feature projection
     %   input: XData, nSpikes x nSites, x-values for feature projection
-    XData = linmap(XData', bounds, [0, 1]);
-    YData = linmap(YData', bounds, [0, 1]);
-
-    nSites = size(YData, 2);
-    
-    useVpp = strcmp(hCfg.dispFeature, 'vpp');
+    [nSites, nSpikes] = size(YData);
 
     % subset features
     if nargout > 2
-        assigns = zeros([min(hCfg.nSpikesFigProj, size(YData, 1)), nSites, nSites]);
-        subset = jrclust.utils.subsample(1:size(YData, 1), hCfg.nSpikesFigProj);
-        YData = YData(subset, :);
-        XData = XData(subset, :);
+        subset = jrclust.utils.subsample(1:nSpikes, hCfg.nSpikesFigProj);
+        YData = YData(:, subset);
+        XData = XData(:, subset);
+        nSpikes = numel(subset);
     end
 
-    nSpikes = size(YData, 1);
+    XData = linmap(XData', bounds, [0, 1]);
+    YData = linmap(YData', bounds, [0, 1]);
+
     if isempty(maxPair)
         maxPair = nSites;
     end
 
-    % spike features translated into site-site boxes
-    [boxedX, boxedY] = deal(nan([nSpikes, nSites, nSites], 'single'));
+    [jSites, iSites] = meshgrid(1:nSites, 1:nSites);
+    maxPairMask = abs(jSites - iSites) <= maxPair;
+    jSites = jSites(maxPairMask);
+    iSites = iSites(maxPairMask);
 
-    for jSite = 1:nSites
-        jSiteY = YData(:, jSite);
-        yMask = jSiteY > 0  & jSiteY < 1; % get points away from the boundaries
+    if strcmp(hCfg.dispFeature, 'vpp')
+        aboveDiag = jSites > iSites;
 
-        for iSite = max(1, ceil(jSite-maxPair)):min(nSites, floor(jSite+maxPair))
-            if nargout > 2
-                assigns(:, jSite, iSite) = subset;
-            end
-            
-            % vpp only:
-            % min on site j vs. min on site i above the diagonal
-            if useVpp && jSite > iSite
-                isiteX = YData(:, iSite);
-            else % diagonal and below: min vs. max
-                isiteX = XData(:, iSite);
-            end
-
-            % points away from both x and y boundaries
-            xyMask = (isiteX > 0 & isiteX < 1) & yMask;
-
-            boxedX(xyMask, jSite, iSite) = isiteX(xyMask) + iSite - 1;
-            boxedY(xyMask, jSite, iSite) = jSiteY(xyMask) + jSite - 1;
-        end
+        iSitesX = zeros(nSpikes, numel(iSites), 'like', XData);
+        iSitesX(:, aboveDiag) = YData(:, iSites(aboveDiag));
+        iSitesX(:, ~aboveDiag) = XData(:, iSites(~aboveDiag));
+    else
+        iSitesX = XData(:, iSites);
     end
 
-    validXY = (~isnan(boxedX)) & (~isnan(boxedY));
-    XData = boxedX(validXY);
+    jSitesY = YData(:, jSites);
+
+    ijMask = (jSitesY > 0 & jSitesY < 1) & (iSitesX > 0 & iSitesX < 1);
+
+    iSitesX = iSitesX + (iSites - 1)';
+    jSitesY = jSitesY + (jSites - 1)';
+
+    XData = iSitesX(ijMask);
     XData = XData(:);
 
-    YData = boxedY(validXY);
+    YData = jSitesY(ijMask);
     YData = YData(:);
 
     if nargout > 2
-        assigns = assigns(validXY);
-        assigns = assigns(:);
+        subset = repmat(subset', 1, size(ijMask, 2));
+        subset = subset(ijMask);
     end
 end
 
