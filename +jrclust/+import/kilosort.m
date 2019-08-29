@@ -15,7 +15,7 @@ function [hCfg, res] = kilosort(loadPath)
     end
 
     loadPath = loadPath_;
-
+    
     cfgData = struct();
     cfgData.outputDir = loadPath;
     
@@ -24,7 +24,6 @@ function [hCfg, res] = kilosort(loadPath)
     channelMap = readNPY(fullfile(loadPath, 'channel_map.npy')) + 1;
     channelPositions = readNPY(fullfile(loadPath, 'channel_positions.npy'));
 
-    cfgData.sampleRate = params.sample_rate;
     cfgData.nChans = params.n_channels_dat;
     cfgData.dataType = params.dtype;
     cfgData.headerOffset = params.offset;
@@ -33,7 +32,17 @@ function [hCfg, res] = kilosort(loadPath)
     cfgData.shankMap = ones(size(channelMap), 'like', channelMap); % this can change with a prm file
     cfgData.rawRecordings = {params.dat_path};
 
-    hCfg = jrclust.Config(cfgData);
+    hCfg = jrclust.Config(cfgData);    
+    
+    % check for existence of .prm file. if exists use it.
+    params = parseParams(fullfile(loadPath, 'params.py'));
+    [a,b,~] = fileparts(params.dat_path);
+    prm_path = [a,filesep,b,'.prm'];
+    if exist(prm_path,'file')
+        hCfg.loadParams(prm_path);
+    else
+        error('PRM file needed in directory but not found.');
+    end
     
     hCfg.updateLog('import-kilosort', sprintf('Loading NPY files from %s', loadPath), 1, 0);
 
@@ -213,7 +222,6 @@ function [hCfg, res] = kilosort(loadPath)
     % set some specific params
     hCfg.nPeaksFeatures = 1; % don't find secondary peaks
     hCfg.figList = setdiff(hCfg.figList, 'FigRD'); % don't show rho-delta plot
-    hCfg.corrRange = [0.75 1];
 
     %%% detect and extract spikes/features
     hDetect = jrclust.detect.DetectController(hCfg, spikeTimes, spikeSites);

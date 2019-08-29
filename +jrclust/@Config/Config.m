@@ -111,11 +111,8 @@ classdef Config < dynamicprops
 
     %% DOUBLE SECRET METHODS
     methods (Access = private, Hidden)
-        loadParams(obj, filename);
         setCustomProp(obj, propname, val);
         setProp(obj, propname, val);
-        validateParams(obj);
-        [flag, val, errMsg] = validateProp(obj, propname, val);
         warning(obj, wmsg, varargin);
     end
 
