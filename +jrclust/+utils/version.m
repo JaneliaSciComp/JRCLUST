@@ -9,5 +9,10 @@ function verstr = version()
     if ~isempty(md.version.codename)
         verstr = sprintf('%s "%s"', verstr, md.version.codename);
     end
+
+    if isfield(md.version, 'commitHash')
+        idx = min(7, numel(md.version.commitHash));
+        verstr = sprintf('%s (%s)', verstr, md.version.commitHash(1:idx));
+    end
 end
 
