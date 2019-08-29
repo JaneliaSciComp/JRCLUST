@@ -171,6 +171,9 @@ Output files
 +-------------------------+-------------------------------------------+---------------------------------+
 | mysession\_features.jrc | :ref:`io-features`                        | Binary (single-precision float) |
 +-------------------------+-------------------------------------------+---------------------------------+
+| mysession\_hist.jrc     | :ref:`io-history`                         | Binary (32-bit                  |
+|                         | from user curation                        | signed integer)                 |
++-------------------------+-------------------------------------------+---------------------------------+
 | mysession.csv           | :ref:`io-cluster-data`                    | CSV                             |
 +-------------------------+-------------------------------------------+---------------------------------+
 
@@ -179,11 +182,51 @@ Output files
 Detection and clustering results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following data are stored in mysession\_res.mat.
+The following data are stored in *mysession\_res.mat*:
 
 +-----------------------+------------------------------+------------------------+
 | Variable name         | Content                      | Data format            |
 +=======================+==============================+========================+
+| centerSites           | Sites with peak spike        | ``nSpikes`` x          |
+|                       | amplitudes for each of       | ``nPeaksFeatures``:    |
+|                       | :ref:`nPeaksFeatures`        | int32                  |
++-----------------------+------------------------------+------------------------+
+| clusterCenters        | Indices of cluster site      | ``nClusters`` x 1:     |
+|                       | centers as determined in     |  double                |
+|                       | :ref:`spike-clustering`      |                        |
++-----------------------+------------------------------+------------------------+
+| clusterCentroids      | Feature-weighted center      | ``nClusters`` x 2:     |
+|                       | x-y positions on the probe   | double                 |
+|                       | for each cluster             |                        |
++-----------------------+------------------------------+------------------------+
+| clusterNotes          | Text annotations for each    | ``nClusters`` x 1:     |
+|                       | cluster                      | cell array of strings  |
++-----------------------+------------------------------+------------------------+
+| clusterSites          | Mode of ``spikeSites`` for   | ``nClusters`` x  1:    |
+|                       | spikes in each cluster       | double                 |
++-----------------------+------------------------------+------------------------+
+| curatedOn             | Timestamp of last saved      | scalar double          |
+|                       | curation                     |                        |
++-----------------------+------------------------------+------------------------+
+| detectTime            | Time spent (in seconds) in   | scalar double          |
+|                       | detection step               |                        |
++-----------------------+------------------------------+------------------------+
+| featuresShape         | Dimensions of                | 1 x 3: double          |
+|                       | :ref:`io-features`           |                        |
++-----------------------+------------------------------+------------------------+
+| filtShape             | Dimensions of                | 1 x 3: double          |
+|                       | :ref:`io-filt-traces`        |                        |
++-----------------------+------------------------------+------------------------+
+| history               | Key-value store of curation  | containers.Map         |
+|                       | operations with commit       |                        |
+|                       | messages (see                |                        |
+|                       | :ref:`io-history`)           |                        |
++-----------------------+------------------------------+------------------------+
+| initialClustering     | Initial spike table          | ``nSpikes`` x 1: int32 |
++-----------------------+------------------------------+------------------------+
+| meanSiteThresh        | Mean (over chunks) detection | 1 x ``nSites``: single |
+|                       | threshold per site           |                        |
++-----------------------+------------------------------+------------------------+
 | spikeTimes            | Spike timing in ADC          | ``nSpikes`` x 1: int32 |
 |                       | sample unit                  |                        |
 +-----------------------+------------------------------+------------------------+
@@ -201,8 +244,9 @@ The following data are stored in mysession\_res.mat.
 | spikesBySite          | Cell of the spike            | Cell of vector of      |
 |                       | indices per site             | int32                  |
 +-----------------------+------------------------------+------------------------+
-| siteThresh            | Detection threshold          | 1 x ``nSpikes``: single|
-|                       | per site                     |                        |
+| siteThresh            | Detection threshold          | ``nSites`` x           |
+|                       | per site per chunk           | ``nChunks``: single    |
+|                       | (see :ref:`chunking`)        |                        |
 +-----------------------+------------------------------+------------------------+
 | filtShape             | Dimensions of                | 1 x 3: double          |
 |                       | :ref:`io-filt-traces`        |                        |
@@ -210,17 +254,12 @@ The following data are stored in mysession\_res.mat.
 | rawShape              | Dimensions of                | 1 x 3: double          |
 |                       | :ref:`io-raw-traces`         |                        |
 +-----------------------+------------------------------+------------------------+
-| featuresShape         | Dimensions of                | 1 x 3: double          |
-|                       | :ref:`io-features`           |                        |
-+-----------------------+------------------------------+------------------------+
 | hClust                | Clustering data              | DensityPeakClustering  |
 |                       |                              | object                 |
 +-----------------------+------------------------------+------------------------+
 | hCfg                  | Configuration data           | Config                 |
 |                       |                              | object                 |
 +-----------------------+------------------------------+------------------------+
-
-
 
 .. _io-filt-traces:
 
@@ -259,6 +298,15 @@ spatiotemporal window.
 Consequently, the spike features data is stored as an
 :math:`n_{\text{features}} \times n_{\text{positions}} \times n_{\text{spikes}}`
 array of single-precision (32-bit) floating point values.
+
+.. _io-history:
+
+Operation history
+~~~~~~~~~~~~~~~~~
+
+A binary file containing a copy of the spike table for each operation performed during :ref:`pipeline-curate`.
+For each operation, JRCLUST writes an operation ID (a 32-bit signed integer), followed by the spike table, at the end of this file.
+The operation ID is kept in sync with a key-value map (``hClust.history``), allowing users to revert operations.
 
 .. _io-cluster-data:
 

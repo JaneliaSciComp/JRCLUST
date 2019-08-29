@@ -66,8 +66,11 @@ A detailed description of the steps in the detection process is indexed below.
 
    detect/index
 
+.. _spike-clustering:
+
 Spike clustering
 ----------------
+
 After the spiking events have been detected, they must be clustered by the features extracted from them.
 Any of the following commands will **sort** spikes:
 
