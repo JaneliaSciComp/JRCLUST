@@ -3,11 +3,11 @@
     "version": {
         "major": 4,
         "minor": 0,
-        "release": 0,
+        "release": 1,
         "tag": "",
         "codename": "Edward"
     },
-    "changeDate": "25 July 2019",
+    "changeDate": "29 Aug 2019",
     "authors": [
         "James Jun"
     ],
