@@ -34,7 +34,7 @@ function h = gitHash()
             end
         end
 
-        if regexp(fstr, '^[0-9a-f]{5,40}$') % probably a commit hash
+        if ~isempty(regexp(fstr, '^[0-9a-f]{5,40}$', 'once')) % probably a commit hash
             h = fstr;
         end
     end
