@@ -19,6 +19,10 @@ function success = splitPoly(obj, hFig, shift)
             return;
         end
 
+        if isempty(polyPos)
+            return;
+        end
+
         xpos = [repmat(polyPos(1), 2, 1); repmat(polyPos(1) + polyPos(3), 2, 1)];
         ypos = [polyPos(2); repmat(polyPos(2) + polyPos(4), 2, 1); polyPos(2)];
         polyPos = [xpos ypos];
@@ -39,15 +43,15 @@ function success = splitPoly(obj, hFig, shift)
 
     XData = hFig.plotApply('foreground', @get, 'XData');
     YData = hFig.plotApply('foreground', @get, 'YData');
-    retained = inpolygon(XData, YData, polyPos(:,1), polyPos(:,2));
+    splitOff = inpolygon(XData, YData, polyPos(:,1), polyPos(:,2));
 
     hFig.rmPlot('hPoly');
-    if ~any(retained)
+    if ~any(splitOff) || all(splitOff)
         return;
     end
 
     % show the consequences of the proposed split
-    hFig.addPlot('hSplit', @line, XData(retained), YData(retained), ...
+    hFig.addPlot('hSplit', @line, XData(splitOff), YData(splitOff), ...
         'Color', obj.hCfg.colorMap(3, :), ...
         'Marker', '.', 'LineStyle', 'none');
 
@@ -56,14 +60,37 @@ function success = splitPoly(obj, hFig, shift)
     hFig.rmPlot('hSplit');
 
     if strcmp(dlgAns, 'Yes')
-        iSpikes = obj.hClust.spikesByCluster{iCluster};
-        % convert global (spike-table) indices of split-off spikes to local
-        % (within-cluster) indices for unitPart
-        if isfield(hFig.figData, 'dispFeatures')
-%             unitPart = {find(ismember(iSpikes, hFig.figData.dispFeatures.fgSpikes(retained)))};
-            unitPart = {find(ismember(hFig.figData.dispFeatures.fgSpikes(retained), iSpikes))};
+        if isfield(hFig.figData, 'foreground') % FigProj
+            % first rescale features in this polygon if necessary
+            s = hFig.figData.initialScale/hFig.figData.boundScale;
+            fgXData = hFig.figData.foreground.XData;
+            xFloor = floor(fgXData);
+            if strcmp(obj.hCfg.dispFeature, 'vpp')
+                fgXData = (fgXData - xFloor)*s;
+            else
+                % remap to [-1, 1] first, then scale, then map back to [0, 1]
+                fgXData = jrclust.utils.linmap(fgXData - xFloor, [0, 1], [-1, 1])*s;
+                fgXData = jrclust.utils.linmap(fgXData, [-1, 1], [0, 1]);
+            end
+            fgXData((fgXData <= 0 | fgXData >= 1)) = nan;
+            fgXData = fgXData + xFloor;
+
+            fgYData = hFig.figData.foreground.YData;
+            yFloor = floor(fgYData);
+            if strcmp(obj.hCfg.dispFeature, 'vpp')
+                fgYData = (fgYData - yFloor)*s;
+            else
+                % remap to [-1, 1] first, then scale, then map back to [0, 1]
+                fgYData = jrclust.utils.linmap(fgYData - yFloor, [0, 1], [-1, 1])*s;
+                fgYData = jrclust.utils.linmap(fgYData, [-1, 1], [0, 1]);
+            end
+            fgYData((fgYData <= 0 | fgYData >= 1)) = nan;
+            fgYData = fgYData + yFloor;
+            % get values of ALL foreground features in this polygon
+            ii = any(inpolygon(fgXData, fgYData, polyPos(:, 1), polyPos(:, 2)), 2);
+            unitPart = {find(ii)};
         else
-            unitPart = {find(retained)};
+            unitPart = {find(splitOff)};
         end
         obj.splitCluster(iCluster, unitPart);
     end

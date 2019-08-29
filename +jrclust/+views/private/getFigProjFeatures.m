@@ -18,24 +18,32 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
         jCluster = [];
     end
 
-    % select subset of spikes
-    spikesToShow = find(ismember(hClust.spikeSites, sitesToShow));
-    timesToShow = hClust.spikeTimes(spikesToShow);
-
+    siteMask = ismember(hClust.spikeSites, sitesToShow);
     % if we're only interested in a subset of time, just plot those spikes
     if ~isempty(hCfg.projTimeLimits)
         timeBound = round(hCfg.projTimeLimits*hCfg.sampleRate);
-        inLimit = (timesToShow >= timeBound(1) & timesToShow <= timeBound(end));
-        spikesToShow = spikesToShow(inLimit);
+        timeMask = (timesToShow >= timeBound(1) & timesToShow <= timeBound(end));
+    else
+        timeMask = true(size(hClust.spikeClusters));
     end
 
-    % get cluster assignments of spikes to show
-    spikeClustersShow = hClust.spikeClusters(spikesToShow);
+    % spikes occurring on these sites and within these times and NOT in iCluster
+    bgMask = (hClust.spikeClusters ~= iCluster) & siteMask & timeMask;
 
-    bgSpikes = jrclust.utils.subsample(spikesToShow, 2*hCfg.nSpikesFigProj);
-    fgSpikes = jrclust.utils.subsample(spikesToShow(spikeClustersShow == iCluster), hCfg.nSpikesFigProj);
     if ~isempty(jCluster)
-        fg2Spikes = jrclust.utils.subsample(spikesToShow(spikeClustersShow == jCluster), hCfg.nSpikesFigProj);
+        % spikes occurring on these sites and within these times and in jCluster
+        jMask = (hClust.spikeClusters == jCluster) & siteMask & timeMask;
+
+        % update bgMask to exclude spikes from jCluster
+        bgMask = bgMask & (~jMask);
+    else
+        jMask = false(size(hClust.spikeClusters));
+    end
+
+    % subselect spikes from jCluster and background
+    bgSpikes = jrclust.utils.subsample(find(bgMask), 2*hCfg.nSpikesFigProj);
+    if any(jMask)
+        fg2Spikes = jrclust.utils.subsample(find(jMask), hCfg.nSpikesFigProj);
     else
         [fg2Spikes, fg2YData, fg2XData] = deal([]);
     end
@@ -57,7 +65,9 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
             bgWindows = permute(hClust.getSpikeWindows(bgSpikes, sitesToShow, 0, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
             [bgYData, bgXData] = jrclust.features.pcProjectSpikes(bgWindows, prVecs1, prVecs2);
 
-            fgWindows = permute(hClust.getSpikeWindows(fgSpikes, sitesToShow, 0, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
+            % get features for ALL foreground spikes on sitesToShow
+            fgWindows = permute(hClust.getSpikeWindows(hClust.spikesByCluster{iCluster}, ...
+                                                       sitesToShow, 0, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
             [fgYData, fgXData] = jrclust.features.pcProjectSpikes(fgWindows, prVecs1, prVecs2);
 
             if ~isempty(jCluster)
@@ -74,7 +84,9 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
             bgWindows = permute(hClust.getSpikeWindows(bgSpikes, sitesToShow, 0, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
             [bgYData, bgXData] = jrclust.features.pcProjectSpikes(bgWindows, prVecs1, prVecs2);
 
-            fgWindows = permute(hClust.getSpikeWindows(fgSpikes, sitesToShow, 0, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
+            % get features for ALL foreground spikes on sitesToShow
+            fgWindows = permute(hClust.getSpikeWindows(hClust.spikesByCluster{iCluster}, ...
+                                                       sitesToShow, 0, 0), [1, 3, 2]); % nSamples x nSpikes x nSites
             [fgYData, fgXData] = jrclust.features.pcProjectSpikes(fgWindows, prVecs1, prVecs2);
 
             if ~isempty(jCluster)
@@ -84,7 +96,7 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
 
         case 'cov'
             [bgYData, bgXData] = getSpikeCov(hClust, bgSpikes, sitesToShow);
-            [fgYData, fgXData] = getSpikeCov(hClust, fgSpikes, sitesToShow);
+            [fgYData, fgXData] = getSpikeCov(hClust, hClust.spikesByCluster{iCluster}, sitesToShow);
 
             if ~isempty(jCluster)
                 [fg2YData, fg2XData] = getSpikeCov(hClust, fg2Spikes, sitesToShow);
@@ -95,8 +107,10 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
             bgYData = abs(permute(min(bgWindows), [2, 3, 1]));
             bgXData = abs(permute(max(bgWindows), [2, 3, 1]));
 
-            fgWindows = hClust.getSpikeWindows(fgSpikes, sitesToShow, 0, 1); % use voltages 
-            fgYData = abs(permute(min(fgWindows), [2, 3, 1]));
+            % get features for ALL foreground spikes on sitesToShow
+            fgWindows = hClust.getSpikeWindows(hClust.spikesByCluster{iCluster}, ...
+                                               sitesToShow, 0, 1); % use voltages 
+            fgYData = abs(permute(min(fgWindows), [2, 3, 1])); % nSitesToShow x nSpikes
             fgXData = abs(permute(max(fgWindows), [2, 3, 1]));
 
             if ~isempty(jCluster)
@@ -108,19 +122,19 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
         case 'template' % currently Kilosort only
             if all(hCfg.pcPair == [1 2])
                 [bgYData, bgXData] = hClust.pcFeaturesBySpike(bgSpikes, sitesToShow);
-                [fgYData, fgXData] = hClust.pcFeaturesBySpike(fgSpikes, sitesToShow);
+                [fgYData, fgXData] = hClust.pcFeaturesBySpike(hClust.spikesByCluster{iCluster}, sitesToShow);
                 if ~isempty(jCluster)
                     [fg2YData, fg2XData] = hClust.pcFeaturesBySpike(fg2Spikes, sitesToShow);
                 end
             elseif all(hCfg.pcPair == [1 3])
                 [bgYData, ~, bgXData] = hClust.pcFeaturesBySpike(bgSpikes, sitesToShow);
-                [fgYData, ~, fgXData] = hClust.pcFeaturesBySpike(fgSpikes, sitesToShow);
+                [fgYData, ~, fgXData] = hClust.pcFeaturesBySpike(hClust.spikesByCluster{iCluster}, sitesToShow);
                 if ~isempty(jCluster)
                     [fg2YData, ~, fg2XData] = hClust.pcFeaturesBySpike(fg2Spikes, sitesToShow);
                 end
             else % [2 3]
                 [~, bgYData,bgXData] = hClust.pcFeaturesBySpike(bgSpikes, sitesToShow);
-                [~, fgYData, fgXData] = hClust.pcFeaturesBySpike(fgSpikes, sitesToShow);
+                [~, fgYData, fgXData] = hClust.pcFeaturesBySpike(hClust.spikesByCluster{iCluster}, sitesToShow);
                 if ~isempty(jCluster)
                     [~, fg2YData, fg2XData] = hClust.pcFeaturesBySpike(fg2Spikes, sitesToShow);
                 end
@@ -131,8 +145,6 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
                           'bgXData', bgXData, ...
                           'fgYData', fgYData, ...
                           'fgXData', fgXData, ...
-                          'fgSpikes', fgSpikes, ... % for finding spikes to split off
                           'fg2YData', fg2YData, ...
-                          'fg2XData', fg2XData, ...
-                          'fg2Spikes', fg2Spikes);
+                          'fg2XData', fg2XData);
 end

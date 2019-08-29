@@ -1,20 +1,12 @@
-function [XData, YData, subset] = ampToProj(YData, XData, bounds, maxPair, hCfg)
+function [XData, YData] = ampToProj(YData, XData, bounds, maxPair, hCfg)
     %AMPTOPROJ Reshape feature data from nSpikes x nSites to display in an
     %nSites x nSites grid
-    %   input: YData, nSpikes x nSites, y-values for feature projection
-    %   input: XData, nSpikes x nSites, x-values for feature projection
+    %   input: YData, nSites x nSpikes, y-values for feature projection
+    %   input: XData, nSites x nSpikes, x-values for feature projection
     [nSites, nSpikes] = size(YData);
 
-    % subset features
-    if nargout > 2
-        subset = jrclust.utils.subsample(1:nSpikes, hCfg.nSpikesFigProj);
-        YData = YData(:, subset);
-        XData = XData(:, subset);
-        nSpikes = numel(subset);
-    end
-
-    XData = linmap(XData', bounds, [0, 1]);
-    YData = linmap(YData', bounds, [0, 1]);
+    XData = jrclust.utils.linmap(XData', bounds, [0, 1]);
+    YData = jrclust.utils.linmap(YData', bounds, [0, 1]);
 
     if isempty(maxPair)
         maxPair = nSites;
@@ -25,9 +17,10 @@ function [XData, YData, subset] = ampToProj(YData, XData, bounds, maxPair, hCfg)
     jSites = jSites(maxPairMask);
     iSites = iSites(maxPairMask);
 
+    % when using VPP as a feature, above diagonal is vmin vs. vmin, whereas
+    % on the diagonal and below is vmin vs. vmax
     if strcmp(hCfg.dispFeature, 'vpp')
         aboveDiag = jSites > iSites;
-
         iSitesX = zeros(nSpikes, numel(iSites), 'like', XData);
         iSitesX(:, aboveDiag) = YData(:, iSites(aboveDiag));
         iSitesX(:, ~aboveDiag) = XData(:, iSites(~aboveDiag));
@@ -42,37 +35,9 @@ function [XData, YData, subset] = ampToProj(YData, XData, bounds, maxPair, hCfg)
     iSitesX = iSitesX + (iSites - 1)';
     jSitesY = jSitesY + (jSites - 1)';
 
-    XData = iSitesX(ijMask);
-    XData = XData(:);
+    iSitesX(~ijMask) = nan;
+    XData = iSitesX;
 
-    YData = jSitesY(ijMask);
-    YData = YData(:);
-
-    if nargout > 2
-        subset = repmat(subset', 1, size(ijMask, 2));
-        subset = subset(ijMask);
-    end
-end
-
-%% LOCAL FUNCTIONS
-function vals = linmap(vals, oldLim, newLim)
-    %LINMAP Rescale vals occurring within oldLim to newLim, saturating at
-    %the boundaries
-    if numel(oldLim) == 1
-        oldLim = abs(oldLim)*[-1, 1];
-    end
-
-    % saturate at the boundaries
-    vals(vals > oldLim(2)) = oldLim(2);
-    vals(vals < oldLim(1)) = oldLim(1);
-
-    if all(oldLim == 0) % nothing to rescale, all is 0 now
-        return;
-    end
-
-    if oldLim(1) == oldLim(2) % ignore newLim and just rescale 
-        vals = vals / oldLim(1);
-    else
-        vals = interp1(oldLim, newLim, vals, 'linear', 'extrap');
-    end
+    jSitesY(~ijMask) = nan;
+    YData = jSitesY;
 end

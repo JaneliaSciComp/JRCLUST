@@ -52,7 +52,7 @@ function keyPressFigProj(obj, ~, hEvent)
             hFigProj.wait(0);
 
         case 'p' % toggle PCi v. PCj
-            if ismember(obj.hCfg.dispFeature, {'pca', 'template'})
+            if ismember(obj.hCfg.dispFeature, {'pca', 'ppca', 'gpca', 'template'})
                 % [1, 2] => [1, 3] => [2, 3] => [1, 2] => ...
                 obj.hCfg.pcPair = sort(mod(obj.hCfg.pcPair + 1, 3) + 1);
                 obj.updateFigProj(0);
