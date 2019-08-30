@@ -4,12 +4,12 @@ function splitCluster(obj, iCluster, unitPart)
         jrclust.utils.qMsgBox('An operation is in progress.');
         return;
     end
-
-    obj.isWorking = 1;
+    
     if isempty(unitPart) || ~iscell(unitPart) || any(cellfun(@isempty, unitPart))
-        obj.isWorking = 0;
         return;
     end
+
+    obj.isWorking = 1;
 
     try
         res = obj.hClust.splitUnit(obj.hClust.spikeClusters, iCluster, unitPart);
