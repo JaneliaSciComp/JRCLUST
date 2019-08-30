@@ -200,7 +200,7 @@ The following data are stored in *mysession\_res.mat*:
 |                       | for each cluster             |                        |
 +-----------------------+------------------------------+------------------------+
 | clusterNotes          | Text annotations for each    | ``nClusters`` x 1:     |
-|                       | cluster                      | cell array of strings  |
+|                       | cluster                      | cell array of char     |
 +-----------------------+------------------------------+------------------------+
 | clusterSites          | Mode of ``spikeSites`` for   | ``nClusters`` x  1:    |
 |                       | spikes in each cluster       | double                 |
@@ -210,6 +210,9 @@ The following data are stored in *mysession\_res.mat*:
 +-----------------------+------------------------------+------------------------+
 | detectTime            | Time spent (in seconds) in   | scalar double          |
 |                       | detection step               |                        |
++-----------------------+------------------------------+------------------------+
+| detectedOn            | Timestamp of last spike      | scalar double          |
+|                       | detection                    |                        |
 +-----------------------+------------------------------+------------------------+
 | featuresShape         | Dimensions of                | 1 x 3: double          |
 |                       | :ref:`io-features`           |                        |
@@ -227,8 +230,60 @@ The following data are stored in *mysession\_res.mat*:
 | meanSiteThresh        | Mean (over chunks) detection | 1 x ``nSites``: single |
 |                       | threshold per site           |                        |
 +-----------------------+------------------------------+------------------------+
-| spikeTimes            | Spike timing in ADC          | ``nSpikes`` x 1: int32 |
+| meanWfGlobal          | Mean (over spikes/cluster)   | ``nSamples`` x         |
+|                       | waveform over *all* sites    | ``nSites`` x           |
+|                       | (all zeros outside           | ``nClusters``: single  |
+|                       | :ref:`siteNeighbors` for     |                        |
+|                       | Reasons)                     |                        |
++-----------------------+------------------------------+------------------------+
+| meanWfGlobalRaw       | Mean (over spikes/cluster)   | ``nSamplesRaw`` x      |
+|                       | *raw* waveform over *all*    | ``nSites`` x           |
+|                       | sites (all zeros outside     | ``nClusters``: single  |
+|                       | :ref:`siteNeighbors` for     |                        |
+|                       | Reasons)                     |                        |
++-----------------------+------------------------------+------------------------+
+| meanWfLocal           | Mean (over spikes/cluster)   | ``nSamples`` x         |
+|                       | waveform over sites specified| ``2*``                 |
+|                       | in :ref:`siteNeighbors`      | :ref:`nSiteDir` ``+ 1``|
+|                       |                              | x ``nClusters``: single|
++-----------------------+------------------------------+------------------------+
+| meanWfLocalRaw        | Mean (over spikes/cluster)   | ``nSamplesRaw`` x      |
+|                       | *raw* waveform over sites    | ``2*``                 |
+|                       | specified in                 | :ref:`nSiteDir` ``+ 1``|
+|                       | :ref:`siteNeighbors`         | x ``nClusters``: single|
++-----------------------+------------------------------+------------------------+
+| meanWfRawHigh         | Mean (over spikes/cluster)   | ``nSamplesRaw`` x      |
+|                       | *raw* waveform on            | ``2*``                 |
+|                       | :ref:`high <merge-post-hoc>` | :ref:`nSiteDir` ``+ 1``|
+|                       | positions on the probe       | x ``nClusters``: single|
++-----------------------+------------------------------+------------------------+
+| meanWfRawLow          | Mean (over spikes/cluster)   | ``nSamplesRaw`` x      |
+|                       | *raw* waveform on            | ``2*``                 |
+|                       | :ref:`low <merge-post-hoc>`  | :ref:`nSiteDir` ``+ 1``|
+|                       | positions on the probe       | x ``nClusters``: single|
++-----------------------+------------------------------+------------------------+
+| rawShape              | Dimensions of                | 1 x 3: double          |
+|                       | :ref:`io-raw-traces`         |                        |
++-----------------------+------------------------------+------------------------+
+| siteThresh            | Detection threshold          | ``nSites`` x           |
+|                       | per site per chunk           | ``nChunks``: single    |
+|                       | (see :ref:`chunking`)        |                        |
++-----------------------+------------------------------+------------------------+
+| sortTime              | Time spent (in seconds) in   | scalar double          |
+|                       | clustering step              |                        |
++-----------------------+------------------------------+------------------------+
+| sortedOn              | Timestamp of last spike      | scalar double          |
+|                       | clustering                   |                        |
++-----------------------+------------------------------+------------------------+
+| spikeAmps             | Spike amplitudes in ADC      | ``nSpikes`` x 1: int32 |
 |                       | sample unit                  |                        |
++-----------------------+------------------------------+------------------------+
+| spikeClusters         | The spike table: cluster     | ``nSpikes`` x 1: int32 |
+|                       | assignment for each spike    |                        |
++-----------------------+------------------------------+------------------------+
+| spikePositions        | Feature-weighted center      | ``nSpikes`` x 2:       |
+|                       | x-y positions on the probe   | double                 |
+|                       | for each spike               |                        |
 +-----------------------+------------------------------+------------------------+
 | spikeSites            | Site with the peak           | ``nSpikes`` x 1: int32 |
 |                       | spike amplitude              |                        |
@@ -237,28 +292,31 @@ The following data are stored in *mysession\_res.mat*:
 | spikeSites2           | Site with the second         | ``nSpikes`` x 1: int32 |
 |                       | peak spike amplitude         |                        |
 +-----------------------+------------------------------+------------------------+
-| spikeAmps             | Spike amplitude              | ``nSpikes`` x 1: int16 |
-|                       | (local min. after            |                        |
-|                       | filtering)                   |                        |
+| spikeSites3           | Site with the third          | ``nSpikes`` x 1: int32 |
+|                       | peak spike amplitude         |                        |
 +-----------------------+------------------------------+------------------------+
-| spikesBySite          | Cell of the spike            | Cell of vector of      |
-|                       | indices per site             | int32                  |
+| spikesByCluster       | Cell of the spike            | ``nClusters`` x 1: cell|
+|                       | indices per cluster          |  array of double       |
 +-----------------------+------------------------------+------------------------+
-| siteThresh            | Detection threshold          | ``nSites`` x           |
-|                       | per site per chunk           | ``nChunks``: single    |
-|                       | (see :ref:`chunking`)        |                        |
+| spikesBySite          | Cell of the spike            | ``nSites`` x 1: cell   |
+|                       | indices per site             | array of int32         |
 +-----------------------+------------------------------+------------------------+
-| filtShape             | Dimensions of                | 1 x 3: double          |
-|                       | :ref:`io-filt-traces`        |                        |
+| spikesBySite2         | Cell of the spike            | ``nSites`` x 1: cell   |
+|                       | indices per secondary site   | array of int32         |
 +-----------------------+------------------------------+------------------------+
-| rawShape              | Dimensions of                | 1 x 3: double          |
-|                       | :ref:`io-raw-traces`         |                        |
+| spikesBySite3         | Cell of the spike            | ``nSites`` x 1: cell   |
+|                       | indices per tertiary site    | array of int32         |
 +-----------------------+------------------------------+------------------------+
-| hClust                | Clustering data              | DensityPeakClustering  |
-|                       |                              | object                 |
+| spikeTimes            | Spike timing in ADC          | ``nSpikes`` x 1: int32 |
+|                       | sample unit                  |                        |
 +-----------------------+------------------------------+------------------------+
-| hCfg                  | Configuration data           | Config                 |
-|                       |                              | object                 |
+| unitCount             | Count of spikes in each      | ``nClusters`` x 1:     |
+|                       | cluster                      | double                 |
++-----------------------+------------------------------+------------------------+
+| waveformSim           | Waveform-based pairwise      | ``nClusters`` x        |
+|                       | cluster                      | ``nClusters``: double  |
+|                       | :ref:`sim <merge-post-hoc>`  |                        |
+|                       | scores                       |                        |
 +-----------------------+------------------------------+------------------------+
 
 .. _io-filt-traces:
