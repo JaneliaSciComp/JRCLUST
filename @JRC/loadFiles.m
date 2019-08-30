@@ -112,7 +112,7 @@ function loadFiles(obj)
         end
 
         if isfield(res_, 'hClust')
-            if ~isempty(res_.hClust.inconsistentFields())
+            if ~isempty(res_.hClust.inconsistentFields()) && obj.hCfg.getOr('autoRecover', 0)
                 flag = res_.hClust.recover(1); % recover inconsistent data if needed
                 successAppend = 'You should look through your data and ensure everything is correct, then save it.';
                 failureAppend = 'You will probably experience problems curating your data.';
@@ -135,6 +135,7 @@ function loadFiles(obj)
                     jrclust.utils.qMsgBox(msg, 1, 1);
                 end
             end
+
             res_.hClust.syncHistFile();
         end
 
