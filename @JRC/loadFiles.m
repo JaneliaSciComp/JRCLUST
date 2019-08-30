@@ -112,6 +112,29 @@ function loadFiles(obj)
         end
 
         if isfield(res_, 'hClust')
+            if ~isempty(res_.hClust.inconsistentFields())
+                flag = res_.hClust.recover(1); % recover inconsistent data if needed
+                successAppend = 'You should look through your data and ensure everything is correct, then save it.';
+                failureAppend = 'You will probably experience problems curating your data.';
+                msg = '';
+                switch flag
+                    case 2
+                        msg = sprintf('Non-contiguous spike table found and corrected. %s', successAppend);
+                        
+                    case 1
+                        msg = sprintf('Inconsistent fields found and corrected. %s', successAppend);
+
+                    case 0
+                        msg = sprintf('Clustering data in an inconsistent state and automatic recovery failed. Please post an issue on the GitHub issue tracker. %s', failureAppend);
+                        
+                    case -1
+                        msg = sprintf('Automatic recovery canceled by the user but the clustering data is still in an inconsistent state. %s', failureAppend);
+                end
+
+                if ~isempty(msg)
+                    jrclust.utils.qMsgBox(msg, 1, 1);
+                end
+            end
             res_.hClust.syncHistFile();
         end
 
