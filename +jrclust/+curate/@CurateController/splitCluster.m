@@ -6,6 +6,11 @@ function splitCluster(obj, iCluster, unitPart)
     end
 
     obj.isWorking = 1;
+    if isempty(unitPart) || ~iscell(unitPart) || any(cellfun(@isempty, unitPart))
+        obj.isWorking = 0;
+        return;
+    end
+
     try
         res = obj.hClust.splitUnit(obj.hClust.spikeClusters, iCluster, unitPart);
         if ~isempty(res.metadata)
