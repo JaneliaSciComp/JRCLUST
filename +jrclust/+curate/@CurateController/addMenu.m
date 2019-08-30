@@ -10,6 +10,7 @@ function addMenu(obj, hFig)
     uimenu(obj.hMenus('FileMenu'), 'Label', 'Save figures as .png', 'Callback', @(hO, hE) obj.saveFigures('.png'));
     uimenu(obj.hMenus('FileMenu'), 'Label', 'Export units to csv', 'Callback', @(hO, hE) obj.hClust.exportToCSV(), 'Separator', 'on');
     uimenu(obj.hMenus('FileMenu'), 'Label', 'Export unit qualities to csv', 'Callback', @(hO, hE) obj.hClust.exportQualityScores());
+    uimenu(obj.hMenus('FileMenu'), 'Label', 'Export hClust to workspace', 'Callback', @(hO, hE) assignin('base', 'hClust', obj.hClust));
     uimenu(obj.hMenus('FileMenu'), 'Label', 'Export all mean unit waveforms to workspace', 'Callback', @(hO, hE) obj.exportMeanWf(1));
     uimenu(obj.hMenus('FileMenu'), 'Label', 'Export selected mean unit waveforms to workspace', 'Callback', @(hO, hE) obj.exportMeanWf(0));
     uimenu(obj.hMenus('FileMenu'), 'Label', 'Export all traces from the selected unit', 'Callback', @(hO, hE) obj.exportTraces());
