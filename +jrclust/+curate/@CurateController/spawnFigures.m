@@ -4,12 +4,12 @@ function spawnFigures(obj)
 
     skipRD = ~ismember('FigRD', obj.hCfg.figList); % skip the rho-delta plot
     if skipRD % expand figTime et al. to take its place
-        ftShape = [0.0013021     0.055556      0.69505      0.18611];
+        ftShape = [0.0010417     0.031019      0.69505      0.21065];
         fcShape = [0.46745      0.69769      0.16406      0.29398];
         fiShape = [.85 .47 .15 .26];
         fhShape = [0.62917      0.69722      0.16823      0.29352];
     else
-        ftShape = [0.0013021     0.055556      0.69505      0.18611];
+        ftShape = [0.0010417     0.031019      0.69505      0.21065];
         fcShape = [0.46745      0.69769      0.16406      0.29398];
         fiShape = [.85 .5 .15 .25];
         fhShape = [0.62917      0.69722      0.16823      0.29352];
