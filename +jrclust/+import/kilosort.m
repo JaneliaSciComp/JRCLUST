@@ -31,18 +31,12 @@ function [hCfg, res] = kilosort(loadPath)
     cfgData.siteLoc = channelPositions;
     cfgData.shankMap = ones(size(channelMap), 'like', channelMap); % this can change with a prm file
     cfgData.rawRecordings = {params.dat_path};
-
-    hCfg = jrclust.Config(cfgData);    
-    
-    % check for existence of .prm file. if exists use it.
     params = parseParams(fullfile(loadPath, 'params.py'));
+    % check for existence of .prm file. if exists use it as a template.
     [a,b,~] = fileparts(params.dat_path);
     prm_path = [a,filesep,b,'.prm'];
-    if exist(prm_path,'file')
-        hCfg.loadParams(prm_path);
-    else
-        error('PRM file needed in directory but not found.');
-    end
+    cfgData.template_file = prm_path;
+    hCfg = jrclust.Config(cfgData);    
     
     hCfg.updateLog('import-kilosort', sprintf('Loading NPY files from %s', loadPath), 1, 0);
 
