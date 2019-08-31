@@ -89,8 +89,9 @@ function keyPressFigWav(obj, ~, hEvent)
                 jrclust.utils.qMsgBox('''trialFile'' not set. Reload .prm file after setting (under "File menu")');
                 return;
             end
-
+            currFig = gcf;
             obj.updateFigPSTH(1);
+            figure(currFig); % return focus to main figure
 
         case 'q' % show and export quality scores for selected cluster
             iCluster = obj.selected(1);
