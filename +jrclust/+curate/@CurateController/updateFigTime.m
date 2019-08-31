@@ -87,10 +87,11 @@ function updateFeatureHist(obj)
     fgFeatures = getFigTimeFeatures(obj.hClust,obj.currentSite,obj.selected);
     fg_outliers = abs(zscore(fgFeatures))>5;
     fgFeatures = fgFeatures(~fg_outliers);
-    figure(1028);
+    currFig=gcf;
+    figure(1028);clf;
     set(gcf,'units','normalized',...
         'outerposition',[0.69349     0.050926      0.10625      0.19306],...
-        'name','Feature Histogram','menubar','none','toolbar','none');
+        'name','Feature Histogram','menubar','none','toolbar','none','numbertitle','off');
     h(1)=histogram(bgFeatures,'Normalization','probability' );hold on
     h(2)=histogram(fgFeatures,'Normalization','probability');
     binlimits = minmax(cat(2,h.BinLimits));
@@ -104,5 +105,5 @@ function updateFeatureHist(obj)
     h(2).FaceAlpha=0.8;
     xlabel(XLabel);
     ylabel('Probability');
-    figure(a);
+    figure(currFig);
 end
