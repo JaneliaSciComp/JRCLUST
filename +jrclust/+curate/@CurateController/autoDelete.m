@@ -80,7 +80,7 @@ function autoDelete(obj)
         hFigDelete.toForeground;hold on;      
         plot( obj.hClust.unitVpp(deleteMe), obj.hClust.unitCount(deleteMe), 'rx'); % show cluster SNR and spike count            
     end
-    dlgans = questdlg(sprintf('Will delete %d units.', numel(deleteMe)),'Confirm Deletion','OK','Cancel','OK');
+    dlgans = questdlg(sprintf('%d units will be deleted. Please confirm.', numel(deleteMe)),'Confirm Deletion','OK','Cancel','OK');
     hFigDelete.close();
     if strcmp(dlgans,'OK')
         obj.deleteClusters(deleteMe);
