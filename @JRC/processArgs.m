@@ -158,6 +158,29 @@ function processArgs(obj)
                 obj.isCompleted = 1;
             end
 
+        case 'export-nwb'
+            if isempty(obj.hCfg)
+                obj.error(sprintf('`%s` not found or not a config file', obj.args{1}));
+                return;
+            elseif nargs < 2
+                obj.error('Specify an output file.');
+                return;
+            end
+
+            obj.loadFiles();
+
+            if isempty(obj.hClust)
+                obj.error('Clustering object not found; sort your data first');
+                return;
+            end
+
+            try
+                jrclust.export.nwb(obj.hClust, obj.args{2});
+                obj.isCompleted = 1;
+            catch ME
+                obj.error(ME.message);
+            end
+
         case 'export-phy'
             if isempty(obj.hCfg)
                 obj.error(sprintf('%s not found or not a config file', obj.args{1}));

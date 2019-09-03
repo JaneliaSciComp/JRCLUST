@@ -16,6 +16,11 @@ classdef (Abstract) Clustering < handle
         sRes;               % sorting results
     end
 
+    %% DETECTION RESULTS (IMMUTABLE)
+    properties (Dependent, Transient)
+        detectedOn;         % timestamp, when spikes were detected
+    end
+
     %% SORTING DATA (MUTABLE)
     properties (SetObservable)
         clusterCentroids;   % centroids of clusters on the probe
@@ -129,6 +134,18 @@ classdef (Abstract) Clustering < handle
 
     %% GETTERS/SETTERS
     methods
+        % detectedOn
+        function val = get.detectedOn(obj)
+            if isfield(obj.sRes, 'detectedOn')
+                val = obj.sRes.detectedOn;
+            else
+                val = now();
+            end
+        end
+        function set.detectedOn(obj, val)
+            obj.sRes.detectedOn = val;
+        end
+
         % hCfg
         function set.hCfg(obj, hc)
             failMsg = 'hCfg must be an object of type jrclust.Config';
