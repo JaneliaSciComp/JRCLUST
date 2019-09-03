@@ -42,8 +42,10 @@ function hFigISI = plotFigISI(hFigISI, hClust, hCfg, selected)
 
     if iCluster ~= jCluster
         [jIsiK, jIsiK1] = getReturnMap(jCluster, hClust, hCfg);
+        hFigISI.axApply('default', @title, sprintf('Unit %d (black) vs. Unit %d (red)', iCluster, jCluster));
         hFigISI.updatePlot('foreground2', jIsiK, jIsiK1);
     else
+        hFigISI.axApply('default', @title, sprintf('Unit %d', iCluster));
         hFigISI.clearPlot('foreground2');
     end
 end

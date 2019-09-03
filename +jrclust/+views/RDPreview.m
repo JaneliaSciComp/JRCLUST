@@ -38,7 +38,7 @@ function hCFig = RDPreview(hClust)
                                'Position', [175, 0, 100, 30], ...
                                'Callback', @setProjection);
     hCFig.axApply('default', @title, 'Projections of spikes onto features');
-    hFigRD = jrclust.views.Figure('FigRD', [0.55 0 0.4 0.5], ['Cluster rho-delta: ', hClust.hCfg.sessionName], 0, 0);
+    hFigRD = jrclust.views.Figure('FigRD', [0.55 0 0.4 0.5], ['Unit rho-delta: ', hClust.hCfg.sessionName], 0, 0);
 
     hFigWav = jrclust.views.Figure('FigWav', [0.55 0.5 0.4 0.5], ['Filtered traces: ', hClust.hCfg.sessionName], 0, 0);
 
@@ -199,7 +199,7 @@ function hCFig = RDPreview(hClust)
         siteSpikes = hClust.spikesBySite{currentSite};
         uniqueClusters = unique(hClust.spikeClusters(siteSpikes));
         uniqueClusters = uniqueClusters(uniqueClusters > 0);
-        ucStr = arrayfun(@(iC) sprintf('Cluster %d', iC), uniqueClusters, 'UniformOutput', 0);
+        ucStr = arrayfun(@(iC) sprintf('Unit %d', iC), uniqueClusters, 'UniformOutput', 0);
 
         set(hSiteClusters, 'Value', 1, 'String', '');
 
@@ -259,7 +259,7 @@ function hCFig = RDPreview(hClust)
             hCFig.axApply('default', @ylabel, cproj{1});
         end
 
-        uniqueClusters = cellfun(@(c) str2double(strrep(c, 'Cluster ', '')), ucStr, 'UniformOutput', 1);
+        uniqueClusters = cellfun(@(c) str2double(strrep(c, 'Unit ', '')), ucStr, 'UniformOutput', 1);
         uniqueClusters = uniqueClusters(selectedClusters);
         for iCluster = 1:numel(uniqueClusters)
             cluster = uniqueClusters(iCluster);
@@ -334,7 +334,7 @@ function hCFig = RDPreview(hClust)
         siteSpikes = hClust.spikesBySite{currentSite};
         spikeClusters = hClust.spikeClusters(siteSpikes);
 
-        uniqueClusters = cellfun(@(c) str2double(strrep(c, 'Cluster ', '')), ucStr, 'UniformOutput', 1);
+        uniqueClusters = cellfun(@(c) str2double(strrep(c, 'Unit ', '')), ucStr, 'UniformOutput', 1);
         uniqueClusters = uniqueClusters(selectedClusters);
 
         YData = squeeze(hClust.spikesFilt(:, 1, siteSpikes));

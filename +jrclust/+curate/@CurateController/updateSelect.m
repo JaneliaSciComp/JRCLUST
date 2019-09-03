@@ -1,4 +1,4 @@
-function updateSelect(obj, iClusters)
+function updateSelect(obj, iClusters, force)
     %UPDATESELECT Select a (pair of) cluster(s) across all views
     iClusters = min(max(iClusters, 1), obj.hClust.nClusters);
     if numel(iClusters) > 2
@@ -8,6 +8,15 @@ function updateSelect(obj, iClusters)
     end
     if numel(iClusters) == 2 && diff(iClusters) == 0
         iClusters = iClusters(1);
+    end
+
+    % force update, e.g., after a delete
+    if nargin < 3
+        force = 0;
+    end
+
+    if ~force && jrclust.utils.isEqual(iClusters, obj.selected)
+        return;
     end
 
     obj.selected = iClusters;

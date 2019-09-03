@@ -55,6 +55,10 @@ function hFigCorr = plotFigCorr(hFigCorr, hClust, hCfg, selected)
         hFigCorr.updatePlot('hBar', lagTime, intCount);
     end
 
-    hFigCorr.axApply('default', @title, sprintf('Cluster %d vs. Cluster %d', iCluster, jCluster));
+    if iCluster ~= jCluster
+        hFigCorr.axApply('default', @title, sprintf('Unit %d vs. Unit %d', iCluster, jCluster));
+    else
+        hFigCorr.axApply('default', @title, sprintf('Unit %d', iCluster));
+    end
     hFigCorr.axApply('default', @set, 'XLim', jitterMs*[-nLags, nLags]);
 end

@@ -48,8 +48,19 @@ function plotAllFigures(obj)
     % plot rho-delta figure
     obj.updateFigRD();
 
+    % update help texts
+    helpFigs = fieldnames(obj.helpTexts);
+    for i = 1:numel(helpFigs)
+        figName = helpFigs{i};
+
+        if obj.hasFig(figName)
+            hFig = obj.hFigs(figName);
+            hFig.figData.helpText = strjoin(obj.helpTexts.(figName), '\n');
+        end
+    end
+
     % select first cluster (also plots other figures)
-    obj.updateSelect(1);
+    obj.updateSelect(1, 1);
 
     % zoom in on first cluster
     obj.keyPressFigWav([], struct('Key', 'z')); % zoom in

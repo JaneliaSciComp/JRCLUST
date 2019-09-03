@@ -13,6 +13,7 @@ classdef CurateController < handle
 
     properties (AbortSet, SetAccess=private, Hidden, Transient, SetObservable)
         currentSite;    % current site in FigTime
+        helpTexts;      % figure help texts
         hFigs;          % containers.Map of Figure objects
         hMenus;         % containers.Map of Menu handles
         isEnding;       % to prevent double prompting when endSession is called
@@ -36,6 +37,14 @@ classdef CurateController < handle
             obj.currentSite = [];
             obj.maxAmp = [];
             obj.selected = [];
+
+            % load helptexts
+            helpFile = fullfile(jrclust.utils.basedir(), 'json', 'helptexts.json');
+            if exist(helpFile, 'file') == 2
+                fid = fopen(helpFile, 'r');
+                obj.helpTexts = jsondecode(fread(fid, inf, '*char')');
+                fclose(fid);
+            end
         end
 
         function delete(obj)

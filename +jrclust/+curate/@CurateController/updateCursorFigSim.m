@@ -32,5 +32,10 @@ function updateCursorFigSim(obj)
     elseif strcmp(hFigSim.figData.figView, 'waveform')
         scoreij = obj.hClust.waveformSim(iCluster, jCluster);
     end
-    hFigSim.axApply('default', @title, sprintf('Cluster %d vs. Cluster %d: %0.3f', iCluster, jCluster, scoreij));
+
+    if iCluster ~= jCluster
+        hFigSim.axApply('default', @title, sprintf('Unit %d vs. Unit %d: %0.3f (%s) (press [H] for help)', iCluster, jCluster, scoreij, hFigSim.figData.figView));
+    else
+        hFigSim.axApply('default', @title, sprintf('Unit %d: %0.3f (%s) (press [H] for help)', iCluster, scoreij, hFigSim.figData.figView));
+    end
 end

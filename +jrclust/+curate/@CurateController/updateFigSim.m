@@ -31,16 +31,14 @@ function hFigSim = plotFigSim(hFigSim, hClust, hCfg, selected)
         hFigSim.axApply('default', @axis, [0 nClusters 0 nClusters] + .5);
         hFigSim.axApply('default', @axis, 'xy')
         hFigSim.axApply('default', @grid, 'on');
-        hFigSim.axApply('default', @xlabel, 'Cluster #');
-        hFigSim.axApply('default', @ylabel, 'Cluster #');
+        hFigSim.axApply('default', @xlabel, 'Unit #');
+        hFigSim.axApply('default', @ylabel, 'Unit #');
 
         if strcmp(hFigSim.figData.figView, 'template') && isprop(hClust, 'templateSim')
             hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.templateSim, hCfg.corrRange);
-            %hFigSim.axApply('default', @title, '[S]plit; [M]erge; [D]elete; [K]iloSort sim score; [W]aveform corr');
-            hFigSim.figApply(@set, 'Name', ['Template-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w');
+            hFigSim.figApply(@set, 'Name', ['Template-based similarity score: ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w');
         else
             hFigSim.addPlot('hImSim', @imagesc, 'CData', hClust.waveformSim, hCfg.corrRange);
-            %hFigSim.axApply('default', @title, '[S]plit; [M]erge; [D]elete');
         end
 
         % selected cluster pair cursors
@@ -52,10 +50,10 @@ function hFigSim = plotFigSim(hFigSim, hClust, hCfg, selected)
     else
         if strcmp(hFigSim.figData.figView, 'template') && isprop(hClust, 'templateSim')
             hFigSim.plotApply('hImSim', @set, 'CData', hClust.templateSim);
-            hFigSim.figApply(@set, 'Name', ['Template-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
+            hFigSim.figApply(@set, 'Name', ['Template-based similarity score: ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
         else
             hFigSim.plotApply('hImSim', @set, 'CData', hClust.waveformSim);
-            hFigSim.figApply(@set, 'Name', ['Waveform-based similarity score (click): ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
+            hFigSim.figApply(@set, 'Name', ['Waveform-based similarity score: ', hCfg.sessionName], 'NumberTitle', 'off', 'Color', 'w')
         end
 
         hFigSim.axApply('default', @set, {'XTick', 'YTick'}, {1:nClusters, 1:nClusters});
@@ -74,7 +72,7 @@ function hFigSim = plotFigSim(hFigSim, hClust, hCfg, selected)
     elseif strcmp(hFigSim.figData.figView, 'waveform')
         scoreij = hClust.waveformSim(iCluster, jCluster);
     end
-    hFigSim.axApply('default', @title, sprintf('Cluster %d vs. Cluster %d: %0.3f', iCluster, jCluster, scoreij));
+    hFigSim.axApply('default', @title, sprintf('Unit %d vs. Unit %d: %0.3f', iCluster, jCluster, scoreij));
 
     hFigSim.wait(0);
 end

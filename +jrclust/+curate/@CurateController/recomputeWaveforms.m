@@ -21,6 +21,6 @@ function recomputeWaveforms(obj, computeAll)
 
     obj.updateFigWav();
     obj.updateFigSim();
-    obj.updateSelect(obj.selected);
+    obj.updateSelect(obj.selected, 1);
 end
 

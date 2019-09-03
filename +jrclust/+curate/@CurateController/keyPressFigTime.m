@@ -9,6 +9,12 @@ function keyPressFigTime(obj, ~, hEvent)
     factor = 4^double(jrclust.utils.keyMod(hEvent, 'shift')); % 1 or 4
 
     switch hEvent.Key
+        case 'uparrow'
+            jrclust.views.rescaleFigTime(hFigTime, sqrt(2)^-factor);
+
+        case 'downarrow' % change amp
+            jrclust.views.rescaleFigTime(hFigTime, sqrt(2)^factor);
+
         case 'leftarrow' % go down one channel
             obj.currentSite = max(obj.currentSite - factor, 1);
             obj.updateFigTime(0);
@@ -17,14 +23,13 @@ function keyPressFigTime(obj, ~, hEvent)
             obj.currentSite = min(obj.currentSite + factor, obj.hCfg.nSites);
             obj.updateFigTime(0);
 
-        case 'uparrow'
-            jrclust.views.rescaleFigTime(hFigTime, sqrt(2)^-factor);
-
-        case 'downarrow' % change amp
-            jrclust.views.rescaleFigTime(hFigTime, sqrt(2)^factor);
-
         case 'b' % toggle background spikes
             hFigTime.figData.doPlotBG = hFigTime.toggleVisible('background');
+            
+        case {'d', 'backspace', 'delete'} % delete
+            hFigTime.wait(1);
+            obj.deleteClusters();
+            hFigTime.wait(0);
 
         case 'f' % toggle feature display
             if strcmp(obj.hCfg.dispFeature, 'vpp')

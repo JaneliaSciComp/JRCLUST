@@ -127,7 +127,7 @@ function plot_figure_psth_(hFigTrial, iCluster, trialTimes, hClust, hCfg)
         clusterTimes = hClust.spikeTimes(hClust.spikesByCluster{iCluster});
         plot_raster_clu_(clusterTimes, iTrialTimes, hCfg, hAx1);
         plot_psth_clu_(clusterTimes, iTrialTimes, hCfg, hAx2, hFigTrial.figData.color);
-        hFigTrial.axApply(axKey2, @title, sprintf('Cluster %d; %d trials', iCluster, nTrials));
+        hFigTrial.axApply(axKey2, @title, sprintf('Unit %d; %d trials', iCluster, nTrials));
     end
 
     if nStims > 1

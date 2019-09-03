@@ -18,7 +18,6 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
         XLabel = sprintf('Site # (%%0.0f %s; upper: %s1; lower: %s2)', hCfg.dispFeature, hCfg.dispFeature, hCfg.dispFeature);
         YLabel = sprintf('Site # (%%0.0f %s)', hCfg.dispFeature);
     end
-    figTitle = '[H]elp; [S]plit; [B]ackground; (Sft)[Up/Down]:Scale; [Left/Right]:Sites; [M]erge; [F]eature';
 
     nSites = numel(sitesToShow);
     if ~hFigProj.hasAxes('default')
@@ -76,10 +75,10 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
     % plot secondary foreground spikes
     if numel(selected) == 2
         plotFeatures(hFigProj, 'foreground2', fg2YData, fg2XData, boundScale, hCfg);
-        figTitle = sprintf('Clu%d (black), Clu%d (red); %s', selected(1), selected(2), figTitle);
+        figTitle = sprintf('Unit %d (black), Unit %d (red); (press [H] for help)', selected(1), selected(2));
     else % or hide the plot
         hFigProj.clearPlot('foreground2');
-        figTitle = sprintf('Clu%d (black); %s', selected(1), figTitle);
+        figTitle = sprintf('Unit %d (black); (press [H] for help)', selected(1));
         hFigProj.figData.foreground2.XData = nan;
         hFigProj.figData.foreground2.YData = nan;
     end
@@ -92,13 +91,6 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
     hFigProj.axApply('default', @xlabel, sprintf(XLabel, boundScale));
     hFigProj.axApply('default', @ylabel, sprintf(YLabel, boundScale));
     hFigProj.axApply('default', @title, figTitle);
-
-    hFigProj.figData.helpText = {'[D]raw polygon', ...
-                    '[S]plit cluster', ...
-                    '(shift)+Up/Down: change scale', ...
-                    '[R]eset scale', ...
-                    'Zoom: mouse wheel', ...
-                    'Drag while pressing wheel: pan'};
 end
 
 %% LOCAL FUNCTIONS

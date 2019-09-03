@@ -53,7 +53,7 @@ function deleteClusters(obj, deleteMe)
         obj.updateFigWav();
         obj.updateFigRD(); % centers changed, need replotting
         obj.updateFigSim();
-        obj.updateSelect(obj.selected);
+        obj.updateSelect(obj.selected, 1);
     end
 
     obj.isWorking = 0;

@@ -24,7 +24,7 @@ function annotateUnit(obj, note, doConfirm)
     obj.isWorking = 1;
     try
         if doConfirm
-            newNote = inputdlg(sprintf('Cluster %d', iCluster), 'Annotation', 1, {note});
+            newNote = inputdlg(sprintf('Unit %d', iCluster), 'Annotation', 1, {note});
             if ~isempty(newNote)
                 obj.hClust.addNote(iCluster, newNote{1});
             end
