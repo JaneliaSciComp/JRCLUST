@@ -94,7 +94,7 @@ function updateFeatureHist(obj)
         'name','Feature Histogram','menubar','none','toolbar','none','numbertitle','off');
     h(1)=histogram(bgFeatures,'Normalization','probability' );hold on
     h(2)=histogram(fgFeatures,'Normalization','probability');
-    binlimits = minmax(cat(2,h.BinLimits));
+    binlimits = [min(cat(2,h.BinLimits)) max(cat(2,h.BinLimits))];
     h(1).BinLimits = binlimits;
     h(2).BinLimits = binlimits;
     h(1).NumBins=min([h.NumBins]);
