@@ -79,8 +79,8 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
             yl=get(ax,'ylim');
             linehandle = line(ax,repmat(trialTimes{1}(:,1),1,2),yl,'linewidth',0.1,'color',[0 1 0]);
             set(ax,'ylim',yl);
-        else
-           warndlg('Could not load trial times.'); 
+        elseif ~isempty(hCfg.trialFile)
+           warning('Could not load trial times from %s.',hCfg.trialFile); 
         end
     end              
 end
