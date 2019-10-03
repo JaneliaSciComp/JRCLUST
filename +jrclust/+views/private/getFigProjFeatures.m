@@ -31,12 +31,13 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
 
     % get cluster assignments of spikes to show
     spikeClustersShow = hClust.spikeClusters(spikesToShow);
-
-    bgSpikes = jrclust.utils.subsample(spikesToShow, 2*hCfg.nSpikesFigProj);
+    
     fgSpikes = jrclust.utils.subsample(spikesToShow(spikeClustersShow == iCluster), hCfg.nSpikesFigProj);
     if ~isempty(jCluster)
+        bgSpikes = jrclust.utils.subsample(spikesToShow(spikeClustersShow ~= iCluster & spikeClustersShow ~= jCluster), 2*hCfg.nSpikesFigProj);        
         fg2Spikes = jrclust.utils.subsample(spikesToShow(spikeClustersShow == jCluster), hCfg.nSpikesFigProj);
     else
+        bgSpikes = jrclust.utils.subsample(spikesToShow(spikeClustersShow ~= iCluster ), 2*hCfg.nSpikesFigProj);        
         [fg2Spikes, fg2YData, fg2XData] = deal([]);
     end
 

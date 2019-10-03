@@ -7,6 +7,9 @@ function autoScaleFigTime(hFigTime, hClust, selected)
     % autoscalePct'th quantile, set ylimits to that scale
     iSite = hClust.clusterSites(selected(1));
     dispFeaturesTime = getFigTimeFeatures(hClust, iSite, selected(1));
+    if numel(dispFeaturesTime)<2
+        dispFeaturesTime = getFigTimeFeatures(hClust, iSite);
+    end
     if numel(selected) == 1
         timeData = {dispFeaturesTime};
     else

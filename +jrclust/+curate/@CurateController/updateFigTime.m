@@ -5,7 +5,7 @@ function updateFigTime(obj, doAutoscale)
     end
 
     hFigTime = obj.hFigs('FigTime');
-    jrclust.views.plotFigTime(hFigTime, obj.hClust, obj.hCfg, obj.selected, obj.maxAmp, obj.currentSite);
+    jrclust.views.plotFigTime(hFigTime, obj.hClust, obj.hCfg, obj.selected, obj.maxAmp, obj.currentSite, obj.channel_idx);
     hFigTime.setMouseable(); % no special mouse function
     
    
@@ -18,20 +18,23 @@ end
 
 
 %% LOCAL FUNCTIONS
-function [dispFeatures, spikeTimesSecs, YLabel, dispSpikes] = getFigTimeFeatures(hClust, iSite, iCluster)
+function [dispFeatures, spikeTimesSecs, YLabel, dispSpikes] = getFigTimeFeatures(hClust, iSite, iCluster, channel_idx)
     %GETFIGTIMEFEATURES Compute features to display in FigTime on iSite
     if nargin < 3 % get features off of background spikes
         iCluster = [];
+        channel_idx = 1:length(hClust.spikesBySite);
     end
 
     hCfg = hClust.hCfg;
     [dispFeatures, dispSpikes] = getClusterFeaturesSite(hClust, iSite, iCluster);
     spikeTimesSecs = double(hClust.spikeTimes(dispSpikes))/hCfg.sampleRate;
 
-    if strcmp(hCfg.dispFeature, 'vpp')
-        YLabel = sprintf('Site %d (\\mu Vpp)', iSite);
-    else
-        YLabel = sprintf('Site %d (%s)', iSite, hCfg.dispFeature);
+    if nargout>2
+        if strcmp(hCfg.dispFeature, 'vpp')
+            YLabel = sprintf('Site %d (\\mu Vpp)', channel_idx(iSite));
+        else
+            YLabel = sprintf('Site %d (%s)', channel_idx(iSite), hCfg.dispFeature);
+        end
     end
 end
 
@@ -81,7 +84,7 @@ function [sampledFeatures, sampledSpikes] = getClusterFeaturesSite(hClust, iSite
 end
 
 function updateFeatureHist(obj)
-    [bgFeatures,~,XLabel] = getFigTimeFeatures(obj.hClust,obj.currentSite);
+    [bgFeatures,~,XLabel] = getFigTimeFeatures(obj.hClust,obj.currentSite,[],obj.channel_idx);
     bg_outliers = abs(zscore(bgFeatures))>5;
     bgFeatures = bgFeatures(~bg_outliers);
     fgFeatures = getFigTimeFeatures(obj.hClust,obj.currentSite,obj.selected);

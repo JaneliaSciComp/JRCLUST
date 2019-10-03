@@ -146,8 +146,7 @@ function keyPressFigWav(obj, ~, hEvent)
                 obj.updateSelect(1);
             else
                 iCluster = obj.selected(1);
-                iSite = obj.hClust.clusterSites(iCluster);
-
+                iSite = obj.channel_idx(obj.hClust.clusterSites(iCluster));
                 % do we have a second selected cluster?
                 if numel(obj.selected) > 1
                     xRange = iCluster + [-1, 1]*max(abs(diff(obj.selected)) + 1, 6);
