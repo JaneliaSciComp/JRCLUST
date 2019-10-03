@@ -178,10 +178,10 @@ function plot_raster_clu_(clusterTimes, trialTimes, hCfg, hAx, color, idx)
 end
 
 function plot_psth_clu_(clusterTimes, trialTimes, hCfg, hAx, vcColor)
-    tbin = hCfg.psthTimeBin;
-    nbin = round(tbin * hCfg.sampleRate);
-    nlim = round(hCfg.psthTimeLimits/tbin);
-    viTime_Trial = round(trialTimes / tbin);
+    tbin = hCfg.psthTimeBin; % psth bin size in s
+    nbin = round(tbin * hCfg.sampleRate); % imec samples per bin
+    nlim = round(hCfg.psthTimeLimits/tbin); % psth lims in terms of number of bins
+    viTime_Trial = round(trialTimes / tbin); % time when trial events occurred in terms of number of bins
 
     vlTime1 = zeros(0);
     vlTime1(ceil(double(clusterTimes)/nbin)) = 1;
