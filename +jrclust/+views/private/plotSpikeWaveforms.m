@@ -1,4 +1,4 @@
-function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
+function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp, channel_idx)
     %PLOTSPIKEWAVEFORMS Plot individual waveforms in the main view
     [XData, YData, showSites] = deal(cell(hClust.nClusters, 1));
 
@@ -22,9 +22,8 @@ function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
                 end
                 iWaveforms = hClust.spikesFiltVolt(:, :, iSpikes);
             end
-
-            [YData{iCluster}, XData{iCluster}] = wfToPlot(iWaveforms, iCluster, iSites, maxAmp, hCfg);
             showSites{iCluster} = iSites;
+            [YData{iCluster}, XData{iCluster}] = wfToPlot(iWaveforms, iCluster, channel_idx(iSites), maxAmp, hCfg);
             nSpikesCluster(iCluster) = size(iWaveforms, 3);
         catch ME
             warning('Can''t plot cluster %d: %s', iCluster, ME.message);
@@ -47,7 +46,7 @@ function [YData, XData] = wfToPlot(waveforms, iCluster, iSites, maxAmp, hCfg)
     if isempty(iSites)
         iSites = 1:size(waveforms, 2);
     end
-
+    
     nSpikes = size(waveforms, 3);
     nSites = numel(iSites);
 

@@ -4,7 +4,6 @@ function curate(obj)
         obj.loadFiles();
     end
     obj.isCurate = 1;
-
     if ~isfield(obj.res, 'spikeTimes') || isempty(obj.res.spikeTimes)
         error('no spikes to curate');
     end

@@ -1,4 +1,4 @@
-function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
+function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite, channel_idx)
     persistent linehandle
     %DOPLOTFIGTIME Plot features vs. time
     timeLimits = double([0, abs(hClust.spikeTimes(end))/hCfg.sampleRate]);
@@ -25,7 +25,7 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
     end
 
     [bgFeatures, bgTimes] = getFigTimeFeatures(hClust, iSite); % plot background
-    [fgFeatures, fgTimes, YLabel] = getFigTimeFeatures(hClust, iSite, selected(1)); % plot primary selected cluster
+    [fgFeatures, fgTimes, YLabel] = getFigTimeFeatures(hClust, iSite, selected(1),channel_idx); % plot primary selected cluster
 
     figTitle = '[H]elp; (Sft)[Left/Right]:Sites/Features; (Sft)[Up/Down]:Scale; [B]ackground; [S]plit; [R]eset view; [P]roject; [M]erge; (sft)[Z] pos; [E]xport selected; [C]hannel PCA';
     if numel(selected) == 2
@@ -37,6 +37,10 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
         figTitle = sprintf('Clu%d (black); %s', selected(1), figTitle);
     end
 
+    bg_idx = ~ismember(bgTimes,union(fgTimes,fgTimes2));
+    bgFeatures = bgFeatures(bg_idx);
+    bgTimes = bgTimes(bg_idx);
+    
     vppLim = [0, abs(maxAmp)];
     
     hFigTime.updatePlot('background', bgTimes, bgFeatures);

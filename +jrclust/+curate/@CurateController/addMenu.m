@@ -30,6 +30,9 @@ function addMenu(obj, hFig)
     uimenu(obj.hMenus('EditMenu'), 'Label', 'Recompute all mean waveforms', 'Callback', @(hO, hE) obj.recomputeWaveforms(1));
     uimenu(obj.hMenus('EditMenu'), 'Label', 'Reorder clusters by center site', 'Callback', @(hO, hE) obj.reorderClusters('clusterSites'), 'Separator', 'on');
     uimenu(obj.hMenus('EditMenu'), 'Label', 'Reorder clusters by centroid', 'Callback', @(hO, hE) obj.reorderClusters('Y + X'));
+    uimenu(obj.hMenus('EditMenu'), 'Label', 'Reorder sites by channel number', 'Callback', @(h0, hE) obj.reorderSites(1:obj.hCfg.nSites,'Site #'),'Separator','on');    
+    uimenu(obj.hMenus('EditMenu'), 'Label', 'Reorder sites by location dimension 1 (X)', 'Callback', @(h0, hE) obj.reorderSites(obj.hCfg.siteLoc(:,1)));
+    uimenu(obj.hMenus('EditMenu'), 'Label', 'Reorder sites by location dimension 2 (Y)', 'Callback', @(h0, hE) obj.reorderSites(obj.hCfg.siteLoc(:,2)));
 
     obj.hMenus('ViewMenu') = uimenu(hFig, 'Label', 'View');
     uimenu(obj.hMenus('ViewMenu'), 'Label', 'Show traces', 'Callback', @(hO, hE) obj.showTraces());

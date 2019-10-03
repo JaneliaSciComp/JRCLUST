@@ -1,4 +1,4 @@
-function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundScale)
+function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundScale, channel_idx)
     %PLOTFIGPROJ Plot feature projection figure
     hCfg = hClust.hCfg;
 
@@ -69,7 +69,7 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
     % Annotate axes
     hFigProj.axApply('default', @axis, [0 nSites 0 nSites]);
     hFigProj.axApply('default', @set, 'XTick', 0.5:1:nSites, 'YTick', 0.5:1:nSites, ...
-                     'XTickLabel', sitesToShow, 'YTickLabel', sitesToShow, ...
+                     'XTickLabel', channel_idx(sitesToShow), 'YTickLabel', channel_idx(sitesToShow), ...
                     'Box', 'off');
     hFigProj.axApply('default', @xlabel, sprintf(XLabel, boundScale));
     hFigProj.axApply('default', @ylabel, sprintf(YLabel, boundScale));
