@@ -35,7 +35,9 @@ function [hCfg, res] = kilosort(loadPath)
     % check for existence of .prm file. if exists use it as a template.
     [a,b,~] = fileparts(params.dat_path);
     prm_path = [a,filesep,b,'.prm'];
-    cfgData.template_file = prm_path;
+    if exist(prm_path,'file')
+        cfgData.template_file = prm_path;
+    end
     hCfg = jrclust.Config(cfgData);    
     
     hCfg.updateLog('import-kilosort', sprintf('Loading NPY files from %s', loadPath), 1, 0);
