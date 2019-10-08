@@ -55,24 +55,25 @@ function [hFigTrial1, hFigTrial2] = doPlotFigPSTH(hClust, hFigTrial1, hFigTrial2
     axLen = 1/nStims;
 
     if ~jrclust.utils.isvalid(hFigTrial1) || ~hFigTrial1.isReady
-        hFigTrial1 = jrclust.views.Figure('FigTrial1', [.5  .5 .5 .5], hCfg.trialFile, 0, 0);
+        hFigTrial1 = jrclust.views.Figure('FigTrial1', [0.79714     0.026852      0.20182       0.5338], hCfg.trialFile, 0, 0);
         for iStim = 1:nStims
             iOffset = axOffset + (iStim-1) * axLen;
-            hFigTrial1.addAxes(sprintf('stim%d1', iStim), 'Position', [axOffset iOffset .9 axLen*.68]);
-            hFigTrial1.addAxes(sprintf('stim%d2', iStim), 'Position', [axOffset iOffset + axLen*.68 .9 axLen*.2]);
+            hFigTrial1.addAxes(sprintf('stim%d1', iStim), 'Position', [axOffset iOffset .9 axLen*.6]);
+            hFigTrial1.addAxes(sprintf('stim%d2', iStim), 'Position', [axOffset iOffset + axLen*.6 .9 axLen*.2]);
         end
 
         hFigTrial1.figData.color = 'k';
     end
+
     plot_figure_psth_(hFigTrial1, selected(1), trialTimes, hClust, hCfg);
 
     if ~jrclust.utils.isvalid(hFigTrial2) || ~hFigTrial2.isReady
-        hFigTrial2 = jrclust.views.Figure('FigTrial2', [.5  0 .5 .5], hCfg.trialFile, 0, 0);
+        hFigTrial2 = jrclust.views.Figure('FigTrial2',[0.89557     0.029167      0.10182       0.5338] , hCfg.trialFile, 0, 0);
         hFigTrial2.figApply(@set, 'Visible', 'off');
         for iStim = 1:nStims
             iOffset = axOffset + (iStim-1) * axLen;
-            hFigTrial2.addAxes(sprintf('stim%d1', iStim), 'Position', [axOffset iOffset .9 axLen*.68]);
-            hFigTrial2.addAxes(sprintf('stim%d2', iStim), 'Position', [axOffset iOffset + axLen*.68 .9 axLen*.2]);
+            hFigTrial2.addAxes(sprintf('stim%d1', iStim), 'Position', [axOffset iOffset .9 axLen*.6]);
+            hFigTrial2.addAxes(sprintf('stim%d2', iStim), 'Position', [axOffset iOffset + axLen*.6 .9 axLen*.2]);
         end
 
         hFigTrial2.figData.color = 'r';
@@ -81,8 +82,10 @@ function [hFigTrial1, hFigTrial2] = doPlotFigPSTH(hClust, hFigTrial1, hFigTrial2
     % show this plot iff we have a second selected cluster
     if numel(selected) == 2
         hFigTrial2.figApply(@set, 'Visible', 'on');
+        hFigTrial1.figApply(@set, 'units','normalized','outerposition',[0.79635     0.031481      0.10182       0.5338]);
         plot_figure_psth_(hFigTrial2, selected(2), trialTimes, hClust, hCfg);
     else
+        hFigTrial1.figApply(@set,'units','normalized', 'outerposition',[0.79714     0.026852      0.20182       0.5338]);
         hFigTrial2.figApply(@set, 'Visible', 'off');
     end
 end
@@ -122,12 +125,17 @@ function plot_figure_psth_(hFigTrial, iCluster, trialTimes, hClust, hCfg)
         axKey1 = sprintf('stim%d1', iStim); hAx1 = hFigTrial.hAxes(axKey1); cla(hAx1);
         axKey2 = sprintf('stim%d2', iStim); hAx2 = hFigTrial.hAxes(axKey2); cla(hAx2);
 
-        iTrialTimes = trialTimes{iStim}; %(:,1);
-        nTrials = numel(iTrialTimes);
-        clusterTimes = hClust.spikeTimes(hClust.spikesByCluster{iCluster});
-        plot_raster_clu_(clusterTimes, iTrialTimes, hCfg, hAx1);
-        plot_psth_clu_(clusterTimes, iTrialTimes, hCfg, hAx2, hFigTrial.figData.color);
-        hFigTrial.axApply(axKey2, @title, sprintf('Unit %d; %d trials', iCluster, nTrials));
+        iTrialTimes = trialTimes{iStim}; % each element of the cell array should be a n x m matrix where n are the times and m are the indices of the condition
+        nTrials = size(iTrialTimes,1);
+        conds = unique(iTrialTimes(:,2));
+        colors = get(groot,'defaultAxesColorOrder');
+        for c=1:numel(conds)
+            hold(hAx1,'on');hold(hAx2,'on');
+            clusterTimes = hClust.spikeTimes(hClust.spikesByCluster{iCluster});
+            plot_raster_clu_(clusterTimes, iTrialTimes(:,1), hCfg, hAx1, colors(c,:), iTrialTimes(:,2)==conds(c));
+            plot_psth_clu_(clusterTimes, iTrialTimes(iTrialTimes(:,2)==conds(c),1), hCfg, hAx2, colors(c,:));
+        end
+        hFigTrial.axApply(axKey2, @title, sprintf('Cluster %d; %d trials', iCluster, nTrials));
     end
 
     if nStims > 1
@@ -136,7 +144,9 @@ function plot_figure_psth_(hFigTrial, iCluster, trialTimes, hClust, hCfg)
     end
 end
 
-function plot_raster_clu_(clusterTimes, trialTimes, hCfg, hAx)
+function plot_raster_clu_(clusterTimes, trialTimes, hCfg, hAx, color, idx)
+    % last input is logical array telling you whether to include spikes
+    % from that trial
     trialLength = diff(hCfg.psthTimeLimits); % seconds
     nTrials = numel(trialTimes);
     spikeTimes = cell(nTrials, 1);
@@ -148,11 +158,14 @@ function plot_raster_clu_(clusterTimes, trialTimes, hCfg, hAx)
         vrTime_clu1 = vrTime_clu1(vrTime_clu1>=vrTime_lim1(1) & vrTime_clu1<vrTime_lim1(2));
         vrTime_clu1 = (vrTime_clu1 - rTime_trial1 + t0) / trialLength;
         spikeTimes{iTrial} = vrTime_clu1';
+        if ~isempty(idx) && idx(iTrial)==0
+          spikeTimes{iTrial} = zeros(1,0);
+        end
     end
 
     % Plot
     plotSpikeRaster(spikeTimes,'PlotType','vertline','RelSpikeStartTime',0,'XLimForCell',[0 1], ...
-        'LineFormat', struct('LineWidth', 1.5), 'hAx', hAx);
+        'LineFormat', struct('LineWidth', 1.5 ,'color',color), 'hAx', hAx);
     ylabel(hAx, 'Trial #')
     % title('Vertical Lines With Spike Offset of 10ms (Not Typical; for Demo Purposes)');
     vrXTickLabel = hCfg.psthTimeLimits(1):(hCfg.psthXTick):hCfg.psthTimeLimits(2);
@@ -165,17 +178,17 @@ function plot_raster_clu_(clusterTimes, trialTimes, hCfg, hAx)
 end
 
 function plot_psth_clu_(clusterTimes, trialTimes, hCfg, hAx, vcColor)
-    tbin = hCfg.psthTimeBin;
-    nbin = round(tbin * hCfg.sampleRate);
-    nlim = round(hCfg.psthTimeLimits/tbin);
-    viTime_Trial = round(trialTimes / tbin);
+    tbin = hCfg.psthTimeBin; % psth bin size in s
+    nbin = round(tbin * hCfg.sampleRate); % imec samples per bin
+    nlim = round(hCfg.psthTimeLimits/tbin); % psth lims in terms of number of bins
+    viTime_Trial = round(trialTimes / tbin); % time when trial events occurred in terms of number of bins
 
     vlTime1 = zeros(0);
     vlTime1(ceil(double(clusterTimes)/nbin)) = 1;
     mr1 = vr2mr2_(double(vlTime1), viTime_Trial, nlim);
     vnRate = mean(mr1,2) / tbin;
     vrTimePlot = (nlim(1):nlim(end))*tbin + tbin/2;
-    bar(hAx, vrTimePlot, vnRate, 1, 'EdgeColor', 'none', 'FaceColor', vcColor);
+    plot(hAx, vrTimePlot, vnRate, 'color', vcColor);
     vrXTick = hCfg.psthTimeLimits(1):(hCfg.psthXTick):hCfg.psthTimeLimits(2);
     set(hAx, 'XTick', vrXTick, 'XTickLabel', []);
     grid(hAx, 'on');

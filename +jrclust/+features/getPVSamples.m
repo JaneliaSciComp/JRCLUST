@@ -10,7 +10,11 @@ function prVecs = getPVSamples(samplesIn)
     % compute eigenvectors of covariance matrix
     nSamples = size(samplesIn, 2);
     covMat = (samplesIn*samplesIn')/(nSamples-1);
-    [eigVecs, ~] = eig(covMat);
+    if ~isvector(samplesIn)
+        [eigVecs, ~] = eig(covMat);
+    else
+        eigVecs = zeros(numel(samplesIn));
+    end
 
     % eigenvectors corresponding to 3 largest eigenvalues
     prVecs = eigVecs(:, end:-1:end-2);

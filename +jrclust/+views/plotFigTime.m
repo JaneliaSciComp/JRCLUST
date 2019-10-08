@@ -1,4 +1,5 @@
-function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
+function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite, channel_idx)
+    persistent linehandle
     %DOPLOTFIGTIME Plot features vs. time
     timeLimits = double([0, abs(hClust.spikeTimes(end))/hCfg.sampleRate]);
 
@@ -24,7 +25,7 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
     end
 
     [bgFeatures, bgTimes] = getFigTimeFeatures(hClust, iSite); % plot background
-    [fgFeatures, fgTimes, YLabel] = getFigTimeFeatures(hClust, iSite, selected(1)); % plot primary selected cluster
+    [fgFeatures, fgTimes, YLabel] = getFigTimeFeatures(hClust, iSite, selected(1),channel_idx); % plot primary selected cluster
 
     if numel(selected) == 2
         [fgFeatures2, fgTimes2] = getFigTimeFeatures(hClust, iSite, selected(2));
@@ -35,6 +36,10 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
         figTitle = sprintf('Unit %d (black); (press [H] for help)', selected(1));
     end
 
+    bg_idx = ~ismember(bgTimes,union(fgTimes,fgTimes2));
+    bgFeatures = bgFeatures(bg_idx);
+    bgTimes = bgTimes(bg_idx);
+
     vppLim = [0, abs(maxAmp)];
 
     hFigTime.updatePlot('background', bgTimes, bgFeatures);
@@ -42,11 +47,12 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
     hFigTime.updatePlot('foreground2', fgTimes2, fgFeatures2);
     imrectSetPosition(hFigTime, 'hRect', timeLimits, vppLim);
 
+
 %     if isfield(S_fig, 'vhAx_track')
 %         toggleVisible_({S_fig.vhAx_track, S_fig.hPlot0_track, S_fig.hPlot1_track, S_fig.hPlot2_track}, 0);
 %         toggleVisible_({S_fig.hAx, S_fig.hRect, S_fig.hPlot1, S_fig.hPlot2, S_fig.hPlot0}, 1);
 %     end
-% 
+%
     if ~isfield(hFigTime.figData, 'doPlotBG')
         hFigTime.figData.doPlotBG = 1;
     end
@@ -54,4 +60,57 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite)
     hFigTime.axApply('default', @axis, [timeLimits, vppLim]);
     hFigTime.axApply('default', @title, figTitle);
     hFigTime.axApply('default', @ylabel, YLabel);
+
+    hFigTime.figData.helpText = {'Up/Down: change channel', ...
+                               'Left/Right: Change sites', ...
+                               'Shift + Left/Right: Show different features', ...
+                               'r: reset scale', ...
+                               'a: auto-scale', ...
+                               'c: show pca across sites', ...
+                               'e: export cluster info', ...
+                               'f: export cluster feature', ...
+                               'Zoom: mouse wheel', ...
+                               'H-Zoom: press x and wheel. space to reset', ...
+                               'V-Zoom: press y and wheel. space to reset', ...
+                               'Drag while pressing wheel: pan'};
+
+    %% add trial time indicators
+    if isempty(linehandle)
+        trialTimes = loadTrialFile(hCfg.trialFile);
+        if ~isempty(trialTimes)
+            ax=get(hFigTime.hPlots('foreground'),'parent');
+            yl=get(ax,'ylim');
+            linehandle = line(ax,repmat(trialTimes{1}(:,1),1,2),yl,'linewidth',0.1,'color',[0 1 0]);
+            set(ax,'ylim',yl);
+        elseif ~isempty(hCfg.trialFile)
+           warning('Could not load trial times from %s.',hCfg.trialFile);
+        end
+    end
+end
+
+
+function trialTimes = loadTrialFile(trialFile)
+    %LOADTRIALFILE Import trial times (in seconds)
+    trialTimes = [];
+
+    try
+        [~, ~, ext] = fileparts(trialFile);
+
+        if strcmpi(ext, '.mat')
+            trialData = load(trialFile);
+            fieldNames = fieldnames(trialData);
+
+            trialTimes = trialData.(fieldNames{1});
+            if isstruct(trialTimes)
+                trialTimes = trialTimes.times;
+            end
+        elseif strcmpi(ext, '.csv')
+            trialTimes = csvread(trialFile);
+            if isrow(trialTimes)
+                trialTimes = trialTimes(:);
+            end
+        end
+    catch ME
+        warning('Could not load trialFile %s: %s', trialFile, ME.message);
+    end
 end

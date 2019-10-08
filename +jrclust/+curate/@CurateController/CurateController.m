@@ -18,9 +18,14 @@ classdef CurateController < handle
         hMenus;         % containers.Map of Menu handles
         isEnding;       % to prevent double prompting when endSession is called
         isWorking;      % to prevent keypress/mouseclick functions from colliding
-        maxAmp;         % scaling factor for 
+        maxAmp;         % scaling factor for
         projSites;      % current sites in FigProj
         selected;       % selected clusters, in order of selection
+    end
+
+    properties (SetAccess=private, Hidden, Transient, SetObservable)
+        spatial_idx;      % idx to sort the channels by their desired plotting order
+        channel_idx;      % idx to sort back to channel number (useful internally)
     end
 
     %% LIFECYCLE
@@ -37,7 +42,6 @@ classdef CurateController < handle
             obj.currentSite = [];
             obj.maxAmp = [];
             obj.selected = [];
-
             % load helptexts
             helpFile = fullfile(jrclust.utils.basedir(), 'json', 'helptexts.json');
             if exist(helpFile, 'file') == 2
@@ -45,6 +49,7 @@ classdef CurateController < handle
                 obj.helpTexts = jsondecode(fread(fid, inf, '*char')');
                 fclose(fid);
             end
+            obj.spatial_idx= 1:length(obj.hClust.spikesBySite);
         end
 
         function delete(obj)
@@ -92,7 +97,7 @@ classdef CurateController < handle
         updateHistMenu(obj);
         updateNoteMenu(obj);
     end
-    
+
 
     %% GETTERS/SETTERS
     methods
@@ -116,5 +121,24 @@ classdef CurateController < handle
         function set.hClust(obj, val)
             obj.cRes.hClust = val;
         end
+
+        function set.spatial_idx(obj, val)
+            if isempty(obj.spatial_idx)
+                obj.spatial_idx = val;
+            else
+                nChanged = sum(obj.spatial_idx==val);
+                if ~nChanged
+                    jrclust.utils.qMsgBox('Clusters already in order');
+                else
+                    jrclust.utils.qMsgBox(sprintf('%d clusters changed', nChanged));
+                end
+                obj.spatial_idx = val;
+                obj.updateFigWav();
+                obj.updateFigSim();
+                obj.updateSelect(1);
+            end
+            [~,obj.channel_idx] = sort(obj.spatial_idx);
+        end
+
     end
 end

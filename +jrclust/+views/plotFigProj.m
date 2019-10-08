@@ -1,6 +1,6 @@
-function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundScale, doAutoscale)
+function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundScale, channel_idx, doAutoscale)
     %PLOTFIGPROJ Plot feature projection figure
-    if nargin < 6
+    if nargin < 7
         doAutoscale = 1;
     end
 
@@ -27,7 +27,7 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
         hFigProj.addPlot('background', @line, nan, nan, 'Color', hCfg.colorMap(1, :));
         hFigProj.addPlot('foreground', @line, nan, nan, 'Color', hCfg.colorMap(2, :)); % placeholder
         hFigProj.addPlot('foreground2', @line,  nan, nan, 'Color', hCfg.colorMap(3, :)); % placeholder
-        
+
         plotStyle = {'Marker', 'o', 'MarkerSize', 1, 'LineStyle', 'none'};
         hFigProj.plotApply('background', @set, plotStyle{:});
         hFigProj.plotApply('foreground', @set, plotStyle{:});
@@ -61,7 +61,7 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
             boundScale = max(cellfun(@(x) quantile(abs(x(:)), autoscalePct), projData));
         end
     end
-    
+
     % save scales for later
     hFigProj.figData.initialScale = boundScale;
     hFigProj.figData.boundScale = boundScale;
@@ -86,7 +86,7 @@ function hFigProj = plotFigProj(hFigProj, hClust, sitesToShow, selected, boundSc
     % Annotate axes
     hFigProj.axApply('default', @axis, [0 nSites 0 nSites]);
     hFigProj.axApply('default', @set, 'XTick', 0.5:1:nSites, 'YTick', 0.5:1:nSites, ...
-                     'XTickLabel', sitesToShow, 'YTickLabel', sitesToShow, ...
+                     'XTickLabel', channel_idx(sitesToShow), 'YTickLabel', channel_idx(sitesToShow), ...
                     'Box', 'off');
     hFigProj.axApply('default', @xlabel, sprintf(XLabel, boundScale));
     hFigProj.axApply('default', @ylabel, sprintf(YLabel, boundScale));

@@ -37,6 +37,11 @@ function updateSelect(obj, iClusters, force)
     else
         obj.projSites = sort(obj.hCfg.siteNeighbors(:, iSite), 'ascend');
     end
+    
+    obj.projSites = obj.hCfg.siteNeighbors(1:nSites,iSite);
+    
+    [~,idx] = sort(obj.channel_idx(obj.projSites));
+    obj.projSites = obj.projSites(idx);
 
     % update plots
     obj.updateFigCorr();

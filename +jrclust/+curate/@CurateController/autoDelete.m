@@ -11,14 +11,14 @@ function autoDelete(obj)
         hFigDelete.axApply('default', @xlabel, 'Unit SNR');
     else
         hFigDelete.addPlot('hPlotSNR', obj.hClust.unitVpp(:), obj.hClust.unitCount(:), '.'); % show cluster SNR and spike count
-        hFigDelete.axApply('default', @xlabel, 'Unit \mu Vpp');        
+        hFigDelete.axApply('default', @xlabel, 'Unit \mu Vpp');
     end
     hFigDelete.axApply('default', @ylabel, '# spikes/unit');
     hFigDelete.axApply('default', @grid, 'on');
     hFigDelete.axApply('default', @set, 'YScale', 'log');
 
     % ask user which clusters to delete
-    recDurationSecApprox = obj.hClust.spikeTimes(end)./obj.hCfg.sampleRate; 
+    recDurationSecApprox = obj.hClust.spikeTimes(end)./obj.hCfg.sampleRate;
     % above line uses approximation of number of seconds in the recording based on the time of the last spike.
     % there is a field called "recDurationSec" but it's empty so this is
     % the best I can do. -Adrian Bondy
@@ -26,12 +26,12 @@ function autoDelete(obj)
     if isfield(obj.hClust,'unitSNR')
         dlgAns = inputdlg({'Min Unit SNR:', 'Max Unit SNR:', sprintf('Min Unit %cVpp:',956),sprintf('Max Unit %cVpp:',956),'Minimum # spikes/unit:','Minimum Firing Rate:'}, 'Auto-deletion based on SNR', 1, {'5', 'inf', '20','inf', '100','0'}); % also ask about # spikes/unit (or firing rate) @TODO
     else
-        dlgAns = inputdlg({sprintf('Min Unit %cVpp:',956),sprintf('Max Unit %cVpp:',956),'Minimum # spikes/unit:','Firing Rate:'}, 'Auto-deletion based on SNR', 1, {'20','inf', '100','0'}); % also ask about # spikes/unit (or firing rate) @TODO        
+        dlgAns = inputdlg({sprintf('Min Unit %cVpp:',956),sprintf('Max Unit %cVpp:',956),'Minimum # spikes/unit:','Firing Rate:'}, 'Auto-deletion based on SNR', 1, {'20','inf', '100','0'}); % also ask about # spikes/unit (or firing rate) @TODO
     end
 
     % parse user input
     if isempty(dlgAns)
-        closehDelete;        
+        closehDelete;
         return;
     end
     if isfield(obj.hClust,'unitSNR')
@@ -45,13 +45,13 @@ function autoDelete(obj)
         vppmin = str2double(dlgAns{1});
         vppmax = str2double(dlgAns{2});
         minCount = round(str2double(dlgAns{3}));
-        minfr = str2double(dlgAns{4});        
+        minfr = str2double(dlgAns{4});
     end
 
     for i=1:length(dlgAns)
         if isnan(str2double(dlgAns{i}))
             h=jrclust.utils.qMsgBox('Invalid criteria.');
-            h.DeleteFcn = @closehDelete;            
+            h.DeleteFcn = @closehDelete;
             return
         end
     end
@@ -60,7 +60,7 @@ function autoDelete(obj)
     else
         deleteMe = find( obj.hClust.unitCount(:) < minCount | unitFR < minfr | obj.hClust.unitVpp < vppmin | obj.hClust.unitVpp > vppmax);
     end
-    
+
     if isempty(deleteMe)
         h=jrclust.utils.qMsgBox('No units deleted.');
         h.DeleteFcn = @closehDelete;
@@ -68,7 +68,7 @@ function autoDelete(obj)
     end
     if numel(deleteMe) >= obj.hClust.nClusters
         h=jrclust.utils.qMsgBox('Refusing to delete all units.');
-        h.DeleteFcn = @closehDelete;        
+        h.DeleteFcn = @closehDelete;
         return;
     end
 
@@ -77,8 +77,8 @@ function autoDelete(obj)
         hFigDelete.toForeground;hold on;
         plot(obj.hClust.unitSNR(deleteMe), obj.hClust.unitCount(deleteMe), 'r.'); % show cluster SNR and spike count
     else
-        hFigDelete.toForeground;hold on;      
-        plot( obj.hClust.unitVpp(deleteMe), obj.hClust.unitCount(deleteMe), 'rx'); % show cluster SNR and spike count            
+        hFigDelete.toForeground;hold on;
+        plot( obj.hClust.unitVpp(deleteMe), obj.hClust.unitCount(deleteMe), 'rx'); % show cluster SNR and spike count
     end
     dlgans = questdlg(sprintf('%d units will be deleted. Please confirm.', numel(deleteMe)),'Confirm Deletion','OK','Cancel','OK');
     hFigDelete.close();
@@ -87,9 +87,9 @@ function autoDelete(obj)
     else
         return;
     end
-            
+
     function closehDelete(~,~)
-       hFigDelete.close(); 
+       hFigDelete.close();
     end
 
 end

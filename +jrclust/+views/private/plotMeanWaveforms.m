@@ -1,4 +1,4 @@
-function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp)
+function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp, channel_idx)
     %PLOTMEANWAVEFORMS Plot mean cluster waveforms in FigWav
     if hCfg.showRaw
         waveforms = hClust.meanWfGlobalRaw;
@@ -30,7 +30,11 @@ function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp)
     for iCluster = 1:nClusters
         iSites = hCfg.siteNeighbors(:, hClust.clusterSites(iCluster));
         iWaveforms = waveforms(:, iSites, iCluster);
-        iWaveforms = bsxfun(@plus, iWaveforms, single(iSites'));
+        try
+            iWaveforms = bsxfun(@plus, iWaveforms, single(channel_idx(iSites)));            
+        catch
+            iWaveforms = bsxfun(@plus, iWaveforms, single(channel_idx(iSites))');                        
+        end
         YData(:, iCluster) = iWaveforms(:);
     end
 
