@@ -1,3 +1,7 @@
+9 Oct 2019
+
+- Export of results struct to workspace now controlled by parameter `exportResults`.
+
 29 Aug 2019
 
 - Splitting from FigProj selects all spikes, not just plotted spikes, within polygon.
