@@ -1,28 +1,20 @@
 function [hCfg, res] = kilosort(loadPath)
     %KILOSORT Import a Kilosort session from NPY files
     [hCfg, res] = deal([]);
-
-    if exist('readNPY', 'file') ~= 2
-        warning('Please make sure you have npy-matlab installed (https://github.com/kwikteam/npy-matlab)');
+    
+    phyData = loadPhy(loadPath);
+    if ~isfield(phyData, 'loadPath')
         return;
     end
-
-    loadPath_ = jrclust.utils.absPath(loadPath);
-    if isempty(loadPath_)
-        error('Could not find path ''%s''', loadPath);
-    elseif exist(loadPath, 'dir') ~= 7
-        error('''%s'' is not a directory', loadPath);
-    end
-
-    loadPath = loadPath_;
+    loadPath = phyData.loadPath;
 
     cfgData = struct();
     cfgData.outputDir = loadPath;
     
     % load params and set them in cfgData
-    params = parseParams(fullfile(loadPath, 'params.py'));
-    channelMap = readNPY(fullfile(loadPath, 'channel_map.npy')) + 1;
-    channelPositions = readNPY(fullfile(loadPath, 'channel_positions.npy'));
+    params = phyData.params;
+    channelMap = phyData.channel_map + 1;
+    channelPositions = phyData.channel_positions;
 
     cfgData.sampleRate = params.sample_rate;
     cfgData.nChans = params.n_channels_dat;
@@ -34,23 +26,19 @@ function [hCfg, res] = kilosort(loadPath)
     cfgData.rawRecordings = {params.dat_path};
 
     hCfg = jrclust.Config(cfgData);
-    
-    hCfg.updateLog('import-kilosort', sprintf('Loading NPY files from %s', loadPath), 1, 0);
 
     % load spike data
-    amplitudes = readNPY(fullfile(loadPath, 'amplitudes.npy'));
-    spikeTimes = readNPY(fullfile(loadPath, 'spike_times.npy')) + 1;
-    spikeTemplates = readNPY(fullfile(loadPath, 'spike_templates.npy')) + 1;
-    spikeClusters = readNPY(fullfile(loadPath, 'spike_clusters.npy')) + 1;
-    simScore = readNPY(fullfile(loadPath, 'similar_templates.npy'));
-    templates = readNPY(fullfile(loadPath, 'templates.npy')); % nTemplates x nSamples x nChannels
+    amplitudes = phyData.amplitudes;
+    spikeTimes = phyData.spike_times + 1;
+    spikeTemplates = phyData.spike_templates + 1;
+    spikeClusters = phyData.spike_clusters + 1;
+    simScore = phyData.similar_templates;
+    templates = phyData.templates; % nTemplates x nSamples x nChannels
     
-    cProj = readNPY(fullfile(loadPath, 'template_features.npy'))';
-    iNeigh = readNPY(fullfile(loadPath, 'template_feature_ind.npy'))';
-    cProjPC = permute(readNPY(fullfile(loadPath, 'pc_features.npy')), [2 3 1]); % nFeatures x nSites x nSpikes
-    iNeighPC = readNPY(fullfile(loadPath, 'pc_feature_ind.npy'))';
-
-    hCfg.updateLog('import-kilosort', 'Finished loading files', 0, 1);
+    cProj = phyData.template_features';
+    iNeigh = phyData.template_feature_ind';
+    cProjPC = permute(phyData.pc_features, [2 3 1]); % nFeatures x nSites x nSpikes
+    iNeighPC = phyData.pc_feature_ind';
 
     [clusterIDs, ~, indices] = unique(spikeClusters);
     goodClusters = clusterIDs(clusterIDs > 0);
