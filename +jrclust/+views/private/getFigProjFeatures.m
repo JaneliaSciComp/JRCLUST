@@ -45,7 +45,6 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
     if any(jMask)
         fg2Spikes = jrclust.utils.subsample(find(jMask), hCfg.nSpikesFigProj);
     else
-        bgSpikes = jrclust.utils.subsample(spikesToShow(spikeClustersShow ~= iCluster ), 2*hCfg.nSpikesFigProj);
         [fg2Spikes, fg2YData, fg2XData] = deal([]);
     end
 
