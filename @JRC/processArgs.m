@@ -187,8 +187,15 @@ function processArgs(obj)
                 return;
             end
 
+            obj.loadFiles();
+
+            if isempty(obj.hClust)
+                obj.error('Clustering object not found; sort your data first');
+                return;
+            end
+
             try
-                jrclust.export.phy(obj.hCfg);
+                jrclust.export.phy(obj.hClust);
                 obj.isCompleted = 1;
             catch ME
                 obj.error(ME.message);
