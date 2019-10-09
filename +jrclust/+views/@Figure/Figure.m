@@ -490,6 +490,42 @@ classdef Figure < handle
             end
         end
 
+        function updateHistogram(obj, plotKey, newData, UserData,varargin)
+            %UPDATEPLOT Set Data and optionally UserData of a plot
+            if ~obj.hasPlot(plotKey)
+                return;
+            end
+
+            % clear data if we're empty
+            if isempty(newData) 
+                obj.clearHistogram(plotKey);
+                return;
+            end
+
+            if nargin < 5
+                UserData = [];
+            end
+
+            hPlot = obj.hPlots(plotKey);
+
+            % only update if both x and y are changed
+            oldData = get(hPlot, 'Data');
+
+            doUpdate = 1;
+            if (numel(oldData) == numel(newData)) 
+                if all(oldData(:) - newData(:) == 0)
+                    doUpdate = 0;
+                end
+            end
+
+            if doUpdate
+                set(hPlot, 'Data', newData,varargin{:});
+            end
+            if ~isempty(UserData)
+                set(hPlot, 'UserData', UserData);
+            end
+        end        
+        
         function updatePlot(obj, plotKey, newXData, newYData, UserData)
             %UPDATEPLOT Set XData, YData, and optionally UserData of a plot
             if ~obj.hasPlot(plotKey)

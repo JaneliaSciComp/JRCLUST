@@ -17,14 +17,15 @@ function keyPressFigTime(obj, ~, hEvent)
 
         case 'leftarrow' % go down one channel
             obj.currentSite = max(obj.currentSite - factor, 1);
-            obj.updateFigTime(0);
+            obj.updateFigTime(1);
 
         case 'rightarrow' % go up one channel
             obj.currentSite = min(obj.currentSite + factor, obj.hCfg.nSites);
-            obj.updateFigTime(0);
+            obj.updateFigTime(1);
 
         case 'b' % toggle background spikes
             hFigTime.figData.doPlotBG = hFigTime.toggleVisible('background');
+            hFigTime.toggleVisible('background_hist');
             
         case {'d', 'backspace', 'delete'} % delete
             hFigTime.wait(1);

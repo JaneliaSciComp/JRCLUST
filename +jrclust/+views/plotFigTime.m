@@ -6,7 +6,7 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite,
     % construct plot for the first time
     if ~hFigTime.hasAxes('default')
         hFigTime.addAxes('default');
-        hFigTime.axApply('default', @set, 'Position', [.05 .2 .9 .7], 'XLimMode', 'manual', 'YLimMode', 'manual');
+        hFigTime.axApply('default', @set, 'Position', [0.03 0.2 0.9 0.7], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
         % first time
         hFigTime.addPlot('background', @line, nan, nan, 'Marker', '.', 'Color', hCfg.colorMap(1, :), 'MarkerSize', 5, 'LineStyle', 'none');
@@ -22,8 +22,18 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite,
         hFigTime.plotApply('hRect', @setPositionConstraintFcn, makeConstrainToRectFcn('imrect', timeLimits, [-4000 4000]));
 
         hFigTime.setHideOnDrag('background'); % hide background spikes when dragging
+        
+        % histogram
+        hFigTime.addAxes('histogram');
+        hFigTime.axApply('histogram', @set, 'Position', [0.93 0.2 0.06 0.7],'Visible','off'); 
+        hist_args = {@histogram, hFigTime.hAxes('histogram'), nan, ...
+            'Orientation','horizontal','Normalization','probability',...
+            'DisplayStyle','stairs'};
+        hFigTime.addPlot('background_hist', hist_args{:}, 'EdgeColor', hCfg.colorMap(1, :));
+        hFigTime.addPlot('foreground_hist', hist_args{:}, 'EdgeColor', hCfg.colorMap(2, :));
+        hFigTime.addPlot('foreground_hist2', hist_args{:}, 'EdgeColor', hCfg.colorMap(3, :));
     end
-
+    
     [bgFeatures, bgTimes] = getFigTimeFeatures(hClust, iSite); % plot background
     [fgFeatures, fgTimes, YLabel] = getFigTimeFeatures(hClust, iSite, selected(1),channel_idx); % plot primary selected cluster
 
@@ -36,6 +46,9 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite,
         figTitle = sprintf('Unit %d (black); (press [H] for help)', selected(1));
     end
 
+    binlimits = [min(bgFeatures) max(bgFeatures)];
+    
+    % remove foreground events from background cluster    
     bg_idx = ~ismember(bgTimes,union(fgTimes,fgTimes2));
     bgFeatures = bgFeatures(bg_idx);
     bgTimes = bgTimes(bg_idx);
@@ -46,6 +59,10 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite,
     hFigTime.updatePlot('foreground', fgTimes, fgFeatures);
     hFigTime.updatePlot('foreground2', fgTimes2, fgFeatures2);
     imrectSetPosition(hFigTime, 'hRect', timeLimits, vppLim);
+
+    hFigTime.updateHistogram('background_hist',bgFeatures,[],'BinLimits',binlimits+eps,'NumBins',100);
+    hFigTime.updateHistogram('foreground_hist',fgFeatures,[],'BinLimits',binlimits+eps,'NumBins',100);
+    hFigTime.updateHistogram('foreground_hist2',fgFeatures2,[],'BinLimits',binlimits+eps,'NumBins',100);
 
 
 %     if isfield(S_fig, 'vhAx_track')

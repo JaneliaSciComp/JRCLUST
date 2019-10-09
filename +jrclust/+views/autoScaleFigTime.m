@@ -26,5 +26,6 @@ function autoScaleFigTime(hFigTime, hClust, selected)
         timeScale = 1;
     end
     hFigTime.axApply('default', @set, 'YLim', [0, 1]*timeScale);
+    hFigTime.axApply('histogram',@set,'YLim',[0,1]*timeScale);
     imrectSetPosition(hFigTime, 'hRect', [], [0, timeScale]);
 end
