@@ -60,7 +60,7 @@ for i = 1:numel(keysVals)
         case 'dat_path' % get full path to dat_path
             val_ = jrclust.utils.absPath(val, fileparts(paramFile));
             if isempty(val_)
-                warning('File ''%s'' was not found', val);
+                warning('File ''%s'' was not found; consider updating params.py with the new path', val);
             end
             val = val_;
 
