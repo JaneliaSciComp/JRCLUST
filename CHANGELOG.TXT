@@ -1,6 +1,18 @@
+10 Oct 2019
+
+- Phy-formatted SpyKING CIRCUS results can be imported with `jrc import-spyking-circus /path/to/phy/output/`.
+
 9 Oct 2019
 
 - Export of results struct to workspace now controlled by parameter `exportResults`.
+
+3 Sep 2019
+
+- Results can be exported to NWB format with jrc export-nwb /path/to/my/params.prm
+
+30 Aug 2019
+
+- Autodelete implemented for TemplateClustering.
 
 29 Aug 2019
 
