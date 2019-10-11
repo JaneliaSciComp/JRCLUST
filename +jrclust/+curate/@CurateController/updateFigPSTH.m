@@ -38,7 +38,7 @@ function [hFigTrial1, hFigTrial2] = doPlotFigPSTH(hClust, hFigTrial1, hFigTrial2
     % end TW block
 
     % import trial times
-    trialTimes = loadTrialFile(hCfg.trialFile);
+    trialTimes = jrclust.utils.loadTrialFile(hCfg.trialFile);
     if ~iscell(trialTimes)
         trialTimes = {trialTimes};
     end
@@ -87,32 +87,6 @@ function [hFigTrial1, hFigTrial2] = doPlotFigPSTH(hClust, hFigTrial1, hFigTrial2
     else
         hFigTrial1.figApply(@set,'units','normalized', 'outerposition',[0.79714     0.026852      0.20182       0.5338]);
         hFigTrial2.figApply(@set, 'Visible', 'off');
-    end
-end
-
-function trialTimes = loadTrialFile(trialFile)
-    %LOADTRIALFILE Import trial times (in seconds)
-    trialTimes = [];
-
-    try
-        [~, ~, ext] = fileparts(trialFile);
-
-        if strcmpi(ext, '.mat')
-            trialData = load(trialFile);
-            fieldNames = fieldnames(trialData);
-
-            trialTimes = trialData.(fieldNames{1});
-            if isstruct(trialTimes)
-                trialTimes = trialTimes.times;
-            end
-        elseif strcmpi(ext, '.csv')
-            trialTimes = csvread(trialFile);
-            if isrow(trialTimes)
-                trialTimes = trialTimes(:);
-            end
-        end
-    catch ME
-        warning('Could not load trialFile %s: %s', trialFile, ME.message);
     end
 end
 
