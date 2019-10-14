@@ -39,12 +39,10 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite,
         % histogram
         hFigTime.addAxes('histogram');
         hFigTime.axApply('histogram', @set, 'Position', [0.93 0.2 0.06 0.7],'Visible','off'); 
-        hist_args = {@histogram, hFigTime.hAxes('histogram'), nan, ...
-            'Orientation','horizontal','Normalization','probability',...
-            'DisplayStyle','stairs','LineWidth',1};
-        hFigTime.addPlot('background_hist', hist_args{:}, 'EdgeColor', hCfg.colorMap(1, :));
-        hFigTime.addPlot('foreground_hist', hist_args{:}, 'EdgeColor', hCfg.colorMap(2, :));
-        hFigTime.addPlot('foreground_hist2', hist_args{:}, 'EdgeColor', hCfg.colorMap(3, :));
+        hist_args = {@stairs, hFigTime.hAxes('histogram'), nan,nan,'LineWidth',1};
+        hFigTime.addPlot('background_hist', hist_args{:}, 'color', hCfg.colorMap(1, :));
+        hFigTime.addPlot('foreground_hist', hist_args{:}, 'color', hCfg.colorMap(2, :));
+        hFigTime.addPlot('foreground_hist2', hist_args{:}, 'color', hCfg.colorMap(3, :));
     end
     
     [bgFeatures, bgTimes] = getFigTimeFeatures(hClust, iSite); % plot background
@@ -58,8 +56,8 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite,
         fgTimes2 = [];
         figTitle = sprintf('Unit %d (black); (press [H] for help)', selected(1));
     end
-
-    binlimits = [min(bgFeatures) max(bgFeatures)];
+   
+    binlimits = [min(bgFeatures) max(bgFeatures)]+eps;     
     
     % remove foreground events from background cluster    
     bg_idx = ~ismember(bgTimes,union(fgTimes,fgTimes2));
@@ -67,17 +65,26 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite,
     bgTimes = bgTimes(bg_idx);
 
     vppLim = [0, abs(maxAmp)];
-
+    
+    %update scatter plots
     hFigTime.updatePlot('background', bgTimes, bgFeatures);
     hFigTime.updatePlot('foreground', fgTimes, fgFeatures);
     hFigTime.updatePlot('foreground2', fgTimes2, fgFeatures2);
     imrectSetPosition(hFigTime, 'hRect', timeLimits, vppLim);
 
-    n_hist_bins=100; % seems to work nicely
+    % update histograms
     
-    hFigTime.updateHistogram('background_hist',bgFeatures,[],'BinLimits',binlimits+eps,'NumBins',n_hist_bins); % add eps so as not to plot background spikes with feature projection of 0. Sometimes ther are a lot of things and they make the other points hard to see in the histogram.
-    hFigTime.updateHistogram('foreground_hist',fgFeatures,[],'BinLimits',binlimits+eps,'NumBins',n_hist_bins);
-    hFigTime.updateHistogram('foreground_hist2',fgFeatures2,[],'BinLimits',binlimits+eps,'NumBins',n_hist_bins);
+    n_hist_bins=100; % seems to work nicely
+    % add eps so as not to plot background spikes with feature projection of 0. 
+    % Sometimes there are a lot of these and they make the other points hard to see in the histogram.
+    histcountfun = @(features)histcounts(features,n_hist_bins,'BinLimits',binlimits,'Normalization','probability');
+    updateplotfun = @(tag,N,edges)hFigTime.updatePlot(tag,[0 N 0],[edges edges(end)+eps]); % feeding stairs the output of histcounts in this way exactly reproduces the output of matlab histogram, rotated on its side
+    [N,edges] = histcountfun(bgFeatures);
+    updateplotfun('background_hist',N,edges);
+    [N,edges] = histcountfun(fgFeatures);
+    updateplotfun('foreground_hist',N,edges);
+    [N,edges] = histcountfun(fgFeatures2);    
+    updateplotfun('foreground_hist2',N,edges);
 
 
 %     if isfield(S_fig, 'vhAx_track')
