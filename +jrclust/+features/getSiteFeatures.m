@@ -36,17 +36,35 @@ function [siteFeatures, spikes, n1, n2, spikeOrder] = getSiteFeatures(spikeFeatu
 
     % get features for each site
     if nPeaksFeatures == 1
-        siteFeatures = [squeeze(spikeFeatures(:, 1, spikes1)); single(spikeData.spikeTimes(spikes1))']; % TW
+        sf1 = squeeze(spikeFeatures(:, 1, spikes1));
+        if iscolumn(sf1), sf1 = sf1'; end
+
+        siteFeatures = [sf1; single(spikeData.spikeTimes(spikes1))']; % TW
         siteFeatures(end, :) = timeFeatureFactor*std(siteFeatures(1, :)).*siteFeatures(end, :)./std(siteFeatures(end, :)); % TW
 
         spikes = spikes1;
     elseif nPeaksFeatures == 2
-        siteFeatures = [squeeze(spikeFeatures(:, 1, spikes1)), squeeze(spikeFeatures(:, 2, spikes2)); single(spikeData.spikeTimes([spikes1; spikes2]))']; % TW
+        sf1 = squeeze(spikeFeatures(:, 1, spikes1));
+        if iscolumn(sf1), sf1 = sf1'; end
+
+        sf2 = squeeze(spikeFeatures(:, 2, spikes2));
+        if iscolumn(sf2), sf2 = sf2'; end
+
+        siteFeatures = [sf1, sf2; single(spikeData.spikeTimes([spikes1; spikes2]))']; % TW
         siteFeatures(end, :) = timeFeatureFactor*std(siteFeatures(1, :)).*siteFeatures(end, :)./std(siteFeatures(end, :)); % TW
 
         spikes = [spikes1; spikes2];
     else % nPeaksFeatures == 3
-        siteFeatures = [squeeze(spikeFeatures(:, 1, spikes1)), squeeze(spikeFeatures(:, 2, spikes2)), squeeze(spikeFeatures(:, 3, spikes3)); single(spikeData.spikeTimes([spikes1; spikes2; spikes3]))'];
+        sf1 = squeeze(spikeFeatures(:, 1, spikes1));
+        if iscolumn(sf1), sf1 = sf1'; end
+
+        sf2 = squeeze(spikeFeatures(:, 2, spikes2));
+        if iscolumn(sf2), sf2 = sf2'; end
+        
+        sf3 = squeeze(spikeFeatures(:, 3, spikes3));
+        if iscolumn(sf3), sf3 = sf3'; end
+        
+        siteFeatures = [sf1, sf2, sf3; single(spikeData.spikeTimes([spikes1; spikes2; spikes3]))'];
         siteFeatures(end, :) = timeFeatureFactor*std(siteFeatures(1, :)).*siteFeatures(end, :)./std(siteFeatures(end, :)); % TW
 
         spikes = [spikes1; spikes2; spikes3];
