@@ -843,6 +843,16 @@
                 "display"
             ]
         },
+        "exportResults": {
+            "description": "Export results (res) as a struct to the base workspace if true",
+            "comment": "You may not want this if you have a large dataset",
+            "default_value": false,
+            "validation": {
+                "classes": ["logical"],
+                "attributes": ["scalar"]
+            },
+            "section": ["usage"]
+        },
         "extractAfterDetect": {
             "description": "Extract features only after detecting all spikes across all files if true",
             "comment": "This is effectively set to true if you specify clusterFeature='gpca'",

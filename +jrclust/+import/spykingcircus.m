@@ -1,5 +1,5 @@
-function [hCfg, res] = kilosort(loadPath)
-%KILOSORT Import a Kilosort session from NPY files
+function [hCfg, res] = spykingcircus(loadPath)
+%SPYKINGCIRCUS Import a SpyKING CIRCUS session from NPY files
 [hCfg, res] = deal([]);
 
 phyData = loadPhy(loadPath);
@@ -25,24 +25,16 @@ cfgData.siteLoc = channelPositions;
 cfgData.shankMap = ones(size(channelMap), 'like', channelMap); % this can change with a prm file
 cfgData.rawRecordings = {params.dat_path};
 
-% check for existence of .prm file. if exists use it as a template.
-[a,b,~] = fileparts(params.dat_path);
-prm_path = [a,filesep,b,'.prm'];
-if exist(prm_path,'file')
-    cfgData.template_file = prm_path;
-end
 hCfg = jrclust.Config(cfgData);
 
 % load spike data
 amplitudes = phyData.amplitudes;
 spikeTimes = phyData.spike_times + 1;
 spikeTemplates = phyData.spike_templates + 1;
-spikeClusters = phyData.spike_clusters + 1;
+spikeClusters = phyData.spike_templates + 1;
 simScore = phyData.similar_templates;
 templates = phyData.templates; % nTemplates x nSamples x nChannels
 
-cProj = phyData.template_features';
-iNeigh = phyData.template_feature_ind';
 cProjPC = permute(phyData.pc_features, [2 3 1]); % nFeatures x nSites x nSpikes
 iNeighPC = phyData.pc_feature_ind';
 
@@ -200,7 +192,6 @@ if any(oob)
     spikeTemplates = spikeTemplates(~oob);
     spikeSites = spikeSites(~oob);
     spikeClusters = spikeClusters(~oob);
-    cProj = cProj(:, ~oob);
     cProjPC = cProjPC(:, :, ~oob);
 end
 
@@ -217,8 +208,6 @@ sRes = struct('spikeClusters', spikeClusters, ...
               'spikeTemplates', spikeTemplates, ...
               'simScore', simScore, ...
               'amplitudes', amplitudes, ...
-              'templateFeatures', cProj, ...
-              'templateFeatureInd', iNeigh, ...
               'pcFeatures', cProjPC, ...
               'pcFeatureInd', iNeighPC);
 
@@ -226,4 +215,5 @@ hClust = jrclust.sort.TemplateClustering(hCfg, sRes, dRes);
 
 res = jrclust.utils.mergeStructs(dRes, sRes);
 res.hClust = hClust;
-end  % function
+end
+

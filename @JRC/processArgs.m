@@ -157,6 +157,20 @@ function processArgs(obj)
 
                 obj.isCompleted = 1;
             end
+            
+        case 'import-spyking-circus'
+            [hCfg_, res_] = jrclust.import.spykingcircus(obj.args{1});
+            if isempty(hCfg_)
+                obj.error('Import failed');
+            else
+                obj.hCfg = hCfg_;
+                obj.res = res_;
+
+                obj.saveRes();
+                obj.hCfg.save('', 1);
+
+                obj.isCompleted = 1;
+            end
 
         case 'export-nwb'
             if isempty(obj.hCfg)
@@ -187,8 +201,15 @@ function processArgs(obj)
                 return;
             end
 
+            obj.loadFiles();
+
+            if isempty(obj.hClust)
+                obj.error('Clustering object not found; sort your data first');
+                return;
+            end
+
             try
-                jrclust.export.phy(obj.hCfg);
+                jrclust.export.phy(obj.hClust);
                 obj.isCompleted = 1;
             catch ME
                 obj.error(ME.message);

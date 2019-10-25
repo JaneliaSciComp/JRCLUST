@@ -4,10 +4,12 @@ function nwbData = nwb(hClust, outPath)
     %   hClust is a regular hClust object with certain additions for config data
     %   outFileName is the destination file name produced by NWB.
     %   Should use the .nwb extension
-    assert(ischar(outPath), 'output filename should be a char array');
     if exist('nwbRead', 'file') ~= 2
-        error('MatNWB not found. Please add it to your search path.');
+        warning('Please make sure you have MatNWB installed and on your path (https://github.com/NeurodataWithoutBorders/matnwb)');
+        return;
     end
+
+    assert(ischar(outPath), 'output filename should be a char array');
 
     if 2 == exist(outPath, 'file')
         [~, filename, ~] = fileparts(outPath);
