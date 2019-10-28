@@ -3,6 +3,8 @@ function phy(hClust)
     if exist('writeNPY', 'file') ~= 2
         warning('Please make sure you have npy-matlab installed and on your path (https://github.com/kwikteam/npy-matlab)');
         return;
+    elseif ~isa(hClust, 'jrclust.sort.DensityPeakClustering')
+        error('Phy export not supported for this type of clustering.');
     end
 
     hCfg = hClust.hCfg;

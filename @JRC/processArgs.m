@@ -206,6 +206,8 @@ function processArgs(obj)
             if isempty(obj.hClust)
                 obj.error('Clustering object not found; sort your data first');
                 return;
+            elseif ~isa(obj.hClust, 'jrclust.sort.DensityPeakClustering')
+                error('Phy export not supported for this type of clustering.');
             end
 
             try
