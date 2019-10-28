@@ -1,5 +1,7 @@
-function hFigWav = plotMeanWaveforms(hFigWav, hClust, hCfg, maxAmp)
+function hFigWav = plotMeanWaveforms(hFigWav, hClust, maxAmp)
     %PLOTMEANWAVEFORMS Plot mean cluster waveforms in FigWav
+    hCfg = hClust.hCfg;
+
     if hCfg.showRaw
         waveforms = hClust.meanWfGlobalRaw;
     else

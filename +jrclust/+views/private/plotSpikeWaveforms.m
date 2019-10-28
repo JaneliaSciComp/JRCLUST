@@ -1,7 +1,8 @@
-function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
+function hFigWav = plotSpikeWaveforms(hFigWav, hClust, maxAmp)
     %PLOTSPIKEWAVEFORMS Plot individual waveforms in the main view
     [XData, YData, showSites] = deal(cell(hClust.nClusters, 1));
-
+    
+    hCfg = hClust.hCfg;
     nSpikesCluster = zeros(hClust.nClusters, 1);
     siteNeighbors = hCfg.siteNeighbors(:, hClust.clusterSites);
 
