@@ -23,6 +23,7 @@ classdef (Abstract) Clustering < handle
 
     %% SORTING DATA (MUTABLE)
     properties (SetObservable)
+        annotatedOnly;      % IDs of units which have annotations
         clusterCentroids;   % centroids of clusters on the probe
         clusterNotes;       % notes on clusters
         clusterSites;       % mode site per cluster
@@ -134,6 +135,11 @@ classdef (Abstract) Clustering < handle
 
     %% GETTERS/SETTERS
     methods
+        % annotatedOnly
+        function val = get.annotatedOnly(obj)
+            val = find(cellfun(@(c) isempty(c), obj.clusterNotes));
+        end
+
         % detectedOn
         function val = get.detectedOn(obj)
             if isfield(obj.sRes, 'detectedOn')
