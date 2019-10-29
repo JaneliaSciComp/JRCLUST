@@ -4,6 +4,7 @@ classdef CurateController < handle
     properties (Dependent)
         hCfg;           % Config object
         hClust;         % Clustering object
+        nShown;         % number of units actually shown
     end
 
     properties (SetAccess=private, Hidden, SetObservable)
@@ -21,6 +22,7 @@ classdef CurateController < handle
         maxAmp;         % scaling factor for 
         projSites;      % current sites in FigProj
         selected;       % selected clusters, in order of selection
+        showSubset;     % subset of units to display
     end
 
     %% LIFECYCLE
@@ -37,6 +39,7 @@ classdef CurateController < handle
             obj.currentSite = [];
             obj.maxAmp = [];
             obj.selected = [];
+            obj.showSubset = 1:obj.hClust.nClusters;
 
             % load helptexts
             helpFile = fullfile(jrclust.utils.basedir(), 'json', 'helptexts.json');
@@ -115,6 +118,11 @@ classdef CurateController < handle
         end
         function set.hClust(obj, val)
             obj.cRes.hClust = val;
+        end
+
+        % nShown
+        function val = get.nShown(obj)
+            val = numel(obj.showSubset);
         end
     end
 end
