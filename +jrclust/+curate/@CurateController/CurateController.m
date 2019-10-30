@@ -21,8 +21,11 @@ classdef CurateController < handle
         isWorking;      % to prevent keypress/mouseclick functions from colliding
         maxAmp;         % scaling factor for 
         projSites;      % current sites in FigProj
-        selected;       % selected clusters, in order of selection
         showSubset;     % subset of units to display
+    end
+
+    properties (SetAccess=private, Hidden, Transient, SetObservable)
+        selected;       % selected clusters, in order of selection
     end
 
     %% LIFECYCLE
@@ -123,6 +126,25 @@ classdef CurateController < handle
         % nShown
         function val = get.nShown(obj)
             val = numel(obj.showSubset);
+        end
+
+        % selected
+        function set.selected(obj, val)
+            if ~all(ismember(val, obj.showSubset))
+                [~, argm] = min(abs(val' - obj.showSubset), [], 2);
+                val = obj.showSubset(unique(argm));
+            end
+
+            obj.selected = val;
+        end
+
+        % showSubset
+        function set.showSubset(obj, val)
+            if isempty(val)
+                val = 1:obj.hClust.nClusters;
+            end
+
+            obj.showSubset = val;
         end
     end
 end
