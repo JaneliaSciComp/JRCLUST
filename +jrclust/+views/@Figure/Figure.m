@@ -512,14 +512,7 @@ classdef Figure < handle
             oldXData = get(hPlot, 'XData');
             oldYData = get(hPlot, 'YData');
 
-            doUpdate = 1;
-            if (numel(oldXData) == numel(newXData)) && (numel(oldYData) == numel(newYData))
-                if all(oldXData(:) - newXData(:) == 0) && all(oldYData(:) - newYData(:) == 0)
-                    doUpdate = 0;
-                end
-            end
-
-            if doUpdate
+            if ~jrclust.utils.isEqual(oldXData(:), newXData(:)) || ~jrclust.utils.isEqual(oldYData(:), newYData(:))
                 set(hPlot, 'XData', newXData, 'YData', newYData);
             end
             if ~isempty(UserData)
