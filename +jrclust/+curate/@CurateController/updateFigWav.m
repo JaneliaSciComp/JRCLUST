@@ -5,6 +5,6 @@ function updateFigWav(obj)
     end
 
     hFigWav = obj.hFigs('FigWav');
-    jrclust.views.plotFigWav(hFigWav, obj.hClust, obj.maxAmp);
+    jrclust.views.plotFigWav(hFigWav, obj.hClust, obj.maxAmp, obj.showSubset);
     setFigWavXTicks(hFigWav, obj.hClust, obj.hCfg.showSpikeCount);
 end

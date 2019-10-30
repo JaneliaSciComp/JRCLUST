@@ -1,5 +1,6 @@
 function plotAllFigures(obj)
     %PLOTALLFIGURES Plot all figures
+    obj.showSubset = 2:2:60;
     if isempty(obj.hFigs)
         obj.spawnFigures();
     elseif ~all(obj.figApply(@(hFig) hFig.isReady)) % clean up from an aborted session
@@ -34,7 +35,7 @@ function plotAllFigures(obj)
     % plot main waveform view
     if obj.hasFig('FigWav')
         % set key and mouse handles
-        hFigWav = jrclust.views.plotFigWav(obj.hFigs('FigWav'), obj.hClust, obj.maxAmp);
+        hFigWav = jrclust.views.plotFigWav(obj.hFigs('FigWav'), obj.hClust, obj.maxAmp, obj.showSubset);
         setFigWavXTicks(hFigWav, obj.hClust, 1); % show cluster counts by default
 
         hFigWav.hFunKey = @obj.keyPressFigWav;
@@ -60,8 +61,5 @@ function plotAllFigures(obj)
     end
 
     % select first cluster (also plots other figures)
-    obj.updateSelect(1, 1);
-
-    % zoom in on first cluster
-    obj.keyPressFigWav([], struct('Key', 'z')); % zoom in
+    obj.updateSelect(obj.showSubset(1), 1);
 end

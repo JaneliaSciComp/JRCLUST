@@ -16,6 +16,7 @@ function restoreHistory(obj, entryIndex)
 
                 try
                     success = obj.hClust.revert(entryIndex);
+                    obj.showSubset = 1:obj.hClust.nClusters;
                 catch ME
                     warning('Failed to revert: %s', ME.message);
                 end
