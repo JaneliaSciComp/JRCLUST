@@ -1,6 +1,5 @@
 function plotAllFigures(obj)
     %PLOTALLFIGURES Plot all figures
-    obj.showSubset = 2:2:60;
     if isempty(obj.hFigs)
         obj.spawnFigures();
     elseif ~all(obj.figApply(@(hFig) hFig.isReady)) % clean up from an aborted session
