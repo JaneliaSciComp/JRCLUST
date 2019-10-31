@@ -1,3 +1,8 @@
+31 Oct 2019
+
+- Unit subset selection supported (annotated-only and non-annotated-only units so far). Use, e.g., "View > Display annotated units only" to enable.
+- Small bug fixes and performance improvements.
+
 10 Oct 2019
 
 - Phy-formatted SpyKING CIRCUS results can be imported with `jrc import-spyking-circus /path/to/phy/output/`.

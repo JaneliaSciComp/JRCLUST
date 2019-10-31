@@ -52,7 +52,7 @@ function phy(hClust)
     tfFile = fullfile(hCfg.outputDir, 'template_features.npy');
 
     % meanWfLocalRaw, spikesRaw
-    tf = zeros(numel(hClust.spikeAmps), 6, 'single');
+    tf = zeros(hClust.nSpikes, 6, 'single');
     for i = 1:hClust.nClusters
         near = tfi(i, :);
         iSpikes = hClust.spikesByCluster{i};

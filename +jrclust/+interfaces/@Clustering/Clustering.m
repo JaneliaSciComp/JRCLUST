@@ -19,6 +19,7 @@ classdef (Abstract) Clustering < handle
     %% DETECTION RESULTS (IMMUTABLE)
     properties (Dependent, Transient)
         detectedOn;         % timestamp, when spikes were detected
+        nSpikes;            % number of spikes detected
     end
 
     %% SORTING DATA (MUTABLE)
@@ -137,7 +138,7 @@ classdef (Abstract) Clustering < handle
     methods
         % annotatedOnly
         function val = get.annotatedOnly(obj)
-            val = find(cellfun(@(c) isempty(c), obj.clusterNotes));
+            val = find(cellfun(@(c) ~isempty(c), obj.clusterNotes));
         end
 
         % detectedOn
@@ -174,6 +175,11 @@ classdef (Abstract) Clustering < handle
         % nEdits
         function ne = get.nEdits(obj)
             ne = size(obj.history, 1);
+        end
+
+        % nSpikes
+        function val = get.nSpikes(obj)
+            val = numel(obj.spikeTimes);
         end
 
         % spikeAmps

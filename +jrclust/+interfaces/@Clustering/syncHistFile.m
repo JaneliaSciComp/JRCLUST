@@ -2,17 +2,16 @@ function syncHistFile(obj)
     %SYNCHISTFILE Sync up history file with current history
     d = dir(obj.hCfg.histFile);
 
-    nSpikes = numel(obj.spikeClusters);
-    if isempty(d) || nSpikes == 0 % file does not exist
+    if isempty(d) || obj.nSpikes == 0 % file does not exist
         fclose(fopen(obj.hCfg.histFile, 'w')); % truncate history file
         d = dir(obj.hCfg.histFile);
     end
 
-    if nSpikes == 0
+    if obj.nSpikes == 0
         return;
     end
 
-    nEntries = d.bytes / 4 / (nSpikes + 1); % int32 spike table plus header
+    nEntries = d.bytes / 4 / (obj.nSpikes + 1); % int32 spike table plus header
 
     if nEntries ~= ceil(nEntries) % non-integer number of "entries", likely corrupt file
         obj.history = resetHistFile(obj.hCfg.histFile, obj.initialClustering, obj.spikeClusters, obj.nEdits);
@@ -24,9 +23,9 @@ function syncHistFile(obj)
         checkInt = fread(fidHist, 1, 'int32');
         while ~isempty(checkInt)
             if isKey(obj.history, checkInt)
-                keepMe = [keepMe; checkInt; fread(fidHist, nSpikes, 'int32')];
+                keepMe = [keepMe; checkInt; fread(fidHist, obj.nSpikes, 'int32')];
             else
-                fseek(fidHist, 4*nSpikes, 'cof');
+                fseek(fidHist, 4*obj.nSpikes, 'cof');
             end
             checkInt = fread(fidHist, 1, 'int32');
         end
@@ -49,7 +48,7 @@ function syncHistFile(obj)
             elseif ~isKey(obj.history, checkInt)
                 break;
             end
-            fRes = fseek(fidHist, 4*nSpikes, 'cof');
+            fRes = fseek(fidHist, 4*obj.nSpikes, 'cof');
         end
         fclose(fidHist);
 

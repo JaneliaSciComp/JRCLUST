@@ -39,6 +39,9 @@ function addMenu(obj, hFig)
     uimenu(obj.hMenus('ViewMenu'), 'Label', '[W]aveform (toggle)', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'w')));
     uimenu(obj.hMenus('ViewMenu'), 'Label', '[N]umbers (toggle)', 'Callback', @(hO, hE) obj.keyPressFigWav([], struct('Key', 'n')));
     uimenu(obj.hMenus('ViewMenu'), 'Label', 'Show raw waveform', 'Callback', @(hO, hE) obj.toggleRaw(hO), 'Separator', 'on');
+    uimenu(obj.hMenus('ViewMenu'), 'Label', 'Display annotated units only', 'Callback', @(hO, hE) obj.updateSubset(obj.hClust.annotatedOnly), 'Separator', 'on');
+    uimenu(obj.hMenus('ViewMenu'), 'Label', 'Display non-annotated units only', 'Callback', @(hO, hE) obj.updateSubset(setdiff(1:obj.hClust.nClusters, obj.hClust.annotatedOnly)));
+    uimenu(obj.hMenus('ViewMenu'), 'Label', 'Display all units', 'Callback', @(hO, hE) obj.updateSubset(1:obj.hClust.nClusters, 1));
     %uimenu(obj.hMenus('ViewMenu'), 'Label', 'Threshold by sites', 'Callback', @(hO, hE) keyPressFcn_thresh_(hFig, 'n'));
     uimenu(obj.hMenus('ViewMenu'), 'Label', 'Reset window positions', 'Callback', @(hO, hE) obj.resetPositions(), 'Separator', 'on');
     uimenu(obj.hMenus('ViewMenu'), 'Label', 'Show config file', 'Callback', @(hO, hE) obj.hCfg.edit(), 'Separator', 'on');

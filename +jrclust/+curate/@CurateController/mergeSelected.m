@@ -41,8 +41,9 @@ function mergeSelected(obj)
     obj.isWorking = 0; % in case updateSelect needs to zoom
 
     % replot
-    obj.updateFigWav();
-    obj.updateFigRD(); % centers changed, need replotting
+    obj.replot();
+%     obj.updateFigWav();
+%     obj.updateFigRD(); % centers changed, need replotting
     obj.updateFigSim();
     obj.updateSelect(iCluster);
 end
