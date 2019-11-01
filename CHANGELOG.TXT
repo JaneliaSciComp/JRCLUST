@@ -1,3 +1,8 @@
+01 Nov 2019
+
+- New-style probe configurations are supported (alongside old-style).
+- Probe plot displays multishank probes in subplots.
+
 31 Oct 2019
 
 - Unit subset selection supported (annotated-only and non-annotated-only units so far). Use, e.g., "View > Display annotated units only" to enable.
