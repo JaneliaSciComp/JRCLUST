@@ -27,30 +27,48 @@ end
 function showProbe(probeData)
     %DOPLOTPROBE Plot a figure representing a probe
     hFigProbe = jrclust.views.Figure('FigProbe', [0 0 .5 1], 'Probe', 0, 0);
+    vrX = 0.5*[-1 -1 1 1] * probeData.probePad(2);
+    vrY = 0.5*[-1 1 1 -1] * probeData.probePad(1);
 
-    vrX = [0 0 1 1] * probeData.probePad(2);
-    vrY = [0 1 1 0] * probeData.probePad(1);
+    uShanks = unique(probeData.shankMap);
+    nShanks = numel(uShanks);
+    [nRows, nCols] = min(ceil(nShanks ./ (1:4)), [], 2);
 
-    XData = bsxfun(@plus, probeData.siteLoc(:, 1)', vrX(:));
-    YData = bsxfun(@plus, probeData.siteLoc(:, 2)', vrY(:));
-    nSites = size(probeData.siteLoc, 1);
+    hFigProbe.addSubplot('hShanks', nRows, nCols);
 
-    % plot sites
-    hFigProbe.addPlot('hPatch', @patch, XData, YData, 'w', 'EdgeColor', 'k');
+    for iShank = 1:nShanks
+        shank = uShanks(iShank);
+        shankMask = (probeData.shankMap == shank);
 
-    % label sites
-    if ~isempty(probeData.siteMap)
-        siteLabels = arrayfun(@(i)sprintf('%d/%d', i, probeData.siteMap(i)), 1:numel(probeData.siteMap), 'UniformOutput', 0);
-    else
-        siteLabels = arrayfun(@(i) sprintf('%d', i), 1:nSites, 'UniformOutput', 0);
+        XData = bsxfun(@plus, probeData.siteLoc(shankMask, 1)', vrX(:));
+        YData = bsxfun(@plus, probeData.siteLoc(shankMask, 2)', vrY(:));
+        nSites = sum(shankMask);
+
+        % plot sites
+        hFigProbe.subplotApply('hShanks', iShank, @patch, XData, YData, 'w', 'EdgeColor', 'k');
+
+        % label sites
+        if ~isempty(probeData.siteMap(shankMask))
+            siteLabels = arrayfun(@(i) sprintf('%d/%d', i, probeData.siteMap(i)), find(shankMask), 'UniformOutput', 0);
+        else
+            siteLabels = arrayfun(@(i) sprintf('%d', i), 1:nSites, 'UniformOutput', 0);
+        end
+
+        hFigProbe.subplotApply('hShanks', iShank, @text, probeData.siteLoc(shankMask, 1), ...
+                               probeData.siteLoc(shankMask, 2), ...
+                               siteLabels, 'VerticalAlignment', 'middle', 'HorizontalAlignment', 'center');
+
+        spTitle = 'Site # / Chan #';
+        if nShanks > 1
+            spTitle = sprintf('Shank %d: %s', shank, spTitle);
+        end
+
+        hFigProbe.subplotApply('hShanks', iShank, @axis, [min(XData(:)), max(XData(:)), min(YData(:)), max(YData(:))]);
+        hFigProbe.subplotApply('hShanks', iShank, @title, spTitle);
+        hFigProbe.subplotApply('hShanks', iShank, @xlabel, 'X Position (\mum)');
+        hFigProbe.subplotApply('hShanks', iShank, @ylabel, 'Y Position (\mum)');
+        hFigProbe.subplotApply('hShanks', iShank, @axis, 'equal');
     end
-    hFigProbe.addPlot('hText', @text, probeData.siteLoc(:,1), probeData.siteLoc(:,2), siteLabels, 'VerticalAlignment', 'top', 'HorizontalAlignment', 'left');
-
-    hFigProbe.axApply('default', @axis, [min(XData(:)), max(XData(:)), min(YData(:)), max(YData(:))]);
-    hFigProbe.axApply('default', @title, 'Site# / Chan# (zoom: wheel; pan: hold wheel & drag)');
-    hFigProbe.axApply('default', @xlabel, 'X Position (\mum)');
-    hFigProbe.axApply('default', @ylabel, 'Y Position (\mum)');
-    hFigProbe.axApply('default', @axis, 'equal');
 
     hFigProbe.setMouseable();
 end
