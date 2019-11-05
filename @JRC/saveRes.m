@@ -21,16 +21,21 @@ function saveRes(obj, forceOverwrite)
 
     if isfield(obj.res, 'hClust')
         hClust = obj.res.hClust;
-
         res_ = rmfield(obj.res, 'hClust');
+
         res_.initialClustering = hClust.initialClustering;
         res_.spikeClusters = hClust.spikeClusters;
 
         % fieldnames contained in dRes or sRes
+        md = metaclass(hClust);
+        pl = md.PropertyList;
         fieldNames = fieldnames(hClust);
         for i = 1:numel(fieldNames)
             fn = fieldNames{i};
-            res_.(fn) = hClust.(fn);
+            propMetadata = pl(strcmp(fn, {pl.Name}));
+            if ~(propMetadata.Transient || propMetadata.Dependent)
+                res_.(fn) = hClust.(fn);
+            end
         end
     else
         res_ = obj.res;

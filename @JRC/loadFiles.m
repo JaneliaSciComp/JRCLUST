@@ -90,9 +90,13 @@ function loadFiles(obj)
         elseif isfield(res_, 'spikeTemplates') % create a new TemplateClustering
             hClust = jrclust.sort.TemplateClustering(obj.hCfg);
             fieldNames = fieldnames(res_);
+
+            md = ?jrclust.sort.TemplateClustering;
+            pl = md.PropertyList;
             for i = 1:numel(fieldNames)
                 fn = fieldNames{i};
-                if isprop(hClust, fn)
+                propMetadata = pl(strcmp(fn, {pl.Name}));
+                if isprop(hClust, fn) && ~(propMetadata.Transient || propMetadata.Dependent)
                     hClust.(fn) = res_.(fn);
                 end
             end
@@ -101,9 +105,13 @@ function loadFiles(obj)
         elseif isfield(res_, 'spikeClusters')
             hClust = jrclust.sort.DensityPeakClustering(obj.hCfg);
             fieldNames = fieldnames(res_);
+
+            md = ?jrclust.sort.DensityPeakClustering;
+            pl = md.PropertyList;
             for i = 1:numel(fieldNames)
                 fn = fieldNames{i};
-                if isprop(hClust, fn)
+                propMetadata = pl(strcmp(fn, {pl.Name}));
+                if isprop(hClust, fn) && ~(propMetadata.Transient || propMetadata.Dependent)
                     hClust.(fn) = res_.(fn);
                 end
             end
