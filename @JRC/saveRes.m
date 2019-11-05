@@ -27,15 +27,10 @@ function saveRes(obj, forceOverwrite)
         res_.spikeClusters = hClust.spikeClusters;
 
         % fieldnames contained in dRes or sRes
-        md = metaclass(hClust);
-        pl = md.PropertyList;
         fieldNames = fieldnames(hClust);
         for i = 1:numel(fieldNames)
             fn = fieldNames{i};
-            propMetadata = pl(strcmp(fn, {pl.Name}));
-            if ~((propMetadata.Dependent && isempty(propMetadata.SetMethod)))
-                res_.(fn) = hClust.(fn);
-            end
+            res_.(fn) = hClust.(fn);
         end
     else
         res_ = obj.res;

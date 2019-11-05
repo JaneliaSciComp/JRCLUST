@@ -16,15 +16,10 @@ function success = saveFiles(obj)
         dsFields = union(fieldnames(hClust.dRes), fieldnames(hClust.sRes));
         % fieldnames from hClust which are not in dRes or sRes
         hClustOnly = setdiff(fieldnames(hClust), dsFields);
-        md = metaclass(hClust);
-        pl = md.PropertyList;
         for i = 1:numel(hClustOnly)
             fn = hClustOnly{i};
             % hClust fields take precedence
-            propMetadata = pl(strcmp(fn, {pl.Name}));
-            if ~((propMetadata.Dependent && isempty(propMetadata.SetMethod)))
-                res_.(fn) = hClust.(fn);
-            end
+            res_.(fn) = hClust.(fn);
         end
 
         % don't save these fields
