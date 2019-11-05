@@ -1,3 +1,8 @@
+05 Nov 2019
+
+- Display a more useful message when failing to revert history changes.
+- Transient or Dependent properties are no longer saved or loaded from _res.mat.
+
 01 Nov 2019
 
 - New-style probe configurations are supported (alongside old-style).
