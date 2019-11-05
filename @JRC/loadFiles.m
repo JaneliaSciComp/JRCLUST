@@ -96,7 +96,7 @@ function loadFiles(obj)
             for i = 1:numel(fieldNames)
                 fn = fieldNames{i};
                 propMetadata = pl(strcmp(fn, {pl.Name}));
-                if isprop(hClust, fn) && ~(propMetadata.Transient || propMetadata.Dependent)
+                if isprop(hClust, fn) && ~((propMetadata.Dependent && isempty(propMetadata.SetMethod)))
                     hClust.(fn) = res_.(fn);
                 end
             end
@@ -111,7 +111,7 @@ function loadFiles(obj)
             for i = 1:numel(fieldNames)
                 fn = fieldNames{i};
                 propMetadata = pl(strcmp(fn, {pl.Name}));
-                if isprop(hClust, fn) && ~(propMetadata.Transient || propMetadata.Dependent)
+                if isprop(hClust, fn) && ~((propMetadata.Dependent && isempty(propMetadata.SetMethod)))
                     hClust.(fn) = res_.(fn);
                 end
             end

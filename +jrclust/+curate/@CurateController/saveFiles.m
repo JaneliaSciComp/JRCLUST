@@ -22,7 +22,7 @@ function success = saveFiles(obj)
             fn = hClustOnly{i};
             % hClust fields take precedence
             propMetadata = pl(strcmp(fn, {pl.Name}));
-            if ~(propMetadata.Transient || propMetadata.Dependent)
+            if ~((propMetadata.Dependent && isempty(propMetadata.SetMethod)))
                 res_.(fn) = hClust.(fn);
             end
         end

@@ -33,7 +33,7 @@ function saveRes(obj, forceOverwrite)
         for i = 1:numel(fieldNames)
             fn = fieldNames{i};
             propMetadata = pl(strcmp(fn, {pl.Name}));
-            if ~(propMetadata.Transient || propMetadata.Dependent)
+            if ~((propMetadata.Dependent && isempty(propMetadata.SetMethod)))
                 res_.(fn) = hClust.(fn);
             end
         end
