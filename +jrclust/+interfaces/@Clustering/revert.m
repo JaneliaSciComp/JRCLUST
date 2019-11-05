@@ -129,7 +129,7 @@ function success = revert(obj, revertTo)
         remove(obj.history, num2cell(setdiff([histkeys{:}], 1:revertTo))); %% FIXME
 
         obj.syncHistFile();
-    catch
+    catch ME
         % restore spike table and metadata entries from backup
         fieldNames = fieldnames(backup);
         for i = 1:numel(fieldNames)
@@ -137,7 +137,7 @@ function success = revert(obj, revertTo)
             obj.(fn) = backup.(fn);
         end
 
-        warning('failed to revert');
+        warning('failed to revert: %s', ME.message);
         return;
     end
 
