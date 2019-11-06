@@ -40,10 +40,9 @@ function mergeSelected(obj)
 
     obj.isWorking = 0; % in case updateSelect needs to zoom
 
+    obj.selected = iCluster; % fix OOB error when merging last cluster
+
     % replot
     obj.replot();
-%     obj.updateFigWav();
-%     obj.updateFigRD(); % centers changed, need replotting
-    obj.updateFigSim();
     obj.updateSelect(iCluster);
 end

@@ -53,6 +53,8 @@ function deleteClusters(obj, deleteMe)
         
         obj.isWorking = 0; % in case updateSelect needs to zoom
 
+        obj.selected = min([max(obj.showSubset), obj.selected]); % fix OOB error when deleting last cluster
+
         % replot
         obj.updateFigWav();
         obj.updateFigRD(); % centers changed, need replotting
