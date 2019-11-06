@@ -1,3 +1,8 @@
+06 Nov 2019
+
+- Fixes out-of-memory error when reverting large histories.
+- Fixes out-of-bounds regression when deleting or merging the last cluster.
+
 05 Nov 2019
 
 - Display a more useful message when failing to revert history changes.
