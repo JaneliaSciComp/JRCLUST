@@ -10,6 +10,6 @@ function updateFigTime(obj, doAutoscale)
     
    
     if doAutoscale
-        jrclust.views.autoScaleFigTime(hFigTime, obj.hClust, obj.selected);
+        jrclust.views.autoScaleFigTime(hFigTime, obj.hClust, obj.selected, obj.currentSite, obj.channel_idx);
     end
 end

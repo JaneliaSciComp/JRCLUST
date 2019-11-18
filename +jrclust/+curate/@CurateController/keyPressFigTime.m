@@ -16,11 +16,11 @@ function keyPressFigTime(obj, ~, hEvent)
             jrclust.views.rescaleFigTime(hFigTime, sqrt(2)^factor);
 
         case 'leftarrow' % go down one channel
-            obj.currentSite = max(obj.currentSite - factor, 1);
+            obj.currentSite = obj.spatial_idx(max(obj.channel_idx(obj.currentSite) - factor, 1));
             obj.updateFigTime(1);
 
         case 'rightarrow' % go up one channel
-            obj.currentSite = min(obj.currentSite + factor, obj.hCfg.nSites);
+            obj.currentSite = obj.spatial_idx(min(obj.channel_idx(obj.currentSite) + factor, max(obj.channel_idx)));
             obj.updateFigTime(1);
 
         case 'b' % toggle background spikes
