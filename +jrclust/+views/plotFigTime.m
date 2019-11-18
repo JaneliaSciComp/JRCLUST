@@ -8,9 +8,13 @@ function hFigTime = plotFigTime(hFigTime, hClust, hCfg, selected, maxAmp, iSite,
         hFigTime.axApply('default', @set, 'Position', [0.03 0.2 0.9 0.7], 'XLimMode', 'manual', 'YLimMode', 'manual');
 
         % trial time indicators
-        trialTimes = jrclust.utils.loadTrialFile(hCfg.trialFile);
-        if iscell(trialTimes)
-            trialTimes = trialTimes{1};
+        if isempty(hCfg.trialFile)
+            trialTimes=[];
+        else
+            trialTimes = jrclust.utils.loadTrialFile(hCfg.trialFile);
+            if iscell(trialTimes)
+                trialTimes = trialTimes{1};
+            end
         end
         if ~isempty(trialTimes)
             hFigTime.addPlot('trialTimes',@line,repmat(trialTimes,1,2),[0 abs(maxAmp)],'linewidth',0.1,'color',[0.5 0.7 0.5]);

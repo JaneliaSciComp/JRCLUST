@@ -32,5 +32,6 @@ function spawnFigures(obj)
                 figTitle = 'Unit rho-delta';                
         end
         obj.hFigs(figTag) = jrclust.views.Figure(figTag,figPos(figTag),sprintf('%s: %s',figTitle,obj.hCfg.sessionName),figToolbar,figMenubar);
+        drawnow;
     end
 end
