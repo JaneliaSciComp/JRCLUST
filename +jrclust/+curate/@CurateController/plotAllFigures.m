@@ -64,4 +64,8 @@ function plotAllFigures(obj)
 
     % zoom in on first cluster
     obj.keyPressFigWav([], struct('Key', 'z')); % zoom in
+    
+    % reapply figure positions
+    figPos = getDefaultFigPos(obj);  
+    jrclust.curate.CurateController.setFigPos(figPos);    
 end

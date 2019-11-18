@@ -96,6 +96,12 @@ classdef CurateController < handle
         spawnFigures(obj);
         updateHistMenu(obj);
         updateNoteMenu(obj);
+        figPos = getDefaultFigPos(obj);        
+    end
+    
+    methods (Static)
+        figPos = getCurrentFigPos();
+        setFigPos(figPos);
     end
 
 
