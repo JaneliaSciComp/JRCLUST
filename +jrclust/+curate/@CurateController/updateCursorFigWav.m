@@ -3,7 +3,7 @@ function updateCursorFigWav(obj)
     if isempty(obj.selected) || ~obj.hasFig('FigWav')
         return;
     end
-    hFigWav = obj.hFigs('FigWav');    
+    hFigWav = obj.hFigs('FigWav');
     plotSelectedMeansFun = @(x,y)plotSelectedMeans(hFigWav, obj.hClust, x, y, obj.maxAmp, obj.hCfg, obj.spatial_idx);
     if numel(obj.selected) == 1 % we've selected just one cluster (primary)
         hFigWav.rmPlot('selected2'); % if already selected, hide it
@@ -17,6 +17,8 @@ end
 %% LOCAL FUNCTIONS
 function iCluster = plotSelectedMeans(hFigWav, hClust, iCluster, plotKey, maxAmp, hCfg, spatial_idx)
     %PLOTSELECTEDMEANS Plot an overlay on selected cluster's mean traces
+    showSubset = hFigWav.figData.showSubset;
+
     if strcmp(plotKey, 'selected2')
         colorMap = hCfg.colorMap(3, :); % red
     elseif strcmp(plotKey, 'selected1')
@@ -34,6 +36,7 @@ function iCluster = plotSelectedMeans(hFigWav, hClust, iCluster, plotKey, maxAmp
     else
         meanWf = hClust.meanWfGlobal(:, :, iCluster);
     end
-    hFigWav.multiplot(plotKey, maxAmp, jrclust.views.getXRange(iCluster, hCfg), meanWf(:,spatial_idx));
+
+    hFigWav.multiplot(plotKey, maxAmp, jrclust.views.getXRange(find(iCluster == showSubset), size(meanWf, 1), hCfg), meanWf(:,spatial_idx));
     hFigWav.plotApply(plotKey, @uistack, 'top');
 end

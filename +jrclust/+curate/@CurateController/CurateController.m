@@ -4,6 +4,7 @@ classdef CurateController < handle
     properties (Dependent)
         hCfg;           % Config object
         hClust;         % Clustering object
+        nShown;         % number of units actually shown
     end
 
     properties (SetAccess=private, Hidden, SetObservable)
@@ -20,6 +21,10 @@ classdef CurateController < handle
         isWorking;      % to prevent keypress/mouseclick functions from colliding
         maxAmp;         % scaling factor for
         projSites;      % current sites in FigProj
+        showSubset;     % subset of units to display
+    end
+
+    properties (SetAccess=private, Hidden, Transient, SetObservable)
         selected;       % selected clusters, in order of selection
     end
 
@@ -42,6 +47,8 @@ classdef CurateController < handle
             obj.currentSite = [];
             obj.maxAmp = [];
             obj.selected = [];
+            obj.showSubset = 1:obj.hClust.nClusters;
+
             % load helptexts
             helpFile = fullfile(jrclust.utils.basedir(), 'json', 'helptexts.json');
             if exist(helpFile, 'file') == 2
@@ -96,9 +103,9 @@ classdef CurateController < handle
         spawnFigures(obj);
         updateHistMenu(obj);
         updateNoteMenu(obj);
-        figPos = getDefaultFigPos(obj);        
+        figPos = getDefaultFigPos(obj);
     end
-    
+
     methods (Static)
         figPos = getCurrentFigPos();
         setFigPos(figPos);
@@ -146,5 +153,28 @@ classdef CurateController < handle
             [~,obj.channel_idx] = sort(obj.spatial_idx);
         end
 
+        % nShown
+        function val = get.nShown(obj)
+            val = numel(obj.showSubset);
+        end
+
+        % selected
+        function set.selected(obj, val)
+            if ~all(ismember(val, obj.showSubset))
+                [~, argm] = min(abs(val' - obj.showSubset), [], 2);
+                val = obj.showSubset(unique(argm));
+            end
+
+            obj.selected = val;
+        end
+
+        % showSubset
+        function set.showSubset(obj, val)
+            if isempty(val)
+                val = 1:obj.hClust.nClusters;
+            end
+
+            obj.showSubset = val;
+        end
     end
 end

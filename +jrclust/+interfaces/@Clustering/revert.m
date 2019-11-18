@@ -10,13 +10,11 @@ function success = revert(obj, revertTo)
         error('history file %s not found!', obj.hCfg.histFile);
     end
 
-    nSpikes = numel(obj.spikeClusters);
-
     fidHist = fopen(obj.hCfg.histFile, 'r');
     checkInt = fread(fidHist, 1, 'int32');
     fRes = -isempty(checkInt); % -1 if no checkInt read, 0 if okay
     while fRes > -1 && ~isempty(checkInt) && checkInt ~= revertTo
-        fRes = fseek(fidHist, 4*nSpikes, 'cof');
+        fRes = fseek(fidHist, 4*obj.nSpikes, 'cof');
         checkInt = fread(fidHist, 1, 'int32');
     end
 
@@ -25,7 +23,7 @@ function success = revert(obj, revertTo)
         warning('failed to revert: entry %d not found in history file', revertTo);
     end
 
-    spikeClusters = fread(fidHist, nSpikes, 'int32');
+    spikeClusters = fread(fidHist, obj.nSpikes, 'int32');
     fclose(fidHist);
 
     spikesByCluster = arrayfun(@(iC) find(spikeClusters == iC), 1:max(spikeClusters), 'UniformOutput', 0);
@@ -131,7 +129,7 @@ function success = revert(obj, revertTo)
         remove(obj.history, num2cell(setdiff([histkeys{:}], 1:revertTo))); %% FIXME
 
         obj.syncHistFile();
-    catch
+    catch ME
         % restore spike table and metadata entries from backup
         fieldNames = fieldnames(backup);
         for i = 1:numel(fieldNames)
@@ -139,7 +137,7 @@ function success = revert(obj, revertTo)
             obj.(fn) = backup.(fn);
         end
 
-        warning('failed to revert');
+        warning('failed to revert: %s', ME.message);
         return;
     end
 
