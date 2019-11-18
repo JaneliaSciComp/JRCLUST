@@ -21,7 +21,7 @@ function hFigWav = plotFigWav(hFigWav, hClust, maxAmp, showSubset, channel_idx)
         % hFigWav.figData.vcTitle = 'Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi'; % TW
         % hFigWav.axApply('default', @title, sprintf('Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi', maxAmp));
 
-        hFigWav.axApply('default', @axis, [0, hClust.nClusters + 1, 0, hCfg.nSites + 1]);
+        hFigWav.axApply('default', @axis, [0, hClust.nClusters + 1, 0, hClust.hCfg.nSites + 1]);
         hFigWav = plotSpikeWaveforms(hFigWav, hClust, maxAmp, channel_idx);
         hFigWav = plotMeanWaveforms(hFigWav, hClust, maxAmp, channel_idx);
         hFigWav.setHideOnDrag('hSpkAll');
