@@ -13,7 +13,7 @@ function keyPressFigSim(obj, ~, hEvent)
             if numel(selected) == 1
                 selected = [selected selected];
             end
-            selected(2) = min(obj.hClust.nClusters, selected(2) + 1);
+            selected(2) = obj.showSubset(min(obj.nShown, obj.unitIndex(selected(2)) + 1));
             obj.updateSelect(selected);
 
         case 'downarrow'
@@ -21,7 +21,7 @@ function keyPressFigSim(obj, ~, hEvent)
             if numel(selected) == 1
                 selected = [selected selected];
             end
-            selected(2) = max(1, selected(2) - 1);
+            selected(2) = obj.showSubset(max(1, obj.unitIndex(selected(2)) - 1));
             obj.updateSelect(selected);
 
         case 'rightarrow'
@@ -29,7 +29,7 @@ function keyPressFigSim(obj, ~, hEvent)
             if numel(selected) == 1
                 selected = [selected selected];
             end
-            selected(1) = min(obj.hClust.nClusters, selected(1) + 1);
+            selected(1) = obj.showSubset(min(obj.nShown, obj.unitIndex(selected(1)) + 1));
             obj.updateSelect(selected);
 
         case 'leftarrow'
@@ -37,7 +37,7 @@ function keyPressFigSim(obj, ~, hEvent)
             if numel(selected) == 1
                 selected = [selected selected];
             end
-            selected(1) = max(1, selected(1) - 1);
+            selected(1) = obj.showSubset(max(1, obj.unitIndex(selected(1)) - 1));
             obj.updateSelect(selected);
             
         case {'d', 'backspace', 'delete'} % delete

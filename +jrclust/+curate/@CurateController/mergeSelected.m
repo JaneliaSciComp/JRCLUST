@@ -15,6 +15,8 @@ function mergeSelected(obj)
     obj.isWorking = 1;
 
     % speculatively merge clusters
+    showSubset = obj.showSubset;
+
     res = obj.hClust.mergeUnits(obj.hClust.spikeClusters, iCluster, jCluster);
     % operation found to be inconsistent
     if isempty(res.metadata)
@@ -27,6 +29,10 @@ function mergeSelected(obj)
     msg = sprintf('merge %d and %d', iCluster, jCluster);
     try
         obj.hClust.commit(res(end).spikeClusters, res(end).metadata, msg);
+        showSubset(showSubset == jCluster) = [];
+        mask = showSubset > jCluster;
+        showSubset(mask) = showSubset(mask) - 1;
+        obj.showSubset = showSubset;
     catch ME
         warning('Failed to merge: %s', ME.message);
         jrclust.utils.qMsgBox('Operation failed.');
@@ -34,11 +40,9 @@ function mergeSelected(obj)
 
     obj.isWorking = 0; % in case updateSelect needs to zoom
 
-    obj.selected = iCluster; % fix OOB error
+    obj.selected = iCluster; % fix OOB error when merging last cluster
 
     % replot
-    obj.updateFigWav();
-    obj.updateFigRD(); % centers changed, need replotting
-    obj.updateFigSim();
+    obj.replot();
     obj.updateSelect(iCluster);
 end

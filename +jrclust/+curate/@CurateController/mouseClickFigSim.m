@@ -6,6 +6,6 @@ function mouseClickFigSim(obj, xyPos, clickType)
 
     xyPos = max(round(xyPos), [1 1]);
     if strcmp(clickType, 'normal') % left click
-        obj.updateSelect(xyPos);
+        obj.updateSelect(obj.showSubset(xyPos));
     end
 end

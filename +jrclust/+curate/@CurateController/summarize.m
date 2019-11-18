@@ -2,13 +2,12 @@ function summarize(obj)
     %SUMMARIZE Summarize a JRCLUST session's results
     summaryText = cell(5, 1);
 
-    nSpikes = numel(obj.hClust.spikeTimes);
     countsPerSite = cellfun(@numel, obj.hClust.spikesBySite);
     [minCount, argMin] = min(countsPerSite);
     [maxCount, argMax] = max(countsPerSite);
     medCount = median(countsPerSite);
 
-    summaryText{1} = sprintf('Spike count: %d', nSpikes);
+    summaryText{1} = sprintf('Spike count: %d', obj.hClust.nSpikes);
     summaryText{2} = sprintf('Spike counts per site: min %d (site %d), max %d (site %d), median %i', ...
                              minCount, argMin, maxCount, argMax, medCount);
 

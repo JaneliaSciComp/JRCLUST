@@ -10,22 +10,25 @@ function updateCursorFigSim(obj)
     else
         jCluster = obj.selected(2);
     end
+    
+    iClusterX = obj.unitIndex(iCluster);
+    jClusterY = obj.unitIndex(jCluster);
 
     hFigSim = obj.hFigs('FigSim');
 
     % update crosshair cursor
-    hFigSim.updatePlot('hCursorV', iCluster*[1, 1], 0.5 + [0, obj.hClust.nClusters]);
+    hFigSim.updatePlot('hCursorV', iClusterX*[1, 1], 0.5 + [0, obj.nShown]);
     if iCluster == jCluster
         colorH = obj.hCfg.colorMap(2, :); % black
     else
         colorH = obj.hCfg.colorMap(3, :); % red
     end
-    hFigSim.updatePlot('hCursorH', 0.5 + [0, obj.hClust.nClusters], jCluster*[1, 1]);
+    hFigSim.updatePlot('hCursorH', 0.5 + [0, obj.nShown], jClusterY*[1, 1]);
     hFigSim.plotApply('hCursorH', @set, 'Color', colorH);
 
     % center on this pair of clusters
-    hFigSim.axApply('default', @set, 'XLim', jrclust.utils.trimLim(iCluster + [-6, 6], 0.5 + [0, obj.hClust.nClusters]));
-    hFigSim.axApply('default', @set, 'YLim', jrclust.utils.trimLim(jCluster + [-6, 6], 0.5 + [0, obj.hClust.nClusters]));
+    hFigSim.axApply('default', @set, 'XLim', jrclust.utils.trimLim(iClusterX + [-6, 6], 0.5 + [0, obj.nShown]));
+    hFigSim.axApply('default', @set, 'YLim', jrclust.utils.trimLim(jClusterY + [-6, 6], 0.5 + [0, obj.nShown]));
 
     if strcmp(hFigSim.figData.figView, 'template')
         scoreij = obj.hClust.templateSim(iCluster, jCluster);

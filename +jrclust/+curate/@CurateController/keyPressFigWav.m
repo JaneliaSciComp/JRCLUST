@@ -11,42 +11,40 @@ function keyPressFigWav(obj, ~, hEvent)
 
     switch hEvent.Key
         case 'uparrow'
-            obj.maxAmp = jrclust.views.rescaleFigWav(hFigWav, obj.hClust, obj.hCfg, obj.maxAmp, sqrt(2)^-factor);
+            obj.maxAmp = jrclust.views.rescaleFigWav(hFigWav, obj.hClust, obj.maxAmp, sqrt(2)^-factor);
             obj.updateCursorFigWav();
 
         case 'downarrow'
-            obj.maxAmp = jrclust.views.rescaleFigWav(hFigWav, obj.hClust, obj.hCfg, obj.maxAmp, sqrt(2)^factor);
+            obj.maxAmp = jrclust.views.rescaleFigWav(hFigWav, obj.hClust, obj.maxAmp, sqrt(2)^factor);
             obj.updateCursorFigWav();
 
         case 'leftarrow' % select previous cluster
             if jrclust.utils.keyMod(hEvent, 'shift')
-                selected_ = [obj.selected(1), max(obj.selected(end)-1, 1)];
+                selected_ = [obj.selected(1), obj.showSubset(max(obj.unitIndex(obj.selected(end))-1, 1))];
             else
-                selected_ = max(obj.selected(1)-1, 1);
+                selected_ = obj.showSubset(max(obj.unitIndex(obj.selected(end))-1, 1));
             end
             obj.updateSelect(selected_);
 
         case 'rightarrow' % select next cluster
             if jrclust.utils.keyMod(hEvent, 'shift')
-                selected_ = [obj.selected(1), min(obj.selected(end)+1, obj.hClust.nClusters)];
+                selected_ = [obj.selected(1), obj.showSubset(min(obj.unitIndex(obj.selected(end))+1, obj.nShown))];
             else
-                selected_ = min(obj.selected(1)+1, obj.hClust.nClusters);
+                selected_ = obj.showSubset(min(obj.unitIndex(obj.selected(end))+1, obj.nShown));
             end
             obj.updateSelect(selected_);
 
         case 'home' % select first cluster
-            obj.updateSelect(1);
-            obj.keyPressFigWav([], struct('Key', 'z')); % zoom in
+            obj.updateSelect(obj.showSubset(1));
 
         case 'end' % select last cluster
-            obj.updateSelect(obj.hClust.nClusters);
-            obj.keyPressFigWav([], struct('Key', 'z')); % zoom in
+            obj.updateSelect(obj.showSubset(end));
 
         case 'space' % select most similar to currently selected
             waveformSim = obj.hClust.waveformSim;
             waveformSim(obj.selected(1), obj.selected(1)) = -inf;
-            [~, nextBest] = max(waveformSim(:, obj.selected(1)));
-            obj.updateSelect([obj.selected(1), nextBest]);
+            [~, nextBest] = max(waveformSim(obj.showSubset, obj.selected(1)));
+            obj.updateSelect([obj.selected(1), obj.showSubset(nextBest)]);
 
         case {'0', 'numpad0'}
             obj.annotateUnit('to_delete', 0); % TW
@@ -68,7 +66,14 @@ function keyPressFigWav(obj, ~, hEvent)
 
         case 'g'
             dlgAns = jrclust.utils.inputdlgNum('Go to a cluster', '', 1);
-            if ~isnan(dlgAns) && dlgAns > 0 && dlgAns <= obj.hClust.nClusters
+            if ismember(dlgAns, obj.showSubset)
+                obj.updateSelect(dlgAns);
+            elseif ~isnan(dlgAns)
+                obj.showSubset = sort([obj.showSubset(:); dlgAns])';
+
+                % replot
+                obj.updateFigWav();
+                obj.updateFigSim();
                 obj.updateSelect(dlgAns);
             end
 
@@ -130,7 +135,7 @@ function keyPressFigWav(obj, ~, hEvent)
 
         case 'r' % reset view
             hFigWav.wait(1);
-            hFigWav.axApply('default', @axis, [0, obj.hClust.nClusters + 1, 0, obj.hCfg.nSites + 1]);
+            hFigWav.axApply('default', @axis, [0, obj.nShown + 1, 0, obj.hCfg.nSites + 1]);
             hFigWav.wait(0);
 
         case 's' % split
@@ -143,18 +148,21 @@ function keyPressFigWav(obj, ~, hEvent)
 
         case 'z' % zoom
             if isempty(obj.selected)
-                obj.updateSelect(1);
+                obj.updateSelect(obj.showSubset(1));
             else
                 iCluster = obj.selected(1);
                 iSite = obj.channel_idx(obj.hClust.clusterSites(iCluster));
                 % do we have a second selected cluster?
                 if numel(obj.selected) > 1
-                    xRange = iCluster + [-1, 1]*max(abs(diff(obj.selected)) + 1, 6);
+                    xRange = obj.unitIndex(iCluster) + [-1, 1]*max(abs(diff(obj.selected)) + 1, 6);
                 else
-                    xRange = iCluster + [-1, 1]*6;
+                    xRange = obj.unitIndex(iCluster) + [-1, 1]*6;
                 end
-                hFigWav.setWindow(xRange, iSite + [-1, 1]*(obj.hCfg.nSiteDir*2+1), [0 obj.hClust.nClusters+1], [0 nSites+1]);
+
+                hFigWav.setWindow(xRange, iSite + [-1, 1]*(obj.hCfg.nSiteDir*2+1), [0 obj.nShown+1], [0 nSites+1]);
             end
+
+            hFigWav.figData.zoom = 0;
 
         otherwise
             hFigWav.wait(0); %stop waiting

@@ -4,7 +4,7 @@ function mouseClickFigWav(obj, xyPos, clickType)
         return;
     end
 
-    iCluster = round(xyPos(1)); % floor of x position
+    iCluster = obj.showSubset(max(1, min(obj.nShown, round(xyPos(1))))); % floor of x position
     if iCluster < 1 || iCluster > obj.hClust.nClusters
         return;
     end

@@ -16,6 +16,8 @@ function deleteClusters(obj, deleteMe)
     % speculatively delete clusters
     res = struct('spikeClusters', {}, 'metadata', {}); % empty struct array
     deleteMe = sort(deleteMe, 'desc');
+    showSubset = obj.showSubset;
+
     for iCluster = 1:numel(deleteMe) % go backwards to avoid deleting the wrong units after a reorder
         if isempty(res)
             args = {obj.hClust.spikeClusters, deleteMe(iCluster), struct()};
@@ -25,9 +27,13 @@ function deleteClusters(obj, deleteMe)
 
         res_ = obj.hClust.deleteUnit(args{:});
 
+        showSubset(showSubset == deleteMe(iCluster)) = [];
+        mask = showSubset > deleteMe(iCluster);
+        showSubset(mask) = showSubset(mask) - 1;
+
         % operation found to be inconsistent
         if isempty(res_.metadata)
-            warning('failed to delete unit %d', iCluster);
+            warning('failed to delete unit %d', deleteMe(iCluster));
             continue;
         end
 
@@ -38,6 +44,8 @@ function deleteClusters(obj, deleteMe)
         msg = ['delete ' strjoin(arrayfun(@num2str, deleteMe, 'UniformOutput', 0), ',')];
         try
             obj.hClust.commit(res(end).spikeClusters, res(end).metadata, msg);
+
+            obj.showSubset = showSubset;
         catch ME
             warning('Failed to delete: %s', ME.message);
             jrclust.utils.qMsgBox('Operation failed.');
@@ -45,9 +53,7 @@ function deleteClusters(obj, deleteMe)
         
         obj.isWorking = 0; % in case updateSelect needs to zoom
 
-        if obj.selected > obj.hClust.nClusters
-            obj.selected = obj.hClust.nClusters;
-        end
+        obj.selected = min([max(obj.showSubset), obj.selected]); % fix OOB error when deleting last cluster
 
         % replot
         obj.updateFigWav();

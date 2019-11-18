@@ -3,6 +3,8 @@ function phy(hClust)
     if exist('writeNPY', 'file') ~= 2
         warning('Please make sure you have npy-matlab installed and on your path (https://github.com/kwikteam/npy-matlab)');
         return;
+    elseif ~isa(hClust, 'jrclust.sort.DensityPeakClustering')
+        error('Phy export not supported for this type of clustering.');
     end
 
     hCfg = hClust.hCfg;
@@ -50,7 +52,7 @@ function phy(hClust)
     tfFile = fullfile(hCfg.outputDir, 'template_features.npy');
 
     % meanWfLocalRaw, spikesRaw
-    tf = zeros(numel(hClust.spikeAmps), 6, 'single');
+    tf = zeros(hClust.nSpikes, 6, 'single');
     for i = 1:hClust.nClusters
         near = tfi(i, :);
         iSpikes = hClust.spikesByCluster{i};

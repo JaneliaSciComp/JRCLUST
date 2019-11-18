@@ -21,8 +21,8 @@ function saveRes(obj, forceOverwrite)
 
     if isfield(obj.res, 'hClust')
         hClust = obj.res.hClust;
-
         res_ = rmfield(obj.res, 'hClust');
+
         res_.initialClustering = hClust.initialClustering;
         res_.spikeClusters = hClust.spikeClusters;
 

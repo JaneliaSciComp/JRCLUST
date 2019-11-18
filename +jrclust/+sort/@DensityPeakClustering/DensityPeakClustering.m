@@ -227,7 +227,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
         % siteThresh
         function st = get.siteThresh(obj)
-            if isfield(obj.dRes, 'meanSiteThresh')
+            if isfield(obj.dRes, 'meanSiteThresh') && ~isempty(obj.dRes.meanSiteThresh)
                 st = obj.dRes.meanSiteThresh;
             elseif isfield(obj.dRes, 'siteThresh') % backwards compatibility
                 st = obj.dRes.siteThresh;
