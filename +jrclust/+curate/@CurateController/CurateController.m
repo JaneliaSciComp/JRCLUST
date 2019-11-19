@@ -138,19 +138,19 @@ classdef CurateController < handle
         function set.spatial_idx(obj, val)
             if isempty(obj.spatial_idx)
                 obj.spatial_idx = val;
+                [~,obj.channel_idx] = sort(obj.spatial_idx);                
             else
-                nChanged = sum(obj.spatial_idx==val);
+                nChanged = sum(obj.spatial_idx(:)~=val(:));
                 if ~nChanged
                     jrclust.utils.qMsgBox('Clusters already in order');
                 else
                     jrclust.utils.qMsgBox(sprintf('%d clusters changed', nChanged));
                 end
                 obj.spatial_idx = val;
+                [~,obj.channel_idx] = sort(obj.spatial_idx);                
                 obj.updateFigWav();
-                obj.updateFigSim();
-                obj.updateSelect(1);
+                obj.updateSelect(1,1);                      
             end
-            [~,obj.channel_idx] = sort(obj.spatial_idx);
         end
 
         % nShown
