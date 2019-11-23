@@ -30,7 +30,7 @@ function processArgs(obj)
                     obj.hCfg.save();
                 end
             catch ME
-                warning('Failed to load %s: %s', configFile, ME.message);
+                warning('Failed to load param file: %s\n----------\nError was: %s\n', configFile, ME.message);
             end
         end
     end
