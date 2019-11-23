@@ -1,5 +1,5 @@
 function setFigPos(figPos)
-    % utility for writing out the position of the current figure windows
+    % utility for manually setting the position of the current figure windows
     figs = get(0,'Children');
     keys = figPos.keys;
     tags = {figs.Tag};

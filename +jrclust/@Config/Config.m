@@ -114,6 +114,7 @@ classdef Config < dynamicprops
         setCustomProp(obj, propname, val);
         setProp(obj, propname, val);
         warning(obj, wmsg, varargin);
+        validateFigs(obj);
     end
 
     %% SECRET METHODS

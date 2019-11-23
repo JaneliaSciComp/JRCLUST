@@ -1,7 +1,6 @@
 function spawnFigures(obj)
     %SPAWNFIGURES Create the standard cadre of figures
     obj.hFigs = containers.Map();   
-    figPos = obj.getDefaultFigPos;
     for f=1:length(obj.hCfg.figList)
         figTag = obj.hCfg.figList{f};
         figToolbar = 0;
@@ -31,7 +30,7 @@ function spawnFigures(obj)
             case 'FigRD'
                 figTitle = 'Unit rho-delta';                
         end
-        obj.hFigs(figTag) = jrclust.views.Figure(figTag,figPos(figTag),sprintf('%s: %s',figTitle,obj.hCfg.sessionName),figToolbar,figMenubar);
+        obj.hFigs(figTag) = jrclust.views.Figure(figTag,obj.hCfg.figPos{f},sprintf('%s: %s',figTitle,obj.hCfg.sessionName),figToolbar,figMenubar);
         drawnow;
     end
 end

@@ -1,5 +1,5 @@
 function figPos = getCurrentFigPos()
-    % utility for manually setting the position of the current figure windows
+    % utility that reports the position of the current figure windows
     figs = get(0,'Children');
     figPos = containers.Map();
     for f=1:length(figs)
