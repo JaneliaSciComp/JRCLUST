@@ -63,6 +63,6 @@ function plotAllFigures(obj)
     obj.updateSelect(obj.showSubset(1), 1);
 
     % reapply figure positions
-    figPos = getDefaultFigPos(obj);
-    jrclust.curate.CurateController.setFigPos(figPos);
+    %figPos = getDefaultFigPos(obj);
+    %jrclust.curate.CurateController.setFigPos(obj.hCfg.figPos);
 end
