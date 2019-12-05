@@ -206,7 +206,14 @@ end
 
 % set some specific params
 hCfg.nPeaksFeatures = 1; % don't find secondary peaks
-hCfg.figList = setdiff(hCfg.figList, 'FigRD'); % don't show rho-delta plot
+% remove FigRD
+if ismember(hCfg.figList,'FigRD')
+    keepFigIdx = ~ismember(hCfg.figList,'FigRD');
+    hCfg.figList = hCfg.figList(keepFigIdx);
+    if ~isempty(hCfg.figPos)
+        hCfg.figPos = hCfg.figPos(keepFigIdx);
+    end
+end
 hCfg.corrRange = [0.75 1];
 
 %%% detect and extract spikes/features
