@@ -5,7 +5,7 @@ function loadFiles(obj)
     end
 
     if ~exist(obj.hCfg.resFile, 'file')
-        warning('%s does not exist', obj.hCfg.resFile);
+        error('%s does not exist', obj.hCfg.resFile);
         return;
     end
 
