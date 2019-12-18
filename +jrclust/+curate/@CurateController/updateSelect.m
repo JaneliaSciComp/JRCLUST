@@ -1,4 +1,4 @@
-function updateSelect(obj, iClusters)
+function updateSelect(obj, iClusters, force)
     %UPDATESELECT Select a (pair of) cluster(s) across all views
     iClusters = min(max(iClusters, 1), obj.hClust.nClusters);
     if numel(iClusters) > 2
@@ -8,6 +8,15 @@ function updateSelect(obj, iClusters)
     end
     if numel(iClusters) == 2 && diff(iClusters) == 0
         iClusters = iClusters(1);
+    end
+
+    % force update, e.g., after a delete
+    if nargin < 3
+        force = 0;
+    end
+
+    if ~force && jrclust.utils.isEqual(iClusters, obj.selected)
+        return;
     end
 
     obj.selected = iClusters;
@@ -47,25 +56,36 @@ function updateSelect(obj, iClusters)
     obj.updateNoteMenu();
     obj.updateHistMenu();
 
-    % zoom to selected cluster if out of bounds
     if obj.hasFig('FigWav')
         hFigWav = obj.hFigs('FigWav');
-        xRange = hFigWav.axApply('default', @xlim);
-        yRange = hFigWav.axApply('default', @ylim);
-        iCluster = obj.selected(1);
-        if numel(obj.selected) > 1
-            jCluster = obj.selected(2);
-        else
-            jCluster = obj.selected(1);
+
+        % zoom if explicitly told to zoom
+        doZoom = isfield(hFigWav.figData, 'zoom') && hFigWav.figData.zoom;
+
+        % ... or if out of bounds
+        if ~doZoom
+            xRange = hFigWav.axApply('default', @xlim);
+            yRange = hFigWav.axApply('default', @ylim);
+            iCluster = obj.selected(1);
+            if numel(obj.selected) > 1
+                jCluster = obj.selected(2);
+            else
+                jCluster = iCluster;
+            end
+
+            iSite = obj.hClust.clusterSites(iCluster);
+            jSite = obj.hClust.clusterSites(jCluster);
+
+            % x values out of range
+            doZoom = doZoom | obj.unitIndex(iCluster) < xRange(1) | obj.unitIndex(iCluster) > xRange(2);
+            doZoom = doZoom | obj.unitIndex(jCluster) < xRange(1) | obj.unitIndex(jCluster) > xRange(2);
+
+            % y values out of range
+            doZoom = doZoom | iSite < yRange(1) | iSite > yRange(2);
+            doZoom = doZoom | jSite < yRange(1) | jSite > yRange(2);
         end
 
-        iSite = obj.hClust.clusterSites(iCluster);
-        jSite = obj.hClust.clusterSites(jCluster);
-
-        if iCluster < xRange(1) || iCluster > xRange(2) || ...
-                iSite < yRange(1) || iSite > yRange(2) || ...
-           jCluster < xRange(1) || jCluster > xRange(2) || ...
-                jSite < yRange(1) || jSite > yRange(2)
+        if doZoom
             obj.keyPressFigWav([], struct('Key', 'z'));
         end
     end

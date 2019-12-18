@@ -5,6 +5,10 @@ function sRes = sort(obj)
     end
     obj.isSort = 1;
 
+    if ~isfield(obj.res, 'spikeTimes') || isempty(obj.res.spikeTimes)
+        error('no spikes to sort');
+    end
+
     if ~isfield(obj.res, 'spikeFeatures')
         dlgAns = questdlg('Could not find all required data. Detect?', 'Detection required', 'No');
         if strcmp(dlgAns, 'Yes')

@@ -3,11 +3,11 @@
     "version": {
         "major": 4,
         "minor": 0,
-        "release": 0,
-        "tag": "beta-p1",
+        "release": 1,
+        "tag": "",
         "codename": "Edward"
     },
-    "changeDate": "4 April 2019",
+    "changeDate": "06 Nov 2019",
     "authors": [
         "James Jun"
     ],
@@ -16,10 +16,14 @@
         "Vidrio Technologies"
     ],
     "contributors": [
+        "Adrian Bondy",
+        "Nathan Clack",
         "Mike Economo",
         "Hidehiko Inagaki",
         "Thomas Luo",
+        "Lawrence Niu",
         "Vincent Prevosto",
+        "Michael Wallace",
         "Tim Wang"
     ],
     "hardwareRequirements": [

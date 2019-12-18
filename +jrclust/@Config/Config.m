@@ -47,6 +47,7 @@ classdef Config < dynamicprops
         featuresFile;           % path to binary file containing spike features
         filtFile;               % path to binary file containing filtered traces
         rawFile;                % path to binary file containing raw traces
+        histFile;               % path to binary file containing history entries
         resFile;                % path to MAT file containing results struct
         sessionName;            % name of prm file, without path or extensions
     end
@@ -252,6 +253,11 @@ classdef Config < dynamicprops
         function val = get.fullParams(obj)
             val = jrclust.utils.mergeStructs(obj.paramSet.commonParameters, ...
                                              obj.paramSet.advancedParameters);
+        end
+
+        % histFile
+        function val = get.histFile(obj)
+            val = fullfile(obj.outputDir, [obj.sessionName '_hist.jrc']);
         end
 
         % isError

@@ -8,33 +8,41 @@ function mergeSelected(obj)
     if numel(obj.selected) < 2
         return;
     end
+
     iCluster = min(obj.selected);
     jCluster = max(obj.selected);
 
     obj.isWorking = 1;
+
+    % speculatively merge clusters
+    showSubset = obj.showSubset;
+
+    res = obj.hClust.mergeUnits(obj.hClust.spikeClusters, iCluster, jCluster);
+    % operation found to be inconsistent
+    if isempty(res.metadata)
+        warning('failed to merge units %d and %d', iCluster, jCluster);
+        obj.isWorking = 0;
+
+        return;
+    end
+
+    msg = sprintf('merge %d and %d', iCluster, jCluster);
     try
-        success = obj.hClust.mergeClusterPair(iCluster, jCluster);
-        if success
-            % save the new clustering
-            commitMsg = sprintf('%s;merge;%d;%d', datestr(now, 31), iCluster, jCluster);
-            obj.hClust.commit(commitMsg);
-
-            obj.isWorking = 0; % in case updateSelect needs to zoom
-
-            obj.selected = iCluster; % fix OOB error
-
-            % replot
-            obj.updateFigWav();
-            obj.updateFigRD(); % centers changed, need replotting
-            obj.updateFigSim();
-            obj.updateSelect(iCluster);
-        else
-            jrclust.utils.qMsgBox('Operation failed.');
-        end
+        obj.hClust.commit(res(end).spikeClusters, res(end).metadata, msg);
+        showSubset(showSubset == jCluster) = [];
+        mask = showSubset > jCluster;
+        showSubset(mask) = showSubset(mask) - 1;
+        obj.showSubset = showSubset;
     catch ME
         warning('Failed to merge: %s', ME.message);
         jrclust.utils.qMsgBox('Operation failed.');
     end
 
-    obj.isWorking = 0;
+    obj.isWorking = 0; % in case updateSelect needs to zoom
+
+    obj.selected = iCluster; % fix OOB error when merging last cluster
+
+    % replot
+    obj.replot();
+    obj.updateSelect(iCluster);
 end

@@ -17,6 +17,8 @@ end
 %% LOCAL FUNCTIONS
 function iCluster = plotSelectedMeans(hFigWav, hClust, iCluster, plotKey, maxAmp, hCfg)
     %PLOTSELECTEDMEANS Plot an overlay on selected cluster's mean traces
+    showSubset = hFigWav.figData.showSubset;
+
     if strcmp(plotKey, 'selected2')
         colorMap = hCfg.colorMap(3, :); % red
     elseif strcmp(plotKey, 'selected1')
@@ -35,6 +37,6 @@ function iCluster = plotSelectedMeans(hFigWav, hClust, iCluster, plotKey, maxAmp
         meanWf = hClust.meanWfGlobal(:, :, iCluster);
     end
 
-    hFigWav.multiplot(plotKey, maxAmp, jrclust.views.getXRange(iCluster, hCfg), meanWf);
+    hFigWav.multiplot(plotKey, maxAmp, jrclust.views.getXRange(find(iCluster == showSubset), size(meanWf, 1), hCfg), meanWf);
     hFigWav.plotApply(plotKey, @uistack, 'top');
 end

@@ -1,4 +1,4 @@
-function xRange = getXRange(iCluster, hCfg)
+function xRange = getXRange(iCluster, nSamples, hCfg)
     %GETXRANGE Get the x-values of iCluster waveforms for main view
     if hCfg.showRaw
         evtWindowSamp = hCfg.evtWindowRawSamp;
@@ -6,7 +6,6 @@ function xRange = getXRange(iCluster, hCfg)
         evtWindowSamp = hCfg.evtWindowSamp;
     end
 
-    nSamples = diff(evtWindowSamp) + 1;
     xOffset = iCluster - 1 + evtWindowSamp(2)/nSamples;
 
     xRange = xOffset + (1:nSamples)/nSamples;

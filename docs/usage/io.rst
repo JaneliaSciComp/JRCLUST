@@ -171,6 +171,9 @@ Output files
 +-------------------------+-------------------------------------------+---------------------------------+
 | mysession\_features.jrc | :ref:`io-features`                        | Binary (single-precision float) |
 +-------------------------+-------------------------------------------+---------------------------------+
+| mysession\_hist.jrc     | :ref:`io-history`                         | Binary (32-bit                  |
+|                         | from user curation                        | signed integer)                 |
++-------------------------+-------------------------------------------+---------------------------------+
 | mysession.csv           | :ref:`io-cluster-data`                    | CSV                             |
 +-------------------------+-------------------------------------------+---------------------------------+
 
@@ -179,13 +182,108 @@ Output files
 Detection and clustering results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following data are stored in mysession\_res.mat.
+The following data are stored in *mysession\_res.mat*:
 
 +-----------------------+------------------------------+------------------------+
 | Variable name         | Content                      | Data format            |
 +=======================+==============================+========================+
-| spikeTimes            | Spike timing in ADC          | ``nSpikes`` x 1: int32 |
+| centerSites           | Sites with peak spike        | ``nSpikes`` x          |
+|                       | amplitudes for each of       | ``nPeaksFeatures``:    |
+|                       | :ref:`nPeaksFeatures`        | int32                  |
++-----------------------+------------------------------+------------------------+
+| clusterCenters        | Indices of cluster site      | ``nClusters`` x 1:     |
+|                       | centers as determined in     |  double                |
+|                       | :ref:`spike-clustering`      |                        |
++-----------------------+------------------------------+------------------------+
+| clusterCentroids      | Feature-weighted center      | ``nClusters`` x 2:     |
+|                       | x-y positions on the probe   | double                 |
+|                       | for each cluster             |                        |
++-----------------------+------------------------------+------------------------+
+| clusterNotes          | Text annotations for each    | ``nClusters`` x 1:     |
+|                       | cluster                      | cell array of char     |
++-----------------------+------------------------------+------------------------+
+| clusterSites          | Mode of ``spikeSites`` for   | ``nClusters`` x  1:    |
+|                       | spikes in each cluster       | double                 |
++-----------------------+------------------------------+------------------------+
+| curatedOn             | Timestamp of last saved      | scalar double          |
+|                       | curation                     |                        |
++-----------------------+------------------------------+------------------------+
+| detectTime            | Time spent (in seconds) in   | scalar double          |
+|                       | detection step               |                        |
++-----------------------+------------------------------+------------------------+
+| detectedOn            | Timestamp of last spike      | scalar double          |
+|                       | detection                    |                        |
++-----------------------+------------------------------+------------------------+
+| featuresShape         | Dimensions of                | 1 x 3: double          |
+|                       | :ref:`io-features`           |                        |
++-----------------------+------------------------------+------------------------+
+| filtShape             | Dimensions of                | 1 x 3: double          |
+|                       | :ref:`io-filt-traces`        |                        |
++-----------------------+------------------------------+------------------------+
+| history               | Key-value store of curation  | containers.Map         |
+|                       | operations with commit       |                        |
+|                       | messages (see                |                        |
+|                       | :ref:`io-history`)           |                        |
++-----------------------+------------------------------+------------------------+
+| initialClustering     | Initial spike table          | ``nSpikes`` x 1: int32 |
++-----------------------+------------------------------+------------------------+
+| meanSiteThresh        | Mean (over chunks) detection | 1 x ``nSites``: single |
+|                       | threshold per site           |                        |
++-----------------------+------------------------------+------------------------+
+| meanWfGlobal          | Mean (over spikes/cluster)   | ``nSamples`` x         |
+|                       | waveform over *all* sites    | ``nSites`` x           |
+|                       | (all zeros outside           | ``nClusters``: single  |
+|                       | :ref:`siteNeighbors` for     |                        |
+|                       | Reasons)                     |                        |
++-----------------------+------------------------------+------------------------+
+| meanWfGlobalRaw       | Mean (over spikes/cluster)   | ``nSamplesRaw`` x      |
+|                       | *raw* waveform over *all*    | ``nSites`` x           |
+|                       | sites (all zeros outside     | ``nClusters``: single  |
+|                       | :ref:`siteNeighbors` for     |                        |
+|                       | Reasons)                     |                        |
++-----------------------+------------------------------+------------------------+
+| meanWfLocal           | Mean (over spikes/cluster)   | ``nSamples`` x         |
+|                       | waveform over sites specified| ``2*``                 |
+|                       | in :ref:`siteNeighbors`      | :ref:`nSiteDir` ``+ 1``|
+|                       |                              | x ``nClusters``: single|
++-----------------------+------------------------------+------------------------+
+| meanWfLocalRaw        | Mean (over spikes/cluster)   | ``nSamplesRaw`` x      |
+|                       | *raw* waveform over sites    | ``2*``                 |
+|                       | specified in                 | :ref:`nSiteDir` ``+ 1``|
+|                       | :ref:`siteNeighbors`         | x ``nClusters``: single|
++-----------------------+------------------------------+------------------------+
+| meanWfRawHigh         | Mean (over spikes/cluster)   | ``nSamplesRaw`` x      |
+|                       | *raw* waveform on            | ``2*``                 |
+|                       | :ref:`high <merge-post-hoc>` | :ref:`nSiteDir` ``+ 1``|
+|                       | positions on the probe       | x ``nClusters``: single|
++-----------------------+------------------------------+------------------------+
+| meanWfRawLow          | Mean (over spikes/cluster)   | ``nSamplesRaw`` x      |
+|                       | *raw* waveform on            | ``2*``                 |
+|                       | :ref:`low <merge-post-hoc>`  | :ref:`nSiteDir` ``+ 1``|
+|                       | positions on the probe       | x ``nClusters``: single|
++-----------------------+------------------------------+------------------------+
+| rawShape              | Dimensions of                | 1 x 3: double          |
+|                       | :ref:`io-raw-traces`         |                        |
++-----------------------+------------------------------+------------------------+
+| siteThresh            | Detection threshold          | ``nSites`` x           |
+|                       | per site per chunk           | ``nChunks``: single    |
+|                       | (see :ref:`chunking`)        |                        |
++-----------------------+------------------------------+------------------------+
+| sortTime              | Time spent (in seconds) in   | scalar double          |
+|                       | clustering step              |                        |
++-----------------------+------------------------------+------------------------+
+| sortedOn              | Timestamp of last spike      | scalar double          |
+|                       | clustering                   |                        |
++-----------------------+------------------------------+------------------------+
+| spikeAmps             | Spike amplitudes in ADC      | ``nSpikes`` x 1: int32 |
 |                       | sample unit                  |                        |
++-----------------------+------------------------------+------------------------+
+| spikeClusters         | The spike table: cluster     | ``nSpikes`` x 1: int32 |
+|                       | assignment for each spike    |                        |
++-----------------------+------------------------------+------------------------+
+| spikePositions        | Feature-weighted center      | ``nSpikes`` x 2:       |
+|                       | x-y positions on the probe   | double                 |
+|                       | for each spike               |                        |
 +-----------------------+------------------------------+------------------------+
 | spikeSites            | Site with the peak           | ``nSpikes`` x 1: int32 |
 |                       | spike amplitude              |                        |
@@ -194,33 +292,32 @@ The following data are stored in mysession\_res.mat.
 | spikeSites2           | Site with the second         | ``nSpikes`` x 1: int32 |
 |                       | peak spike amplitude         |                        |
 +-----------------------+------------------------------+------------------------+
-| spikeAmps             | Spike amplitude              | ``nSpikes`` x 1: int16 |
-|                       | (local min. after            |                        |
-|                       | filtering)                   |                        |
+| spikeSites3           | Site with the third          | ``nSpikes`` x 1: int32 |
+|                       | peak spike amplitude         |                        |
 +-----------------------+------------------------------+------------------------+
-| spikesBySite          | Cell of the spike            | Cell of vector of      |
-|                       | indices per site             | int32                  |
+| spikesByCluster       | Cell of the spike            | ``nClusters`` x 1: cell|
+|                       | indices per cluster          |  array of double       |
 +-----------------------+------------------------------+------------------------+
-| siteThresh            | Detection threshold          | 1 x ``nSpikes``: single|
-|                       | per site                     |                        |
+| spikesBySite          | Cell of the spike            | ``nSites`` x 1: cell   |
+|                       | indices per site             | array of int32         |
 +-----------------------+------------------------------+------------------------+
-| filtShape             | Dimensions of                | 1 x 3: double          |
-|                       | :ref:`io-filt-traces`        |                        |
+| spikesBySite2         | Cell of the spike            | ``nSites`` x 1: cell   |
+|                       | indices per secondary site   | array of int32         |
 +-----------------------+------------------------------+------------------------+
-| rawShape              | Dimensions of                | 1 x 3: double          |
-|                       | :ref:`io-raw-traces`         |                        |
+| spikesBySite3         | Cell of the spike            | ``nSites`` x 1: cell   |
+|                       | indices per tertiary site    | array of int32         |
 +-----------------------+------------------------------+------------------------+
-| featuresShape         | Dimensions of                | 1 x 3: double          |
-|                       | :ref:`io-features`           |                        |
+| spikeTimes            | Spike timing in ADC          | ``nSpikes`` x 1: int32 |
+|                       | sample unit                  |                        |
 +-----------------------+------------------------------+------------------------+
-| hClust                | Clustering data              | DensityPeakClustering  |
-|                       |                              | object                 |
+| unitCount             | Count of spikes in each      | ``nClusters`` x 1:     |
+|                       | cluster                      | double                 |
 +-----------------------+------------------------------+------------------------+
-| hCfg                  | Configuration data           | Config                 |
-|                       |                              | object                 |
+| waveformSim           | Waveform-based pairwise      | ``nClusters`` x        |
+|                       | cluster                      | ``nClusters``: double  |
+|                       | :ref:`sim <merge-post-hoc>`  |                        |
+|                       | scores                       |                        |
 +-----------------------+------------------------------+------------------------+
-
-
 
 .. _io-filt-traces:
 
@@ -259,6 +356,15 @@ spatiotemporal window.
 Consequently, the spike features data is stored as an
 :math:`n_{\text{features}} \times n_{\text{positions}} \times n_{\text{spikes}}`
 array of single-precision (32-bit) floating point values.
+
+.. _io-history:
+
+Operation history
+~~~~~~~~~~~~~~~~~
+
+A binary file containing a copy of the spike table for each operation performed during :ref:`pipeline-curate`.
+For each operation, JRCLUST writes an operation ID (a 32-bit signed integer), followed by the spike table, at the end of this file.
+The operation ID is kept in sync with a key-value map (``hClust.history``), allowing users to revert operations.
 
 .. _io-cluster-data:
 

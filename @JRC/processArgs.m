@@ -49,8 +49,7 @@ function processArgs(obj)
             obj.isCompleted = 1;
 
         case 'download'
-            iMsg = 'You can find sample.bin and sample.meta at https://drive.google.com/drive/folders/1-UTasZWB0TwFFFV49jSrpRPHmtve34O0?usp=sharing';
-            obj.deprecateCmd(obj.cmd, iMsg);
+            obj.deprecateCmd(obj.cmd);
             obj.isCompleted = 1;
 
         case 'gui'
@@ -158,6 +157,43 @@ function processArgs(obj)
 
                 obj.isCompleted = 1;
             end
+            
+        case 'import-spyking-circus'
+            [hCfg_, res_] = jrclust.import.spykingcircus(obj.args{1});
+            if isempty(hCfg_)
+                obj.error('Import failed');
+            else
+                obj.hCfg = hCfg_;
+                obj.res = res_;
+
+                obj.saveRes();
+                obj.hCfg.save('', 1);
+
+                obj.isCompleted = 1;
+            end
+
+        case 'export-nwb'
+            if isempty(obj.hCfg)
+                obj.error(sprintf('`%s` not found or not a config file', obj.args{1}));
+                return;
+            elseif nargs < 2
+                obj.error('Specify an output file.');
+                return;
+            end
+
+            obj.loadFiles();
+
+            if isempty(obj.hClust)
+                obj.error('Clustering object not found; sort your data first');
+                return;
+            end
+
+            try
+                jrclust.export.nwb(obj.hClust, obj.args{2});
+                obj.isCompleted = 1;
+            catch ME
+                obj.error(ME.message);
+            end
 
         case 'export-phy'
             if isempty(obj.hCfg)
@@ -165,18 +201,23 @@ function processArgs(obj)
                 return;
             end
 
+            obj.loadFiles();
+
+            if isempty(obj.hClust)
+                obj.error('Clustering object not found; sort your data first');
+                return;
+            elseif ~isa(obj.hClust, 'jrclust.sort.DensityPeakClustering')
+                error('Phy export not supported for this type of clustering.');
+            end
+
             try
-                jrclust.export.phy(obj.hCfg);
+                jrclust.export.phy(obj.hClust);
                 obj.isCompleted = 1;
             catch ME
                 obj.error(ME.message);
             end
 
         % misc commands
-        case 'activity'
-            obj.activity();
-            obj.isCompleted = 1;
-
         case 'probe'
             if isempty(obj.hCfg) && nargs == 0
                 obj.isError = 1;
@@ -190,12 +231,13 @@ function processArgs(obj)
             end
 
         case 'preview'
-            obj.preview();
-            obj.isCompleted = 1;
-
-        case 'recluster'
-            obj.recluster();
-            obj.isCompleted = ~obj.isError;
+            if isempty(obj.hCfg) && nargs == 0
+                obj.isError = 1;
+                obj.errMsg = 'Specify a config file';
+            else
+                obj.preview();
+                obj.isCompleted = 1;
+            end
 
         case 'traces'
             obj.traces();
@@ -213,8 +255,9 @@ function processArgs(obj)
     detectCmds = {'detect', 'detect-sort', 'full'};
     sortCmds   = {'sort', 'detect-sort', 'full'};
     curateCmds = {'manual', 'full'};
+    prmCmds    = {'activity', 'recluster'};
 
-    legalCmds = unique([detectCmds, sortCmds curateCmds]);
+    legalCmds = unique([detectCmds sortCmds curateCmds prmCmds]);
 
     if ~any(strcmpi(obj.cmd, legalCmds))
         obj.errMsg = sprintf('Command `%s` not recognized', obj.cmd);
@@ -223,18 +266,30 @@ function processArgs(obj)
         return;
     end
 
-    obj.hCfg.openLog(sprintf('%s-%s.log', obj.cmd, datestr(now(), 30)));
+    if ismember(obj.cmd, prmCmds)
+        switch obj.cmd
+            case 'activity'
+                obj.activity();
+                obj.isCompleted = 1;
+                
+            case 'recluster'
+                obj.recluster();
+                obj.isCompleted = ~obj.isError;
+        end
+    else
+        obj.hCfg.openLog(sprintf('%s-%s.log', obj.cmd, datestr(now(), 30)));
 
-    % determine which commands in the pipeline to run
-    if any(strcmp(obj.cmd, curateCmds))
-        obj.isCurate = 1;
-    end
+        % determine which commands in the pipeline to run
+        if any(strcmp(obj.cmd, curateCmds))
+            obj.isCurate = 1;
+        end
 
-    if any(strcmp(obj.cmd, sortCmds))
-        obj.isSort = 1;
-    end
+        if any(strcmp(obj.cmd, sortCmds))
+            obj.isSort = 1;
+        end
 
-    if any(strcmp(obj.cmd, detectCmds))
-        obj.isDetect = 1;
+        if any(strcmp(obj.cmd, detectCmds))
+            obj.isDetect = 1;
+        end
     end
 end

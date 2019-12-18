@@ -1,4 +1,4 @@
-function annotateUnit(obj, note, doConfirm)
+function annotateUnit(obj, note, confirm)
     %ANNOTATEUNIT Add a note to a cluster
     if obj.isWorking
         jrclust.utils.qMsgBox('An operation is in progress.');
@@ -7,24 +7,18 @@ function annotateUnit(obj, note, doConfirm)
 
     iCluster = obj.selected(1);
 
-    if nargin < 2
-        note = obj.hClust.clusterNotes{iCluster};
-    elseif isempty(note) % clear annotation
-        obj.hClust.addNote(iCluster, '');
-    end
-
     % set equal to another cluster?
-    if ~isempty(note) && strcmp(note, '=') && numel(obj.selected) == 2
+    if strcmp(note, '=') && numel(obj.selected) == 2
         note = sprintf('=%d', obj.selected(2));
-    elseif ~isempty(note) && strcmp(note, '=')
+    elseif strcmp(note, '=')
         msgbox('Right-click another unit to set equal to selected unit');
         return;
     end
 
     obj.isWorking = 1;
     try
-        if doConfirm
-            newNote = inputdlg(sprintf('Cluster %d', iCluster), 'Annotation', 1, {note});
+        if confirm
+            newNote = inputdlg(sprintf('Unit %d', iCluster), 'Annotation', 1, {note});
             if ~isempty(newNote)
                 obj.hClust.addNote(iCluster, newNote{1});
             end

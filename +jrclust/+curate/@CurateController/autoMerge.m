@@ -42,7 +42,7 @@ function autoMerge(obj, maxUnitSim)
             obj.updateFigWav();
             obj.updateFigRD(); % centers changed, need replotting
             obj.updateFigSim();
-            obj.updateSelect(obj.selected);
+            obj.updateSelect(obj.selected, 1);
 
             jrclust.utils.qMsgBox(sprintf('Merged %d clusters >%0.2f maxUnitSim.', nClustersOld - obj.hClust.nClusters, maxUnitSim));
         else

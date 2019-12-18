@@ -18,14 +18,14 @@ function spawnFigures(obj)
     hFigs_('FigPos')    = createFig('FigPos', [0 0 .15 .5], ['Unit position; ', obj.hCfg.sessionName], 1, 0);
     hFigs_('FigMap')    = createFig('FigMap', [0 .5 .15 .5], ['Probe map; ', obj.hCfg.sessionName], 1, 0);
     hFigs_('FigWav')    = createFig('FigWav', [.15 .2 .35 .8],['Averaged waveform: ', obj.hCfg.sessionName], 0, 1);
-    hFigs_('FigTime')   = createFig('FigTime', ftShape, ['Time vs. Amplitude; (Sft)[Up/Down] channel; [h]elp; [a]uto scale; ', obj.hCfg.sessionName]);
+    hFigs_('FigTime')   = createFig('FigTime', ftShape, ['Feature vs. time: ', obj.hCfg.sessionName]);
     hFigs_('FigProj')   = createFig('FigProj', [.5 .2 .35 .5], ['Feature projection: ', obj.hCfg.sessionName]);
-    hFigs_('FigSim')    = createFig('FigSim', [.5 .7 .35 .3], ['Waveform-based similarity score (click): ', obj.hCfg.sessionName]);
-    hFigs_('FigHist')   = createFig('FigHist', fhShape, ['ISI Histogram: ', obj.hCfg.sessionName]);
+    hFigs_('FigSim')    = createFig('FigSim', [.5 .7 .35 .3], ['Waveform-based similarity score: ', obj.hCfg.sessionName]);
+    hFigs_('FigHist')   = createFig('FigHist', fhShape, ['ISI histogram: ', obj.hCfg.sessionName]);
     hFigs_('FigISI')    = createFig('FigISI', fiShape, ['Return map: ', obj.hCfg.sessionName]);
     hFigs_('FigCorr')   = createFig('FigCorr', fcShape, ['Time correlation: ', obj.hCfg.sessionName]);
     if ~skipRD
-        hFigs_('FigRD') = createFig('FigRD', [.85 0 .15 .25], ['Cluster rho-delta: ', obj.hCfg.sessionName]);
+        hFigs_('FigRD') = createFig('FigRD', [.85 0 .15 .25], ['Unit rho-delta: ', obj.hCfg.sessionName]);
     end
 
     obj.hFigs = hFigs_;

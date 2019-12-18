@@ -34,7 +34,7 @@ function plotAllFigures(obj)
     % plot main waveform view
     if obj.hasFig('FigWav')
         % set key and mouse handles
-        hFigWav = jrclust.views.plotFigWav(obj.hFigs('FigWav'), obj.hClust, obj.hCfg, obj.maxAmp);
+        hFigWav = jrclust.views.plotFigWav(obj.hFigs('FigWav'), obj.hClust, obj.maxAmp, obj.showSubset);
         setFigWavXTicks(hFigWav, obj.hClust, 1); % show cluster counts by default
 
         hFigWav.hFunKey = @obj.keyPressFigWav;
@@ -48,9 +48,17 @@ function plotAllFigures(obj)
     % plot rho-delta figure
     obj.updateFigRD();
 
-    % select first cluster (also plots other figures)
-    obj.updateSelect(1);
+    % update help texts
+    helpFigs = fieldnames(obj.helpTexts);
+    for i = 1:numel(helpFigs)
+        figName = helpFigs{i};
 
-    % zoom in on first cluster
-    obj.keyPressFigWav([], struct('Key', 'z')); % zoom in
+        if obj.hasFig(figName)
+            hFig = obj.hFigs(figName);
+            hFig.figData.helpText = strjoin(obj.helpTexts.(figName), '\n');
+        end
+    end
+
+    % select first cluster (also plots other figures)
+    obj.updateSelect(obj.showSubset(1), 1);
 end

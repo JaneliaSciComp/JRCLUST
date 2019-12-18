@@ -42,8 +42,10 @@ function hFigISI = plotFigISI(hFigISI, hClust, hCfg, selected)
 
     if iCluster ~= jCluster
         [jIsiK, jIsiK1] = getReturnMap(jCluster, hClust, hCfg);
+        hFigISI.axApply('default', @title, sprintf('Unit %d (black) vs. Unit %d (red)', iCluster, jCluster));
         hFigISI.updatePlot('foreground2', jIsiK, jIsiK1);
     else
+        hFigISI.axApply('default', @title, sprintf('Unit %d', iCluster));
         hFigISI.clearPlot('foreground2');
     end
 end
@@ -51,6 +53,11 @@ end
 function [isiK, isiK1] = getReturnMap(iCluster, hClust, hCfg)
     %GETRETURNMAP subset 
     clusterTimes = double(hClust.spikeTimes(hClust.spikesByCluster{iCluster}))/hCfg.sampleRate;
+    if numel(clusterTimes) < 3
+        isiK = 0;
+        isiK1 = 0;
+        return;
+    end
     clusterISI = diff(clusterTimes * 1000); % in msec
 
     %isiK = clusterISIMs(1:end-1);

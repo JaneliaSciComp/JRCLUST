@@ -33,7 +33,7 @@ function corrData = plotAuxCorr(hClust, selected)
 
     for iiCluster = 1:nClustersShow
         iCluster = argsort(iiCluster);
-        hTab = uitab(hTabGroup, 'Title', sprintf('Cluster %d', iCluster), 'BackgroundColor', 'w');
+        hTab = uitab(hTabGroup, 'Title', sprintf('Unit %d', iCluster), 'BackgroundColor', 'w');
         axes('Parent', hTab);
         subplot(2, 1, 1);
 
@@ -44,7 +44,7 @@ function corrData = plotAuxCorr(hClust, selected)
         ylabel(hAx(2), auxLabel);
 
         iSite = hClust.clusterSites(iCluster);
-        iTitle = sprintf('Cluster %d (Site %d, Chan %d): Corr=%0.3f', iCluster, iSite, hCfg.siteMap(iSite), auxChanCorr(iCluster));
+        iTitle = sprintf('Unit %d (Site %d, Chan %d): Corr=%0.3f', iCluster, iSite, hCfg.siteMap(iSite), auxChanCorr(iCluster));
         title(iTitle);
         set(hAx, 'XLim', auxTimes([1,end]));
         grid on;

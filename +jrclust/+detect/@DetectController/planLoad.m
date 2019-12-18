@@ -1,6 +1,6 @@
 function [nLoads, nSamplesLoad, nSamplesFinal] = planLoad(obj, hRec)
     %PLANLOAD Get number of samples to load in each chunk of a file
-    nBytesSubset = subsetBytes(hRec, obj.hCfg.loadTimeLimits);
+    nBytesSubset = subsetBytes(hRec, obj.hCfg.loadTimeLimits*obj.hCfg.sampleRate);
 
     bps = jrclust.utils.typeBytes(obj.hCfg.dataType);
 

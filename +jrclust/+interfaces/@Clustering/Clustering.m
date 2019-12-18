@@ -16,8 +16,15 @@ classdef (Abstract) Clustering < handle
         sRes;               % sorting results
     end
 
+    %% DETECTION RESULTS (IMMUTABLE)
+    properties (Dependent, Transient)
+        detectedOn;         % timestamp, when spikes were detected
+        nSpikes;            % number of spikes detected
+    end
+
     %% SORTING DATA (MUTABLE)
     properties (SetObservable)
+        annotatedOnly;      % IDs of units which have annotations
         clusterCentroids;   % centroids of clusters on the probe
         clusterNotes;       % notes on clusters
         clusterSites;       % mode site per cluster
@@ -90,14 +97,30 @@ classdef (Abstract) Clustering < handle
             obj.unitFields = jsondecode(fread(fid, inf, '*char')');
             fclose(fid);
 
-            obj.history = cell(0, 4);
+            % get specific fields for this subclass
+            clsSplit = strsplit(class(obj), '.');
+            clsName = clsSplit{end};
+            fieldFile = fullfile(jrclust.utils.basedir(), 'json', [clsName, '.json']);
+            if exist(fieldFile, 'file') == 2
+                fid = fopen(fieldFile, 'r');
+                specificFields = jsondecode(fread(fid, inf, '*char')');
+                fclose(fid);
+
+                if isfield(specificFields, 'vectorFields')
+                    obj.unitFields.vectorFields = [obj.unitFields.vectorFields; specificFields.vectorFields];
+                end
+                if isfield(specificFields, 'otherFields')
+                    obj.unitFields.otherFields = jrclust.utils.mergeStructs(obj.unitFields.otherFields, specificFields.otherFields);
+                end
+            end
+
+            obj.history = containers.Map('KeyType', 'int32', 'ValueType', 'char'); % commit messages
         end
     end
 
     %% ABSTRACT METHODS
     methods (Abstract)
         autoMerge(obj);
-        editSeek(obj, seekTo);
         success = exportQualityScores(obj, zeroIndex, fGui);
         rmOutlierSpikes(obj);
     end
@@ -108,12 +131,28 @@ classdef (Abstract) Clustering < handle
 
     %% UTILITY METHODS
     methods (Access=protected, Hidden)
-        postOp(obj, updateMe);
         removeEmptyClusters(obj);
     end
 
     %% GETTERS/SETTERS
     methods
+        % annotatedOnly
+        function val = get.annotatedOnly(obj)
+            val = find(cellfun(@(c) ~isempty(c), obj.clusterNotes));
+        end
+
+        % detectedOn
+        function val = get.detectedOn(obj)
+            if isfield(obj.sRes, 'detectedOn')
+                val = obj.sRes.detectedOn;
+            else
+                val = now();
+            end
+        end
+        function set.detectedOn(obj, val)
+            obj.sRes.detectedOn = val;
+        end
+
         % hCfg
         function set.hCfg(obj, hc)
             failMsg = 'hCfg must be an object of type jrclust.Config';
@@ -135,7 +174,12 @@ classdef (Abstract) Clustering < handle
 
         % nEdits
         function ne = get.nEdits(obj)
-            ne = size(obj.history, 1) - 1;
+            ne = size(obj.history, 1);
+        end
+
+        % nSpikes
+        function val = get.nSpikes(obj)
+            val = numel(obj.spikeTimes);
         end
 
         % spikeAmps

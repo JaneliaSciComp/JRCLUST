@@ -1,11 +1,16 @@
-function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
+function hFigWav = plotSpikeWaveforms(hFigWav, hClust, maxAmp)
     %PLOTSPIKEWAVEFORMS Plot individual waveforms in the main view
-    [XData, YData, showSites] = deal(cell(hClust.nClusters, 1));
+    showSubset = hFigWav.figData.showSubset;
 
-    nSpikesCluster = zeros(hClust.nClusters, 1);
+    [XData, YData, showSites] = deal(cell(numel(showSubset), 1));
+    
+    hCfg = hClust.hCfg;
+    nSpikesCluster = zeros(numel(showSubset), 1);
     siteNeighbors = hCfg.siteNeighbors(:, hClust.clusterSites);
 
-    for iCluster = 1:hClust.nClusters
+    for iiCluster = 1:numel(showSubset)
+        iCluster = showSubset(iiCluster);
+
         try
             iSpikes = jrclust.utils.subsample(hClust.getCenteredSpikes(iCluster), hCfg.nSpikesFigWav);
             iSites = siteNeighbors(:, iCluster);
@@ -23,9 +28,9 @@ function hFigWav = plotSpikeWaveforms(hFigWav, hClust, hCfg, maxAmp)
                 iWaveforms = hClust.spikesFiltVolt(:, :, iSpikes);
             end
 
-            [YData{iCluster}, XData{iCluster}] = wfToPlot(iWaveforms, iCluster, iSites, maxAmp, hCfg);
-            showSites{iCluster} = iSites;
-            nSpikesCluster(iCluster) = size(iWaveforms, 3);
+            [YData{iiCluster}, XData{iiCluster}] = wfToPlot(iWaveforms, iiCluster, iSites, maxAmp, hCfg);
+            showSites{iiCluster} = iSites;
+            nSpikesCluster(iiCluster) = size(iWaveforms, 3);
         catch ME
             warning('Can''t plot cluster %d: %s', iCluster, ME.message);
         end
@@ -58,7 +63,7 @@ function [YData, XData] = wfToPlot(waveforms, iCluster, iSites, maxAmp, hCfg)
     YData = waveforms(:);
 
     % x values are samples offset by cluster number
-    XData = jrclust.views.getXRange(iCluster, hCfg);
+    XData = jrclust.views.getXRange(iCluster, size(waveforms, 1), hCfg);
     XData = repmat(XData(:), [1, nSites * nSpikes]);
     XData = XData(:);
 end

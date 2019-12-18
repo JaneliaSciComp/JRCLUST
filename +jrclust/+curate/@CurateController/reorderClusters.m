@@ -8,9 +8,11 @@ function reorderClusters(obj, by)
 
     if issorted(argsort)
         jrclust.utils.qMsgBox('Clusters already in order');
+        return;
     else
         nChanged = sum(argsort(:) ~= (1:obj.hClust.nClusters)');
         jrclust.utils.qMsgBox(sprintf('%d clusters changed', nChanged));
+        obj.showSubset = find(ismember(argsort, obj.showSubset));
     end
 
     obj.updateFigWav();

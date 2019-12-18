@@ -69,38 +69,36 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
     %% LIFECYCLE
     methods
-        function obj = DensityPeakClustering(sRes, dRes, hCfg)
-            fid = fopen(fullfile(jrclust.utils.basedir(), 'json', 'DensityPeakClustering.json'), 'r');
-            dpFields = jsondecode(fread(fid, inf, '*char')');
-            fclose(fid);
-            obj.unitFields.vectorFields = [obj.unitFields.vectorFields; dpFields.vectorFields];
+        function obj = DensityPeakClustering(hCfg, sRes, dRes)
+            if nargin < 2
+                sRes = struct();
+            end
+            if nargin < 3
+                dRes = struct();
+            end
 
             obj.dRes = dRes;
+            obj.sRes = sRes;
             obj.hCfg = hCfg;
-            isImport = obj.tryImport(sRes);
 
-            if ~isImport
-                obj.sRes = sRes;
+            if isfield(sRes, 'spikeClusters')
                 obj.spikeClusters = obj.initialClustering;
-            end
 
-            % these fields are mutable so we need to store copies in obj
-            if isfield(sRes, 'clusterCenters')
-                obj.clusterCenters = sRes.clusterCenters;
-            else
-                obj.clusterCenters = [];
-            end
-            if isfield(sRes, 'clusterCentroids')
-                obj.clusterCentroids = sRes.clusterCentroids;
-            else
-                obj.clusterCentroids = [];
-            end
+                % these fields are mutable so we need to store copies in obj
+                if isfield(sRes, 'clusterCenters')
+                    obj.clusterCenters = sRes.clusterCenters;
+                else
+                    obj.clusterCenters = [];
+                end
 
-            if ~isImport
-                obj.clearNotes();
-                obj.refresh(1, []);
-                commitMsg = sprintf('%s;initial commit', datestr(now, 31));
-                obj.commit(commitMsg);
+                if isfield(sRes, 'clusterCentroids')
+                    obj.clusterCentroids = sRes.clusterCentroids;
+                else
+                    obj.clusterCentroids = [];
+                end
+
+                obj.syncHistFile();
+                obj.commit(obj.spikeClusters, struct(), 'initial commit');
             end
         end
     end
@@ -109,8 +107,6 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
     methods (Access=protected, Hidden)
         [sites1, sites2, sites3] = getSecondaryPeaks(obj);
         nMerged = mergeBySim(obj);
-        postOp(obj, updateMe);
-        success = tryImport(obj, sRes);
     end
 
     %% GETTERS/SETTERS
@@ -231,7 +227,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
 
         % siteThresh
         function st = get.siteThresh(obj)
-            if isfield(obj.dRes, 'meanSiteThresh')
+            if isfield(obj.dRes, 'meanSiteThresh') && ~isempty(obj.dRes.meanSiteThresh)
                 st = obj.dRes.meanSiteThresh;
             elseif isfield(obj.dRes, 'siteThresh') % backwards compatibility
                 st = obj.dRes.siteThresh;

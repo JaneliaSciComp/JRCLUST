@@ -23,12 +23,20 @@ function S = metaToStruct(filename)
         if key(1) == '~'
             key(1) = [];
         end
+        
         try
             eval(sprintf('%s = ''%s'';', key, vals{i}));
-            eval(sprintf('num = str2double(%s);', key));
-            if ~isnan(num)
-                eval(sprintf('%s = num;', key));
+            switch key
+                case {'acqMnMaXaDw', 'snsMnMaXaDw', 'acqApLfSy', 'snsApLfSy'}
+                    eval(sprintf('%s = cellfun(@str2double, strsplit(%s, '',''));', key, key));
+
+                otherwise
+                        eval(sprintf('num = str2double(%s);', key));
+                        if ~isnan(num)
+                            eval(sprintf('%s = num;', key));
+                        end
             end
+
             eval(sprintf('S = setfield(S, ''%s'', %s);', key, key));
         catch ME
             error('error reading %s: %s', filename, ME.message);

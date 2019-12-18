@@ -17,7 +17,7 @@ function toggleRaw(obj, hMenu)
     % replot
     obj.updateFigWav();
     obj.updateFigSim();
-    obj.updateSelect(obj.selected);
+    obj.updateSelect(obj.selected, 1);
 
     if obj.hasFig('FigWav')
         hFigWav = obj.hFigs('FigWav');

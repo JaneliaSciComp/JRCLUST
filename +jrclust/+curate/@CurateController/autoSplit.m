@@ -145,7 +145,7 @@ function autoSplit(obj, multisite)
                                                     'Callback', @(hO, hE) manualSplit(hFigSplit, [2 3]));
 
     hFigSplit.figData.finished = 0;
-    hFigSplit.figData.iSite = iSite;
+    hFigSplit.figData.currentSite = obj.currentSite;
     hFigSplit.figData.refracInt = obj.hCfg.refracInt/1000;
     while 1
         [assigns, pcaFeatures] = doAutoSplit(sampledTraces, [double(clusterTimes) double(localVpp')], hFigSplit); %TW
@@ -153,7 +153,7 @@ function autoSplit(obj, multisite)
         hFigSplit.figData.clusterTimes = double(clusterTimes)/obj.hCfg.sampleRate;
         hFigSplit.figData.localVpp = double(localVpp');
         hFigSplit.figData.assignPart = arrayfun(@(i) find(assigns == i)', 1:max(assigns), 'UniformOutput', 0);
-        hFigSplit.figData.sampledTraces = localSpikes;
+        hFigSplit.figData.localSpikes = localSpikes;
 
         jrclust.utils.tryClose(hBox);
 
@@ -171,8 +171,8 @@ function autoSplit(obj, multisite)
     hFigSplit.close();
 
     obj.isWorking = 0;
-    if ~isempty(assignPart)
-        obj.splitCluster(iCluster, assignPart);
+    if numel(assignPart) > 1
+        obj.splitCluster(iCluster, assignPart(2:end));
     end
 end
 
@@ -181,7 +181,8 @@ function [assigns, pcaFeatures] = doAutoSplit(sampledSpikes, spikeFeatures, hFig
     %DOAUTOSPLIT
     % TODO: ask users number of clusters and split multi-way
     %Make automatic split of clusters using PCA + hierarchical clustering
-    [~, pcaFeatures, ~] = pca(double(sampledSpikes'), 'Centered', 1, 'NumComponents', 3);
+    [~, pcaFeatures, ~] = pca(double(sampledSpikes'), 'Centered', 1, ...
+                              'NumComponents', 3, 'Algorithm', 'eig');
     combinedFeatures = [spikeFeatures pcaFeatures];
     nSpikes = size(sampledSpikes, 2);
 
@@ -233,7 +234,7 @@ function updateSplitPlots(hFigSplit)
     clusterTimes = hFigSplit.figData.clusterTimes;
     localVpp = hFigSplit.figData.localVpp;
     pcaFeatures = hFigSplit.figData.pcaFeatures;
-    sampledTraces = hFigSplit.figData.sampledTraces;
+    localSpikes = hFigSplit.figData.localSpikes;
     refracInt = hFigSplit.figData.refracInt;
 
     nSplits = numel(assignPart);
@@ -389,7 +390,7 @@ function updateSplitPlots(hFigSplit)
         partSpikes = assignPart{i};
         hFigSplit.addPlot(sprintf('traces-%d', i), @plot, ...
                           hFigSplit.hAxes('meanwf'), ...
-                          sampledTraces(:, randsample(partSpikes, min(numel(partSpikes), nSpikesPlot))), ...
+                          localSpikes(:, randsample(partSpikes, min(numel(partSpikes), nSpikesPlot))), ...
                           'Color', [0.75 0.75 0.75], 'LineWidth', 0.5);
 
         hFigSplit.axApply('meanwf', @hold, 'on');
@@ -403,7 +404,7 @@ function updateSplitPlots(hFigSplit)
         partSpikes = assignPart{i};
         hFigSplit.addPlot(sprintf('traces-%d', i), @plot, ...
                           hFigSplit.hAxes('meanwf'), ...
-                          sampledTraces(:, randsample(partSpikes, min(numel(partSpikes), nSpikesPlot))), ...
+                          localSpikes(:, randsample(partSpikes, min(numel(partSpikes), nSpikesPlot))), ...
                           'Color', iColor, 'LineWidth', 0.5);
 
         hFigSplit.axApply('meanwf', @hold, 'on');
@@ -416,7 +417,7 @@ function updateSplitPlots(hFigSplit)
 
         hFigSplit.addPlot(sprintf('mean-%d', i), @plot, ...
                           hFigSplit.hAxes('meanwf'), ...
-                          mean(sampledTraces(:, partSpikes), 2), ...
+                          mean(localSpikes(:, partSpikes), 2), ...
                           'Color', [0.5 0.5 0.5], 'LineWidth', 2);
     end
 
@@ -427,14 +428,14 @@ function updateSplitPlots(hFigSplit)
 
         hFigSplit.addPlot(sprintf('mean-%d', i), @plot, ...
                           hFigSplit.hAxes('meanwf'), ...
-                          mean(sampledTraces(:, partSpikes), 2), ...
+                          mean(localSpikes(:, partSpikes), 2), ...
                           'Color', iColor, 'LineWidth', 2);
     end
 
     hFigSplit.axApply('meanwf', @hold, 'off');
     hFigSplit.axApply('meanwf', @xlabel, 'Sample');
     hFigSplit.axApply('meanwf', @ylabel, 'Amplitude (\muV)');
-    hFigSplit.axApply('meanwf', @title, sprintf('Mean waveform on site %d', hFigSplit.figData.iSite));
+    hFigSplit.axApply('meanwf', @title, sprintf('Mean waveform on site %d', hFigSplit.figData.currentSite));
 end
 
 function manualSplit(hFigSplit, pcPair)

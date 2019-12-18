@@ -9,7 +9,7 @@ end
 
 %% LOCAL FUNCTIONS
 function hFigHist = plotFigHist(hFigHist, hClust, hCfg, selected)
-    %DOPLOTFIGHIST Plot ISI histogram
+    %PLOTFIGHIST Plot ISI histogram
     if numel(selected) == 1
         iCluster = selected(1);
         jCluster = iCluster;
@@ -38,10 +38,10 @@ function hFigHist = plotFigHist(hFigHist, hClust, hCfg, selected)
 
     if iCluster ~= jCluster
         YData2 = getISIHistogram(jCluster, XData, hClust, hCfg);
-        hFigHist.axApply('default', @title, sprintf('Cluster %d (black) vs. %d (red)', iCluster, jCluster));
+        hFigHist.axApply('default', @title, sprintf('Unit %d (black) vs. Unit %d (red)', iCluster, jCluster));
         hFigHist.updatePlot('hPlot2', XData, YData2);
     else
-        hFigHist.axApply('default', @title, sprintf('Cluster %d', iCluster));
+        hFigHist.axApply('default', @title, sprintf('Unit %d', iCluster));
         hFigHist.clearPlot('hPlot2');
     end
 end

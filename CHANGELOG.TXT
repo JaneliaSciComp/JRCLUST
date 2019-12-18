@@ -1,3 +1,47 @@
+06 Nov 2019
+
+- Fixes out-of-memory error when reverting large histories.
+- Fixes out-of-bounds regression when deleting or merging the last cluster.
+
+05 Nov 2019
+
+- Display a more useful message when failing to revert history changes.
+- Transient or Dependent properties are no longer saved or loaded from _res.mat.
+
+01 Nov 2019
+
+- New-style probe configurations are supported (alongside old-style).
+- Probe plot displays multishank probes in subplots.
+
+31 Oct 2019
+
+- Unit subset selection supported (annotated-only and non-annotated-only units so far). Use, e.g., "View > Display annotated units only" to enable.
+- Small bug fixes and performance improvements.
+
+10 Oct 2019
+
+- Phy-formatted SpyKING CIRCUS results can be imported with `jrc import-spyking-circus /path/to/phy/output/`.
+
+9 Oct 2019
+
+- Export of results struct to workspace now controlled by parameter `exportResults`.
+
+3 Sep 2019
+
+- Results can be exported to NWB format with jrc export-nwb /path/to/my/params.prm
+
+30 Aug 2019
+
+- Autodelete implemented for TemplateClustering.
+
+29 Aug 2019
+
+- Splitting from FigProj selects all spikes, not just plotted spikes, within polygon.
+
+25 Jul 2019
+
+- Revamp history mechanism.
+
 4 Apr 2019
 
 - Kilosort importer reads from NPY files instead of rez.mat (npy-matlab is required for this feature)

@@ -26,7 +26,7 @@ function hJRC_ = jrc(varargin)
 
     if nargout > 0
         hJRC_ = hJRC;
-    elseif ~isempty(hJRC.res) % export results to workspace
+    elseif ~isempty(hJRC.res) && hJRC.hCfg.exportResults % export results to workspace
         jrclust.utils.exportToWorkspace(struct('res', hJRC.res), 0);
     end
 

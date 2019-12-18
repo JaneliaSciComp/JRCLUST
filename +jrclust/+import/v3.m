@@ -112,23 +112,38 @@ function [hCfg, res] = v3(filename)
     % rename spkraw, spkwav, spkfet
     spkraw = jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_spkraw.jrc');
     if exist(spkraw, 'file') == 2
-        renameFile(spkraw, jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_raw.jrc'));
+        renameFile(spkraw, hCfg.rawFile);
+        fid = fopen(hCfg.rawFile, 'r');
+        res.spikesRaw = fread(fid, '*int16');
+        fclose(fid);
+        res.spikesRaw = reshape(res.spikesRaw, res.rawShape);
     else
         warning('Could not find file ''%s''', spkraw);
+        res.spikesRaw = [];
     end
 
     spkwav = jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_spkwav.jrc');
     if exist(spkwav, 'file') == 2
-        renameFile(spkwav, jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_filt.jrc'));
+        renameFile(spkwav, hCfg.filtFile);
+        fid = fopen(hCfg.filtFile, 'r');
+        res.spikesFilt = fread(fid, '*int16');
+        fclose(fid);
+        res.spikesFilt = reshape(res.spikesFilt, res.filtShape);
     else
         warning('Could not find file ''%s''', spkwav);
+        res.spikesFilt = [];
     end
 
     spkfet = jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_spkfet.jrc');
     if exist(spkfet, 'file') == 2
-        renameFile(spkfet, jrclust.utils.subsExt(strrep(filename_, '_jrc', ''), '_features.jrc'));
+        renameFile(spkfet, hCfg.featuresFile);
+        fid = fopen(hCfg.featuresFile, 'r');
+        res.spikeFeatures = fread(fid, '*single');
+        fclose(fid);
+        res.spikeFeatures = reshape(res.spikeFeatures, res.featuresShape);
     else
         warning('Could not find file ''%s''', spkfet);
+        res.spikeFeatures = [];
     end
 
     % construct sRes
@@ -242,7 +257,7 @@ function [hCfg, res] = v3(filename)
             end
         end
 
-        hClust = jrclust.sort.DensityPeakClustering(sRes, res, hCfg);
+        hClust = jrclust.sort.DensityPeakClustering(hCfg, sRes, res);
         msgs = hClust.inconsistentFields();
         assert(isempty(msgs), strjoin(msgs, ', '));
 

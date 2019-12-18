@@ -8,7 +8,6 @@ function hFigMap = plotFigMap(hFigMap, hClust, hCfg, selected)
         hFigMap.addAxes('default');
         [XData, YData] = getAllCoordinates(hCfg);
         hFigMap.addPlot('hPatch', @patch, XData, YData, vpp, 'EdgeColor', 'k', 'FaceColor', 'flat');
-%         hFigMap.axApply('default', @axis, [min(XData(:)), max(XData(:)), min(YData(:)), max(YData(:))]);
         hFigMap.axApply('default', @colormap, 'hot');
         hFigMap.addPlot('hText', @text, hCfg.siteLoc(:, 1), hCfg.siteLoc(:, 2), ...
                         arrayfun(@(i) num2str(i), 1:hCfg.nSites, 'UniformOutput', 0), ...
@@ -20,7 +19,7 @@ function hFigMap = plotFigMap(hFigMap, hClust, hCfg, selected)
         hFigMap.plotApply('hPatch', @set, 'CData', vpp);
     end
 
-    hFigMap.axApply('default', @title, sprintf('Max: %0.1f \\muVpp', max(clusterVpp)));
+    hFigMap.axApply('default', @title, sprintf('Unit %d; Max: %0.1f \\muVpp', selected(1), max(clusterVpp)));
     hFigMap.axApply('default', @caxis, [0, max(clusterVpp)]);
 
     % set limits
@@ -29,7 +28,6 @@ function hFigMap = plotFigMap(hFigMap, hClust, hCfg, selected)
                                        max(XData(:)) + hCfg.umPerPix, ...
                                        min(YData(:)) - hCfg.umPerPix, ...
                                        max(YData(:)) + hCfg.umPerPix]);
-    %hFigMap.axApply('default', @set, 'YLim', [min(YData(:)) max(YData(:))]);
 end
 
 %% LOCAL FUNCTIONS

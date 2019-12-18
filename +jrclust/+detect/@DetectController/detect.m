@@ -74,19 +74,23 @@ function res = detect(obj)
         res.spikesFilt2 = cat(3, res.spikesFilt2, recData.spikesFilt2);
         res.spikesFilt3 = cat(3, res.spikesFilt3, recData.spikesFilt3);
         if isfield(recData, 'spikeFeatures')
-            res.spikeFeatures = cat(3, res.spikeFeatures, recData.spikeFeatures);
+            if isempty(res.spikeFeatures)
+                res.spikeFeatures = recData.spikeFeatures;
+            else
+                res.spikeFeatures = cat(3, res.spikeFeatures, recData.spikeFeatures);
+            end
         end
 
         % update rawShape, filtShape
         if isempty(res.rawShape)
             res.rawShape = recData.rawShape;
         else
-            res.rawShape(3) = res.rawShape(3) + size(recData.rawShape, 3);
+            res.rawShape(3) = res.rawShape(3) + recData.rawShape(3);
         end
         if isempty(res.filtShape)
             res.filtShape = recData.filtShape;
         else
-            res.filtShape(3) = res.filtShape(3) + size(recData.filtShape, 3);
+            res.filtShape(3) = res.filtShape(3) + recData.filtShape(3);
         end
 
         recOffset = recOffset + hRec.nSamples;
@@ -101,12 +105,21 @@ function res = detect(obj)
     end
 
     % load in spikesRaw, spikesFilt
-    fid = fopen(obj.hCfg.rawFile, 'r');
-    res.spikesRaw = reshape(fread(fid, inf, '*int16'), res.rawShape);
-    fclose(fid);
-    fid = fopen(obj.hCfg.filtFile, 'r');
-    res.spikesFilt = reshape(fread(fid, inf, '*int16'), res.filtShape);
-    fclose(fid);
+    if ~isempty(res.rawShape)
+        fid = fopen(obj.hCfg.rawFile, 'r');
+        res.spikesRaw = reshape(fread(fid, inf, '*int16'), res.rawShape);
+        fclose(fid);
+    else
+        res.spikesRaw = zeros(0, 0, 0, 'int16');
+    end
+
+    if ~isempty(res.filtShape)
+        fid = fopen(obj.hCfg.filtFile, 'r');
+        res.spikesFilt = reshape(fread(fid, inf, '*int16'), res.filtShape);
+        fclose(fid);
+    else
+        res.spikesFilt = zeros(0, 0, 0, 'int16');
+    end
 
     % compute features from all spikes over all recordings
     if obj.hCfg.getOr('extractAfterDetect', 0) || strcmp(obj.hCfg.clusterFeature, 'gpca')
@@ -120,30 +133,30 @@ function res = detect(obj)
     % compute the mean of the siteThresh from each recording
     res.meanSiteThresh = mean(single(res.siteThresh), 2);
 
-    % spike sites
-    res.spikeSites = res.centerSites(:, 1);
-    if size(res.centerSites, 2) > 1
-        res.spikeSites2 = res.centerSites(:, 2);
+    % spike sites/spikesBySite
+    nSites = obj.hCfg.nSites;
+
+    if size(res.centerSites, 2) > 0
+        res.spikeSites = res.centerSites(:, 1);
+        res.spikesBySite = arrayfun(@(iSite) find(res.centerSites(:, 1) == iSite), 1:nSites, 'UniformOutput', 0);
     else
-        res.spikeSites2 = [];
-    end
-    if size(res.centerSites, 2) > 2
-        res.spikeSites3 = res.centerSites(:, 3);
-    else
-        res.spikeSites3 = [];
+        res.spikeSites = [];
+        res.spikesBySite = cell(1, nSites);
     end
 
-    % spikes by site
-    nSites = obj.hCfg.nSites;
-    res.spikesBySite = arrayfun(@(iSite) find(res.centerSites(:, 1) == iSite), 1:nSites, 'UniformOutput', 0);
-    if size(res.centerSites, 2) >= 2
+    if size(res.centerSites, 2) > 1
+        res.spikeSites2 = res.centerSites(:, 2);
         res.spikesBySite2 = arrayfun(@(iSite) find(res.centerSites(:, 2) == iSite), 1:nSites, 'UniformOutput', 0);
     else
+        res.spikeSites2 = [];
         res.spikesBySite2 = cell(1, nSites);
     end
-    if size(res.centerSites, 2) == 3
+
+    if size(res.centerSites, 2) > 2
+        res.spikeSites3 = res.centerSites(:, 3);
         res.spikesBySite3 = arrayfun(@(iSite) find(res.centerSites(:, 3) == iSite), 1:nSites, 'UniformOutput', 0);
     else
+        res.spikeSites3 = [];
         res.spikesBySite3 = cell(1, nSites);
     end
 

@@ -51,7 +51,7 @@ classdef SortController < handle
 
             res = jrclust.sort.assignClusters(dRes, res, obj.hCfg);
             res.initialClustering = res.spikeClusters;
-            hClust = jrclust.sort.DensityPeakClustering(res, dRes, obj.hCfg);
+            hClust = jrclust.sort.DensityPeakClustering(obj.hCfg, res, dRes);
             hClust.autoMerge();
 
             res.hClust = hClust;

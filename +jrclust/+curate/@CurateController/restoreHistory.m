@@ -12,19 +12,25 @@ function restoreHistory(obj, entryIndex)
             case 'Yes'
                 hBox = jrclust.utils.qMsgBox('Reverting your history... (this closes automatically)', 0, 1);
                 obj.isWorking = 1;
+                success = 0;
+
                 try
-                    obj.hClust.revert(entryIndex-1);
+                    success = obj.hClust.revert(entryIndex);
+                    obj.showSubset = 1:obj.hClust.nClusters;
                 catch ME
                     warning('Failed to revert: %s', ME.message);
                 end
+
                 obj.isWorking = 0; % in case updateSelect needs to zoom
+                jrclust.utils.tryClose(hBox);
 
                 % success; replot
-                jrclust.utils.tryClose(hBox);
-                obj.updateFigWav();
-                obj.updateFigRD(); % centers changed, need replotting
-                obj.updateFigSim();
-                obj.updateSelect(1);
+                if success
+                    obj.updateFigWav();
+                    obj.updateFigRD(); % centers changed, need replotting
+                    obj.updateFigSim();
+                    obj.updateSelect(1);
+                end
 
             otherwise
                 return;

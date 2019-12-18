@@ -57,7 +57,7 @@ In general, usage goes like
 
 .. code-block:: matlab
 
-   jrc COMMAND ARG1 ARG2 ...
+   jrc COMMAND REQUIRED\_ARG1 REQUIRED\_ARG2 [OPTIONAL\_ARGS ...]
 
 where ``COMMAND`` is described below.
 
@@ -78,10 +78,11 @@ Pipeline commands
    (Replace ``myparams`` with a unique name of your choosing.)
    Output files:
 
-   - myparams\_res.mat: A MAT-file containing detection results
-   - myparams\_filt.jrc (filtered spike traces)
-   - myparams\_raw.jrc (raw spike traces)
-   - myparams\_features.jrc (computed features)
+   - *myparams\_res.mat*: A MAT-file containing detection results
+   - *myparams\_filt.jrc* (filtered spike traces)
+   - *myparams\_raw.jrc* (raw spike traces)
+   - *myparams\_features.jrc* (computed features)
+   - *myparams\_hist.jrc* (operation history)
 
    See :ref:`io-files` for details.
 
