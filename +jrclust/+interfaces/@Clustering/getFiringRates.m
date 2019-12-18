@@ -1,6 +1,6 @@
 function rates = getFiringRates(obj, clusters, nSamples)
     %GETFIRINGRATES Compute firing rates for specified clusters
-    if nargin < 2
+    if nargin < 2 || isempty(clusters)
         clusters = 1:obj.nClusters;
     end
     if nargin < 3 || isempty(nSamples)
