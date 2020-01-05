@@ -1,142 +1,64 @@
-% Adrian's JRCLUST parameters 
-% empirically good for brody Lab clustering with our 4 dedicated analysis computers running locally
-% For a description of these parameters, including legal options, see https://jrclust.readthedocs.io/en/latest/parameters/index.html
+% JRCLUST parameters (default parameter set)
+% For a description of these parameters, including default and legal values, see https://jrclust.readthedocs.io/en/latest/parameters/index.html
 
 % USAGE PARAMETERS
-batchMode = 1; % Suppress message boxes in favor of console messages
-verbose = 1; % (formerly fVerbose) Be chatty when processing
-
-% EXECUTION PARAMETERS
-gpuLoadFactor = 4; % GPU memory usage factor (Use 1/gpuLoadFactor amount of GPU memory)
-maxBytesLoad = 1717986918; % (formerly MAX_BYTES_LOAD) Maximum number of bytes to load into memory
-maxSecLoad = []; % (formerly MAX_LOAD_SEC) Maximum sample duration (in s) to load into memory (Overrides maxBytesLoad if nonempty)
-nThreadsGPU = 256; % (formerly nThreads) Number of GPU threads to use for clustering
-ramToGPUFactor = 24; % (formerly nLoads_gpu) Ratio of RAM to GPU memory
-randomSeed = 0; % Seed for the random number generator
-useGPU = 1; % (formerly fGpu) Use GPU where appropriate
-useParfor = 1; % (formerly fParfor) Use parfor where appropriate
+outputDir = ''; % Directory in which to place output files (Will output to the same directory as this file if empty)
 
 % PROBE PARAMETERS
-probePad = [12, 12]; % (formerly vrSiteHW) Recording contact pad size (in m) (Height x width)
+probePad = [12, 12]; % (formerly vrSiteHW) Recording contact pad size (in μm) (Height x width)
+shankMap = []; % (formerly viShank_site) Shank ID of each site
+siteLoc = []; % (formerly mrSiteXY) Site locations (in μm) (x values in the first column, y values in the second column)
+siteMap = []; % (formerly viSite2Chan) Map of channel index to site ID (The mapping siteMap(i) = j corresponds to the statement 'site i is stored as channel j in the recording')
 
 % RECORDING FILE PARAMETERS
-bitScaling = 2.3438; % (formerly uV_per_bit) ADC bit scaling factor (Conversion factor for ADC bit values to V)
+bitScaling = 0.30518; % (formerly uV_per_bit) ADC bit scaling factor (Conversion factor for ADC bit values to μV)
 dataType = 'int16'; % (formerly vcDataType) Format of raw recordings
 headerOffset = 0; % (formerly header_offset) Recording file header offset (in bytes)
+nChans = 384; % Number of channels stored in recording file (Distinct from the number of AP sites)
+rawRecordings = {''}; % Path or paths to raw recordings to sort
+recordingFormat = 'SpikeGLX'; % Format of raw recording
+sampleRate = 30000; % (formerly sRateHz) Sampling rate (in Hz) of raw recording
 
 % PREPROCESSING PARAMETERS
 blankThresh = []; % (formerly blank_thresh) Threshold (in MADs) above which to reject samples exceeding channel median after filtering
-filterType = 'ndiff'; % (formerly vcFilter) Type of filter to use on raw data
 filtOrder = 3; % Bandpass filter order
+filterType = 'ndiff'; % (formerly vcFilter) Type of filter to use on raw data
 freqLimBP = [300, 3000]; % (formerly freqLim) Frequency cutoffs for bandpass filter
 ignoreChans = []; % (formerly viChanZero) Channel numbers to ignore manually
 ignoreSites = []; % (formerly viSiteZero) Site IDs to ignore manually
-fftThresh = 0; % (formerly fft_thresh) Threshold (in MADs of power-frequency product) above which to remove frequency outliers
-freqLimNotch = []; % Frequency ranges to exclude for notch filter
-freqLimStop = []; % Frequency range to exclude for band-stop filter
-gainBoost = 1; % (formerly gain_boost) Scale factor to boost gain in raw recording (Used in filtering operation)
-loadTimeLimits = []; % (formerly tlim_load) Time range (in s) of samples to load at once (All samples are loaded if empty)
-nDiffOrder = 2; % (formerly nDiff_filt) Order for differentiator filter (Used if and only if filterType is 'sgdiff' or 'ndiff')
-nSamplesPad = 100; % (formerly nPad_filt) Number of samples to overlap between chunks in large files
-useElliptic = 1; % (formerly fEllip) Use elliptic (bandpass) filter if true (Uses Butterworth filter if false)
-userFiltKernel = []; % (formerly vnFilter_user) User-specified filter kernel (Ignored unless filterType is 'user')
 
 % SPIKE DETECTION PARAMETERS
-blankPeriod = 5; % (formerly blank_period_ms) Duration of blanking period (in ms) when the common mean exceeds blankThresh
 CARMode = 'mean'; % (formerly vcCommonRef) The meaning of 'average' in 'common average reference'
-evtDetectRad = 50; % (formerly maxDist_site_um) Maximum distance (in m) to search over for duplicate peaks
+blankPeriod = 5; % (formerly blank_period_ms) Duration of blanking period (in ms) when the common mean exceeds blankThresh
+evtDetectRad = 50; % (formerly maxDist_site_um) Maximum distance (in μm) to search over for duplicate peaks
 evtWindow = [-0.25, 0.75]; % (formerly spkLim_ms) Time range (in ms) of filtered spike waveforms, centered at the peak
-nSiteDir = 6.5; % (formerly maxSite) Number of neighboring sites to group in either direction (nSitesEvt is set to 1 + 2*nSiteDir - nSitesExcl)
-nSitesExcl = 6; % (formerly nSites_ref) Number of sites to exclude from the spike waveform group for feature extraction
+nSiteDir = []; % (formerly maxSite) Number of neighboring sites to group in either direction (nSitesEvt is set to 1 + 2*nSiteDir - nSitesExcl)
+nSitesExcl = []; % (formerly nSites_ref) Number of sites to exclude from the spike waveform group for feature extraction
 qqFactor = 5; % Spike detection threshold factor (Thr = qqFactor*med(abs(x-med(x)))/0.6745)
 refracInt = 0.25; % (formerly spkRefrac_ms) Spike refractory period (in ms)
-detectBipolar = 1; % (formerly fDetectBipolar) Detect positive as well as negative peaks
-evtManualThresh = []; % (formerly spkThresh_uV) Manually-set spike detection threshold (in V)
-evtWindowRaw = [-0.5, 1.5]; % (formerly spkLim_raw_ms) Time range (in ms) of raw spike waveforms, centered at the peak
-groupShank = 0; % (formerly fGroup_shank) Group all sites on the same shank if true
-minNeighborsDetect = 0; % (formerly nneigh_min_detect) Minimum number of sample neighbors exceeding threshold for a sample to be considered a peak
-realignTraces = 0; % (formerly fRealign_spk) Realign spike traces after subtracting local CAR (Realign if 1, perform subpixel interpolation if 2)
-spikeThreshMax = []; % (formerly spkThresh_max_uV) Maximum absolute amplitude (in V) permitted for spikes
-threshFile = ''; % (formerly vcFile_thresh) Path to .mat file storing the spike detection threshold (Created by preview GUI)
 
 % FEATURE EXTRACTION PARAMETERS
-clusterFeature = 'pca'; % (formerly vcFet) The feature to extract from your spike waveforms in order to cluster them 
-%% note: gpca doesn't do anything in the code now. maybe it did %% in v3?
-evtGroupRad = 75; % (formerly maxDist_site_spk_um) Maximum distance (in m) for extracting spike waveforms
+clusterFeature = 'pca'; % (formerly vcFet) The feature to extract from your spike waveforms in order to cluster them
+evtGroupRad = 75; % (formerly maxDist_site_spk_um) Maximum distance (in μm) for extracting spike waveforms
 nPCsPerSite = 1; % (formerly nPcPerChan) Number of principal components to compute per site
-extractAfterDetect = 0; % Extract features only after detecting all spikes across all files if true (This is effectively set to true if you specify clusterFeature='gpca')
-interpPC = 1; % (formerly fInterp_fet) Interpolate 1st principal vector to maximize projection of spikes if true
-nPeaksFeatures = 1; % (formerly nFet_use) Number of potential peaks to use when computing features
 
 % CLUSTERING PARAMETERS
+RDDetrendMode = 'global'; % (formerly vcDetrend_postclu) Detrending mode to apply to rho-delta values in order to determine cluster centers
 autoMergeBy = 'pearson'; % (formerly autoMergeCriterion) Metric to use for automerging clusters based on average waveform
 distCut = 2; % (formerly dc_percent) Percentile of pairwise distances between spikes on a site to use as a cutoff distance
-evtMergeRad = 35; % (formerly maxDist_site_merge_um) Maximum distance (in m) to consider for merging spike waveforms
+evtMergeRad = 35; % (formerly maxDist_site_merge_um) Maximum distance (in μm) to consider for merging spike waveforms
 log10DeltaCut = 0.6; % (formerly delta1_cut) Log10 of delta cutoff (Spikes with delta values below this cutoff will not be considered as cluster centers)
 log10RhoCut = -2.5; % (formerly rho_cut) Log10 of rho cutoff (Spikes with rho values below this cutoff will not be considered as cluster centers)
 maxUnitSim = 0.98; % (formerly maxWavCor) Threshold for merging two units having similar spike waveforms (Units with a similiarity score above this value will be merged)
-minClusterSize = 100; % (formerly min_count) Minimum number of spikes per cluster (Automatically set to the maximum of this value and twice the number of features)
+minClusterSize = 30; % (formerly min_count) Minimum number of spikes per cluster (Automatically set to the maximum of this value and twice the number of features)
 nClusterIntervals = 4; % (formerly nTime_clu) Number of intervals to divide the recording into around a spike (When clustering, take the 1/nClusterIntervals fraction of all spikes around a spiking event to compute distance)
-RDDetrendMode = 'global'; % (formerly vcDetrend_postclu) Detrending mode to apply to rho-delta values in order to determine cluster centers
-driftMerge = 1; % (formerly fDrift_merge) Compute multiple waveforms at three drift locations based on the spike position if true
-evtWindowMergeFactor = 1; % (formerly spkLim_factor_merge) Ratio of samples to take when computing correlation
-maxClustersSite = 20; % (formerly maxCluPerSite) Maximum number of cluster centers computed per site (Used if RDDetrendMode is 'local')
-meanInterpFactor = 1; % (formerly nInterp_merge) Interpolation factor for mean unit waveforms (Set to 1 to disable)
-minSitesWeightFeatures = 5; % (formerly min_sites_mask) Minimum number of sites to have if using weightFeatures (Ignored if weightFeatures is false)
-nPassesMerge = 10; % (formerly nRepeat_merge) Number of times to repeat automatic waveform-based merging
-outlierThresh = 7.5; % (formerly thresh_mad_clu) Threshold (in MADs) to remove outlier spikes for each cluster
-useGlobalDistCut = 0; % (formerly fDc_global) Use a global distance cutoff for all sites if true
-weightFeatures = 0; % (formerly fSpatialMask_clu) Weight display features by distance from site if true
-
-% CURATION PARAMETERS
-figList = {'FigCorr', 'FigHist', 'FigISI', 'FigMap', 'FigPos', 'FigProj', 'FigRD', 'FigSim', 'FigTime', 'FigWav'}; % List of tags of figures to display in feature view
-frFilterShape = 'triangle'; % (formerly filter_shape_rate) Kernel shape for temporal averaging (Used in estimation of the firing rate of a given unit)
-frPeriod = 2; % (formerly filter_sec_rate) Time period (in s) over which to determine firing rate (Used in estimation of the firing rate of a given unit)
-frSampleRate = 1000; % (formerly sRateHz_rate) Resampling rate (in Hz) for estimating the firing rate (Used in estimation of the firing rate of a given unit)
 
 % DISPLAY PARAMETERS
 dispTimeLimits = [0, 0.2]; % (formerly tlim) Time range (in ms) to display
 nSpikesFigProj = 500; % (formerly nShow_proj) Maximum number of spikes per cluster to display in the feature projection view
 nSpikesFigWav = 30; % (formerly nSpk_show) Maximum number of spikes per cluster to display generally
-colorMap = [0.5, 0.5, 0.5; 0, 0, 0; 1, 0, 0]; % (formerly mrColor_proj) RGB color map for background, primary selected, and secondary selected spikes (The first three values are the R values, the next three are the G values, and the last three are the B values.)
-corrRange = [0.75, 1]; % (formerly corrLim) Correlation score range to distinguish by color map
-dispFeature = 'pca'; % (formerly vcFet_show) Feature to display in the feature projection plot
-dispFilter = 'none'; % (formerly vcFilter_show) Filter to apply in traces plot
-maxAmp = 250; % Amplitude scale (in V)
-nSitesFigProj = 5; % Number of sites to show in feature projection view
-nSpikesFigISI = 200; % Maximum number of spikes to show in ISI view
-pcPair = [1, 2]; % Pair of PCs to display
-projTimeLimits = []; % (formerly tLimFigProj) Time range (in s) to display in feature projection view
-showRaw = 0; % (formerly fWav_raw_show) Show raw traces in waveform view if true
-showSpikeCount = 1; % (formerly fText) Show spike count per unit in waveform plot
-umPerPix = 20; % (formerly um_per_pix) Vertical site center-to-center spacing
 
 % TRIAL PARAMETERS
 psthTimeLimits = []; % (formerly tlim_psth) Time range (in s) over which to display PSTH
 trialFile = ''; % (formerly vcFile_trial) Path to file containing trial data (Can be .mat or .csv, must contain timestamps of trials in units of s)
-psthTimeBin = 0.01; % (formerly tbin_psth) Time bin (in s) for PSTH view
-psthXTick = 0.2; % (formerly xtick_psth) PSTH time tick mark spacing
-
-% VALIDATION PARAMETERS
-gtFile = ''; % (formerly vcFile_gt) Path to file containing ground-truth data
-
-% PREVIEW PARAMETERS
-nLoadsMaxPreview = 30; % (formerly nLoads_max_preview) Number of time segments to load in preview
-nSecsLoadPreview = 1; % (formerly sec_per_load_preview) Number of seconds to load in preview
-siteCorrThresh = 0; % (formerly thresh_corr_bad_site) Threshold to reject bad sites based on maximum correlation with neighboring sites (Set to 0 to disable)
-
-% TRACES PARAMETERS
-nSkip = 1; % (formerly nSkip_show) Show every nSkip samples when plotting traces
-nSegmentsTraces = 1; % (formerly nTime_traces) Number of time segments to display in traces view (A value of 1 shows one continuous time segment)
-
-% LFP PARAMETERS
-lfpSampleRate = 2500; % (formerly sRateHz_lfp) Sampling rate for LFP channels
-
-% AUX CHANNEL PARAMETERS
-auxChan = []; % (formerly iChan_aux) Auxiliary channel index
-auxFile = ''; % (formerly vcFile_aux) Path to file containing auxiliary channel
-auxLabel = 'Aux channel'; % (formerly vcLabel_aux) Label for auxiliary channel data
-auxSampleRate = []; % (formerly sRateHz_aux) Sample rate for auxiliary file
-auxScale = 1; % (formerly vrScale_aux) Scale factor for aux data
-nClustersShowAux = 10; % (formerly nClu_show_aux) Number of clusters to show in the aux vs. firing rate correlation
 
