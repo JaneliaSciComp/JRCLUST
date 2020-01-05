@@ -118,7 +118,7 @@ function loadParams(obj, filename)
             if flag
                 obj.setProp(paramName, val);
             else 
-                error(errMsg);
+                warning('Could not load a user-defined parameter. Using default instead.\nError was: %s\n', errMsg);
             end
         end
     end

@@ -24,13 +24,14 @@ function processArgs(obj)
         [~, ~, ext] = fileparts(configFile);
         if strcmpi(ext, '.prm')
             try
+                fprintf('Loading config file @ %s\n',configFile);
                 obj.hCfg = jrclust.Config(configFile);
                 % save imported config file
                 if obj.hCfg.isV3Import
                     obj.hCfg.save();
                 end
             catch ME
-                warning('Failed to load param file: %s\n----------\nError was: %s\n', configFile, ME.message);
+                warning('FATAL ERROR IN LOADING PARAM FILE. \nError was: %s\n',ME.message);
             end
         end
     end

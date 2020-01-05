@@ -45,7 +45,7 @@ function [flag, val, errMsg] = validateProp(obj, propname, val)
                 assert(hFun(val));
             end
         catch
-            errMsg = sprintf('Could not set "%s" because the following assertion (%s) failed on the user specified value.', propname, validData.postassert);
+            errMsg = sprintf('Could not set "%s" because the following assertion (%s) failed.', propname, validData.postassert);
             flag = 0;
         end              
         try
