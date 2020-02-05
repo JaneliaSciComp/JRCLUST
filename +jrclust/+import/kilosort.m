@@ -216,6 +216,9 @@ if ismember(hCfg.figList,'FigRD')
 end
 hCfg.corrRange = [0.75 1];
 
+% save out param file
+hCfg.save();
+
 %%% detect and extract spikes/features
 hDetect = jrclust.detect.DetectController(hCfg, spikeTimes, spikeSites);
 dRes = hDetect.detect();
