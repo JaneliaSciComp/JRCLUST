@@ -14,7 +14,7 @@ function splitCluster(obj, iCluster, unitPart)
     showSubset = obj.showSubset;
     mask = showSubset > iCluster;
     try
-        showSubset = [showSubset(~mask); iCluster+(1:numel(unitPart)); showSubset(mask) + numel(unitPart)];
+        showSubset = [showSubset(~mask); iCluster+(1:numel(unitPart))'; showSubset(mask) + numel(unitPart)];
     catch
         showSubset = [showSubset(~mask) iCluster+(1:numel(unitPart)) showSubset(mask) + numel(unitPart)];        
     end
