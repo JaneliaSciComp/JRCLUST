@@ -1,5 +1,9 @@
-function [hCfg, res] = kilosort(loadPath)
+function [hCfg, res] = kilosort(loadPath,confirm_flag)
 %KILOSORT Import a Kilosort session from NPY files
+
+if nargin<2
+    confirm_flag=true;
+end
 [hCfg, res] = deal([]);
 
 phyData = loadPhy(loadPath);
@@ -111,8 +115,9 @@ else
     hCfg.bitScaling = 1;
 end
 
+
 while 1
-    % confirm with the user
+    % confirm with the user if confirm_flag is true
     [~, sessionName, ~] = fileparts(hCfg.rawRecordings{1});
     configFile = fullfile(hCfg.outputDir, [sessionName, '.prm']);
 
@@ -130,11 +135,14 @@ while 1
                     num2str(hCfg.bitScaling), ...
                     num2str(hCfg.headerOffset), ...
                     hCfg.dataType};
-    dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
+    if confirm_flag
+        dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
+    else
+        dlgAns = dlgFieldVals;
+    end
     if isempty(dlgAns)
         return;
     end
-
     try
         if ~exist(dlgAns{1}, 'file')
             fclose(fopen(dlgAns{1}, 'w'));
@@ -189,7 +197,7 @@ while 1
 
     break;
 end
-
+    
 % remove out-of-bounds spike times
 d = dir(hCfg.rawRecordings{1});
 nSamples = d.bytes / jrclust.utils.typeBytes(hCfg.dataType) / hCfg.nChans;
