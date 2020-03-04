@@ -1,6 +1,6 @@
 [submodule "npy-matlab"]
 	path = npy-matlab
-	url = git@github.com:kwikteam/npy-matlab.git
+	url = https://github.com/kwikteam/npy-matlab.git
 [submodule "matnwb"]
 	path = matnwb
 	url = https://github.com/NeurodataWithoutBorders/matnwb.git
