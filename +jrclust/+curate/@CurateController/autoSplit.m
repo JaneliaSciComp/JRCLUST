@@ -181,13 +181,8 @@ function [assigns, pcaFeatures] = doAutoSplit(sampledSpikes, spikeFeatures, hFig
     %DOAUTOSPLIT
     % TODO: ask users number of clusters and split multi-way
     %Make automatic split of clusters using PCA + hierarchical clustering
-    try
-        [~, pcaFeatures, ~] = pca(double(sampledSpikes'), 'Centered', 1, ...
-            'NumComponents', 3, 'Algorithm', 'eig');
-    catch
-        [~, pcaFeatures, ~] = pca(double(sampledSpikes'), 'Centered', 1, ...
-            'NumComponents', 3, 'Algorithm', 'svd');
-    end
+    [~, pcaFeatures, ~] = pca(double(sampledSpikes'), 'Centered', 1, ...
+        'NumComponents', 3);
     combinedFeatures = [spikeFeatures pcaFeatures];
     nSpikes = size(sampledSpikes, 2);
 

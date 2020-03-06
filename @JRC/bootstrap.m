@@ -32,13 +32,13 @@ function bootstrap(obj, varargin)
             end
         end
         % set whether to ask user input 
-        if sum(cellfun(@(x) strcmp(x,'-noconfirm'), varargin))
+        if any(cellfun(@(x) strcmp(x,'-noconfirm'), varargin))
             ask=false;
         else
             ask=true;
         end
         % check whether user requires advanced parameters
-        if sum(cellfun(@(x) strcmp(x,'-advanced'), varargin))
+        if any(cellfun(@(x) strcmp(x,'-advanced'), varargin))
             advanced=true;
         else
             advanced=false;
@@ -162,15 +162,14 @@ function bootstrap(obj, varargin)
         break;
     end
 
-    if ask 
+    if ask
         dlgAns = questdlg('Would you like to export advanced parameters?', 'Bootstrap', 'No');
+    elseif advanced
+        dlgAns = 'Yes';
     else
-        if advanced
-            dlgAns = 'Yes';
-        else
-            dlgAns = 'No';
-        end
+        dlgAns = 'No';
     end
+    
     switch dlgAns
         case 'Yes'
             hCfg_.save('', 1);

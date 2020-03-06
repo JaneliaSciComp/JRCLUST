@@ -119,11 +119,11 @@ function [auxSamples, auxTimes] = loadAuxChannel(hCfg)
                 auxSamples = single(hRec.readRawROI(hCfg.auxChan, 1:hRec.nSamples))*hCfg.bitScaling*hCfg.auxScale;
                 auxRate = hCfg.getOr('auxRate', hCfg.sampleRate);
             catch % data not from SpikeGLX
-                auxData = load(hCfg.auxFile);
+                auxData = load(hCfg.auxFile); %load .mat file containing Aux data 
                 auxDataFields = fieldnames(auxData);
                 auxRateFieldIdx= ~cellfun(@isempty, cellfun(@(fn) strfind(fn,'Rate') |...
                     strfind(fn,'sampling'), auxDataFields,'UniformOutput', false));
-                if sum(auxRateFieldIdx) %there's a sampling rate field 
+                if any(auxRateFieldIdx) %there's a sampling rate field 
                     auxSamples = auxData.(auxDataFields{~auxRateFieldIdx});
                     auxRate = auxData.(auxDataFields{auxRateFieldIdx});
                 else %load as usual 
