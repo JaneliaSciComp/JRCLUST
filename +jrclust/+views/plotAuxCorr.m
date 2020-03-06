@@ -107,12 +107,33 @@ function [auxSamples, auxTimes] = loadAuxChannel(hCfg)
             auxRate = hCfg.getOr('auxRate', hCfg.sampleRate);
         case {'.dat', '.bin'}
             if isempty(hCfg.auxChan)
-                return;
+                try % ask where it is 
+                    hCfg.auxFile = fullfile(hCfg.outputDir,uigetfile({'*.mat;*.csv'},...
+                    'Select the Aux file',hCfg.outputDir));
+                catch
+                    return;
+                end
             end
-
-            hRec = jrclust.detect.newRecording(hCfg.auxFile, hCfg);
-            auxSamples = single(hRec.readRawROI(hCfg.auxChan, 1:hRec.nSamples))*hCfg.bitScaling*hCfg.auxScale;
-            auxRate = hCfg.getOr('auxRate', hCfg.sampleRate);
+            try
+                hRec = jrclust.detect.newRecording(hCfg.auxFile, hCfg);
+                auxSamples = single(hRec.readRawROI(hCfg.auxChan, 1:hRec.nSamples))*hCfg.bitScaling*hCfg.auxScale;
+                auxRate = hCfg.getOr('auxRate', hCfg.sampleRate);
+            catch % data not from SpikeGLX
+                auxData = load(hCfg.auxFile); %load .mat file containing Aux data 
+                auxDataFields = fieldnames(auxData);
+                auxRateFieldIdx= ~cellfun(@isempty, cellfun(@(fn) strfind(fn,'Rate') |...
+                    strfind(fn,'sampling'), auxDataFields,'UniformOutput', false));
+                if any(auxRateFieldIdx) %there's a sampling rate field 
+                    auxSamples = auxData.(auxDataFields{~auxRateFieldIdx});
+                    auxRate = auxData.(auxDataFields{auxRateFieldIdx});
+                else %load as usual 
+                    auxSamples = auxData.(auxDataFields{1});
+                    auxRate = hCfg.getOr('auxRate', hCfg.sampleRate);
+                end
+            end
+        case '.csv'
+                auxSamples = load(hCfg.auxFile);
+                auxRate = hCfg.getOr('auxRate', hCfg.sampleRate);
         otherwise
             jrclust.utils.qMsgBox(sprintf('hCfg.auxFile: unsupported file format: %s\n', auxExt));
         return;

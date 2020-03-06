@@ -17,3 +17,4 @@ docs/venv
 *.ipynb
 .vscode/
 read_Intan_RHD2000_file.m
+npy-matlab
