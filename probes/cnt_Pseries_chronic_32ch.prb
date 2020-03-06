@@ -1,0 +1,20 @@
+% Order of the probe sites in the recording file
+channels = [2 3 12 10 11 5 15 16 4 7 1 6 13 8 14 9 21 22 18 32 24 27 30 20 23 25 29 28 31 26 19 17];
+
+% Site coordinate (x,y) in micrometers
+geometry = [0.00 22.50 0.00 22.50 0.00 22.50 0.00 22.50 0.00 22.50 0.00 22.50 0.00 22.50 0.00 22.50 250.00 272.50 250.00 272.50 250.00 272.50 250.00 272.50 250.00 272.50 250.00 272.50 250.00 272.50 250.00 272.50;0.00 12.50 25.00 37.50 50.00 62.50 75.00 87.50 100.00 112.50 125.00 137.50 150.00 162.50 175.00 187.50 0.00 12.50 25.00 37.50 50.00 62.50 75.00 87.50 100.00 112.50 125.00 137.50 150.00 162.50 175.00 187.50]';
+
+% Reference sites are being excluded
+% ref_sites = [1 18 33 50 65 82 97 114]; % Specify the site numbers to exclude
+% channels(ref_sites) = [];  % Delete reference sites from the channels vector
+% geometry(ref_sites,:) = []; % Delete reference sites from the geometry matrix
+
+% Dimensions of the recording pad (height by width in micrometers).
+pad = [15 15]; % 
+
+% Shank number for each site #. For example shank=[1,1,1,1,2,2,2,2] will assign site 1-4 to shank 1 and site 5-8 to shank 2.
+shank = [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]; 
+
+% Default prm
+maxSite = [4]; % Used to calculate the number of sites to group spikes (nSites_spk = 1 + maxSite*2)
+um_per_pix = 25;  % Vertical site center-to-center spacing (used for display)
