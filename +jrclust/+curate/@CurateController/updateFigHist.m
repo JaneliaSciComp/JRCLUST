@@ -18,7 +18,7 @@ function hFigHist = plotFigHist(hFigHist, hClust, hCfg, selected)
         jCluster = selected(2);
     end
 
-    nBinsHist = 80; %TODO: put this in param file (maybe)
+    nBinsHist = 50; %TODO: put this in param file (maybe)
 
     XData = logspace(0, 3, nBinsHist);
     YData1 = getISIHistogram(iCluster, XData, hClust, hCfg);
