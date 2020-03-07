@@ -29,7 +29,7 @@ function spawnFigures(obj)
                 figTitle = 'Time correlation';                
             case 'FigRD'
                 if isa(obj.hClust,'jrclust.sort.TemplateClustering')
-                    warning('Skipping spawing of rho-delta plot because density-peak clustering was not used.');
+                    warning('Skipping spawning of rho-delta plot because density-peak clustering was not used.');
                     continue
                 end
                 figTitle = 'Unit rho-delta';                
