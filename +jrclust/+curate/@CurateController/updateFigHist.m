@@ -20,7 +20,7 @@ function hFigHist = plotFigHist(hFigHist, hClust, hCfg, selected)
 
     nBinsHist = 50; %TODO: put this in param file (maybe)
 
-    XData = logspace(0, 3, nBinsHist);
+    XData = logspace(0, 4, nBinsHist);
     YData1 = getISIHistogram(iCluster, XData, hClust, hCfg);
 
     % draw the plot
