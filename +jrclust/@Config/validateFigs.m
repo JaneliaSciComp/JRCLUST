@@ -7,6 +7,7 @@ function validateFigs(obj)
     else %% use default figure positions
         obj.figPos = defaultFigPos(obj.figList);
     end
+
     %% add back in required figs if they are missing
     requiredFigs = {'FigWav'};
     if ~all(ismember(requiredFigs,obj.figList))
@@ -22,47 +23,56 @@ function validateFigs(obj)
 end
 
 function figPos = defaultFigPos(figList)
+    figPos = cell(1, numel(figList));
+    hasFigRD = ismember('FigRD', figList);
+
     for f=1:length(figList)
        switch figList{f}
+           case 'FigCorr'
+               if hasFigRD
+                   figPos{f} = [.85 .25 .15 .25];
+               else
+                   figPos{f} = [.85 .2 .15 .27];
+               end
+               
+           case 'FigHist'
+               if hasFigRD
+                   figPos{f} = [.85 .75 .15 .25];
+               else
+                   figPos{f} = [.85 .73 .15 .27];
+               end
+
+           case 'FigISI'
+               if hasFigRD
+                   figPos{f} = [.85 .5 .15 .25];
+               else
+                   figPos{f} = [.85 .47 .15 .26];
+               end
+
+           case 'FigMap'
+               figPos{f} = [0 .5 .15 .5];
+
            case 'FigPos'
                figPos{f} = [0 0 .15 .5];
-           case 'FigMap'
-               figPos{f} = [0 .5 .15 .5];         
-           case 'FigWav'
-               figPos{f} = [.15 .2 .35 .8];         
+
            case 'FigProj'
-               figPos{f} = [.5 .2 .35 .5];              
+               figPos{f} = [.5 .2 .35 .5];
+
+           case 'FigRD'
+               figPos{f} = [.85 0 .15 .25];
+
            case 'FigSim'
-               figPos{f} = [.5 .7 .35 .3];                            
-           case 'FigRD'   
-               figPos{f} = [.85 0 .15 .25];  
-       end
-    end        
-    if ismember('FigRD',figList)
-        for f=1:length(figList)
-           switch figList{f}
-               case 'FigTime'
-                   figPos{f} = [.15 0 .85 .2];
-               case 'FigCorr'
-                   figPos{f} = [.85 .2 .15 .27];
-               case 'FigISI'
-                   figPos{f} = [.85 .47 .15 .26];
-               case 'FigHist'
-                   figPos{f} = [.85 .73 .15 .27];      
-           end
-        end                    
-    else
-        for f=1:length(figList)
-           switch figList{f}
-               case 'FigTime'
+               figPos{f} = [.5 .7 .35 .3];
+
+           case 'FigTime'
+               if hasFigRD
                    figPos{f} = [.15 0 .7 .2];
-               case 'FigCorr'
-                   figPos{f} = [.85 .25 .15 .25];  
-               case 'FigISI'
-                   figPos{f} = [.85 .5 .15 .25];        
-               case 'FigHist'
-                   figPos{f} = [.85 .75 .15 .25];          
-           end
-        end                    
+               else
+                   figPos{f} = [.15 0 .85 .2];
+               end
+
+           case 'FigWav'
+               figPos{f} = [.15 .2 .35 .8];
+       end
     end
 end
