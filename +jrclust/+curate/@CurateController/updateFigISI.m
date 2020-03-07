@@ -3,7 +3,11 @@ function updateFigISI(obj)
     if isempty(obj.selected) || ~obj.hasFig('FigISI')
         return;
     end
-    if numel(double(obj.hClust.spikeTimes(obj.hClust.spikesByCluster{obj.selected(1)})))>1 && (numel(obj.selected)<2 || numel(double(obj.hClust.spikeTimes(obj.hClust.spikesByCluster{obj.selected(2)})))>1)
+    nSpikes(1) = numel(obj.hClust.spikesByCluster{obj.selected(1)});
+    if numel(obj.selected)>1
+        nSpikes(2) = numel(obj.hClust.spikesByCluster{obj.selected(2)});
+    end    
+    if all(nSpikes>1)
         plotFigISI(obj.hFigs('FigISI'), obj.hClust, obj.hCfg, obj.selected);
     else
         clf(obj.hFigs('FigISI'));
