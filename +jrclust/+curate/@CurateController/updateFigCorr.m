@@ -18,8 +18,8 @@ function hFigCorr = plotFigCorr(hFigCorr, hClust, hCfg, selected)
         jCluster = selected(2);
     end
 
-    jitterMs = 0.3; % bin size for correlation plot
-    nLagsMs = 10; % show 25 msec
+    jitterMs = 0.5; % bin size for correlation plot
+    nLagsMs = 25; % show 25 msec
 
     jitterSamp = round(jitterMs*hCfg.sampleRate/1000); % 0.5 ms
     nLags = round(nLagsMs/jitterMs);
