@@ -28,11 +28,13 @@ function hFigSim = plotFigSim(hFigSim, hClust, hCfg, selected, showSubset)
                         'XTickLabel', xyLabels, ...
                         'YTick', 1:nClusters, ...
                         'YTickLabel', xyLabels);
-
-        if isa(hClust, 'jrclust.sort.TemplateClustering')
-            hFigSim.figData.figView = 'template'; % start out showing template sim scores
-        else
-            hFigSim.figData.figView = 'waveform';
+        
+        if ~isfield(hFigSim.figData,'figView')
+            if isa(hClust, 'jrclust.sort.TemplateClustering')
+                hFigSim.figData.figView = 'template'; % start out showing template sim scores
+            else
+                hFigSim.figData.figView = 'waveform';
+            end
         end
 
         hFigSim.axApply('default', @axis, [0 nClusters 0 nClusters] + .5);
