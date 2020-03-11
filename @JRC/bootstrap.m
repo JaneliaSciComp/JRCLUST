@@ -31,6 +31,18 @@ function bootstrap(obj, varargin)
                     binfile = cellfun(@(f) jrclust.utils.subsExt(f, '.bin'), metafile, 'UniformOutput', 0);
             end
         end
+        % set whether to ask user input 
+        if any(cellfun(@(x) strcmp(x,'-noconfirm'), varargin))
+            ask=false;
+        else
+            ask=true;
+        end
+        % check whether user requires advanced parameters
+        if any(cellfun(@(x) strcmp(x,'-advanced'), varargin))
+            advanced=true;
+        else
+            advanced=false;
+        end
     else
         metafile = '';
         workingdir = pwd();
@@ -55,7 +67,7 @@ function bootstrap(obj, varargin)
     else % ask for a probe file instead
         cfgData = struct('outputDir', workingdir);
         cfgData.rawRecordings = binfile;
-        cfgData.probe_file = getProbeFile(cfgData.outputDir);
+        cfgData.probe_file = getProbeFile(cfgData.outputDir,ask);
 
         if isempty(cfgData.probe_file) % closed dialog, cancel bootstrap
             return;
@@ -85,7 +97,11 @@ function bootstrap(obj, varargin)
                         num2str(hCfg_.bitScaling), ...
                         num2str(hCfg_.headerOffset), ...
                         hCfg_.dataType};
-        dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
+        if ask
+            dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
+        else
+            dlgAns= dlgFieldVals';
+        end
         if isempty(dlgAns)
             return;
         end
@@ -146,7 +162,14 @@ function bootstrap(obj, varargin)
         break;
     end
 
-    dlgAns = questdlg('Would you like to export advanced parameters?', 'Bootstrap', 'No');
+    if ask
+        dlgAns = questdlg('Would you like to export advanced parameters?', 'Bootstrap', 'No');
+    elseif advanced
+        dlgAns = 'Yes';
+    else
+        dlgAns = 'No';
+    end
+    
     switch dlgAns
         case 'Yes'
             hCfg_.save('', 1);
@@ -268,7 +291,7 @@ function probeFile = getProbeFile(workingdir, ask)
 
     probeFile = probeFileInDir(workingdir);
 
-    if ~isempty(probeFile) % found a probe file in working directory; confirm
+    if ~isempty(probeFile) && ask % found a probe file in working directory; confirm
         dlgAns = questdlg(sprintf('Found probe file ''%s''. Use it?', probeFile));
         if strcmp(dlgAns, 'Yes')
             return;

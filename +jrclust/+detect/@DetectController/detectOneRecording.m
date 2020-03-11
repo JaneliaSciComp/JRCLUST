@@ -132,10 +132,8 @@ function recData = detectOneRecording(obj, hRec, fids, impTimes, impSites, siteT
             end
         end   
         
-        if ~isempty(impTimes) && ~any(inInterval) 
-            % no need to load raw data for this load because we are importing
-            % spikes and there are none to import in this load
-        else
+        % if in import mode, only process loads where there are imported spikes.    
+        if isempty(impTimes) || any(inInterval) 
             % load raw samples
             iSamplesRaw = hRec.readRawROI(obj.hCfg.siteMap, 1+loadOffset:loadOffset+nSamples);
 

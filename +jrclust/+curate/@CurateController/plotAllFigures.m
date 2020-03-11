@@ -61,8 +61,4 @@ function plotAllFigures(obj)
 
     % select first cluster (also plots other figures)
     obj.updateSelect(obj.showSubset(1), 1);
-
-    % reapply figure positions
-    %figPos = getDefaultFigPos(obj);
-    %jrclust.curate.CurateController.setFigPos(obj.hCfg.figPos);
 end
