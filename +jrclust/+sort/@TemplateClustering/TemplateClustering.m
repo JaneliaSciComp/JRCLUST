@@ -44,6 +44,11 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
     methods (Access=protected, Hidden)
         nMerged = mergeBySim(obj);
     end
+    
+    %% STATIC METHODS
+    methods(Static)
+        [simScoreCorr,simScoreAmp,bestLag] = waveformSimScore(means,max_lag,sites);        
+    end
 
     %% GETTERS/SETTERS
     methods

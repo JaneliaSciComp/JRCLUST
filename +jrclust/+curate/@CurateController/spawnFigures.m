@@ -20,7 +20,12 @@ function spawnFigures(obj)
             case 'FigProj'
                 figTitle = 'Feature projection';
             case 'FigSim'
-                figTitle = 'Waveform-based similarity score';                
+                switch obj.hCfg.simMode
+                    case 'template'
+                        figTitle = 'Cluster similarity (using templates)';                
+                    case 'waveform'
+                        figTitle = 'Cluster similarity (using mean waveforms)';                                        
+                end
             case 'FigHist'
                 figTitle = 'ISI histogram';                
             case 'FigISI'

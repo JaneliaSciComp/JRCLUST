@@ -1509,6 +1509,17 @@
             },
             "section": ["display"]
         },
+        "simMode": {
+            "description": "Flag to set mode for calculating cluster similarity scores",
+            "comment": "Set to 'waveform' (default) for max mean waveform cross-correlation or 'template' for score based on precomputed templates",
+            "default_value": "waveform",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["nonempty"],
+                "postapply": "@(x) validatestring(x,{'waveform','template'})"
+            },
+            "section": ["curation"]
+        },
         "siteCorrThresh": {
             "description": "Threshold to reject bad sites based on maximum correlation with neighboring sites",
             "comment": "Set to 0 to disable",
