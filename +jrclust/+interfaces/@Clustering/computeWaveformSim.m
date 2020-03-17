@@ -9,7 +9,7 @@ function computeWaveformSim(obj, updateMe)
     end
 
     % these guys are not in the default param set, but can be overridden if you really want
-    usePeak2 = obj.hCfg.getOr('fUsePeak2', 0);
+    usePeak2 = obj.hCfg.getOr('fUsePeak2', 1);
     useRaw = obj.hCfg.getOr('fWavRaw_merge', 0); % TW
     fZeroStart_raw = obj.hCfg.getOr('fZeroStart_raw', 0);
     fRankCorr_merge = obj.hCfg.getOr('fRankCorr_merge', 0);

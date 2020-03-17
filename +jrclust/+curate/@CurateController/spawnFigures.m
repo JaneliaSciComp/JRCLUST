@@ -1,51 +1,40 @@
 function spawnFigures(obj)
     %SPAWNFIGURES Create the standard cadre of figures
-    hFigs_ = containers.Map();
-
-    skipRD = ~ismember('FigRD', obj.hCfg.figList); % skip the rho-delta plot
-    if skipRD % expand figTime et al. to take its place
-        ftShape = [.15 0 .85 .2];
-        fcShape = [.85 .2 .15 .27];
-        fiShape = [.85 .47 .15 .26];
-        fhShape = [.85 .73 .15 .27];
-    else
-        ftShape = [.15 0 .7 .2];
-        fcShape = [.85 .25 .15 .25];
-        fiShape = [.85 .5 .15 .25];
-        fhShape = [.85 .75 .15 .25];
-    end
-
-    hFigs_('FigPos')    = createFig('FigPos', [0 0 .15 .5], ['Unit position; ', obj.hCfg.sessionName], 1, 0);
-    hFigs_('FigMap')    = createFig('FigMap', [0 .5 .15 .5], ['Probe map; ', obj.hCfg.sessionName], 1, 0);
-    hFigs_('FigWav')    = createFig('FigWav', [.15 .2 .35 .8],['Averaged waveform: ', obj.hCfg.sessionName], 0, 1);
-    hFigs_('FigTime')   = createFig('FigTime', ftShape, ['Feature vs. time: ', obj.hCfg.sessionName]);
-    hFigs_('FigProj')   = createFig('FigProj', [.5 .2 .35 .5], ['Feature projection: ', obj.hCfg.sessionName]);
-    hFigs_('FigSim')    = createFig('FigSim', [.5 .7 .35 .3], ['Waveform-based similarity score: ', obj.hCfg.sessionName]);
-    hFigs_('FigHist')   = createFig('FigHist', fhShape, ['ISI histogram: ', obj.hCfg.sessionName]);
-    hFigs_('FigISI')    = createFig('FigISI', fiShape, ['Return map: ', obj.hCfg.sessionName]);
-    hFigs_('FigCorr')   = createFig('FigCorr', fcShape, ['Time correlation: ', obj.hCfg.sessionName]);
-    if ~skipRD
-        hFigs_('FigRD') = createFig('FigRD', [.85 0 .15 .25], ['Unit rho-delta: ', obj.hCfg.sessionName]);
-    end
-
-    obj.hFigs = hFigs_;
-end
-
-%% LOCALFUNCTIONS
-function hFig = createFig(figTag, figPos, figName, figToolbar, figMenubar)
-    %CREATEFIG Create a Figure object
-    if nargin < 2
-        figPos = [];
-    end
-    if nargin < 3
-        figName = '';
-    end
-    if nargin < 4
+    obj.hFigs = containers.Map();   
+    for f=1:length(obj.hCfg.figList)
+        figTag = obj.hCfg.figList{f};
         figToolbar = 0;
-    end
-    if nargin < 5
         figMenubar = 0;
+        switch figTag
+            case 'FigPos'
+                figTitle = 'Unit position';
+                figToolbar = 1;
+            case 'FigMap'
+                figTitle = 'Probe map';
+                figToolbar = 1;
+            case 'FigWav'
+                figTitle = 'Averaged waveform';
+                figMenubar = 1;
+            case 'FigTime'
+                figTitle = 'Feature vs. time';
+            case 'FigProj'
+                figTitle = 'Feature projection';
+            case 'FigSim'
+                figTitle = 'Template-based similarity score';                                    
+            case 'FigHist'
+                figTitle = 'ISI histogram';                
+            case 'FigISI'
+                figTitle = 'Return map';                
+            case 'FigCorr'
+                figTitle = 'Time correlation';                
+            case 'FigRD'
+                if isa(obj.hClust,'jrclust.sort.TemplateClustering')
+                    warning('Skipping spawning of rho-delta plot because density-peak clustering was not used.');
+                    continue
+                end
+                figTitle = 'Unit rho-delta';                
+        end
+        obj.hFigs(figTag) = jrclust.views.Figure(figTag,obj.hCfg.figPos{f},sprintf('%s: %s',figTitle,obj.hCfg.sessionName),figToolbar,figMenubar);
+        drawnow;
     end
-
-    hFig = jrclust.views.Figure(figTag, figPos, figName, figToolbar, figMenubar);
 end

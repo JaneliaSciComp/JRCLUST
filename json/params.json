@@ -848,7 +848,7 @@
             "comment": "You may not want this if you have a large dataset",
             "default_value": false,
             "validation": {
-                "classes": ["logical"],
+                "classes": ["logical","double"],
                 "attributes": ["scalar"]
             },
             "section": ["usage"]
@@ -858,7 +858,7 @@
             "comment": "This is effectively set to true if you specify clusterFeature='gpca'",
             "default_value": false,
             "validation": {
-                "classes": ["logical"],
+                "classes": ["logical","double"],
                 "attributes": ["scalar"]
             },
             "section": ["feature extraction"]
@@ -909,6 +909,21 @@
                     "FigTime",
                     "FigWav"
                 ]
+            },
+            "section": [
+                "curation",
+                "display"
+            ]
+        },
+        "figPos": {
+            "description": "List of figure positions",
+            "comment": "omit or leave blank to use recommended positions given your figure list",
+            "default_value": [
+            ],
+            "validation": {
+                "classes": ["cell","numeric"],
+                "postassert": "@(x) all(cellfun(@(y) numel(y) == 4, x))",
+                "attributes": ["nonempty" ]
             },
             "section": [
                 "curation",

@@ -1,5 +1,9 @@
-function [hCfg, res] = kilosort(loadPath)
+function [hCfg, res] = kilosort(loadPath,confirm_flag)
 %KILOSORT Import a Kilosort session from NPY files
+
+if nargin<2
+    confirm_flag=true;
+end
 [hCfg, res] = deal([]);
 
 phyData = loadPhy(loadPath);
@@ -25,6 +29,12 @@ cfgData.siteLoc = channelPositions;
 cfgData.shankMap = ones(size(channelMap), 'like', channelMap); % this can change with a prm file
 cfgData.rawRecordings = {params.dat_path};
 
+% check for existence of .prm file. if exists use it as a template.
+[a,b,~] = fileparts(params.dat_path);
+prm_path = [a,filesep,b,'.prm'];
+if exist(prm_path,'file')
+    cfgData.template_file = prm_path;
+end
 hCfg = jrclust.Config(cfgData);
 
 % load spike data
@@ -105,8 +115,9 @@ else
     hCfg.bitScaling = 1;
 end
 
+
 while 1
-    % confirm with the user
+    % confirm with the user if confirm_flag is true
     [~, sessionName, ~] = fileparts(hCfg.rawRecordings{1});
     configFile = fullfile(hCfg.outputDir, [sessionName, '.prm']);
 
@@ -124,11 +135,14 @@ while 1
                     num2str(hCfg.bitScaling), ...
                     num2str(hCfg.headerOffset), ...
                     hCfg.dataType};
-    dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
+    if confirm_flag
+        dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
+    else
+        dlgAns = dlgFieldVals;
+    end
     if isempty(dlgAns)
         return;
     end
-
     try
         if ~exist(dlgAns{1}, 'file')
             fclose(fopen(dlgAns{1}, 'w'));
@@ -183,7 +197,7 @@ while 1
 
     break;
 end
-
+    
 % remove out-of-bounds spike times
 d = dir(hCfg.rawRecordings{1});
 nSamples = d.bytes / jrclust.utils.typeBytes(hCfg.dataType) / hCfg.nChans;
@@ -200,8 +214,18 @@ end
 
 % set some specific params
 hCfg.nPeaksFeatures = 1; % don't find secondary peaks
-hCfg.figList = setdiff(hCfg.figList, 'FigRD'); % don't show rho-delta plot
+% remove FigRD
+if ismember(hCfg.figList,'FigRD')
+    keepFigIdx = ~ismember(hCfg.figList,'FigRD');
+    hCfg.figList = hCfg.figList(keepFigIdx);
+    if ~isempty(hCfg.figPos)
+        hCfg.figPos = hCfg.figPos(keepFigIdx);
+    end
+end
 hCfg.corrRange = [0.75 1];
+
+% save out param file
+hCfg.save();
 
 %%% detect and extract spikes/features
 hDetect = jrclust.detect.DetectController(hCfg, spikeTimes, spikeSites);

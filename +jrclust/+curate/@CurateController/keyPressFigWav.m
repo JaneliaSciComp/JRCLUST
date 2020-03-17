@@ -94,8 +94,9 @@ function keyPressFigWav(obj, ~, hEvent)
                 jrclust.utils.qMsgBox('''trialFile'' not set. Reload .prm file after setting (under "File menu")');
                 return;
             end
-
+            currFig = gcf;
             obj.updateFigPSTH(1);
+            figure(currFig); % return focus to main figure
 
         case 'q' % show and export quality scores for selected cluster
             iCluster = obj.selected(1);
@@ -150,8 +151,7 @@ function keyPressFigWav(obj, ~, hEvent)
                 obj.updateSelect(obj.showSubset(1));
             else
                 iCluster = obj.selected(1);
-                iSite = obj.hClust.clusterSites(iCluster);
-
+                iSite = obj.channel_idx(obj.hClust.clusterSites(iCluster));
                 % do we have a second selected cluster?
                 if numel(obj.selected) > 1
                     xRange = obj.unitIndex(iCluster) + [-1, 1]*max(abs(diff(obj.selected)) + 1, 6);

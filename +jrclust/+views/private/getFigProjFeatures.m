@@ -103,13 +103,13 @@ function dispFeatures = getFigProjFeatures(hClust, sitesToShow, selected)
             end
 
         case 'vpp'
-            bgWindows = hClust.getSpikeWindows(bgSpikes, sitesToShow, 0, 1); % use voltages 
+            bgWindows = hClust.getSpikeWindows(bgSpikes, sitesToShow, 0, 1); % use voltages
             bgYData = abs(permute(min(bgWindows), [2, 3, 1]));
             bgXData = abs(permute(max(bgWindows), [2, 3, 1]));
 
             % get features for ALL foreground spikes on sitesToShow
             fgWindows = hClust.getSpikeWindows(hClust.spikesByCluster{iCluster}, ...
-                                               sitesToShow, 0, 1); % use voltages 
+                                               sitesToShow, 0, 1); % use voltages
             fgYData = abs(permute(min(fgWindows), [2, 3, 1])); % nSitesToShow x nSpikes
             fgXData = abs(permute(max(fgWindows), [2, 3, 1]));
 

@@ -1,4 +1,4 @@
-function hFigWav = plotFigWav(hFigWav, hClust, maxAmp, showSubset)
+function hFigWav = plotFigWav(hFigWav, hClust, maxAmp, showSubset, channel_idx)
     %PLOTFIGWAV Plot the main view (FigWav)
     if nargin < 4
         if ~isfield(hFigWav.figData, 'showSubset')
@@ -18,11 +18,15 @@ function hFigWav = plotFigWav(hFigWav, hClust, maxAmp, showSubset)
 
         hFigWav.figData.showSubset = showSubset;
 
-        hFigWav = plotSpikeWaveforms(hFigWav, hClust, maxAmp);
-        hFigWav = plotMeanWaveforms(hFigWav, hClust, maxAmp);
+        % hFigWav.figData.vcTitle = 'Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi'; % TW
+        % hFigWav.axApply('default', @title, sprintf('Scale: %0.1f uV; [H]elp; [Left/Right]:Select cluster; (Sft)[Up/Down]:scale; [M]erge; [S]plit auto; [D]elete; [A]:Resample spikes; [P]STH; [Z]oom; in[F]o; [Space]:Find similar [0]:Annotate Delete [1]:Annotate Signle [2]:Annotate Multi', maxAmp));
+
+        hFigWav.axApply('default', @axis, [0, hClust.nClusters + 1, 0, hClust.hCfg.nSites + 1]);
+        hFigWav = plotSpikeWaveforms(hFigWav, hClust, maxAmp, channel_idx);
+        hFigWav = plotMeanWaveforms(hFigWav, hClust, maxAmp, channel_idx);
         hFigWav.setHideOnDrag('hSpkAll');
     else
-        hFigWav = plotSpikeWaveforms(hFigWav, hClust, maxAmp);
+        hFigWav = plotSpikeWaveforms(hFigWav, hClust, maxAmp, channel_idx);
         % clear mean waveforms
         iGroup = 1;
         while hFigWav.hasPlot(sprintf('Group%d', iGroup))
@@ -30,7 +34,7 @@ function hFigWav = plotFigWav(hFigWav, hClust, maxAmp, showSubset)
             iGroup = iGroup + 1;
         end
         % replot mean waveforms
-        hFigWav = plotMeanWaveforms(hFigWav, hClust, maxAmp);
+        hFigWav = plotMeanWaveforms(hFigWav, hClust, maxAmp,channel_idx);
     end
 
     hFigWav.figData.zoom = 1;

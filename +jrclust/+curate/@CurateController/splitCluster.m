@@ -13,7 +13,11 @@ function splitCluster(obj, iCluster, unitPart)
 
     showSubset = obj.showSubset;
     mask = showSubset > iCluster;
-    showSubset = [showSubset(~mask) iCluster+(1:numel(unitPart)) showSubset(mask) + numel(unitPart)];
+    try
+        showSubset = [showSubset(~mask); iCluster+(1:numel(unitPart))'; showSubset(mask) + numel(unitPart)];
+    catch
+        showSubset = [showSubset(~mask) iCluster+(1:numel(unitPart)) showSubset(mask) + numel(unitPart)];        
+    end
 
     try
         res = obj.hClust.splitUnit(obj.hClust.spikeClusters, iCluster, unitPart);

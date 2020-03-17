@@ -1,4 +1,4 @@
-function hFigMap = plotFigMap(hFigMap, hClust, hCfg, selected)
+function hFigMap = plotFigMap(hFigMap, hClust, hCfg, selected, channel_idx)
     %PLOTFIGMAP Plot probe map
     iWaveforms = hClust.meanWfGlobal(:, :, selected(1));
     clusterVpp = squeeze(max(iWaveforms) - min(iWaveforms));
@@ -10,7 +10,7 @@ function hFigMap = plotFigMap(hFigMap, hClust, hCfg, selected)
         hFigMap.addPlot('hPatch', @patch, XData, YData, vpp, 'EdgeColor', 'k', 'FaceColor', 'flat');
         hFigMap.axApply('default', @colormap, 'hot');
         hFigMap.addPlot('hText', @text, hCfg.siteLoc(:, 1), hCfg.siteLoc(:, 2), ...
-                        arrayfun(@(i) num2str(i), 1:hCfg.nSites, 'UniformOutput', 0), ...
+                        arrayfun(@(i) num2str(i), channel_idx(1:hCfg.nSites), 'UniformOutput', 0), ...
                         'VerticalAlignment', 'bottom', ...
                         'HorizontalAlignment', 'left');
         hFigMap.axApply('default', @xlabel, 'X Position (\mum)');

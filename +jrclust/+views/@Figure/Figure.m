@@ -490,6 +490,7 @@ classdef Figure < handle
             end
         end
 
+        
         function updatePlot(obj, plotKey, newXData, newYData, UserData)
             %UPDATEPLOT Set XData, YData, and optionally UserData of a plot
             if ~obj.hasPlot(plotKey)

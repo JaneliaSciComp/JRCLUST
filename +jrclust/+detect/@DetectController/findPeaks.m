@@ -12,7 +12,7 @@ function spikeData = findPeaks(obj, spikeData)
         siteThresh = obj.computeThreshold(samplesFilt);
     end
 
-    if isempty(spikeTimes) || isempty(spikeSites)
+    if isempty(obj.importTimes) && (isempty(spikeTimes) || isempty(spikeSites))
         if ~isprop(obj.hCfg, 'nPadPre')
             obj.hCfg.addprop('nPadPre');
         end

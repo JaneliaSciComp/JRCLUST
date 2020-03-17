@@ -61,4 +61,8 @@ function validateParams(obj)
     if strcmp(obj.clusterFeature, 'gpca')
         obj.setCustomProp('extractAfterDetect', 1);
     end
+    
+    % validate figures
+    obj.validateFigs;
+    
 end

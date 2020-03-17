@@ -117,8 +117,8 @@ function loadParams(obj, filename)
             [flag, val, errMsg] = obj.validateProp(paramName, userParams.(paramName));
             if flag
                 obj.setProp(paramName, val);
-            else % TODO: warn users after a grace period
-                % warning(errMsg);
+            else 
+                warning('Could not load a user-defined parameter. Using default instead.\nError was: %s\n', errMsg);
             end
         end
     end

@@ -1,7 +1,8 @@
 function success = commit(obj, spikeClusters, metadata, msg)
     %COMMIT Commit a modification of clustering to history log
+    %% first run parent class commit method
     success = commit@jrclust.interfaces.Clustering(obj, spikeClusters, metadata, msg);
-
+    %% then update template similarity scores
     if success
         if isempty(fieldnames(metadata)) % initial commit
             obj.templatesByCluster = arrayfun(@(iC) unique(obj.spikeTemplates(obj.spikesByCluster{iC})), ...
@@ -45,4 +46,3 @@ function success = commit(obj, spikeClusters, metadata, msg)
         end
     end
 end
-

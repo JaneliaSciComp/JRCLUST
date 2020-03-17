@@ -20,7 +20,7 @@ function hFigHist = plotFigHist(hFigHist, hClust, hCfg, selected)
 
     nBinsHist = 50; %TODO: put this in param file (maybe)
 
-    XData = logspace(0, 4, nBinsHist);
+    XData = logspace(-1, 4, nBinsHist); % logarithmic scale from 0.1ms to 10s
     YData1 = getISIHistogram(iCluster, XData, hClust, hCfg);
 
     % draw the plot
@@ -28,7 +28,7 @@ function hFigHist = plotFigHist(hFigHist, hClust, hCfg, selected)
         hFigHist.addAxes('default');
         hFigHist.addPlot('hPlot1', @stairs, nan, nan, 'Color', hCfg.colorMap(2, :));
         hFigHist.addPlot('hPlot2', @stairs, nan, nan, 'Color', hCfg.colorMap(3, :));
-        hFigHist.axApply('default', @set, 'XLim', [1 10000], 'XScale', 'log'); % ms
+        hFigHist.axApply('default', @set, 'XLim', [min(XData) max(XData)], 'XScale', 'log'); % ms
         hFigHist.axApply('default', @grid, 'on');
         hFigHist.axApply('default', @xlabel, 'ISI (ms)');
         hFigHist.axApply('default', @ylabel, 'Prob. Density');
