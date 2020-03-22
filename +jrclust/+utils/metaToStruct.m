@@ -11,7 +11,7 @@ function S = metaToStruct(filename)
     end
 
     fid = fopen(filename, 'r');
-    keysvals = textscan(fid, '%s%s', 'Delimiter', '=',  'ReturnOnError', 0);
+    keysvals = textscan(fid, '%[^=] = %[^\r\n]',  'ReturnOnError', 0);
     fclose(fid);
 
     keys = keysvals{1};
