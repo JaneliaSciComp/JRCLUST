@@ -133,6 +133,10 @@ classdef (Abstract) Clustering < handle
     methods (Access=protected, Hidden)
         removeEmptyClusters(obj);
     end
+    
+    methods (Access=protected, Hidden)
+        [sites1, sites2, sites3] = getSecondaryPeaks(obj);
+    end
 
     %% GETTERS/SETTERS
     methods
