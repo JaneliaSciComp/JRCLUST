@@ -4,9 +4,6 @@ function autoMerge(obj, maxUnitSim)
     if obj.isWorking
         jrclust.utils.qMsgBox('An operation is in progress.');
         return;
-    elseif ~isa(obj.hClust, 'jrclust.sort.DensityPeakClustering')
-        jrclust.utils.qMsgBox('Operation not supported for this type of clustering');
-        return;
     end
 
     if nargin < 2

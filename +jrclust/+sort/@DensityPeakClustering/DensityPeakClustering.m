@@ -104,8 +104,13 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
     end
 
     %% UTILITY METHODS
+%     methods (Access=protected, Hidden)
+%         [sites1, sites2, sites3] = getSecondaryPeaks(obj);
+%         %nMerged = mergeBySim(obj);
+%     end
+    
     methods (Access=protected, Hidden)
-        [sites1, sites2, sites3] = getSecondaryPeaks(obj);
+        %[sites1, sites2, sites3] = getSecondaryPeaks(obj);
         nMerged = mergeBySim(obj);
     end
 
