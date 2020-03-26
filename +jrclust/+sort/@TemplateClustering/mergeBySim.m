@@ -1,6 +1,5 @@
 function nMerged = mergeBySim(obj)
 
-    fprintf('Template clustering mergeBySim\n');
     %MERGEBYSIM Automatically merge clusters by similarity score
     obj.hCfg.updateLog('mergeBySim', 'Merging clusters by similarity', 1, 0);
     waveformSim = obj.waveformSim;

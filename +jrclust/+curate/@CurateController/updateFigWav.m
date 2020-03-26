@@ -3,7 +3,6 @@ function updateFigWav(obj)
     if ~obj.hasFig('FigWav')
         return;
     end
-    fprintf('Number of clusters at update FigWav: %d\n', obj.hClust.nClusters);
     
     hFigWav = obj.hFigs('FigWav');
     obj.showSubset = 1:obj.hClust.nClusters;
