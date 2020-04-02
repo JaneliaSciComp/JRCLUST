@@ -9,5 +9,9 @@ geometry = [0 32 0 32; 0 0 15 15]';
 % Reference sites ch being excluded
 ref_chan = 127;
 
+% Explicitly set these params as they are set from imec_3B_staggered.prb
+nSites_ref = 6;     % set nSitesExcl
+maxSite = 6.5;      % set nSiteDir 
+
 % Recording contact pad size in micrometers. Height x width
 pad = [12 12];
