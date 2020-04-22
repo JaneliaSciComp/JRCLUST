@@ -1,6 +1,6 @@
-function hFigWav = plotFigWav(hFigWav, hClust, maxAmp, showSubset, channel_idx)
+function hFigWav = plotFigWav(hFigWav, hClust, maxAmp, channel_idx, showSubset)
     %PLOTFIGWAV Plot the main view (FigWav)
-    if nargin < 4
+    if nargin < 5
         if ~isfield(hFigWav.figData, 'showSubset')
             hFigWav.figData.showSubset = 1:hClust.nClusters;
         end

@@ -34,7 +34,7 @@ function plotAllFigures(obj)
     % plot main waveform view
     if obj.hasFig('FigWav')
         % set key and mouse handles
-        hFigWav = jrclust.views.plotFigWav(obj.hFigs('FigWav'), obj.hClust, obj.maxAmp, obj.showSubset, obj.channel_idx);
+        hFigWav = jrclust.views.plotFigWav(obj.hFigs('FigWav'), obj.hClust, obj.maxAmp, obj.channel_idx, obj.showSubset);
         setFigWavXTicks(hFigWav, obj.hClust, 1); % show cluster counts by default
 
         hFigWav.hFunKey = @obj.keyPressFigWav;

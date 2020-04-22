@@ -11,11 +11,11 @@ function keyPressFigWav(obj, ~, hEvent)
 
     switch hEvent.Key
         case 'uparrow'
-            obj.maxAmp = jrclust.views.rescaleFigWav(hFigWav, obj.hClust, obj.maxAmp, sqrt(2)^-factor);
+            obj.maxAmp = jrclust.views.rescaleFigWav(hFigWav, obj.hClust, obj.maxAmp, sqrt(2)^-factor, obj.channel_idx);
             obj.updateCursorFigWav();
 
         case 'downarrow'
-            obj.maxAmp = jrclust.views.rescaleFigWav(hFigWav, obj.hClust, obj.maxAmp, sqrt(2)^factor);
+            obj.maxAmp = jrclust.views.rescaleFigWav(hFigWav, obj.hClust, obj.maxAmp, sqrt(2)^factor, obj.channel_idx);
             obj.updateCursorFigWav();
 
         case 'leftarrow' % select previous cluster
