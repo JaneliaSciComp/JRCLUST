@@ -17,8 +17,19 @@ function syncHistFile(obj)
         obj.history = resetHistFile(obj.hCfg.histFile, obj.initialClustering, obj.spikeClusters, obj.nEdits);
     elseif nEntries > obj.nEdits % more edits in file than in stored history, pare file down to match history
         keepMe = cell2mat(keys(obj.history));
-        mm = memmapfile(obj.hCfg.histFile, 'Format', {'int32', [obj.nSpikes + 1 nEntries], 'Data'}, 'Writable', true);
-        editKeys = mm.Data.Data(1, :);
+        try
+            mm = memmapfile(obj.hCfg.histFile, 'Format', {'int32', [obj.nSpikes + 1 nEntries], 'Data'}, 'Writable', true);
+            editKeys = mm.Data.Data(1, :);
+        catch ME
+            if ispc
+               %% hack for getting around windows path length limitation
+               tmp=['\\?\',obj.hCfg.histFile];
+               mm = memmapfile(tmp, 'Format', {'int32', [obj.nSpikes + 1 nEntries], 'Data'}, 'Writable', true);
+               editKeys = mm.Data.Data(1, :);
+            else
+               rethrow(ME);
+            end
+        end
         iKeepMe = ismember(editKeys, keepMe);
 
         if ~jrclust.utils.isEqual(find(iKeepMe), 1:sum(iKeepMe))
@@ -72,6 +83,6 @@ function history = resetHistFile(histFile, initialClustering, spikeClusters, nEd
             fwrite(fidHist, int32(spikeClusters), 'int32');
         end
     end % otherwise truncate file
-    
+
     fclose(fidHist);
 end

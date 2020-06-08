@@ -9,14 +9,34 @@ function loadFiles(obj)
         return;
     end
 
+    obj.hCfg.updateLog('loadRes', sprintf('Loading %s', obj.hCfg.resFile), 1, 0);
     try
-        obj.hCfg.updateLog('loadRes', sprintf('Loading %s', obj.hCfg.resFile), 1, 0);
         res_ = load(obj.hCfg.resFile);
-        obj.hCfg.updateLog('loadRes', sprintf('Finished loading %s', obj.hCfg.resFile), 0, 1);
     catch ME
-        warning('Failed to load %s: %s', ME.message);
-        return;
+        %% try to some hacks to get around windows path name length limitations, if that is the problem
+        if ispc
+            userDir = char(java.lang.System.getProperty('user.home'));
+            filename_temp = [userDir,filesep,'tmp_jrclust.mat']; 
+            failed = system(sprintf('copy "%s" "%s"',obj.hCfg.resFile,filename_temp));        
+            if ~failed
+                try
+                    res_ = load(filename_temp);
+                    delete(filename_temp);
+                catch
+                    warning('Failed to load %s: %s', ME.message);
+                    return;
+                end
+            else
+                warning('Failed to load %s: %s', ME.message);
+                return;            
+            end  
+        else
+            warning('Failed to load %s: %s', ME.message);
+            return;
+        end
     end
+    obj.hCfg.updateLog('loadRes', sprintf('Finished loading %s', obj.hCfg.resFile), 0, 1);
+
 
     if isfield(res_, 'spikeTimes')
         % load spikesRaw

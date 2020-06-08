@@ -12,8 +12,17 @@ function saveStruct(S, filename) %#ok<INUSL>
             catch
                 pause(.5);
             end
-
-            warning('Could not save: %s', filename);
+            if ispc 
+               userDir = char(java.lang.System.getProperty('user.home'));
+               filename_temp = [userDir,filesep,'tmp_jrclust.mat']; 
+               save(filename_temp, '-struct', 'S', '-v7.3', '-nocompression');
+               failed = system(sprintf('move "%s" "%s"',filename_temp,filename));
+               if failed
+                    warning('Could not save: %s', filename);
+               end  
+            else
+                warning('Could not save: %s', filename);                
+            end                
         end
     else
         for iRetry = 1:nRetries
@@ -23,8 +32,16 @@ function saveStruct(S, filename) %#ok<INUSL>
             catch
                 pause(.5);
             end
-
-            warning('Could not save: %s', filename);
+            if ispc 
+               userDir = char(java.lang.System.getProperty('user.home'));
+               filename_temp = [userDir,filesep,'tmp.mat']; 
+               save(filename_temp, '-struct', 'S', '-v7.3');
+               failed = system(sprintf('move "%s" "%s"',filename_temp,filename));
+               if failed
+                    warning('Could not save: %s', filename);
+               end  
+            else
+                warning
         end
     end
 end
