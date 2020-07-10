@@ -7,6 +7,7 @@ classdef ClusteringTestCase < matlab.mock.TestCase
         sRes = struct();        % sort results
         hCfg;                   % mock jrclust.Config object
         hCfgBehavior;           % behavior object for mock Config
+        hClust;                 % clustering object
         histFile = tempname();  % temporary history file
         nSpikes = 131072;       % 2^17 spikes
         nSites = 64;            % 64 sites
@@ -14,7 +15,8 @@ classdef ClusteringTestCase < matlab.mock.TestCase
 
     %% DEPENDENT PROPS
     properties (Dependent)
-        hClust;         % clustering object
+        nClusters;      % number of clusters (one per site)
+        spikeAmps;      % spike amplitudes
         spikeClusters;  % spike cluster labels
         spikeFeatures;  % spike clustering features
         spikeTimes;     % spike times
@@ -56,17 +58,15 @@ classdef ClusteringTestCase < matlab.mock.TestCase
             obj.assignOutputsWhen(get(obj.hCfgBehavior.sampleRate), 25000);
             obj.assignOutputsWhen(get(obj.hCfgBehavior.siteLoc), rand(obj.nSites, 2));
             obj.assignOutputsWhen(get(obj.hCfgBehavior.siteNeighbors), siteNeighbors);
-
-            % touch histFile
-            fclose(fopen(obj.histFile, 'w'));
         end
 
         function setupProps(obj)
             %SETUPPROPS Create the necessary data for a mock clustering.
             rng('default'); rng(10191);
+            obj.spikeAmps = randi([-256, 255], obj.nSpikes, 1);
             obj.spikeFeatures = rand(4, 1, obj.nSpikes);
             obj.spikeTimes = (1:obj.nSpikes)';
-            obj.spikeClusters = repmat((1:obj.nSites)', 2^11, 1);
+            obj.spikeClusters = repmat((1:obj.nClusters)', obj.nSpikes/obj.nClusters, 1);
         end
     end
 
@@ -80,6 +80,19 @@ classdef ClusteringTestCase < matlab.mock.TestCase
 
     %% GETTERS/SETTERS
     methods
+        % nClusters
+        function nc = get.nClusters(obj)
+            nc = obj.nSites;
+        end
+
+        % spikeAmps
+        function sa = get.spikeAmps(obj)
+            sa = obj.dRes.spikeAmps;
+        end
+        function set.spikeAmps(obj, sa)
+           obj.dRes.spikeAmps = sa; 
+        end
+
         % spikeClusters
         function sc = get.spikeClusters(obj)
             sc = obj.sRes.spikeClusters;
