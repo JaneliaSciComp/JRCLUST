@@ -1,5 +1,5 @@
-classdef ClusteringTestCase < matlab.mock.TestCase
-    %CLUSTERINGTESTCASE Superclass of tests for Clustering objects.
+classdef CurateTestCase < matlab.mock.TestCase
+    %CURATETESTCASE Superclass of tests for CurateController objects.
 
     %% FIRST-CLASS PROPS
     properties
@@ -8,6 +8,7 @@ classdef ClusteringTestCase < matlab.mock.TestCase
         hCfg;                   % mock jrclust.Config object
         hCfgBehavior;           % behavior object for mock Config
         histFile = tempname();  % temporary history file
+        hCurate;                % CurateController
         nSpikes = 131072;       % 2^17 spikes
         nSites = 64;            % 64 sites
     end
