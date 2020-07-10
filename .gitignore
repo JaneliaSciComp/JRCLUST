@@ -1,20 +1,52 @@
-# Matlab autosave files
+# Created by https://www.toptal.com/developers/gitignore/api/matlab
+# Edit at https://www.toptal.com/developers/gitignore?templates=matlab
+
+### MATLAB ###
+# Windows default autosave extension
 *.asv
 
-# sample binary files and JRC output
-sample*.bin
-sample*.jrc
-sample*.png
-sample*.prm
-sample*.csv
+# OSX / *nix default autosave extension
+*.m~
 
-# docs
-docs/build
-docs/venv
+# Compiled MEX binaries (all platforms)
+*.mex*
 
-# Misc
+# Packaged app and toolbox files
+*.mlappinstall
+*.mltbx
+
+# Generated helpsearch folders
+helpsearch*/
+
+# Simulink code generation folders
+slprj/
+sccprj/
+
+# Matlab code generation folders
+codegen/
+
+# Simulink autosave extension
+*.autosave
+
+# Simulink cache files
+*.slxc
+
+# Octave session info
+octave-workspace
+
+# End of https://www.toptal.com/developers/gitignore/api/matlab
+
+# MATLAB data
 *.mat
-*.ipynb
-.vscode/
-read_Intan_RHD2000_file.m
-npy-matlab
+
+# Sphinx documentation
+docs/build/
+docs/venv/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Binary files and JRC output
+*.bin
+*.jrc
+*.csv
