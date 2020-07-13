@@ -10,6 +10,12 @@ function success = revert(obj, revertTo)
         error('history file %s not found!', obj.hCfg.histFile);
     end
 
+    % check file size is correct
+    d = dir(obj.hCfg.histFile);
+    if mod(d.bytes / (obj.nSpikes + 1), 4) ~= 0 % 4 bytes per spike, plus checkInt
+        error('history file %s does not have the expected number of bytes.');
+    end
+
     fidHist = fopen(obj.hCfg.histFile, 'r');
     checkInt = fread(fidHist, 1, 'int32');
     fRes = -isempty(checkInt); % -1 if no checkInt read, 0 if okay

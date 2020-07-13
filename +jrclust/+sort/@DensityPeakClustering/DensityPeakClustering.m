@@ -97,8 +97,8 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                     obj.clusterCentroids = [];
                 end
 
-                obj.syncHistFile();
-                obj.commit(obj.spikeClusters, struct(), 'initial commit');
+%                 obj.syncHistFile();
+%                 obj.commit(obj.spikeClusters, struct(), 'initial commit');
             end
         end
     end

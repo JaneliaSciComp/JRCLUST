@@ -6,7 +6,7 @@ success = 0; %#ok<NASGU>
 
 % unitId not found in the spike table, nothing to do
 unitMask = ismember(obj.spikeClusters, unitId);
-if ~any(unitMask)
+if unitId < 1 || ~any(unitMask)
     success = 1; % vacuously true
     return;
 end
@@ -21,12 +21,11 @@ shiftMask = res.spikeClusters > unitId; % all units to shift down
 subset = unique(res.spikeClusters((res.spikeClusters > 0) & (~unitMask)));
 nUnitsAfter = numel(subset);
 
-fprintf('min: %d, max: %d, numel: %d\n', min(subset), max(subset), numel(subset));
-
 %% update spike table
 
 % set indices to a negative value
-res.spikeClusters(unitMask) = min(min(res.spikeClusters), 0) - 1;
+deletedId = min(min(res.spikeClusters), 0) - 1; % save this for commit
+res.spikeClusters(unitMask) = deletedId;
 
 % shift larger units down by 1
 res.spikeClusters(shiftMask) = res.spikeClusters(shiftMask) - 1;
@@ -95,11 +94,49 @@ for i = 1:numel(fieldnames_)
 end
 
 % commit spike table and fields
+backup = struct();
+
 if isConsistent
     fieldnames_ = fieldnames(res);
     for i = 1:numel(fieldnames_)
         fn = fieldnames_{i};
-        obj.(fn) = res.(fn);
+        backup.(fn) = obj.(fn);
+
+        try
+            obj.(fn) = res.(fn);
+        catch ME
+            warning('Failed to update field: %s', ME.message);
+            isConsistent = 0;
+            break;
+        end
+    end
+
+    % success! commit to history log
+    try
+        obj.history.message{end+1} = sprintf('deleted %d', unitId);
+        obj.history.indices{end+1} = deletedId;
+
+        % update units that need to be recomputed
+        if ismember(unitId, obj.recompute)
+            % don't need to recompute this unit as it's been deleted
+            obj.recompute(obj.recompute == unitId) = [];
+        end
+
+        % shift every unit above this down
+        shiftMask = obj.recompute > unitId;
+        obj.recompute(shiftMask) = obj.recompute(shiftMask) - 1;
+    catch ME
+        warning('Failed to commit: %s', ME.message);
+        isConsistent = 0;
+    end
+end
+
+% restore backed up fields
+if ~isConsistent
+    fieldnames_ = fieldnames(backup);
+    for i = 1:numel(fieldnames_)
+        fn = fieldnames_(i);
+        obj.(fn) = backup.(fn);
     end
 end
 

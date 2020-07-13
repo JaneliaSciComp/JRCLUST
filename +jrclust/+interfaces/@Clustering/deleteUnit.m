@@ -51,7 +51,7 @@ function res = deleteUnit(obj, spikeClusters, unitID, metadata)
 
             if ~isempty(metadata.(fn))
                 hFunSubset = eval(otherFields.(fn).subset);
-                hFunConsistent = eval(otherFields.(fn).consistent); % see /json/Clustering.json for subsetting functions for non-vector fields
+                hFunConsistent = eval(otherFields.(fn).consistent); 
                 metadata.(fn) = hFunSubset(metadata.(fn), keepSubset);
 
                 if ~hFunConsistent(metadata.(fn), nClusters - 1)

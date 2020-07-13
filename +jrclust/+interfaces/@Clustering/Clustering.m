@@ -36,10 +36,11 @@ classdef (Abstract) Clustering < handle
         meanWfLocalRaw;     % mean raw waveforms for each cluster
         meanWfRawLow;       % mean raw waveforms for each cluster over all sites at a low point on the probe (for drift correction)
         meanWfRawHigh;      % mean raw waveforms for each cluster over all sites at a high point on the probe (for drift correction)
-        waveformSim;        % cluster similarity scores
+        recompute;          % indices of units with metadata to recompute
         spikeClusters;      % individual spike assignments
         spikesByCluster;    % cell array of spike indices per cluster
         unitCount;          % number of spikes per cluster
+        waveformSim;        % cluster similarity scores
     end
 
     % computed from other values, but only on set
@@ -99,7 +100,8 @@ classdef (Abstract) Clustering < handle
 
             % get specific fields for this subclass
             clsSplit = strsplit(class(obj), '.');
-            clsName = clsSplit{end};
+            clsName = clsSplit{end}; % e.g., jrclust.sort.DensityPeakClustering -> DensityPeakClustering
+
             fieldFile = fullfile(jrclust.utils.basedir(), 'json', [clsName, '.json']);
             if exist(fieldFile, 'file') == 2
                 fid = fopen(fieldFile, 'r');
@@ -114,7 +116,9 @@ classdef (Abstract) Clustering < handle
                 end
             end
 
-            obj.history = containers.Map('KeyType', 'int32', 'ValueType', 'char'); % commit messages
+%             obj.history = containers.Map('KeyType', 'int32', 'ValueType', 'char'); % commit messages
+            obj.history = struct('message', cell(1), 'indices', cell(1));
+            obj.recompute = [];
         end
     end
 
@@ -178,7 +182,8 @@ classdef (Abstract) Clustering < handle
 
         % nEdits
         function ne = get.nEdits(obj)
-            ne = size(obj.history, 1);
+%             ne = size(obj.history, 1);
+            ne = numel(obj.history.message);
         end
 
         % nSpikes

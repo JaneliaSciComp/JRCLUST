@@ -22,16 +22,24 @@ classdef DeleteTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
 
     %% TEST METHODS
     methods (Test)
+        function deleteNonexistentUnitChangesNothing(obj)
+            %DELETENONEXISTENTUNITCHANGESNOTHING Ensure that an attempt to
+            %delete a unit that doesn't exist (or is considered a 'noise'
+            %unit will return early.
+            unitId = 0;
+            obj.deleteSingle(unitId);
+
+            obj.assertEqual(obj.hClust.nEdits, 0);
+            obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
+        end
+
         function deleteSingleEditsChanged(obj)
             %DELETESINGLEDITSCHANGED Ensure that both the number of edits
             %and the edit position changes after a delete.
             unitId = 6;
-
-            obj.assertEqual(unique(obj.hClust.spikeClusters), (1:obj.nClusters)');
             obj.deleteSingle(unitId);
 
-            obj.assertEqual(obj.hClust.nEdits, 2);
-            obj.assertEqual(obj.hClust.editPos, 2);
+            obj.assertEqual(obj.hClust.nEdits, 1);
 
             obj.resetClustering(); % clean up
         end
@@ -41,10 +49,9 @@ classdef DeleteTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
             %deleted unit in the spike table are shifted down by 1.
             unitId = 9;
 
-            obj.assertEqual(unique(obj.hClust.spikeClusters), (1:obj.nClusters)');
             newTable = obj.getSpikeTableAfterDeleteSingle(unitId);
-
             obj.deleteSingle(unitId);
+
             obj.assertEqual(obj.hClust.spikeClusters, newTable);
 
             obj.resetClustering(); % clean up
@@ -54,8 +61,6 @@ classdef DeleteTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
             %DELETESINGLEVECTORFIELDSTRUNCATED Ensure that vector fields
             %are properly truncated after a delete.
             unitId = 6;
-
-            obj.assertEqual(unique(obj.hClust.spikeClusters), (1:obj.nClusters)');
             obj.deleteSingle(unitId);
 
             % size is truncated
@@ -69,7 +74,6 @@ classdef DeleteTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
         function deleteSingleMatrixFieldsTruncated(obj)
             unitId = 9;
 
-            obj.assertEqual(unique(obj.hClust.spikeClusters), (1:obj.nClusters)');
             clusterCentroidsBefore = obj.hClust.clusterCentroids;
             obj.deleteSingle(unitId);
 
@@ -78,9 +82,12 @@ classdef DeleteTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
 
             obj.resetClustering(); % clean up
         end
+
+%         function deleteSingleTensorFieldsTruncated(obj)
+%             unitId = 6;
 % 
-%             % check that tensor fields are appropriately shrunk
-%             obj.assertEqual(size(obj.hClust.meanWfGlobal, 3), obj.nClusters - 1);
+%             disp(obj.hClust);
+%         end
     end
 end
 

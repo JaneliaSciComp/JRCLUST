@@ -6,16 +6,13 @@ classdef DensityPeakClusteringTestCase < jrclust.test.Clustering.ClusteringTestC
     end
 
     %% HELPER METHODS
-    methods
+    methods (Hidden)
         function resetClustering(obj)
-            %SETCLUSTERING Create the necessary data for a
-            %DensityPeakClustering, instantiate the clustering.
-            obj.setupProps();
+            %RESETCLUSTERING Restore the clustering to its initial state.
+            resetClustering@jrclust.test.Clustering.ClusteringTestCase(obj);
 
-            % set cluster notes
-            for i = 1:obj.nClusters
-                obj.hClust.clusterNotes{i} = num2str(i);
-            end
+            obj.hClust.computeCentroids([]);
+            obj.hClust.computeQualityScores([]);
         end
     end
 
