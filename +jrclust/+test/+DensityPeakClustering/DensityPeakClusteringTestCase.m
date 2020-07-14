@@ -5,17 +5,6 @@ classdef DensityPeakClusteringTestCase < jrclust.test.Clustering.ClusteringTestC
         meanSiteThresh; % mean detection threshold per site
     end
 
-    %% HELPER METHODS
-    methods (Hidden)
-        function resetClustering(obj)
-            %RESETCLUSTERING Restore the clustering to its initial state.
-            resetClustering@jrclust.test.Clustering.ClusteringTestCase(obj);
-
-            obj.hClust.computeCentroids([]);
-            obj.hClust.computeQualityScores([]);
-        end
-    end
-
     %% SETUP METHODS
     methods (TestClassSetup)
         function setupProps(obj)
@@ -32,6 +21,20 @@ classdef DensityPeakClusteringTestCase < jrclust.test.Clustering.ClusteringTestC
 
             % make a new DensityPeakClustering
             obj.hClust = jrclust.sort.DensityPeakClustering(obj.hCfg, obj.sRes, obj.dRes);
+
+            % fill in the appropriate fields
+            obj.resetClustering();
+        end
+    end
+
+    %% TEARDOWN METHODS
+    methods (TestMethodTeardown)
+        function resetClustering(obj)
+            %RESETCLUSTERING Restore the clustering to its initial state.
+            resetClustering@jrclust.test.Clustering.ClusteringTestCase(obj);
+
+            obj.hClust.computeCentroids([]);
+            obj.hClust.computeQualityScores([]);
         end
     end
 

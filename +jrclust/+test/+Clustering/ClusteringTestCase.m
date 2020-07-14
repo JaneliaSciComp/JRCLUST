@@ -22,21 +22,6 @@ classdef ClusteringTestCase < matlab.mock.TestCase
         spikeTimes;     % spike times
     end
 
-    %% HELPER METHODS
-    methods (Hidden)
-        function resetClustering(obj)
-            %RESETCLUSTERING Restore the clustering to its initial state.
-            obj.hClust.spikeClusters = obj.spikeClusters;
-            obj.hClust.clusterNotes = arrayfun(@(i) num2str(i), (1:obj.nClusters)', 'UniformOutput', 0);
-            obj.hClust.clusterSites = (1:obj.nClusters)';
-            obj.hClust.spikesByCluster = arrayfun(@(i) find(obj.spikeClusters == i), (1:obj.nClusters)', 'UniformOutput', 0);
-            obj.hClust.unitCount = cellfun(@(c) numel(c), obj.hClust.spikesByCluster);
-
-            obj.hClust.history = struct('message', cell(1), 'indices', cell(1));
-            obj.hClust.recompute = [];
-        end
-    end
-
     %% SETUP METHODS
     methods (TestClassSetup)
         function setupConfig(obj)
@@ -90,6 +75,20 @@ classdef ClusteringTestCase < matlab.mock.TestCase
         function rmHistFile(obj)
             fclose all;
             delete(obj.histFile);
+        end
+    end
+
+    methods (TestMethodTeardown)
+        function resetClustering(obj)
+            %RESETCLUSTERING Restore the clustering to its initial state.
+            obj.hClust.spikeClusters = obj.spikeClusters;
+            obj.hClust.clusterNotes = arrayfun(@(i) num2str(i), (1:obj.nClusters)', 'UniformOutput', 0);
+            obj.hClust.clusterSites = (1:obj.nClusters)';
+            obj.hClust.spikesByCluster = arrayfun(@(i) find(obj.spikeClusters == i), (1:obj.nClusters)', 'UniformOutput', 0);
+            obj.hClust.unitCount = cellfun(@(c) numel(c), obj.hClust.spikesByCluster);
+
+            obj.hClust.history = struct('message', cell(1), 'indices', cell(1));
+            obj.hClust.recompute = [];
         end
     end
 

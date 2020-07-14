@@ -1,37 +1,45 @@
-function success = deleteSingle(obj, unitId)
-%DELETESINGLE Delete a single unit.
+function success = mergeMultiple(obj, unitIds)
+%MERGEMULTIPLE Merge two or more units.
 %   Shift values in the spike table down, restructure metadata, add an entry
 %   to the history log.
 success = 0; %#ok<NASGU>
 
-% unitId is not a single value, error
-if numel(unitId) ~= 1
-    error('call to deleteSingle with %d units', numel(unitId));
+% take just the unique values and ensure they're sorted
+unitIds = sort(unique(unitIds));
+
+% unitIds does not contain at least 2 values, error
+if numel(unitIds) < 2
+    error('call to mergeMultiple with %d unique units (requires 2 or more)', numel(unitIds));
 end
 
-% unitId is nonpositive or not found in the spike table, nothing to do
-unitMask = ismember(obj.spikeClusters, unitId);
-if unitId < 1 || ~any(unitMask)
-    success = 1; % vacuously true
-    return;
+% noise or negative units, error
+if any(unitIds < 1)
+    error('call to mergeMultiple includes noise or deleted units');
 end
 
-res = struct(); % speculative delete, ensure consistency before committing
+% some of the given units not found in the spike table, error
+mergedMask = ismember(obj.spikeClusters, unitIds);
+if ~all(ismember(unitIds, obj.spikeClusters))
+    error('call to mergeMultiple includes nonexistent units');
+end
+
+res = struct(); % speculative merge, ensure consistency before committing
 res.spikeClusters = obj.spikeClusters;
-shiftMask = res.spikeClusters > unitId; % all units to shift down
 
 % indices of subset for metadata
-subset = unique(res.spikeClusters((res.spikeClusters > 0) & (~unitMask)));
+subset = setdiff(1:obj.nClusters, unitIds(2:end));
 nUnitsAfter = numel(subset);
 
 %% update spike table
 
-% set indices to a negative value
-deletedId = min(min(res.spikeClusters), 0) - 1; % save this for commit
-res.spikeClusters(unitMask) = deletedId;
+% keep a record of the indices used for merging so we can split later if
+% need be
+partitioning = arrayfun(@(iC) find(res.spikeClusters == iC), unitIds, 'UniformOutput', 0);
+res.spikeClusters(mergedMask) = unitIds(1);
 
-% shift larger units down by 1
-res.spikeClusters(shiftMask) = res.spikeClusters(shiftMask) - 1;
+% units will have to shift down by this amount
+shiftBy = arrayfun(@(i) sum(unitIds(2:end) <= i), res.spikeClusters);
+res.spikeClusters = res.spikeClusters - shiftBy;
 
 isConsistent = 1;
 
@@ -116,19 +124,21 @@ if isConsistent
 
     % success! commit to history log
     try
-        obj.history.message{end+1} = sprintf('deleted %d', unitId);
-        obj.history.indices{end+1} = [unitId, deletedId]; % [before, after]
+        obj.history.message{end+1} = sprintf('merged %s -> %d', ...
+            jrclust.utils.field2str(unitIds), unitIds(1));
+        obj.history.indices{end+1} = {unitIds; partitioning}; % before, after
 
         % update units that need to be recomputed
 
-        % don't need to recompute this unit as it's been deleted
-        if ismember(unitId, obj.recompute)
-            obj.recompute(obj.recompute == unitId) = [];
-        end
+        % shift every unit above any merging units down by the correct
+        % amount
+        shiftBy = arrayfun(@(i) sum(unitIds(2:end) <= i), obj.recompute);
+        obj.recompute = obj.recompute - shiftBy;
 
-        % shift every unit above this down
-        shiftMask = obj.recompute > unitId;
-        obj.recompute(shiftMask) = obj.recompute(shiftMask) - 1;
+        % we'll need to recompute the merged unit
+        if ~ismember(unitIds(1), obj.recompute)
+            obj.recompute(end+1) = unitIds(1);
+        end
     catch ME
         warning('Failed to commit: %s', ME.message);
         isConsistent = 0;
@@ -145,5 +155,5 @@ if ~isConsistent
 end
 
 success = isConsistent;
-end % func
+end
 

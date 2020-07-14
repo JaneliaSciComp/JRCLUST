@@ -3,9 +3,9 @@ classdef DeleteTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
 
     %% HELPER METHODS
     methods
-        function deleteSingle(obj, unitId)
+        function success = deleteSingle(obj, unitId)
             %DELETESINGLE Delete a single unit in hClust.
-            obj.hClust.deleteSingle(unitId);
+            success = obj.hClust.deleteSingle(unitId);
         end
 
         function newTable = getSpikeTableAfterDeleteSingle(obj, unitId)
@@ -25,23 +25,40 @@ classdef DeleteTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
         function deleteNonexistentUnitChangesNothing(obj)
             %DELETENONEXISTENTUNITCHANGESNOTHING Ensure that an attempt to
             %delete a unit that doesn't exist (or is considered a 'noise'
-            %unit will return early.
-            unitId = 0;
-            obj.deleteSingle(unitId);
+            %unit) will return early.
+            obj.assertEqual(obj.deleteSingle(0), 1); % try to delete the noise unit
+
+            obj.assertEqual(obj.hClust.nEdits, 0);
+            obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
+            
+            obj.assertEqual(obj.deleteSingle(obj.nClusters + 1), 1); % try to delete a nonexistent cluster
 
             obj.assertEqual(obj.hClust.nEdits, 0);
             obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
         end
 
-        function deleteSingleEditsChanged(obj)
-            %DELETESINGLEDITSCHANGED Ensure that both the number of edits
-            %and the edit position changes after a delete.
+        function deleteNoneOrMultipleErrors(obj)
+            %DELETENONEORMULTIPLEERRORS Ensure that an error is thrown if
+            %deleteSingle is called with 0 or > 1 units.
+            
+            % fails with no units
+            obj.assertError(@() obj.hClust.deleteSingle([]), ?MException);
+            % fails with more than one unit
+            obj.assertError(@() obj.hClust.deleteSingle([1, 2]), ?MException);
+        end
+
+        function deleteSinglePropsChanged(obj)
+            %DELETESINGLPROPSCHANGED Ensure that the number of edits, the
+            %cluster count, and the history fields change after a delete.
             unitId = 6;
-            obj.deleteSingle(unitId);
+            obj.assertEqual(obj.deleteSingle(unitId), 1);
 
             obj.assertEqual(obj.hClust.nEdits, 1);
+            obj.assertEqual(obj.hClust.nClusters, obj.nClusters - 1);
 
-            obj.resetClustering(); % clean up
+            histEntry = obj.hClust.history;
+            obj.assertEqual(histEntry.message{end}, 'deleted 6');
+            obj.assertEqual(histEntry.indices{end}, [6, -1]);
         end
 
         function deleteSingleShiftDown(obj)
@@ -50,44 +67,37 @@ classdef DeleteTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
             unitId = 9;
 
             newTable = obj.getSpikeTableAfterDeleteSingle(unitId);
-            obj.deleteSingle(unitId);
+            obj.assertEqual(obj.deleteSingle(unitId), 1);
 
             obj.assertEqual(obj.hClust.spikeClusters, newTable);
-
-            obj.resetClustering(); % clean up
         end
 
         function deleteSingleVectorFieldsTruncated(obj)
             %DELETESINGLEVECTORFIELDSTRUNCATED Ensure that vector fields
             %are properly truncated after a delete.
-            unitId = 6;
-            obj.deleteSingle(unitId);
+            unitId = 1; % test an edge case
+            obj.assertEqual(obj.deleteSingle(unitId), 1);
 
             % size is truncated
             obj.assertEqual(numel(obj.hClust.clusterNotes), obj.nClusters - 1);
             % proper value has been removed
             obj.assertFalse(ismember(num2str(unitId), obj.hClust.clusterNotes));
-
-            obj.resetClustering(); % clean up
         end
 
         function deleteSingleMatrixFieldsTruncated(obj)
-            unitId = 9;
+            %DELETESINGLEMATRIXFIELDSTRUNCATED Ensure that the correct
+            %entries in a matrix field have been truncated.
+            unitId = obj.nClusters; % test an edge case
 
             clusterCentroidsBefore = obj.hClust.clusterCentroids;
-            obj.deleteSingle(unitId);
+            obj.assertEqual(obj.deleteSingle(unitId), 1);
 
+            % size is truncated.
+            obj.assertEqual(size(obj.hClust.clusterCentroids, 1), obj.nClusters - 1);
+            % the correct entries are missing
             obj.assertEqual(obj.hClust.clusterCentroids, ...
                             [clusterCentroidsBefore(1:unitId-1, :); clusterCentroidsBefore(unitId+1:end, :)]);
-
-            obj.resetClustering(); % clean up
         end
-
-%         function deleteSingleTensorFieldsTruncated(obj)
-%             unitId = 6;
-% 
-%             disp(obj.hClust);
-%         end
     end
 end
 
