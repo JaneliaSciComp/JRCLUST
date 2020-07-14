@@ -167,6 +167,7 @@ if isConsistent
 
     % success! commit to history log
     try
+        obj.history.optype{end+1} = 'split';
         obj.history.message{end+1} = sprintf('splitted %d -> %s', ...
             unitIds(1), jrclust.utils.field2str(unitIds));
         obj.history.indices{end+1} = {unitIds; partitioning}; % before, after

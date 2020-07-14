@@ -170,8 +170,8 @@ classdef SplitTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTes
 
             unitIndices = find(obj.spikeClusters == 64);
             nSpikes = numel(unitIndices);
-            unitIndices = unitIndices(randperm(nSpikes));
 
+            unitIndices = unitIndices(randperm(nSpikes));
             partitioning = {unitIndices(1:floor(0.33*nSpikes)), ...
                 unitIndices(floor(0.33*nSpikes)+1:floor(0.67*nSpikes)), ...
                 unitIndices(floor(0.67*nSpikes)+1:end)};

@@ -14,69 +14,27 @@ tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.interfaces'));
 tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.sort'));
 % tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.curate'));
 
-%%
-
-% %% TEST BOOTSTRAP
-% bootstrapSuite = TestSuite.fromClass(?jrclust.test.BootstrapTest);
-% bootstrapRes = tr.run(bootstrapSuite);
-% 
-% res = jrclust.utils.mergeStructs(res, bootstrapRes);
-% 
-% %% TEST DETECTION
-% detectSuite = TestSuite.fromClass(?jrclust.test.DetectTest);
-% detectRes = tr.run(detectSuite);
-% 
-% res = jrclust.utils.mergeStructs(res, detectRes);
-% 
-% detectMultiSuite = TestSuite.fromClass(?jrclust.test.DetectMultiTest);
-% detectMultiRes = tr.run(detectMultiSuite);
-% 
-% res = jrclust.utils.mergeStructs(res, detectMultiRes);
-% 
-% %% TEST SORTING
-% sortSuite = TestSuite.fromClass(?jrclust.test.SortTest);
-% sortRes = tr.run(sortSuite);
-% 
-% res = jrclust.utils.mergeStructs(res, sortRes);
-% 
-% %% TEST CURATION
-% curateSuite = TestSuite.fromClass(?jrclust.test.ManualTest);
-% curateRes = tr.run(curateSuite);
-% 
-% res = jrclust.utils.mergeStructs(res, curateRes);
-% 
-% %% TEST INTAN
-% intanSuite = TestSuite.fromClass(?jrclust.test.IntanTest);
-% intanRes = tr.run(intanSuite);
-% 
-% res = jrclust.utils.mergeStructs(res, intanRes);
-% 
-% %% TEST REVERT
-% revertSuite = TestSuite.fromClass(?jrclust.test.RevertTest);
-% revertRes = tr.run(revertSuite);
-% res = jrclust.utils.mergeStructs(res, revertRes);
+suites = [];
 
 %% TEST DELETE
-dpDeleteSuite = TestSuite.fromClass(?jrclust.test.DensityPeakClustering.DeleteTest);
-res.densityPeakDelete = tr.run(dpDeleteSuite);
+suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.DeleteTest)];
 
 %% TEST UNDELETE
-dpUndeleteSuite = TestSuite.fromClass(?jrclust.test.DensityPeakClustering.UndeleteTest);
-res.densityPeakUndelete = tr.run(dpUndeleteSuite);
+suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.UndeleteTest)];
 
 %% TEST MERGE
-dpMergeSuite = TestSuite.fromClass(?jrclust.test.DensityPeakClustering.MergeTest);
-res.densityPeakMerge = tr.run(dpMergeSuite);
+suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.MergeTest)];
 
 %% TEST SPLIT
-dpSplitSuite = TestSuite.fromClass(?jrclust.test.DensityPeakClustering.SplitTest);
-res.densityPeakSplit = tr.run(dpSplitSuite);
+suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.SplitTest)];
 
-%% SUMMARIZE
-if ~any([res.densityPeakDelete.Failed ...
-         res.densityPeakUndelete.Failed ...
-         res.densityPeakMerge.Failed ...
-         res.densityPeakSplit.Failed])
-     disp('all tests passed! :^)');
+%% TEST REVERT
+suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.RevertTest)];
+
+%% RUN TESTS, SUMMARIZE
+res = tr.run(suites);
+
+if ~any([res.Failed])
+    disp('all tests passed! :^)');
 end
-end
+end % func

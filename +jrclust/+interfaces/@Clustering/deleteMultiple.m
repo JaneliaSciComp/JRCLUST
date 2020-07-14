@@ -1,5 +1,5 @@
-function success = deleteMany(obj, unitIds)
-%DELETEMANY Delete multiple units in one go.
+function success = deleteMultiple(obj, unitIds)
+%DELETEMULTIPLE Delete multiple units in one go.
 %   Shift values in the spike table down, restructure metadata, add entries
 %   to the history log.
 success = 1;

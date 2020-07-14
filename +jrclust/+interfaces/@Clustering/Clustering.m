@@ -116,8 +116,7 @@ classdef (Abstract) Clustering < handle
                 end
             end
 
-%             obj.history = containers.Map('KeyType', 'int32', 'ValueType', 'char'); % commit messages
-            obj.history = struct('message', cell(1), 'indices', cell(1));
+            obj.history = struct('optype', cell(1), 'message', cell(1), 'indices', cell(1));
             obj.recompute = [];
         end
     end

@@ -11,11 +11,10 @@ if numel(deletedId) ~= 1 || numel(newId) ~= 1
           numel(deletedId), numel(newId));
 end
 
-% deletedId is nonnegative or not found in the spike table, nothing to do
+% deletedId is nonnegative or not found in the spike table, error
 deletedMask = ismember(obj.spikeClusters, deletedId);
 if deletedId > -1 || ~any(deletedMask)
-    success = 1; % vacuously true
-    return;
+    error('call to undeleteSingle with an illegal deletedId %d', deletedId);
 end
 
 % newId is nonpositive, error
@@ -142,6 +141,7 @@ if isConsistent
 
     % success! commit to history log
     try
+        obj.history.optype{end+1} = 'undelete';
         obj.history.message{end+1} = sprintf('undeleted %d', newId);
         obj.history.indices{end+1} = [deletedId, newId]; % [before, after]
 

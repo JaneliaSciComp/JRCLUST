@@ -38,8 +38,15 @@ partitioning = arrayfun(@(iC) find(res.spikeClusters == iC), unitIds, 'UniformOu
 res.spikeClusters(mergedMask) = unitIds(1);
 
 % units will have to shift down by this amount
-shiftBy = arrayfun(@(i) sum(unitIds(2:end) <= i), res.spikeClusters);
-res.spikeClusters = res.spikeClusters - shiftBy;
+shiftBy = arrayfun(@(i) sum(unitIds(2:end) <= i), 1:obj.nClusters);
+
+for i = 1:obj.nClusters
+    if shiftBy(i) == 0
+        continue;
+    end
+    mask = (res.spikeClusters == i);
+    res.spikeClusters(mask) = res.spikeClusters(mask) - shiftBy(i);
+end
 
 isConsistent = 1;
 
@@ -124,6 +131,7 @@ if isConsistent
 
     % success! commit to history log
     try
+        obj.history.optype{end+1} = 'merge';
         obj.history.message{end+1} = sprintf('merged %s -> %d', ...
             jrclust.utils.field2str(unitIds), unitIds(1));
         obj.history.indices{end+1} = {unitIds; partitioning}; % before, after
@@ -133,7 +141,7 @@ if isConsistent
         % shift every unit above any merging units down by the correct
         % amount
         shiftBy = arrayfun(@(i) sum(unitIds(2:end) <= i), obj.recompute);
-        obj.recompute = obj.recompute - shiftBy;
+        obj.recompute = unique(obj.recompute - shiftBy);
 
         % we'll need to recompute the merged unit
         if ~ismember(unitIds(1), obj.recompute)

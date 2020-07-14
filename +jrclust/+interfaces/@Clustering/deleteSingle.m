@@ -1,8 +1,12 @@
-function success = deleteSingle(obj, unitId)
+function success = deleteSingle(obj, unitId, deletedId)
 %DELETESINGLE Delete a single unit.
 %   Shift values in the spike table down, restructure metadata, add an entry
 %   to the history log.
 success = 0; %#ok<NASGU>
+
+if nargin < 3
+    deletedId = nan;
+end
 
 % unitId is not a single value, error
 if numel(unitId) ~= 1
@@ -27,7 +31,9 @@ nUnitsAfter = numel(subset);
 %% update spike table
 
 % set indices to a negative value
-deletedId = min(min(res.spikeClusters), 0) - 1; % save this for commit
+if isnan(deletedId) || any(res.spikeClusters == deletedId)
+    deletedId = min(min(res.spikeClusters), 0) - 1; % save this for commit
+end
 res.spikeClusters(unitMask) = deletedId;
 
 % shift larger units down by 1
@@ -116,6 +122,7 @@ if isConsistent
 
     % success! commit to history log
     try
+        obj.history.optype{end+1} = 'delete';
         obj.history.message{end+1} = sprintf('deleted %d', unitId);
         obj.history.indices{end+1} = [unitId, deletedId]; % [before, after]
 

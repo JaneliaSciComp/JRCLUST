@@ -27,20 +27,12 @@ classdef UndeleteTest < jrclust.test.DensityPeakClustering.DensityPeakClustering
 
     %% TEST METHODS
     methods (Test)
-        function undeleteNonexistentUnitChangesNothing(obj)
+        function undeleteNonexistentErrors(obj)
             %UNDELETENONEXISTENTUNITCHANGESNOTHING Ensure that an attempt
             %to undelete a unit that already exists (or is considered a
             %'noise' unit, or is not found among the deleted entries) will
-            %return early.
-            obj.assertEqual(obj.undeleteSingle(0, 1), 1); % try to undelete the noise unit
-
-            obj.assertEqual(obj.hClust.nEdits, 0);
-            obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
-
-            obj.assertEqual(obj.undeleteSingle(obj.nClusters + 1, 1), 1);
-
-            obj.assertEqual(obj.hClust.nEdits, 0);
-            obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
+            %throw an error.
+            obj.assertError(@() obj.hClust.undeleteSingle(0, 1), ?MException); % try to undelete the noise unit
         end
 
         function undeleteNoneOrMultipleErrors(obj)
