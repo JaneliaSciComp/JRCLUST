@@ -72,9 +72,12 @@ end
 %%% try to detect the recording file
 % first check for a .meta file
 binfile = hCfg.rawRecordings{1};
+if isempty(hCfg.rawRecordings{1})
+    binfile = params.dat_path; % take ap.bin file location from .prm file by default
+end
 metafile = jrclust.utils.absPath(jrclust.utils.subsExt(binfile, '.meta'));
 if isempty(metafile)
-    dlgAns = questdlg('Do you have a .meta file?', 'Import', 'No');
+    dlgAns = questdlg('Do you have a .meta file?', 'Import', 'Yes','No','Cancel','Yes');
 
     switch dlgAns
         case 'Yes' % select .meta file
