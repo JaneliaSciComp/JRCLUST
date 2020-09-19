@@ -279,6 +279,15 @@ function cfgData = metaToConfig(metafile, binfile, workingdir)
     end
 
     cfgData.probe_file = probeFile;
+    
+    % check whether there's a trial file in the directory as well
+    [cfgData.trialFile,cfgData.psthTimeLimits] = getTrialFile(cfgData.outputDir);
+    if ~isempty(cfgData.trialFile)
+        % check whether the .meta specifies PSTH display parameters
+        if isfield(SMeta,'psthTimeLimits'); cfgData.psthTimeLimits=str2num(SMeta.psthTimeLimits); end
+        if isfield(SMeta,'psthTimeBin'); cfgData.psthTimeBin=SMeta.psthTimeBin; end
+        if isfield(SMeta,'psthXTick'); cfgData.psthXTick=SMeta.psthXTick; end
+    end
 end
 
 function probeFile = probeFileInDir(workingdir)
@@ -322,6 +331,38 @@ function probeFile = getProbeFile(workingdir, ask)
         end
     end
 end
+
+function [trialFile,psthTimeLimits] = getTrialFile(workingdir, ask)
+    if nargin < 2
+        ask = 0;
+    end
+
+    trialFile = trialFileInDir(workingdir);
+
+    if ~isempty(trialFile) && ask % found a trial file in working directory; confirm
+        dlgAns = questdlg(sprintf('Found trial file ''%s''. Use it?', trialFile));
+        if strcmp(dlgAns, 'Yes')
+            return;
+        else
+            trialFile = '';
+        end
+    end
+    
+    psthTimeLimits = [-0.1 0.1]; % default time range (in s) over which to display PSTH        
+end
+
+
+function trialFile = trialFileInDir(workingdir)
+   trialFile = '';
+
+    d = dir(fullfile(workingdir, '*trial.*'));
+    if isempty(d)
+        return;
+    end
+
+    trialFile = fullfile(workingdir, d(1).name);
+end
+
 % function hCfg = bootstrapGUI() % WIP
 %     %BOOTSTRAPGUI Show all (common) parameters
 %     % load old2new param set and convert to new2old
