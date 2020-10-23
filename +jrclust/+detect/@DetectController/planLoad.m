@@ -5,8 +5,10 @@ function [nLoads, nSamplesLoad, nSamplesFinal] = planLoad(obj, hRec)
     bps = jrclust.utils.typeBytes(obj.hCfg.dataType);
 
     % nColumns in data matrix
-    nSamples = floor(nBytesSubset / bps / obj.hCfg.nChans);
+    % old method:
+    % nSamples = floor(nBytesSubset / bps / obj.hCfg.nChans) % this method fails for Intan if other Intan channels besides amp channels are acquired
 
+    nSamples = nSamplesToRead(hRec, obj.hCfg.loadTimeLimits, obj.hCfg.sampleRate);
     % if not constrained by user, try to compute maximum bytes/load
     if isempty(obj.hCfg.maxBytesLoad)
         if obj.hCfg.useGPU
@@ -49,3 +51,14 @@ function nBytesLoad = subsetBytes(hRec, loadTimeLimits)
     nSamplesLoad = diff(loadLimits) + 1;
     nBytesLoad = nSamplesLoad * jrclust.utils.typeBytes(hRec.dataType) * hRec.nChans;
 end
+
+function n = nSamplesToRead(hRec, loadTimeLimitsSeconds, sampleRate)
+    % NSAMPLESTOREAD - total number of samples to read for analysis
+    n = hRec.nSamples;
+    if ~isempty(loadTimeLimitsSeconds),
+        loadTimeLimitsSamples = loadTimeLimitsSeconds * sampleRate;
+        loadTimeLimitsSamples = min(max(loadTimeLimitsSamples,1), hRec.nSamples);
+        n = diff(loadTimeLimitsSamples) + 1;
+    end;
+end
+
