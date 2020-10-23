@@ -30,6 +30,7 @@ classdef DensityPeakClusteringTestCase < jrclust.test.Clustering.ClusteringTestC
             %RESETCLUSTERING Restore the clustering to its initial state.
             resetClustering@jrclust.test.Clustering.ClusteringTestCase(obj);
 
+            obj.hClust.meanWfGlobal = rand(32, obj.nSites, obj.nClusters);
             obj.hClust.computeCentroids([]);
             obj.hClust.computeQualityScores([]);
         end
