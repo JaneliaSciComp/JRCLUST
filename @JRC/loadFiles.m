@@ -144,7 +144,11 @@ function loadFiles(obj)
                 end
             end
 
-            res_.hClust.syncHistFile();
+            % convert old-style history to new-style
+            if isprop(obj.hCfg, 'histFile') && exist(obj.hCfg.histFile, 'file') == 2
+                res_.hClust.history = obj.convertHistory();
+                delete(obj.hCfg.histFile);
+            end
         end
 
         if isfield(res_, 'hRecs') % don't try to load recordings

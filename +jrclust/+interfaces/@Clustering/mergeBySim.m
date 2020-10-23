@@ -33,7 +33,7 @@ function nMerged = mergeBySim(obj)
     res = obj.mergeUnits(obj.spikeClusters, mergeTargets, mergingUnits);
     msg = sprintf('merge %d units by similarity', nMerged);
     obj.commit(res.spikeClusters, res.metadata, msg);
-
+    
     obj.hCfg.updateLog('mergeBySim', sprintf('Finished merging clusters (was %d, now %d: %d merged; minimum score: %0.3f)', ...
                                              nClustersPrev, obj.nClusters, nMerged, min(maxScores(~underThresh))), 0, 1);
 end

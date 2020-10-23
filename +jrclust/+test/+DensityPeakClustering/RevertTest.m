@@ -98,7 +98,7 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
         function revertMergeIsSplit(obj)
             %REVERTMERGEISSPLIT Ensure that a reversion of a merge
             %operation is a split operation.
-            unitIds = randperm(obj.nClusters, 3); % merge 3 random units
+            unitIds = randperm(obj.nClusters, 3)'; % merge 3 random units
 
             % perform the merge to revert
             obj.assertEqual(obj.mergeMultiple(unitIds), 1);
@@ -128,15 +128,15 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
         function revertSplitIsMerge(obj)
             %REVERTSPLITISMERGE Ensure that a reversion of a split
             %operation is a merge operation.
-            unitIds = randi(obj.nClusters - 2) + [0 1 2]; % split a unit into 3
+            unitIds = randi(obj.nClusters - 2) + [0; 1; 2]; % split a unit into 3
 
             % create a new partitioning
             unitIndices = find(obj.spikeClusters == unitIds(1));
             nSpikes = numel(unitIndices);
 
             unitIndices = unitIndices(randperm(nSpikes));
-            partitioning = {sort(unitIndices(1:floor(0.33*nSpikes))), ...
-                sort(unitIndices(floor(0.33*nSpikes)+1:floor(0.67*nSpikes))), ...
+            partitioning = {sort(unitIndices(1:floor(0.33*nSpikes))); ...
+                sort(unitIndices(floor(0.33*nSpikes)+1:floor(0.67*nSpikes))); ...
                 sort(unitIndices(floor(0.67*nSpikes)+1:end))};
 
             % perform the split to revert

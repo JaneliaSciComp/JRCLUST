@@ -1,51 +1,37 @@
-function success = mergeMultiple(obj, unitIds)
-%MERGEMULTIPLE Merge two or more units.
-%   Shift values in the spike table down, restructure metadata, add an entry
-%   to the history log.
+function success = reorderMultiple(obj, beforeIds, afterIds)
+%REORDERMULTIPLE Reorder units.
+%   Rearrange values in the spike table and reorder metadata fields.
 success = 0; %#ok<NASGU>
 
-% take just the unique values and ensure they're sorted
-unitIds = sort(unique(unitIds(:)));
-
-% unitIds does not contain at least 2 values, error
-if numel(unitIds) < 2
-    error('call to mergeMultiple with %d unique units (requires 2 or more)', numel(unitIds));
+% before and after need to match up
+if numel(beforeIds) ~= numel(afterIds)
+    error('call to reorderMultiple with mismatched unit counts');
 end
 
-% noise or negative units, error
-if any(unitIds < 1)
-    error('call to mergeMultiple includes noise or deleted units');
+% each unit must be in both beforeIds and afterIds
+if ~all(sort(beforeIds) == sort(afterIds))
+    error('some units not accounted for in both sets')
 end
 
-% some of the given units not found in the spike table, error
-mergedMask = ismember(obj.spikeClusters, unitIds);
-if ~all(ismember(unitIds, obj.spikeClusters))
-    error('call to mergeMultiple includes nonexistent units');
+% some ids are nonpositive or not found in the spike table
+if any(beforeIds <= 0) || any(~ismember(beforeIds, obj.spikeClusters))
+    error('call to reorderMultiple with noise or deleted units, or non-units');
 end
 
-res = struct(); % speculative merge, ensure consistency before committing
+res = struct(); % speculative reorder, ensure consistency before committing
 res.spikeClusters = obj.spikeClusters;
 
-% indices of subset for metadata
-subset = setdiff(1:obj.nClusters, unitIds(2:end));
+subset = 1:obj.nClusters;
+subset(beforeIds) = afterIds;
 nUnitsAfter = numel(subset);
 
 %% update spike table
-
-% keep a record of the indices used for merging so we can split later if
-% need be
-partitioning = arrayfun(@(iC) find(res.spikeClusters == iC), unitIds, 'UniformOutput', 0);
-res.spikeClusters(mergedMask) = unitIds(1);
-
-% units will have to shift down by this amount
-shiftBy = arrayfun(@(i) sum(unitIds(2:end) <= i), 1:obj.nClusters);
-
-for i = 1:obj.nClusters
-    if shiftBy(i) == 0
-        continue;
-    end
-    mask = (res.spikeClusters == i);
-    res.spikeClusters(mask) = res.spikeClusters(mask) - shiftBy(i);
+for i = 1:numel(beforeIds)
+    beforeMask = res.spikeClusters == beforeIds(i);
+    afterMask = res.spikeClusters == afterIds(i);
+    
+    res.spikeClusters(beforeMask) = afterIds(i);
+    res.spikeClusters(afterMask) = beforeIds(i);
 end
 
 isConsistent = 1;
@@ -63,7 +49,7 @@ for i = 1:numel(fieldnames_)
         continue;
     end
 
-    % remove entries corresponding to deleted units
+    % reorder entries
     val = val(subset);
 
     % brief sanity check
@@ -99,7 +85,7 @@ for i = 1:numel(fieldnames_)
     hFunSubs = eval(otherFields.(fn).subset);
     hFunConsistent = eval(otherFields.(fn).consistent);
 
-    % remove entries corresponding to deleted units
+    % reorder entries
     val = hFunSubs(val, subset);
 
     % brief sanity check
@@ -131,21 +117,13 @@ if isConsistent
 
     % success! commit to history log
     try
-        obj.history.optype{end+1} = 'merge';
-        obj.history.message{end+1} = sprintf('merged %s -> %d', ...
-            jrclust.utils.field2str(unitIds), unitIds(1));
-        obj.history.indices{end+1} = {unitIds; partitioning}; % before, after
+        obj.history.optype{end+1} = 'reorder';
+        obj.history.message{end+1} = 'reorder units';
+        obj.history.indices{end+1} = [beforeIds(:) afterIds(:)]; % [before, after]
 
         % update units that need to be recomputed
-
-        % shift every unit above any merging units down by the correct
-        % amount
-        shiftBy = arrayfun(@(i) sum(unitIds(2:end) <= i), obj.recompute);
-        obj.recompute = unique(obj.recompute - shiftBy);
-
-        % we'll need to recompute the merged unit
-        if ~ismember(unitIds(1), obj.recompute)
-            obj.recompute(end+1) = unitIds(1);
+        for i = 1:numel(beforeIds)
+            obj.recompute(obj.recompute == beforeIds(i)) = afterIds(i);
         end
     catch ME
         warning('Failed to commit: %s', ME.message);
@@ -163,5 +141,5 @@ if ~isConsistent
 end
 
 success = isConsistent;
-end
 
+end % func

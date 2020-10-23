@@ -32,6 +32,14 @@ for i = nops:-1:nops-n+1
         case 'split'
             unitIds = indices{1};
             success = obj.mergeMultiple(unitIds);
+        case 'reorder'
+            beforeIds = indices(:, 1);
+            afterIds = indices(:, 2);
+            success = obj.reorderMultiple(afterIds, beforeIds);
+        case 'reassign'
+            beforeTable = indices(:, 1);
+            afterTable = indices(:, 2);
+            success = obj.reassignAll(afterTable, beforeTable);
         otherwise
             success = 0;
     end

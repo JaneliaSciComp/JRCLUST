@@ -3,6 +3,8 @@ function success = splitSingle(obj, unitIds, partitioning)
 %   The partitioning is expected in terms of *ABSOLUTE INDICES*.
 success = 0; %#ok<NASGU>
 
+unitIds = unitIds(:);
+
 % unitIds needs to be unique
 if numel(unique(unitIds)) ~= numel(unitIds)
     error('call to splitSingle contains duplicate units');

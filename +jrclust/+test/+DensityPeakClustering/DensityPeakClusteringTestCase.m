@@ -16,9 +16,6 @@ classdef DensityPeakClusteringTestCase < jrclust.test.Clustering.ClusteringTestC
             obj.dRes.spikesBySite = arrayfun(@(iS) find(obj.dRes.spikeSites == iS), 1:obj.nSites, 'UniformOutput', 0);
             obj.dRes.spikesBySite2 = cell(obj.nSites, 1);
 
-            % touch histFile
-            fclose(fopen(obj.histFile, 'w'));
-
             % make a new DensityPeakClustering
             obj.hClust = jrclust.sort.DensityPeakClustering(obj.hCfg, obj.sRes, obj.dRes);
 

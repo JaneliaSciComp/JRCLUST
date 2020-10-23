@@ -51,7 +51,7 @@ classdef MergeTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTes
         function mergeMultiplePropsChanged(obj)
             %MERGEMULTIPLEPROPSCHANGED Ensure that the number of edits, the
             %cluster count, and the history fields change after a merge.
-            unitIds = [2 4 7 8];
+            unitIds = [2; 4; 7; 8];
             obj.assertEqual(obj.mergeMultiple(unitIds), 1);
 
             % number of edits, number of clusters

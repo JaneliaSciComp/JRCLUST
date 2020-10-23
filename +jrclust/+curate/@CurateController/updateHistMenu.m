@@ -4,18 +4,16 @@ function updateHistMenu(obj)
         hClust = obj.hClust;
         hHistMenu = obj.hMenus('HistMenu');
 
-        endAt = hClust.nEdits;
-        startAt = max(0, endAt - 4); % show at most 5 (most recent) entries in hist menu
+        % show at most 5 entries in the history menu
+        startAt = min(5, hClust.nEdits);
 
         delete(hHistMenu.Children);
-        for i = startAt:endAt
-            if isKey(obj.hClust.history, i)
-                label = obj.hClust.history(i);
-                uimenu(hHistMenu, 'Label', label, ...
-                       'Callback', @(hO, hE) obj.restoreHistory(i), ...
-                       'Checked', jrclust.utils.ifEq(i == hClust.editPos, 'on', 'off'), ...
-                       'Enable', 'on');
-            end
+        for i = startAt:-1:1
+            label = obj.hClust.history.message{i};
+            uimenu(hHistMenu, 'Label', label, ...
+                   'Callback', @(hO, hE) obj.restoreHistory(i-1), ...
+                   'Checked', jrclust.utils.ifEq(i == 1, 'on', 'off'), ...
+                   'Enable', 'on');
         end
     end
 end

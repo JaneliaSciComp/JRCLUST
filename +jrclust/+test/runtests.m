@@ -1,12 +1,13 @@
 function res = runtests()
 close all; clear;
-res = struct();
 
 import matlab.unittest.TestSuite
 import matlab.unittest.TestRunner
 import matlab.unittest.plugins.CodeCoveragePlugin
 
 tr = TestRunner.withTextOutput;
+tr.addPlugin(CodeCoveragePlugin.forFolder([jrclust.utils.basedir '/@JRC'], ...
+    'IncludingSubfolders', true));
 % tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust'));
 tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.interfaces'));
 % tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.detect'));
@@ -30,6 +31,9 @@ suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.SplitTe
 
 %% TEST REVERT
 suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.RevertTest)];
+
+%% TEST CONVERT HISTORY
+suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.ConvertHistoryTest)];
 
 %% RUN TESTS, SUMMARIZE
 res = tr.run(suites);

@@ -59,7 +59,6 @@ function updateSelect(obj, iClusters, force)
 
     % update menu
     obj.updateNoteMenu();
-    obj.updateHistMenu();
 
     if obj.hasFig('FigWav')
         hFigWav = obj.hFigs('FigWav');

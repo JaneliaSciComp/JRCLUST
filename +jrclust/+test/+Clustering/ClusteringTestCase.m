@@ -3,14 +3,15 @@ classdef ClusteringTestCase < matlab.mock.TestCase
 
     %% FIRST-CLASS PROPS
     properties
-        dRes = struct();        % detect results
-        sRes = struct();        % sort results
-        hCfg;                   % mock jrclust.Config object
-        hCfgBehavior;           % behavior object for mock Config
-        hClust;                 % clustering object
-        histFile = tempname();  % temporary history file
-        nSpikes = 131072;       % 2^17 spikes
-        nSites = 64;            % 64 sites
+        dRes = struct();                % detect results
+        sRes = struct();                % sort results
+        hCfg;                           % mock jrclust.Config object
+        hCfgBehavior;                   % behavior object for mock Config
+        hClust;                         % clustering object
+        histFile = tempname();          % temporary history file
+        resFile = [tempname() '.mat'];  % temporary res file
+        nSpikes = 131072;               % 2^17 spikes
+        nSites = 64;                    % 64 sites
     end
 
     %% DEPENDENT PROPS
@@ -41,6 +42,7 @@ classdef ClusteringTestCase < matlab.mock.TestCase
                                     "nSitesEvt", ...
                                     "nSitesExcl", ...
                                     "qqFactor", ...
+                                    "resFile", ...
                                     "sampleRate", ...
                                     "siteLoc", ...
                                     "siteNeighbors"], ...
@@ -50,11 +52,12 @@ classdef ClusteringTestCase < matlab.mock.TestCase
             obj.assignOutputsWhen(obj.hCfgBehavior.isa('jrclust.Config'), true)
             
             obj.assignOutputsWhen(get(obj.hCfgBehavior.bitScaling), 1/pi);
-            obj.assignOutputsWhen(get(obj.hCfgBehavior.histFile), 'ndiff');
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.filterType), 'ndiff');
             obj.assignOutputsWhen(get(obj.hCfgBehavior.histFile), obj.histFile);
             obj.assignOutputsWhen(get(obj.hCfgBehavior.nSitesEvt), 4);
             obj.assignOutputsWhen(get(obj.hCfgBehavior.nSitesExcl), 1);
             obj.assignOutputsWhen(get(obj.hCfgBehavior.qqFactor), 5);
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.resFile), obj.resFile);
             obj.assignOutputsWhen(get(obj.hCfgBehavior.sampleRate), 25000);
             obj.assignOutputsWhen(get(obj.hCfgBehavior.siteLoc), rand(obj.nSites, 2));
             obj.assignOutputsWhen(get(obj.hCfgBehavior.siteNeighbors), siteNeighbors);
@@ -67,6 +70,12 @@ classdef ClusteringTestCase < matlab.mock.TestCase
             obj.spikeFeatures = rand(4, 1, obj.nSpikes);
             obj.spikeTimes = (1:obj.nSpikes)';
             obj.spikeClusters = repmat((1:obj.nClusters)', obj.nSpikes/obj.nClusters, 1);
+
+            % touch histFile
+            fclose(fopen(obj.histFile, 'w'));
+
+            % touch resFile
+            fclose(fopen(obj.resFile, 'w'));
         end
     end
 
