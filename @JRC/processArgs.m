@@ -153,7 +153,7 @@ function processArgs(obj)
                 obj.hCfg = hCfg_;
                 obj.res = res_;
 
-                obj.saveRes();
+                obj.saveRes(~obj.args{2});
                 obj.hCfg.save('', 1);
 
                 obj.isCompleted = 1;
