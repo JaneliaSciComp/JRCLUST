@@ -1674,6 +1674,7 @@
     "deprecated": {
         "unsupported": [
             "MAX_LOG",
+            "dataType", 
             "dc_factor",
             "dinput_imec_trial",
             "duration_file",
