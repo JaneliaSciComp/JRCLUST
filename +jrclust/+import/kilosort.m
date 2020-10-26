@@ -138,7 +138,6 @@ while 1
                     num2str(hCfg.headerOffset), ...
                     hCfg.dataTypeRaw,...
                     hCfg.dataTypeExtracted};
-};
     if confirm_flag
         dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
     else
