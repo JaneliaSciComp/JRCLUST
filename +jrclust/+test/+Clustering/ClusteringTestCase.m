@@ -94,7 +94,6 @@ classdef ClusteringTestCase < matlab.mock.TestCase
             obj.hClust.clusterNotes = arrayfun(@(i) num2str(i), (1:obj.nClusters)', 'UniformOutput', 0);
             obj.hClust.clusterSites = (1:obj.nClusters)';
             obj.hClust.spikesByCluster = arrayfun(@(i) find(obj.spikeClusters == i), (1:obj.nClusters)', 'UniformOutput', 0);
-            obj.hClust.unitCount = cellfun(@(c) numel(c), obj.hClust.spikesByCluster);
 
             obj.hClust.history = struct('optype', cell(1), 'message', cell(1), 'indices', cell(1));
 

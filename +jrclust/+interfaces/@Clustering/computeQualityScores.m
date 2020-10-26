@@ -3,6 +3,19 @@ function computeQualityScores(obj, updateMe)
     if nargin < 2
         updateMe = [];
     end
+    
+    try
+        obj.updateWaveforms(updateMe);
+    catch ME
+        warning(ME.message);
+        return;
+    end
+
+    try
+        obj.computeCentroids(updateMe);
+    catch ME
+        warning(ME.message);
+    end
 
     obj.hCfg.updateLog('qualScores', 'Computing cluster quality scores', 1, 0);
 
@@ -26,7 +39,6 @@ function computeQualityScores(obj, updateMe)
         unitIsoDist_ = obj.unitIsoDist;
         unitLRatio_ = obj.unitLRatio;
         unitISIRatio_ = obj.unitISIRatio;
-        updateMe = updateMe(:)';
     end
 
     % This is troubling:
@@ -34,7 +46,9 @@ function computeQualityScores(obj, updateMe)
     % > In mahal (line 49)
     % TODO: investigate
     warning off;
-    for iCluster = updateMe
+    for i = 1:numel(updateMe)
+        iCluster = updateMe(i);
+
         clusterSpikes_ = obj.spikesByCluster{iCluster};
         % Compute ISI ratio
         clusterTimes_ = obj.spikeTimes(clusterSpikes_);
@@ -91,12 +105,12 @@ function computeQualityScores(obj, updateMe)
     end % for
     warning on;
 
-    obj.unitISIRatio = unitISIRatio_;
-    obj.unitIsoDist = unitIsoDist_;
-    obj.unitLRatio = unitLRatio_;
-    obj.unitPeaksRaw = unitPeaksRaw_; % unitPeaks is set elsewhere
-    obj.unitVpp = unitVpp_;
-    obj.unitVppRaw = unitVppRaw_;
+    obj.unitISIRatio = unitISIRatio_(:);
+    obj.unitIsoDist = unitIsoDist_(:);
+    obj.unitLRatio = unitLRatio_(:);
+    obj.unitPeaksRaw = unitPeaksRaw_(:); % unitPeaks is set elsewhere
+    obj.unitVpp = unitVpp_(:);
+    obj.unitVppRaw = unitVppRaw_(:);
 
     obj.hCfg.updateLog('qualScores', 'Finished computing cluster quality scores', 0, 1);
 end

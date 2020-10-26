@@ -6,7 +6,7 @@ classdef (Abstract) Clustering < handle
     end
 
     %% CLASS INTROSPECTION
-    properties (SetAccess=protected)
+    properties (SetAccess=protected, Hidden)
         unitFields;         % data fields related to clusters
     end
 
@@ -24,11 +24,9 @@ classdef (Abstract) Clustering < handle
 
     %% SORTING DATA (MUTABLE)
     properties (SetObservable)
-        annotatedOnly;      % IDs of units which have annotations
         clusterCentroids;   % centroids of clusters on the probe
         clusterNotes;       % notes on clusters
         clusterSites;       % mode site per cluster
-        editPos;            % current position in edit history
         history;            % cell array, log of merge/split/delete operations
         meanWfGlobal;       % mean filtered waveforms for each cluster over all sites
         meanWfGlobalRaw;    % mean raw waveforms for each cluster over all sites
@@ -36,11 +34,15 @@ classdef (Abstract) Clustering < handle
         meanWfLocalRaw;     % mean raw waveforms for each cluster
         meanWfRawLow;       % mean raw waveforms for each cluster over all sites at a low point on the probe (for drift correction)
         meanWfRawHigh;      % mean raw waveforms for each cluster over all sites at a high point on the probe (for drift correction)
-        recompute;          % indices of units with metadata to recompute
         spikeClusters;      % individual spike assignments
         spikesByCluster;    % cell array of spike indices per cluster
-        unitCount;          % number of spikes per cluster
         waveformSim;        % cluster similarity scores
+    end
+
+    % properties which should not be altered or saved
+    properties (SetAccess=protected, Hidden)
+        editPos;            % current position in edit history
+        recompute;          % indices of units with metadata to recompute
     end
 
     % computed from other values, but only on set
@@ -50,7 +52,9 @@ classdef (Abstract) Clustering < handle
 
     % computed from other values
     properties (Dependent, Transient)
+        annotatedOnly;      % IDs of units which have annotations
         nEdits;             % number of edits made to initial clustering
+        unitCount;          % number of spikes per cluster
     end
 
     %% QUALITY METRICS
@@ -128,24 +132,22 @@ classdef (Abstract) Clustering < handle
         rmOutlierSpikes(obj);
     end
 
-    methods (Abstract, Access=protected, Hidden)
-        nMerged = mergeBySim(obj);
-    end
-
     %% UTILITY METHODS
     methods (Access=protected, Hidden)
-        removeEmptyClusters(obj);
-    end
-    
-    methods (Access=protected, Hidden)
         [sites1, sites2, sites3] = getSecondaryPeaks(obj);
+        nMerged = mergeBySim(obj);
+        removeEmptyClusters(obj);
     end
 
     %% GETTERS/SETTERS
     methods
         % annotatedOnly
         function val = get.annotatedOnly(obj)
-            val = find(cellfun(@(c) ~isempty(c), obj.clusterNotes));
+            if iscell(obj.clusterNotes)
+                val = find(cellfun(@(c) ~isempty(c), obj.clusterNotes));
+            else
+                val = [];
+            end
         end
 
         % detectedOn
@@ -181,7 +183,6 @@ classdef (Abstract) Clustering < handle
 
         % nEdits
         function ne = get.nEdits(obj)
-%             ne = size(obj.history, 1);
             ne = numel(obj.history.message);
         end
 
@@ -290,6 +291,15 @@ classdef (Abstract) Clustering < handle
         end
         function set.spikeTimes(obj, val)
             obj.dRes.spikeTimes = val;
+        end
+        
+        % unitCount
+        function val = get.unitCount(obj)
+            if iscell(obj.spikesByCluster)
+                val = cellfun(@numel, obj.spikesByCluster);
+            else
+                val = [];
+            end
         end
     end
 end

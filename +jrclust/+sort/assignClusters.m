@@ -28,6 +28,9 @@ function sRes = assignClusters(dRes, sRes, hCfg)
         nClusters = numel(sRes.clusterCenters);
     end
 
+    % unitCount becomes a derivative field, no need to store it
+    sRes = rmfield(sRes, 'unitCount');
+
     hCfg.updateLog('assignClusters', sprintf('Finished initial assignment (%d clusters)', nClusters), 0, 1);
 end
 
@@ -91,9 +94,9 @@ function sRes = doAssign(dRes, sRes, hCfg)
     nClusters = numel(sRes.clusterCenters);
 
     % count spikes in clusters
-    sRes.spikesByCluster = arrayfun(@(iC) find(sRes.spikeClusters == iC), 1:nClusters, 'UniformOutput', 0);
+    sRes.spikesByCluster = arrayfun(@(iC) find(sRes.spikeClusters == iC), (1:nClusters)', 'UniformOutput', 0);
     sRes.unitCount = cellfun(@numel, sRes.spikesByCluster);
-    sRes.clusterSites = double(arrayfun(@(iC) mode(dRes.spikeSites(sRes.spikesByCluster{iC})), 1:nClusters));
+    sRes.clusterSites = double(arrayfun(@(iC) mode(dRes.spikeSites(sRes.spikesByCluster{iC})), (1:nClusters)'));
 end
 
 function sRes = splitDist(dRes, sRes, hCfg)

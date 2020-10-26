@@ -138,26 +138,26 @@ function res = detect(obj)
 
     if size(res.centerSites, 2) > 0
         res.spikeSites = res.centerSites(:, 1);
-        res.spikesBySite = arrayfun(@(iSite) find(res.centerSites(:, 1) == iSite), 1:nSites, 'UniformOutput', 0);
+        res.spikesBySite = arrayfun(@(iSite) find(res.centerSites(:, 1) == iSite), (1:nSites)', 'UniformOutput', 0);
     else
         res.spikeSites = [];
-        res.spikesBySite = cell(1, nSites);
+        res.spikesBySite = cell(nSites, 1);
     end
 
     if size(res.centerSites, 2) > 1
         res.spikeSites2 = res.centerSites(:, 2);
-        res.spikesBySite2 = arrayfun(@(iSite) find(res.centerSites(:, 2) == iSite), 1:nSites, 'UniformOutput', 0);
+        res.spikesBySite2 = arrayfun(@(iSite) find(res.centerSites(:, 2) == iSite), (1:nSites)', 'UniformOutput', 0);
     else
         res.spikeSites2 = [];
-        res.spikesBySite2 = cell(1, nSites);
+        res.spikesBySite2 = cell(nSites, 1);
     end
 
     if size(res.centerSites, 2) > 2
         res.spikeSites3 = res.centerSites(:, 3);
-        res.spikesBySite3 = arrayfun(@(iSite) find(res.centerSites(:, 3) == iSite), 1:nSites, 'UniformOutput', 0);
+        res.spikesBySite3 = arrayfun(@(iSite) find(res.centerSites(:, 3) == iSite), (1:nSites)', 'UniformOutput', 0);
     else
         res.spikeSites3 = [];
-        res.spikesBySite3 = cell(1, nSites);
+        res.spikesBySite3 = cell(nSites, 1);
     end
 
     % detected spikes (raw and filtered), features

@@ -39,11 +39,6 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
             end
         end
     end
-
-    %% UTILITY METHODS
-    methods (Access=protected, Hidden)
-        nMerged = mergeBySim(obj);
-    end
     
     %% STATIC METHODS
     methods(Static)

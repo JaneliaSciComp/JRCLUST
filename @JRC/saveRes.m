@@ -19,56 +19,25 @@ function saveRes(obj, forceOverwrite)
 
     obj.hCfg.updateLog('saveRes', sprintf('Saving results to %s', obj.hCfg.resFile), 1, 0);
 
+    % save fields from obj (JRC)
+    res_ = struct();
+    fieldNames = obj.getSaveFields();
+    for i = 1:numel(fieldNames)
+        fn = fieldNames{i};
+        res_.(fn) = obj.res.(fn);
+    end
+
+    % save fields from obj.res.hClust, if applicable
     if isfield(obj.res, 'hClust')
-        hClust = obj.res.hClust;
-        res_ = rmfield(obj.res, 'hClust');
-
-        res_.initialClustering = hClust.initialClustering;
-        res_.spikeClusters = hClust.spikeClusters;
-
-        % fieldnames contained in dRes or sRes
-        fieldNames = fieldnames(hClust);
-        for i = 1:numel(fieldNames)
-            fn = fieldNames{i};
-            res_.(fn) = hClust.(fn);
+        try
+            fieldNames = obj.hClust.getSaveFields(); % obj.hClust -> obj.res.hClust
+            for i = 1:numel(fieldNames)
+                fn = fieldNames{i};
+                res_.(fn) = obj.hClust.(fn);
+            end
+        catch ME
+            warning(ME.message);
         end
-    else
-        res_ = obj.res;
-    end
-
-    % don't save these fields
-    if isfield(res_, 'spikesRaw')
-        res_ = rmfield(res_, 'spikesRaw');
-    end
-    if isfield(res_, 'spikesRawVolt')
-        res_ = rmfield(res_, 'spikesRawVolt');
-    end
-    if isfield(res_, 'spikesFilt')
-        res_ = rmfield(res_, 'spikesFilt');
-    end
-    if isfield(res_, 'spikesFiltVolt')
-        res_ = rmfield(res_, 'spikesFiltVolt');
-    end
-    if isfield(res_, 'spikesFilt2')
-        res_ = rmfield(res_, 'spikesFilt2');
-    end
-    if isfield(res_, 'spikesFilt3')
-        res_ = rmfield(res_, 'spikesFilt3');
-    end
-    if isfield(res_, 'spikeFeatures')
-        res_ = rmfield(res_, 'spikeFeatures');
-    end
-    if isfield(res_, 'nClusters')
-        res_ = rmfield(res_, 'nClusters');
-    end
-    if isfield(res_, 'nEdits')
-        res_ = rmfield(res_, 'nEdits');
-    end
-    if isfield(res_, 'unitFields')
-        res_ = rmfield(res_, 'unitFields');
-    end
-    if isfield(res_, 'hRecs')
-        res_ = rmfield(res_, 'hRecs');
     end
 
     jrclust.utils.saveStruct(res_, obj.hCfg.resFile);
