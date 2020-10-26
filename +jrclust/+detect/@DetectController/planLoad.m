@@ -2,7 +2,7 @@ function [nLoads, nSamplesLoad, nSamplesFinal] = planLoad(obj, hRec)
     %PLANLOAD Get number of samples to load in each chunk of a file
     nBytesSubset = subsetBytes(hRec, obj.hCfg.loadTimeLimits*obj.hCfg.sampleRate);
 
-    bps = jrclust.utils.typeBytes(obj.hCfg.dataType);
+    bps = jrclust.utils.typeBytes(obj.hCfg.dataTypeRaw);
 
     % nColumns in data matrix
     % old method:
@@ -49,7 +49,7 @@ function nBytesLoad = subsetBytes(hRec, loadTimeLimits)
 
     loadLimits = min(max(loadTimeLimits, 1), hRec.nSamples);
     nSamplesLoad = diff(loadLimits) + 1;
-    nBytesLoad = nSamplesLoad * jrclust.utils.typeBytes(hRec.dataType) * hRec.nChans;
+    nBytesLoad = nSamplesLoad * jrclust.utils.typeBytes(hRec.dataTypeRaw) * hRec.nChans;
 end
 
 function n = nSamplesToRead(hRec, loadTimeLimitsSeconds, sampleRate)

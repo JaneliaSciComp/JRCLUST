@@ -3,11 +3,11 @@
     "version": {
         "major": 4,
         "minor": 0,
-        "release": 1,
+        "release": 2,
         "tag": "",
         "codename": "Edward"
     },
-    "changeDate": "06 Nov 2019",
+    "changeDate": "01 Nov 2020",
     "authors": [
         "James Jun"
     ],
@@ -24,6 +24,7 @@
         "Thomas Luo",
         "Lawrence Niu",
         "Vincent Prevosto",
+	"Stephen D. Van Hooser", 
         "Michael Wallace",
         "Tim Wang"
     ],

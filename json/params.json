@@ -96,7 +96,7 @@
                 "clustering"
             ]
         },
-        "dataType": {
+        "dataTypeRaw": {
             "description": "Format of raw recordings",
             "comment": "",
             "default_value": "int16",
@@ -114,6 +114,24 @@
             },
             "section": ["recording file"]
         },
+	"dataTypeExtracted": {
+            "description": "Format of raw recordings",
+            "comment": "",
+            "default_value": "int16",
+            "validation": {
+                "classes": ["char"],
+                "attributes": ["scalartext"],
+                "values": [
+                    "int16",
+                    "uint16",
+                    "int32",
+                    "uint32",
+                    "single",
+                    "double"
+                ]
+            },
+            "section": ["recording file"]
+	},
         "dispTimeLimits": {
             "description": "Time range (in ms) to display",
             "comment": "",
@@ -1825,7 +1843,7 @@
         "um_per_pix": "umPerPix",
         "uV_per_bit": "bitScaling",
         "vcCommonRef": "CARMode",
-        "vcDataType": "dataType",
+        "vcDataType": "dataTypeRaw",
         "vcDetrend_postclu": "RDDetrendMode",
         "vcFet": "clusterFeature",
         "vcFet_show": "dispFeature",
