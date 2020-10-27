@@ -1,15 +1,19 @@
 function history = convertHistory(obj)
-%CONVERTHISTORY Convert history from the histFile construct to the new
-%struct system.
+%CONVERTHISTORY Convert history from histFile construct to struct.
+history = struct('optype', cell(1), 'message', cell(1), 'indices', cell(1));
+
+if ~isfield(obj.res, 'hClust')
+    return;
+end
+
 histFile = obj.hCfg.histFile;
 
 if exist(histFile, 'file') ~= 2
     return;
 end
 
-% load spikeClusters to get an idea of the number of edits we've made
-load(obj.hCfg.resFile, 'spikeClusters');
-nSpikes = numel(spikeClusters);
+% count the number of edits we've made
+nSpikes = numel(obj.hClust.spikeTimes);
 
 d = dir(histFile);
 nEdits = d.bytes / (nSpikes + 1) / 4;
@@ -17,8 +21,6 @@ nEdits = d.bytes / (nSpikes + 1) / 4;
 if nEdits == 0 % file is empty
     return;
 end
-
-history = struct('optype', cell(1), 'message', cell(1), 'indices', cell(1));
 
 %% record edits in history
 fid = fopen(histFile, 'r');
@@ -143,6 +145,9 @@ for r = 2:nEdits
     scBefore = scAfter;
 end
 
-fclose(fid); % clean up
+fclose(fid);
+
+% clean up
+deleteFile('History has been converted. Delete the old history file?', obj.hCfg.histFile);
 
 end % func

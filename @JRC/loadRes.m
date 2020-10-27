@@ -47,34 +47,28 @@ elseif isfield(res_, 'spikeClusters')
     res_.hClust = hClust;
 end
 
+%% convert history if necessary
 if isfield(res_, 'hClust')
-    if ~isempty(res_.hClust.inconsistentFields()) && obj.hCfg.getOr('autoRecover', 0)
-        flag = res_.hClust.recover(1); % recover inconsistent data if needed
-        successAppend = 'You should look through your data and ensure everything is correct, then save it.';
-        failureAppend = 'You will probably experience problems curating your data.';
-        msg = '';
-        switch flag
-            case 2
-                msg = sprintf('Non-contiguous spike table found and corrected. %s', successAppend);
-
-            case 1
-                msg = sprintf('Inconsistent fields found and corrected. %s', successAppend);
-
-            case 0
-                msg = sprintf('Clustering data in an inconsistent state and automatic recovery failed. Please post an issue on the GitHub issue tracker. %s', failureAppend);
-
-            case -1
-                msg = sprintf('Automatic recovery canceled by the user but the clustering data is still in an inconsistent state. %s', failureAppend);
-        end
-
-        if ~isempty(msg)
-            jrclust.utils.qMsgBox(msg, 1, 1);
-        end
-    end
-
     % convert old-style history to new-style
     if isprop(obj.hCfg, 'histFile') && exist(obj.hCfg.histFile, 'file') == 2
-        res_.hClust.history = obj.convertHistory();
+        safeToDelete = 0;
+        try
+            history = obj.convertHistory();
+            safeToDelete = 1;
+        catch ME
+            warning('Failed to convert history: %s', ME.message);
+        end
+
+        % delete superfluous history file
+        if safeToDelete
+            try
+                delete(obj.hCfg.histFile);
+            catch ME
+                warning('Failed to delete %s: %s', ME.message);
+            end
+        end
+
+        res_.hClust.history = history;
         delete(obj.hCfg.histFile);
     end
 end
