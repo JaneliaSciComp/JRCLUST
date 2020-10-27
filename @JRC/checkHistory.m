@@ -5,7 +5,7 @@ function [needsConversion, needsDeletion] = checkHistory(obj)
 needsConversion = false;
 needsDeletion = false;
 
-if exists(obj.hCfg.histFile, 'file') == 2
+if exist(obj.hCfg.histFile, 'file') == 2
     needsDeletion = true;
 end
 
@@ -38,10 +38,10 @@ if isstruct(history) && ...
 end
 
 % still here? we need to convert that history
-dlgans = questdlg('Your history needs to be converted from the old style to the new. Is this OK?', ...
+dlgAns = questdlg('Your history needs to be converted from the old style to the new. Please confirm.', ...
     'Confirm Convert History', 'OK', 'Cancel', 'OK');
 
-if strcmp(dlgans, 'OK')
+if strcmp(dlgAns, 'OK')
     needsConversion = true;
 end
 

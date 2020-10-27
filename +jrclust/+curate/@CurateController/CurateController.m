@@ -110,7 +110,6 @@ classdef CurateController < handle
         setFigPos(figPos);
     end
 
-
     %% GETTERS/SETTERS
     methods
         % hCfg

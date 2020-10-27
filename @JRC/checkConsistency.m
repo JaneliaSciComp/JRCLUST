@@ -8,18 +8,18 @@ if ~isfield(obj.res, 'hClust')
     return;
 end
 
-if ~isempty(res_.hClust.inconsistentFields())
+if ~isempty(obj.hClust.inconsistentFields())
     % confirm recover with user
     if ~obj.hCfg.getOr('autoRecover', 0)
-        dlgans = questdlg('Data found to be in an inconsistent state. Should I try to recover it?', 'Confirm Auto Recover', 'OK', 'Cancel', 'OK');
+        dlgans = questdlg('Data found to be in an inconsistent state. Should I try to recover it?', 'Confirm Auto Recover', 'Yes');
 
-        if ~strcmp(dlgans, 'OK')
+        if ~strcmp(dlgans, 'Yes')
             success = 0;
             return;
         end
     end
 
-    flag = res_.hClust.recover(1); % recover inconsistent data if needed
+    flag = obj.hClust.recover(1); % recover inconsistent data if needed
     successAppend = 'You should look through your data and ensure everything is correct, then save it.';
     failureAppend = 'You will probably experience problems curating your data.';
     msg = '';
@@ -44,5 +44,5 @@ if ~isempty(res_.hClust.inconsistentFields())
         jrclust.utils.qMsgBox(msg, 1, 1);
     end
 end
-end
+end %fun
 

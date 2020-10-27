@@ -40,37 +40,14 @@ elseif isfield(res_, 'spikeClusters')
         fn = fieldNames{i};
         propMetadata = pl(strcmp(fn, {pl.Name}));
         if isprop(hClust, fn) && ~((propMetadata.Dependent && isempty(propMetadata.SetMethod)))
-            hClust.(fn) = res_.(fn);
+            try
+                hClust.(fn) = res_.(fn);
+            catch
+            end
         end
     end
 
     res_.hClust = hClust;
-end
-
-%% convert history if necessary
-if isfield(res_, 'hClust')
-    % convert old-style history to new-style
-    if isprop(obj.hCfg, 'histFile') && exist(obj.hCfg.histFile, 'file') == 2
-        safeToDelete = 0;
-        try
-            history = obj.convertHistory();
-            safeToDelete = 1;
-        catch ME
-            warning('Failed to convert history: %s', ME.message);
-        end
-
-        % delete superfluous history file
-        if safeToDelete
-            try
-                delete(obj.hCfg.histFile);
-            catch ME
-                warning('Failed to delete %s: %s', ME.message);
-            end
-        end
-
-        res_.hClust.history = history;
-        delete(obj.hCfg.histFile);
-    end
 end
 
 obj.res = res_;

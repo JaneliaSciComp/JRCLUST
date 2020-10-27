@@ -9,7 +9,7 @@ if ~isfield(obj.res, 'spikeTimes') || isempty(obj.res.spikeTimes)
 end
 
 if ~isfield(obj.res, 'hClust')
-    dlgAns = questdlg('Could not find all required data. Sort?', 'Sorting required', 'No');
+    dlgAns = questdlg('Could not find all required data. Sort?', 'Sorting required', 'Yes');
     if strcmp(dlgAns, 'Yes')
         obj.sort();
     else

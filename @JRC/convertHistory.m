@@ -1,7 +1,5 @@
-function history = convertHistory(obj)
+function convertHistory(obj)
 %CONVERTHISTORY Convert history from histFile construct to struct.
-history = struct('optype', cell(1), 'message', cell(1), 'indices', cell(1));
-
 if ~isfield(obj.res, 'hClust')
     return;
 end
@@ -23,6 +21,8 @@ if nEdits == 0 % file is empty
 end
 
 %% record edits in history
+history = struct('optype', cell(1), 'message', cell(1), 'indices', cell(1));
+
 fid = fopen(histFile, 'r');
 fread(fid, 1, 'int32'); % discard checkInt
 
@@ -134,11 +134,23 @@ for r = 2:nEdits
         if all(cellfun(@numel, beforeAfter) == 1) % a permutation
             history.optype{end+1} = 'reorder';
             history.indices{end+1} = [(1:maxBefore)' [beforeAfter{:}]'];
-            history.message{end+1} = 'reorder units';
+
+            % try to use the old commit message if we can
+            if isa(obj.hClust.history, 'containers.Map') && obj.hClust.history.isKey(r)
+                history.message{end+1} = obj.hClust.history(r);
+            else
+                history.message{end+1} = 'reorder units';
+            end
         else
             history.optype{end+1} = 'reassign';
             history.indices{end+1} = [scBefore(:) scAfter(:)];
-            history.message{end+1} = 'reassign spikes';
+
+            % try to use the old commit message if we can
+            if isa(obj.hClust.history, 'containers.Map') && obj.hClust.history.isKey(r)
+                history.message{end+1} = obj.hClust.history(r);
+            else
+                history.message{end+1} = 'reassign spikes';
+            end
         end
     end
 
@@ -147,7 +159,16 @@ end
 
 fclose(fid);
 
+% save res
+obj.hClust.history = history;
+try
+    obj.saveRes(1);
+catch ME
+    warning('Unable to save history file: ''%s''. Bailing out.', ME.message);
+    return;
+end
+
 % clean up
 deleteFile('History has been converted. Delete the old history file?', obj.hCfg.histFile);
 
-end % func
+end % fun
