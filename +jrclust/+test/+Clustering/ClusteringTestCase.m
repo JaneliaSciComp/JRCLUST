@@ -10,7 +10,7 @@ classdef ClusteringTestCase < matlab.mock.TestCase
         hClust;                         % clustering object
         histFile = tempname();          % temporary history file
         resFile = [tempname() '.mat'];  % temporary res file
-        nSpikes = 131072;               % 2^17 spikes
+        nSpikes = 8192;                 % 2^13 spikes
         nSites = 64;                    % 64 sites
     end
 
@@ -29,45 +29,67 @@ classdef ClusteringTestCase < matlab.mock.TestCase
             %SETUPCONFIG Create a mock jrclust.Config object with just the
             % necessary properties.
             import matlab.mock.actions.AssignOutputs;
+            import matlab.mock.actions.Invoke;
 
-            siteNeighbors = zeros(5, obj.nSites);
-            for i = 1:obj.nSites
-                siteNeighbors(:, i) = mod((i-1:i+3)', obj.nSites) + 1;
-            end
+            params = jrclust.utils.getDefaultParams();
+            defaultParamNames = fieldnames(params)';
+
+            paramNames = [defaultParamNames ...
+                {'histFile', 'resFile'}...
+                {'evtWindowSamp', 'evtWindowRawSamp', 'nSites', 'nSitesEvt', 'siteNeighbors'}];
 
             [obj.hCfg, obj.hCfgBehavior] = obj.createMock( ...
-                'AddedProperties', ["bitScaling", ...
-                                    "filterType", ...
-                                    "histFile", ...
-                                    "nSitesEvt", ...
-                                    "nSitesExcl", ...
-                                    "qqFactor", ...
-                                    "resFile", ...
-                                    "sampleRate", ...
-                                    "siteLoc", ...
-                                    "siteNeighbors"], ...
-                'AddedMethods', ["isa", ...
-                                 "updateLog"] ...
+                'AddedProperties', paramNames, ...
+                'AddedMethods', ["getOr", ...
+                                 "isa", ...
+                                 "updateLog", ...
+                                ] ...
                 );
-            obj.assignOutputsWhen(obj.hCfgBehavior.isa('jrclust.Config'), true)
+
+            % set default param values
+            for i = 1:numel(defaultParamNames)
+                paramName = defaultParamNames{i};
+                param = params.(paramName);
+
+                obj.assignOutputsWhen(get(obj.hCfgBehavior.(paramName)), param.default_value);
+            end
+
+            % set unavoidably user-defined values
+            nSiteDir = 7;
+            nSitesExcl = 2;
             
-            obj.assignOutputsWhen(get(obj.hCfgBehavior.bitScaling), 1/pi);
-            obj.assignOutputsWhen(get(obj.hCfgBehavior.filterType), 'ndiff');
             obj.assignOutputsWhen(get(obj.hCfgBehavior.histFile), obj.histFile);
-            obj.assignOutputsWhen(get(obj.hCfgBehavior.nSitesEvt), 4);
-            obj.assignOutputsWhen(get(obj.hCfgBehavior.nSitesExcl), 1);
-            obj.assignOutputsWhen(get(obj.hCfgBehavior.qqFactor), 5);
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.nSiteDir), nSiteDir);
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.nSitesExcl), nSitesExcl);
             obj.assignOutputsWhen(get(obj.hCfgBehavior.resFile), obj.resFile);
-            obj.assignOutputsWhen(get(obj.hCfgBehavior.sampleRate), 25000);
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.siteMap), (1:obj.nSites)');
             obj.assignOutputsWhen(get(obj.hCfgBehavior.siteLoc), rand(obj.nSites, 2));
+
+            % set derived param values
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.evtWindowSamp), ...
+                round(params.evtWindow.default_value * params.sampleRate.default_value / 1000));
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.evtWindowRawSamp), ...
+                round(params.evtWindowRaw.default_value * params.sampleRate.default_value / 1000));
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.nSites), obj.nSites);
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.nSitesEvt), ...
+                1 + 2*nSiteDir - nSitesExcl);
+
+            siteNeighbors = zeros(1 + 2*nSiteDir, obj.nSites);
+            for i = 1:obj.nSites
+                siteNeighbors(:, i) = mod((i-1:i + 2*nSiteDir - 1)', obj.nSites) + 1;
+            end
             obj.assignOutputsWhen(get(obj.hCfgBehavior.siteNeighbors), siteNeighbors);
+
+            % set method return values
+            when(withAnyInputs(obj.hCfgBehavior.getOr), Invoke(@(varargin) obj.getOr(varargin)));
+            obj.assignOutputsWhen(obj.hCfgBehavior.isa('jrclust.Config'), true); % for isa checking
         end
 
         function setupProps(obj)
             %SETUPPROPS Create the necessary data for a mock clustering.
             rng('default'); rng(10191);
             obj.spikeAmps = randi([-256, 255], obj.nSpikes, 1);
-            obj.spikeFeatures = rand(4, 1, obj.nSpikes);
+            obj.spikeFeatures = rand(obj.hCfg.nSitesEvt, 1, obj.nSpikes);
             obj.spikeTimes = (1:obj.nSpikes)';
             obj.spikeClusters = repmat((1:obj.nClusters)', obj.nSpikes/obj.nClusters, 1);
 
@@ -98,6 +120,17 @@ classdef ClusteringTestCase < matlab.mock.TestCase
             obj.hClust.history = struct('optype', cell(1), 'message', cell(1), 'indices', cell(1));
 
             obj.hClust.recompute = [];
+        end
+    end
+    
+    %% UTILITY METHODS
+    methods (Access = protected)
+        function val = getOr(varargin)
+            val = [];
+            args = varargin{2};
+            if numel(args) == 3
+                val = args{3};
+            end
         end
     end
 

@@ -42,6 +42,11 @@ classdef (Abstract) Clustering < handle
     % properties which should not be altered or saved
     properties (SetAccess=protected, Hidden)
         editPos;            % current position in edit history
+    end
+    
+    % properties which should not be saved, but need to be alterable by
+    % test classes
+    properties (Hidden)
         recompute;          % indices of units with metadata to recompute
     end
 

@@ -132,11 +132,11 @@ end
 %% TEST METHODS
 methods (Test)
     function ok(obj)
-        hist = obj.hJRC.convertHistory();
+        obj.hJRC.convertHistory();
         for i = 1:numel(obj.history.optype)
-            obj.assertEqual(obj.history.optype{i}, hist.optype{i});
-            obj.assertEqual(obj.history.message{i}, hist.message{i});
-            obj.assertEqual(obj.history.indices{i}, hist.indices{i});
+            obj.assertEqual(obj.history.optype{i}, obj.hClust.history.optype{i});
+            obj.assertEqual(obj.history.message{i}, obj.hClust.history.message{i});
+            obj.assertEqual(obj.history.indices{i}, obj.hClust.history.indices{i});
         end
     end
 end

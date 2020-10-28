@@ -40,7 +40,8 @@ if isConsistent
         obj.history.indices{end+1} = [beforeTable(:), afterTable(:)]; % [before, after]
 
         % update units that need to be recomputed
-        obj.recompute = -1;
+        recompute = unique(sort(afterTable));
+        obj.recompute = recompute(recompute > 0);
     catch ME
         warning('Failed to commit: %s', ME.message);
         isConsistent = 0;

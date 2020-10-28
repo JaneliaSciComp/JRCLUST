@@ -15,6 +15,8 @@ classdef DensityPeakClusteringTestCase < jrclust.test.Clustering.ClusteringTestC
             obj.dRes.spikeSites = repmat((1:obj.nSites)', obj.nSpikes/obj.nSites, 1);
             obj.dRes.spikesBySite = arrayfun(@(iS) find(obj.dRes.spikeSites == iS), 1:obj.nSites, 'UniformOutput', 0);
             obj.dRes.spikesBySite2 = cell(obj.nSites, 1);
+            obj.sRes.spikeRho = rand(obj.nSpikes, 1);
+            obj.sRes.spikeDelta = rand(obj.nSpikes, 1);
 
             % make a new DensityPeakClustering
             obj.hClust = jrclust.sort.DensityPeakClustering(obj.hCfg, obj.sRes, obj.dRes);
@@ -30,8 +32,8 @@ classdef DensityPeakClusteringTestCase < jrclust.test.Clustering.ClusteringTestC
             %RESETCLUSTERING Restore the clustering to its initial state.
             resetClustering@jrclust.test.Clustering.ClusteringTestCase(obj);
 
-            obj.hClust.meanWfGlobal = rand(32, obj.nSites, obj.nClusters);
-            obj.hClust.computeCentroids([]);
+            obj.hClust.spikesRaw = randi([-1024, 1024], diff(obj.hCfg.evtWindowRawSamp) + 1, 2*obj.hCfg.nSiteDir + 1, obj.nSpikes, 'int16');
+            obj.hClust.spikesFilt = randi([-1024, 1024], diff(obj.hCfg.evtWindowSamp) + 1, 2*obj.hCfg.nSiteDir + 1, obj.nSpikes, 'int16');
             obj.hClust.computeQualityScores([]);
         end
     end

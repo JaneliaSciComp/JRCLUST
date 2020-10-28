@@ -14,8 +14,8 @@ end
 
 % take a census of each cluster
 try
-    spikesByCluster = arrayfun(@(iC) find(obj.spikeClusters == iC), recompute, 'UniformOutput', 0);
-    clusterSites = double(arrayfun(@(iC) mode(obj.spikeSites(obj.spikesByCluster{iC})), recompute));
+    spikesByCluster = arrayfun(@(iC) find(obj.spikeClusters == iC), recompute, 'UniformOutput', 0); 
+    clusterSites = double(cellfun(@(sbc) mode(obj.spikeSites(sbc)), spikesByCluster));
 catch ME
     warning(ME.message);
     success = 0;

@@ -117,27 +117,25 @@ for i = 1:numel(fieldnames_)
 
     switch fn
         case {'templateSim', 'waveformSim'}
-            augShape = [obj.nClusters + 1, 1];
+            augShape = [obj.nClusters + numel(unitIds) - 1, numel(unitIds) - 1];
 
         case 'clusterCentroids'
-            augShape = [1, 2];
+            augShape = [numel(unitIds) - 1, 2];
 
         otherwise
             clusterDims = otherFields.(fn).cluster_dims;
             % get remaining (non-cluster-indexed) dimensions
             shape = size(val);
-            augShape = [shape(1:clusterDims-1) 1 shape(clusterDims+1:end)];
+            augShape = [shape(1:clusterDims-1) numel(unitIds) - 1 shape(clusterDims+1:end)];
     end
 
     % evaluate augment and consistency check functions
     hFunAug = eval(otherFields.(fn).augment);
     hFunConsistent = eval(otherFields.(fn).consistent);
 
-    % remove entries corresponding to deleted units
+    % add entries corresponding to newly-created units
     filler = makeFiller(val, augShape);
-    for i = 2:numel(unitIds)
-        val = hFunAug(val, unitIds(i)-1, filler);
-    end
+    val = hFunAug(val, unitIds(1), filler);
 
     % brief sanity check
     if ~hFunConsistent(val, nUnitsAfter)

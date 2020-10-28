@@ -1,14 +1,13 @@
-function restoreHistory(obj, nReverts)
-%RESTOREHISTORY Restore a position in hClust history
-if nReverts > obj.hClust.nEdits || nReverts < 0
+function revertLast(obj, nReverts)
+%REVERTLAST Revert the last `nReverts` operations in the history table.
+if nReverts > obj.hClust.nEdits || nReverts <= 0
     return;
 end
 
 if isprop(obj.hCfg, 'testRun') && obj.hCfg.testRun
     dlgAns = 'Yes';
 else
-    qstring = 'Are you sure you wish to revert?';
-    dlgAns = questdlg(qstring, 'Revert history', 'No');
+    dlgAns = questdlg('Are you sure you wish to revert?', 'Revert history', 'No');
 end
 
 switch dlgAns
@@ -33,6 +32,8 @@ switch dlgAns
             obj.updateFigRD(); % centers changed, need replotting
             obj.updateFigSim();
             obj.updateSelect(1);
+            obj.updateHistMenu();
+            obj.keyPressFigWav([], struct('Key', 'z')); % zoom
         end
 
     otherwise

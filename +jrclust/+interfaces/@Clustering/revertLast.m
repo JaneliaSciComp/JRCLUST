@@ -1,6 +1,6 @@
 function success = revertLast(obj, n)
 %REVERTLAST Revert the last `n` curation operations. 
-%   Undoes curation operations. Not destructive (saves each revert as another entry).
+%   Undoes curation operations.
 
 % revert last 1 by default
 if nargin < 1
@@ -45,5 +45,12 @@ for i = nops:-1:nops-n+1
     end
 end
 
-end % func
+%% recompute all fields and truncate history entries
+obj.doRecompute();
+
+obj.history.optype(end - 2*n + 1:end) = [];
+obj.history.message(end - 2*n + 1:end) = [];
+obj.history.indices(end - 2*n + 1:end) = [];
+
+end %fun
 

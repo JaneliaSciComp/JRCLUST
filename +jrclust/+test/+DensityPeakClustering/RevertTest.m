@@ -49,18 +49,16 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
 
             % revert the delete
             obj.assertEqual(obj.revertLast(1), 1);
-            obj.assertEqual(obj.hClust.nEdits, 2);
-
-            % saved a new entry in the history
-            obj.assertEqual(obj.hClust.history.optype{end}, 'undelete');
-            obj.assertEqual(obj.hClust.history.message{end}, sprintf('undeleted %d', unitId));
-            obj.assertEqual(obj.hClust.history.indices{end}, [-1 unitId]);
+            obj.assertEqual(obj.hClust.nEdits, 0);
 
             % spikeClusters restored to original state
             obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
 
-            % unit metadata needs to be recomputed
-            obj.assertEqual(obj.hClust.recompute, unitId);
+            % after revert, recompute is empty
+            obj.assertEmpty(obj.hClust.recompute);
+            
+            % all fields are consistent
+            obj.assertEmpty(obj.hClust.inconsistentFields());
         end
 
         function revertUndeleteIsDelete(obj)
@@ -72,27 +70,18 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
             obj.assertEqual(obj.deleteSingle(unitId), 1);
             obj.assertEqual(obj.hClust.nEdits, 1);
 
-            % save this snapshot of the spike table for validation
-            spikeClustersPostDelete = obj.hClust.spikeClusters;
-
             % revert the delete
             obj.assertEqual(obj.revertLast(1), 1);
-            obj.assertEqual(obj.hClust.nEdits, 2);
-
-            % revert the revert
-            obj.assertEqual(obj.revertLast(1), 1);
-            obj.assertEqual(obj.hClust.nEdits, 3);
-
-            % saved a new entry in the history
-            obj.assertEqual(obj.hClust.history.optype{end}, 'delete');
-            obj.assertEqual(obj.hClust.history.message{end}, sprintf('deleted %d', unitId));
-            obj.assertEqual(obj.hClust.history.indices{end}, [unitId, -1]);
+            obj.assertEqual(obj.hClust.nEdits, 0);
 
             % spikeClusters restored to original state
-            obj.assertEqual(obj.hClust.spikeClusters, spikeClustersPostDelete);
+            obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
 
-            % unit metadata no longer needs to be recomputed
+            % after revert, recompute is empty
             obj.assertEmpty(obj.hClust.recompute);
+            
+            % all fields are consistent
+            obj.assertEmpty(obj.hClust.inconsistentFields());
         end
 
         function revertMergeIsSplit(obj)
@@ -104,25 +93,18 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
             obj.assertEqual(obj.mergeMultiple(unitIds), 1);
             obj.assertEqual(obj.hClust.nEdits, 1);
 
-            partitioning = obj.hClust.history.indices{end};
-            partitioning = partitioning{2};
-
             % revert the merge
             obj.assertEqual(obj.revertLast(1), 1);
-            obj.assertEqual(obj.hClust.nEdits, 2);
-
-            % saved a new entry in the history
-            obj.assertEqual(obj.hClust.history.optype{end}, 'split');
-            obj.assertEqual(obj.hClust.history.message{end}, sprintf('splitted %d -> %s', ...
-                min(unitIds), jrclust.utils.field2str(sort(unitIds))));
-            obj.assertEqual(obj.hClust.history.indices{end}, {sort(unitIds); ...
-                partitioning});
+            obj.assertEqual(obj.hClust.nEdits, 0);
 
             % spikeClusters restored to original state
             obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
 
-            % all unit metadata needs to be recomputed
-            obj.assertEqual(obj.hClust.recompute, sort(unitIds));
+            % after revert, recompute is empty
+            obj.assertEmpty(obj.hClust.recompute);
+            
+            % all fields are consistent
+            obj.assertEmpty(obj.hClust.inconsistentFields());
         end
 
         function revertSplitIsMerge(obj)
@@ -145,20 +127,16 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
 
             % revert the split
             obj.assertEqual(obj.revertLast(1), 1);
-            obj.assertEqual(obj.hClust.nEdits, 2);
-
-            % saved a new entry in the history
-            obj.assertEqual(obj.hClust.history.optype{end}, 'merge');
-            obj.assertEqual(obj.hClust.history.message{end}, sprintf('merged %s -> %d', ...
-                jrclust.utils.field2str(sort(unitIds)), min(unitIds)));
-            obj.assertEqual(obj.hClust.history.indices{end}, {unitIds; ...
-                partitioning});
+            obj.assertEqual(obj.hClust.nEdits, 0);
 
             % spikeClusters restored to original state
             obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
 
-            % merged unit metadata needs to be recomputed
-            obj.assertEqual(obj.hClust.recompute, unitIds(1));
+            % after revert, recompute is empty
+            obj.assertEmpty(obj.hClust.recompute);
+            
+            % all fields are consistent
+            obj.assertEmpty(obj.hClust.inconsistentFields());
         end
 
         function revertSeveral(obj)
@@ -208,9 +186,15 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
 
             % now revert everything
             obj.assertEqual(obj.revertLast(5), 1);
-            obj.assertEqual(obj.hClust.nEdits, 10);
+            obj.assertEqual(obj.hClust.nEdits, 0);
 
             obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
+            
+            % after revert, recompute is empty
+            obj.assertEmpty(obj.hClust.recompute);
+            
+            % all fields are consistent
+            obj.assertEmpty(obj.hClust.inconsistentFields());
         end
 
         function crazyTown(obj)
@@ -291,6 +275,12 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
 
             obj.assertEqual(obj.revertLast(obj.hClust.nEdits), 1);
             obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
+            
+            % after revert, recompute is empty
+            obj.assertEmpty(obj.hClust.recompute);
+            
+            % all fields are consistent
+            obj.assertEmpty(obj.hClust.inconsistentFields());
         end
     end
 end

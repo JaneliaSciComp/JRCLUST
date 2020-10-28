@@ -43,6 +43,7 @@ function plotAllFigures(obj)
         % make this guy the key log
         hFigWav.figApply(@set, 'CloseRequestFcn', @obj.killFigWav);
         obj.addMenu(hFigWav);
+        obj.updateHistMenu();
     end
 
     % plot rho-delta figure

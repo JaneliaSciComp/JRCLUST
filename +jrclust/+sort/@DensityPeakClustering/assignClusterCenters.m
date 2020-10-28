@@ -3,7 +3,7 @@ function success = assignClusterCenters(obj)
 %   Detailed explanation goes here
 obj.hCfg.updateLog('assignCC', 'Recomputing cluster centers', 1, 0);
 
-success = 0;
+success = 1;
 clusterCenters = zeros(obj.nClusters, 1);
 
 for iCluster = 1:obj.nClusters

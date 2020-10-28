@@ -88,7 +88,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
                 if isfield(sRes, 'spikesByCluster')
                     obj.spikesByCluster = sRes.spikesByCluster;
                 else
-                    obj.spikesByCluster = arrayfun(@(iC) find(sRes.spikeClusters == iC), 1:max(sRes.spikeClusters));
+                    obj.spikesByCluster = arrayfun(@(iC) find(sRes.spikeClusters == iC), (1:max(sRes.spikeClusters))', 'UniformOutput', 0);
                 end
 
                 if isfield(sRes, 'clusterCenters')
