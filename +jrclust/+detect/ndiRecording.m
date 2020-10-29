@@ -75,7 +75,7 @@ classdef ndiRecording < jrclust.interfaces.RawRecording
             t0t1 = samples2times(obj.E, obj.epoch_id, cols([1 end]));
             roi = readtimeseries(obj.E, obj.epoch_id, t0t1(1), t0t1(2));
             roi = roi'; % switch to column-based samples
-            roi = roi(rows,:); % if only a subset requested, return only the subset
+            roi = single(roi(rows,:)); % if only a subset requested, return only the subset
         end % readRawROI()
 
 

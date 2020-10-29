@@ -92,6 +92,7 @@ classdef TracesController < jrclust.interfaces.FigureController
 
                     tracesRaw_ = cellfun(@(lims) obj.hRec.readRawROI(obj.hCfg.siteMap, lims(1):lims(2)), multiBounds, 'UniformOutput', 0);
                     obj.tracesRaw = jrclust.utils.neCell2mat(tracesRaw_);
+                    %if size(tracesRaw_{1},2)~=diff(multiBounds{1})+1, keyboard; end; % sometimes a useful debugging line
 
                     obj.tracesRaw = u2i(obj.tracesRaw);
                     obj.hFigTraces.figData.windowBounds = windowBounds;

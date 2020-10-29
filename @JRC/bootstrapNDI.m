@@ -53,7 +53,7 @@ function bootstrapNDI(obj, varargin)
 
     Estring = E.elementstring();
     Estring(find(Estring==' ')) = '_';
-    output_dir = [S.path() filesep '.JRCLUST' filesep Estring];
+    output_dir = [S.path filesep '.JRCLUST' filesep Estring];
     output_file = [output_dir filesep 'jrclust.prm'];
     if ~exist(output_dir,'dir'),
         try,
@@ -76,7 +76,7 @@ function bootstrapNDI(obj, varargin)
     cfgData.dataTypeExtracted = 'single'; %  we will convert to single resolution
     cfgData.bitScaling = 1;
     cfgData.recordingFormat = 'ndi';
-    cfgData.ndiPath = S.path();
+    cfgData.ndiPath = S.path;
     cfgData.ndiElementName = E.name;
     cfgData.ndiElementReference = E.reference;
 

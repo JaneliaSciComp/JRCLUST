@@ -1,7 +1,7 @@
 function [spikeSites2, spikeSites3] = findSecondaryPeaks(obj, spikeWindows, spikeSites)
     %FINDSECONDARYPEAKS Find secondary peaks
     %   spikeWindows: nSamples x nSites x nSpikes
-    evtNeighbors = 2:obj.hCfg.nSitesEvt; % sites within merge radius, excluding ref sites
+    evtNeighbors = 2:obj.hCfg.nSitesEvt; % sites within merge radius, excluding ref sites 
     siteNeighbors2 = obj.hCfg.siteNeighbors(evtNeighbors, spikeSites);
 
     spikeWindows2 = spikeWindows(:, evtNeighbors, :);
