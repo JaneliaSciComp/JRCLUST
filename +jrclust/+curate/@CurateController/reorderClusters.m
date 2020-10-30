@@ -15,8 +15,9 @@ function reorderClusters(obj, by)
         obj.showSubset = find(ismember(argsort, obj.showSubset));
     end
 
+    obj.selected = 1;
     obj.updateFigWav();
     obj.updateFigSim();
-    obj.updateSelect(1); 
+    obj.updateSelect(obj.selected, 1); 
 end
 

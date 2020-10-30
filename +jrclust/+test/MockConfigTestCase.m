@@ -1,28 +1,17 @@
-classdef ClusteringTestCase < matlab.mock.TestCase
-    %CLUSTERINGTESTCASE Superclass of tests for Clustering objects.
+classdef (Abstract) MockConfigTestCase < matlab.mock.TestCase
+    %MOCKCONFIGTESTCASE Superclass of tests for all objects which require
+    %a Config member.
 
-    %% FIRST-CLASS PROPS
+    %% FIRST-CLASS PROPERTIES
     properties
-        dRes = struct();                % detect results
-        sRes = struct();                % sort results
         hCfg;                           % mock jrclust.Config object
         hCfgBehavior;                   % behavior object for mock Config
-        hClust;                         % clustering object
         histFile = tempname();          % temporary history file
         resFile = [tempname() '.mat'];  % temporary res file
         nSpikes = 8192;                 % 2^13 spikes
         nSites = 64;                    % 64 sites
     end
-
-    %% DEPENDENT PROPS
-    properties (Dependent)
-        nClusters;      % number of clusters (one per site)
-        spikeAmps;      % spike amplitudes
-        spikeClusters;  % spike cluster labels
-        spikeFeatures;  % spike clustering features
-        spikeTimes;     % spike times
-    end
-
+    
     %% SETUP METHODS
     methods (TestClassSetup)
         function setupConfig(obj)
@@ -35,7 +24,7 @@ classdef ClusteringTestCase < matlab.mock.TestCase
             defaultParamNames = fieldnames(params)';
 
             paramNames = [defaultParamNames ...
-                {'histFile', 'resFile'}...
+                {'testRun', 'bytesPerSample', 'histFile', 'refracIntSamp', 'resFile', 'sessionName'}...
                 {'evtWindowSamp', 'evtWindowRawSamp', 'nSites', 'nSitesEvt', 'siteNeighbors'}];
 
             [obj.hCfg, obj.hCfgBehavior] = obj.createMock( ...
@@ -51,8 +40,16 @@ classdef ClusteringTestCase < matlab.mock.TestCase
                 paramName = defaultParamNames{i};
                 param = params.(paramName);
 
-                obj.assignOutputsWhen(get(obj.hCfgBehavior.(paramName)), param.default_value);
+                val = param.default_value;
+                if isfield(param.validation, 'postapply')
+                    hFun = eval(param.validation.postapply);
+                    val = hFun(val);
+                end
+                obj.assignOutputsWhen(get(obj.hCfgBehavior.(paramName)), val);
             end
+
+            % bypass prompts
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.testRun), true);
 
             % set unavoidably user-defined values
             nSiteDir = 7;
@@ -66,13 +63,22 @@ classdef ClusteringTestCase < matlab.mock.TestCase
             obj.assignOutputsWhen(get(obj.hCfgBehavior.siteLoc), rand(obj.nSites, 2));
 
             % set derived param values
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.bytesPerSample), 2); % default int16
             obj.assignOutputsWhen(get(obj.hCfgBehavior.evtWindowSamp), ...
                 round(params.evtWindow.default_value * params.sampleRate.default_value / 1000));
+
             obj.assignOutputsWhen(get(obj.hCfgBehavior.evtWindowRawSamp), ...
                 round(params.evtWindowRaw.default_value * params.sampleRate.default_value / 1000));
+
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.figPos), ...
+                obj.defaultFigPos(params.figList.default_value));
             obj.assignOutputsWhen(get(obj.hCfgBehavior.nSites), obj.nSites);
             obj.assignOutputsWhen(get(obj.hCfgBehavior.nSitesEvt), ...
                 1 + 2*nSiteDir - nSitesExcl);
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.refracIntSamp), ...
+                round(params.refracInt.default_value * params.sampleRate.default_value / 1000));
+
+            obj.assignOutputsWhen(get(obj.hCfgBehavior.sessionName), 'test');
 
             siteNeighbors = zeros(1 + 2*nSiteDir, obj.nSites);
             for i = 1:obj.nSites
@@ -82,17 +88,10 @@ classdef ClusteringTestCase < matlab.mock.TestCase
 
             % set method return values
             when(withAnyInputs(obj.hCfgBehavior.getOr), Invoke(@(varargin) obj.getOr(varargin)));
-            obj.assignOutputsWhen(obj.hCfgBehavior.isa('jrclust.Config'), true); % for isa checking
+            when(withAnyInputs(obj.hCfgBehavior.isa), Invoke(@(varargin) obj.hCfgIsA(varargin)));
         end
-
+        
         function setupProps(obj)
-            %SETUPPROPS Create the necessary data for a mock clustering.
-            rng('default'); rng(10191);
-            obj.spikeAmps = randi([-256, 255], obj.nSpikes, 1);
-            obj.spikeFeatures = rand(obj.hCfg.nSitesEvt, 1, obj.nSpikes);
-            obj.spikeTimes = (1:obj.nSpikes)';
-            obj.spikeClusters = repmat((1:obj.nClusters)', obj.nSpikes/obj.nClusters, 1);
-
             % touch histFile
             fclose(fopen(obj.histFile, 'w'));
 
@@ -100,77 +99,90 @@ classdef ClusteringTestCase < matlab.mock.TestCase
             fclose(fopen(obj.resFile, 'w'));
         end
     end
-
+    
     %% TEARDOWN METHODS
     methods (TestClassTeardown)
         function rmHistFile(obj)
             fclose all;
-            delete(obj.histFile);
-        end
-    end
-
-    methods (TestMethodTeardown)
-        function resetClustering(obj)
-            %RESETCLUSTERING Restore the clustering to its initial state.
-            obj.hClust.spikeClusters = obj.spikeClusters;
-            obj.hClust.clusterNotes = arrayfun(@(i) num2str(i), (1:obj.nClusters)', 'UniformOutput', 0);
-            obj.hClust.clusterSites = (1:obj.nClusters)';
-            obj.hClust.spikesByCluster = arrayfun(@(i) find(obj.spikeClusters == i), (1:obj.nClusters)', 'UniformOutput', 0);
-
-            obj.hClust.history = struct('optype', cell(1), 'message', cell(1), 'indices', cell(1));
-
-            obj.hClust.recompute = [];
+            if exist(obj.histFile, 'file') == 2
+                delete(obj.histFile);
+            end
         end
     end
     
-    %% UTILITY METHODS
+    %% MOCK METHODS
     methods (Access = protected)
         function val = getOr(varargin)
             val = [];
             args = varargin{2};
-            if numel(args) == 3
+            if strcmp(args{2}, 'testRun')
+                val = true;
+            elseif numel(args) == 3
                 val = args{3};
             end
         end
+        
+        function val = hCfgIsA(varargin)
+            args = varargin{2};
+            val = strcmp(args{end}, 'jrclust.Config');
+        end
     end
 
-    %% GETTERS/SETTERS
-    methods
-        % nClusters
-        function nc = get.nClusters(obj)
-            nc = obj.nSites;
-        end
+    %% HELPER METHODS
+    methods (Access = protected)
+        function figPos = defaultFigPos(~, figList)
+            figPos = cell(1, numel(figList));
+            hasFigRD = ismember('FigRD', figList);
 
-        % spikeAmps
-        function sa = get.spikeAmps(obj)
-            sa = obj.dRes.spikeAmps;
-        end
-        function set.spikeAmps(obj, sa)
-           obj.dRes.spikeAmps = sa; 
-        end
+            for f = 1:length(figList)
+               switch figList{f}
+                   case 'FigCorr'
+                       if hasFigRD
+                           figPos{f} = [.85 .25 .15 .25];
+                       else
+                           figPos{f} = [.85 .2 .15 .27];
+                       end
 
-        % spikeClusters
-        function sc = get.spikeClusters(obj)
-            sc = obj.sRes.spikeClusters;
-        end
-        function set.spikeClusters(obj, sc)
-            obj.sRes.spikeClusters = sc;
-        end
+                   case 'FigHist'
+                       if hasFigRD
+                           figPos{f} = [.85 .75 .15 .25];
+                       else
+                           figPos{f} = [.85 .73 .15 .27];
+                       end
 
-        % spikeFeatures
-        function sf = get.spikeFeatures(obj)
-            sf = obj.dRes.spikeFeatures;
-        end
-        function set.spikeFeatures(obj, sf)
-            obj.dRes.spikeFeatures = sf;
-        end
+                   case 'FigISI'
+                       if hasFigRD
+                           figPos{f} = [.85 .5 .15 .25];
+                       else
+                           figPos{f} = [.85 .47 .15 .26];
+                       end
 
-        % spikeTimes
-        function st = get.spikeTimes(obj)
-            st = obj.dRes.spikeTimes;
-        end
-        function set.spikeTimes(obj, st)
-            obj.dRes.spikeTimes = st;
+                   case 'FigMap'
+                       figPos{f} = [0 .5 .15 .5];
+
+                   case 'FigPos'
+                       figPos{f} = [0 0 .15 .5];
+
+                   case 'FigProj'
+                       figPos{f} = [.5 .2 .35 .5];
+
+                   case 'FigRD'
+                       figPos{f} = [.85 0 .15 .25];
+
+                   case 'FigSim'
+                       figPos{f} = [.5 .7 .35 .3];
+
+                   case 'FigTime'
+                       if hasFigRD
+                           figPos{f} = [.15 0 .7 .2];
+                       else
+                           figPos{f} = [.15 0 .85 .2];
+                       end
+
+                   case 'FigWav'
+                       figPos{f} = [.15 .2 .35 .8];
+               end
+            end
         end
     end
 end

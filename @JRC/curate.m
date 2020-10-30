@@ -26,7 +26,7 @@ else
     if needsConversion
         obj.convertHistory();
     elseif needsDeletion
-        success = deleteFile('An old history file has been detected but is no longer needed. Delete?', obj.hCfg.histFile);
+        success = deleteFile(obj.hCfg.histFile, 'An old history file has been detected but is no longer needed. Delete?');
         if ~success
             warning('History file was not deleted.');
         end

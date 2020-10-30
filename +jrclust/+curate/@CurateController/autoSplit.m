@@ -160,10 +160,10 @@ function autoSplit(obj, multisite)
         updateSplitPlots(hFigSplit);
         hFigSplit.figApply(@uiwait);
         if ~hFigSplit.isReady % user closed the window
-            assignPart = [];
+            partitioning = [];
             break;
         elseif hFigSplit.figData.finished
-            assignPart = hFigSplit.figData.assignPart; 
+            partitioning = hFigSplit.figData.assignPart; 
             break;
         end
     end
@@ -171,8 +171,8 @@ function autoSplit(obj, multisite)
     hFigSplit.close();
 
     obj.isWorking = 0;
-    if numel(assignPart) > 1
-        obj.splitCluster(iCluster, assignPart(2:end));
+    if numel(partitioning) > 1
+        obj.splitCluster(iCluster, partitioning);
     end
 end
 

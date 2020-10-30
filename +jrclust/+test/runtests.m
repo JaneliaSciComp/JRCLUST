@@ -1,44 +1,76 @@
-function res = runtests()
-close all; clear;
+function res = runtests(packages)
+close all;
 
-import matlab.unittest.TestSuite
-import matlab.unittest.TestRunner
-import matlab.unittest.plugins.CodeCoveragePlugin
+if nargin < 1
+    packages = {'JRC', 'DensityPeakClustering', 'CurateController'};
+elseif isa(packages, 'char')
+    packages = {packages};
+end
 
-tr = TestRunner.withTextOutput;
-tr.addPlugin(CodeCoveragePlugin.forFolder([jrclust.utils.basedir '/@JRC'], ...
-    'IncludingSubfolders', true));
-% tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust'));
-tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.interfaces'));
-% tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.detect'));
-% tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.features'));
-tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.sort'));
-% tr.addPlugin(CodeCoveragePlugin.forPackage('jrclust.curate'));
+%% INITIALIZE TEST RUNNER
+import matlab.unittest.TestRunner;
+import matlab.unittest.plugins.CodeCoveragePlugin;
 
+testRunner = TestRunner.withTextOutput;
+
+%% COLLECT SUITES
 suites = [];
+if ismember('JRC', packages)
+    suites = [suites collectJRCTests()];
+    testRunner.addPlugin(CodeCoveragePlugin.forFolder([jrclust.utils.basedir '/@JRC'], ...
+        'IncludingSubfolders', true));
+end
 
-%% TEST DELETE
-suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.DeleteTest)];
+if ismember('DensityPeakClustering', packages)
+    suites = [suites collectDensityPeakClusteringTests()];
+    testRunner.addPlugin(CodeCoveragePlugin.forPackage('jrclust.interfaces'));
+    testRunner.addPlugin(CodeCoveragePlugin.forPackage('jrclust.sort'));
+end
 
-%% TEST UNDELETE
-suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.UndeleteTest)];
-
-%% TEST MERGE
-suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.MergeTest)];
-
-%% TEST SPLIT
-suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.SplitTest)];
-
-%% TEST REVERT
-suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.RevertTest)];
-
-%% TEST CONVERT HISTORY
-suites = [suites TestSuite.fromClass(?jrclust.test.DensityPeakClustering.ConvertHistoryTest)];
+if ismember('CurateController', packages)
+    suites = [suites collectCurateControllerTests()];
+    testRunner.addPlugin(CodeCoveragePlugin.forPackage('jrclust.curate'));
+end
 
 %% RUN TESTS, SUMMARIZE
-res = tr.run(suites);
+res = testRunner.run(suites);
 
 if ~any([res.Failed])
     disp('all tests passed! :^)');
 end
-end % func
+end %fun
+
+%% LOCAL FUNCTIONS
+function suites = collectJRCTests()
+%COLLECTJRCTESTS Collect all test suites for JRC objects.
+import matlab.unittest.TestSuite;
+
+suites = TestSuite.fromClass(?jrclust.test.JRC.ConvertHistoryTest);
+end %fun
+
+function suites = collectDensityPeakClusteringTests()
+%COLLECTDENSITYPEAKCLUSTERINGTESTS Collect all test suites for
+%DensityPeakClustering objects.
+import matlab.unittest.TestSuite;
+
+suites = [ ...
+    TestSuite.fromClass(?jrclust.test.DensityPeakClustering.DeleteTest) ...
+    TestSuite.fromClass(?jrclust.test.DensityPeakClustering.UndeleteTest) ...
+    TestSuite.fromClass(?jrclust.test.DensityPeakClustering.MergeTest) ...
+    TestSuite.fromClass(?jrclust.test.DensityPeakClustering.SplitTest) ...
+    TestSuite.fromClass(?jrclust.test.DensityPeakClustering.RevertTest) ...
+];
+end %fun
+
+function suites = collectCurateControllerTests()
+%COLLECTCURATECONTROLLERTESTS Collect all test suites for CurateController
+%objects.
+import matlab.unittest.TestSuite;
+
+suites = [ ...
+    TestSuite.fromClass(?jrclust.test.CurateController.DeleteTest) ...
+    TestSuite.fromClass(?jrclust.test.CurateController.MergeTest) ...
+    TestSuite.fromClass(?jrclust.test.CurateController.SplitTest) ...
+    TestSuite.fromClass(?jrclust.test.CurateController.RevertTest) ...
+];
+end %fun

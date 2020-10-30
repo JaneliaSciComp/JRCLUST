@@ -1,9 +1,14 @@
-function success = deleteFile(msg, filename)
+function success = deleteFile(filename, msg)
 %DELETEFILE Delete a file with confirmation.
 success = 1;
-dlgans = questdlg(msg, 'Confirm File Deletion', 'Yes');
 
-if strcmp(dlgans, 'Yes')
+if nargin < 2
+    dlgAns = 'Yes';
+else
+    dlgAns = questdlg(msg, 'Confirm File Deletion', 'Yes');
+end
+
+if strcmp(dlgAns, 'Yes')
     try
         delete(filename);
     catch
@@ -11,4 +16,3 @@ if strcmp(dlgans, 'Yes')
     end
 end
 end %fun
-

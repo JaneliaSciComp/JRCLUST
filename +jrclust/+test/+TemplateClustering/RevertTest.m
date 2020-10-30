@@ -202,7 +202,7 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
             %and undeletes. Revert them randomly. Ensure that our spike
             %table always matches up.
             for i = 1:20
-                % 1: delete; 2: undelete; 3: merge; 4: split; 5: revert
+                 % 1: delete; 2: undelete; 3: merge; 4: split; 5: revert
                 op = randi(5);
                 
                 % if we manage to have deleted everything, make sure we

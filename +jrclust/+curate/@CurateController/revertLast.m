@@ -1,10 +1,12 @@
-function revertLast(obj, nReverts)
+function success = revertLast(obj, nReverts)
 %REVERTLAST Revert the last `nReverts` operations in the history table.
+success = 0;
+
 if nReverts > obj.hClust.nEdits || nReverts <= 0
     return;
 end
 
-if isprop(obj.hCfg, 'testRun') && obj.hCfg.testRun
+if obj.hCfg.getOr('testRun', 0)
     dlgAns = 'Yes';
 else
     dlgAns = questdlg('Are you sure you wish to revert?', 'Revert history', 'No');
@@ -14,7 +16,6 @@ switch dlgAns
     case 'Yes'
         hBox = jrclust.utils.qMsgBox('Reverting your history... (this closes automatically)', 0, 1);
         obj.isWorking = 1;
-        success = 0;
 
         try
             success = obj.hClust.revertLast(nReverts);
@@ -28,10 +29,11 @@ switch dlgAns
 
         % success; replot
         if success
+            obj.selected = 1; % just in case we had an OOB unit selected
             obj.updateFigWav();
             obj.updateFigRD(); % centers changed, need replotting
             obj.updateFigSim();
-            obj.updateSelect(1);
+            obj.updateSelect(obj.selected, 1);
             obj.updateHistMenu();
             obj.keyPressFigWav([], struct('Key', 'z')); % zoom
         end

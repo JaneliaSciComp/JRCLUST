@@ -21,11 +21,10 @@ end
 if newId < 1
     error('call to undeleteSingle with a nonpositive newId %d', newId);
 end
-% inserting newId into the spike table would create a gap, error
-if newId - max(obj.spikeClusters) > 1
-    error('call to undeleteSingle with a newId of %d (would create a gap of %d)', ...
-          newId, newId - max(obj.spikeClusters));
-end
+
+% if the gap between nClusters and newId is larger than 1 (thereby creating
+% a gap, set newId to nClusters + 1
+newId = min(newId, obj.nClusters + 1);
 
 res = struct(); % speculative undelete, ensure consistency before committing
 res.spikeClusters = obj.spikeClusters;

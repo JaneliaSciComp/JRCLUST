@@ -59,4 +59,4 @@ end
 
 success = isConsistent;
 
-end % func
+end %fun

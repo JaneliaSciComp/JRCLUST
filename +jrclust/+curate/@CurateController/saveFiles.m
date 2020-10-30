@@ -1,6 +1,11 @@
 function success = saveFiles(obj)
     %SAVEFILES Save files to disk
-    dlgAns = questdlg(['Save clustering to ', obj.hCfg.resFile, ' ?'], 'Confirmation', 'Yes');
+    if obj.isWorking || obj.hCfg.getOr('testRun', 0)
+        dlgAns = 'No';
+    else
+        dlgAns = questdlg(['Save clustering to ', obj.hCfg.resFile, ' ?'], 'Confirmation', 'Yes');
+    end
+
     if strcmp(dlgAns, 'Yes')
         obj.cRes.curatedOn = now();
 
