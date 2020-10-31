@@ -1,4 +1,4 @@
-classdef UndeleteTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTestCase
+classdef UndeleteTest < jrclust.test.TemplateClustering.TemplateClusteringTestCase
     %UNDELETETEST Test undeletion of one cluster.
     
     %% HELPER METHODS

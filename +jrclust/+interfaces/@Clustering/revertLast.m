@@ -43,14 +43,21 @@ for i = nops:-1:nops-n+1
         otherwise
             success = 0;
     end
+
+    if ~success
+        break;
+    end
 end
 
 %% recompute all fields and truncate history entries
-obj.doRecompute();
+if success
+    success = obj.doRecompute();
+end
 
-obj.history.optype(end - 2*n + 1:end) = [];
-obj.history.message(end - 2*n + 1:end) = [];
-obj.history.indices(end - 2*n + 1:end) = [];
-
+if success
+    obj.history.optype(end - 2*n + 1:end) = [];
+    obj.history.message(end - 2*n + 1:end) = [];
+    obj.history.indices(end - 2*n + 1:end) = [];
+end
 end %fun
 

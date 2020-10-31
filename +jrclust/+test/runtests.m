@@ -2,7 +2,7 @@ function res = runtests(packages)
 close all;
 
 if nargin < 1
-    packages = {'JRC', 'DensityPeakClustering', 'CurateController'};
+    packages = {'JRC', 'DensityPeakClustering', 'TemplateClustering', 'CurateController'};
 elseif isa(packages, 'char')
     packages = {packages};
 end
@@ -23,6 +23,12 @@ end
 
 if ismember('DensityPeakClustering', packages)
     suites = [suites collectDensityPeakClusteringTests()];
+    testRunner.addPlugin(CodeCoveragePlugin.forPackage('jrclust.interfaces'));
+    testRunner.addPlugin(CodeCoveragePlugin.forPackage('jrclust.sort'));
+end
+
+if ismember('TemplateClustering', packages)
+    suites = [suites collectTemplateClusteringTests()];
     testRunner.addPlugin(CodeCoveragePlugin.forPackage('jrclust.interfaces'));
     testRunner.addPlugin(CodeCoveragePlugin.forPackage('jrclust.sort'));
 end
@@ -59,6 +65,20 @@ suites = [ ...
     TestSuite.fromClass(?jrclust.test.DensityPeakClustering.MergeTest) ...
     TestSuite.fromClass(?jrclust.test.DensityPeakClustering.SplitTest) ...
     TestSuite.fromClass(?jrclust.test.DensityPeakClustering.RevertTest) ...
+];
+end %fun
+
+function suites = collectTemplateClusteringTests()
+%COLLECTEMPLATECLUSTERINGTESTS Collect all test suites for
+%TemplateClustering objects.
+import matlab.unittest.TestSuite;
+
+suites = [ ...
+%     TestSuite.fromClass(?jrclust.test.TemplateClustering.DeleteTest) ...
+%     TestSuite.fromClass(?jrclust.test.TemplateClustering.UndeleteTest) ...
+%     TestSuite.fromClass(?jrclust.test.TemplateClustering.MergeTest) ...
+%     TestSuite.fromClass(?jrclust.test.TemplateClustering.SplitTest) ...
+    TestSuite.fromClass(?jrclust.test.TemplateClustering.RevertTest) ...
 ];
 end %fun
 

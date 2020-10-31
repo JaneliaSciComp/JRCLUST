@@ -1,4 +1,4 @@
-classdef SplitTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTestCase
+classdef SplitTest < jrclust.test.TemplateClustering.TemplateClusteringTestCase
     %SPLITTEST Test splitting of a single cluster.
 
     %% HELPER METHODS

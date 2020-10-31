@@ -13,4 +13,4 @@ end
 if success
     obj.recompute = [];
 end
-end % fun
+end %fun

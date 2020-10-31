@@ -15,6 +15,8 @@ classdef (Abstract) ClusteringTestCase < jrclust.test.MockConfigTestCase
         spikeAmps;      % spike amplitudes
         spikeClusters;  % spike cluster labels
         spikeFeatures;  % spike clustering features
+        spikeSites;     % detected sites for each spike
+        spikesBySite;   % indices in spike table of spikes, grouped by site
         spikeTimes;     % spike times
     end
 
@@ -27,7 +29,10 @@ classdef (Abstract) ClusteringTestCase < jrclust.test.MockConfigTestCase
             rng('default'); rng(10191);
             obj.spikeAmps = randi([-256, 255], obj.nSpikes, 1);
             obj.spikeFeatures = rand(obj.hCfg.nSitesEvt, 1, obj.nSpikes);
+            obj.spikeSites = repmat((1:obj.nSites)', obj.nSpikes/obj.nSites, 1);
+            obj.spikesBySite = arrayfun(@(iS) find(obj.dRes.spikeSites == iS), 1:obj.nSites, 'UniformOutput', 0);
             obj.spikeTimes = (1:obj.nSpikes)';
+
             obj.spikeClusters = repmat((1:obj.nClusters)', obj.nSpikes/obj.nClusters, 1);
         end
     end
@@ -79,6 +84,24 @@ classdef (Abstract) ClusteringTestCase < jrclust.test.MockConfigTestCase
         end
         function set.spikeFeatures(obj, sf)
             obj.dRes.spikeFeatures = sf;
+        end
+
+        % spikeSites
+        function ss = get.spikeSites(obj)
+            ss = obj.dRes.spikeSites;
+        end
+
+        function set.spikeSites(obj, ss)
+            obj.dRes.spikeSites = ss;
+        end
+
+        % spikesBySite
+        function ss = get.spikesBySite(obj)
+            ss = obj.dRes.spikesBySite;
+        end
+
+        function set.spikesBySite(obj, ss)
+            obj.dRes.spikesBySite = ss;
         end
 
         % spikeTimes

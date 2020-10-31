@@ -5,11 +5,9 @@ classdef (Abstract) DensityPeakClusteringTestCase < jrclust.test.ClusteringTestC
     %% DEPENDENT PROPS
     properties (Dependent)
         meanSiteThresh; % mean detection threshold per site
-        spikeSites;     % detected sites for each spike
-        spikesBySite;   % indices in spike table of spikes, grouped by site
         spikesBySite2;  % indices in spike table of spikes, grouped by secondary site
         spikeRho;       % rho values for each spike
-        spikeDelta;       % delta values for each spike
+        spikeDelta;     % delta values for each spike
     end
 
     %% SETUP METHODS
@@ -19,8 +17,6 @@ classdef (Abstract) DensityPeakClusteringTestCase < jrclust.test.ClusteringTestC
 
             % set some fields
             obj.meanSiteThresh = rand(obj.nSites, 1);
-            obj.spikeSites = repmat((1:obj.nSites)', obj.nSpikes/obj.nSites, 1);
-            obj.spikesBySite = arrayfun(@(iS) find(obj.dRes.spikeSites == iS), 1:obj.nSites, 'UniformOutput', 0);
             obj.spikesBySite2 = cell(obj.nSites, 1);
             obj.spikeRho = rand(obj.nSpikes, 1);
             obj.spikeDelta = rand(obj.nSpikes, 1);
@@ -51,24 +47,6 @@ classdef (Abstract) DensityPeakClusteringTestCase < jrclust.test.ClusteringTestC
         
         function set.meanSiteThresh(obj, mst)
             obj.dRes.meanSiteThresh = mst;
-        end
-
-        % spikeSites
-        function ss = get.spikeSites(obj)
-            ss = obj.dRes.spikeSites;
-        end
-
-        function set.spikeSites(obj, ss)
-            obj.dRes.spikeSites = ss;
-        end
-
-        % spikesBySite
-        function ss = get.spikesBySite(obj)
-            ss = obj.dRes.spikesBySite;
-        end
-
-        function set.spikesBySite(obj, ss)
-            obj.dRes.spikesBySite = ss;
         end
 
         % spikesBySite2

@@ -1,4 +1,4 @@
-classdef MergeTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTestCase
+classdef MergeTest < jrclust.test.TemplateClustering.TemplateClusteringTestCase
     %MERGETEST Test merging of multiple clusters.
 
     %% HELPER METHODS

@@ -33,9 +33,6 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
 
             if isfield(sRes, 'spikeClusters')
                 obj.spikeClusters = sRes.spikeClusters;
-                
-                obj.syncHistFile();
-                obj.commit(obj.spikeClusters, struct(), 'initial commit');
             end
         end
     end

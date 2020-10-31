@@ -1,4 +1,4 @@
-classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTestCase
+classdef RevertTest < jrclust.test.TemplateClustering.TemplateClusteringTestCase
     %REVERTTEST Test reverting of curation operations.
 
     %% HELPER METHODS
@@ -202,7 +202,7 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
             %and undeletes. Revert them randomly. Ensure that our spike
             %table always matches up.
             for i = 1:20
-                 % 1: delete; 2: undelete; 3: merge; 4: split; 5: revert
+                % 1: delete; 2: undelete; 3: merge; 4: split; 5: revert
                 op = randi(5);
                 
                 % if we manage to have deleted everything, make sure we
@@ -273,7 +273,9 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
                 end
             end
 
-            obj.assertEqual(obj.revertLast(obj.hClust.nEdits), 1);
+            if obj.hClust.nEdits > 0
+                obj.assertEqual(obj.revertLast(obj.hClust.nEdits), 1);
+            end
             obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
             
             % after revert, recompute is empty

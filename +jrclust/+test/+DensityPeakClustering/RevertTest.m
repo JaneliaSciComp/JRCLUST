@@ -273,7 +273,9 @@ classdef RevertTest < jrclust.test.DensityPeakClustering.DensityPeakClusteringTe
                 end
             end
 
-            obj.assertEqual(obj.revertLast(obj.hClust.nEdits), 1);
+            if obj.hClust.nEdits > 0
+                obj.assertEqual(obj.revertLast(obj.hClust.nEdits), 1);
+            end
             obj.assertEqual(obj.hClust.spikeClusters, obj.spikeClusters);
             
             % after revert, recompute is empty
