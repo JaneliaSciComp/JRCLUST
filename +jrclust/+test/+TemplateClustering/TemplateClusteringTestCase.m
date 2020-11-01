@@ -31,6 +31,7 @@ classdef (Abstract) TemplateClusteringTestCase < jrclust.test.ClusteringTestCase
 
             % fill in other appropriate fields
             obj.reset();
+            obj.hClust.doRecompute();
         end
     end
 
@@ -44,6 +45,7 @@ classdef (Abstract) TemplateClusteringTestCase < jrclust.test.ClusteringTestCase
 
             obj.hClust.templatesByCluster = arrayfun(@(iC) unique(obj.spikeTemplates(obj.spikeClusters == iC)), ...
                 1:obj.nClusters, 'UniformOutput', 0);
+            obj.hClust.templateSim = obj.hClust.waveformSim;
         end
     end
 

@@ -1,4 +1,4 @@
-classdef DeleteTest < jrclust.test.CurateController.CurateControllerTestCase
+classdef DeleteTest < jrclust.test.TemplateClustering.CurateController.CurateControllerTestCase
     %DELETETEST Test deletion of one or many clusters from the curation UI.
     
     %% HELPER METHODS

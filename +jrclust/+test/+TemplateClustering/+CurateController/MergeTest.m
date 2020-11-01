@@ -1,4 +1,4 @@
-classdef MergeTest < jrclust.test.CurateController.CurateControllerTestCase
+classdef MergeTest < jrclust.test.TemplateClustering.CurateController.CurateControllerTestCase
     %MERGETEST Test merging of two clusters from the curation UI.
     
     %% HELPER METHODS

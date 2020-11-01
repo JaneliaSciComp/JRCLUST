@@ -1,4 +1,4 @@
-classdef RevertTest < jrclust.test.CurateController.CurateControllerTestCase
+classdef RevertTest < jrclust.test.DensityPeakClustering.CurateController.CurateControllerTestCase
     %REVERTTEST Test reversion of one or more operations from the UI.
 
     %% HELPER METHODS

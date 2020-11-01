@@ -1,4 +1,4 @@
-classdef SplitTest < jrclust.test.CurateController.CurateControllerTestCase
+classdef SplitTest < jrclust.test.TemplateClustering.CurateController.CurateControllerTestCase
     %SPLITTEST Test splitting of a cluster from the curation UI.
     
     %% HELPER METHODS
