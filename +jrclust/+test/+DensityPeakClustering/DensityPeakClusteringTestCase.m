@@ -26,7 +26,7 @@ classdef (Abstract) DensityPeakClusteringTestCase < jrclust.test.ClusteringTestC
 
             % fill in the appropriate fields
             obj.reset();
-            obj.doRecompute();
+            obj.hClust.doRecompute();
         end
     end
 
