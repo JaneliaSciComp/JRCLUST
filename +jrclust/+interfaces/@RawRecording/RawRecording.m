@@ -26,7 +26,8 @@ classdef (Abstract) RawRecording < handle
         rawPath;        % absolute path to binary file
         filtPath;       % absolute path to filtered recording, if there is one
 
-        dataType;       % data type contained in file
+        dataTypeRaw;    % data type contained in file
+        dataTypeExtracted;    % data type when read into memory (may differ)
         dshape;         % shape of data (rows x columns), in samples
         fSizeBytes;     % size of the file, in bytes
         headerOffset;   % number of bytes at the beginning of the file to skip

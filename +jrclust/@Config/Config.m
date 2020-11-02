@@ -202,7 +202,7 @@ classdef Config < dynamicprops
     methods
         % bytesPerSample
         function bp = get.bytesPerSample(obj)
-            bp = jrclust.utils.typeBytes(obj.dataType);
+            bp = jrclust.utils.typeBytes(obj.dataTypeRaw);
         end
 
         % deprecatedParams

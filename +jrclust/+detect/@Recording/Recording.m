@@ -30,13 +30,14 @@ classdef Recording < jrclust.interfaces.RawRecording
             obj.filteredFid = -1;
 
             % set object data type
-            obj.dataType = hCfg.dataType;
+            obj.dataTypeRaw = hCfg.dataTypeRaw;
+            obj.dataTypeExtracted = hCfg.dataTypeExtracted;
 
             % set headerOffset
             obj.headerOffset = hCfg.headerOffset;
 
             d = dir(obj.rawPath);
-            nSamples = (d.bytes - obj.headerOffset) / hCfg.nChans / jrclust.utils.typeBytes(obj.dataType);
+            nSamples = (d.bytes - obj.headerOffset) / hCfg.nChans / jrclust.utils.typeBytes(obj.dataTypeRaw);
             if ceil(nSamples) ~= nSamples % must be an integer or we don't have a complete recording
                 obj.errMsg = 'Number of samples computed is not an integer. Check your sample rate or nChans?';
                 obj.isError = 1;
