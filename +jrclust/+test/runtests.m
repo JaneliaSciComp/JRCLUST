@@ -2,7 +2,8 @@ function res = runtests(packages)
 close all;
 
 if nargin < 1
-    packages = {'JRC', 'DensityPeakClustering', 'TemplateClustering', 'CurateController'};
+    packages = {'JRC', 'DensityPeakClustering', 'TemplateClustering', ...
+                'CurateController', 'utils'};
 elseif isa(packages, 'char')
     packages = {packages};
 end
@@ -36,6 +37,11 @@ end
 if ismember('CurateController', packages)
     suites = [suites collectCurateControllerTests()];
     testRunner.addPlugin(CodeCoveragePlugin.forPackage('jrclust.curate'));
+end
+
+if ismember('utils', packages)
+    suites = [suites collectUtilsTests()];
+    testRunner.addPlugin(CodeCoveragePlugin.forPackage('jrclust.utils'));
 end
 
 %% RUN TESTS, SUMMARIZE
@@ -96,5 +102,13 @@ suites = [ ...
     TestSuite.fromClass(?jrclust.test.TemplateClustering.CurateController.MergeTest) ...
     TestSuite.fromClass(?jrclust.test.TemplateClustering.CurateController.SplitTest) ...
     TestSuite.fromClass(?jrclust.test.TemplateClustering.CurateController.RevertTest) ...
+];
+end %fun
+
+function suites = collectUtilsTests()
+import matlab.unittest.TestSuite;
+
+suites = [ ...
+    TestSuite.fromClass(?jrclust.test.utils.SaveStructTest) ...
 ];
 end %fun
