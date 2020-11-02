@@ -4,4 +4,3 @@ obj.loadRes();
 obj.loadBinaries();
 
 end %fun
-
