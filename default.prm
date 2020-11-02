@@ -12,7 +12,8 @@ siteMap = []; % (formerly viSite2Chan) Map of channel index to site ID (The mapp
 
 % RECORDING FILE PARAMETERS
 bitScaling = 0.30518; % (formerly uV_per_bit) ADC bit scaling factor (Conversion factor for ADC bit values to μV)
-dataType = 'int16'; % (formerly vcDataType) Format of raw recordings
+dataTypeRaw = 'int16'; % (formerly vcDataType) Format of raw recordings
+dataTypeExtracted = 'int16'; % (formerly vcDataType) Format of extracted recordings
 headerOffset = 0; % (formerly header_offset) Recording file header offset (in bytes)
 nChans = 384; % Number of channels stored in recording file (Distinct from the number of AP sites)
 rawRecordings = {''}; % Path or paths to raw recordings to sort

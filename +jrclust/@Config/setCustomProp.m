@@ -1,6 +1,9 @@
 function setCustomProp(obj, propname, val)
     %SETCUSTOMPROP Set a property not included in the defaults
     if ismember(propname, obj.deprecatedParams.unsupported)
+        if strcmp(propname,'dataType'),
+		error(['dataType is now dataTypeRaw and dataTypeExtracted; please revise parameter file to include separate entries dataTypeRaw and dataTypeExtracted']);
+	end;
         return;
     end
 
