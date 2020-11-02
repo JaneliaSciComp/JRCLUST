@@ -151,7 +151,7 @@ function phy(hClust)
 
         fprintf(fid, 'n_channels_dat = %i\n', hCfg.nChans);
 
-        fprintf(fid, 'dtype = ''%s''\n', dtype2NPY(hCfg.dataType));
+        fprintf(fid, 'dtype = ''%s''\n', dtype2NPY(hCfg.dataTypeExtracted)); % SDV: this is a guess
 
         fprintf(fid, 'offset = %d\n', hCfg.headerOffset);
 

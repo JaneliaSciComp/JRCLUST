@@ -35,7 +35,8 @@ function bootstrapIntan(obj, rhdFiles)
         cfgData.headerOffset = 0;
     end
 
-    cfgData.dataType = 'single';
+    cfgData.dataTypeRaw = 'int16';
+    cfgData.dataTypeExtracted = 'single';
     cfgData.bitScaling = 1;
     cfgData.rawRecordings = rhdFiles;
     cfgData.recordingFormat = 'Intan';
@@ -74,14 +75,16 @@ function bootstrapIntan(obj, rhdFiles)
                          'Number of channels in file', ...
                          sprintf('%sV/bit', char(956)), ...
                          'Header offset (bytes)', ...
-                         'Data Type (int16, uint16, single, double)'};
+                         'Data Type of Raw Data (int16, uint16, single, double)', ...
+                         'Data Type of Extracted Data (int16, uint16, single, double)'};
         dlgFieldVals = {configFile, ...
                         strjoin(hCfg_.rawRecordings, ','), ...
                         num2str(hCfg_.sampleRate), ...
                         num2str(hCfg_.nChans), ...
                         num2str(hCfg_.bitScaling), ...
                         num2str(hCfg_.headerOffset), ...
-                        hCfg_.dataType};
+                        hCfg_.dataTypeRaw, ...
+			hCfg_.dataTypeExtracted};
         dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
         if isempty(dlgAns)
             return;
@@ -134,12 +137,19 @@ function bootstrapIntan(obj, rhdFiles)
         end
 
         try
-            hCfg_.dataType = dlgAns{7};
+            hCfg_.dataTypeRaw = dlgAns{7};
         catch ME
             errordlg(ME.message);
             continue;
         end
 
+        try
+            hCfg_.dataTypeExtracted = dlgAns{8};
+        catch ME
+            errordlg(ME.message);
+            continue;
+        end
+ 
         break;
     end
 

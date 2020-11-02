@@ -109,7 +109,8 @@ function probe = loadProbe(probeFile)
         probe.umPerPix = pstr.um_per_pix;
     end
     if isfield(pstr, 'vcDataType')
-        probe.dataType = pstr.vcDataType;
+        probe.dataTypeRaw = pstr.vcDataType;
+        probe.dataTypeExtracted = pstr.vcDataType;
     end
     if isfield(pstr, 'viSiteZero')
         probe.ignoreSites = pstr.viSiteZero;
