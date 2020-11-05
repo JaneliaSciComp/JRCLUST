@@ -22,7 +22,7 @@ channelPositions = phyData.channel_positions;
 
 % check for existence of .prm file. if exists use it as a template.
 [a,b,~] = fileparts(params.dat_path);
-prm_path = [a,filesep,b,'.prm'];
+prm_path = fullfile(a,filesep,[b,'.prm']);
 if exist(prm_path,'file')
     cfgData.template_file = prm_path;
 else
