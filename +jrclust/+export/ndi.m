@@ -161,7 +161,7 @@ function ndi(hCfg, varargin)
      for i=1:numel(hCfg.rawRecordings),
          [epochpath, epochfile, epochext] = fileparts(hCfg.rawRecordings{i});
          epoch_ids{i} = [epochfile epochext];
-         obj = ndiRecording(epoch_ids{i},hCfg);
+         obj = jrclust.detect.ndiRecording(epoch_ids{i},hCfg);
          sample_nums(i) = obj.dshape(2);
          t0_t1s{i} = obj.t0_t1;
      end;
@@ -169,11 +169,13 @@ function ndi(hCfg, varargin)
      % Step 5c: determine the clusters that are "good"
 
      clusters_to_output = [];
-     for i=1:numel(clusterNotes),
-        if strmpi(c.clusterNotes{i},'noise'), % add other conditions here
+     for i=1:numel(c.clusterNotes),
+        if ~strcmpi(c.clusterNotes{i},'noise'), % add other conditions here
             clusters_to_output(end+1) = i;
         end;
      end;
+
+     sample_nums = [1 sample_nums(:)' Inf];
 
      % Step 5d: write the clusters
      dependency = struct('name','jrclust_clusters_id','value',d.id());
@@ -182,7 +184,12 @@ function ndi(hCfg, varargin)
           element_neuron = ndi.element.timeseries(S,[E.name '_' int2str(clusters_to_output(i))],...
 		E.reference,'spikes',E,0,[],dependency);
           for j=1:numel(epoch_ids),
-		element_neuron.addepoch(epoch_id,ndi.time.clocktype('dev_local_time'),
+                local_sample_indexes = find(c.spikesByCluster{clusters_to_output(i)} >= sample_nums(j) & ...
+                        c.spikesByCluster{clusters_to_output(i)} <= sample_nums(j+1));
+                local_sample = c.spikesByCluster{clusters_to_output(i)}(local_sample_indexes) + 1 - sample_nums(j); % convert to local samples
+                spike_times_in_epoch = E.samples2times(epoch_ids{j},local_sample);
+		element_neuron.addepoch(epoch_ids{j},ndi.time.clocktype('dev_local_time'),...
+			t0_t1s{j},spike_times_in_epoch(:),ones(size(spike_times_in_epoch(:))));
           end;
      end;
 
