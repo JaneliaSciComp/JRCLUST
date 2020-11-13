@@ -47,6 +47,14 @@ or
 
    jrc bootstrap /path/to/metafile.meta
 
+or
+
+.. code-block:: matlab
+
+   jrc('bootstrap','ndi',ndi_session_obj,ndi_element_timeseries_obj)
+
+to import from the `Neuroscience Data Interface <https://github.com/NDI-matlab>`__.
+
 See the :ref:`bootstrap documentation <bootstrapping>` for details.
 
 You will be guided through a series of prompts in setting up your config file.
@@ -86,6 +94,9 @@ If you select "Yes", you will be prompted to select exactly one probe file with 
    If you have a probe file in your working directory, then the dialog will search there first.
    If you do **not** have a probe file in your working directory, the dialog will search in the
    default location, JRCLUST/probes, as shown above.
+
+.. note::
+   At present, reading probe geometry information from NDI is not supported but will be in the future.
 
 Confirmation
 ~~~~~~~~~~~~

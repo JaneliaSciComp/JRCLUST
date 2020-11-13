@@ -187,7 +187,7 @@ function ndi(hCfg, varargin)
          'os', computer, 'os_version', '', 'interpreter', 'MATLAB', 'interpreter_version', matlab_version);
 
      for i=1:numel(clusters_to_output),
-          element_neuron = ndi.element.timeseries(S,[E.name '_' int2str(clusters_to_output(i))],...
+          element_neuron = ndi.neuron(S,[E.name '_' int2str(clusters_to_output(i))],...
 		E.reference,'spikes',E,0,[],dependency);
           neuron_extracellular.number_of_samples_per_channel = size(c.meanWfGlobal,1);
           neuron_extracellular.number_of_channels = size(c.meanWfGlobal,2);
@@ -205,8 +205,8 @@ function ndi(hCfg, varargin)
           neuron_doc = ndi.document('neuron/neuron_extracellular.json','app',app_struct,'neuron_extracellular',neuron_extracellular);
           neuron_doc = neuron_doc.set_dependency_value('element_id',element_neuron.id());
           S.database_add(neuron_doc);
+          spike_indexes = c.spikeTimes(c.spikesByCluster{clusters_to_output(i)});
           for j=1:numel(epoch_ids),
-		spike_indexes = c.spikeTimes(c.spikesByCluster{clusters_to_output(i)});
                 local_sample_indexes = find((spike_indexes >= sample_nums(j)) & (spike_indexes <= sample_nums(j+1)));
                 local_sample = spike_indexes(local_sample_indexes) + 1 - sample_nums(j); % convert to local samples
                 spike_times_in_epoch = E.samples2times(epoch_ids{j},double(local_sample));
