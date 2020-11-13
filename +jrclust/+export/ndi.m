@@ -180,14 +180,36 @@ function ndi(hCfg, varargin)
      % Step 5d: write the clusters
      dependency = struct('name','jrclust_clusters_id','value',d.id());
          % assume all spikes are eligible to fire for all epochs
+
+     matlab_ver = ver('MATLAB');
+     matlab_version = matlab_ver.Version;
+     app_struct = struct('name', 'JRCLUST', 'version', jrclust.utils.version, 'url', 'https://github.com/JaneliaSciComp/JRCLUST', ...
+         'os', computer, 'os_version', '', 'interpreter', 'MATLAB', 'interpreter_version', matlab_version);
+
      for i=1:numel(clusters_to_output),
           element_neuron = ndi.element.timeseries(S,[E.name '_' int2str(clusters_to_output(i))],...
 		E.reference,'spikes',E,0,[],dependency);
+          neuron_extracellular.number_of_samples_per_channel = size(c.meanWfGlobal,1);
+          neuron_extracellular.number_of_channels = size(c.meanWfGlobal,2);
+          neuron_extracellular.mean_waveform = squeeze(c.meanWfGlobal(:,:,clusters_to_output(i)));
+          neuron_extracellular.waveform_sample_times= [hCfg.evtWindowSamp(1):hCfg.evtWindowSamp(2)] / hCfg.sampleRate;
+          neuron_extracellular.cluster_index = clusters_to_output(i);
+          switch lower(c.clusterNotes{clusters_to_output(i)}),
+               case 'single', value = 1;
+               case 'multi', value = 4;
+               otherwise,
+                   value = -1, % unsure
+          end;
+          neuron_extracellular.quality_number = value;
+          neuron_extracellular.quality_label = c.clusterNotes{clusters_to_output(i)};
+          neuron_doc = ndi.document('neuron/neuron_extracellular.json','app',app_struct,'neuron_extracellular',neuron_extracellular);
+          neuron_doc = neuron_doc.set_dependency_value('element_id',element_neuron.id());
+          S.database_add(neuron_doc);
           for j=1:numel(epoch_ids),
-                local_sample_indexes = find(c.spikesByCluster{clusters_to_output(i)} >= sample_nums(j) & ...
-                        c.spikesByCluster{clusters_to_output(i)} <= sample_nums(j+1));
-                local_sample = c.spikesByCluster{clusters_to_output(i)}(local_sample_indexes) + 1 - sample_nums(j); % convert to local samples
-                spike_times_in_epoch = E.samples2times(epoch_ids{j},local_sample);
+		spike_indexes = c.spikeTimes(c.spikesByCluster{clusters_to_output(i)});
+                local_sample_indexes = find((spike_indexes >= sample_nums(j)) & (spike_indexes <= sample_nums(j+1)));
+                local_sample = spike_indexes(local_sample_indexes) + 1 - sample_nums(j); % convert to local samples
+                spike_times_in_epoch = E.samples2times(epoch_ids{j},double(local_sample));
 		element_neuron.addepoch(epoch_ids{j},ndi.time.clocktype('dev_local_time'),...
 			t0_t1s{j},spike_times_in_epoch(:),ones(size(spike_times_in_epoch(:))));
           end;
