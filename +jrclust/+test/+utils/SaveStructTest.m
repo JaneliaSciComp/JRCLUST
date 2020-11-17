@@ -37,7 +37,7 @@ classdef SaveStructTest < matlab.unittest.TestCase
                 S = load(['\\?\' longfilename], '-mat');
                 obj.assertEqual(S, obj.testStruct);
             else
-                obj.assertTrue(1);
+                obj.assertTrue(true);
             end
         end
     end

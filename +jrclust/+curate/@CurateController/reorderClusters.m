@@ -1,16 +1,16 @@
-function reorderClusters(obj, by)
-%REORDERCLUSTERS Reorder clusters by 
+function success = reorderClusters(obj, by)
+%REORDERCLUSTERS Reorder clusters by some criterion.
 if nargin < 2
     by = 'clusterSites';
 end
 
 [success, argsort] = obj.hClust.reorderBy(by);
 
-if issorted(argsort)
-    jrclust.utils.qMsgBox('Clusters already in order');
-    return;
-elseif ~success
+if ~success
     jrclust.utils.qMsgBox('Operation failed.');
+    return
+elseif issorted(argsort)
+    jrclust.utils.qMsgBox('Clusters already in order');
     return;
 else
     nChanged = sum(argsort(:) ~= (1:obj.hClust.nClusters)');

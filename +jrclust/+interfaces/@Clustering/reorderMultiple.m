@@ -9,7 +9,7 @@ if numel(beforeIds) ~= numel(afterIds)
 end
 
 % each unit must be in both beforeIds and afterIds
-if ~all(sort(beforeIds) == sort(afterIds))
+if ~isempty(setdiff(beforeIds, afterIds)) || ~isempty(setdiff(afterIds, beforeIds))
     error('some units not accounted for in both sets')
 end
 
@@ -27,11 +27,7 @@ nUnitsAfter = numel(subset);
 
 %% update spike table
 for i = 1:numel(beforeIds)
-    beforeMask = res.spikeClusters == beforeIds(i);
-    afterMask = res.spikeClusters == afterIds(i);
-    
-    res.spikeClusters(beforeMask) = afterIds(i);
-    res.spikeClusters(afterMask) = beforeIds(i);
+    res.spikeClusters(obj.spikeClusters == beforeIds(i)) = afterIds(i);
 end
 
 isConsistent = 1;
@@ -141,5 +137,4 @@ if ~isConsistent
 end
 
 success = isConsistent;
-
-end % func
+end % fun
