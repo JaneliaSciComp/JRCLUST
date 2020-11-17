@@ -11,7 +11,6 @@ classdef DensityPeakClustering < handle
         unitCount;          % number of spikes per cluster
         clusterNotes;       % notes on clusters
         clusterSites;       % site on which spikes in this cluster most often occur
-        editPos;            % current position in edit history
         history;            % cell array, log of merge/split/delete operations
         spikeClusters;      % individual spike assignments
         spikesByCluster;    % cell array of spike indices per cluster
