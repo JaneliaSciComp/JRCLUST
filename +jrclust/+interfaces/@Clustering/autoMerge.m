@@ -1,7 +1,5 @@
 function success = autoMerge(obj)
-%AUTOMERGE Automatically merge clusters
-obj.reorderBy('clusterSites');
-
+%AUTOMERGE Automatically merge clusters.
 for iRepeat = 1:obj.hCfg.nPassesMerge % single-pass vs dual-pass correction
     nMerged = obj.mergeBySim();
 

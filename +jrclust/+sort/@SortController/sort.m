@@ -30,6 +30,7 @@ res.initialClustering = res.spikeClusters;
 hClust = jrclust.sort.DensityPeakClustering(obj.hCfg, res, dRes);
 hClust.doRecompute();
 hClust.autoMerge();
+hClust.reorderBy('clusterSites');
 
 % don't recompute everything
 if numel(hClust.recompute) > 0

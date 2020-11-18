@@ -12,7 +12,7 @@ classdef ReorderClustersTest < jrclust.test.DensityPeakClustering.CurateControll
             end
         end
 
-        function newTable = getSpikeTableAfterReorderClusters(obj, by)
+        function [newTable, afterIds] = getSpikeTableAfterReorderClusters(obj, by)
             %GETSPIKETABLEAFTERREORDERCLUSTERS Return a snapshot of what
             %the spike table should look like after reordering clusters.
             if nargin < 2
@@ -20,11 +20,10 @@ classdef ReorderClustersTest < jrclust.test.DensityPeakClustering.CurateControll
             end
 
             beforeIds = 1:obj.nClusters;
-            switch by
-                case 'clusterSites'
-                    [~, afterIds] = sort(obj.hClust.clusterSites);
-                case 'Y + X'
-                    [~, afterIds] = sort(sum(obj.hClust.clusterCentroids, 2));
+            if strcmp(by, 'Y + X')
+                [~, afterIds] = sort(sum(obj.hClust.clusterCentroids, 2));
+            else
+                [~, afterIds] = sort(obj.hClust.(by));
             end
 
             newTable = obj.spikeClusters;
@@ -40,28 +39,34 @@ classdef ReorderClustersTest < jrclust.test.DensityPeakClustering.CurateControll
             %REORDERCLUSTERSWITHNOARGSREORDERSBYSITE Test that reordering
             %clusters without specifying a criterion defaults to
             %'clusterSites'.
-            newTable = obj.getSpikeTableAfterReorderClusters('clusterSites');
+            [newTable, argsort] = obj.getSpikeTableAfterReorderClusters('clusterSites');
+            spikesByClusterBefore = obj.hClust.spikesByCluster;
 
             obj.assertEqual(obj.reorderClusters(), 1);
             obj.assertEqual(obj.hClust.spikeClusters, newTable);
+            obj.assertEqual(obj.hClust.spikesByCluster, spikesByClusterBefore(argsort));
         end
 
         function reorderClustersBySite(obj)
             %REORDERCLUSTERSBYSITE Test that reordering clusters by site
             %gives the expected result.
-            newTable = obj.getSpikeTableAfterReorderClusters('clusterSites');
+            [newTable, argsort] = obj.getSpikeTableAfterReorderClusters('clusterSites');
+            spikesByClusterBefore = obj.hClust.spikesByCluster;
 
             obj.assertEqual(obj.reorderClusters('clusterSites'), 1);
             obj.assertEqual(obj.hClust.spikeClusters, newTable);
+            obj.assertEqual(obj.hClust.spikesByCluster, spikesByClusterBefore(argsort));
         end
 
         function reorderClustersByCentroid(obj)
             %REORDERCLUSTERSBYCENTROID Test that reordering clusters by
             %centroid gives the expected result.
-            newTable = obj.getSpikeTableAfterReorderClusters('Y + X');
+            [newTable, argsort] = obj.getSpikeTableAfterReorderClusters('Y + X');
+            spikesByClusterBefore = obj.hClust.spikesByCluster;
 
             obj.assertEqual(obj.reorderClusters('Y + X'), 1);
             obj.assertEqual(obj.hClust.spikeClusters, newTable);
+            obj.assertEqual(obj.hClust.spikesByCluster, spikesByClusterBefore(argsort));
         end
     end
 end

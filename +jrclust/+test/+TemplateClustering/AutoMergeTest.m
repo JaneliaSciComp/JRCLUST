@@ -24,7 +24,7 @@ classdef AutoMergeTest < jrclust.test.TemplateClustering.TemplateClusteringTestC
     methods (Test)
         function autoMergeOK(obj)
             obj.assertEqual(obj.autoMerge(), 1);
-            obj.assertLessThan(obj.hClust.nClusters, obj.nClusters);
+            obj.verifyLessThan(obj.hClust.nClusters, obj.nClusters);
         end
     end
 end
