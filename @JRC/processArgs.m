@@ -152,8 +152,10 @@ function processArgs(obj)
             else
                 obj.hCfg = hCfg_;
                 obj.res = res_;
-
-                obj.saveRes(~obj.args{2});
+                % Save results 
+                if numel(obj.args) == 1; obj.args{2} = true; end
+                obj.saveRes(~obj.args{2}); % To set forceOverwrite to true, use obj.args{2}, defined as false
+                                           % (results are not overwriten unless explicitly permitted (or testing))
                 obj.hCfg.save('', 1);
 
                 obj.isCompleted = 1;
