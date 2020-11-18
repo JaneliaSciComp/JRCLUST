@@ -291,12 +291,25 @@ function cfgData = metaToConfig(metafile, binfile, workingdir)
     cfgData.probe_file = probeFile;
     
     % check whether there's a trial file in the directory as well
-    [cfgData.trialFile,cfgData.psthTimeLimits] = getTrialFile(cfgData.outputDir);
+    cfgData.trialFile = getTrialFile(cfgData.outputDir);
     if ~isempty(cfgData.trialFile)
         % check whether the .meta specifies PSTH display parameters
-        if isfield(SMeta,'psthTimeLimits'); cfgData.psthTimeLimits=str2num(SMeta.psthTimeLimits); end
-        if isfield(SMeta,'psthTimeBin'); cfgData.psthTimeBin=SMeta.psthTimeBin; end
-        if isfield(SMeta,'psthXTick'); cfgData.psthXTick=SMeta.psthXTick; end
+        if isfield(SMeta, 'psthTimeLimits')
+            cfgData.psthTimeLimits = str2num(SMeta.psthTimeLimits); %#ok<ST2NM>
+
+            if isempty(cfgData.psthTimeLimits)
+                warning('Failed to parse ''%s'' into numerical values. Using [-0.1; 0.1].', SMeta.psthTimeLimits);
+                cfgData.psthTimeLimits = [-0.1; 0.1];
+            end
+        end
+
+        if isfield(SMeta, 'psthTimeBin')
+            cfgData.psthTimeBin = SMeta.psthTimeBin;
+        end
+
+        if isfield(SMeta, 'psthXTick')
+            cfgData.psthXTick = SMeta.psthXTick;
+        end
     end
 end
 
@@ -342,12 +355,12 @@ function probeFile = getProbeFile(workingdir, ask)
     end
 end
 
-function [trialFile,psthTimeLimits] = getTrialFile(workingdir, ask)
+function trialFile = getTrialFile(workingdir, ask)
     if nargin < 2
         ask = 0;
     end
 
-    trialFile = trialFileInDir(workingdir);
+    trialFile = trialFileInDir(workingdir); 
 
     if ~isempty(trialFile) && ask % found a trial file in working directory; confirm
         dlgAns = questdlg(sprintf('Found trial file ''%s''. Use it?', trialFile));
@@ -356,9 +369,7 @@ function [trialFile,psthTimeLimits] = getTrialFile(workingdir, ask)
         else
             trialFile = '';
         end
-    end
-    
-    psthTimeLimits = [-0.1 0.1]; % default time range (in s) over which to display PSTH        
+    end     
 end
 
 
