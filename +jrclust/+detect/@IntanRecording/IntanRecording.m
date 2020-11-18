@@ -76,7 +76,8 @@ classdef IntanRecording < jrclust.interfaces.RawRecording
             %INTANRECORDING Construct an instance of this class
             % set object data type
             obj = obj@jrclust.interfaces.RawRecording(filename, hCfg);
-            obj.dataType = hCfg.dataType;
+            obj.dataTypeRaw = hCfg.dataTypeRaw;
+            obj.dataTypeExtracted = hCfg.dataTypeExtracted;
 
             try
                 obj.hCfg = hCfg;

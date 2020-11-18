@@ -90,7 +90,8 @@ function bootstrap(obj, varargin)
                          'Number of channels in file', ...
                          sprintf('%sV/bit', char(956)), ...
                          'Header offset (bytes)', ...
-                         'Data Type (int16, uint16, single, double)'};
+                         'Data Type in Raw File(int16, uint16, single, double)', ...
+                         'Data Type in Extracted Data (int16, uint16, single, double)'};
 
         dlgFieldVals = {configFile, ...
                         strjoin(hCfg_.rawRecordings, ','), ...
@@ -98,7 +99,8 @@ function bootstrap(obj, varargin)
                         num2str(hCfg_.nChans), ...
                         num2str(hCfg_.bitScaling), ...
                         num2str(hCfg_.headerOffset), ...
-                        hCfg_.dataType};
+                        hCfg_.dataTypeRaw, ...
+			hCfg_.dataTypeExtracted};
         if ask
             dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
         else
@@ -155,7 +157,14 @@ function bootstrap(obj, varargin)
         end
 
         try
-            hCfg_.dataType = dlgAns{7};
+            hCfg_.dataTypeRaw = dlgAns{7};
+        catch ME
+            errordlg(ME.message);
+            continue;
+        end
+
+        try
+            hCfg_.dataTypeExtracted = dlgAns{8};
         catch ME
             errordlg(ME.message);
             continue;
@@ -234,7 +243,8 @@ function cfgData = metaToConfig(metafile, binfile, workingdir)
     cfgData.nChans = SMeta.nChans;
     cfgData.bitScaling = SMeta.bitScaling;
     cfgData.headerOffset = 0; % standard for SpikeGLX
-    cfgData.dataType = 'int16'; % standard for SpikeGLX
+    cfgData.dataTypeRaw = 'int16'; % standard for SpikeGLX
+    cfgData.dataTypeExtracted = 'int16'; % standard for SpikeGLX
 
     probeFile = getProbeFile(cfgData.outputDir, 0);
     

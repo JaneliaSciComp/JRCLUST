@@ -13,29 +13,65 @@ end
 loadPath = phyData.loadPath;
 
 cfgData = struct();
-cfgData.outputDir = loadPath;
 
 % load params and set them in cfgData
 params = phyData.params;
 channelMap = phyData.channel_map + 1;
 channelPositions = phyData.channel_positions;
 
-% check for existence of .prm file. if exists use it as a template.
-[a,b,~] = fileparts(params.dat_path);
-prm_path = fullfile(a,filesep,[b,'.prm']);
-if exist(prm_path,'file')
-    cfgData.template_file = prm_path;
+% check for existence of .prm file in one of two places:
+% 1. loadPath (where the .npy files are found)
+% 2. datPath (where the recording is found)
+names = dir(loadPath);
+loadPathPrmCandidate = contains({names.name}, '.prm');
+
+[dirname, filename, ~] = fileparts(params.dat_path);
+datPathPrmCandidate = fullfile(dirname, [filename, '.prm']);
+
+if sum(loadPathPrmCandidate) == 1
+    cfgData.template_file = fullfile(loadPath, names(loadPathPrmCandidate).name);
+    cfgData = jrclust.utils.mergeStructs(cfgData, jrclust.utils.mToStruct(cfgData.templateFile));
+elseif exist(datPathPrmCandidate, 'file') == 2
+    cfgData.template_file = datPathPrmCandidate;
+    cfgData = jrclust.utils.mergeStructs(cfgData, jrclust.utils.mToStruct(cfgData.templateFile));
 else
+    warning('Could not find a .prm file to use as a template.');
+end
+
+% fill in any gaps from Phy params
+if ~isfield(cfgData, 'outputDir')
+    cfgData.outputDir = loadPath;
+end
+if ~isfield(cfgData, 'sampleRate')
     cfgData.sampleRate = params.sample_rate;
+end
+if ~isfield(cfgData, 'nChans')
     cfgData.nChans = params.n_channels_dat;
-    cfgData.dataType = params.dtype;
+end
+if ~isfield(cfgData, 'dataTypeRaw')
+    cfgData.dataTypeRaw = params.dtype;
+end
+if ~isfield(cfgData, 'dataTypeExtracted')
+    cfgData.dataTypeExtracted = params.dtype;
+end
+if ~isfield(cfgData, 'headerOffset')
     cfgData.headerOffset = params.offset;
+end
+if ~isfield(cfgData, 'siteMap')
     cfgData.siteMap = channelMap;
+end
+if ~isfield(cfgData, 'channelPositions')
     cfgData.siteLoc = channelPositions;
+end
+if ~isfield(cfgData, 'shankMap')
     cfgData.shankMap = ones(size(channelMap), 'like', channelMap);
+end
+if ~isfield(cfgData, 'rawRecordings')
     cfgData.rawRecordings = {params.dat_path};
 end
+
 hCfg = jrclust.Config(cfgData);
+
 siteMapIndex = find(ismember(hCfg.siteMap,channelMap)); % KS may have returned a partial channel map, i.e. ~all(ismember(hCfg.siteMap,channelMap)) 
 
 % load spike data
@@ -69,10 +105,13 @@ end
 
 %%% try to detect the recording file
 % first check for a .meta file
-binfile = params.dat_path;
+binfile = hCfg.rawRecordings{1};
+if isempty(hCfg.rawRecordings{1})
+    binfile = params.dat_path; % take ap.bin file location from .prm file by default
+end
 metafile = jrclust.utils.absPath(jrclust.utils.subsExt(binfile, '.meta'));
 if isempty(metafile)
-    dlgAns = questdlg('Do you have a .meta file?', 'Import', 'No');
+    dlgAns = questdlg('Do you have a .meta file?', 'Import', 'Yes','No','Cancel','Yes');
 
     switch dlgAns
         case 'Yes' % select .meta file
@@ -127,14 +166,16 @@ while 1
                      'Number of channels in file', ...
                      sprintf('%sV/bit', char(956)), ...
                      'Header offset (bytes)', ...
-                     'Data Type (int16, uint16, single, double)'};
+                     'Data Type in Raw file (int16, uint16, single, double)', ...
+                     'Data Type Extracted (int16, uint16, single, double)'};
     dlgFieldVals = {configFile, ...
                     strjoin(hCfg.rawRecordings, ','), ...
                     num2str(hCfg.sampleRate), ...
                     num2str(hCfg.nChans), ...
                     num2str(hCfg.bitScaling), ...
                     num2str(hCfg.headerOffset), ...
-                    hCfg.dataType};
+                    hCfg.dataTypeRaw,...
+                    hCfg.dataTypeExtracted};
     if confirm_flag
         dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
     else
@@ -189,18 +230,25 @@ while 1
     end
 
     try
-        hCfg.dataType = dlgAns{7};
+        hCfg.dataTypeRaw = dlgAns{7};
     catch ME
         errordlg(ME.message);
         continue;
     end
 
+    try
+        hCfg.dataTypeExtracted = dlgAns{8};
+    catch ME
+        errordlg(ME.message);
+        continue;
+    end
+ 
     break;
 end
     
 % remove out-of-bounds spike times
 d = dir(hCfg.rawRecordings{1});
-nSamples = d.bytes / jrclust.utils.typeBytes(hCfg.dataType) / hCfg.nChans;
+nSamples = d.bytes / jrclust.utils.typeBytes(hCfg.dataTypeRaw) / hCfg.nChans;
 oob = spikeTimes > nSamples;
 if any(oob)
     warning('Removing %d/%d spikes after the end of the recording', sum(oob), numel(oob));
@@ -244,4 +292,4 @@ hClust = jrclust.sort.TemplateClustering(hCfg, sRes, dRes);
 
 res = jrclust.utils.mergeStructs(dRes, sRes);
 res.hClust = hClust;
-end  % function
+end  %fun

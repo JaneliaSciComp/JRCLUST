@@ -18,7 +18,8 @@ channelPositions = phyData.channel_positions;
 
 cfgData.sampleRate = params.sample_rate;
 cfgData.nChans = params.n_channels_dat;
-cfgData.dataType = params.dtype;
+cfgData.dataTypeRaw = params.dtype;
+cfgData.dataTypeExtracted = params.dtype;
 cfgData.headerOffset = params.offset;
 cfgData.siteMap = channelMap;
 cfgData.siteLoc = channelPositions;
@@ -114,14 +115,16 @@ while 1
                      'Number of channels in file', ...
                      sprintf('%sV/bit', char(956)), ...
                      'Header offset (bytes)', ...
-                     'Data Type (int16, uint16, single, double)'};
+                     'Data Type Raw (int16, uint16, single, double)', ...
+                     'Data Type Extracted (int16, uint16, single, double)'};
     dlgFieldVals = {configFile, ...
                     strjoin(hCfg.rawRecordings, ','), ...
                     num2str(hCfg.sampleRate), ...
                     num2str(hCfg.nChans), ...
                     num2str(hCfg.bitScaling), ...
                     num2str(hCfg.headerOffset), ...
-                    hCfg.dataType};
+                    hCfg.dataTypeRaw, ...
+                    hCfg.dataTypeExtracted};
     dlgAns = inputdlg(dlgFieldNames, 'Does this look correct?', 1, dlgFieldVals, struct('Resize', 'on', 'Interpreter', 'tex'));
     if isempty(dlgAns)
         return;
@@ -173,18 +176,26 @@ while 1
     end
 
     try
-        hCfg.dataType = dlgAns{7};
+        hCfg.dataTypeRaw = dlgAns{7};
     catch ME
         errordlg(ME.message);
         continue;
     end
+
+    try
+        hCfg.dataTypeExtracted = dlgAns{8};
+    catch ME
+        errordlg(ME.message);
+        continue;
+    end
+
 
     break;
 end
 
 % remove out-of-bounds spike times
 d = dir(hCfg.rawRecordings{1});
-nSamples = d.bytes / jrclust.utils.typeBytes(hCfg.dataType) / hCfg.nChans;
+nSamples = d.bytes / jrclust.utils.typeBytes(hCfg.dataTypeRaw) / hCfg.nChans;
 oob = spikeTimes > nSamples;
 if any(oob)
     warning('Removing %d/%d spikes after the end of the recording', sum(oob), numel(oob));

@@ -56,7 +56,7 @@ classdef CurateController < handle
                 obj.helpTexts = jsondecode(fread(fid, inf, '*char')');
                 fclose(fid);
             end
-            obj.spatial_idx= 1:length(obj.hClust.spikesBySite);
+            obj.spatial_idx = 1:length(obj.hClust.spikesBySite);
         end
 
         function delete(obj)
@@ -93,7 +93,7 @@ classdef CurateController < handle
     end
 
     %% UTILITY METHODS
-    methods (Access=protected, Hidden)
+    methods (Hidden)
         addMenu(obj, hFig);
         closeFigures(obj);
         deleteAnnotated(obj);
@@ -109,7 +109,6 @@ classdef CurateController < handle
         figPos = getCurrentFigPos();
         setFigPos(figPos);
     end
-
 
     %% GETTERS/SETTERS
     methods

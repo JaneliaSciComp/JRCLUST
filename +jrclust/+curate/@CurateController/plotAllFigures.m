@@ -40,9 +40,10 @@ function plotAllFigures(obj)
         hFigWav.hFunKey = @obj.keyPressFigWav;
         hFigWav.setMouseable(@obj.mouseClickFigWav);
 
-        % make this guy the key log
+        % on close hFigWav, kill all other figures
         hFigWav.figApply(@set, 'CloseRequestFcn', @obj.killFigWav);
         obj.addMenu(hFigWav);
+        obj.updateHistMenu();
     end
 
     % plot rho-delta figure

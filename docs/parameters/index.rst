@@ -113,14 +113,34 @@ One of the following:
 
 **Default** is 'pca'.
 
-.. _dataType:
+.. _dataTypeRaw:
 
-dataType
+dataTypeRaw
 ^^^^^^^^
 
-(Formerly ``vcDataType``)
+(Formerly ``vcDataType`` and formerly ``dataType``)
 
 Format of raw recordings.
+
+One of the following:
+
+- 'int16'
+- 'uint16'
+- 'int32'
+- 'uint32'
+- 'single'
+- 'double'
+
+**Default** is 'int16'.
+
+.. _dataTypeExtracted:
+
+dataTypeExtracted
+^^^^^^^^
+
+(Formerly ``vcDataType`` and formerly ``dataType``)
+
+Format of raw recordings after extraction.
 
 One of the following:
 

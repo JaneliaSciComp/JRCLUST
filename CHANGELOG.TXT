@@ -1,3 +1,8 @@
+26 Oct 2020
+
+- Corrects error in planLoad when data files have more than just the analog files on disk
+- Extends dataType into dataTypeRaw and dataTypeExtracted, because some records (like Intan Recordings) differ in what is on disk and what is read into memory.
+
 06 Nov 2019
 
 - Fixes out-of-memory error when reverting large histories.

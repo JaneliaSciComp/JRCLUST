@@ -182,7 +182,7 @@ function hCFig = RDPreview(hClust)
         set(handles, 'Enable', 'off');
         hBox = msgbox('Reassigning clusters...please wait');
         hCFig.wait(1);
-        hClust.reassign();
+        hClust.recluster();
         updateSiteClusters();
 
         plotFeatures();

@@ -82,36 +82,28 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             obj.hCfg = hCfg;
 
             if isfield(sRes, 'spikeClusters')
+                % these fields are mutable so we need to store copies in obj
                 obj.spikeClusters = obj.initialClustering;
 
-                % these fields are mutable so we need to store copies in obj
+                if isfield(sRes, 'spikesByCluster')
+                    obj.spikesByCluster = sRes.spikesByCluster;
+                else
+                    obj.spikesByCluster = arrayfun(@(iC) find(sRes.spikeClusters == iC), (1:max(sRes.spikeClusters))', 'UniformOutput', 0);
+                end
+
                 if isfield(sRes, 'clusterCenters')
                     obj.clusterCenters = sRes.clusterCenters;
-                else
-                    obj.clusterCenters = [];
                 end
 
                 if isfield(sRes, 'clusterCentroids')
                     obj.clusterCentroids = sRes.clusterCentroids;
-                else
-                    obj.clusterCentroids = [];
                 end
 
-                obj.syncHistFile();
-                obj.commit(obj.spikeClusters, struct(), 'initial commit');
+                if isfield(sRes, 'clusterSites')
+                    obj.clusterSites = sRes.clusterSites;
+                end
             end
         end
-    end
-
-    %% UTILITY METHODS
-%     methods (Access=protected, Hidden)
-%         [sites1, sites2, sites3] = getSecondaryPeaks(obj);
-%         %nMerged = mergeBySim(obj);
-%     end
-    
-    methods (Access=protected, Hidden)
-        %[sites1, sites2, sites3] = getSecondaryPeaks(obj);
-        nMerged = mergeBySim(obj);
     end
 
     %% GETTERS/SETTERS

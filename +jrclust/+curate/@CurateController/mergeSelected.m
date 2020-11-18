@@ -1,48 +1,53 @@
-function mergeSelected(obj)
-    %MERGESELECTED Merge a pair of clusters
-    if obj.isWorking
-        jrclust.utils.qMsgBox('An operation is in progress.');
-        return;
-    end
+function success = mergeSelected(obj)
+%MERGESELECTED Merge a pair of clusters.
+success = 0;
 
-    if numel(obj.selected) < 2
-        return;
-    end
+if obj.isWorking
+    jrclust.utils.qMsgBox('An operation is in progress.');
+    return;
+end
 
-    iCluster = min(obj.selected);
-    jCluster = max(obj.selected);
+if numel(unique(obj.selected)) < 2
+    return;
+end
 
-    obj.isWorking = 1;
+obj.isWorking = 1;
 
-    % speculatively merge clusters
+%% merge clusters
+try
+    success = obj.hClust.mergeMultiple(obj.selected);
+catch ME
+    success = 0;
+    warning('Failed to merge: %s', ME.message);
+    jrclust.utils.qMsgBox('Operation failed.');
+end
+
+obj.isWorking = 0;
+
+if success
+    success = obj.hClust.doRecompute();
+end
+
+if success
+    mergeTarget = min(obj.selected);
+    mergingUnit = max(obj.selected);
+
+    % update showSubset
     showSubset = obj.showSubset;
+    showSubset(showSubset == mergingUnit) = [];
+    mask = showSubset > mergingUnit;
+    showSubset(mask) = showSubset(mask) - 1;
+    obj.showSubset = showSubset;
 
-    res = obj.hClust.mergeUnits(obj.hClust.spikeClusters, iCluster, jCluster);
-    % operation found to be inconsistent
-    if isempty(res.metadata)
-        warning('failed to merge units %d and %d', iCluster, jCluster);
-        obj.isWorking = 0;
-
-        return;
-    end
-
-    msg = sprintf('merge %d and %d', iCluster, jCluster);
-    try
-        obj.hClust.commit(res(end).spikeClusters, res(end).metadata, msg);
-        showSubset(showSubset == jCluster) = [];
-        mask = showSubset > jCluster;
-        showSubset(mask) = showSubset(mask) - 1;
-        obj.showSubset = showSubset;
-    catch ME
-        warning('Failed to merge: %s', ME.message);
-        jrclust.utils.qMsgBox('Operation failed.');
-    end
-
-    obj.isWorking = 0; % in case updateSelect needs to zoom
-
-    obj.selected = iCluster; % fix OOB error when merging last cluster
+    % select newly-merged unit
+    obj.selected = mergeTarget;
 
     % replot
+    obj.updateHistMenu();
+    obj.updateFigRD(); % centers changed, need replotting
     obj.replot();
-    obj.updateSelect(iCluster);
+else
+    warning('Failed to recompute derived values.');
+    jrclust.utils.qMsgBox('Operation failed.');
 end
+end %fun

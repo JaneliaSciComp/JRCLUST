@@ -1,41 +1,66 @@
-function splitCluster(obj, iCluster, unitPart)
-    %SPLITCLUSTER Split off a cluster given retained spikes
-    if obj.isWorking
-        jrclust.utils.qMsgBox('An operation is in progress.');
-        return;
-    end
-    
-    if isempty(unitPart) || ~iscell(unitPart) || any(cellfun(@isempty, unitPart))
-        return;
-    end
+function success = splitCluster(obj, unitId, partitioning)
+%SPLITCLUSTER Split a cluster according to a given partitioning.
+%   The partitioning is expected in terms of *RELATIVE INDICES*.
+success = 0;
 
-    obj.isWorking = 1;
+if obj.isWorking
+    jrclust.utils.qMsgBox('An operation is in progress.');
+    return;
+end
 
-    showSubset = obj.showSubset;
-    mask = showSubset > iCluster;
-    try
-        showSubset = [showSubset(~mask); iCluster+(1:numel(unitPart))'; showSubset(mask) + numel(unitPart)];
-    catch
-        showSubset = [showSubset(~mask) iCluster+(1:numel(unitPart)) showSubset(mask) + numel(unitPart)];        
-    end
+%% convert partitioning from relative to absolute indices
+if nargin == 3 && iscell(partitioning)
+    indices = find(obj.hClust.spikeClusters == unitId);
 
-    try
-        res = obj.hClust.splitUnit(obj.hClust.spikeClusters, iCluster, unitPart);
-        if ~isempty(res.metadata)
-            msg = sprintf('split %d -> %s', iCluster, strjoin(arrayfun(@num2str, iCluster+(0:numel(unitPart)), 'UniformOutput', 0), ', '));
-            obj.hClust.commit(res.spikeClusters, res.metadata, msg);
-            obj.showSubset = showSubset;
-        end
-    catch ME
-        warning('Failed to split: %s', ME.message);
-        obj.isWorking = 0;
+    if sum(cellfun(@numel, partitioning)) ~= numel(indices)
+        warning('JRC:badPartitioning', 'Failed to split: incorrect number of spikes in partitioning.');
         jrclust.utils.qMsgBox('Operation failed.');
         return;
     end
-    obj.isWorking = 0;
+else
+    return;
+end
+
+try
+    partitioning = cellfun(@(c) indices(c), partitioning, 'UniformOutput', 0);
+catch ME
+    warning('Failed to split: %s', ME.message);
+    jrclust.utils.qMsgBox('Operation failed.');
+    return;
+end
+
+unitIds = (unitId:(unitId + numel(partitioning) - 1))';
+
+obj.isWorking = 1;
+
+%% split cluster
+try
+    success = obj.hClust.splitSingle(unitIds, partitioning);
+catch ME
+    success = 0;
+    warning('Failed to split: %s', ME.message);
+    jrclust.utils.qMsgBox('Operation failed.');
+end
+
+obj.isWorking = 0;
+
+if success
+    success = obj.hClust.doRecompute();
+end
+
+if success
+    % update showSubset
+    showSubset = obj.showSubset(:);
+    mask = showSubset > unitId;
+    showSubset = [showSubset(~mask); unitId + (1:numel(partitioning))'; showSubset(mask) + numel(partitioning)];
+
+    obj.showSubset = showSubset;
+
+    obj.selected = [unitId, unitId + 1];
 
     % replot
-    obj.updateFigWav();
-    obj.updateFigSim();
-    obj.updateSelect([iCluster, iCluster + 1]);
+    obj.updateHistMenu();
+    obj.updateFigRD(); % centers changed, need replotting
+    obj.replot();
 end
+end %fun

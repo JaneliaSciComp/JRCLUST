@@ -1,5 +1,9 @@
 function computeQualityScores(obj, updateMe)
     %COMPUTEQUALITYSCORES Get cluster quality scores
+    if nargin < 2
+        updateMe = [];
+    end
+
     computeQualityScores@jrclust.interfaces.Clustering(obj, updateMe);
 
     unitVmin = squeeze(min(obj.meanWfGlobal));

@@ -7,7 +7,7 @@ function success = writeFilt(obj, filteredData)
         return;
     end
 
-    count = fwrite(obj.filteredFid, filteredData, ['*' obj.dataType]);
+    count = fwrite(obj.filteredFid, filteredData, ['*' obj.dataTypeExtracted]);
     success = (count == numel(filteredData));
 end
 
