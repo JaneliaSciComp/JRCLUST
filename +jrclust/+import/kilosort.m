@@ -30,10 +30,10 @@ datPathPrmCandidate = fullfile(dirname, [filename, '.prm']);
 
 if sum(loadPathPrmCandidate) == 1
     cfgData.template_file = fullfile(loadPath, names(loadPathPrmCandidate).name);
-    cfgData = jrclust.utils.mergeStructs(cfgData, jrclust.utils.mToStruct(cfgData.templateFile));
+    cfgData = jrclust.utils.mergeStructs(cfgData, jrclust.utils.mToStruct(cfgData.template_file));
 elseif exist(datPathPrmCandidate, 'file') == 2
     cfgData.template_file = datPathPrmCandidate;
-    cfgData = jrclust.utils.mergeStructs(cfgData, jrclust.utils.mToStruct(cfgData.templateFile));
+    cfgData = jrclust.utils.mergeStructs(cfgData, jrclust.utils.mToStruct(cfgData.template_file));
 else
     warning('Could not find a .prm file to use as a template.');
 end
