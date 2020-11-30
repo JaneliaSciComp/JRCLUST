@@ -79,7 +79,7 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             
             obj = obj@jrclust.interfaces.Clustering(hCfg, sRes, dRes);
 
-            if isfield(sRes, 'spikeClusters') && isfield(sRes, 'clusterCenters')
+            if isfield(sRes, 'clusterCenters')
                 obj.clusterCenters = sRes.clusterCenters;
             end
         end

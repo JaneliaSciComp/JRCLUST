@@ -28,6 +28,13 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
             end
             
             obj = obj@jrclust.interfaces.Clustering(hCfg, sRes, dRes);
+
+            if isfield(sRes, 'templatesByCluster')
+                obj.templatesByCluster = sRes.templatesByCluster;
+            elseif isfield(sRes, 'spikeClusters') && isfield(sRes, 'spikeTemplates')
+                obj.templatesByCluster = cellfun(@(sC) unique(obj.spikeTemplates(sC)), ...
+                    obj.spikesByCluster, 'UniformOutput', 0);
+            end
         end
     end
     

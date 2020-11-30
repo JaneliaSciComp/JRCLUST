@@ -289,6 +289,7 @@ sRes = struct('spikeClusters', spikeClusters, ...
               'pcFeatureInd', iNeighPC);
 
 hClust = jrclust.sort.TemplateClustering(hCfg, sRes, dRes);
+hClust.doRecompute();
 
 res = jrclust.utils.mergeStructs(dRes, sRes);
 res.hClust = hClust;
