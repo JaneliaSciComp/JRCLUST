@@ -12,12 +12,13 @@ if verYear >= 2017
             save(filename, '-struct', 'S', '-v7.3', '-nocompression');
             success = true;
             break;
-        catch
+        catch ME
             pause(.5);
         end
 
         if ispc
-            [success, msg] = saveTempAndMove(S, filename, '-nocompression');
+            [success, msg] = saveTemp
+            AndMove(S, filename, '-nocompression');
             if success
                 break;
             end

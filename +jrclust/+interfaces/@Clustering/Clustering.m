@@ -96,7 +96,7 @@ classdef (Abstract) Clustering < handle
 
     %% LIFECYCLE
     methods
-        function obj = Clustering()
+        function obj = Clustering(hCfg, sRes, dRes)
             %CLUSTERING Construct an instance of this class
             fid = fopen(fullfile(jrclust.utils.basedir(), 'json', 'Clustering.json'), 'r');
             obj.unitFields = jsondecode(fread(fid, inf, '*char')');
@@ -117,6 +117,37 @@ classdef (Abstract) Clustering < handle
                 end
                 if isfield(specificFields, 'otherFields')
                     obj.unitFields.otherFields = jrclust.utils.mergeStructs(obj.unitFields.otherFields, specificFields.otherFields);
+                end
+            end
+
+            % set sRes, dRes, and hCfg
+            if nargin < 2
+                sRes = struct();
+            end
+            if nargin < 3
+                dRes = struct();
+            end
+
+            obj.hCfg = hCfg;
+            obj.dRes = dRes;
+            obj.sRes = sRes;
+
+            if isfield(sRes, 'spikeClusters')
+                % these fields are mutable so we need to store copies in obj
+                obj.spikeClusters = obj.initialClustering;
+
+                if isfield(sRes, 'spikesByCluster')
+                    obj.spikesByCluster = sRes.spikesByCluster;
+                else
+                    obj.spikesByCluster = arrayfun(@(iC) find(sRes.spikeClusters == iC), (1:max(sRes.spikeClusters))', 'UniformOutput', 0);
+                end
+
+                if isfield(sRes, 'clusterCentroids')
+                    obj.clusterCentroids = sRes.clusterCentroids;
+                end
+
+                if isfield(sRes, 'clusterSites')
+                    obj.clusterSites = sRes.clusterSites;
                 end
             end
 

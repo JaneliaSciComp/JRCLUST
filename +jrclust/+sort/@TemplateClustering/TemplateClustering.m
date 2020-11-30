@@ -26,14 +26,8 @@ classdef TemplateClustering < jrclust.interfaces.Clustering
             if nargin < 3
                 dRes = struct();
             end
-
-            obj.hCfg = hCfg;
-            obj.dRes = dRes;
-            obj.sRes = sRes;
-
-            if isfield(sRes, 'spikeClusters')
-                obj.spikeClusters = sRes.spikeClusters;
-            end
+            
+            obj = obj@jrclust.interfaces.Clustering(hCfg, sRes, dRes);
         end
     end
     

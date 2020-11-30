@@ -76,32 +76,11 @@ classdef DensityPeakClustering < jrclust.interfaces.Clustering
             if nargin < 3
                 dRes = struct();
             end
+            
+            obj = obj@jrclust.interfaces.Clustering(hCfg, sRes, dRes);
 
-            obj.dRes = dRes;
-            obj.sRes = sRes;
-            obj.hCfg = hCfg;
-
-            if isfield(sRes, 'spikeClusters')
-                % these fields are mutable so we need to store copies in obj
-                obj.spikeClusters = obj.initialClustering;
-
-                if isfield(sRes, 'spikesByCluster')
-                    obj.spikesByCluster = sRes.spikesByCluster;
-                else
-                    obj.spikesByCluster = arrayfun(@(iC) find(sRes.spikeClusters == iC), (1:max(sRes.spikeClusters))', 'UniformOutput', 0);
-                end
-
-                if isfield(sRes, 'clusterCenters')
-                    obj.clusterCenters = sRes.clusterCenters;
-                end
-
-                if isfield(sRes, 'clusterCentroids')
-                    obj.clusterCentroids = sRes.clusterCentroids;
-                end
-
-                if isfield(sRes, 'clusterSites')
-                    obj.clusterSites = sRes.clusterSites;
-                end
+            if isfield(sRes, 'spikeClusters') && isfield(sRes, 'clusterCenters')
+                obj.clusterCenters = sRes.clusterCenters;
             end
         end
     end
