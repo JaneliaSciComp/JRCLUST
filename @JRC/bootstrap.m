@@ -2,6 +2,10 @@ function bootstrap(obj, varargin)
     %BOOTSTRAP Bootstrap a JRCLUST session
     %   metafile: optional string; path (or glob) to meta file(s)
     if nargin > 1
+	if strcmpi(varargin{1},'ndi'),
+		obj.bootstrapNDI(varargin{2:end});
+		return;
+	end;
         metafile_ = jrclust.utils.absPath(varargin{1});
         if isempty(metafile_) % TODO: warn?
             metafile = '';

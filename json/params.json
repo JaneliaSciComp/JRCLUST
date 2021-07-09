@@ -562,7 +562,8 @@
                 "attributes": ["scalartext"],
                 "values": [
                     "SpikeGLX",
-                    "Intan"
+                    "Intan",
+                    "ndi"
                 ]
             },
             "section": ["recording file"]

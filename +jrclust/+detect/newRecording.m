@@ -3,7 +3,8 @@ function hRec = newRecording(rawPath, hCfg)
     switch hCfg.recordingFormat
         case 'Intan'
             hRec = jrclust.detect.IntanRecording(rawPath, hCfg);
-
+	case 'ndi',
+            hRec = jrclust.detect.ndiRecording(rawPath, hCfg);
         otherwise % SpikeGLX .bin/.dat
             hRec = jrclust.detect.Recording(rawPath, hCfg);
 
