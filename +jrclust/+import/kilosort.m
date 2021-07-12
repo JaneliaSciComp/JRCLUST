@@ -20,23 +20,24 @@ params = phyData.params;
 channelMap = phyData.channel_map + 1;
 channelPositions = phyData.channel_positions;
 
-cfgData.sampleRate = params.sample_rate;
-cfgData.nChans = params.n_channels_dat;
-cfgData.dataTypeRaw = params.dtype;
-cfgData.dataTypeExtracted = params.dtype;
-cfgData.headerOffset = params.offset;
-cfgData.siteMap = channelMap;
-cfgData.siteLoc = channelPositions;
-cfgData.shankMap = ones(size(channelMap), 'like', channelMap); % this can change with a prm file
-cfgData.rawRecordings = {params.dat_path};
-
 % check for existence of .prm file. if exists use it as a template.
 [a,b,~] = fileparts(params.dat_path);
-prm_path = [a,filesep,b,'.prm'];
+prm_path = fullfile(a,filesep,[b,'.prm']);
 if exist(prm_path,'file')
     cfgData.template_file = prm_path;
+else
+    cfgData.sampleRate = params.sample_rate;
+    cfgData.nChans = params.n_channels_dat;
+    cfgData.dataTypeRaw = params.dtype;
+    cfgData.dataTypeExtracted = params.dtype;
+    cfgData.headerOffset = params.offset;
+    cfgData.siteMap = channelMap;
+    cfgData.siteLoc = channelPositions;
+    cfgData.shankMap = ones(size(channelMap), 'like', channelMap);
+    cfgData.rawRecordings = {params.dat_path};
 end
 hCfg = jrclust.Config(cfgData);
+siteMapIndex = find(ismember(hCfg.siteMap,channelMap)); % KS may have returned a partial channel map, i.e. ~all(ismember(hCfg.siteMap,channelMap)) 
 
 % load spike data
 amplitudes = phyData.amplitudes;
@@ -63,9 +64,8 @@ nClusters = numel(goodClusters);
 spikeSites = zeros(size(spikeClusters), 'like', spikeClusters);
 for iTemplate = 1:nTemplates
     template = squeeze(templates(iTemplate, :, :));
-    [~, tSite] = min(min(template));
-
-    spikeSites(spikeTemplates == iTemplate) = tSite;
+    [~, tSite] = max(max(abs(template)));
+    spikeSites(spikeTemplates == iTemplate) = siteMapIndex(tSite); %setting spikeSites as tSites directly would renumber channel map in case KS has returned a partial channel map 
 end
 
 %%% try to detect the recording file

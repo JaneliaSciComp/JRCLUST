@@ -1,9 +1,14 @@
 # JRCLUST
 
+## Note
+
+**JRCLUST is no longer being actively maintained.**
+If you still want to use JRCLUST, we recommend using the [latest release](https://github.com/JaneliaSciComp/JRCLUST/releases/tag/v4.1.0) or cloning from `main`, rather than `master`.
+
 JRCLUST is a scalable and customizable package for spike sorting on [high-density silicon probes](https://www.nature.com/articles/nature24636).
 It is written in MATLAB and CUDA.
 
-JRCLUST was originally developed by [James Jun](https://www.simonsfoundation.org/team/james-jun/) and is currently maintained by [Vidrio Technologies](https://vidriotechnologies.com).
+JRCLUST was originally developed by [James Jun](https://www.simonsfoundation.org/team/james-jun/).
 
 ## Installing JRCLUST
 
