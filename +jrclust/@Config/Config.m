@@ -301,25 +301,29 @@ classdef Config < dynamicprops
                 end
             else
                 % check is a cell array
-                assert(iscell(mr), 'multiRaw must be a cell array');
+                assert(iscell(mr), 'multiRaw must be a cell array'); 
+                % make sure file exist if we are not using ndi; if we are using ndi, then they are epochs which might not have filenames
+                if ~strcmpi(obj.recordingFormat,'ndi'),
+                    % get absolute paths
+                    if isprop(obj, 'configFile') && ~isempty(obj.configFile)
+                        basedir = fileparts(obj.configFile);
+                    else
+                        basedir = pwd();
+                    end
 
-                % get absolute paths
-                if isprop(obj, 'configFile') && ~isempty(obj.configFile)
-                    basedir = fileparts(obj.configFile);
+                    mr_ = cellfun(@(fn) jrclust.utils.absPath(fn, basedir), mr, 'UniformOutput', 0);
+
+                    % handle glob expansions
+                    while any(cellfun(@iscell, mr_))
+                        mr_ = [mr_{:}];
+                    end
+
+                    isFound = ~cellfun(@isempty, mr_);
+                    if ~all(isFound)
+                        error('Invalid raw file location in param file.');
+                    end
                 else
-                    basedir = pwd();
-                end
-
-                mr_ = cellfun(@(fn) jrclust.utils.absPath(fn, basedir), mr, 'UniformOutput', 0);
-
-                % handle glob expansions
-                while any(cellfun(@iscell, mr_))
-                    mr_ = [mr_{:}];
-                end
-
-                isFound = ~cellfun(@isempty, mr_);
-                if ~all(isFound)
-                    error('Invalid raw file location in param file.');
+                    mr_ = mr;
                 end
             end
 

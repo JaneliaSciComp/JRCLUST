@@ -7,7 +7,6 @@ function hRec = newRecording(rawPath, hCfg)
             hRec = jrclust.detect.ndiRecording(rawPath, hCfg);
         otherwise % SpikeGLX .bin/.dat
             hRec = jrclust.detect.Recording(rawPath, hCfg);
-
     end
 end
 

@@ -16,6 +16,9 @@ classdef ndiRecording < jrclust.interfaces.RawRecording
             %NDIRECORDING Construct an instance of this class
             % set object data type
             obj = obj@jrclust.interfaces.RawRecording(epochname, hCfg);
+            % file not found error is not an error for ndi
+            obj.errMsg = '';
+            obj.isError = 0;
             obj.S = ndi.session.dir(hCfg.ndiPath);
             E = getelements(obj.S,'element.name',hCfg.ndiElementName,'element.reference',hCfg.ndiElementReference);
             if iscell(E) & numel(E)==1,

@@ -88,6 +88,13 @@ function success = save(obj, filename, exportAdv)
 
     % write the file
     paramNames = fieldnames(paramsToExport);
+
+    % put recordingFormat first, because some properties depend on this and can't be validated without it
+    recFormatIndex = find(strcmpi('recordingFormat',paramNames));
+    if ~isempty(recFormatIndex),
+        paramNames = paramNames([recFormatIndex; [1:recFormatIndex-1]'; [recFormatIndex+1:end]']);
+    end;
+
     sections = {'usage', 'execution', 'probe', 'recording file', ...
                 'preprocessing', 'spike detection', 'feature extraction', ...
                 'clustering', 'curation', 'display', 'trial', ...

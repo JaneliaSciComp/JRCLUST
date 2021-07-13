@@ -194,11 +194,15 @@ function ndi(hCfg, varargin)
           neuron_extracellular.mean_waveform = squeeze(c.meanWfGlobal(:,:,clusters_to_output(i)));
           neuron_extracellular.waveform_sample_times= [hCfg.evtWindowSamp(1):hCfg.evtWindowSamp(2)] / hCfg.sampleRate;
           neuron_extracellular.cluster_index = clusters_to_output(i);
-          switch lower(c.clusterNotes{clusters_to_output(i)}),
-               case 'single', value = 1;
-               case 'multi', value = 4;
-               otherwise,
-                   value = -1, % unsure
+          if ischar(c.clusterNotes{clusters_to_output(i)})
+              switch lower(c.clusterNotes{clusters_to_output(i)}),
+                   case 'single', value = 1;
+                   case 'multi', value = 4;
+                   otherwise,
+                       value = -1, % unsure
+              end;
+          else,
+              value = -1;
           end;
           neuron_extracellular.quality_number = value;
           neuron_extracellular.quality_label = c.clusterNotes{clusters_to_output(i)};

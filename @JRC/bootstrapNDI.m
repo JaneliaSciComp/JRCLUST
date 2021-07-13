@@ -16,7 +16,7 @@ function bootstrapNDI(obj, varargin)
     % 
     % 
 
-    if numel(varargin)~=2,
+    if (numel(varargin)~=2 & numel(varargin)~=3),
        error(['Usage: jrc(''bootstrap'',''ndi'',ndi_session_dir_obj,ndi_element_timeseries_obj)']);
     end;
 
@@ -51,6 +51,12 @@ function bootstrapNDI(obj, varargin)
        error(ME.message);
     end;
 
+    if numel(varargin)>2,
+        doEdit = varargin{3}; % testing purposes
+    else,
+        doEdit = {'showEdit'};
+    end;
+
     Estring = E.elementstring();
     Estring(find(Estring==' ')) = '_';
     output_dir = [S.path filesep '.JRCLUST' filesep Estring];
@@ -62,6 +68,8 @@ function bootstrapNDI(obj, varargin)
     end;
 
     cfgData = struct();
+
+    cfgData.recordingFormat = 'ndi';
 
     [data,t,timeref] = E.readtimeseries(1,0,0); % read 1 sample
     cfgData.tallSkinny = 1; % we will transpose later so this is met
@@ -75,10 +83,15 @@ function bootstrapNDI(obj, varargin)
     cfgData.dataTypeRaw = 'int16'; % meaningless
     cfgData.dataTypeExtracted = 'single'; %  we will convert to single resolution
     cfgData.bitScaling = 1;
-    cfgData.recordingFormat = 'ndi';
+    cfgData.recordingFormat = 'ndi'; %this is where it would normally go
     cfgData.ndiPath = S.path;
     cfgData.ndiElementName = E.name;
     cfgData.ndiElementReference = E.reference;
+
+    cfgData.useGPU = 0; % safe setting, user can override
+    cfgData.useParfor = 0; % safe setting, user can override
+    cfgData.maxSecLoad = [ 100 ]; % safe setting, user can override
+    cfgData.nSitesExcl = []; % should be the default but isn't
 
     q = ndi.query('','depends_on',E.id(),'') & ndi.query('','isa','probe file','');
     docs = S.database_search(q);
@@ -103,6 +116,8 @@ function bootstrapNDI(obj, varargin)
     hCfg_.save('', 1);
 
     obj.hCfg = hCfg_;
-    obj.hCfg.edit();
+    if strcmpi(doEdit,'showEdit'),
+        obj.hCfg.edit();
+    end;
 end
 

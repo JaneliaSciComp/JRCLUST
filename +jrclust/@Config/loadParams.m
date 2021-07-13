@@ -88,6 +88,11 @@ function loadParams(obj, filename)
 
     % set user-specified params
     uParamNames = fieldnames(userParams);
+    % sort so recordingFormat is first
+    recordingFormatIndex = find(strcmp('recordingFormat',uParamNames));
+    if ~isempty(recordingFormatIndex),
+        uParamNames = uParamNames([recordingFormatIndex; [1:recordingFormatIndex-1]'; [recordingFormatIndex+1:end]']);
+    end;
     for i = 1:numel(uParamNames)
         paramName = uParamNames{i};
 
