@@ -114,13 +114,13 @@ function ndi(hCfg, varargin)
             end;
         else,
             replaceIt = 1; % default will be to replace
-            if interactive,
+            if ~forceReplace &interactive,
                 if interactiveviakey,
                     r = input(['Update clusters to newer version held by JRCLUST? (Y/N): ']);
                     if ~strcmpi(r,'Y') | ~strcmpi(r,'yes'),
                         replaceIt = 0;
                     end;
-                else,
+                elseif ~forceReplace,
                     ButtonName = questdlg(['Update clusters to newer version held by JRCLUST?'],...
                                        'Update?', 'Yes','No/Cancel','Yes');
                     if ~strcmp(ButtonName,'Yes'),
@@ -175,7 +175,7 @@ function ndi(hCfg, varargin)
         end;
      end;
 
-     sample_nums = [1 sample_nums(:)' Inf];
+     sample_nums = [0 cumsum(sample_nums(:)') Inf];
 
      % Step 5d: write the clusters
      dependency = struct('name','jrclust_clusters_id','value',d.id());
@@ -199,11 +199,13 @@ function ndi(hCfg, varargin)
                    case 'single', value = 1;
                    case 'multi', value = 4;
                    otherwise,
+			disp(['Unknown cluster note (will be skipped): ' c.clusterNotes{clusters_to_output(i)} ]);
                        value = -1, % unsure
               end;
           else,
               value = -1;
           end;
+          if value<0, continue; end; % skip the cell if it is not even a multi-unit
           neuron_extracellular.quality_number = value;
           neuron_extracellular.quality_label = c.clusterNotes{clusters_to_output(i)};
           neuron_doc = ndi.document('neuron/neuron_extracellular.json','app',app_struct,'neuron_extracellular',neuron_extracellular);
@@ -211,8 +213,8 @@ function ndi(hCfg, varargin)
           S.database_add(neuron_doc);
           spike_indexes = c.spikeTimes(c.spikesByCluster{clusters_to_output(i)});
           for j=1:numel(epoch_ids),
-                local_sample_indexes = find((spike_indexes >= sample_nums(j)) & (spike_indexes <= sample_nums(j+1)));
-                local_sample = spike_indexes(local_sample_indexes) + 1 - sample_nums(j); % convert to local samples
+                local_sample_indexes = find((spike_indexes > sample_nums(j)) & (spike_indexes <= sample_nums(j+1)));
+                local_sample = spike_indexes(local_sample_indexes) - sample_nums(j); % convert to local samples
                 spike_times_in_epoch = E.samples2times(epoch_ids{j},double(local_sample));
 		element_neuron.addepoch(epoch_ids{j},ndi.time.clocktype('dev_local_time'),...
 			t0_t1s{j},spike_times_in_epoch(:),ones(size(spike_times_in_epoch(:))));
