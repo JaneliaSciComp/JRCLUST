@@ -43,7 +43,7 @@ classdef ndiRecording < jrclust.interfaces.RawRecording
             match = find(strcmp(epoch_id,{et.epoch_id}));
             if isempty(match),
                  obj.isError = 1;
-                 obj.errMsg = ['No such epoch ' et_here '.'];
+                 obj.errMsg = ['No such epoch ' epoch_id '.'];
                  return;
             end;
             obj.epoch_id = et(match).epoch_id;

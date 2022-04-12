@@ -51,13 +51,15 @@ function ndi(hCfg, varargin)
     end;
 
        % Step 2: load NDI session and element and check for errors
+
+    disp(['Opening NDI experiment at ' hCfg.ndiPath '...']);
  
     S = ndi.session.dir(hCfg.ndiPath);
     E = getelements(S,'element.name',hCfg.ndiElementName,'element.reference',hCfg.ndiElementReference);
     if iscell(E) & numel(E)==1,
         E = E{1};
     else,
-        error(['No such element ' nCfg.ndiElementName ' with reference ' num2str(hCfg.ndiElementReference) ' found.']);
+        error(['No such element ' hCfg.ndiElementName ' with reference ' num2str(hCfg.ndiElementReference) ' found.']);
     end;
 
        % Step 3: check for existing cluster document; if it exists, ask if we want to delete it
@@ -159,6 +161,7 @@ function ndi(hCfg, varargin)
      epoch_ids = {};
 
      for i=1:numel(hCfg.rawRecordings),
+         disp(['Examining epoch ' hCfg.rawRecordings{i} '...']);
          [epochpath, epochfile, epochext] = fileparts(hCfg.rawRecordings{i});
          epoch_ids{i} = [epochfile epochext];
          obj = jrclust.detect.ndiRecording(epoch_ids{i},hCfg);
@@ -197,10 +200,12 @@ function ndi(hCfg, varargin)
           if ischar(c.clusterNotes{clusters_to_output(i)})
               switch lower(c.clusterNotes{clusters_to_output(i)}),
                    case 'single', value = 1;
+			disp(['Single unit cluster ' int2str(clusters_to_output(i)) ' (will be added): ' c.clusterNotes{clusters_to_output(i)} ]);
                    case 'multi', value = 4;
+			disp(['Multi-unit cluster ' int2str(clusters_to_output(i)) ' (will be added): ' c.clusterNotes{clusters_to_output(i)} ]);
                    otherwise,
-			disp(['Unknown cluster note (will be skipped): ' c.clusterNotes{clusters_to_output(i)} ]);
-                       value = -1, % unsure
+			disp(['Unknown cluster ' int2str(clusters_to_output(i)) ' (will be skipped): ' c.clusterNotes{clusters_to_output(i)} ]);
+                       value = -1; % unsure
               end;
           else,
               value = -1;
@@ -213,11 +218,13 @@ function ndi(hCfg, varargin)
           S.database_add(neuron_doc);
           spike_indexes = c.spikeTimes(c.spikesByCluster{clusters_to_output(i)});
           for j=1:numel(epoch_ids),
+		if ~strcmp(epoch_ids{j},'t00002'),
                 local_sample_indexes = find((spike_indexes > sample_nums(j)) & (spike_indexes <= sample_nums(j+1)));
                 local_sample = spike_indexes(local_sample_indexes) - sample_nums(j); % convert to local samples
                 spike_times_in_epoch = E.samples2times(epoch_ids{j},double(local_sample));
 		element_neuron.addepoch(epoch_ids{j},ndi.time.clocktype('dev_local_time'),...
 			t0_t1s{j},spike_times_in_epoch(:),ones(size(spike_times_in_epoch(:))));
+		end;
           end;
      end;
 
