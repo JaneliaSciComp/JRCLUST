@@ -208,6 +208,7 @@ function ndi(hCfg, varargin)
                        value = -1; % unsure
               end;
           else,
+              disp(['Unknown cluster ' int2str(clusters_to_output(i)) ' (will be skipped): (empty note field)']);
               value = -1;
           end;
           if value<0, continue; end; % skip the cell if it is not even a multi-unit
