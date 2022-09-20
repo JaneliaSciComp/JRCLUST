@@ -219,7 +219,7 @@ function ndi(hCfg, varargin)
           S.database_add(neuron_doc);
           spike_indexes = c.spikeTimes(c.spikesByCluster{clusters_to_output(i)});
           for j=1:numel(epoch_ids),
-		if ~strcmp(epoch_ids{j},'t00002'),
+		if ~strcmp(epoch_ids{j},'pleaseignoreme'),
                 local_sample_indexes = find((spike_indexes > sample_nums(j)) & (spike_indexes <= sample_nums(j+1)));
                 local_sample = spike_indexes(local_sample_indexes) - sample_nums(j); % convert to local samples
                 spike_times_in_epoch = E.samples2times(epoch_ids{j},double(local_sample));
