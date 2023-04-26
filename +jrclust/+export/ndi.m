@@ -196,7 +196,8 @@ function ndi(hCfg, varargin)
           neuron_extracellular.number_of_channels = size(c.meanWfGlobal,2);
           neuron_extracellular.mean_waveform = squeeze(c.meanWfGlobal(:,:,clusters_to_output(i)));
           neuron_extracellular.waveform_sample_times= [hCfg.evtWindowSamp(1):hCfg.evtWindowSamp(2)] / hCfg.sampleRate;
-          neuron_extracellular.cluster_index = clusters_to_output(i);
+          neuron_extracellular.waveform_sample_times= neuron_extracellular.waveform_sample_times(:);
+                    neuron_extracellular.cluster_index = clusters_to_output(i);
           if ischar(c.clusterNotes{clusters_to_output(i)})
               switch lower(c.clusterNotes{clusters_to_output(i)}),
                    case 'single', value = 1;
